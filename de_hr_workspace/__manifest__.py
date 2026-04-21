@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Employee Workspace",
-    'version': '0.1',
+    'version': '0.2',
     'category': 'Human Resources',
     'summary': """
         Odoo HR Module: Empowering Employee Self-Service
