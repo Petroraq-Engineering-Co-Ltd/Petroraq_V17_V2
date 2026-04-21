@@ -18,8 +18,7 @@ class HrLeaveRequest(models.Model):
         else:
             action_id = False
         domain = domain or []
-        if user.has_group("de_hr_workspace.group_hr_employee_approvals") and (
-                approvals_of_leave_request or (action_id and action_id == view_action_id.id)):
+        if approvals_of_leave_request or (action_id and action_id == view_action_id.id):
             domain = []
             role_domains = []
             # Employee Manager
@@ -37,7 +36,7 @@ class HrLeaveRequest(models.Model):
                 ])
             # HR Supervisor
             # elif user.has_group("hr_holidays.group_hr_holidays_user"):
-            elif user.has_group("pr_hr_holidays.custom_group_hr_holidays_supervisor"):
+            if user.has_group("pr_hr_holidays.custom_group_hr_holidays_supervisor"):
                 role_domains.append([
                     ('state', '=', 'manager_approve'),
                     ('hr_supervisor_ids', 'in', user.id),
