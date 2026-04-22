@@ -30,7 +30,7 @@
     <template id="custom_invoice_header_layout">
         <div class="header">
             <div>
-                <img src='/pr_tax_Invoice_report_custom/static/src/img/header_custom.png' style="width:101%;"/>
+                <img src='/pr_tax_Invoice_report_custom/static/src/img/petro_new_header.jpeg' style="width:101%;"/>
             </div>
         </div>
     </template>
@@ -49,7 +49,7 @@
                     <span class="topage"/>
                 </div>
 
-                <img src='/pr_tax_Invoice_report_custom/static/src/img/footer.png'
+                <img src='/pr_tax_Invoice_report_custom/static/src/img/petro_footer.jpeg'
                      style="width:101%;display:inline-block;"/>
 
             </div>
