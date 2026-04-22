@@ -37,6 +37,7 @@ class HrHolidays(models.Model):
         string="Allocation Override Note",
         readonly=True,
     )
+
     # leave_amount = fields.Float(string="Amount")
 
     # endregion [Fields]
@@ -67,7 +68,7 @@ class HrHolidays(models.Model):
         for leave in self:
             if leave.holiday_status_id and leave.holiday_status_id.is_paid:
                 employee_net_salary = leave.employee_id.contract_id.gross_amount if (
-                            leave.employee_id and leave.employee_id.contract_id) else 0
+                        leave.employee_id and leave.employee_id.contract_id) else 0
                 if leave.holiday_status_id.leave_type != "sick_leave":
                     leave.leave_amount = leave._calculate_leave_amount()
                 elif leave.holiday_status_id.leave_type == "sick_leave":
@@ -81,8 +82,9 @@ class HrHolidays(models.Model):
                     else:
                         sick_leave_days = 0
                     days_dict = leave.split_dates(start_date=leave.request_date_from, end_date=leave.request_date_to)
-                    leave.leave_amount = leave._calculate_sick_leave_amount(days_dict=days_dict, sick_leave_days=sick_leave_days, employee_net_salary=employee_net_salary)
-
+                    leave.leave_amount = leave._calculate_sick_leave_amount(days_dict=days_dict,
+                                                                            sick_leave_days=sick_leave_days,
+                                                                            employee_net_salary=employee_net_salary)
 
     def _calculate_sick_leave_amount(self, days_dict, sick_leave_days, employee_net_salary):
         for leave in self:
@@ -102,14 +104,16 @@ class HrHolidays(models.Model):
                     # Handle days from 0 to 30 days at 100% rate
                     if sick_leave_days <= 30:
                         si_30_days = min(30 - sick_leave_days, leave_days)
-                        leave_amount += (si_30_days * employee_net_salary) / month_days if employee_net_salary > 0 else 0
+                        leave_amount += (
+                                                    si_30_days * employee_net_salary) / month_days if employee_net_salary > 0 else 0
                         sick_leave_days += si_30_days
                         leave_days -= si_30_days
 
                     # Handle days from 31 to 60 days at 75% rate
                     elif 31 <= sick_leave_days <= 60:
                         si_60_days = min(60 - sick_leave_days, leave_days)
-                        leave_amount += (((si_60_days * employee_net_salary) / month_days) * 0.75) if employee_net_salary > 0 else 0
+                        leave_amount += (((
+                                                      si_60_days * employee_net_salary) / month_days) * 0.75) if employee_net_salary > 0 else 0
                         sick_leave_days += si_60_days
                         leave_days -= si_60_days
 
@@ -117,7 +121,8 @@ class HrHolidays(models.Model):
                     elif 61 <= sick_leave_days <= 90:
                         si_90_days = min(90 - sick_leave_days, leave_days)
                         # leave_amount += (((si_90_days * employee_net_salary) / month_days) * 0.50) if employee_net_salary > 0 else 0
-                        leave_amount += (((si_90_days * employee_net_salary) / month_days) * 0) if employee_net_salary > 0 else 0
+                        leave_amount += (((
+                                                      si_90_days * employee_net_salary) / month_days) * 0) if employee_net_salary > 0 else 0
                         sick_leave_days += si_90_days
                         leave_days -= si_90_days
 
@@ -196,7 +201,6 @@ class HrHolidays(models.Model):
 
             return date_dict
 
-
     # endregion [Compute Methods]
 
     # region [Onchange Methods]
@@ -233,8 +237,13 @@ class HrHolidays(models.Model):
     @api.constrains('holiday_status_id', 'request_date_from')
     def _check_annual_leave_start_date(self):
         today = fields.Date.context_today(self)
+        has_start_date_override = self.env.user.has_group(
+            "pr_hr_holidays.group_leave_allocation_limit_override"
+        )
         for leave in self:
             if not leave.holiday_status_id or not leave.request_date_from:
+                continue
+            if has_start_date_override:
                 continue
             if leave.holiday_status_id.leave_type == 'annual_leave' and leave.request_date_from <= today:
                 raise ValidationError(_("Annual Leave requests must start from tomorrow onward."))

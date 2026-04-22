@@ -30,7 +30,7 @@
     <template id="custom_invoice_header_layout">
         <div class="header">
             <div>
-                <img src='/pr_tax_Invoice_report_custom/static/src/img/header_custom.png' style="width:101%;"/>
+                <img src='/pr_tax_Invoice_report_custom/static/src/img/petroraq_header_new.png' style="width:101%;"/>
             </div>
         </div>
     </template>
@@ -49,8 +49,8 @@
                     <span class="topage"/>
                 </div>
 
-                <img src='/pr_tax_Invoice_report_custom/static/src/img/footer.png'
-                     style="width:101%;display:inline-block;"/>
+                <img src='/pr_tax_Invoice_report_custom/static/src/img/img.png'
+                     style="width:101%"/>
 
             </div>
         </div>

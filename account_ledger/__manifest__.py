@@ -3,7 +3,7 @@
 {
     'name': 'Account Ledger',
     'summary': """Account Ledger""",
-    'version': '0.1',
+    'version': '0.2',
     'description': """This module allows the user to view detailed ledger
             for a specific account and all the journal entries level detailed information
             can be drawn using this report
