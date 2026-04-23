@@ -142,16 +142,22 @@ class HrLeaveRequest(models.Model):
                 continue
             available_days = rec._get_available_days_for_request()
             rec.allocation_bypassed = (
-                available_days != float("inf")
-                and rec._get_requested_days_count() > (available_days + 1e-6)
+                    available_days != float("inf")
+                    and rec._get_requested_days_count() > (available_days + 1e-6)
             )
 
     @api.constrains("leave_type_id", "date_from")
     def _check_annual_leave_start_date(self):
         today = fields.Date.context_today(self)
+        has_start_date_override = self.env.user.has_group(
+            'pr_hr_holidays.group_leave_allocation_limit_override'
+        )
         for rec in self:
             if not rec.leave_type_id or not rec.date_from:
                 continue
+            if has_start_date_override:
+                continue
+
             if rec.leave_type_id.leave_type == "annual_leave" and rec.date_from <= today:
                 raise ValidationError(_("Annual Leave requests must start from tomorrow onward."))
 
@@ -433,9 +439,9 @@ class HrLeaveRequest(models.Model):
             rec = rec.sudo()
             available_days = rec._get_available_days_for_request()
             bypassed_allocation_limit = (
-                actor_has_allocation_override
-                and available_days != float("inf")
-                and rec._get_requested_days_count() > (available_days + 1e-6)
+                    actor_has_allocation_override
+                    and available_days != float("inf")
+                    and rec._get_requested_days_count() > (available_days + 1e-6)
             )
             rec.write({
                 "allocation_override_applied": bypassed_allocation_limit,
