@@ -319,7 +319,14 @@ export class SimpleLeaveSummaryCard extends Component {
         this.actionService = useService("action");
         this.state = useState({
             employee_id: this.props.id,
-            employee_search: '',
+            employee_search_id: '',
+            employee_search_name: '',
+            show_id_suggestions: false,
+            show_name_suggestions: false,
+            id_sort_order: 'asc',
+            name_sort_order: 'asc',
+            id_highlighted_index: 0,
+            name_highlighted_index: 0,
             duration: 'current_contract',
             date_from: '',
             date_to: '',
@@ -330,7 +337,8 @@ export class SimpleLeaveSummaryCard extends Component {
         onWillStart(async () => {
             const selected = this.employeeOptions.find((employee) => employee.id === this.state.employee_id);
             if (selected) {
-                this.state.employee_search = this.employeeLabel(selected);
+                this.state.employee_search_id = selected.code || selected.employee_code || '';
+                this.state.employee_search_name = selected.name || '';
             }
             await this.loadSummary();
         });
@@ -343,6 +351,77 @@ export class SimpleLeaveSummaryCard extends Component {
     employeeLabel(employee) {
         const code = employee?.code || employee?.employee_code || '';
         return code ? `${code} - ${employee.name}` : (employee?.name || '');
+    }
+
+    get employeesById() {
+        const getCode = (employee) => String(employee?.code || employee?.employee_code || '').trim();
+        const toNumeric = (employee) => {
+            const value = getCode(employee);
+            const numeric = Number.parseInt(value, 10);
+            return Number.isNaN(numeric) ? Number.MAX_SAFE_INTEGER : numeric;
+        };
+        return [...this.employeeOptions].sort((a, b) => {
+            const diff = toNumeric(a) - toNumeric(b);
+            if (diff !== 0) {
+                return diff;
+            }
+            const codeCompare = getCode(a).localeCompare(getCode(b), undefined, { numeric: true, sensitivity: "base" });
+            if (codeCompare !== 0) {
+                return codeCompare;
+            }
+            return (a?.name || '').localeCompare((b?.name || ''), undefined, { sensitivity: "base" });
+        });
+    }
+
+    get employeesByName() {
+        return [...this.employeeOptions].sort((a, b) =>
+            (a?.name || '').localeCompare((b?.name || ''), undefined, { sensitivity: "base" })
+        );
+    }
+
+    get filteredEmployeesById() {
+        const query = String(this.state.employee_search_id || '').trim().toLowerCase();
+        const rows = this.employeesById;
+        const direction = this.state.id_sort_order === 'desc' ? -1 : 1;
+        if (!query) {
+            return rows.slice(0, 12).sort((a, b) => {
+                const aCode = String(a.code || a.employee_code || '');
+                const bCode = String(b.code || b.employee_code || '');
+                return aCode.localeCompare(bCode, undefined, { numeric: true, sensitivity: "base" }) * direction;
+            });
+        }
+        return rows.filter((employee) =>
+            String(employee.code || employee.employee_code || '').toLowerCase().includes(query)
+        ).sort((a, b) => {
+            const aCode = String(a.code || a.employee_code || '');
+            const bCode = String(b.code || b.employee_code || '');
+            return aCode.localeCompare(bCode, undefined, { numeric: true, sensitivity: "base" }) * direction;
+        }).slice(0, 12);
+    }
+
+    get filteredEmployeesByName() {
+        const query = String(this.state.employee_search_name || '').trim().toLowerCase();
+        const rows = this.employeesByName;
+        const direction = this.state.name_sort_order === 'desc' ? -1 : 1;
+        if (!query) {
+            return rows.slice(0, 12).sort((a, b) =>
+                String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: "base" }) * direction
+            );
+        }
+        return rows.filter((employee) =>
+            String(employee.name || '').toLowerCase().includes(query)
+        ).sort((a, b) =>
+            String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: "base" }) * direction
+        ).slice(0, 12);
+    }
+
+    _applyEmployeeSelection(employee) {
+        if (!employee) {
+            return;
+        }
+        this.state.employee_id = employee.id;
+        this.state.employee_search_id = employee.code || employee.employee_code || '';
+        this.state.employee_search_name = employee.name || '';
     }
 
     async loadSummary() {
@@ -395,9 +474,11 @@ export class SimpleLeaveSummaryCard extends Component {
         await this.loadSummary();
     }
 
-    async onEmployeeSearchInput(ev) {
+    async onEmployeeIdSearchInput(ev) {
         const value = (ev.target.value || '').trim();
-        this.state.employee_search = value;
+        this.state.employee_search_id = value;
+        this.state.show_id_suggestions = true;
+        this.state.id_highlighted_index = 0;
         if (!value) {
             this.state.employee_id = false;
             this.state.lines = [];
@@ -406,14 +487,154 @@ export class SimpleLeaveSummaryCard extends Component {
             return;
         }
         const normalized = value.toLowerCase();
-        const matchedEmployee = this.employeeOptions.find((employee) => {
-            const code = (employee.code || '').toLowerCase();
-            return this.employeeLabel(employee).toLowerCase() === normalized || code === normalized;
-        });
+        const matchedEmployee = this.employeeOptions.find((employee) =>
+            String(employee.code || employee.employee_code || '').toLowerCase() === normalized
+        );
         if (matchedEmployee && matchedEmployee.id !== this.state.employee_id) {
-            this.state.employee_id = matchedEmployee.id;
+            this._applyEmployeeSelection(matchedEmployee);
             await this.loadSummary();
         }
+    }
+
+    async onEmployeeNameSearchInput(ev) {
+        const value = (ev.target.value || '').trim();
+        this.state.employee_search_name = value;
+        this.state.show_name_suggestions = true;
+        this.state.name_highlighted_index = 0;
+        if (!value) {
+            this.state.employee_id = false;
+            this.state.lines = [];
+            this.state.employee_name = '';
+            this.state.employee_profile = {};
+            return;
+        }
+        const normalized = value.toLowerCase();
+        const matchedEmployee = this.employeeOptions.find((employee) =>
+            String(employee.name || '').toLowerCase() === normalized
+        );
+        if (matchedEmployee && matchedEmployee.id !== this.state.employee_id) {
+            this._applyEmployeeSelection(matchedEmployee);
+            await this.loadSummary();
+        }
+    }
+
+    onEmployeeIdFocus() {
+        this.state.show_id_suggestions = true;
+        this.state.id_highlighted_index = 0;
+    }
+
+    onEmployeeNameFocus() {
+        this.state.show_name_suggestions = true;
+        this.state.name_highlighted_index = 0;
+    }
+
+    toggleIdSortOrder() {
+        this.state.id_sort_order = this.state.id_sort_order === 'asc' ? 'desc' : 'asc';
+        this.state.show_id_suggestions = true;
+        this.state.id_highlighted_index = 0;
+    }
+
+    toggleNameSortOrder() {
+        this.state.name_sort_order = this.state.name_sort_order === 'asc' ? 'desc' : 'asc';
+        this.state.show_name_suggestions = true;
+        this.state.name_highlighted_index = 0;
+    }
+
+    clearAllEmployeeSearchFields() {
+        this.state.employee_search_id = '';
+        this.state.employee_search_name = '';
+        this.state.employee_id = false;
+        this.state.lines = [];
+        this.state.employee_name = '';
+        this.state.employee_profile = {};
+        this.state.show_id_suggestions = false;
+        this.state.show_name_suggestions = false;
+        this.state.id_highlighted_index = 0;
+        this.state.name_highlighted_index = 0;
+    }
+
+    async onEmployeeIdKeyDown(ev) {
+        const rows = this.filteredEmployeesById;
+        if (!rows.length) {
+            return;
+        }
+        if (ev.key === "ArrowDown") {
+            ev.preventDefault();
+            this.state.show_id_suggestions = true;
+            this.state.id_highlighted_index = (this.state.id_highlighted_index + 1) % rows.length;
+            return;
+        }
+        if (ev.key === "ArrowUp") {
+            ev.preventDefault();
+            this.state.show_id_suggestions = true;
+            this.state.id_highlighted_index = (this.state.id_highlighted_index - 1 + rows.length) % rows.length;
+            return;
+        }
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            const selected = rows[this.state.id_highlighted_index] || rows[0];
+            if (selected) {
+                await this.selectEmployeeFromId(selected);
+            }
+            return;
+        }
+        if (ev.key === "Escape") {
+            this.state.show_id_suggestions = false;
+        }
+    }
+
+    async onEmployeeNameKeyDown(ev) {
+        const rows = this.filteredEmployeesByName;
+        if (!rows.length) {
+            return;
+        }
+        if (ev.key === "ArrowDown") {
+            ev.preventDefault();
+            this.state.show_name_suggestions = true;
+            this.state.name_highlighted_index = (this.state.name_highlighted_index + 1) % rows.length;
+            return;
+        }
+        if (ev.key === "ArrowUp") {
+            ev.preventDefault();
+            this.state.show_name_suggestions = true;
+            this.state.name_highlighted_index = (this.state.name_highlighted_index - 1 + rows.length) % rows.length;
+            return;
+        }
+        if (ev.key === "Enter") {
+            ev.preventDefault();
+            const selected = rows[this.state.name_highlighted_index] || rows[0];
+            if (selected) {
+                await this.selectEmployeeFromName(selected);
+            }
+            return;
+        }
+        if (ev.key === "Escape") {
+            this.state.show_name_suggestions = false;
+        }
+    }
+
+    onEmployeeIdBlur() {
+        setTimeout(() => {
+            this.state.show_id_suggestions = false;
+        }, 150);
+    }
+
+    onEmployeeNameBlur() {
+        setTimeout(() => {
+            this.state.show_name_suggestions = false;
+        }, 150);
+    }
+
+    async selectEmployeeFromId(employee) {
+        this._applyEmployeeSelection(employee);
+        this.state.show_id_suggestions = false;
+        await this.loadSummary();
+    }
+
+    async selectEmployeeFromName(employee) {
+        this._applyEmployeeSelection(employee);
+        this.state.show_name_suggestions = false;
+        await this.loadSummary();
     }
 
     _todayISO() {
@@ -435,6 +656,8 @@ export class SimpleLeaveSummaryCard extends Component {
             const now = new Date();
             const month = `${now.getMonth() + 1}`.padStart(2, "0");
             start = `${now.getFullYear()}-${month}-01`;
+        } else if (this.state.duration === "date_of_joining") {
+            start = this.state.employee_profile.joining_date || `${new Date().getFullYear()}-01-01`;
         } else {
             start = this.state.employee_profile.current_contract_start_date || `${new Date().getFullYear()}-01-01`;
         }

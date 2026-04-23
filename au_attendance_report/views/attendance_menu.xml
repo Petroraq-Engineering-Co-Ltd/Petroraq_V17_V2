@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Add a new menu item under Attendances > Reporting -->
+
+
+    <menuitem id="menu_attendance_report_wizard"
+              name="Attendance Report"
+              parent="hr_attendance.menu_hr_attendance_root"
+              action="au_attendance_report.action_attendance_report_wizard"
+              sequence="10"/>
+</odoo>
