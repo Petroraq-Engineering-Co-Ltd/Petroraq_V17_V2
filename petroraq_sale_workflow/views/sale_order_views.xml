@@ -71,7 +71,6 @@
                 <field name="pricelist_id" invisible="1"/>
             </xpath>
             <xpath expr="//header//button[@name='action_cancel']" position="attributes">
-                <attribute name="string">Reject</attribute>
                 <attribute name="invisible">state in ('draft','cancel','sale')</attribute>
             </xpath>
             <xpath expr="//header//button[@name='action_preview_sale_order']" position="attributes">
