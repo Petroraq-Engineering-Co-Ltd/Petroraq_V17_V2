@@ -237,19 +237,79 @@
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3 de-simple-summary-header">
             <strong class="de-simple-summary-title">Search Employee</strong>
             <div class="de-simple-summary-controls de-simple-summary-filter-grid">
-                <input type="text"
-                       class="form-control de-summary-select"
-                       placeholder="Search employee by code or name..."
-                       t-att-value="state.employee_search"
-                       list="de_summary_employee_filter_options"
-                       t-on-input="onEmployeeSearchInput"/>
-                <datalist id="de_summary_employee_filter_options">
-                    <t t-foreach="employeeOptions" t-as="employee" t-key="employee.id">
-                        <option t-att-value="this.employeeLabel(employee)"/>
-                    </t>
-                </datalist>
+                <div class="de-adv-search-field">
+                    <input type="text"
+                           class="form-control de-summary-select"
+                           placeholder="Search by Employee ID..."
+                           t-att-value="state.employee_search_id"
+                           t-on-input="onEmployeeIdSearchInput"
+                           t-on-keydown="onEmployeeIdKeyDown"
+                           t-on-focus="onEmployeeIdFocus"
+                           t-on-blur="onEmployeeIdBlur"/>
+                    <button t-if="state.employee_search_id"
+                            type="button"
+                            class="de-clear-field-btn"
+                            title="Clear"
+                            t-on-click="clearAllEmployeeSearchFields">
+                        <i class="fa fa-times"/>
+                    </button>
+                    <button type="button" class="de-sort-toggle-btn" t-on-click="toggleIdSortOrder"
+                            t-att-title="'Sort by ID: ' + (state.id_sort_order === 'asc' ? 'Ascending' : 'Descending')">
+                        <i t-att-class="state.id_sort_order === 'asc' ? 'fa fa-sort-numeric-asc' : 'fa fa-sort-numeric-desc'"/>
+                    </button>
+                    <div t-if="state.show_id_suggestions" class="de-adv-search-dropdown">
+                        <t t-if="filteredEmployeesById.length">
+                            <button type="button"
+                                    class="de-adv-search-option"
+                                    t-foreach="filteredEmployeesById"
+                                    t-as="employee"
+                                    t-key="employee.id"
+                                    t-att-class="'de-adv-search-option ' + (state.id_highlighted_index === employee_index ? 'is-active' : '')"
+                                    t-on-click="() => this.selectEmployeeFromId(employee)">
+                                <span class="de-option-main"><t t-esc="employee.code || employee.employee_code || '-'"/></span>
+                            </button>
+                        </t>
+                        <div t-else="" class="de-adv-search-empty">No matching employee ID found.</div>
+                    </div>
+                </div>
+                <div class="de-adv-search-field">
+                    <input type="text"
+                           class="form-control de-summary-select"
+                           placeholder="Search by Employee Name..."
+                           t-att-value="state.employee_search_name"
+                           t-on-input="onEmployeeNameSearchInput"
+                           t-on-keydown="onEmployeeNameKeyDown"
+                           t-on-focus="onEmployeeNameFocus"
+                           t-on-blur="onEmployeeNameBlur"/>
+                    <button t-if="state.employee_search_name"
+                            type="button"
+                            class="de-clear-field-btn"
+                            title="Clear"
+                            t-on-click="clearAllEmployeeSearchFields">
+                        <i class="fa fa-times"/>
+                    </button>
+                    <button type="button" class="de-sort-toggle-btn" t-on-click="toggleNameSortOrder"
+                            t-att-title="'Sort by Name: ' + (state.name_sort_order === 'asc' ? 'A to Z' : 'Z to A')">
+                        <i t-att-class="state.name_sort_order === 'asc' ? 'fa fa-sort-alpha-asc' : 'fa fa-sort-alpha-desc'"/>
+                    </button>
+                    <div t-if="state.show_name_suggestions" class="de-adv-search-dropdown">
+                        <t t-if="filteredEmployeesByName.length">
+                            <button type="button"
+                                    class="de-adv-search-option"
+                                    t-foreach="filteredEmployeesByName"
+                                    t-as="employee"
+                                    t-key="employee.id"
+                                    t-att-class="'de-adv-search-option ' + (state.name_highlighted_index === employee_index ? 'is-active' : '')"
+                                    t-on-click="() => this.selectEmployeeFromName(employee)">
+                                <span class="de-option-main"><t t-esc="employee.name"/></span>
+                            </button>
+                        </t>
+                        <div t-else="" class="de-adv-search-empty">No matching employee name found.</div>
+                    </div>
+                </div>
                 <select class="form-select de-summary-select" t-att-value="state.duration" t-on-change="onDurationChange">
                     <option value="current_contract">Current Contract</option>
+                    <option value="date_of_joining">Date of Joining</option>
                     <option value="this_month">This Month</option>
                     <option value="this_year">This Year</option>
                     <option value="custom">Custom</option>
