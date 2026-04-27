@@ -58,6 +58,7 @@ class PayrollBatchXlsxReport extends Component {
             "Early Checkout",
             "GOSI Company Contribution",
             "Gross",
+            "Reimbursement",
             "Advance Allowances",
             "GOSI Company Deduction",
             "GOSI Employee Deduction",
@@ -68,8 +69,8 @@ class PayrollBatchXlsxReport extends Component {
     get EXTRA_COLS() {
         return [
             { code: "GOSI_COMP_ADD", name: "GOSI Company Contribution" },
-            { code: "GOSI_EMP", name: "GOSI Company Deduction" },
-            { code: "GOSI_COMP_DED", name: "GOSI Employee Deduction" },
+            { code: "GOSI_COMP_DED", name: "GOSI Company Deduction" },
+            { code: "GOSI_EMP", name: "GOSI Employee Deduction" },
         ];
     }
 
@@ -203,8 +204,8 @@ get payrollMonth() {
 
             // Normalize GOSI portions across Saudi / non-Saudi implementations
             const gosiCompanyAdd = (valsByCode.get("GOSI_COMP_ADD") || 0) + (valsByCode.get("GOSIALLOW") || 0);
-            const gosiEmployeeDed = (valsByCode.get("GOSI_EMP") || 0) + (valsByCode.get("GOSI") || 0);
-            const gosiCompanyDed = valsByCode.get("GOSI_COMP_DED") || 0;
+            const gosiEmployeeDed = valsByCode.get("GOSI_EMP") || 0;
+            const gosiCompanyDed = (valsByCode.get("GOSI_COMP_DED") || 0) + (valsByCode.get("GOSI") || 0);
             valsByCode.set("GOSI_COMP_ADD", gosiCompanyAdd);
             valsByCode.set("GOSI_EMP", gosiEmployeeDed);
             valsByCode.set("GOSI_COMP_DED", gosiCompanyDed);
@@ -310,11 +311,13 @@ async _buildColumns(slips) {
     }
 
     for (const ex of this.EXTRA_COLS) {
-        cols.push({
-            code: ex.code,
-            name: ex.name,
-            hidden: this.HIDE_CODES.has(ex.code),
-        });
+        if (!cols.find((col) => col.code === ex.code || col.name === ex.name)) {
+            cols.push({
+                code: ex.code,
+                name: ex.name,
+                hidden: this.HIDE_CODES.has(ex.code),
+            });
+        }
     }
 
     const orderMap = new Map(this.RULE_NAME_ORDER.map((name, idx) => [name, idx]));
