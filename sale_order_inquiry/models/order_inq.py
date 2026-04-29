@@ -332,7 +332,6 @@ class OrderInquiry(models.Model):
 
         records = super().create(vals_list)
 
-        # ✅ IMPORTANT: relink uploaded attachments to this new record
         records._relink_required_attachments()
         return records
 
