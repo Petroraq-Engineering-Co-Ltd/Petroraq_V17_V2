@@ -14,131 +14,348 @@
 
                     /* ===== Navbar ===== */
                     .navbar {
-                    background-color: #06264B;
-                    display: flex;
-                    align-items: center;
-                    padding: 15px 40px;
-                    position: relative;
-                    z-index: 100;
-                    gap: 30px;
+                        background: linear-gradient(135deg, #06264B 0%, #0a3d6e 100%);
+                        display: flex;
+                        align-items: center;
+                        padding: 15px 40px;
+                        position: sticky;
+                        top: 0;
+                        z-index: 1000;
+                        gap: 30px;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                        transition: all 0.3s ease;
                     }
-                    .navbar-logo { flex-shrink: 0; }
-                    .navbar-logo img { height: 55px; }
+                    .navbar.scrolled {
+                        padding: 10px 40px;
+                        box-shadow: 0 6px 30px rgba(0,0,0,0.25);
+                    }
+                    .navbar-logo {
+                        flex-shrink: 0;
+                        transition: transform 0.3s ease;
+                    }
+                    .navbar-logo:hover {
+                        transform: scale(1.05);
+                    }
+                    .navbar-logo img {
+                        height: 55px;
+                        transition: height 0.3s ease;
+                    }
+                    .navbar.scrolled .navbar-logo img { height: 45px; }
+
                     .navbar-links {
-                    display: flex;
-                    align-items: center;
-                    gap: 35px;
-                    flex: 1;
-                    justify-content: center;
+                        display: flex;
+                        align-items: center;
+                        gap: 35px;
+                        flex: 1;
+                        justify-content: center;
                     }
-                    .navbar-links a {
-                    color: #fff;
-                    font-size: 15px;
-                    font-weight: 400;
-                    padding: 6px 2px;
-                    position: relative;
-                    transition: color 0.3s;
+                    .navbar-links > a,
+                    .navbar-links > .nav-item > a {
+                        color: #fff;
+                        font-size: 15px;
+                        font-weight: 500;
+                        padding: 8px 2px;
+                        position: relative;
+                        transition: all 0.3s ease;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        cursor: pointer;
                     }
-                    .navbar-links a.active { color: #e9a23e; }
-                    .navbar-links a.active::after {
-                    content: "";
-                    position: absolute;
-                    bottom: -4px;
-                    left: 0;
-                    width: 100%;
-                    height: 2px;
-                    background: #e9a23e;
+                    .navbar-links > a::after,
+                    .navbar-links > .nav-item > a::after {
+                        content: "";
+                        position: absolute;
+                        bottom: 0;
+                        left: 50%;
+                        width: 0;
+                        height: 2px;
+                        background: #e9a23e;
+                        transition: all 0.3s ease;
+                        transform: translateX(-50%);
                     }
-                    .navbar-links a:hover { color: #e9a23e; }
+                    .navbar-links > a:hover::after,
+                    .navbar-links > .nav-item:hover > a::after {
+                        width: 100%;
+                    }
+                    .navbar-links a.active,
+                    .navbar-links .nav-item.active > a {
+                        color: #e9a23e;
+                    }
+                    .navbar-links a.active::after,
+                    .navbar-links .nav-item.active > a::after {
+                        width: 100%;
+                    }
+                    .navbar-links a:hover,
+                    .navbar-links .nav-item:hover > a {
+                        color: #e9a23e;
+                    }
+
+                    /* ===== Services Dropdown - Fixed hover behavior ===== */
+                    .nav-item {
+                        position: static;
+                    }
+                    .nav-item .dropdown-arrow {
+                        font-size: 11px;
+                        transition: transform 0.3s ease;
+                    }
+                    .nav-item:hover .dropdown-arrow,
+                    .nav-item.dropdown-open .dropdown-arrow {
+                        transform: rotate(180deg);
+                    }
+
+                    /* Invisible bridge to prevent dropdown close when moving mouse */
+                    .nav-item::before {
+                        content: "";
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        height: 20px;
+                        background: transparent;
+                        opacity: 0;
+                        pointer-events: none;
+                        z-index: 98;
+                    }
+                    .nav-item:hover::before {
+                        opacity: 1;
+                        pointer-events: auto;
+                    }
+
+                    .services-dropdown {
+                        position: absolute;
+                        top: calc(100% + 0px);
+                        left: 0;
+                        right: 0;
+                        background: linear-gradient(135deg, #06264B 0%, #0a3d6e 100%);
+                        padding: 40px 60px;
+                        z-index: 99;
+                        border-top: 3px solid #e9a23e;
+                        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+
+                        /* Smooth fade-in instead of instant show/hide */
+                        opacity: 0;
+                        visibility: hidden;
+                        transform: translateY(-10px);
+                        transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+                        pointer-events: none;
+                    }
+                    .nav-item:hover .services-dropdown,
+                    .services-dropdown:hover,
+                    .nav-item.dropdown-open .services-dropdown {
+                        opacity: 1;
+                        visibility: visible;
+                        transform: translateY(0);
+                        pointer-events: auto;
+                    }
+
+                    /* Keep dropdown open when hovering over it */
+                    .services-dropdown::before {
+                        content: "";
+                        position: absolute;
+                        top: -20px;
+                        left: 0;
+                        right: 0;
+                        height: 20px;
+                        background: transparent;
+                    }
+
+                    .services-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 5px 80px;
+                        max-width: 1000px;
+                        margin: 0 auto;
+                    }
+                    .services-grid a {
+                        color: #fff;
+                        font-size: 14px;
+                        font-weight: 500;
+                        letter-spacing: 1px;
+                        padding: 14px 0;
+                        border-bottom: 1px solid rgba(255,255,255,0.1);
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        text-transform: uppercase;
+                        position: relative;
+                    }
+                    .services-grid a::before {
+                        content: "›";
+                        position: absolute;
+                        left: -20px;
+                        opacity: 0;
+                        color: #e9a23e;
+                        font-size: 20px;
+                        font-weight: bold;
+                        transition: all 0.3s ease;
+                    }
+                    .services-grid a:hover {
+                        color: #e9a23e;
+                        padding-left: 20px;
+                        border-bottom-color: #e9a23e;
+                    }
+                    .services-grid a:hover::before {
+                        opacity: 1;
+                        left: 0;
+                    }
+
+                    /* ===== Quote Button ===== */
                     .quote-btn {
-                    background-color: #e9a23e;
-                    border: none;
-                    color: #fff;
-                    padding: 12px 24px;
-                    border-radius: 6px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 10px;
-                    transition: background 0.3s;
-                    flex-shrink: 0;
-                    text-decoration: none;
+                        background: linear-gradient(45deg, #e9a23e, #d8902f);
+                        border: none;
+                        color: #fff;
+                        padding: 12px 24px;
+                        border-radius: 50px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 10px;
+                        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                        flex-shrink: 0;
+                        text-decoration: none;
+                        box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                        position: relative;
+                        overflow: hidden;
                     }
-                    .quote-btn:hover { background-color: #cc8e34; color: #fff; }
+                    .quote-btn::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                        transition: left 0.5s;
+                    }
+                    .quote-btn:hover::before { left: 100%; }
+                    .quote-btn:hover {
+                        background: linear-gradient(45deg, #d8902f, #c57e24);
+                        color: #fff;
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 25px rgba(233,162,62,0.6);
+                    }
+                    .quote-btn i {
+                        transition: transform 0.3s ease;
+                    }
+                    .quote-btn:hover i {
+                        transform: translateX(4px);
+                    }
+
                     .navbar-toggle {
-                    display: none;
-                    background: none;
-                    border: none;
-                    color: #fff;
-                    font-size: 24px;
-                    cursor: pointer;
+                        display: none;
+                        background: none;
+                        border: none;
+                        color: #fff;
+                        font-size: 24px;
+                        cursor: pointer;
+                        transition: color 0.3s;
                     }
+                    .navbar-toggle:hover { color: #e9a23e; }
+
                     @media (max-width: 992px) {
-                    .navbar { padding: 15px 20px; }
-                    .navbar-toggle { display: block; margin-left: auto; }
-                    .navbar-links {
-                    position: absolute;
-                    top: 85px;
-                    left: 0;
-                    right: 0;
-                    background: #06264B;
-                    flex-direction: column;
-                    align-items: flex-start;
-                    padding: 20px;
-                    gap: 15px;
-                    max-height: 0;
-                    overflow: hidden;
-                    transition: max-height 0.3s ease;
-                    border-bottom: 3px solid #e9a23e;
-                    justify-content: flex-start;
-                    }
-                    .navbar-links.open { max-height: 600px; }
-                    .navbar-links a { width: 100%; }
-                    .quote-btn { display: none; }
+                        .navbar { padding: 15px 20px; }
+                        .navbar-toggle { display: block; margin-left: auto; }
+                        .navbar-links {
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            right: 0;
+                            background: linear-gradient(135deg, #06264B 0%, #0a3d6e 100%);
+                            flex-direction: column;
+                            align-items: flex-start;
+                            padding: 20px;
+                            gap: 15px;
+                            max-height: 0;
+                            overflow: hidden;
+                            transition: max-height 0.4s ease;
+                            border-bottom: 3px solid #e9a23e;
+                            justify-content: flex-start;
+                        }
+                        .navbar-links.open { max-height: 1200px; overflow-y: auto; }
+                        .navbar-links a,
+                        .navbar-links .nav-item { width: 100%; }
+
+                        .nav-item::before { display: none; }
+                        .services-dropdown {
+                            position: static;
+                            opacity: 1;
+                            visibility: visible;
+                            transform: none;
+                            pointer-events: auto;
+                            display: none;
+                            padding: 10px 0 10px 20px;
+                            border-top: none;
+                            box-shadow: none;
+                            background: rgba(0,0,0,0.2);
+                            border-radius: 8px;
+                            margin-top: 10px;
+                        }
+                        .services-dropdown.mobile-open { display: block; }
+                        .nav-item:hover .services-dropdown {
+                            opacity: 1;
+                            visibility: visible;
+                        }
+                        .services-grid {
+                            grid-template-columns: 1fr;
+                            gap: 0;
+                        }
+                        .services-grid a { padding: 10px 0; }
+                        .quote-btn { display: none; }
                     }
                 </style>
             </xpath>
 
             <xpath expr="//header" position="replace">
                 <header class="o_not_editable">
-                    <nav class="navbar">
+                    <nav class="navbar" id="mainNavbar">
                         <div class="navbar-logo">
                             <a href="/">
                                 <img src="/pr_website/static/images/logo.png" alt="PETRORAQ Logo"/>
                             </a>
                         </div>
                         <button class="navbar-toggle" aria-label="Toggle menu" type="button">
-                            <i class="fa-solid fa-bars"></i>
+                            <i class="fa fa-bars"></i>
                         </button>
                         <div class="navbar-links" id="navLinks">
                             <a href="/" t-att-class="'active' if request.httprequest.path == '/' else ''">Home</a>
                             <a href="/about-us"
-                               t-att-class="'active' if request.httprequest.path.startswith('/about') else ''">About
-                            </a>
-                            <a href="#"
-                               t-att-class="'active' if request.httprequest.path.startswith('/services') else ''">
-                                Services
-                            </a>
-                            <a href="#"
-                               t-att-class="'active' if request.httprequest.path.startswith('/projects') else ''">
-                                Projects
-                            </a>
+                               t-att-class="'active' if request.httprequest.path.startswith('/about') else ''">About</a>
+
+                            <!-- Services Dropdown -->
+                            <div t-att-class="'nav-item active' if request.httprequest.path.startswith('/services') else 'nav-item'">
+                                <a href="/services">
+                                    Services
+                                    <i class="fa fa-chevron-down dropdown-arrow"></i>
+                                </a>
+                                <div class="services-dropdown">
+                                    <div class="services-grid">
+                                        <a href="/services/design-engineering">Design &amp; Engineering</a>
+                                        <a href="/services/architecture-planning">Architecture &amp; Planning</a>
+                                        <a href="/services/civil-structural">Civil &amp; Structural</a>
+                                        <a href="/services/electrical-telecommunication">Electrical &amp; Telecommunication</a>
+                                        <a href="/services/mechanical-piping">Mechanical &amp; Piping</a>
+                                        <a href="/services/cad-services">CAD Services</a>
+                                        <a href="/services/project-management">Project Management</a>
+                                        <a href="/services/other-services">Other Services</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="/projects"
+                               t-att-class="'active' if request.httprequest.path.startswith('/projects') else ''">Projects</a>
                             <a href="/clients"
-                               t-att-class="'active' if request.httprequest.path.startswith('/clients') else ''">Clients
-                            </a>
+                               t-att-class="'active' if request.httprequest.path.startswith('/clients') else ''">Clients</a>
                             <a href="/jobs"
-                               t-att-class="'active' if (request.httprequest.path.startswith('/jobs') or request.httprequest.path.startswith('/careers') or request.httprequest.path.startswith('/job/')) else ''">
-                                Careers
-                            </a>
+                               t-att-class="'active' if (request.httprequest.path.startswith('/jobs') or request.httprequest.path.startswith('/careers') or request.httprequest.path.startswith('/job/')) else ''">Careers</a>
                             <a href="/contact-us"
-                               t-att-class="'active' if request.httprequest.path.startswith('/contact') else ''">Contact Us
-                            </a>
+                               t-att-class="'active' if request.httprequest.path.startswith('/contact') else ''">Contact Us</a>
                         </div>
                         <a href="/contact-us" class="quote-btn">
                             Request a Quote
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <i class="fa fa-arrow-right"></i>
                         </a>
                     </nav>
                 </header>
@@ -147,13 +364,73 @@
             <xpath expr="//body" position="inside">
                 <script>
                     (function () {
-                    var toggleBtn = document.querySelector('.navbar-toggle');
-                    var navLinks = document.getElementById('navLinks');
-                    if (toggleBtn &amp;&amp; navLinks) {
-                    toggleBtn.addEventListener('click', function () {
-                    navLinks.classList.toggle('open');
-                    });
-                    }
+                        var toggleBtn = document.querySelector('.navbar-toggle');
+                        var navLinks = document.getElementById('navLinks');
+                        var navbar = document.getElementById('mainNavbar');
+
+                        if (toggleBtn &amp;&amp; navLinks) {
+                            toggleBtn.addEventListener('click', function () {
+                                navLinks.classList.toggle('open');
+                            });
+                        }
+
+                        /* Navbar scroll effect */
+                        if (navbar) {
+                            window.addEventListener('scroll', function() {
+                                if (window.scrollY > 50) {
+                                    navbar.classList.add('scrolled');
+                                } else {
+                                    navbar.classList.remove('scrolled');
+                                }
+                            });
+                        }
+
+                        /* Desktop: Improved dropdown with delay to prevent premature close */
+                        var navItems = document.querySelectorAll('.nav-item');
+                        navItems.forEach(function(item) {
+                            var closeTimeout;
+                            var dropdown = item.querySelector('.services-dropdown');
+
+                            item.addEventListener('mouseenter', function() {
+                                if (window.innerWidth > 992) {
+                                    clearTimeout(closeTimeout);
+                                    item.classList.add('dropdown-open');
+                                }
+                            });
+
+                            item.addEventListener('mouseleave', function() {
+                                if (window.innerWidth > 992) {
+                                    closeTimeout = setTimeout(function() {
+                                        item.classList.remove('dropdown-open');
+                                    }, 300); /* 300ms delay before closing */
+                                }
+                            });
+
+                            if (dropdown) {
+                                dropdown.addEventListener('mouseenter', function() {
+                                    clearTimeout(closeTimeout);
+                                    item.classList.add('dropdown-open');
+                                });
+
+                                dropdown.addEventListener('mouseleave', function() {
+                                    closeTimeout = setTimeout(function() {
+                                        item.classList.remove('dropdown-open');
+                                    }, 300);
+                                });
+                            }
+                        });
+
+                        /* Mobile: toggle services dropdown on tap */
+                        var servicesItem = document.querySelector('.nav-item > a');
+                        if (servicesItem) {
+                            servicesItem.addEventListener('click', function (e) {
+                                if (window.innerWidth &lt;= 992) {
+                                    e.preventDefault();
+                                    var dd = this.parentElement.querySelector('.services-dropdown');
+                                    if (dd) dd.classList.toggle('mobile-open');
+                                }
+                            });
+                        }
                     })();
                 </script>
             </xpath>

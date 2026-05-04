@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="service_architecture_planning" name="Service - Architectural and Planning">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Architectural and Planning - PETRORAQ</t>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .pr-arch-page * {
+                    box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
+                }
+                .pr-arch-page {
+                    --navy: #06264B;
+                    --navy-deep: #051d3a;
+                    --gold: #e9a23e;
+                    --text: #333;
+                    --muted: #6b7a8f;
+                    --bg: #f5f6f8;
+                    --border: #e5e8ec;
+                    background: var(--bg);
+                    color: var(--text);
+                }
+                .pr-arch-page .pr-container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 0 20px;
+                }
+
+                /* ===== SCROLL ANIMATIONS ===== */
+                .pr-arch-page .scroll-fade {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-arch-page .scroll-fade.visible {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                .pr-arch-page .scroll-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-arch-page .scroll-left.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-arch-page .scroll-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-arch-page .scroll-right.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-arch-page .delay-1 { transition-delay: 0.1s; }
+                .pr-arch-page .delay-2 { transition-delay: 0.2s; }
+                .pr-arch-page .delay-3 { transition-delay: 0.3s; }
+                .pr-arch-page .delay-4 { transition-delay: 0.4s; }
+                .pr-arch-page .delay-5 { transition-delay: 0.5s; }
+
+                @keyframes fadeInLeft {
+                    from { opacity: 0; transform: translateX(-30px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulseDot {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+                @keyframes expandLine {
+                    from { width: 0; }
+                    to { width: 70px; }
+                }
+                @keyframes floatGlow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+
+                /* ===== HERO ===== */
+                .pr-arch-page .arch-hero {
+                    position: relative;
+                    min-height: 420px;
+                    background: url('/pr_website/static/images/petroraq_architectural_planning_hero_hd.png') center/cover no-repeat;
+                    display: flex;
+                    align-items: center;
+                    overflow: hidden;
+                }
+                .pr-arch-page .arch-hero-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(90deg, rgba(6,38,75,0.97) 0%, rgba(6,38,75,0.75) 40%, rgba(6,38,75,0.1) 70%, rgba(6,38,75,0) 100%);
+                }
+                .pr-arch-page .arch-hero-content {
+                    position: relative; z-index: 2;
+                    padding: 0 60px;
+                    color: #fff;
+                    max-width: 600px;
+                    animation: fadeInLeft 1s ease-out;
+                }
+                .pr-arch-page .breadcrumb-nav {
+                    color: #cbd5e1;
+                    font-size: 13px;
+                    margin-bottom: 30px;
+                }
+                .pr-arch-page .breadcrumb-nav a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-arch-page .breadcrumb-nav a:hover { color: var(--gold); }
+                .pr-arch-page .breadcrumb-nav .current { color: var(--gold); font-weight: 500; }
+                .pr-arch-page .breadcrumb-nav i { margin: 0 8px; font-size: 10px; }
+
+                .pr-arch-page .arch-hero-content h1 {
+                    font-size: 56px;
+                    font-weight: 800;
+                    line-height: 1.1;
+                    color: #fff;
+                    margin-bottom: 5px;
+                }
+                .pr-arch-page .arch-hero-content h1 .dot {
+                    color: var(--gold);
+                    display: inline-block;
+                    animation: pulseDot 2s ease-in-out infinite;
+                }
+                .pr-arch-page .gold-line {
+                    width: 70px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: 20px 0;
+                    animation: expandLine 1s ease-out 0.5s both;
+                }
+                .pr-arch-page .arch-hero-content p {
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #e0e6ef;
+                    max-width: 400px;
+                }
+
+                /* ===== MAIN DESCRIPTION ===== */
+                .pr-arch-page .description-section {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 45px 50px;
+                    margin: 40px auto;
+                    max-width: 1200px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 40px;
+                    align-items: center;
+                    position: relative;
+                    overflow: hidden;
+                    transition: all 0.4s ease;
+                }
+                .pr-arch-page .description-section::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 4px;
+                    height: 0;
+                    background: linear-gradient(180deg, var(--gold), transparent);
+                    transition: height 0.6s ease;
+                }
+                .pr-arch-page .description-section.visible::before {
+                    height: 100%;
+                }
+                .pr-arch-page .description-text p {
+                    color: var(--text);
+                    font-size: 14px;
+                    line-height: 1.8;
+                    margin-bottom: 18px;
+                }
+                .pr-arch-page .description-text p:last-child {
+                    font-weight: 600;
+                    color: var(--navy);
+                }
+                .pr-arch-page .description-image {
+                    border-radius: 12px;
+                    overflow: hidden;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }
+                .pr-arch-page .description-image::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(6,38,75,0.15), transparent);
+                    transition: opacity 0.4s ease;
+                    z-index: 1;
+                }
+                .pr-arch-page .description-image:hover::after {
+                    opacity: 0;
+                }
+                .pr-arch-page .description-image img {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                    transition: transform 0.6s ease;
+                }
+                .pr-arch-page .description-image:hover img {
+                    transform: scale(1.08);
+                }
+
+                /* ===== TWO SERVICE CARDS ===== */
+                .pr-arch-page .service-cards {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 25px;
+                    max-width: 1200px;
+                    margin: 0 auto 50px;
+                    padding: 0 20px;
+                }
+                .pr-arch-page .service-card {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 35px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 1fr 220px;
+                    gap: 25px;
+                    align-items: start;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-arch-page .service-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.5s ease;
+                }
+                .pr-arch-page .service-card:hover::before {
+                    transform: scaleX(1);
+                }
+                .pr-arch-page .service-card:hover {
+                    transform: translateY(-6px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                }
+                .pr-arch-page .service-card-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 5px;
+                }
+                .pr-arch-page .service-card-header .sc-icon {
+                    width: 50px; height: 50px;
+                    background: var(--navy);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-arch-page .service-card-header .sc-icon::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: var(--gold);
+                    transform: scale(0);
+                    border-radius: 50%;
+                    transition: transform 0.4s ease;
+                }
+                .pr-arch-page .service-card:hover .sc-icon {
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-arch-page .service-card:hover .sc-icon::before {
+                    transform: scale(1);
+                }
+                .pr-arch-page .service-card-header .sc-icon i {
+                    color: var(--gold);
+                    font-size: 20px;
+                    transition: color 0.4s ease;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-arch-page .service-card:hover .sc-icon i {
+                    color: var(--navy);
+                }
+                .pr-arch-page .service-card-header h3 {
+                    color: var(--navy);
+                    font-size: 22px;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                }
+                .pr-arch-page .service-card .sc-title-line {
+                    width: 40px; height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: 0 0 20px 65px;
+                    transition: width 0.4s ease;
+                }
+                .pr-arch-page .service-card:hover .sc-title-line {
+                    width: 80px;
+                }
+                .pr-arch-page .service-card ul {
+                    list-style: none;
+                    padding: 0 0 0 10px;
+                    margin: 0;
+                    grid-column: 1;
+                }
+                .pr-arch-page .service-card ul li {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: var(--text);
+                    font-size: 14px;
+                    padding: 9px 0;
+                    line-height: 1.5;
+                    transition: all 0.3s ease;
+                    border-radius: 4px;
+                }
+                .pr-arch-page .service-card ul li:hover {
+                    color: var(--navy);
+                    transform: translateX(6px);
+                }
+                .pr-arch-page .service-card ul li i {
+                    color: var(--gold);
+                    font-size: 14px;
+                    flex-shrink: 0;
+                    transition: transform 0.3s ease;
+                }
+                .pr-arch-page .service-card ul li:hover i {
+                    transform: scale(1.3) rotate(15deg);
+                }
+                .pr-arch-page .service-card .card-image {
+                    border-radius: 10px;
+                    overflow: hidden;
+                    height: 100%;
+                    min-height: 220px;
+                    position: relative;
+                }
+                .pr-arch-page .service-card .card-image::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(6,38,75,0.2), transparent);
+                    transition: opacity 0.4s ease;
+                }
+                .pr-arch-page .service-card:hover .card-image::after {
+                    opacity: 0;
+                }
+                .pr-arch-page .service-card .card-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.6s ease;
+                }
+                .pr-arch-page .service-card:hover .card-image img {
+                    transform: scale(1.1);
+                }
+                .pr-arch-page .service-card .card-top {
+                    grid-column: 1 / -1;
+                }
+
+                /* ===== WHY CHOOSE SECTION ===== */
+                .pr-arch-page .why-choose {
+                    background: #fff;
+                    padding: 55px 0;
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                }
+                .pr-arch-page .why-choose h2 {
+                    text-align: center;
+                    color: var(--navy);
+                    font-size: 28px;
+                    font-weight: 800;
+                    margin-bottom: 8px;
+                }
+                .pr-arch-page .why-choose .wc-line {
+                    width: 60px; height: 3px;
+                    background: linear-gradient(90deg, var(--gold), #d8902f);
+                    margin: 0 auto 45px;
+                    border-radius: 2px;
+                }
+                .pr-arch-page .why-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 0;
+                    padding: 0 40px;
+                }
+                .pr-arch-page .why-item {
+                    text-align: center;
+                    padding: 25px 18px;
+                    border-right: 1px solid var(--border);
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    cursor: pointer;
+                }
+                .pr-arch-page .why-item::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                    width: 0;
+                    height: 3px;
+                    background: var(--gold);
+                    transition: all 0.4s ease;
+                    transform: translateX(-50%);
+                }
+                .pr-arch-page .why-item:hover::before {
+                    width: 60%;
+                }
+                .pr-arch-page .why-item:last-child { border-right: none; }
+                .pr-arch-page .why-item:hover {
+                    transform: translateY(-8px);
+                    background: rgba(233,162,62,0.03);
+                }
+                .pr-arch-page .why-item .wi-icon {
+                    width: 60px; height: 60px;
+                    margin: 0 auto 18px;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                    border-radius: 50%;
+                    background: rgba(233,162,62,0.08);
+                }
+                .pr-arch-page .why-item:hover .wi-icon {
+                    background: var(--gold);
+                    transform: scale(1.15) rotate(360deg);
+                    box-shadow: 0 8px 20px rgba(233,162,62,0.4);
+                }
+                .pr-arch-page .why-item .wi-icon i {
+                    color: var(--gold);
+                    font-size: 28px;
+                    transition: color 0.4s ease;
+                }
+                .pr-arch-page .why-item:hover .wi-icon i {
+                    color: #fff;
+                }
+                .pr-arch-page .why-item h4 {
+                    color: var(--navy);
+                    font-size: 15px;
+                    font-weight: 700;
+                    margin-bottom: 10px;
+                    transition: color 0.3s ease;
+                }
+                .pr-arch-page .why-item:hover h4 {
+                    color: var(--gold);
+                }
+                .pr-arch-page .why-item p {
+                    color: var(--muted);
+                    font-size: 12.5px;
+                    line-height: 1.6;
+                }
+
+                /* ===== CTA BANNER ===== */
+                .pr-arch-page .cta-banner {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    padding: 35px 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-arch-page .cta-banner::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -10%;
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.1) 0%, transparent 70%);
+                    animation: floatGlow 6s ease-in-out infinite;
+                }
+                .pr-arch-page .cta-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 22px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-arch-page .cta-icon {
+                    width: 60px; height: 60px;
+                    background: transparent;
+                    border: 2px solid var(--gold);
+                    border-radius: 12px;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                }
+                .pr-arch-page .cta-banner:hover .cta-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-arch-page .cta-icon i {
+                    color: var(--gold);
+                    font-size: 24px;
+                    transition: color 0.4s ease;
+                }
+                .pr-arch-page .cta-banner:hover .cta-icon i {
+                    color: #fff;
+                }
+                .pr-arch-page .cta-text h3 {
+                    color: #fff;
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 5px;
+                }
+                .pr-arch-page .cta-text p {
+                    color: #cbd5e1;
+                    font-size: 14px;
+                }
+                .pr-arch-page .cta-btn {
+                    background: linear-gradient(45deg, var(--gold), #d8902f);
+                    color: #fff;
+                    padding: 14px 30px;
+                    border-radius: 50px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    text-decoration: none;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                    position: relative;
+                    overflow: hidden;
+                    z-index: 2;
+                }
+                .pr-arch-page .cta-btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    transition: left 0.5s;
+                }
+                .pr-arch-page .cta-btn:hover::before { left: 100%; }
+                .pr-arch-page .cta-btn:hover {
+                    color: #fff;
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(233,162,62,0.6);
+                }
+                .pr-arch-page .cta-btn i {
+                    transition: transform 0.3s ease;
+                }
+                .pr-arch-page .cta-btn:hover i {
+                    transform: translateX(5px);
+                }
+
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 992px) {
+                    .pr-arch-page .arch-hero-content { padding: 0 30px; }
+                    .pr-arch-page .arch-hero-content h1 { font-size: 40px; }
+                    .pr-arch-page .description-section { grid-template-columns: 1fr; padding: 30px; }
+                    .pr-arch-page .service-cards { grid-template-columns: 1fr; }
+                    .pr-arch-page .service-card { grid-template-columns: 1fr; }
+                    .pr-arch-page .why-grid { grid-template-columns: repeat(2, 1fr); padding: 0 20px; }
+                    .pr-arch-page .why-item { border-right: none; border-bottom: 1px solid var(--border); }
+                    .pr-arch-page .cta-banner { flex-direction: column; text-align: center; padding: 30px; }
+                }
+                @media (max-width: 600px) {
+                    .pr-arch-page .arch-hero-content h1 { font-size: 32px; }
+                    .pr-arch-page .why-grid { grid-template-columns: 1fr; }
+                    .pr-arch-page .description-section { padding: 25px; }
+                }
+            </style>
+
+            <div class="pr-arch-page">
+
+                <!-- ===== HERO ===== -->
+                <section class="arch-hero">
+                    <div class="arch-hero-overlay"></div>
+                    <div class="arch-hero-content">
+                        <div class="breadcrumb-nav">
+                            <a href="/">Home</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <a href="/services">Services</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <span class="current">Architectural &amp; Planning</span>
+                        </div>
+                        <h1>Architectural &amp;<br/>Planning<span class="dot">.</span></h1>
+                        <div class="gold-line"></div>
+                        <p>Creative designs. Smart planning. Functional spaces. Building environments that inspire and stand the test of time.</p>
+                    </div>
+                </section>
+
+                <!-- ===== DESCRIPTION SECTION ===== -->
+                <section class="description-section scroll-fade">
+                    <div class="description-text">
+                        <p>PETRORAQ Architectural discipline comprises qualified architects with extensive experience in community planning and site development, building planning and architecture, interior design and landscaping. They can transform client's intent into a truly aesthetic and trendy building giving particular importance for space utilization and functional efficiency. They have planned and designed a wide range of facilities and buildings such as villas, apartments, commercial, industrial, educational, health care facilities, hotels, leisure facilities, recreational centers and offices of all sizes.</p>
+                        <p>PETRORAQ core strength lies in providing comprehensive planning services including Site and Topographic surveying, Land use analysis, Master plan development, Conceptual design, Front end engineering and detailed designing of projects of all types and magnitude.</p>
+                        <p>Our architects take pride in their creative efforts, which have led to some of the landmark structures built in the region.</p>
+                    </div>
+                    <div class="description-image">
+                        <img src="/pr_website/static/images/petroraq_architectural_concept_sketch_hd.png" alt="Architectural planning"/>
+                    </div>
+                </section>
+
+                <!-- ===== TWO SERVICE CARDS ===== -->
+                <section class="service-cards">
+
+                    <!-- PLANNING -->
+                    <div class="service-card scroll-left">
+                        <div class="card-top">
+                            <div class="service-card-header">
+                                <div class="sc-icon"><i class="fa fa-map"></i></div>
+                                <h3>PLANNING</h3>
+                            </div>
+                            <div class="sc-title-line"></div>
+                        </div>
+                        <ul>
+                            <li><i class="fa fa-check-circle"></i>Regional and Community Development</li>
+                            <li><i class="fa fa-check-circle"></i>Highways and Roads network</li>
+                            <li><i class="fa fa-check-circle"></i>Recreational and Leisure Facilities</li>
+                            <li><i class="fa fa-check-circle"></i>Site Development and Landscaping</li>
+                        </ul>
+                        <div class="card-image">
+                            <img src="/pr_website/static/images/petroraq_master_planning_aerial_hd.png" alt="Urban Planning"/>
+                        </div>
+                    </div>
+
+                    <!-- ARCHITECTURAL -->
+                    <div class="service-card scroll-right">
+                        <div class="card-top">
+                            <div class="service-card-header">
+                                <div class="sc-icon"><i class="fa fa-drafting-compass"></i></div>
+                                <h3>ARCHITECTURAL</h3>
+                            </div>
+                            <div class="sc-title-line"></div>
+                        </div>
+                        <ul>
+                            <li><i class="fa fa-check-circle"></i>Industrial Buildings</li>
+                            <li><i class="fa fa-check-circle"></i>Office Buildings</li>
+                            <li><i class="fa fa-check-circle"></i>Hospitals and Laboratories</li>
+                            <li><i class="fa fa-check-circle"></i>Educational Facilities</li>
+                            <li><i class="fa fa-check-circle"></i>Governmental Facilities</li>
+                            <li><i class="fa fa-check-circle"></i>Commercial Centers</li>
+                            <li><i class="fa fa-check-circle"></i>Sports and Recreational Facilities</li>
+                            <li><i class="fa fa-check-circle"></i>Villas and Apartments</li>
+                            <li><i class="fa fa-check-circle"></i>Landscaping &amp; Interior Design</li>
+                        </ul>
+                        <div class="card-image">
+                            <img src="/pr_website/static/images/petroraq_architectural_villa_hd.png" alt="Modern Architecture"/>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- ===== WHY CHOOSE PETRORAQ ===== -->
+                <section class="why-choose scroll-fade">
+                    <h2>Why Choose PETRORAQ</h2>
+                    <div class="wc-line"></div>
+
+                    <div class="why-grid">
+                        <div class="why-item scroll-fade delay-1">
+                            <div class="wi-icon"><i class="fa fa-users"></i></div>
+                            <h4>Experienced Architects</h4>
+                            <p>A team of qualified professionals with extensive industry experience.</p>
+                        </div>
+                        <div class="why-item scroll-fade delay-2">
+                            <div class="wi-icon"><i class="fa fa-lightbulb"></i></div>
+                            <h4>Creative &amp; Innovative Designs</h4>
+                            <p>Transforming ideas into functional, aesthetic and sustainable spaces.</p>
+                        </div>
+                        <div class="why-item scroll-fade delay-3">
+                            <div class="wi-icon"><i class="fa fa-bullseye"></i></div>
+                            <h4>Client-Focused Approach</h4>
+                            <p>Understanding client needs and delivering tailored solutions.</p>
+                        </div>
+                        <div class="why-item scroll-fade delay-4">
+                            <div class="wi-icon"><i class="fa fa-shield-alt"></i></div>
+                            <h4>Quality &amp; Compliance</h4>
+                            <p>Adhering to international standards and best practices.</p>
+                        </div>
+                        <div class="why-item scroll-fade delay-5">
+                            <div class="wi-icon"><i class="fa fa-calendar-check"></i></div>
+                            <h4>On-Time Delivery</h4>
+                            <p>Efficient planning and execution to meet project timelines.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== CTA BANNER ===== -->
+                <section class="cta-banner scroll-fade">
+                    <div class="cta-left">
+                        <div class="cta-icon"><i class="fa fa-file-alt"></i></div>
+                        <div class="cta-text">
+                            <h3>Have a project in mind?</h3>
+                            <p>Let our architectural experts turn your vision into reality.</p>
+                        </div>
+                    </div>
+                    <a href="/contact-us" class="cta-btn">
+                        Request a Quote
+                        <i class="fa fa-arrow-right"></i>
+                    </a>
+                </section>
+
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var observerOptions = {
+                        threshold: 0.15,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, observerOptions);
+
+                    var animatedElements = document.querySelectorAll('.pr-arch-page .scroll-fade, .pr-arch-page .scroll-left, .pr-arch-page .scroll-right');
+                    animatedElements.forEach(function(el) {
+                        observer.observe(el);
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="service_cad_services" name="Service - CAD Services">
+        <t t-call="website.layout">
+            <t t-set="additional_title">CAD Services - PETRORAQ</t>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .pr-cad-page * {
+                    box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
+                }
+                .pr-cad-page {
+                    --navy: #06264B;
+                    --navy-deep: #051d3a;
+                    --gold: #e9a23e;
+                    --text: #333;
+                    --muted: #6b7a8f;
+                    --bg: #f5f6f8;
+                    --border: #e5e8ec;
+                    background: var(--bg);
+                    color: var(--text);
+                }
+
+                /* ===== SCROLL ANIMATIONS ===== */
+                .pr-cad-page .scroll-fade {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-cad-page .scroll-fade.visible {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                .pr-cad-page .scroll-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-cad-page .scroll-left.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-cad-page .scroll-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-cad-page .scroll-right.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-cad-page .delay-1 { transition-delay: 0.1s; }
+                .pr-cad-page .delay-2 { transition-delay: 0.2s; }
+                .pr-cad-page .delay-3 { transition-delay: 0.3s; }
+                .pr-cad-page .delay-4 { transition-delay: 0.4s; }
+                .pr-cad-page .delay-5 { transition-delay: 0.5s; }
+
+                @keyframes fadeInLeft {
+                    from { opacity: 0; transform: translateX(-30px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulseDot {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+                @keyframes floatGlow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+                @keyframes blinkCursor {
+                    0%, 50% { opacity: 1; }
+                    51%, 100% { opacity: 0.3; }
+                }
+
+                /* ===== HERO ===== */
+                .pr-cad-page .cad-hero {
+                    position: relative;
+                    min-height: 420px;
+                    background: url('/pr_website/static/images/cad-services-bg.png') center/cover no-repeat;
+                    display: flex;
+                    align-items: center;
+                    overflow: hidden;
+                }
+                .pr-cad-page .cad-hero-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(90deg, rgba(6,38,75,0.95) 0%, rgba(6,38,75,0.80) 40%, rgba(6,38,75,0.3) 70%, rgba(6,38,75,0.1) 100%);
+                }
+                .pr-cad-page .cad-hero-content {
+                    position: relative; z-index: 2;
+                    padding: 0 60px;
+                    color: #fff;
+                    max-width: 600px;
+                    animation: fadeInLeft 1s ease-out;
+                }
+                .pr-cad-page .breadcrumb-nav {
+                    color: #cbd5e1;
+                    font-size: 13px;
+                    margin-bottom: 30px;
+                }
+                .pr-cad-page .breadcrumb-nav a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-cad-page .breadcrumb-nav a:hover { color: var(--gold); }
+                .pr-cad-page .breadcrumb-nav .current { color: var(--gold); font-weight: 500; }
+                .pr-cad-page .breadcrumb-nav i { margin: 0 8px; font-size: 10px; }
+
+                .pr-cad-page .cad-hero-content h1 {
+                    font-size: 64px;
+                    font-weight: 800;
+                    line-height: 1.05;
+                    color: #fff;
+                    margin-bottom: 20px;
+                }
+                .pr-cad-page .cad-hero-content h1 .dot {
+                    color: var(--gold);
+                    display: inline-block;
+                    animation: pulseDot 2s ease-in-out infinite;
+                }
+                .pr-cad-page .cad-hero-content p {
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #e0e6ef;
+                    max-width: 420px;
+                }
+
+                /* ===== SECTION CARD ===== */
+                .pr-cad-page .cad-section {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 45px 50px;
+                    margin: 25px auto;
+                    max-width: 1200px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 40px;
+                    align-items: start;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-cad-page .cad-section::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.6s ease;
+                }
+                .pr-cad-page .cad-section.visible::before {
+                    transform: scaleX(1);
+                }
+                .pr-cad-page .cad-section:hover {
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+                }
+                .pr-cad-page .cad-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 18px;
+                    margin-bottom: 20px;
+                }
+                .pr-cad-page .cad-icon {
+                    width: 62px; height: 62px;
+                    background: var(--navy);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0;
+                    transition: all 0.4s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-cad-page .cad-icon::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: var(--gold);
+                    transform: scale(0);
+                    border-radius: 50%;
+                    transition: transform 0.4s ease;
+                }
+                .pr-cad-page .cad-section:hover .cad-icon {
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-cad-page .cad-section:hover .cad-icon::before {
+                    transform: scale(1);
+                }
+                .pr-cad-page .cad-icon i {
+                    color: var(--gold);
+                    font-size: 26px;
+                    transition: color 0.4s ease;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-cad-page .cad-section:hover .cad-icon i {
+                    color: var(--navy);
+                }
+                .pr-cad-page .cad-header h2 {
+                    color: var(--navy);
+                    font-size: 28px;
+                    font-weight: 800;
+                    position: relative;
+                    padding-bottom: 10px;
+                }
+                .pr-cad-page .cad-header h2::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 40px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transition: width 0.4s ease;
+                }
+                .pr-cad-page .cad-section:hover .cad-header h2::after {
+                    width: 85px;
+                }
+                .pr-cad-page .cad-header h2::before {
+                    content: '|';
+                    position: absolute;
+                    right: -15px;
+                    top: -2px;
+                    color: var(--gold);
+                    font-weight: 300;
+                    animation: blinkCursor 1s infinite;
+                    opacity: 0;
+                }
+                .pr-cad-page .cad-section:hover .cad-header h2::before {
+                    opacity: 1;
+                }
+
+                .pr-cad-page .cad-desc p {
+                    color: var(--text);
+                    font-size: 13.5px;
+                    line-height: 1.8;
+                    margin-bottom: 15px;
+                }
+
+                .pr-cad-page .cad-subtitle {
+                    color: var(--navy);
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin: 22px 0 15px;
+                    position: relative;
+                    display: inline-block;
+                    padding-bottom: 6px;
+                }
+                .pr-cad-page .cad-subtitle::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 35px;
+                    height: 2px;
+                    background: var(--gold);
+                }
+
+                .pr-cad-page .cad-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .pr-cad-page .cad-list li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    color: var(--text);
+                    font-size: 13.5px;
+                    padding: 8px 0;
+                    line-height: 1.5;
+                    transition: all 0.3s ease;
+                    border-radius: 4px;
+                }
+                .pr-cad-page .cad-list li:hover {
+                    color: var(--navy);
+                    transform: translateX(6px);
+                }
+                .pr-cad-page .cad-list li i {
+                    color: var(--gold);
+                    font-size: 7px;
+                    margin-top: 9px;
+                    flex-shrink: 0;
+                    transition: transform 0.3s ease;
+                }
+                .pr-cad-page .cad-list li:hover i {
+                    transform: scale(1.8);
+                }
+
+                .pr-cad-page .two-col-list {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0 25px;
+                }
+
+                .pr-cad-page .cad-image {
+                    border-radius: 12px;
+                    overflow: hidden;
+                    height: 100%;
+                    min-height: 400px;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }
+                .pr-cad-page .cad-image::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(6,38,75,0.2), transparent);
+                    transition: opacity 0.4s ease;
+                    z-index: 1;
+                }
+                .pr-cad-page .cad-image:hover::after {
+                    opacity: 0;
+                }
+                .pr-cad-page .cad-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.6s ease;
+                }
+                .pr-cad-page .cad-image:hover img {
+                    transform: scale(1.1);
+                }
+
+                /* ===== FEATURE CARDS STRIP ===== */
+                .pr-cad-page .features-strip {
+                    max-width: 1200px;
+                    margin: 30px auto;
+                    padding: 0 20px;
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 20px;
+                }
+                .pr-cad-page .feat-card {
+                    background: #fff;
+                    border-radius: 14px;
+                    padding: 32px 20px;
+                    text-align: center;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-cad-page .feat-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), #d8902f);
+                    transform: scaleX(0);
+                    transition: transform 0.4s ease;
+                }
+                .pr-cad-page .feat-card:hover::before {
+                    transform: scaleX(1);
+                }
+                .pr-cad-page .feat-card:hover {
+                    transform: translateY(-10px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+                }
+                .pr-cad-page .feat-icon {
+                    width: 75px; height: 75px;
+                    margin-bottom: 18px;
+                    display: flex; align-items: center; justify-content: center;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, rgba(233,162,62,0.12), rgba(233,162,62,0.04));
+                    transition: all 0.4s ease;
+                }
+                .pr-cad-page .feat-card:hover .feat-icon {
+                    background: linear-gradient(135deg, var(--gold), #d8902f);
+                    transform: scale(1.1) rotate(10deg);
+                    box-shadow: 0 8px 20px rgba(233,162,62,0.4);
+                }
+                .pr-cad-page .feat-icon i {
+                    color: var(--gold);
+                    font-size: 32px;
+                    transition: color 0.4s ease;
+                }
+                .pr-cad-page .feat-card:hover .feat-icon i {
+                    color: #fff;
+                }
+                .pr-cad-page .feat-card h4 {
+                    color: var(--navy);
+                    font-size: 14.5px;
+                    font-weight: 700;
+                    margin-bottom: 10px;
+                    transition: color 0.3s ease;
+                }
+                .pr-cad-page .feat-card:hover h4 {
+                    color: var(--gold);
+                }
+                .pr-cad-page .feat-card p {
+                    color: var(--muted);
+                    font-size: 12.5px;
+                    line-height: 1.6;
+                    margin-bottom: 18px;
+                    flex-grow: 1;
+                }
+                .pr-cad-page .feat-arrow {
+                    width: 38px; height: 38px;
+                    border-radius: 50%;
+                    background: rgba(233,162,62,0.12);
+                    display: flex; align-items: center; justify-content: center;
+                    color: var(--gold);
+                    text-decoration: none;
+                    transition: all 0.4s ease;
+                }
+                .pr-cad-page .feat-card:hover .feat-arrow {
+                    background: var(--gold);
+                    color: #fff;
+                    transform: rotate(-45deg);
+                }
+                .pr-cad-page .feat-arrow:hover {
+                    background: var(--gold);
+                    color: #fff;
+                    transform: rotate(-45deg) scale(1.1) !important;
+                }
+
+                /* ===== CTA BANNER ===== */
+                .pr-cad-page .cta-banner {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    padding: 35px 50px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    border-radius: 12px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-cad-page .cta-banner::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -10%;
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.1) 0%, transparent 70%);
+                    animation: floatGlow 6s ease-in-out infinite;
+                }
+                .pr-cad-page .cta-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 22px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-cad-page .cta-icon {
+                    width: 62px; height: 62px;
+                    background: transparent;
+                    border: 2px solid var(--gold);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                }
+                .pr-cad-page .cta-banner:hover .cta-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-cad-page .cta-icon i {
+                    color: var(--gold);
+                    font-size: 26px;
+                    transition: color 0.4s ease;
+                }
+                .pr-cad-page .cta-banner:hover .cta-icon i {
+                    color: #fff;
+                }
+                .pr-cad-page .cta-text h3 {
+                    color: #fff;
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 5px;
+                }
+                .pr-cad-page .cta-text p {
+                    color: #cbd5e1;
+                    font-size: 14px;
+                }
+                .pr-cad-page .cta-btn {
+                    background: linear-gradient(45deg, var(--gold), #d8902f);
+                    color: #fff;
+                    padding: 14px 30px;
+                    border-radius: 50px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    text-decoration: none;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                    position: relative;
+                    overflow: hidden;
+                    z-index: 2;
+                }
+                .pr-cad-page .cta-btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    transition: left 0.5s;
+                }
+                .pr-cad-page .cta-btn:hover::before { left: 100%; }
+                .pr-cad-page .cta-btn:hover {
+                    color: #fff;
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(233,162,62,0.6);
+                }
+                .pr-cad-page .cta-btn i {
+                    transition: transform 0.3s ease;
+                }
+                .pr-cad-page .cta-btn:hover i {
+                    transform: translateX(5px);
+                }
+
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 992px) {
+                    .pr-cad-page .cad-hero-content { padding: 0 30px; }
+                    .pr-cad-page .cad-hero-content h1 { font-size: 44px; }
+                    .pr-cad-page .cad-section { grid-template-columns: 1fr; padding: 30px; }
+                    .pr-cad-page .cad-image { min-height: 280px; }
+                    .pr-cad-page .two-col-list { grid-template-columns: 1fr; }
+                    .pr-cad-page .features-strip { grid-template-columns: repeat(2, 1fr); }
+                    .pr-cad-page .cta-banner { flex-direction: column; text-align: center; padding: 30px; }
+                }
+                @media (max-width: 600px) {
+                    .pr-cad-page .cad-hero-content h1 { font-size: 34px; }
+                    .pr-cad-page .features-strip { grid-template-columns: 1fr; }
+                }
+            </style>
+
+            <div class="pr-cad-page">
+
+                <!-- ===== HERO ===== -->
+                <section class="cad-hero">
+                    <div class="cad-hero-overlay"></div>
+                    <div class="cad-hero-content">
+                        <div class="breadcrumb-nav">
+                            <a href="/">Home</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <a href="/services">Services</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <span class="current">CAD Services</span>
+                        </div>
+                        <h1>CAD Services<span class="dot">.</span></h1>
+                        <p>Advanced CAD and BIM solutions for accurate design, coordination, and project execution.</p>
+                    </div>
+                </section>
+
+                <!-- ===== CAD SERVICES SECTION ===== -->
+                <section class="cad-section scroll-left">
+                    <div class="cad-content">
+                        <div class="cad-header">
+                            <div class="cad-icon"><i class="fa fa-desktop"></i></div>
+                            <h2>CAD Services</h2>
+                        </div>
+
+                        <div class="cad-desc">
+                            <p>PETRORAQ delivers comprehensive CAD services using advanced engineering and modeling tools including BIM, Tekla, Revit, Inventor, Advance Steel, SketchUp, CADWorx, and AutoCAD. Our team develops precise design models, detailed drawings, and coordinated deliverables that support fabrication, construction, and project execution across industrial and infrastructure projects.</p>
+                        </div>
+
+                        <h4 class="cad-subtitle">Core CAD Capabilities</h4>
+                        <ul class="cad-list">
+                            <li><i class="fa fa-circle"></i>Equipment GA and detailed drawings</li>
+                            <li><i class="fa fa-circle"></i>Piping 3D modeling</li>
+                            <li><i class="fa fa-circle"></i>Piping GA and isometric drawings</li>
+                            <li><i class="fa fa-circle"></i>Structural modeling and fabrication drawings</li>
+                            <li><i class="fa fa-circle"></i>Foundation drawings and layout plans</li>
+                            <li><i class="fa fa-circle"></i>Cable routing and hookup drawings</li>
+                            <li><i class="fa fa-circle"></i>BIM modeling</li>
+                            <li><i class="fa fa-circle"></i>As-built drawings</li>
+                        </ul>
+                    </div>
+
+                    <div class="cad-image">
+                        <img src="/pr_website/static/images/cad-card-1.png" alt="CAD designer working on 3D model"/>
+                    </div>
+                </section>
+
+                <!-- ===== BIM MODEL SECTION ===== -->
+                <section class="cad-section scroll-right">
+                    <div class="cad-content">
+                        <div class="cad-header">
+                            <div class="cad-icon"><i class="fa fa-building"></i></div>
+                            <h2>BIM Model</h2>
+                        </div>
+
+                        <div class="cad-desc">
+                            <p>PETRORAQ provides BIM modeling services in Revit to support design coordination, visualization, and digital project delivery. Our BIM workflows improve collaboration, reduce clashes, and provide intelligent models that strengthen planning, execution, and lifecycle data management.</p>
+                        </div>
+
+                        <h4 class="cad-subtitle">BIM Deliverables</h4>
+                        <ul class="cad-list two-col-list">
+                            <li><i class="fa fa-circle"></i>Native BIM model</li>
+                            <li><i class="fa fa-circle"></i>Visualization</li>
+                            <li><i class="fa fa-circle"></i>IFC model</li>
+                            <li><i class="fa fa-circle"></i>Construction simulation (4D)</li>
+                            <li><i class="fa fa-circle"></i>Navisworks model</li>
+                            <li><i class="fa fa-circle"></i>Clash detection report</li>
+                            <li><i class="fa fa-circle"></i>Drawings</li>
+                            <li><i class="fa fa-circle"></i>Digital mockup</li>
+                            <li><i class="fa fa-circle"></i>Schedules of quantities</li>
+                            <li><i class="fa fa-circle"></i>COBie and Uniclass parameters</li>
+                        </ul>
+                    </div>
+
+                    <div class="cad-image">
+                        <img src="/pr_website/static/images/cad-card-2.png" alt="BIM model on screen"/>
+                    </div>
+                </section>
+
+                <!-- ===== 5 FEATURE CARDS ===== -->
+                <section class="features-strip">
+                    <div class="feat-card scroll-fade delay-1">
+                        <div class="feat-icon"><i class="fa fa-bullseye"></i></div>
+                        <h4>Accurate Modeling</h4>
+                        <p>Precise and high-quality models for reliable project execution.</p>
+                        <a href="#" class="feat-arrow"><i class="fa fa-arrow-right"></i></a>
+                    </div>
+                    <div class="feat-card scroll-fade delay-2">
+                        <div class="feat-icon"><i class="fa fa-puzzle-piece"></i></div>
+                        <h4>Integrated Coordination</h4>
+                        <p>Seamless coordination across disciplines and stakeholders.</p>
+                        <a href="#" class="feat-arrow"><i class="fa fa-arrow-right"></i></a>
+                    </div>
+                    <div class="feat-card scroll-fade delay-3">
+                        <div class="feat-icon"><i class="fa fa-tachometer-alt"></i></div>
+                        <h4>Efficient Delivery</h4>
+                        <p>Optimized workflows for on-time and on-budget results.</p>
+                        <a href="#" class="feat-arrow"><i class="fa fa-arrow-right"></i></a>
+                    </div>
+                    <div class="feat-card scroll-fade delay-4">
+                        <div class="feat-icon"><i class="fa fa-search-plus"></i></div>
+                        <h4>Clash Detection</h4>
+                        <p>Early clash identification to minimize rework and delays.</p>
+                        <a href="#" class="feat-arrow"><i class="fa fa-arrow-right"></i></a>
+                    </div>
+                    <div class="feat-card scroll-fade delay-5">
+                        <div class="feat-icon"><i class="fa fa-cloud"></i></div>
+                        <h4>Digital Project Support</h4>
+                        <p>Digital models and data that support the entire lifecycle.</p>
+                        <a href="#" class="feat-arrow"><i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </section>
+
+                <!-- ===== CTA BANNER ===== -->
+                <section class="cta-banner scroll-fade">
+                    <div class="cta-left">
+                        <div class="cta-icon"><i class="fa fa-hard-hat"></i></div>
+                        <div class="cta-text">
+                            <h3>Have a project in mind?</h3>
+                            <p>Our CAD and BIM specialists are ready to support your next project.</p>
+                        </div>
+                    </div>
+                    <a href="/contact-us" class="cta-btn">
+                        Request a Quote
+                        <i class="fa fa-arrow-right"></i>
+                    </a>
+                </section>
+
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var observerOptions = {
+                        threshold: 0.15,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, observerOptions);
+
+                    var animatedElements = document.querySelectorAll('.pr-cad-page .scroll-fade, .pr-cad-page .scroll-left, .pr-cad-page .scroll-right');
+                    animatedElements.forEach(function(el) {
+                        observer.observe(el);
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

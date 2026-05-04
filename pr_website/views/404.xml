@@ -2,19 +2,454 @@
 <odoo>
     <template id="petroraq_404" inherit_id="http_routing.404" name="Petroraq 404 Override">
         <xpath expr="//div[@id='wrap']" position="replace">
-            <div id="wrap" class="prq-404-page">
-                <span class="prq-404-float prq-404-float1">✦</span>
-                <span class="prq-404-float prq-404-float2">✧</span>
-                <span class="prq-404-float prq-404-float3">✦</span>
+            <!-- Font Awesome & Google Fonts -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .petroraq-404 {
+                    --blue: #0a2540;
+                    --gold: #d89a2b;
+                    font-family: 'Poppins', sans-serif;
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                    min-height: 100vh;
+                    color: var(--blue);
+                    position: relative;
+                    overflow-x: hidden;
+                }
+
+                /* ===== ANIMATION CLASSES ===== */
+                .animate-slide-up {
+                    opacity: 0;
+                    transform: translateY(60px);
+                    animation: slideUp 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                }
+                .animate-scale-up {
+                    opacity: 0;
+                    transform: scale(0.8);
+                    animation: scaleUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                }
+                .animate-float {
+                    animation: float 4s ease-in-out infinite;
+                }
+                .animate-spin-slow {
+                    animation: spinSlow 20s linear infinite;
+                }
+                .delay-100 { animation-delay: 0.1s; }
+                .delay-200 { animation-delay: 0.2s; }
+                .delay-300 { animation-delay: 0.3s; }
+                .delay-400 { animation-delay: 0.4s; }
+
+                @keyframes slideUp {
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes scaleUp {
+                    to { opacity: 1; transform: scale(1); }
+                }
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px); }
+                    50% { transform: translateY(-15px); }
+                }
+                @keyframes spinSlow {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
+                .pr-container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 0 20px;
+                }
+
+                /* ===== Hide default nav/footer ===== */
+                .o_header_hidden, .o_footer_hidden {
+                    display: none !important;
+                }
+
+                /* ===== Floating Elements ===== */
+                .prq-404-float {
+                    position: fixed;
+                    font-size: 24px;
+                    color: var(--gold);
+                    z-index: 999;
+                    pointer-events: none;
+                    filter: drop-shadow(0 4px 12px rgba(216,154,43,0.4));
+                }
+                .prq-404-float1 {
+                    top: 20%;
+                    left: 10%;
+                    animation: prqFloat1 6s ease-in-out infinite;
+                }
+                .prq-404-float2 {
+                    top: 60%;
+                    right: 15%;
+                    animation: prqFloat2 8s ease-in-out infinite;
+                }
+                .prq-404-float3 {
+                    bottom: 20%;
+                    left: 20%;
+                    animation: prqFloat3 7s ease-in-out infinite;
+                }
+                @keyframes prqFloat1 {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); }
+                    33% { transform: translateY(-20px) rotate(180deg); }
+                    66% { transform: translateY(-10px) rotate(360deg); }
+                }
+                @keyframes prqFloat2 {
+                    0%, 100% { transform: translateX(0px) rotate(0deg); }
+                    33% { transform: translateX(15px) rotate(-120deg); }
+                    66% { transform: translateX(-10px) rotate(240deg); }
+                }
+                @keyframes prqFloat3 {
+                    0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+                    50% { transform: translate(20px, -15px) rotate(180deg); }
+                }
+
+                /* ===== Background Pattern ===== */
+                .prq-404-bg {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 1;
+                    background-image:
+                        radial-gradient(circle at 20% 80%, rgba(216,154,43,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(10,37,64,0.05) 0%, transparent 50%);
+                    animation: prqBgShift 25s ease-in-out infinite;
+                }
+                @keyframes prqBgShift {
+                    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+                    33% { transform: scale(1.05) rotate(120deg); opacity: 1; }
+                    66% { transform: scale(1.05) rotate(240deg); opacity: 0.9; }
+                }
+
+                /* ===== Main Content ===== */
+                .prq-404-main {
+                    position: relative;
+                    z-index: 10;
+                    text-align: center;
+                    padding: 150px 40px 120px;
+                    max-width: 900px;
+                    margin: 0 auto;
+                }
+
+                /* ===== 404 Card ===== */
+                .prq-404-card {
+                    background: linear-gradient(145deg, #fff, #f8fafc);
+                    backdrop-filter: blur(25px);
+                    border: 3px solid #e8ecf2;
+                    border-radius: 40px;
+                    padding: 80px 70px;
+                    box-shadow: 0 40px 120px rgba(0,0,0,0.15);
+                    position: relative;
+                    overflow: hidden;
+                    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                }
+                .prq-404-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 0;
+                    background: linear-gradient(135deg, var(--gold), #e5b55b);
+                    transition: height 0.8s ease;
+                    z-index: 0;
+                }
+                .prq-404-card:hover::before {
+                    height: 8px;
+                }
+                .prq-404-card:hover {
+                    transform: translateY(-15px) scale(1.02);
+                    box-shadow: 0 60px 140px rgba(0,0,0,0.2);
+                    border-color: rgba(216,154,43,0.4);
+                }
+
+                /* ===== Error Icon ===== */
+                .prq-404-icon {
+                    width: 160px;
+                    height: 160px;
+                    background: linear-gradient(135deg, var(--blue), #1a3a6a);
+                    border: 6px solid #fff;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 40px;
+                    font-size: 64px;
+                    color: var(--gold);
+                    box-shadow:
+                        0 30px 80px rgba(10,37,64,0.4),
+                        inset 0 2px 0 rgba(255,255,255,0.2);
+                    position: relative;
+                    z-index: 2;
+                    animation: prqPulseGlow 2s ease-in-out infinite;
+                }
+                .prq-404-card:hover .prq-404-icon {
+                    transform: scale(1.1) rotateY(360deg);
+                    box-shadow:
+                        0 40px 100px rgba(10,37,64,0.5),
+                        inset 0 4px 0 rgba(255,255,255,0.3);
+                }
+
+                /* ===== 404 Number ===== */
+                .prq-404-code {
+                    font-size: clamp(4rem, 15vw, 8rem);
+                    font-weight: 900;
+                    background: linear-gradient(135deg, var(--blue), #1a3a6a);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    margin-bottom: 20px;
+                    letter-spacing: -2px;
+                    position: relative;
+                }
+                .prq-404-code::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 0;
+                    height: 6px;
+                    background: linear-gradient(90deg, var(--gold), #e5b55b);
+                    border-radius: 3px;
+                    transition: width 0.8s ease;
+                }
+                .prq-404-card:hover .prq-404-code::after {
+                    width: 150px;
+                }
+
+                .prq-404-title {
+                    font-size: clamp(2rem, 5vw, 3.2rem);
+                    font-weight: 800;
+                    color: var(--blue);
+                    margin-bottom: 20px;
+                    line-height: 1.2;
+                }
+                .prq-404-subtitle {
+                    font-size: 20px;
+                    color: #6b7a8f;
+                    font-weight: 500;
+                    margin-bottom: 15px;
+                    line-height: 1.7;
+                }
+                .prq-404-message {
+                    font-size: 18px;
+                    color: var(--gold);
+                    font-weight: 700;
+                    margin-bottom: 50px;
+                    letter-spacing: 0.5px;
+                }
+
+                /* ===== Buttons ===== */
+                .prq-404-buttons {
+                    display: flex;
+                    gap: 25px;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+                .btn-primary, .btn-secondary {
+                    padding: 18px 42px;
+                    border-radius: 20px;
+                    font-size: 16px;
+                    font-weight: 700;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 12px;
+                    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                    position: relative;
+                    overflow: hidden;
+                    font-family: inherit;
+                    border: none;
+                    cursor: pointer;
+                }
+                .btn-primary {
+                    background: linear-gradient(135deg, var(--gold), #e5b55b);
+                    color: #fff;
+                    box-shadow: 0 18px 50px rgba(216,154,43,0.5);
+                }
+                .btn-primary:hover {
+                    transform: translateY(-8px) scale(1.05);
+                    box-shadow: 0 30px 70px rgba(216,154,43,0.7);
+                    background: linear-gradient(135deg, #e5b55b, var(--gold));
+                }
+                .btn-secondary {
+                    background: transparent;
+                    color: var(--blue);
+                    border: 3px solid var(--blue);
+                    backdrop-filter: blur(20px);
+                }
+                .btn-secondary:hover {
+                    background: var(--blue);
+                    color: #fff;
+                    transform: translateY(-8px) scale(1.05);
+                    box-shadow: 0 25px 60px rgba(10,37,64,0.4);
+                }
+                .btn-primary i, .btn-secondary i {
+                    transition: margin-left 0.3s ease;
+                }
+                .btn-primary:hover i, .btn-secondary:hover i {
+                    margin-left: 8px;
+                }
+
+                /* ===== Particles ===== */
+                .prq-404-particles {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 5;
+                    pointer-events: none;
+                    overflow: hidden;
+                }
+                .prq-particle {
+                    position: absolute;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, var(--gold), #e5b55b);
+                    animation: prqParticleFloat 4s ease-in-out infinite;
+                }
+
+                @keyframes prqPulseGlow {
+                    0%, 100% {
+                        box-shadow: 0 30px 80px rgba(10,37,64,0.4), inset 0 2px 0 rgba(255,255,255,0.2);
+                        transform: scale(1);
+                    }
+                    50% {
+                        box-shadow: 0 40px 100px rgba(10,37,64,0.6), inset 0 4px 0 rgba(255,255,255,0.3);
+                        transform: scale(1.05);
+                    }
+                }
+                @keyframes prqParticleFloat {
+                    0% { transform: translateY(0) scale(1); opacity: 1; }
+                    100% { transform: translateY(-100px) scale(0); opacity: 0; }
+                }
+
+                /* ===== Responsive ===== */
+                @media (max-width: 768px) {
+                    .prq-404-main { padding: 100px 25px 80px; }
+                    .prq-404-card {
+                        padding: 60px 40px;
+                        margin: 0 20px;
+                        border-radius: 30px;
+                    }
+                    .prq-404-buttons {
+                        flex-direction: column;
+                        width: 100%;
+                    }
+                    .btn-primary, .btn-secondary {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    .prq-404-card:hover {
+                        transform: translateY(-10px);
+                    }
+                }
+            </style>
+
+            <div class="petroraq-404">
                 <div class="prq-404-bg"></div>
-                <div class="container prq-404-container">
-                    <div class="prq-404-rocket">🚀</div>
-                    <h1 class="prq-404-code">404</h1>
-                    <h2 class="prq-404-title">Oops! Page Not Found</h2>
-                    <p class="prq-404-subtext">This page has launched into the cosmos. Let’s get you back on track!</p>
-                    <a href="/" class="prq-404-home-btn">Back to Home</a>
+                <div class="prq-404-particles" id="particles"></div>
+                <span class="prq-404-float prq-404-float1 animate-spin-slow">✦</span>
+                <span class="prq-404-float prq-404-float2 animate-spin-slow">✧</span>
+                <span class="prq-404-float prq-404-float3 animate-spin-slow">✦</span>
+
+                <div class="prq-404-main">
+                    <div class="prq-404-card animate-slide-up">
+                        <div class="prq-404-icon animate-scale-up delay-100">
+                            <i class="fa fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="prq-404-code animate-slide-up delay-200">404</div>
+                        <h1 class="prq-404-title animate-slide-up delay-300">Page Not Found</h1>
+                        <p class="prq-404-subtitle animate-slide-up delay-400">
+                            The page you're looking for has launched into orbit. Don't worry, we'll get you back on course!
+                        </p>
+                        <div class="prq-404-message animate-scale-up delay-500">
+                            🚀 Let's navigate back to safety
+                        </div>
+                        <div class="prq-404-buttons">
+                            <a href="/" class="btn-primary animate-scale-up delay-600">
+                                <i class="fa fa-home"></i>
+                                Back to Home
+                            </a>
+                            <a href="/jobs" class="btn-secondary animate-scale-up delay-700">
+                                <i class="fa fa-briefcase"></i>
+                                View Careers
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Hide default header/footer
+                    const header = document.querySelector('header');
+                    const footer = document.querySelector('footer');
+                    if (header) header.style.display = 'none';
+                    if (footer) footer.style.display = 'none';
+
+                    // Scroll animations
+                    const observer = new IntersectionObserver(entries => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('animate-loaded');
+                            }
+                        });
+                    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+                    observer.observe(document.querySelector('.prq-404-card'));
+
+                    // Particle system
+                    const particlesContainer = document.getElementById('particles');
+                    function createParticle() {
+                        const particle = document.createElement('div');
+                        particle.className = 'prq-particle';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.top = '100%';
+                        particle.style.animationDuration = (2 + Math.random() * 3) + 's';
+                        particle.style.width = (4 + Math.random() * 8) + 'px';
+                        particle.style.height = particle.style.width;
+                        particlesContainer.appendChild(particle);
+
+                        setTimeout(() => {
+                            if (particle.parentNode) particle.remove();
+                        }, 5000);
+                    }
+
+                    // Create particles continuously
+                    setInterval(createParticle, 300);
+                    for (let i = 0; i &lt; 10; i++) createParticle();
+
+                    // Hover effects
+                    const card = document.querySelector('.prq-404-card');
+                    const buttons = document.querySelectorAll('.btn-primary, .btn-secondary');
+
+                    card.addEventListener('mouseenter', () => {
+                        card.style.transform = 'translateY(-15px) scale(1.02)';
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = 'translateY(0) scale(1)';
+                    });
+
+                    buttons.forEach(btn => {
+                        btn.addEventListener('mouseenter', function() {
+                            this.style.transform = 'translateY(-8px) scale(1.05)';
+                        });
+                        btn.addEventListener('mouseleave', function() {
+                            this.style.transform = 'translateY(0) scale(1)';
+                        });
+                    });
+
+                    // Background parallax
+                    window.addEventListener('scroll', () => {
+                        const scrolled = window.pageYOffset;
+                        const bg = document.querySelector('.prq-404-bg');
+                        if (bg) {
+                            bg.style.transform = `translateY(${scrolled * 0.5}px)`;
+                        }
+                    });
+                });
+            </script>
         </xpath>
     </template>
 </odoo>

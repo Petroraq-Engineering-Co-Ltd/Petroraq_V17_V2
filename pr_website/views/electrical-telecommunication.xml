@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="service_electrical_telecommunication" name="Service - Electrical and Telecommunication">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Electrical &amp; Telecommunication - PETRORAQ</t>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .pr-elec-page * {
+                    box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
+                }
+                .pr-elec-page {
+                    --navy: #06264B;
+                    --navy-deep: #051d3a;
+                    --gold: #e9a23e;
+                    --text: #333;
+                    --muted: #6b7a8f;
+                    --bg: #f5f6f8;
+                    --border: #e5e8ec;
+                    background: var(--bg);
+                    color: var(--text);
+                }
+
+                /* ===== SCROLL ANIMATIONS ===== */
+                .pr-elec-page .scroll-fade {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-elec-page .scroll-fade.visible {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                .pr-elec-page .scroll-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-elec-page .scroll-left.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-elec-page .scroll-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-elec-page .scroll-right.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+
+                @keyframes fadeInLeft {
+                    from { opacity: 0; transform: translateX(-30px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulseDot {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+                @keyframes expandLine {
+                    from { width: 0; }
+                    to { width: 70px; }
+                }
+                @keyframes floatGlow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+                @keyframes electricPulse {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(233,162,62,0.5); }
+                    50% { box-shadow: 0 0 0 12px rgba(233,162,62,0); }
+                }
+
+                /* ===== HERO ===== */
+                .pr-elec-page .et-hero {
+                    position: relative;
+                    min-height: 420px;
+                    background: url('/pr_website/static/images/electric-tele-bg.png') center/cover no-repeat;
+                    display: flex;
+                    align-items: center;
+                    overflow: hidden;
+                }
+                .pr-elec-page .et-hero-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(90deg, rgba(6,38,75,0.97) 0%, rgba(6,38,75,0.75) 40%, rgba(6,38,75,0.1) 75%, rgba(6,38,75,0) 100%);
+                }
+                .pr-elec-page .et-hero-content {
+                    position: relative; z-index: 2;
+                    padding: 0 60px;
+                    color: #fff;
+                    max-width: 620px;
+                    animation: fadeInLeft 1s ease-out;
+                }
+                .pr-elec-page .breadcrumb-nav {
+                    color: #cbd5e1;
+                    font-size: 13px;
+                    margin-bottom: 30px;
+                }
+                .pr-elec-page .breadcrumb-nav a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-elec-page .breadcrumb-nav a:hover { color: var(--gold); }
+                .pr-elec-page .breadcrumb-nav .current { color: var(--gold); font-weight: 500; }
+                .pr-elec-page .breadcrumb-nav i { margin: 0 8px; font-size: 10px; }
+
+                .pr-elec-page .et-hero-content h1 {
+                    font-size: 56px;
+                    font-weight: 800;
+                    line-height: 1.08;
+                    color: #fff;
+                    margin-bottom: 5px;
+                }
+                .pr-elec-page .et-hero-content h1 .dot {
+                    color: var(--gold);
+                    display: inline-block;
+                    animation: pulseDot 2s ease-in-out infinite;
+                }
+                .pr-elec-page .gold-line {
+                    width: 70px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: 25px 0;
+                    animation: expandLine 1s ease-out 0.5s both;
+                }
+                .pr-elec-page .et-hero-content p {
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #e0e6ef;
+                    max-width: 450px;
+                }
+
+                /* ===== SECTION CARD ===== */
+                .pr-elec-page .et-section {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 45px;
+                    margin: 30px auto;
+                    max-width: 1200px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 40px;
+                    align-items: start;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-elec-page .et-section::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.6s ease;
+                }
+                .pr-elec-page .et-section.visible::before {
+                    transform: scaleX(1);
+                }
+                .pr-elec-page .et-section:hover {
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+                }
+                .pr-elec-page .et-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 5px;
+                }
+                .pr-elec-page .et-icon {
+                    width: 58px; height: 58px;
+                    background: var(--navy);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0;
+                    transition: all 0.4s ease;
+                    position: relative;
+                    overflow: hidden;
+                    animation: electricPulse 2.5s ease-in-out infinite;
+                }
+                .pr-elec-page .et-icon::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: var(--gold);
+                    transform: scale(0);
+                    border-radius: 50%;
+                    transition: transform 0.4s ease;
+                }
+                .pr-elec-page .et-section:hover .et-icon {
+                    transform: rotate(360deg) scale(1.15);
+                    animation: none;
+                }
+                .pr-elec-page .et-section:hover .et-icon::before {
+                    transform: scale(1);
+                }
+                .pr-elec-page .et-icon i {
+                    color: var(--gold);
+                    font-size: 24px;
+                    transition: color 0.4s ease;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-elec-page .et-section:hover .et-icon i {
+                    color: var(--navy);
+                }
+                .pr-elec-page .et-header h2 {
+                    color: var(--navy);
+                    font-size: 26px;
+                    font-weight: 800;
+                    letter-spacing: 1.5px;
+                }
+                .pr-elec-page .et-sub-line {
+                    width: 40px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: 0 0 20px 73px;
+                    transition: width 0.4s ease;
+                }
+                .pr-elec-page .et-section:hover .et-sub-line {
+                    width: 90px;
+                }
+
+                .pr-elec-page .et-desc p {
+                    color: var(--text);
+                    font-size: 13.5px;
+                    line-height: 1.8;
+                    margin-bottom: 15px;
+                }
+
+                .pr-elec-page .dc-title {
+                    color: var(--navy);
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin: 20px 0 15px;
+                    position: relative;
+                    display: inline-block;
+                    padding-bottom: 5px;
+                }
+                .pr-elec-page .dc-title::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 30px;
+                    height: 2px;
+                    background: var(--gold);
+                }
+
+                .pr-elec-page .et-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .pr-elec-page .et-list li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    color: var(--text);
+                    font-size: 13px;
+                    padding: 8px 0;
+                    line-height: 1.5;
+                    transition: all 0.3s ease;
+                    border-radius: 4px;
+                }
+                .pr-elec-page .et-list li:hover {
+                    color: var(--navy);
+                    transform: translateX(6px);
+                }
+                .pr-elec-page .et-list li i {
+                    color: var(--gold);
+                    font-size: 13px;
+                    margin-top: 3px;
+                    flex-shrink: 0;
+                    transition: transform 0.3s ease;
+                }
+                .pr-elec-page .et-list li:hover i {
+                    transform: scale(1.3) rotate(15deg);
+                }
+
+                .pr-elec-page .two-col-list {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0 25px;
+                }
+
+                .pr-elec-page .et-image {
+                    border-radius: 12px;
+                    overflow: hidden;
+                    height: 100%;
+                    min-height: 420px;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }
+                .pr-elec-page .et-image::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(6,38,75,0.2), transparent);
+                    transition: opacity 0.4s ease;
+                    z-index: 1;
+                }
+                .pr-elec-page .et-image:hover::after {
+                    opacity: 0;
+                }
+                .pr-elec-page .et-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.6s ease;
+                }
+                .pr-elec-page .et-image:hover img {
+                    transform: scale(1.1);
+                }
+
+                /* ===== CTA BANNER ===== */
+                .pr-elec-page .cta-banner {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    padding: 35px 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-elec-page .cta-banner::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -10%;
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.1) 0%, transparent 70%);
+                    animation: floatGlow 6s ease-in-out infinite;
+                }
+                .pr-elec-page .cta-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 22px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-elec-page .cta-icon {
+                    width: 60px; height: 60px;
+                    background: transparent;
+                    border: 2px solid var(--gold);
+                    border-radius: 12px;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                }
+                .pr-elec-page .cta-banner:hover .cta-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-elec-page .cta-icon i {
+                    color: var(--gold);
+                    font-size: 24px;
+                    transition: color 0.4s ease;
+                }
+                .pr-elec-page .cta-banner:hover .cta-icon i {
+                    color: #fff;
+                }
+                .pr-elec-page .cta-text h3 {
+                    color: #fff;
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 5px;
+                }
+                .pr-elec-page .cta-text p {
+                    color: #cbd5e1;
+                    font-size: 14px;
+                }
+                .pr-elec-page .cta-btn {
+                    background: linear-gradient(45deg, var(--gold), #d8902f);
+                    color: #fff;
+                    padding: 14px 30px;
+                    border-radius: 50px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    text-decoration: none;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                    position: relative;
+                    overflow: hidden;
+                    z-index: 2;
+                }
+                .pr-elec-page .cta-btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    transition: left 0.5s;
+                }
+                .pr-elec-page .cta-btn:hover::before { left: 100%; }
+                .pr-elec-page .cta-btn:hover {
+                    color: #fff;
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(233,162,62,0.6);
+                }
+                .pr-elec-page .cta-btn i {
+                    transition: transform 0.3s ease;
+                }
+                .pr-elec-page .cta-btn:hover i {
+                    transform: translateX(5px);
+                }
+
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 992px) {
+                    .pr-elec-page .et-hero-content { padding: 0 30px; }
+                    .pr-elec-page .et-hero-content h1 { font-size: 42px; }
+                    .pr-elec-page .et-section { grid-template-columns: 1fr; padding: 30px; }
+                    .pr-elec-page .et-image { min-height: 280px; }
+                    .pr-elec-page .two-col-list { grid-template-columns: 1fr; }
+                    .pr-elec-page .cta-banner { flex-direction: column; text-align: center; padding: 30px; }
+                }
+                @media (max-width: 600px) {
+                    .pr-elec-page .et-hero-content h1 { font-size: 32px; }
+                    .pr-elec-page .et-header h2 { font-size: 20px; }
+                }
+            </style>
+
+            <div class="pr-elec-page">
+
+                <!-- ===== HERO ===== -->
+                <section class="et-hero">
+                    <div class="et-hero-overlay"></div>
+                    <div class="et-hero-content">
+                        <div class="breadcrumb-nav">
+                            <a href="/">Home</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <a href="/services">Services</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <span class="current">Electrical &amp; Telecommunication</span>
+                        </div>
+                        <h1>Electrical &amp;<br/>Telecommunication<span class="dot">.</span></h1>
+                        <div class="gold-line"></div>
+                        <p>Integrated solutions. Reliable systems.<br/>Connected for a smarter tomorrow.</p>
+                    </div>
+                </section>
+
+                <!-- ===== ELECTRICAL SECTION ===== -->
+                <section class="et-section scroll-left">
+                    <div class="et-content">
+                        <div class="et-header">
+                            <div class="et-icon"><i class="fa fa-bolt"></i></div>
+                            <h2>ELECTRICAL</h2>
+                        </div>
+                        <div class="et-sub-line"></div>
+
+                        <div class="et-desc">
+                            <p>The electrical division is equipped with qualified engineers experienced in all types of lighting and power distribution systems. They have experience and skills in system design, relay selection and coordination.</p>
+                        </div>
+
+                        <h4 class="dc-title">Design Capabilities:</h4>
+                        <ul class="et-list">
+                            <li><i class="fa fa-check-circle"></i>Develop SLD, Metering &amp; Protection Diagrams</li>
+                            <li><i class="fa fa-check-circle"></i>Elementary diagrams and Installation Details</li>
+                            <li><i class="fa fa-check-circle"></i>Power, Lighting, Emergency, UPS Systems, Distribution and Grounding Layouts</li>
+                            <li><i class="fa fa-check-circle"></i>Cable &amp; Conduit Schedules and Interconnection Diagrams</li>
+                            <li><i class="fa fa-check-circle"></i>Specifications and Data Sheets for Equipment and Material</li>
+                            <li><i class="fa fa-check-circle"></i>115kV &amp; 132 kV Substation with Scada and Communication Systems between Substations</li>
+                            <li><i class="fa fa-check-circle"></i>Fire Alarm Systems both Conventional and Intelligent Types and Building Management System</li>
+                            <li><i class="fa fa-check-circle"></i>Street Lighting</li>
+                            <li><i class="fa fa-check-circle"></i>Cathodic Protection Systems</li>
+                            <li><i class="fa fa-check-circle"></i>Studies Performed Using Electrical Transient Analyzer Program (ETAP) Power Station (Windows Version)</li>
+                            <li><i class="fa fa-check-circle"></i>Procurement assistance, Bid Evaluations &amp; Vendor Data Review</li>
+                            <li><i class="fa fa-check-circle"></i>Assistance during construction and commissioning</li>
+                        </ul>
+                    </div>
+
+                    <div class="et-image">
+                        <img src="/pr_website/static/images/electrical-card-1.png" alt="Electrical control room"/>
+                    </div>
+                </section>
+
+                <!-- ===== TELECOMMUNICATION SECTION ===== -->
+                <section class="et-section scroll-right">
+                    <div class="et-content">
+                        <div class="et-header">
+                            <div class="et-icon"><i class="fa fa-broadcast-tower"></i></div>
+                            <h2>TELECOMMUNICATION</h2>
+                        </div>
+                        <div class="et-sub-line"></div>
+
+                        <div class="et-desc">
+                            <p>PETRORAQ has the capability to design a wide range of state of the art telecommunications systems based on Client's requirements. Our engineers possess many years of directly relevant experience across the telecommunications field. We can also provide construction supervision and project management services.</p>
+                            <p>Our telecommunication systems are designed in accordance with Client's Standards and Specifications, applicable national/international standards and backed-up by our own extensive experience in the field, incorporating best practices.</p>
+                        </div>
+
+                        <h4 class="dc-title">Design Capabilities</h4>
+                        <ul class="et-list two-col-list">
+                            <li><i class="fa fa-check-circle"></i>Use of State-of-art Technology</li>
+                            <li><i class="fa fa-check-circle"></i>Paging Systems</li>
+                            <li><i class="fa fa-check-circle"></i>Project study/development</li>
+                            <li><i class="fa fa-check-circle"></i>Telephoning/PBX Network</li>
+                            <li><i class="fa fa-check-circle"></i>System Design for LAN/WAN (Wired and Wireless)</li>
+                            <li><i class="fa fa-check-circle"></i>Audio Visual Systems</li>
+                            <li><i class="fa fa-check-circle"></i>Outside Plant Primary &amp; Secondary Networks</li>
+                            <li><i class="fa fa-check-circle"></i>Detailed installation packages</li>
+                            <li><i class="fa fa-check-circle"></i>Premises Distribution Systems (PDS) (Structured cabling)</li>
+                            <li><i class="fa fa-check-circle"></i>Assistance with technical review of material and equipment specifications</li>
+                            <li><i class="fa fa-check-circle"></i>Fiber Optic Trunking, Access and Backbone Systems</li>
+                            <li><i class="fa fa-check-circle"></i>Assistance during construction, pre-commissioning and commissioning</li>
+                        </ul>
+                    </div>
+
+                    <div class="et-image">
+                        <img src="/pr_website/static/images/electrical-card-2.png" alt="Telecommunication server rack"/>
+                    </div>
+                </section>
+
+                <!-- ===== CTA BANNER ===== -->
+                <section class="cta-banner scroll-fade">
+                    <div class="cta-left">
+                        <div class="cta-icon"><i class="fa fa-file-alt"></i></div>
+                        <div class="cta-text">
+                            <h3>Have a project in mind?</h3>
+                            <p>Our electrical &amp; telecommunication experts are ready to power and connect your vision.</p>
+                        </div>
+                    </div>
+                    <a href="/contact-us" class="cta-btn">
+                        Request a Quote
+                        <i class="fa fa-arrow-right"></i>
+                    </a>
+                </section>
+
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var observerOptions = {
+                        threshold: 0.15,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, observerOptions);
+
+                    var animatedElements = document.querySelectorAll('.pr-elec-page .scroll-fade, .pr-elec-page .scroll-left, .pr-elec-page .scroll-right');
+                    animatedElements.forEach(function(el) {
+                        observer.observe(el);
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

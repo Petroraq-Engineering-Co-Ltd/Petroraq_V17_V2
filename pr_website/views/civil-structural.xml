@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="service_civil_structural" name="Service - Civil and Structural">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Civil &amp; Structural - PETRORAQ</t>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .pr-civil-page * {
+                    box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
+                }
+                .pr-civil-page {
+                    --navy: #06264B;
+                    --navy-deep: #051d3a;
+                    --gold: #e9a23e;
+                    --text: #333;
+                    --muted: #6b7a8f;
+                    --bg: #f5f6f8;
+                    --border: #e5e8ec;
+                    background: var(--bg);
+                    color: var(--text);
+                }
+
+                /* ===== SCROLL ANIMATIONS ===== */
+                .pr-civil-page .scroll-fade {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-civil-page .scroll-fade.visible {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                .pr-civil-page .scroll-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-civil-page .scroll-left.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-civil-page .scroll-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-civil-page .scroll-right.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-civil-page .delay-1 { transition-delay: 0.1s; }
+                .pr-civil-page .delay-2 { transition-delay: 0.2s; }
+                .pr-civil-page .delay-3 { transition-delay: 0.3s; }
+                .pr-civil-page .delay-4 { transition-delay: 0.4s; }
+                .pr-civil-page .delay-5 { transition-delay: 0.5s; }
+
+                @keyframes fadeInLeft {
+                    from { opacity: 0; transform: translateX(-30px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulseDot {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+                @keyframes expandLine {
+                    from { width: 0; }
+                    to { width: 70px; }
+                }
+                @keyframes floatGlow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+
+                /* ===== HERO ===== */
+                .pr-civil-page .cs-hero {
+                    position: relative;
+                    min-height: 420px;
+                    background: url('/pr_website/static/images/civil-struct-bg.png') center/cover no-repeat;
+                    display: flex;
+                    align-items: center;
+                    overflow: hidden;
+                }
+                .pr-civil-page .cs-hero-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(90deg, rgba(6,38,75,0.98) 0%, rgba(6,38,75,0.85) 30%, rgba(6,38,75,0.2) 60%, rgba(6,38,75,0) 100%);
+                }
+                .pr-civil-page .cs-hero-content {
+                    position: relative; z-index: 2;
+                    padding: 0 60px;
+                    color: #fff;
+                    max-width: 600px;
+                    animation: fadeInLeft 1s ease-out;
+                }
+                .pr-civil-page .breadcrumb-nav {
+                    color: #cbd5e1;
+                    font-size: 13px;
+                    margin-bottom: 30px;
+                }
+                .pr-civil-page .breadcrumb-nav a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-civil-page .breadcrumb-nav a:hover { color: var(--gold); }
+                .pr-civil-page .breadcrumb-nav .current { color: var(--gold); font-weight: 500; }
+                .pr-civil-page .breadcrumb-nav i { margin: 0 8px; font-size: 10px; }
+
+                .pr-civil-page .cs-hero-content h1 {
+                    font-size: 60px;
+                    font-weight: 800;
+                    line-height: 1.05;
+                    color: #fff;
+                    margin-bottom: 5px;
+                }
+                .pr-civil-page .cs-hero-content h1 .dot {
+                    color: var(--gold);
+                    display: inline-block;
+                    animation: pulseDot 2s ease-in-out infinite;
+                }
+                .pr-civil-page .gold-line {
+                    width: 70px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: 25px 0;
+                    animation: expandLine 1s ease-out 0.5s both;
+                }
+                .pr-civil-page .cs-hero-content p {
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #e0e6ef;
+                    max-width: 450px;
+                }
+
+                /* ===== DESCRIPTION ===== */
+                .pr-civil-page .description-section {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 45px 50px;
+                    margin: 40px auto;
+                    max-width: 1200px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 360px;
+                    gap: 35px;
+                    align-items: start;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-civil-page .description-section::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 4px;
+                    height: 0;
+                    background: linear-gradient(180deg, var(--gold), transparent);
+                    transition: height 0.6s ease;
+                }
+                .pr-civil-page .description-section.visible::before {
+                    height: 100%;
+                }
+                .pr-civil-page .description-section p {
+                    color: var(--text);
+                    font-size: 13.5px;
+                    line-height: 1.8;
+                }
+                .pr-civil-page .description-image {
+                    border-radius: 12px;
+                    overflow: hidden;
+                    height: 100%;
+                    min-height: 260px;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }
+                .pr-civil-page .description-image::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(6,38,75,0.2), transparent);
+                    transition: opacity 0.4s ease;
+                    z-index: 1;
+                }
+                .pr-civil-page .description-image:hover::after {
+                    opacity: 0;
+                }
+                .pr-civil-page .description-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.6s ease;
+                }
+                .pr-civil-page .description-image:hover img {
+                    transform: scale(1.1);
+                }
+
+                /* ===== DESIGN CAPABILITIES ===== */
+                .pr-civil-page .design-capabilities {
+                    max-width: 1200px;
+                    margin: 0 auto 40px;
+                    padding: 0 20px;
+                }
+                .pr-civil-page .dc-title {
+                    text-align: center;
+                    color: var(--navy);
+                    font-size: 28px;
+                    font-weight: 800;
+                    margin-bottom: 8px;
+                }
+                .pr-civil-page .dc-title-line {
+                    width: 60px; height: 3px;
+                    background: linear-gradient(90deg, var(--gold), #d8902f);
+                    margin: 0 auto 35px;
+                    border-radius: 2px;
+                }
+
+                .pr-civil-page .cap-cards {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 25px;
+                }
+                .pr-civil-page .cap-card {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 35px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 1fr 220px;
+                    gap: 25px;
+                    align-items: stretch;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-civil-page .cap-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.5s ease;
+                }
+                .pr-civil-page .cap-card:hover::before {
+                    transform: scaleX(1);
+                }
+                .pr-civil-page .cap-card:hover {
+                    transform: translateY(-6px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                }
+                .pr-civil-page .cap-head {
+                    grid-column: 1 / -1;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+                .pr-civil-page .cap-icon {
+                    width: 52px; height: 52px;
+                    background: var(--navy);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-civil-page .cap-icon::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: var(--gold);
+                    transform: scale(0);
+                    border-radius: 50%;
+                    transition: transform 0.4s ease;
+                }
+                .pr-civil-page .cap-card:hover .cap-icon {
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-civil-page .cap-card:hover .cap-icon::before {
+                    transform: scale(1);
+                }
+                .pr-civil-page .cap-icon i {
+                    color: var(--gold);
+                    font-size: 22px;
+                    transition: color 0.4s ease;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-civil-page .cap-card:hover .cap-icon i {
+                    color: var(--navy);
+                }
+                .pr-civil-page .cap-head h3 {
+                    color: var(--navy);
+                    font-size: 22px;
+                    font-weight: 800;
+                }
+                .pr-civil-page .cap-sub-line {
+                    grid-column: 1 / -1;
+                    width: 40px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: -10px 0 5px 67px;
+                    transition: width 0.4s ease;
+                }
+                .pr-civil-page .cap-card:hover .cap-sub-line {
+                    width: 85px;
+                }
+                .pr-civil-page .cap-card ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .pr-civil-page .cap-card ul li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    color: var(--text);
+                    font-size: 13.5px;
+                    padding: 8px 0;
+                    line-height: 1.5;
+                    transition: all 0.3s ease;
+                    border-radius: 4px;
+                }
+                .pr-civil-page .cap-card ul li:hover {
+                    color: var(--navy);
+                    transform: translateX(6px);
+                }
+                .pr-civil-page .cap-card ul li i {
+                    color: var(--gold);
+                    font-size: 13px;
+                    margin-top: 3px;
+                    flex-shrink: 0;
+                    transition: transform 0.3s ease;
+                }
+                .pr-civil-page .cap-card ul li:hover i {
+                    transform: scale(1.3) rotate(15deg);
+                }
+                .pr-civil-page .cap-card .card-image {
+                    border-radius: 10px;
+                    overflow: hidden;
+                    min-height: 240px;
+                    position: relative;
+                }
+                .pr-civil-page .cap-card .card-image::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(6,38,75,0.2), transparent);
+                    transition: opacity 0.4s ease;
+                }
+                .pr-civil-page .cap-card:hover .card-image::after {
+                    opacity: 0;
+                }
+                .pr-civil-page .cap-card .card-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.6s ease;
+                }
+                .pr-civil-page .cap-card:hover .card-image img {
+                    transform: scale(1.1);
+                }
+
+                /* ===== VALUES STRIP ===== */
+                .pr-civil-page .values-strip {
+                    background: #fff;
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    padding: 45px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                }
+                .pr-civil-page .values-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 0;
+                }
+                .pr-civil-page .value-item {
+                    text-align: center;
+                    padding: 15px 18px;
+                    border-right: 1px solid var(--border);
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    cursor: pointer;
+                }
+                .pr-civil-page .value-item::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                    width: 0;
+                    height: 3px;
+                    background: var(--gold);
+                    transition: all 0.4s ease;
+                    transform: translateX(-50%);
+                }
+                .pr-civil-page .value-item:hover::before {
+                    width: 60%;
+                }
+                .pr-civil-page .value-item:last-child { border-right: none; }
+                .pr-civil-page .value-item:hover {
+                    transform: translateY(-8px);
+                    background: rgba(233,162,62,0.03);
+                }
+                .pr-civil-page .value-icon {
+                    width: 65px; height: 65px;
+                    margin: 0 auto 15px;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                    border-radius: 50%;
+                    background: rgba(233,162,62,0.08);
+                }
+                .pr-civil-page .value-item:hover .value-icon {
+                    background: var(--gold);
+                    transform: scale(1.15) rotate(360deg);
+                    box-shadow: 0 8px 20px rgba(233,162,62,0.4);
+                }
+                .pr-civil-page .value-icon i {
+                    color: var(--gold);
+                    font-size: 28px;
+                    transition: color 0.4s ease;
+                }
+                .pr-civil-page .value-item:hover .value-icon i {
+                    color: #fff;
+                }
+                .pr-civil-page .value-item h4 {
+                    color: var(--navy);
+                    font-size: 15px;
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    transition: color 0.3s ease;
+                }
+                .pr-civil-page .value-item:hover h4 {
+                    color: var(--gold);
+                }
+                .pr-civil-page .value-item p {
+                    color: var(--muted);
+                    font-size: 12.5px;
+                    line-height: 1.6;
+                }
+
+                /* ===== CTA BANNER ===== */
+                .pr-civil-page .cta-banner {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    padding: 35px 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-civil-page .cta-banner::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -10%;
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.1) 0%, transparent 70%);
+                    animation: floatGlow 6s ease-in-out infinite;
+                }
+                .pr-civil-page .cta-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 22px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-civil-page .cta-icon {
+                    width: 60px; height: 60px;
+                    background: transparent;
+                    border: 2px solid var(--gold);
+                    border-radius: 12px;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                }
+                .pr-civil-page .cta-banner:hover .cta-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-civil-page .cta-icon i {
+                    color: var(--gold);
+                    font-size: 24px;
+                    transition: color 0.4s ease;
+                }
+                .pr-civil-page .cta-banner:hover .cta-icon i {
+                    color: #fff;
+                }
+                .pr-civil-page .cta-text h3 {
+                    color: #fff;
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 5px;
+                }
+                .pr-civil-page .cta-text p {
+                    color: #cbd5e1;
+                    font-size: 14px;
+                }
+                .pr-civil-page .cta-btn {
+                    background: linear-gradient(45deg, var(--gold), #d8902f);
+                    color: #fff;
+                    padding: 14px 30px;
+                    border-radius: 50px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    text-decoration: none;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                    position: relative;
+                    overflow: hidden;
+                    z-index: 2;
+                }
+                .pr-civil-page .cta-btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    transition: left 0.5s;
+                }
+                .pr-civil-page .cta-btn:hover::before { left: 100%; }
+                .pr-civil-page .cta-btn:hover {
+                    color: #fff;
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(233,162,62,0.6);
+                }
+                .pr-civil-page .cta-btn i {
+                    transition: transform 0.3s ease;
+                }
+                .pr-civil-page .cta-btn:hover i {
+                    transform: translateX(5px);
+                }
+
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 992px) {
+                    .pr-civil-page .cs-hero-content { padding: 0 30px; }
+                    .pr-civil-page .cs-hero-content h1 { font-size: 42px; }
+                    .pr-civil-page .description-section { grid-template-columns: 1fr; padding: 30px; }
+                    .pr-civil-page .cap-cards { grid-template-columns: 1fr; }
+                    .pr-civil-page .cap-card { grid-template-columns: 1fr; }
+                    .pr-civil-page .values-grid { grid-template-columns: repeat(2, 1fr); }
+                    .pr-civil-page .value-item { border-right: none; border-bottom: 1px solid var(--border); padding: 20px; }
+                    .pr-civil-page .cta-banner { flex-direction: column; text-align: center; padding: 30px; }
+                }
+                @media (max-width: 600px) {
+                    .pr-civil-page .cs-hero-content h1 { font-size: 34px; }
+                    .pr-civil-page .values-grid { grid-template-columns: 1fr; }
+                }
+            </style>
+
+            <div class="pr-civil-page">
+
+                <!-- ===== HERO ===== -->
+                <section class="cs-hero">
+                    <div class="cs-hero-overlay"></div>
+                    <div class="cs-hero-content">
+                        <div class="breadcrumb-nav">
+                            <a href="/">Home</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <a href="/services">Services</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <span class="current">Civil &amp; Structural</span>
+                        </div>
+                        <h1>Civil &amp;<br/>Structural<span class="dot">.</span></h1>
+                        <div class="gold-line"></div>
+                        <p>Delivering safe, sustainable and cost-effective civil and structural engineering solutions built on innovation, precision and experience.</p>
+                    </div>
+                </section>
+
+                <!-- ===== DESCRIPTION ===== -->
+                <section class="description-section scroll-fade">
+                    <p>PETRORAQ has contributed its civil engineering expertise for the design of reinforced concrete and steel structures using latest design software. Similarly, we have provided innovative solutions for the repair and rehabilitation of existing structures. The designs, which are cost effective and safe, are done by adopting latest methods for analysis and design of structures to international standards.</p>
+
+                    <p>PETRORAQ provides structural design solutions, focused on constructability, safety and ease of installation. Its engineers have the capability to design among others a wide range of reinforced concrete and steel structures. Also included is pre-cast and pre-stressed concrete construction. They have developed expertise in the repair and rehabilitation of structures using construction chemicals and analysis and design of Blast proof and Earthquake resistant structures. Alternate design methods are used to verify the adequacy of the designs.</p>
+
+                    <div class="description-image">
+                        <img src="/pr_website/static/images/civil-hero-1.png" alt="Engineers on site"/>
+                    </div>
+                </section>
+
+                <!-- ===== DESIGN CAPABILITIES ===== -->
+                <section class="design-capabilities">
+                    <h2 class="dc-title scroll-fade">Design Capabilities</h2>
+                    <div class="dc-title-line scroll-fade"></div>
+
+                    <div class="cap-cards">
+
+                        <!-- CIVIL -->
+                        <div class="cap-card scroll-left">
+                            <div class="cap-head">
+                                <div class="cap-icon"><i class="fa fa-city"></i></div>
+                                <h3>Civil:</h3>
+                            </div>
+                            <div class="cap-sub-line"></div>
+                            <ul>
+                                <li><i class="fa fa-check-circle"></i>Site Planning and Layouts</li>
+                                <li><i class="fa fa-check-circle"></i>Grading and Drainage Plans</li>
+                                <li><i class="fa fa-check-circle"></i>Roads and Highways</li>
+                                <li><i class="fa fa-check-circle"></i>External Utilities</li>
+                            </ul>
+                            <div class="card-image">
+                                <img src="/pr_website/static/images/civil-card-1.png" alt="Highway aerial"/>
+                            </div>
+                        </div>
+
+                        <!-- STRUCTURAL -->
+                        <div class="cap-card scroll-right">
+                            <div class="cap-head">
+                                <div class="cap-icon"><i class="fa fa-building"></i></div>
+                                <h3>Structural:</h3>
+                            </div>
+                            <div class="cap-sub-line"></div>
+                            <ul>
+                                <li><i class="fa fa-check-circle"></i>Reinforced Concrete Structures</li>
+                                <li><i class="fa fa-check-circle"></i>Pre-cast Concrete Structures</li>
+                                <li><i class="fa fa-check-circle"></i>Pre-stressed concrete Structures</li>
+                                <li><i class="fa fa-check-circle"></i>Steel Structures</li>
+                                <li><i class="fa fa-check-circle"></i>Building and equipment foundations</li>
+                                <li><i class="fa fa-check-circle"></i>Bridges, Culverts, Tunnels and Retaining Walls</li>
+                                <li><i class="fa fa-check-circle"></i>Electrical Substations</li>
+                                <li><i class="fa fa-check-circle"></i>Multi-storied Parking Lots</li>
+                                <li><i class="fa fa-check-circle"></i>Underground Reservoirs and Elevated Water Tanks</li>
+                                <li><i class="fa fa-check-circle"></i>Wharfs and Docking Yards</li>
+                                <li><i class="fa fa-check-circle"></i>Power Transmission and Communication Towers</li>
+                            </ul>
+                            <div class="card-image">
+                                <img src="/pr_website/static/images/civil-card-2.png" alt="Steel structure"/>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- ===== VALUES STRIP ===== -->
+                <section class="values-strip scroll-fade">
+                    <div class="values-grid">
+                        <div class="value-item scroll-fade delay-1">
+                            <div class="value-icon"><i class="fa fa-shield-alt"></i></div>
+                            <h4>Safety First</h4>
+                            <p>Designed with safety as our top priority.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-2">
+                            <div class="value-icon"><i class="fa fa-bullseye"></i></div>
+                            <h4>Precision Engineering</h4>
+                            <p>Accurate designs that ensure efficiency.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-3">
+                            <div class="value-icon"><i class="fa fa-dollar-sign"></i></div>
+                            <h4>Cost Effective</h4>
+                            <p>Optimized solutions that deliver maximum value.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-4">
+                            <div class="value-icon"><i class="fa fa-building"></i></div>
+                            <h4>Global Standards</h4>
+                            <p>Compliant with international codes and regulations.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-5">
+                            <div class="value-icon"><i class="fa fa-leaf"></i></div>
+                            <h4>Sustainable Solutions</h4>
+                            <p>Environmentally responsible engineering practices.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== CTA BANNER ===== -->
+                <section class="cta-banner scroll-fade">
+                    <div class="cta-left">
+                        <div class="cta-icon"><i class="fa fa-file-alt"></i></div>
+                        <div class="cta-text">
+                            <h3>Have a project in mind?</h3>
+                            <p>Our civil &amp; structural engineering experts are ready to bring your vision to life.</p>
+                        </div>
+                    </div>
+                    <a href="/contact-us" class="cta-btn">
+                        Request a Quote
+                        <i class="fa fa-arrow-right"></i>
+                    </a>
+                </section>
+
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var observerOptions = {
+                        threshold: 0.15,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, observerOptions);
+
+                    var animatedElements = document.querySelectorAll('.pr-civil-page .scroll-fade, .pr-civil-page .scroll-left, .pr-civil-page .scroll-right');
+                    animatedElements.forEach(function(el) {
+                        observer.observe(el);
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <template id="petroraq_about_us" name="PETRORAQ About Us" >
+        <template id="petroraq_about_us" name="PETRORAQ About Us">
             <t t-call="website.layout">
                 <t t-set="additional_title">About Us - PETRORAQ</t>
 
-                <!-- Font Awesome &amp; Google Fonts -->
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
                 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 
@@ -17,8 +16,11 @@
                         font-family: 'Poppins', sans-serif;
                     }
                     .petroraq-about {
-                        background: #ffffff;
-                        color: #0a2540;
+                        --blue: #0a2540;
+                        --gold: #d89a2b;
+                        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                        color: var(--blue);
+                        overflow-x: hidden;
                     }
                     .petroraq-about .pr-container {
                         max-width: 1200px;
@@ -26,489 +28,651 @@
                         padding: 0 20px;
                     }
 
-                    /* ===== Hero Section ===== */
+                    /* ===== ANIMATION CLASSES ===== */
+                    .animate-slide-up {
+                        opacity: 0;
+                        transform: translateY(60px);
+                        animation: slideUp 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    }
+                    .animate-fade-in {
+                        opacity: 0;
+                        animation: fadeIn 1.2s ease forwards;
+                    }
+                    .animate-scale-up {
+                        opacity: 0;
+                        transform: scale(0.85);
+                        animation: scaleUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    }
+                    .animate-float {
+                        animation: float 4s ease-in-out infinite;
+                    }
+                    .delay-100 { animation-delay: 0.1s; }
+                    .delay-200 { animation-delay: 0.2s; }
+                    .delay-300 { animation-delay: 0.3s; }
+                    .delay-400 { animation-delay: 0.4s; }
+                    .delay-500 { animation-delay: 0.5s; }
+
+                    @keyframes slideUp {
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    @keyframes fadeIn {
+                        to { opacity: 1; }
+                    }
+                    @keyframes scaleUp {
+                        to { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-12px); }
+                    }
+
+                    /* ===== Hero Section - BLENDED DESIGN ===== */
                     .petroraq-about .about-hero {
                         position: relative;
-                        min-height: 360px;
-                        background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf0 100%);
-                        overflow: hidden;
+                        min-height: 550px;
+                        background: linear-gradient(135deg, rgba(10,37,64,0.05) 0%, rgba(248,250,252,0.8) 50%),
+                                    url('/pr_website/static/images/hero-bg.png') center/cover no-repeat;
                         display: flex;
                         align-items: center;
+                        overflow: hidden;
                     }
-                    .petroraq-about .hero-wrap {
-                        display: grid;
-                        grid-template-columns: 1fr 1.2fr;
-                        gap: 0;
-                        width: 100%;
-                        min-height: 360px;
-                        align-items: stretch;
+                    .petroraq-about .hero-overlay {
+                        position: absolute;
+                        inset: 0;
+                        background: linear-gradient(135deg, rgba(10,37,64,0.85) 0%, rgba(10,37,64,0.6) 50%, rgba(248,250,252,0.1) 100%);
+                        z-index: 1;
                     }
-                    .petroraq-about .hero-left {
-                        padding: 70px 60px;
+                    .petroraq-about .about-hero:hover .hero-overlay {
+                        background: linear-gradient(135deg, rgba(10,37,64,0.8) 0%, rgba(10,37,64,0.55) 50%, rgba(248,250,252,0.05) 100%);
+                    }
+                    .petroraq-about .hero-content {
+                        position: relative;
+                        z-index: 2;
+                        padding: 100px 80px;
+                        color: #fff;
+                        max-width: 700px;
                         display: flex;
                         flex-direction: column;
                         justify-content: center;
                     }
-                    .petroraq-about .hero-left h1 {
-                        font-size: 60px;
-                        font-weight: 700;
-                        color: #0a2540;
-                        margin-bottom: 20px;
-                        line-height: 1;
-                    }
-                    .petroraq-about .hero-left h1 .dot {
-                        color: #d89a2b;
-                    }
-                    .petroraq-about .hero-left p {
-                        font-size: 14px;
-                        line-height: 1.7;
-                        color: #4a5568;
-                        max-width: 420px;
+                    .petroraq-about .hero-content h1 {
+                        font-size: 58px;
+                        font-weight: 800;
+                        line-height: 1.15;
                         margin-bottom: 25px;
+                        color: #fff;
+                    }
+                    .petroraq-about .hero-content h1 .dot {
+                        color: var(--gold);
+                        position: relative;
+                    }
+                    .petroraq-about .hero-content h1 .dot::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -10px;
+                        left: 0;
+                        width: 0;
+                        height: 4px;
+                        background: var(--gold);
+                        transition: width 0.6s ease;
+                        border-radius: 2px;
+                    }
+                    .petroraq-about .about-hero:hover .dot::after {
+                        width: 100%;
+                    }
+                    .petroraq-about .hero-content p {
+                        font-size: 18px;
+                        line-height: 1.8;
+                        color: #d8dfe8;
+                        margin-bottom: 35px;
+                        max-width: 550px;
                     }
                     .petroraq-about .hero-accent {
-                        width: 60px;
-                        height: 3px;
-                        background: #d89a2b;
-                    }
-                    .petroraq-about .hero-right {
-                        background: url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1600&amp;q=80') center/cover no-repeat;
-                        min-height: 360px;
+                        width: 120px;
+                        height: 5px;
+                        background: linear-gradient(90deg, var(--gold), #e5b55b);
+                        border-radius: 3px;
+                        box-shadow: 0 5px 20px rgba(216,154,43,0.4);
+                        align-self: flex-start;
                     }
 
-                    /* ===== Section Padding ===== */
-                    .petroraq-about .section {
-                        padding: 60px 0;
+                    /* ===== Section Styles ===== */
+                    .petroraq-about .section-padding {
+                        padding: 120px 0;
                     }
                     .petroraq-about .section-title {
                         text-align: center;
-                        font-size: 22px;
-                        font-weight: 700;
-                        color: #0a2540;
-                        margin-bottom: 30px;
+                        font-size: 42px;
+                        font-weight: 800;
+                        color: var(--blue);
+                        margin-bottom: 70px;
                         position: relative;
-                        padding-bottom: 10px;
                     }
                     .petroraq-about .section-title::after {
                         content: '';
                         position: absolute;
+                        bottom: -20px;
                         left: 50%;
-                        bottom: 0;
                         transform: translateX(-50%);
-                        width: 50px;
-                        height: 2px;
-                        background: #d89a2b;
+                        width: 100px;
+                        height: 5px;
+                        background: linear-gradient(90deg, var(--gold), #e5b55b);
+                        border-radius: 3px;
                     }
 
                     /* ===== Who We Are ===== */
-                    .petroraq-about .who-section {
-                        padding: 50px 0;
-                    }
                     .petroraq-about .who-grid {
                         display: grid;
-                        grid-template-columns: 1fr 2fr;
-                        gap: 40px;
-                        align-items: start;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 80px;
+                        align-items: center;
                     }
                     .petroraq-about .who-text h2 {
-                        font-size: 20px;
-                        font-weight: 700;
-                        color: #0a2540;
-                        margin-bottom: 18px;
+                        font-size: 36px;
+                        font-weight: 800;
+                        color: var(--blue);
+                        margin-bottom: 30px;
+                        line-height: 1.3;
                     }
                     .petroraq-about .who-text p {
                         color: #6b7a8f;
-                        font-size: 12.5px;
-                        line-height: 1.8;
-                        margin-bottom: 12px;
-                    }
-                    .petroraq-about .who-stats {
-                        display: grid;
-                        grid-template-columns: repeat(4, 1fr);
-                        gap: 15px;
-                    }
-                    .petroraq-about .stat-card {
-                        background: #fff;
-                        border: 1px solid #e5e8ec;
-                        border-radius: 10px;
-                        padding: 25px 15px;
-                        text-align: center;
-                        transition: transform 0.3s, box-shadow 0.3s;
-                    }
-                    .petroraq-about .stat-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-                    }
-                    .petroraq-about .stat-card i {
-                        font-size: 32px;
-                        color: #d89a2b;
-                        margin-bottom: 12px;
-                    }
-                    .petroraq-about .stat-card h3 {
                         font-size: 16px;
-                        font-weight: 700;
-                        color: #0a2540;
-                        margin-bottom: 6px;
-                        line-height: 1.3;
-                    }
-                    .petroraq-about .stat-card p {
-                        font-size: 11px;
-                        color: #6b7a8f;
-                        line-height: 1.5;
+                        line-height: 1.9;
+                        margin-bottom: 25px;
                     }
 
-                    /* ===== Mission / Vision ===== */
-                    .petroraq-about .mv-section {
-                        padding: 20px 0 50px;
+                    /* ===== FIXED: Wider Stat Cards ===== */
+                    .petroraq-about .who-stats {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 30px;
                     }
+                    .petroraq-about .stat-card {
+                        background: linear-gradient(145deg, #fff, #f8fafc);
+                        border: 2px solid #e8ecf2;
+                        border-radius: 24px;
+                        padding: 45px 35px;
+                        text-align: center;
+                        box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+                        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                        min-height: 200px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                    }
+                    .petroraq-about .stat-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 0;
+                        height: 6px;
+                        background: linear-gradient(90deg, var(--gold), #e5b55b);
+                        transition: width 0.6s ease;
+                    }
+                    .petroraq-about .stat-card:hover::before {
+                        width: 100%;
+                    }
+                    .petroraq-about .stat-card:hover {
+                        transform: translateY(-20px) scale(1.05);
+                        box-shadow: 0 40px 80px rgba(0,0,0,0.15);
+                        border-color: rgba(216,154,43,0.3);
+                    }
+                    .petroraq-about .stat-card i {
+                        font-size: 48px;
+                        color: var(--gold);
+                        margin-bottom: 25px;
+                        transition: all 0.4s ease;
+                        display: block;
+                    }
+                    .petroraq-about .stat-card:hover i {
+                        transform: scale(1.2) rotateY(360deg);
+                    }
+                    .petroraq-about .stat-card h3 {
+                        font-size: 24px;
+                        font-weight: 800;
+                        color: var(--blue);
+                        margin-bottom: 15px;
+                    }
+                    .petroraq-about .stat-card p {
+                        font-size: 15px;
+                        color: #6b7a8f;
+                        line-height: 1.7;
+                        font-weight: 500;
+                    }
+
+                    /* ===== Mission Vision ===== */
                     .petroraq-about .mv-grid {
                         display: grid;
                         grid-template-columns: 1fr 1fr;
-                        gap: 20px;
+                        gap: 50px;
                     }
                     .petroraq-about .mv-card {
-                        background: #fff;
-                        border: 1px solid #e5e8ec;
-                        border-left: 4px solid #d89a2b;
-                        border-radius: 10px;
-                        padding: 30px;
+                        background: linear-gradient(145deg, #fff, #f8fafc);
+                        border: 2px solid #e8ecf2;
+                        border-radius: 24px;
+                        padding: 45px;
                         display: flex;
-                        gap: 22px;
+                        gap: 30px;
                         align-items: flex-start;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+                        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .petroraq-about .mv-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 0;
+                        height: 6px;
+                        background: linear-gradient(90deg, var(--gold), #e5b55b);
+                        transition: width 0.6s ease;
+                    }
+                    .petroraq-about .mv-card:hover::before {
+                        width: 100%;
+                    }
+                    .petroraq-about .mv-card:hover {
+                        transform: translateY(-20px) scale(1.02);
+                        box-shadow: 0 50px 100px rgba(0,0,0,0.15);
+                        border-color: rgba(216,154,43,0.3);
                     }
                     .petroraq-about .mv-icon {
-                        width: 75px;
-                        height: 75px;
-                        background: #fff;
-                        border: 2px solid #d89a2b;
-                        border-radius: 50%;
+                        width: 85px;
+                        height: 85px;
+                        background: linear-gradient(135deg, var(--blue), #1a3a6a);
+                        border-radius: 24px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         flex-shrink: 0;
+                        box-shadow: 0 15px 40px rgba(10,37,64,0.3);
+                    }
+                    .petroraq-about .mv-card:hover .mv-icon {
+                        transform: scale(1.1) rotateY(360deg);
                     }
                     .petroraq-about .mv-icon i {
-                        color: #d89a2b;
-                        font-size: 28px;
+                        color: var(--gold);
+                        font-size: 32px;
                     }
                     .petroraq-about .mv-text h3 {
-                        font-size: 19px;
-                        font-weight: 700;
-                        color: #0a2540;
-                        margin-bottom: 10px;
+                        font-size: 24px;
+                        font-weight: 800;
+                        color: var(--blue);
+                        margin-bottom: 20px;
                     }
                     .petroraq-about .mv-text p {
-                        font-size: 12.5px;
+                        font-size: 16px;
+                        color: #6b7a8f;
+                        line-height: 1.8;
+                    }
+
+                    /* ===== Core Values ===== */
+                    .petroraq-about .values-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                        gap: 30px;
+                    }
+                    .petroraq-about .value-card {
+                        background: linear-gradient(145deg, #fff, #f8fafc);
+                        border: 2px solid #e8ecf2;
+                        border-radius: 24px;
+                        padding: 45px 30px;
+                        text-align: center;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+                        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .petroraq-about .value-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 0;
+                        background: linear-gradient(135deg, var(--gold), #e5b55b);
+                        transition: height 0.6s ease;
+                    }
+                    .petroraq-about .value-card:hover::before {
+                        height: 6px;
+                    }
+                    .petroraq-about .value-card:hover {
+                        transform: translateY(-20px) scale(1.02);
+                        box-shadow: 0 50px 100px rgba(0,0,0,0.15);
+                        border-color: var(--gold);
+                    }
+                    .petroraq-about .value-card i {
+                        font-size: 48px;
+                        color: var(--gold);
+                        margin-bottom: 25px;
+                        transition: all 0.4s ease;
+                        display: block;
+                    }
+                    .petroraq-about .value-card:hover i {
+                        transform: scale(1.2) rotate(360deg);
+                    }
+                    .petroraq-about .value-card h4 {
+                        font-size: 22px;
+                        font-weight: 800;
+                        color: var(--blue);
+                        margin-bottom: 15px;
+                    }
+                    .petroraq-about .value-card p {
+                        font-size: 15px;
                         color: #6b7a8f;
                         line-height: 1.7;
                     }
 
-                    /* ===== Core Values ===== */
-                    .petroraq-about .values-section {
-                        padding: 40px 0;
-                    }
-                    .petroraq-about .values-grid {
-                        display: grid;
-                        grid-template-columns: repeat(6, 1fr);
-                        gap: 15px;
-                    }
-                    .petroraq-about .value-card {
-                        background: #fff;
-                        border: 1px solid #e5e8ec;
-                        border-radius: 10px;
-                        padding: 25px 15px;
-                        text-align: center;
-                        transition: transform 0.3s, box-shadow 0.3s;
-                    }
-                    .petroraq-about .value-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-                    }
-                    .petroraq-about .value-card i {
-                        font-size: 30px;
-                        color: #d89a2b;
-                        margin-bottom: 12px;
-                    }
-                    .petroraq-about .value-card h4 {
-                        font-size: 13px;
-                        font-weight: 700;
-                        color: #0a2540;
-                        margin-bottom: 8px;
-                    }
-                    .petroraq-about .value-card p {
-                        font-size: 10.5px;
-                        color: #6b7a8f;
-                        line-height: 1.5;
-                    }
-
-                    /* ===== Our Expertise ===== */
-                    .petroraq-about .expertise-section {
-                        padding: 40px 0;
-                    }
-                    .petroraq-about .expertise-grid {
-                        display: grid;
-                        grid-template-columns: repeat(5, 1fr);
-                        gap: 15px;
-                        margin-bottom: 15px;
-                    }
-                    .petroraq-about .expertise-grid-4 {
-                        display: grid;
-                        grid-template-columns: repeat(4, 1fr);
-                        gap: 15px;
-                        max-width: 85%;
-                        margin: 0 auto;
-                    }
-                    .petroraq-about .expertise-card {
-                        background: #fff;
-                        border: 1px solid #e5e8ec;
-                        border-radius: 10px;
-                        padding: 28px 15px;
-                        text-align: center;
-                        transition: transform 0.3s, box-shadow 0.3s;
-                        min-height: 130px;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 10px;
-                    }
-                    .petroraq-about .expertise-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-                        border-color: #d89a2b;
-                    }
-                    .petroraq-about .expertise-card i {
-                        font-size: 32px;
-                        color: #d89a2b;
-                    }
-                    .petroraq-about .expertise-card p {
-                        font-size: 12px;
-                        font-weight: 600;
-                        color: #0a2540;
-                        line-height: 1.3;
-                    }
-
-                    /* ===== Certifications ===== */
-                    .petroraq-about .certs-section {
-                        padding: 40px 0 60px;
-                    }
+                    .petroraq-about .expertise-grid,
                     .petroraq-about .certs-grid {
                         display: grid;
-                        grid-template-columns: repeat(5, 1fr);
-                        gap: 15px;
+                        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                        gap: 30px;
                     }
+                    .petroraq-about .expertise-card,
                     .petroraq-about .cert-card {
-                        background: #fff;
-                        border: 1px solid #e5e8ec;
-                        border-radius: 10px;
-                        padding: 25px 18px;
+                        background: linear-gradient(145deg, #fff, #f8fafc);
+                        border: 2px solid #e8ecf2;
+                        border-radius: 24px;
+                        padding: 45px 30px;
                         text-align: center;
-                        transition: transform 0.3s;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+                        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                        min-height: 220px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
                     }
+                    .petroraq-about .expertise-card::before,
+                    .petroraq-about .cert-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 0;
+                        height: 6px;
+                        background: linear-gradient(90deg, var(--gold), #e5b55b);
+                        transition: width 0.6s ease;
+                    }
+                    .petroraq-about .expertise-card:hover::before,
+                    .petroraq-about .cert-card:hover::before {
+                        width: 100%;
+                    }
+                    .petroraq-about .expertise-card:hover,
                     .petroraq-about .cert-card:hover {
-                        transform: translateY(-3px);
-                        box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+                        transform: translateY(-20px) scale(1.02);
+                        box-shadow: 0 50px 100px rgba(0,0,0,0.15);
+                        border-color: rgba(216,154,43,0.3);
                     }
-                    .petroraq-about .cert-icon {
-                        font-size: 36px;
-                        color: #d89a2b;
-                        margin-bottom: 12px;
+                    .petroraq-about .expertise-card i,
+                    .petroraq-about .cert-card i {
+                        font-size: 48px;
+                        color: var(--gold);
+                        margin-bottom: 20px;
+                        transition: all 0.4s ease;
                     }
-                    .petroraq-about .cert-iso {
-                        font-size: 28px;
-                        font-weight: 800;
-                        color: #d89a2b;
-                        margin-bottom: 8px;
-                        letter-spacing: 1px;
+                    .petroraq-about .expertise-card:hover i,
+                    .petroraq-about .cert-card:hover i {
+                        transform: scale(1.2) rotateY(360deg);
                     }
+                    .petroraq-about .expertise-card h4,
                     .petroraq-about .cert-card h4 {
-                        font-size: 14px;
+                        font-size: 20px;
                         font-weight: 700;
-                        color: #0a2540;
-                        margin-bottom: 10px;
+                        color: var(--blue);
+                        margin-bottom: 15px;
                     }
+                    .petroraq-about .expertise-card p,
                     .petroraq-about .cert-card p {
-                        font-size: 11px;
+                        font-size: 15px;
                         color: #6b7a8f;
-                        line-height: 1.5;
+                        line-height: 1.7;
+                        text-align: center;
                     }
 
                     /* ===== CTA Banner ===== */
-                    .petroraq-about .cta-section {
-                        padding: 30px 0 50px;
-                    }
                     .petroraq-about .cta-banner {
-                        background: #0a2540;
+                        background: linear-gradient(135deg, var(--blue) 0%, #071a2f 100%);
                         background-image:
-                            radial-gradient(circle at 90% 50%, rgba(216,154,43,0.08) 0%, transparent 50%),
-                            linear-gradient(135deg, #0a2540 0%, #071a2f 100%);
-                        border: 1px solid rgba(216,154,43,0.25);
-                        border-radius: 12px;
-                        padding: 30px 40px;
+                            radial-gradient(circle at 20% 80%, rgba(216,154,43,0.15) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 20%, rgba(216,154,43,0.1) 0%, transparent 50%);
+                        border: 3px solid rgba(216,154,43,0.4);
+                        border-radius: 30px;
+                        padding: 70px 80px;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
                         flex-wrap: wrap;
-                        gap: 25px;
+                        gap: 40px;
+                        position: relative;
+                        overflow: hidden;
+                        box-shadow: 0 30px 90px rgba(10,37,64,0.3);
+                    }
+                    .petroraq-about .cta-banner::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        left: -50%;
+                        width: 200%;
+                        height: 200%;
+                        background: conic-gradient(from 0deg, transparent, rgba(216,154,43,0.08), transparent);
+                        animation: rotateGlow 15s linear infinite;
+                        z-index: 0;
                     }
                     .petroraq-about .cta-left {
                         display: flex;
                         align-items: center;
-                        gap: 22px;
+                        gap: 30px;
+                        position: relative;
+                        z-index: 2;
+                        flex: 1;
                     }
                     .petroraq-about .hex-icon {
-                        width: 60px;
-                        height: 60px;
-                        background: transparent;
-                        border: 2px solid #d89a2b;
+                        width: 85px;
+                        height: 85px;
+                        background: linear-gradient(135deg, var(--gold), #e5b55b);
                         clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         flex-shrink: 0;
+                        box-shadow: 0 20px 50px rgba(216,154,43,0.4);
+                        transition: all 0.5s ease;
+                        animation: float 3s ease-in-out infinite;
+                    }
+                    .petroraq-about .cta-banner:hover .hex-icon {
+                        transform: rotate(360deg) scale(1.1);
                     }
                     .petroraq-about .hex-icon i {
-                        color: #d89a2b;
-                        font-size: 22px;
+                        color: #fff;
+                        font-size: 32px;
                     }
                     .petroraq-about .cta-text h3 {
                         color: #fff;
-                        font-size: 22px;
-                        font-weight: 700;
-                        margin-bottom: 4px;
+                        font-size: 36px;
+                        font-weight: 800;
+                        margin-bottom: 12px;
+                        line-height: 1.3;
                     }
                     .petroraq-about .cta-text p {
                         color: #b8c5d6;
-                        font-size: 13px;
+                        font-size: 18px;
+                        margin: 0;
                     }
                     .petroraq-about .cta-buttons {
                         display: flex;
-                        gap: 12px;
+                        gap: 25px;
+                        position: relative;
+                        z-index: 2;
                     }
                     .petroraq-about .btn-cta-primary,
                     .petroraq-about .btn-cta-outline {
-                        padding: 13px 28px;
-                        border-radius: 6px;
-                        font-size: 13px;
-                        font-weight: 600;
+                        padding: 22px 45px;
+                        border-radius: 24px;
+                        font-size: 16px;
+                        font-weight: 700;
                         text-decoration: none;
                         display: inline-flex;
                         align-items: center;
-                        gap: 10px;
-                        transition: all 0.3s;
+                        gap: 12px;
+                        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                        font-family: inherit;
                     }
                     .petroraq-about .btn-cta-primary {
-                        background: #d89a2b;
+                        background: linear-gradient(135deg, var(--gold), #e5b55b);
                         color: #fff;
+                        box-shadow: 0 20px 50px rgba(216,154,43,0.5);
                     }
                     .petroraq-about .btn-cta-primary:hover {
-                        background: #e5a838;
-                        color: #fff;
-                        transform: translateY(-2px);
+                        transform: translateY(-8px) scale(1.05);
+                        box-shadow: 0 35px 70px rgba(216,154,43,0.7);
                     }
                     .petroraq-about .btn-cta-outline {
                         background: transparent;
                         color: #fff;
-                        border: 1px solid rgba(255,255,255,0.3);
+                        border: 3px solid rgba(255,255,255,0.3);
+                        backdrop-filter: blur(20px);
                     }
                     .petroraq-about .btn-cta-outline:hover {
-                        background: rgba(255,255,255,0.08);
-                        color: #fff;
+                        background: rgba(255,255,255,0.15);
+                        border-color: var(--gold);
+                        color: var(--gold);
+                        transform: translateY(-8px) scale(1.05);
+                    }
+
+                    @keyframes rotateGlow {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
                     }
 
                     /* ===== Responsive ===== */
                     @media (max-width: 992px) {
-                        .petroraq-about .hero-wrap { grid-template-columns: 1fr; }
-                        .petroraq-about .hero-right { min-height: 250px; }
-                        .petroraq-about .hero-left { padding: 50px 30px; }
-                        .petroraq-about .hero-left h1 { font-size: 48px; }
-                        .petroraq-about .who-grid { grid-template-columns: 1fr; }
-                        .petroraq-about .who-stats { grid-template-columns: repeat(2, 1fr); }
-                        .petroraq-about .mv-grid { grid-template-columns: 1fr; }
-                        .petroraq-about .values-grid { grid-template-columns: repeat(3, 1fr); }
-                        .petroraq-about .expertise-grid { grid-template-columns: repeat(3, 1fr); }
-                        .petroraq-about .expertise-grid-4 { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
-                        .petroraq-about .certs-grid { grid-template-columns: repeat(2, 1fr); }
+                        .petroraq-about .who-grid {
+                            grid-template-columns: 1fr;
+                            gap: 60px;
+                        }
+                        .petroraq-about .mv-grid {
+                            grid-template-columns: 1fr;
+                            gap: 40px;
+                        }
+                        .petroraq-about .hero-content {
+                            padding: 60px 40px;
+                            text-align: center;
+                        }
+                        .petroraq-about .hero-content h1 {
+                            font-size: 42px;
+                        }
+                        .petroraq-about .values-grid,
+                        .petroraq-about .expertise-grid,
+                        .petroraq-about .certs-grid {
+                            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                        }
                     }
-                    @media (max-width: 600px) {
-                        .petroraq-about .hero-left h1 { font-size: 38px; }
-                        .petroraq-about .values-grid { grid-template-columns: repeat(2, 1fr); }
-                        .petroraq-about .expertise-grid { grid-template-columns: repeat(2, 1fr); }
-                        .petroraq-about .certs-grid { grid-template-columns: 1fr; }
-                        .petroraq-about .cta-banner { flex-direction: column; text-align: center; }
-                        .petroraq-about .cta-left { flex-direction: column; text-align: center; }
-                        .petroraq-about .cta-buttons { width: 100%; flex-direction: column; }
+                    @media (max-width: 768px) {
+                        .petroraq-about .pr-container { padding: 0 15px; }
+                        .petroraq-about .contact-card,
+                        .petroraq-about .stat-card,
+                        .petroraq-about .mv-card,
+                        .petroraq-about .value-card {
+                            margin: 0 10px;
+                        }
+                        .petroraq-about .stat-card:hover,
+                        .petroraq-about .mv-card:hover,
+                        .petroraq-about .value-card:hover {
+                            transform: translateY(-12px) scale(1.02);
+                        }
+                        .petroraq-about .cta-banner {
+                            flex-direction: column;
+                            text-align: center;
+                            padding: 60px 40px;
+                        }
+                        .petroraq-about .cta-left {
+                            flex-direction: column;
+                            text-align: center;
+                        }
+                        .petroraq-about .cta-buttons {
+                            flex-direction: column;
+                            width: 100%;
+                        }
                         .petroraq-about .btn-cta-primary,
-                        .petroraq-about .btn-cta-outline { justify-content: center; width: 100%; }
+                        .petroraq-about .btn-cta-outline {
+                            width: 100%;
+                            justify-content: center;
+                        }
                     }
                 </style>
 
                 <div class="petroraq-about">
-
                     <!-- ===== Hero Section ===== -->
-                    <section class="about-hero">
-                        <div class="hero-wrap">
-                            <div class="hero-left">
-                                <h1>About Us<span class="dot">.</span></h1>
-                                <p>PETRORAQ is a multidisciplinary engineering, procurement, construction, and project management company delivering excellence across Saudi Arabia and the GCC.</p>
-                                <div class="hero-accent"></div>
+                    <section class="about-hero animate-fade-in">
+                        <div class="hero-overlay"></div>
+                        <div class="pr-container">
+                            <div class="hero-content animate-slide-up">
+                                <h1>About PETRORAQ
+                                    <span class="dot">.</span>
+                                </h1>
+                                <p>Engineering excellence meets construction mastery. We deliver comprehensive EPC solutions across Saudi Arabia and GCC with unmatched quality and innovation.</p>
+                                <div class="hero-accent animate-scale-up delay-200"></div>
                             </div>
-                            <div class="hero-right"></div>
                         </div>
                     </section>
 
                     <!-- ===== Who We Are ===== -->
-                    <section class="who-section">
+                    <section class="section-padding">
                         <div class="pr-container">
                             <div class="who-grid">
-                                <div class="who-text">
+                                <div class="who-text animate-slide-up delay-100">
                                     <h2>Who We Are</h2>
-                                    <p>PETRORAQ is an international multidisciplinary engineering and construction organization offering comprehensive solutions in engineering consultancy, procurement, construction, and project management.</p>
-                                    <p>We deliver infrastructure planning and development across residential, commercial, industrial, and environmental sectors, with expertise in mechanical, electrical, piping, telecommunication, BIM, and related disciplines.</p>
-                                    <p>With a skilled workforce and a commitment to excellence, we help our clients build a stronger, more sustainable future.</p>
+                                    <p>PETRORAQ is a leading multidisciplinary engineering, procurement, construction, and project management firm delivering turnkey solutions across diverse sectors.</p>
+                                    <p>Our expertise spans mechanical, electrical, civil, piping, instrumentation, telecommunications, and BIM services, ensuring seamless project execution from concept to completion.</p>
+                                    <p>With a commitment to safety, quality, and innovation, we partner with clients to build infrastructure that stands the test of time.</p>
                                 </div>
                                 <div class="who-stats">
-                                    <div class="stat-card">
-                                        <i class="fa-solid fa-user-group"></i>
-                                        <h3>Multidisciplinary<br/>Expertise</h3>
-                                        <p>End-to-end solutions across all engineering and construction disciplines.</p>
+                                    <div class="stat-card animate-scale-up delay-200">
+                                        <i class="fa fa-users"></i>
+                                        <h3>250+</h3>
+                                        <p>Skilled Professionals</p>
                                     </div>
-                                    <div class="stat-card">
-                                        <i class="fa-solid fa-users"></i>
-                                        <h3>801+<br/><span style="font-weight: 500; font-size: 13px;">Workforce</span></h3>
-                                        <p>Skilled professionals driving projects with excellence and integrity.</p>
-                                    </div>
-                                    <div class="stat-card">
-                                        <i class="fa-solid fa-location-dot"></i>
-                                        <h3>Saudi Arabia<br/>&amp; GCC</h3>
-                                        <p>Delivering projects across Saudi Arabia and the GCC region.</p>
-                                    </div>
-                                    <div class="stat-card">
-                                        <i class="fa-solid fa-shield-halved"></i>
-                                        <h3>ISO<br/>Certified</h3>
-                                        <p>Committed to international standards in quality, safety and environment.</p>
+                                    <div class="stat-card animate-scale-up delay-300">
+                                        <i class="fa fa-globe"></i>
+                                        <h3>GCC Wide</h3>
+                                        <p>Projects Across Region</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- ===== Mission &amp; Vision ===== -->
-                    <section class="mv-section">
+                    <!-- ===== Mission & Vision ===== -->
+                    <section class="section-padding" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
                         <div class="pr-container">
+                            <h2 class="section-title animate-slide-up">Our Purpose</h2>
                             <div class="mv-grid">
-                                <div class="mv-card">
-                                    <div class="mv-icon"><i class="fa-solid fa-bullseye"></i></div>
+                                <div class="mv-card animate-slide-up delay-100">
+                                    <div class="mv-icon">
+                                        <i class="fa fa-bullseye"></i>
+                                    </div>
                                     <div class="mv-text">
                                         <h3>Our Mission</h3>
-                                        <p>To deliver world-class engineering and construction solutions built on innovation, quality, and client satisfaction while fostering long-term partnerships grounded in trust and excellence.</p>
+                                        <p>To deliver world-class engineering and construction solutions with unwavering commitment to quality, safety, innovation, and client satisfaction.</p>
                                     </div>
                                 </div>
-                                <div class="mv-card">
-                                    <div class="mv-icon"><i class="fa-regular fa-eye"></i></div>
+                                <div class="mv-card animate-slide-up delay-200">
+                                    <div class="mv-icon">
+                                        <i class="fa fa-eye"></i>
+                                    </div>
                                     <div class="mv-text">
                                         <h3>Our Vision</h3>
-                                        <p>To be a global leader in engineering and construction, recognized for our quality, innovation, and commitment to sustainable development.</p>
+                                        <p>To be the preferred partner for infrastructure development across the GCC, recognized for excellence, reliability, and sustainable practices.</p>
                                     </div>
                                 </div>
                             </div>
@@ -516,151 +680,164 @@
                     </section>
 
                     <!-- ===== Core Values ===== -->
-                    <section class="values-section">
+                    <section class="section-padding">
                         <div class="pr-container">
-                            <h2 class="section-title">Our Core Values</h2>
+                            <h2 class="section-title animate-slide-up">Core Values</h2>
                             <div class="values-grid">
-                                <div class="value-card">
-                                    <i class="fa-solid fa-shield-halved"></i>
+                                <div class="value-card animate-scale-up delay-100">
+                                    <i class="fa fa-shield-alt"></i>
                                     <h4>Integrity</h4>
-                                    <p>We act with honesty, transparency and ethical responsibility.</p>
+                                    <p>Honesty and transparency in every decision and action</p>
                                 </div>
-                                <div class="value-card">
-                                    <i class="fa-solid fa-star"></i>
+                                <div class="value-card animate-scale-up delay-200">
+                                    <i class="fa fa-star"></i>
                                     <h4>Excellence</h4>
-                                    <p>We strive for the highest standards in everything we do.</p>
+                                    <p>Striving for the highest standards in all we do</p>
                                 </div>
-                                <div class="value-card">
-                                    <i class="fa-solid fa-lightbulb"></i>
+                                <div class="value-card animate-scale-up delay-300">
+                                    <i class="fa fa-lightbulb"></i>
                                     <h4>Innovation</h4>
-                                    <p>We embrace new ideas and technologies to create better solutions.</p>
+                                    <p>Embracing new ideas to solve complex challenges</p>
                                 </div>
-                                <div class="value-card">
-                                    <i class="fa-solid fa-people-group"></i>
+                                <div class="value-card animate-scale-up delay-400">
+                                    <i class="fa fa-users"></i>
                                     <h4>Collaboration</h4>
-                                    <p>We believe in teamwork and strong partnerships to achieve success.</p>
+                                    <p>Teamwork drives our greatest achievements</p>
                                 </div>
-                                <div class="value-card">
-                                    <i class="fa-solid fa-leaf"></i>
+                                <div class="value-card animate-scale-up delay-500">
+                                    <i class="fa fa-leaf"></i>
                                     <h4>Sustainability</h4>
-                                    <p>We are committed to building a better future for generations to come.</p>
+                                    <p>Building for today and tomorrow</p>
                                 </div>
-                                <div class="value-card">
-                                    <i class="fa-solid fa-helmet-safety"></i>
-                                    <h4>Safety</h4>
-                                    <p>We prioritize the health and safety of our people and communities.</p>
+                                <div class="value-card animate-scale-up delay-500">
+                                    <i class="fa fa-hard-hat"></i>
+                                    <h4>Safety First</h4>
+                                    <p>Protecting people is our priority</p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- ===== Our Expertise ===== -->
-                    <section class="expertise-section">
+                    <!-- ===== Expertise ===== -->
+                    <section class="section-padding" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
                         <div class="pr-container">
-                            <h2 class="section-title">Our Expertise</h2>
+                            <h2 class="section-title animate-slide-up">Our Expertise</h2>
                             <div class="expertise-grid">
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-compass-drafting"></i>
-                                    <p>Engineering &amp; Design</p>
+                                <div class="expertise-card animate-scale-up delay-100">
+                                    <i class="fa fa-pencil-ruler"></i>
+                                    <h4>Engineering Design</h4>
                                 </div>
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-cart-shopping"></i>
-                                    <p>Procurement</p>
+                                <div class="expertise-card animate-scale-up delay-200">
+                                    <i class="fa fa-shopping-cart"></i>
+                                    <h4>Procurement</h4>
                                 </div>
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-helmet-safety"></i>
-                                    <p>Construction</p>
+                                <div class="expertise-card animate-scale-up delay-300">
+                                    <i class="fa fa-hard-hat"></i>
+                                    <h4>Construction</h4>
                                 </div>
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-clipboard-list"></i>
-                                    <p>Project Management</p>
+                                <div class="expertise-card animate-scale-up delay-400">
+                                    <i class="fa fa-tasks"></i>
+                                    <h4>Project Management</h4>
                                 </div>
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-bridge"></i>
-                                    <p>Infrastructure &amp; Civil Projects</p>
-                                </div>
-                            </div>
-                            <div class="expertise-grid-4">
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-bolt"></i>
-                                    <p>MEP Contracting</p>
-                                </div>
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-gears"></i>
-                                    <p>Industrial Equipment Procurement &amp; Installation</p>
-                                </div>
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-chart-line"></i>
-                                    <p>Value Engineering</p>
-                                </div>
-                                <div class="expertise-card">
-                                    <i class="fa-solid fa-building"></i>
-                                    <p>Design &amp; Build Contracting</p>
+                                <div class="expertise-card animate-scale-up delay-500">
+                                    <i class="fa fa-road"></i>
+                                    <h4>Infrastructure</h4>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- ===== Quality, HSE &amp; Certifications ===== -->
-                    <section class="certs-section">
+                    <!-- ===== Certifications ===== -->
+                    <section class="section-padding">
                         <div class="pr-container">
-                            <h2 class="section-title">Quality, HSE &amp; Certifications</h2>
+                            <h2 class="section-title animate-slide-up">Certifications &amp; Standards</h2>
                             <div class="certs-grid">
-                                <div class="cert-card">
-                                    <div class="cert-icon"><i class="fa-solid fa-award"></i></div>
-                                    <h4>QA/QC</h4>
-                                    <p>Robust quality assurance and control processes ensuring consistent project excellence.</p>
+                                <div class="cert-card animate-scale-up delay-100">
+                                    <i class="fa fa-certificate"></i>
+                                    <h4>ISO 9001</h4>
+                                    <p>Quality Management Excellence</p>
                                 </div>
-                                <div class="cert-card">
-                                    <div class="cert-icon"><i class="fa-solid fa-shield-heart"></i></div>
-                                    <h4>HSE</h4>
-                                    <p>Comprehensive Health, Safety &amp; Environment programs for a safe and responsible workplace.</p>
+                                <div class="cert-card animate-scale-up delay-200">
+                                    <i class="fa fa-leaf"></i>
+                                    <h4>ISO 14001</h4>
+                                    <p>Environmental Management</p>
                                 </div>
-                                <div class="cert-card">
-                                    <div class="cert-iso">ISO</div>
-                                    <h4>ISO 9001:2015</h4>
-                                    <p>Quality Management System for delivering consistent quality and client satisfaction.</p>
-                                </div>
-                                <div class="cert-card">
-                                    <div class="cert-iso">ISO</div>
-                                    <h4>ISO 14001:2015</h4>
-                                    <p>Environmental Management System for sustainable operations and reduced environmental impact.</p>
-                                </div>
-                                <div class="cert-card">
-                                    <div class="cert-iso">ISO</div>
-                                    <h4>ISO 45001:2018</h4>
-                                    <p>Occupational Health &amp; Safety Management System for protecting our people and promoting well-being.</p>
+                                <div class="cert-card animate-scale-up delay-300">
+                                    <i class="fa fa-shield-alt"></i>
+                                    <h4>ISO 45001</h4>
+                                    <p>Health &amp; Safety Standards</p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
                     <!-- ===== CTA Banner ===== -->
-                    <section class="cta-section">
+                    <section class="section-padding">
                         <div class="pr-container">
-                            <div class="cta-banner">
+                            <div class="cta-banner animate-slide-up delay-100">
                                 <div class="cta-left">
                                     <div class="hex-icon">
-                                        <i class="fa-solid fa-building"></i>
+                                        <i class="fa fa-rocket"></i>
                                     </div>
                                     <div class="cta-text">
-                                        <h3>Building the Future, Together.</h3>
-                                        <p>Let's create value, build excellence, and shape a better tomorrow.</p>
+                                        <h3>Ready to Build Something Great?</h3>
+                                        <p>Partner with PETRORAQ for your next engineering and construction project</p>
                                     </div>
                                 </div>
                                 <div class="cta-buttons">
                                     <a href="/contact-us" class="btn-cta-primary">
-                                        Contact Us <i class="fa-solid fa-arrow-right"></i>
+                                        Get In Touch
+                                        <i class="fa fa-arrow-right"></i>
                                     </a>
-                                    <a href="/projects" class="btn-cta-outline">
-                                        Explore Our Projects <i class="fa-solid fa-arrow-right"></i>
+                                    <a href="/careers" class="btn-cta-outline">
+                                        Join Our Team
+                                        <i class="fa fa-users"></i>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </section>
-
                 </div>
+
+                <script type="text/javascript">
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Scroll-triggered animations
+                        const observerOptions = {
+                            threshold: 0.1,
+                            rootMargin: '0px 0px -100px 0px'
+                        };
+                        const observer = new IntersectionObserver(function(entries) {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    entry.target.classList.add('animate-loaded');
+                                }
+                            });
+                        }, observerOptions);
+
+                        document.querySelectorAll('.about-hero, .who-grid, .mv-grid, .values-grid, .expertise-grid, .certs-grid, .cta-banner').forEach(section => {
+                            observer.observe(section);
+                        });
+
+                        // Hero parallax
+                        window.addEventListener('scroll', function() {
+                            const scrolled = window.pageYOffset;
+                            const hero = document.querySelector('.about-hero');
+                            if (hero) {
+                                hero.style.transform = `translateY(${scrolled * 0.4}px)`;
+                            }
+                        });
+
+                        // Enhanced hover effects
+                        document.querySelectorAll('.stat-card, .mv-card, .value-card, .expertise-card, .cert-card').forEach(card => {
+                            card.addEventListener('mouseenter', function() {
+                                this.style.transform = 'translateY(-15px) scale(1.02)';
+                            });
+                            card.addEventListener('mouseleave', function() {
+                                this.style.transform = 'translateY(0) scale(1)';
+                            });
+                        });
+                    });
+                </script>
             </t>
         </template>
     </data>

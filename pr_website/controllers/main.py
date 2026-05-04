@@ -28,6 +28,42 @@ class CareersController(http.Controller):
     def clients(self, **kwargs):
         return request.render('pr_website.petroraq_our_clients')
 
+    @http.route('/projects', type='http', auth='public', website=True)
+    def projects_page(self, **kw):
+        return request.render('pr_website.projects_page_template')
+
+    @http.route('/services/design-engineering', type='http', auth='public', website=True)
+    def service_design_engineering(self, **kw):
+        return request.render('pr_website.service_design_engineering')
+
+    @http.route('/services/architecture-planning', type='http', auth='public', website=True)
+    def service_architecture_planning(self, **kw):
+        return request.render('pr_website.service_architecture_planning')
+
+    @http.route('/services/civil-structural', type='http', auth='public', website=True)
+    def service_civil_structural(self, **kw):
+        return request.render('pr_website.service_civil_structural')
+
+    @http.route('/services/electrical-telecommunication', type='http', auth='public', website=True)
+    def service_electrical_telecommunication(self, **kw):
+        return request.render('pr_website.service_electrical_telecommunication')
+
+    @http.route('/services/mechanical-piping', type='http', auth='public', website=True)
+    def service_mechanical_piping(self, **kw):
+        return request.render('pr_website.service_mechanical_piping')
+
+    @http.route('/services/cad-services', type='http', auth='public', website=True)
+    def service_cad_services(self, **kw):
+        return request.render('pr_website.service_cad_services')
+
+    @http.route('/services/other-services', type='http', auth='public', website=True)
+    def service_other_services(self, **kw):
+        return request.render('pr_website.service_other_services')
+
+    @http.route('/services/project-management', type='http', auth='public', website=True)
+    def service_project_management(self, **kw):
+        return request.render('pr_website.service_project_management')
+
     @http.route('/jobs', type='http', auth='public', website=True, sitemap=True)
     def jobs(self, **kwargs):
         jobs = request.env['hr.job'].sudo().search([('website_published', '=', True)], order='create_date desc')

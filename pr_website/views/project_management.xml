@@ -1,0 +1,1173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="service_project_management" name="Service - Project Management">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Project Management - PETRORAQ</t>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .pr-pm-page * {
+                    box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
+                }
+                .pr-pm-page {
+                    --navy: #06264B;
+                    --navy-deep: #051d3a;
+                    --gold: #e9a23e;
+                    --text: #333;
+                    --muted: #6b7a8f;
+                    --bg: #f5f6f8;
+                    --border: #e5e8ec;
+                    background: var(--bg);
+                    color: var(--text);
+                }
+
+                /* ===== SCROLL ANIMATIONS ===== */
+                .pr-pm-page .scroll-fade {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-pm-page .scroll-fade.visible { opacity: 1; transform: translateY(0); }
+                .pr-pm-page .scroll-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-pm-page .scroll-left.visible { opacity: 1; transform: translateX(0); }
+                .pr-pm-page .scroll-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-pm-page .scroll-right.visible { opacity: 1; transform: translateX(0); }
+                .pr-pm-page .delay-1 { transition-delay: 0.1s; }
+                .pr-pm-page .delay-2 { transition-delay: 0.2s; }
+                .pr-pm-page .delay-3 { transition-delay: 0.3s; }
+                .pr-pm-page .delay-4 { transition-delay: 0.4s; }
+                .pr-pm-page .delay-5 { transition-delay: 0.5s; }
+                .pr-pm-page .delay-6 { transition-delay: 0.6s; }
+
+                @keyframes floatGlow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+                @keyframes fadeInLeft {
+                    from { opacity: 0; transform: translateX(-30px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes rotateSlow {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
+                /* ===== TOP HERO / INTRO ===== */
+                .pr-pm-page .pm-intro {
+                    background: #fff;
+                    max-width: 1200px;
+                    margin: 30px auto;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    padding: 45px 50px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 40px;
+                    align-items: center;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-pm-page .pm-intro::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.8s ease;
+                }
+                .pr-pm-page .pm-intro.visible::before { transform: scaleX(1); }
+
+                .pr-pm-page .pm-intro-left {
+                    animation: fadeInLeft 1s ease-out;
+                }
+                .pr-pm-page .pm-intro-left h1 {
+                    color: var(--navy);
+                    font-size: 44px;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                    margin-bottom: 20px;
+                    position: relative;
+                    display: inline-block;
+                    padding-bottom: 12px;
+                }
+                .pr-pm-page .pm-intro-left h1::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 50px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                }
+                .pr-pm-page .breadcrumb-nav {
+                    color: var(--muted);
+                    font-size: 13px;
+                    margin-bottom: 15px;
+                }
+                .pr-pm-page .breadcrumb-nav a {
+                    color: var(--muted);
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-pm-page .breadcrumb-nav a:hover { color: var(--gold); }
+                .pr-pm-page .breadcrumb-nav .current { color: var(--gold); font-weight: 600; }
+                .pr-pm-page .breadcrumb-nav i { margin: 0 8px; font-size: 10px; }
+
+                .pr-pm-page .pm-intro-left p {
+                    color: var(--text);
+                    font-size: 14px;
+                    line-height: 1.7;
+                    margin-bottom: 15px;
+                }
+
+                .pr-pm-page .pm-strength-item {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 15px;
+                    margin-top: 18px;
+                    padding: 12px;
+                    border-radius: 10px;
+                    transition: all 0.3s ease;
+                }
+                .pr-pm-page .pm-strength-item:hover {
+                    background: rgba(233,162,62,0.05);
+                    transform: translateX(5px);
+                }
+                .pr-pm-page .pm-strength-icon {
+                    width: 48px; height: 48px;
+                    background: var(--navy);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0;
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .pm-strength-item:hover .pm-strength-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg);
+                }
+                .pr-pm-page .pm-strength-icon i {
+                    color: var(--gold);
+                    font-size: 18px;
+                    transition: color 0.4s ease;
+                }
+                .pr-pm-page .pm-strength-item:hover .pm-strength-icon i {
+                    color: #fff;
+                }
+                .pr-pm-page .pm-strength-item p {
+                    color: var(--text);
+                    font-size: 13.5px;
+                    line-height: 1.6;
+                    margin: 0;
+                    padding-top: 5px;
+                }
+
+                .pr-pm-page .pm-intro-right {
+                    position: relative;
+                    height: 100%;
+                    min-height: 380px;
+                    border-radius: 50% 20% 20% 50% / 60% 20% 20% 60%;
+                    overflow: hidden;
+                    transition: all 0.5s ease;
+                }
+                .pr-pm-page .pm-intro-right:hover {
+                    border-radius: 20% 50% 50% 20% / 20% 60% 60% 20%;
+                }
+                .pr-pm-page .pm-intro-right img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.8s ease;
+                }
+                .pr-pm-page .pm-intro-right:hover img {
+                    transform: scale(1.1);
+                }
+                .pr-pm-page .pm-intro-right::before {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    border: 3px solid var(--gold);
+                    border-radius: inherit;
+                    pointer-events: none;
+                    z-index: 2;
+                }
+
+                /* ===== SECTION TITLE ===== */
+                .pr-pm-page .section-title-center {
+                    text-align: center;
+                    margin: 50px auto 30px;
+                    max-width: 1200px;
+                }
+                .pr-pm-page .section-title-center h2 {
+                    color: var(--navy);
+                    font-size: 28px;
+                    font-weight: 800;
+                    letter-spacing: 2px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+                .pr-pm-page .section-title-center h2::before,
+                .pr-pm-page .section-title-center h2::after {
+                    content: "";
+                    width: 5px;
+                    height: 26px;
+                    background: linear-gradient(180deg, var(--gold), #d8902f);
+                    border-radius: 2px;
+                }
+                .pr-pm-page .section-title-center .sub-text {
+                    color: var(--muted);
+                    font-size: 14px;
+                    margin-top: 10px;
+                }
+
+                /* ===== DEVELOPMENT GRID ===== */
+                .pr-pm-page .dev-wrap {
+                    background: #fff;
+                    max-width: 1200px;
+                    margin: 0 auto 25px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+                    padding: 35px 30px;
+                }
+                .pr-pm-page .dev-grid {
+                    display: grid;
+                    grid-template-columns: repeat(6, 1fr);
+                    gap: 20px;
+                }
+                .pr-pm-page .dev-grid.row2 {
+                    grid-template-columns: repeat(6, 1fr);
+                    margin-top: 25px;
+                    border-top: 1px solid var(--border);
+                    padding-top: 25px;
+                }
+                .pr-pm-page .dev-item {
+                    text-align: center;
+                    padding: 15px 10px;
+                    border-radius: 10px;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                }
+                .pr-pm-page .dev-item:hover {
+                    background: rgba(233,162,62,0.04);
+                    transform: translateY(-5px);
+                }
+                .pr-pm-page .dev-item h4 {
+                    color: var(--navy);
+                    font-size: 14px;
+                    font-weight: 700;
+                    line-height: 1.3;
+                    margin-bottom: 12px;
+                    min-height: 36px;
+                    transition: color 0.3s ease;
+                }
+                .pr-pm-page .dev-item:hover h4 {
+                    color: var(--gold);
+                }
+                .pr-pm-page .dev-icon {
+                    width: 55px; height: 55px;
+                    margin: 0 auto 15px;
+                    display: flex; align-items: center; justify-content: center;
+                    border-radius: 50%;
+                    background: rgba(6,38,75,0.05);
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .dev-item:hover .dev-icon {
+                    background: var(--gold);
+                    transform: scale(1.15) rotate(360deg);
+                }
+                .pr-pm-page .dev-icon i {
+                    color: var(--navy);
+                    font-size: 26px;
+                    transition: color 0.4s ease;
+                }
+                .pr-pm-page .dev-item:hover .dev-icon i {
+                    color: #fff;
+                }
+                .pr-pm-page .dev-item ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    text-align: left;
+                }
+                .pr-pm-page .dev-item ul li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 6px;
+                    color: var(--text);
+                    font-size: 11.5px;
+                    padding: 3px 0;
+                    line-height: 1.4;
+                    transition: color 0.2s ease;
+                }
+                .pr-pm-page .dev-item ul li:hover {
+                    color: var(--navy);
+                }
+                .pr-pm-page .dev-item ul li::before {
+                    content: "";
+                    width: 5px; height: 5px;
+                    background: var(--gold);
+                    border-radius: 50%;
+                    margin-top: 7px;
+                    flex-shrink: 0;
+                }
+
+                /* ===== INFO CARDS ===== */
+                .pr-pm-page .cards-row {
+                    max-width: 1200px;
+                    margin: 0 auto 25px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                    padding: 0 15px;
+                }
+                .pr-pm-page .info-card {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 28px 30px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+                    display: grid;
+                    grid-template-columns: 70px 1fr;
+                    gap: 18px;
+                    align-items: start;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-pm-page .info-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 4px;
+                    height: 0;
+                    background: linear-gradient(180deg, var(--gold), transparent);
+                    transition: height 0.5s ease;
+                }
+                .pr-pm-page .info-card:hover::before { height: 100%; }
+                .pr-pm-page .info-card:hover {
+                    transform: translateY(-6px);
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+                }
+                .pr-pm-page .info-card .ic-icon {
+                    width: 62px; height: 62px;
+                    background: var(--navy);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .info-card:hover .ic-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-pm-page .info-card .ic-icon i {
+                    color: var(--gold);
+                    font-size: 26px;
+                    transition: color 0.4s ease;
+                }
+                .pr-pm-page .info-card:hover .ic-icon i {
+                    color: #fff;
+                }
+                .pr-pm-page .info-card h3 {
+                    color: var(--navy);
+                    font-size: 19px;
+                    font-weight: 800;
+                    margin-bottom: 12px;
+                    position: relative;
+                    display: inline-block;
+                    padding-bottom: 6px;
+                }
+                .pr-pm-page .info-card h3::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 30px;
+                    height: 2px;
+                    background: var(--gold);
+                }
+                .pr-pm-page .info-card ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .pr-pm-page .info-card ul li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 8px;
+                    color: var(--text);
+                    font-size: 12.5px;
+                    padding: 4px 0;
+                    line-height: 1.5;
+                    transition: all 0.3s ease;
+                }
+                .pr-pm-page .info-card ul li:hover {
+                    color: var(--navy);
+                    transform: translateX(4px);
+                }
+                .pr-pm-page .info-card ul li::before {
+                    content: "";
+                    width: 5px; height: 5px;
+                    background: var(--gold);
+                    border-radius: 50%;
+                    margin-top: 7px;
+                    flex-shrink: 0;
+                }
+
+                /* Owner Approval card */
+                .pr-pm-page .owner-approval-card {
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 28px 32px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+                    display: grid;
+                    grid-template-columns: 70px 1fr;
+                    gap: 20px;
+                    align-items: start;
+                    transition: all 0.4s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-pm-page .owner-approval-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.5s ease;
+                }
+                .pr-pm-page .owner-approval-card:hover::before { transform: scaleX(1); }
+                .pr-pm-page .owner-approval-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+                }
+                .pr-pm-page .owner-approval-card .ic-icon {
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .owner-approval-card:hover .ic-icon {
+                    background: var(--gold) !important;
+                    transform: rotate(360deg);
+                }
+                .pr-pm-page .owner-approval-card:hover .ic-icon i {
+                    color: #fff !important;
+                }
+                .pr-pm-page .owner-approval-card h3 {
+                    color: var(--navy);
+                    font-size: 18px;
+                    font-weight: 800;
+                    margin-bottom: 14px;
+                }
+                .pr-pm-page .owner-approval-card .two-col {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 5px 30px;
+                }
+                .pr-pm-page .owner-approval-card ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .pr-pm-page .owner-approval-card ul li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 8px;
+                    color: var(--text);
+                    font-size: 12.5px;
+                    padding: 4px 0;
+                    line-height: 1.5;
+                }
+                .pr-pm-page .owner-approval-card ul li::before {
+                    content: "";
+                    width: 5px; height: 5px;
+                    background: var(--gold);
+                    border-radius: 50%;
+                    margin-top: 7px;
+                    flex-shrink: 0;
+                }
+
+                /* ===== FUNCTION PANELS ===== */
+                .pr-pm-page .function-panels {
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 22px;
+                }
+                .pr-pm-page .fn-panel {
+                    background: #fff;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+                    overflow: hidden;
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .fn-panel:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                }
+                .pr-pm-page .fn-header {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    color: #fff;
+                    padding: 20px 25px;
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-pm-page .fn-header::after {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -20%;
+                    width: 200px;
+                    height: 200px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.1) 0%, transparent 70%);
+                    animation: floatGlow 5s ease-in-out infinite;
+                }
+                .pr-pm-page .fn-header-icon {
+                    width: 48px; height: 48px;
+                    background: rgba(233,162,62,0.2);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    position: relative;
+                    z-index: 2;
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .fn-panel:hover .fn-header-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg);
+                }
+                .pr-pm-page .fn-header-icon i {
+                    color: var(--gold);
+                    font-size: 22px;
+                    transition: color 0.4s ease;
+                }
+                .pr-pm-page .fn-panel:hover .fn-header-icon i {
+                    color: #fff;
+                }
+                .pr-pm-page .fn-header h3 {
+                    font-size: 16px;
+                    font-weight: 700;
+                    line-height: 1.2;
+                    position: relative;
+                    z-index: 2;
+                }
+
+                .pr-pm-page .fn-body {
+                    padding: 28px 22px;
+                }
+                .pr-pm-page .fn-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 18px;
+                    margin-bottom: 20px;
+                }
+                .pr-pm-page .fn-grid.last-row {
+                    margin-bottom: 0;
+                    padding-top: 20px;
+                    border-top: 1px solid var(--border);
+                }
+                .pr-pm-page .fn-item {
+                    text-align: center;
+                    padding: 10px 5px;
+                    border-radius: 8px;
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .fn-item:hover {
+                    background: rgba(233,162,62,0.04);
+                    transform: translateY(-4px);
+                }
+                .pr-pm-page .fn-icon-wrap {
+                    width: 55px; height: 55px;
+                    margin: 0 auto 10px;
+                    display: flex; align-items: center; justify-content: center;
+                    border-radius: 50%;
+                    background: rgba(233,162,62,0.08);
+                    transition: all 0.4s ease;
+                }
+                .pr-pm-page .fn-item:hover .fn-icon-wrap {
+                    background: var(--gold);
+                    transform: scale(1.15) rotate(10deg);
+                }
+                .pr-pm-page .fn-icon-wrap i {
+                    color: var(--gold);
+                    font-size: 22px;
+                    transition: color 0.4s ease;
+                }
+                .pr-pm-page .fn-item:hover .fn-icon-wrap i {
+                    color: #fff;
+                }
+                .pr-pm-page .fn-item h5 {
+                    color: var(--navy);
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    line-height: 1.3;
+                    margin-bottom: 5px;
+                    transition: color 0.3s ease;
+                }
+                .pr-pm-page .fn-item:hover h5 {
+                    color: var(--gold);
+                }
+                .pr-pm-page .fn-item ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    text-align: left;
+                }
+                .pr-pm-page .fn-item ul li {
+                    color: var(--text);
+                    font-size: 10.5px;
+                    padding: 2px 0;
+                    line-height: 1.4;
+                    display: flex;
+                    gap: 4px;
+                    align-items: flex-start;
+                }
+                .pr-pm-page .fn-item ul li::before {
+                    content: "•";
+                    color: var(--gold);
+                    font-weight: 700;
+                    margin-top: 1px;
+                }
+
+                .pr-pm-page .fn-flow {
+                    display: grid;
+                    grid-template-columns: 1fr 40px 1fr 40px 1fr;
+                    align-items: center;
+                    gap: 10px;
+                    padding-top: 20px;
+                    border-top: 1px solid var(--border);
+                }
+                .pr-pm-page .fn-flow-arrow {
+                    text-align: center;
+                }
+                .pr-pm-page .fn-flow-arrow i {
+                    color: var(--gold);
+                    font-size: 22px;
+                    animation: rotateSlow 8s linear infinite;
+                    animation-play-state: paused;
+                }
+                .pr-pm-page .fn-panel:hover .fn-flow-arrow i {
+                    animation-play-state: running;
+                }
+
+                /* ===== CONTACT BAR ===== */
+                .pr-pm-page .contact-bar {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    padding: 25px 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    border-radius: 12px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-pm-page .contact-bar::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -10%;
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.08) 0%, transparent 70%);
+                    animation: floatGlow 6s ease-in-out infinite;
+                }
+                .pr-pm-page .cb-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-pm-page .cb-logo {
+                    width: 42px; height: 42px;
+                    background: var(--gold);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                    box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                }
+                .pr-pm-page .contact-bar:hover .cb-logo {
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-pm-page .cb-logo i { color: #fff; font-size: 20px; }
+                .pr-pm-page .cb-brand .brand-name {
+                    color: #fff;
+                    font-size: 16px;
+                    font-weight: 700;
+                    line-height: 1;
+                }
+                .pr-pm-page .cb-brand .brand-sub {
+                    color: var(--gold);
+                    font-size: 10px;
+                    font-weight: 500;
+                    letter-spacing: 1.5px;
+                }
+                .pr-pm-page .cb-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: #cbd5e1;
+                    font-size: 12.5px;
+                    border-left: 1px solid rgba(255,255,255,0.1);
+                    padding-left: 20px;
+                    position: relative;
+                    z-index: 2;
+                    transition: color 0.3s ease;
+                }
+                .pr-pm-page .cb-item:hover {
+                    color: #fff;
+                }
+                .pr-pm-page .cb-item i {
+                    color: var(--gold);
+                    font-size: 14px;
+                    transition: transform 0.3s ease;
+                }
+                .pr-pm-page .cb-item:hover i {
+                    transform: scale(1.2);
+                }
+                .pr-pm-page .cb-item a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-pm-page .cb-item a:hover { color: var(--gold); }
+
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 992px) {
+                    .pr-pm-page .pm-intro { grid-template-columns: 1fr; padding: 30px; }
+                    .pr-pm-page .pm-intro-left h1 { font-size: 32px; }
+                    .pr-pm-page .pm-intro-right { min-height: 300px; border-radius: 16px; }
+                    .pr-pm-page .dev-grid,
+                    .pr-pm-page .dev-grid.row2 { grid-template-columns: repeat(2, 1fr); }
+                    .pr-pm-page .cards-row,
+                    .pr-pm-page .function-panels { grid-template-columns: 1fr; padding: 0 15px; }
+                    .pr-pm-page .fn-grid { grid-template-columns: repeat(2, 1fr); }
+                    .pr-pm-page .fn-flow { grid-template-columns: 1fr; }
+                    .pr-pm-page .fn-flow-arrow i { transform: rotate(90deg); }
+                    .pr-pm-page .owner-approval-card .two-col { grid-template-columns: 1fr; }
+                    .pr-pm-page .contact-bar { flex-direction: column; text-align: center; }
+                    .pr-pm-page .cb-item { border-left: none; padding-left: 0; }
+                }
+                @media (max-width: 600px) {
+                    .pr-pm-page .dev-grid,
+                    .pr-pm-page .dev-grid.row2 { grid-template-columns: 1fr; }
+                    .pr-pm-page .fn-grid { grid-template-columns: 1fr; }
+                }
+            </style>
+
+            <div class="pr-pm-page">
+
+                <!-- ===== HERO / INTRO ===== -->
+                <section class="pm-intro scroll-fade">
+                    <div class="pm-intro-left">
+                        <div class="breadcrumb-nav">
+                            <a href="/">Home</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <a href="/services">Services</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <span class="current">Project Management</span>
+                        </div>
+                        <h1>PROJECT MANAGEMENT</h1>
+                        <p>PETRORAQ has been at the forefront of project implementation for many prestigious assignments in the Kingdom and around the Globe. It's experienced core team has been in this field, providing comprehensive services for both inside battery limits and offsite facilities. PETRORAQ offers both Clients &amp; Contractors a complete Project Management 'initiative' through its professionally qualified &amp; highly experienced project management team.</p>
+                        <p>The team is specialized in meeting requirements and challenges of the project &amp; ensuring deliverables on time, within budget and up to Client expectations.</p>
+                        <p>PETRORAQ provides total project management and coordination services by combining two vital components of its organizational strength:</p>
+
+                        <div class="pm-strength-item">
+                            <div class="pm-strength-icon"><i class="fa fa-users"></i></div>
+                            <p>Target oriented dynamic personnel with exceptional technical, commercial, financial and contract administration expertise forming the project team.</p>
+                        </div>
+                        <div class="pm-strength-item">
+                            <div class="pm-strength-icon"><i class="fa fa-hard-hat"></i></div>
+                            <p>Engineering specialists who expertly support the project team.</p>
+                        </div>
+                    </div>
+
+                    <div class="pm-intro-right">
+                        <img src="/pr_website/static/images/project-management-bg.png" alt="PETRORAQ engineer on site"/>
+                    </div>
+                </section>
+
+                <!-- ===== PROJECT DEVELOPMENT TITLE ===== -->
+                <div class="section-title-center scroll-fade">
+                    <h2>PROJECT DEVELOPMENT</h2>
+                    <p class="sub-text">In the Project Development phase, the following are the typical issues that will be addressed:</p>
+                </div>
+
+                <!-- ===== DEVELOPMENT GRID ===== -->
+                <section class="dev-wrap scroll-fade">
+                    <div class="dev-grid">
+                        <div class="dev-item scroll-fade delay-1">
+                            <h4>Basis of<br/>Project Decision</h4>
+                            <div class="dev-icon"><i class="fa fa-bullseye"></i></div>
+                            <ul>
+                                <li>Manufacturing Objective Criteria</li>
+                                <li>Reliability philosophy</li>
+                                <li>Maintenance Philosophy</li>
+                                <li>Operating Philosophy</li>
+                                <li>Business Objectives</li>
+                            </ul>
+                        </div>
+                        <div class="dev-item scroll-fade delay-2">
+                            <h4>Selection of<br/>Products</h4>
+                            <div class="dev-icon"><i class="fa fa-shopping-cart"></i></div>
+                            <ul>
+                                <li>Market Strategy</li>
+                                <li>Project Strategy</li>
+                                <li>Affordability/Feasibility</li>
+                                <li>Capacities</li>
+                                <li>Future Expansion Considerations</li>
+                                <li>Expected Project Life Cycle</li>
+                                <li>Social Issues</li>
+                                <li>Basic Data Research and Development</li>
+                            </ul>
+                        </div>
+                        <div class="dev-item scroll-fade delay-3">
+                            <h4>Selection of Technology<br/>and Process</h4>
+                            <div class="dev-icon"><i class="fa fa-cogs"></i></div>
+                            <ul>
+                                <li>Project Scope</li>
+                                <li>Project Objectives</li>
+                                <li>Design Criteria</li>
+                                <li>Site Characteristics</li>
+                                <li>Demolition/Dismantling</li>
+                                <li>Discipline Scope of Work</li>
+                                <li>Project Schedule</li>
+                                <li>Value Engineering</li>
+                                <li>Process Simplification</li>
+                                <li>Design &amp; Material Alternatives</li>
+                                <li>Constructability Analysis</li>
+                                <li>Front End Definition</li>
+                            </ul>
+                        </div>
+                        <div class="dev-item scroll-fade delay-4">
+                            <h4>Site<br/>Information</h4>
+                            <div class="dev-icon"><i class="fa fa-map-marker-alt"></i></div>
+                            <ul>
+                                <li>Site Location</li>
+                                <li>Surveys and Soil Tests</li>
+                                <li>Environmental Assessment</li>
+                                <li>Permit Requirements</li>
+                                <li>Utility Sources with Supply Conditions</li>
+                                <li>Fire Protection and Safety Considerations</li>
+                            </ul>
+                        </div>
+                        <div class="dev-item scroll-fade delay-5">
+                            <h4>Mechanical</h4>
+                            <div class="dev-icon"><i class="fa fa-tools"></i></div>
+                            <ul>
+                                <li>Piping Diagrams</li>
+                                <li>Utility Flow Diagrams</li>
+                                <li>Specifications</li>
+                                <li>Piping System Equipment Lists</li>
+                                <li>Line Plan</li>
+                                <li>Mechanical Equipment List</li>
+                                <li>Line List</li>
+                                <li>Tie-in List</li>
+                                <li>Piping Specialty Items List</li>
+                                <li>Equipment Scope</li>
+                                <li>Equipment Status</li>
+                                <li>Equipment Location Drawings</li>
+                            </ul>
+                        </div>
+                        <div class="dev-item scroll-fade delay-6">
+                            <h4>Civil/Structural &amp;<br/>Architectural</h4>
+                            <div class="dev-icon"><i class="fa fa-building"></i></div>
+                            <ul>
+                                <li>Civil/Structural Requirements</li>
+                                <li>Architectural Requirements</li>
+                                <li>Infrastructure</li>
+                                <li>Water Treatment Requirements</li>
+                                <li>Loading/Unloading/Storage Requirements</li>
+                                <li>Transportation Requirements</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="dev-grid row2">
+                        <div class="dev-item scroll-fade delay-1">
+                            <h4>Electrical</h4>
+                            <div class="dev-icon"><i class="fa fa-bolt"></i></div>
+                            <ul>
+                                <li>Control Philosophy</li>
+                                <li>Electrical Area Classifications</li>
+                                <li>Substation/Power Sources</li>
+                                <li>Electric Single Line Diagrams</li>
+                                <li>Electrical Specifications</li>
+                            </ul>
+                        </div>
+                        <div class="dev-item scroll-fade delay-2">
+                            <h4>Project Execution</h4>
+                            <div class="dev-icon"><i class="fa fa-clipboard-check"></i></div>
+                            <ul>
+                                <li>Procurement Strategy</li>
+                                <li>Identity Long Lead/Critical Equipment &amp; Materials</li>
+                                <li>Procurement Procedures and Plans</li>
+                                <li>Procurement Responsibility Matrix</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== DELIVERABLES + PROJECT CONTROL CARDS ===== -->
+                <section class="cards-row">
+                    <div class="info-card scroll-left">
+                        <div class="ic-icon"><i class="fa fa-file-alt"></i></div>
+                        <div>
+                            <h3>Deliverables</h3>
+                            <ul>
+                                <li>CADD/Model Requirements</li>
+                                <li>Deliverables Defined</li>
+                                <li>Distribution Matrix</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="info-card scroll-right">
+                        <div class="ic-icon"><i class="fa fa-chart-line"></i></div>
+                        <div>
+                            <h3>Project Control</h3>
+                            <ul>
+                                <li>Project Control Requirements</li>
+                                <li>Project Accounting Requirements</li>
+                                <li>Risk Analysis</li>
+                                <li>Project Execution Plan</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== OWNER APPROVAL CARD ===== -->
+                <section class="owner-approval-card scroll-fade">
+                    <div class="ic-icon" style="width:62px;height:62px;background:#06264B;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                        <i class="fa fa-handshake" style="color:#e9a23e;font-size:26px;"></i>
+                    </div>
+                    <div>
+                        <h3>Owner Approval Requirements &amp; Engineering/Construction Plan &amp; Approach</h3>
+                        <div class="two-col">
+                            <ul>
+                                <li>Shutdown/Turn Around Requirements &amp; Pre-commissioning Turnover Sequence Requirements</li>
+                            </ul>
+                            <ul>
+                                <li>Startup Requirements &amp; Training Requirements</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== FUNCTION PANELS ===== -->
+                <section class="function-panels">
+                    <div class="fn-panel scroll-left">
+                        <div class="fn-header">
+                            <div class="fn-header-icon"><i class="fa fa-clipboard-list"></i></div>
+                            <h3>FUNCTION OF PROJECT MANAGEMENT<br/>BEFORE CONSTRUCTION STARTS</h3>
+                        </div>
+                        <div class="fn-body">
+                            <div class="fn-grid">
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-users"></i></div>
+                                    <h5>1. Programming</h5>
+                                    <ul>
+                                        <li>Functional Program</li>
+                                        <li>Architectural Program</li>
+                                    </ul>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-file-alt"></i></div>
+                                    <h5>2. Evaluation of<br/>Project Documents</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-calculator"></i></div>
+                                    <h5>Cost Estimating</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-calendar-alt"></i></div>
+                                    <h5>Planning and<br/>Scheduling</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-shield-alt"></i></div>
+                                    <h5>Construction<br/>Permits</h5>
+                                </div>
+                            </div>
+
+                            <div class="fn-grid last-row">
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-truck-loading"></i></div>
+                                    <h5>Order of Owner's<br/>Provided Equipment</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-star"></i></div>
+                                    <h5>Suggest the<br/>awarding System</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-user-friends"></i></div>
+                                    <h5>Contractor's<br/>Selection</h5>
+                                    <ul>
+                                        <li>Invitation to Bid</li>
+                                        <li>Instructions to Bidders</li>
+                                        <li>Conditions of the Contract</li>
+                                    </ul>
+                                </div>
+                                <div class="fn-item" style="grid-column: span 2;">
+                                    <div class="fn-icon-wrap"><i class="fa fa-file-signature"></i></div>
+                                    <ul style="text-align:left;">
+                                        <li>Contract Agreement</li>
+                                        <li>Pre-bid Conference</li>
+                                        <li>Bid Evaluation</li>
+                                        <li>Contract Award</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fn-panel scroll-right">
+                        <div class="fn-header">
+                            <div class="fn-header-icon"><i class="fa fa-hard-hat"></i></div>
+                            <h3>FUNCTION OF PROJECT MANAGEMENT<br/>AFTER CONSTRUCTION PHASE -</h3>
+                        </div>
+                        <div class="fn-body">
+                            <div class="fn-grid">
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-user-tie"></i></div>
+                                    <h5>Field<br/>Supervision</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-project-diagram"></i></div>
+                                    <h5>Work<br/>Coordination</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-business-time"></i></div>
+                                    <h5>Schedule &amp;<br/>Time Control</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-dollar-sign"></i></div>
+                                    <h5>Cost<br/>Control</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-clipboard-check"></i></div>
+                                    <h5>Quality Control &amp;<br/>Inspection</h5>
+                                </div>
+                            </div>
+
+                            <div class="fn-grid last-row">
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-drafting-compass"></i></div>
+                                    <h5>Shop<br/>Drawings</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-truck"></i></div>
+                                    <h5>Expediting</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-folder-open"></i></div>
+                                    <h5>Record<br/>Keeping</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-file-invoice-dollar"></i></div>
+                                    <h5>Payment /<br/>Invoicing</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-file-contract"></i></div>
+                                    <h5>Administrative<br/>and Change Order</h5>
+                                </div>
+                            </div>
+
+                            <div class="fn-flow">
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-search"></i></div>
+                                    <h5>Plan, Interpretation<br/>&amp; Corrections</h5>
+                                </div>
+                                <div class="fn-flow-arrow"><i class="fa fa-arrow-right"></i></div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-award"></i></div>
+                                    <h5>Final Inspection &amp;<br/>Acceptance of work</h5>
+                                </div>
+                                <div class="fn-flow-arrow"><i class="fa fa-arrow-right"></i></div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-handshake"></i></div>
+                                    <h5>Project<br/>Handing over</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== CONTACT BAR ===== -->
+                <section class="contact-bar scroll-fade">
+                    <div class="cb-brand">
+                        <div class="cb-logo"><i class="fa fa-tint"></i></div>
+                        <div>
+                            <div class="brand-name">PETRORAQ</div>
+                            <div class="brand-sub">ENERGY SERVICES</div>
+                        </div>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-map-marker-alt"></i>
+                        <span>Al-Majd square, King Faisal (West) Road, Basra, Iraq</span>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-phone"></i>
+                        <span>+964 781 000 9131 / +964 771 529 7877</span>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-envelope"></i>
+                        <a href="mailto:info@petroraq.com">info@petroraq.com</a>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-globe"></i>
+                        <a href="http://www.petroraq.com" target="_blank">www.petroraq.com</a>
+                    </div>
+                </section>
+
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var observerOptions = {
+                        threshold: 0.1,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, observerOptions);
+
+                    var animatedElements = document.querySelectorAll('.pr-pm-page .scroll-fade, .pr-pm-page .scroll-left, .pr-pm-page .scroll-right');
+                    animatedElements.forEach(function(el) {
+                        observer.observe(el);
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

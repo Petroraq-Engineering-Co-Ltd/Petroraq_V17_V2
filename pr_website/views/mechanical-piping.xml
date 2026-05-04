@@ -1,0 +1,739 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="service_mechanical_piping" name="Service - Mechanical and Piping">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Mechanical &amp; Piping - PETRORAQ</t>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .pr-mech-page * {
+                    box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
+                }
+                .pr-mech-page {
+                    --navy: #06264B;
+                    --navy-deep: #051d3a;
+                    --gold: #e9a23e;
+                    --text: #333;
+                    --muted: #6b7a8f;
+                    --bg: #f5f6f8;
+                    --border: #e5e8ec;
+                    background: var(--bg);
+                    color: var(--text);
+                }
+
+                /* ===== SCROLL ANIMATIONS ===== */
+                .pr-mech-page .scroll-fade {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-mech-page .scroll-fade.visible {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                .pr-mech-page .scroll-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-mech-page .scroll-left.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-mech-page .scroll-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-mech-page .scroll-right.visible {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                .pr-mech-page .delay-1 { transition-delay: 0.1s; }
+                .pr-mech-page .delay-2 { transition-delay: 0.2s; }
+                .pr-mech-page .delay-3 { transition-delay: 0.3s; }
+                .pr-mech-page .delay-4 { transition-delay: 0.4s; }
+                .pr-mech-page .delay-5 { transition-delay: 0.5s; }
+
+                @keyframes fadeInLeft {
+                    from { opacity: 0; transform: translateX(-30px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulseDot {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+                @keyframes expandLine {
+                    from { width: 0; }
+                    to { width: 70px; }
+                }
+                @keyframes floatGlow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+                @keyframes rotateGear {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
+                /* ===== HERO ===== */
+                .pr-mech-page .mp-hero {
+                    position: relative;
+                    min-height: 420px;
+                    background: url('/pr_website/static/images/mechanic-bg.png') center/cover no-repeat;
+                    display: flex;
+                    align-items: center;
+                    overflow: hidden;
+                }
+                .pr-mech-page .mp-hero-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(90deg, rgba(6,38,75,0.97) 0%, rgba(6,38,75,0.75) 35%, rgba(6,38,75,0.2) 65%, rgba(6,38,75,0) 100%);
+                }
+                .pr-mech-page .mp-hero-content {
+                    position: relative; z-index: 2;
+                    padding: 0 60px;
+                    color: #fff;
+                    max-width: 600px;
+                    animation: fadeInLeft 1s ease-out;
+                }
+                .pr-mech-page .breadcrumb-nav {
+                    color: #cbd5e1;
+                    font-size: 13px;
+                    margin-bottom: 30px;
+                }
+                .pr-mech-page .breadcrumb-nav a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-mech-page .breadcrumb-nav a:hover { color: var(--gold); }
+                .pr-mech-page .breadcrumb-nav .current { color: var(--gold); font-weight: 500; }
+                .pr-mech-page .breadcrumb-nav i { margin: 0 8px; font-size: 10px; }
+
+                .pr-mech-page .mp-hero-content h1 {
+                    font-size: 60px;
+                    font-weight: 800;
+                    line-height: 1.05;
+                    color: #fff;
+                    margin-bottom: 5px;
+                }
+                .pr-mech-page .mp-hero-content h1 .dot {
+                    color: var(--gold);
+                    display: inline-block;
+                    animation: pulseDot 2s ease-in-out infinite;
+                }
+                .pr-mech-page .gold-line {
+                    width: 70px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: 25px 0;
+                    animation: expandLine 1s ease-out 0.5s both;
+                }
+                .pr-mech-page .mp-hero-content p {
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #e0e6ef;
+                    max-width: 400px;
+                }
+
+                /* ===== SECTION CARD ===== */
+                .pr-mech-page .mp-section {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 45px;
+                    margin: 25px auto;
+                    max-width: 1200px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 40px;
+                    align-items: start;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-mech-page .mp-section::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.6s ease;
+                }
+                .pr-mech-page .mp-section.visible::before {
+                    transform: scaleX(1);
+                }
+                .pr-mech-page .mp-section:hover {
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+                }
+                .pr-mech-page .mp-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 15px;
+                }
+                .pr-mech-page .mp-icon {
+                    width: 58px; height: 58px;
+                    background: var(--navy);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0;
+                    transition: all 0.4s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-mech-page .mp-icon::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: var(--gold);
+                    transform: scale(0);
+                    border-radius: 50%;
+                    transition: transform 0.4s ease;
+                }
+                .pr-mech-page .mp-section:hover .mp-icon {
+                    transform: scale(1.15);
+                }
+                .pr-mech-page .mp-section:hover .mp-icon::before {
+                    transform: scale(1);
+                }
+                .pr-mech-page .mp-icon i {
+                    color: var(--gold);
+                    font-size: 24px;
+                    transition: color 0.4s ease;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-mech-page .mp-section:hover .mp-icon i {
+                    color: var(--navy);
+                    animation: rotateGear 2s linear infinite;
+                }
+                .pr-mech-page .mp-header h2 {
+                    color: var(--navy);
+                    font-size: 28px;
+                    font-weight: 800;
+                    position: relative;
+                    padding-bottom: 10px;
+                }
+                .pr-mech-page .mp-header h2::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 40px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transition: width 0.4s ease;
+                }
+                .pr-mech-page .mp-section:hover .mp-header h2::after {
+                    width: 80px;
+                }
+
+                .pr-mech-page .mp-desc p {
+                    color: var(--text);
+                    font-size: 13.5px;
+                    line-height: 1.8;
+                    margin-bottom: 15px;
+                }
+
+                .pr-mech-page .mp-subtitle {
+                    color: var(--navy);
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin: 20px 0 14px;
+                    position: relative;
+                    display: inline-block;
+                    padding-bottom: 5px;
+                }
+                .pr-mech-page .mp-subtitle::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 30px;
+                    height: 2px;
+                    background: var(--gold);
+                }
+
+                .pr-mech-page .mp-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .pr-mech-page .mp-list li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    color: var(--text);
+                    font-size: 13px;
+                    padding: 7px 0;
+                    line-height: 1.5;
+                    transition: all 0.3s ease;
+                    border-radius: 4px;
+                }
+                .pr-mech-page .mp-list li:hover {
+                    color: var(--navy);
+                    transform: translateX(6px);
+                }
+                .pr-mech-page .mp-list li i {
+                    color: var(--gold);
+                    font-size: 8px;
+                    margin-top: 8px;
+                    flex-shrink: 0;
+                    transition: transform 0.3s ease;
+                }
+                .pr-mech-page .mp-list li:hover i {
+                    transform: scale(1.6);
+                }
+
+                .pr-mech-page .two-col-list {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0 25px;
+                }
+                .pr-mech-page .three-col-list {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 0 25px;
+                }
+
+                .pr-mech-page .mp-image {
+                    border-radius: 12px;
+                    overflow: hidden;
+                    height: 100%;
+                    min-height: 360px;
+                    position: relative;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }
+                .pr-mech-page .mp-image::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(6,38,75,0.2), transparent);
+                    transition: opacity 0.4s ease;
+                    z-index: 1;
+                }
+                .pr-mech-page .mp-image:hover::after {
+                    opacity: 0;
+                }
+                .pr-mech-page .mp-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.6s ease;
+                }
+                .pr-mech-page .mp-image:hover img {
+                    transform: scale(1.1);
+                }
+
+                .pr-mech-page .mp-section.vessels-section {
+                    grid-template-columns: 1fr 1fr;
+                }
+                .pr-mech-page .vessels-section .vessels-left {
+                    grid-column: 1;
+                }
+                .pr-mech-page .vessels-section .three-col-list {
+                    margin-top: 15px;
+                }
+
+                /* ===== VALUES STRIP ===== */
+                .pr-mech-page .values-strip {
+                    background: #fff;
+                    max-width: 1200px;
+                    margin: 25px auto;
+                    padding: 45px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                }
+                .pr-mech-page .values-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 0;
+                }
+                .pr-mech-page .value-item {
+                    text-align: center;
+                    padding: 15px 18px;
+                    border-right: 1px solid var(--border);
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    cursor: pointer;
+                }
+                .pr-mech-page .value-item::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                    width: 0;
+                    height: 3px;
+                    background: var(--gold);
+                    transition: all 0.4s ease;
+                    transform: translateX(-50%);
+                }
+                .pr-mech-page .value-item:hover::before {
+                    width: 60%;
+                }
+                .pr-mech-page .value-item:last-child { border-right: none; }
+                .pr-mech-page .value-item:hover {
+                    transform: translateY(-8px);
+                    background: rgba(233,162,62,0.03);
+                }
+                .pr-mech-page .value-icon {
+                    width: 65px; height: 65px;
+                    margin: 0 auto 15px;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                    border-radius: 50%;
+                    background: rgba(233,162,62,0.08);
+                }
+                .pr-mech-page .value-item:hover .value-icon {
+                    background: var(--gold);
+                    transform: scale(1.15) rotate(360deg);
+                    box-shadow: 0 8px 20px rgba(233,162,62,0.4);
+                }
+                .pr-mech-page .value-icon i {
+                    color: var(--gold);
+                    font-size: 28px;
+                    transition: color 0.4s ease;
+                }
+                .pr-mech-page .value-item:hover .value-icon i {
+                    color: #fff;
+                }
+                .pr-mech-page .value-item h4 {
+                    color: var(--navy);
+                    font-size: 14px;
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    transition: color 0.3s ease;
+                }
+                .pr-mech-page .value-item:hover h4 {
+                    color: var(--gold);
+                }
+                .pr-mech-page .value-item p {
+                    color: var(--muted);
+                    font-size: 12px;
+                    line-height: 1.6;
+                }
+
+                /* ===== CTA BANNER ===== */
+                .pr-mech-page .cta-banner {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    padding: 35px 60px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    border-radius: 12px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-mech-page .cta-banner::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -10%;
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.1) 0%, transparent 70%);
+                    animation: floatGlow 6s ease-in-out infinite;
+                }
+                .pr-mech-page .cta-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 22px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-mech-page .cta-icon {
+                    width: 60px; height: 60px;
+                    background: transparent;
+                    border: 2px solid var(--gold);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                }
+                .pr-mech-page .cta-banner:hover .cta-icon {
+                    background: var(--gold);
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-mech-page .cta-icon i {
+                    color: var(--gold);
+                    font-size: 24px;
+                    transition: color 0.4s ease;
+                }
+                .pr-mech-page .cta-banner:hover .cta-icon i {
+                    color: #fff;
+                }
+                .pr-mech-page .cta-text h3 {
+                    color: #fff;
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 5px;
+                }
+                .pr-mech-page .cta-text p {
+                    color: #cbd5e1;
+                    font-size: 13.5px;
+                    max-width: 380px;
+                    line-height: 1.5;
+                }
+                .pr-mech-page .cta-btn {
+                    background: linear-gradient(45deg, var(--gold), #d8902f);
+                    color: #fff;
+                    padding: 14px 30px;
+                    border-radius: 50px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    text-decoration: none;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                    position: relative;
+                    overflow: hidden;
+                    z-index: 2;
+                }
+                .pr-mech-page .cta-btn::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    transition: left 0.5s;
+                }
+                .pr-mech-page .cta-btn:hover::before { left: 100%; }
+                .pr-mech-page .cta-btn:hover {
+                    color: #fff;
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(233,162,62,0.6);
+                }
+                .pr-mech-page .cta-btn i {
+                    transition: transform 0.3s ease;
+                }
+                .pr-mech-page .cta-btn:hover i {
+                    transform: translateX(5px);
+                }
+
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 992px) {
+                    .pr-mech-page .mp-hero-content { padding: 0 30px; }
+                    .pr-mech-page .mp-hero-content h1 { font-size: 42px; }
+                    .pr-mech-page .mp-section { grid-template-columns: 1fr; padding: 30px; }
+                    .pr-mech-page .mp-image { min-height: 260px; }
+                    .pr-mech-page .two-col-list,
+                    .pr-mech-page .three-col-list { grid-template-columns: 1fr; }
+                    .pr-mech-page .values-grid { grid-template-columns: repeat(2, 1fr); }
+                    .pr-mech-page .value-item { border-right: none; border-bottom: 1px solid var(--border); padding: 20px; }
+                    .pr-mech-page .cta-banner { flex-direction: column; text-align: center; padding: 30px; }
+                }
+                @media (max-width: 600px) {
+                    .pr-mech-page .mp-hero-content h1 { font-size: 32px; }
+                    .pr-mech-page .values-grid { grid-template-columns: 1fr; }
+                }
+            </style>
+
+            <div class="pr-mech-page">
+
+                <!-- ===== HERO ===== -->
+                <section class="mp-hero">
+                    <div class="mp-hero-overlay"></div>
+                    <div class="mp-hero-content">
+                        <div class="breadcrumb-nav">
+                            <a href="/">Home</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <a href="/services">Services</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <span class="current">Mechanical &amp; Piping</span>
+                        </div>
+                        <h1>Mechanical &amp;<br/>Piping<span class="dot">.</span></h1>
+                        <div class="gold-line"></div>
+                        <p>Engineering solutions that drive efficiency, safety and performance. Built to last. Designed to perform.</p>
+                    </div>
+                </section>
+
+                <!-- ===== MECHANICAL SECTION ===== -->
+                <section class="mp-section scroll-left">
+                    <div class="mp-content">
+                        <div class="mp-header">
+                            <div class="mp-icon"><i class="fa fa-cogs"></i></div>
+                            <h2>Mechanical &amp; Piping</h2>
+                        </div>
+
+                        <div class="mp-desc">
+                            <p>PETRORAQ's Mechanical &amp; Piping Division comprises qualified engineers experienced in the design of mechanical equipment, tanks, vessels, plant piping and related systems for power and industrial facilities. The team is also experienced in FEED, engineering for brownfield and revamp initiatives, delivering practical, efficient and cost-effective solutions that support safe and reliable operations.</p>
+                        </div>
+
+                        <h4 class="mp-subtitle">Design Capabilities</h4>
+                        <ul class="mp-list">
+                            <li><i class="fa fa-circle"></i>Piping schematics, support details and tie-in/calculations</li>
+                            <li><i class="fa fa-circle"></i>HAZOP studies</li>
+                            <li><i class="fa fa-circle"></i>P&amp;ID, system numbering and drawing systems</li>
+                            <li><i class="fa fa-circle"></i>Water supply, plumbing and drainage systems</li>
+                            <li><i class="fa fa-circle"></i>Insulation systems</li>
+                            <li><i class="fa fa-circle"></i>Fire fighting systems</li>
+                            <li><i class="fa fa-circle"></i>Mechanical systems</li>
+                            <li><i class="fa fa-circle"></i>Procurement assistance, bid evaluations and vendor data review</li>
+                            <li><i class="fa fa-circle"></i>Assistance during construction and commissioning</li>
+                        </ul>
+                    </div>
+
+                    <div class="mp-image">
+                        <img src="/pr_website/static/images/mechanic-card-1.png" alt="Industrial piping facility"/>
+                    </div>
+                </section>
+
+                <!-- ===== PIPING SECTION ===== -->
+                <section class="mp-section scroll-right">
+                    <div class="mp-content">
+                        <div class="mp-header">
+                            <div class="mp-icon"><i class="fa fa-project-diagram"></i></div>
+                            <h2>Piping</h2>
+                        </div>
+
+                        <div class="mp-desc">
+                            <p>PETRORAQ develops piping engineering drawings using advanced CAD-based tools for fast, accurate and coordinated design. Our detailed 3D walk-through models are converted at an early stage to identify clashes, minimize rework and support timely project execution. The models are real-time and tie-in-ny, enabling major equipment data input verification.</p>
+                        </div>
+
+                        <ul class="mp-list two-col-list">
+                            <li><i class="fa fa-circle"></i>Preliminary piping layouts including nozzle orientation</li>
+                            <li><i class="fa fa-circle"></i>Piping layouts</li>
+                            <li><i class="fa fa-circle"></i>Pre-fab/top and detailed GA/ISO, DCMs and MTOs</li>
+                            <li><i class="fa fa-circle"></i>Prefabrication spools and pipe rack design</li>
+                            <li><i class="fa fa-circle"></i>Design basis and standard drawings</li>
+                            <li><i class="fa fa-circle"></i>Equipment layouts</li>
+                            <li><i class="fa fa-circle"></i>Piping material specifications (PMS)</li>
+                            <li><i class="fa fa-circle"></i>Piping isdy plans</li>
+                            <li><i class="fa fa-circle"></i>Line lists according to P&amp;ID</li>
+                            <li><i class="fa fa-circle"></i>As-built drawings</li>
+                            <li><i class="fa fa-circle"></i>Isometric drawings</li>
+                        </ul>
+                    </div>
+
+                    <div class="mp-image">
+                        <img src="/pr_website/static/images/mechanic-card-2.png" alt="3D piping model"/>
+                    </div>
+                </section>
+
+                <!-- ===== VESSELS SECTION ===== -->
+                <section class="mp-section vessels-section scroll-left">
+                    <div class="vessels-left">
+                        <div class="mp-header">
+                            <div class="mp-icon"><i class="fa fa-database"></i></div>
+                            <h2>Vessels</h2>
+                        </div>
+
+                        <div class="mp-desc">
+                            <p>PETRORAQ provides design and analysis of pressure vessels including columns, horizontal and vertical pressure vessels, and reactors in accordance with ASME Boiler &amp; Pressure Vessel Code, Section VIII, Div. 1 &amp; Div. 2. The division also prepares fabrication drawings, data sheets and detailed layouts to support fabrication, installation and operation.</p>
+                        </div>
+
+                        <ul class="mp-list three-col-list">
+                            <li><i class="fa fa-circle"></i>Fatigue and dynamic analysis</li>
+                            <li><i class="fa fa-circle"></i>Roof plate and roof nozzle layout</li>
+                            <li><i class="fa fa-circle"></i>Shell nozzle details</li>
+                            <li><i class="fa fa-circle"></i>ROOF and detailed views</li>
+                            <li><i class="fa fa-circle"></i>Shell jacket plate marking plan</li>
+                            <li><i class="fa fa-circle"></i>Roof nozzle details</li>
+                            <li><i class="fa fa-circle"></i>Technical delivery conditions</li>
+                            <li><i class="fa fa-circle"></i>Orientation plan</li>
+                            <li><i class="fa fa-circle"></i>Spigot (stability)</li>
+                            <li><i class="fa fa-circle"></i>Mechanical data sheets of equipment</li>
+                            <li><i class="fa fa-circle"></i>Shell development layout</li>
+                            <li><i class="fa fa-circle"></i>Roof (periphery) head/skirt details</li>
+                            <li><i class="fa fa-circle"></i>Material lists</li>
+                            <li><i class="fa fa-circle"></i>Bottom plate layout</li>
+                            <li><i class="fa fa-circle"></i>Name plate details</li>
+                            <li><i class="fa fa-circle"></i>WRC calculation</li>
+                            <li><i class="fa fa-circle"></i>Roof plate layout</li>
+                            <li><i class="fa fa-circle"></i>FEA analysis</li>
+                        </ul>
+                    </div>
+
+                    <div class="mp-image">
+                        <img src="/pr_website/static/images/mechanic-card-3.png" alt="Pressure vessels at plant"/>
+                    </div>
+                </section>
+
+                <!-- ===== VALUES STRIP ===== -->
+                <section class="values-strip scroll-fade">
+                    <div class="values-grid">
+                        <div class="value-item scroll-fade delay-1">
+                            <div class="value-icon"><i class="fa fa-shield-alt"></i></div>
+                            <h4>Safety First</h4>
+                            <p>We prioritize safety in every design, process and decision.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-2">
+                            <div class="value-icon"><i class="fa fa-cog"></i></div>
+                            <h4>Engineering Precision</h4>
+                            <p>Accurate design and advanced tools for reliable solutions.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-3">
+                            <div class="value-icon"><i class="fa fa-tachometer-alt"></i></div>
+                            <h4>Efficient Delivery</h4>
+                            <p>Timely, structured and optimized workflows and coordination.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-4">
+                            <div class="value-icon"><i class="fa fa-clipboard-check"></i></div>
+                            <h4>Standards Compliance</h4>
+                            <p>Adherence to international codes and industry best practices.</p>
+                        </div>
+                        <div class="value-item scroll-fade delay-5">
+                            <div class="value-icon"><i class="fa fa-chart-line"></i></div>
+                            <h4>Reliable Performance</h4>
+                            <p>Solutions built to last with reliability and efficiency.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== CTA BANNER ===== -->
+                <section class="cta-banner scroll-fade">
+                    <div class="cta-left">
+                        <div class="cta-icon"><i class="fa fa-hard-hat"></i></div>
+                        <div class="cta-text">
+                            <h3>Have a project in mind?</h3>
+                            <p>Our mechanical &amp; piping experts are ready to design smart, efficient and reliable solutions for your project.</p>
+                        </div>
+                    </div>
+                    <a href="/contact-us" class="cta-btn">
+                        Request a Quote
+                        <i class="fa fa-arrow-right"></i>
+                    </a>
+                </section>
+
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var observerOptions = {
+                        threshold: 0.15,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, observerOptions);
+
+                    var animatedElements = document.querySelectorAll('.pr-mech-page .scroll-fade, .pr-mech-page .scroll-left, .pr-mech-page .scroll-right');
+                    animatedElements.forEach(function(el) {
+                        observer.observe(el);
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

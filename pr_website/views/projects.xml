@@ -1,0 +1,894 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="projects_page_template" name="Projects Page">
+        <t t-call="website.layout">
+            <div id="wrap" class="petroraq-projects-page">
+
+                <!-- ============ HERO SECTION ============ -->
+                <section class="pr-hero">
+                    <div class="pr-hero-left">
+                        <h1 class="animate-slide-up">
+                            Our Completed <br/>Projects<span class="dot">.</span>
+                        </h1>
+                        <p class="animate-slide-up delay-200">Delivering excellence across industrial, infrastructure,
+                           commercial, and engineering projects throughout Saudi Arabia.</p>
+                        <div class="gold-line animate-expand delay-400"></div>
+                    </div>
+                    <div class="pr-hero-right"
+                         style="background-image:url('pr_website/static/images/industrial-bg.png')">
+                        <div class="hero-overlay animate-fade-in delay-600"></div>
+                    </div>
+                </section>
+
+                <!-- ============ CONFIDENCE / STATS ============ -->
+                <section class="pr-confidence container py-5">
+                    <div class="row align-items-start">
+                        <div class="col-lg-3 mb-4">
+                            <h3 class="pr-title-blue animate-slide-up">Projects Delivered with Confidence</h3>
+                            <p class="text-muted small mt-3 animate-slide-up delay-200">
+                                With a strong commitment to quality, safety, and innovation,
+                                we have successfully delivered a wide range of projects that
+                                drive progress and create long-term value for our clients and communities.
+                            </p>
+                        </div>
+                        <div class="col-lg-9">
+                            <div class="row g-3">
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="pr-stat animate-scale-up delay-100">
+                                        <i class="fa fa-users"/>
+                                        <h2>25+</h2>
+                                        <h6>Completed Projects</h6>
+                                        <p>Successfully delivered across Saudi Arabia.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="pr-stat animate-scale-up delay-200">
+                                        <i class="fa fa-industry"/>
+                                        <h6 class="mt-2">Industrial &amp; Infrastructure Expertise</h6>
+                                        <p>Proven experience across diverse sectors.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="pr-stat animate-scale-up delay-300">
+                                        <i class="fa fa-clock-o"/>
+                                        <h6 class="mt-2">On-Time Delivery</h6>
+                                        <p>On schedule. On budget. Every time.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="pr-stat animate-scale-up delay-400">
+                                        <i class="fa fa-shield"/>
+                                        <h6 class="mt-2">Quality &amp; Safety Focus</h6>
+                                        <p>Built with responsibility. Delivered with excellence.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ FEATURED PROJECTS ============ -->
+                <section class="pr-featured container py-5">
+                    <h2 class="pr-title-blue text-center animate-slide-up">Featured Completed Projects</h2>
+                    <div class="gold-line mx-auto mb-5 animate-expand delay-200"></div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-100">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/industrial-1.png" alt="Industrial Plant"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Industrial Plant Upgrade – Jubail</h5>
+                                            <p>Upgrade and expansion of process units with enhanced efficiency and safety.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Industrial Plant Upgrade – Jubail</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> Jubail, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> Industrial</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Upgrade and expansion of process units with enhanced efficiency and safety.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-200">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/porta-cabins-1.png/" alt="Modular Camp"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Modular Residential Camp – Riyadh</h5>
+                                            <p>Design, supply, and installation of modular residential camp for workforce housing.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Modular Residential Camp – Riyadh</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> Riyadh, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> Modular Facilities</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Design, supply, and installation of modular residential camp for workforce housing.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-300">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/civil-work.png/" alt="Water Treatment"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Water Treatment Facility – Dammam</h5>
+                                            <p>Construction of a state-of-the-art water treatment facility with modern systems.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Water Treatment Facility – Dammam</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> Dammam, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> Infrastructure</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Construction of a state-of-the-art water treatment facility with modern systems.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-400">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/mechanicall.jpg" alt="Piping Works"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Mechanical &amp; Piping Works – Yanbu</h5>
+                                            <p>Mechanical and piping installation for industrial facility improvements.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Mechanical &amp; Piping Works – Yanbu</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> Yanbu, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> MEP Works</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Mechanical and piping installation for industrial facility improvements.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-500">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/interior-works.png" alt="Fit-out"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Commercial Building Fit-Out – Khobar</h5>
+                                            <p>Premium fit-out works for office spaces with high-quality finishes.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Commercial Building Fit-Out – Khobar</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> Khobar, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> Buildings</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Premium fit-out works for office spaces with high-quality finishes.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-600">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/infrastructure.png" alt="NEOM"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Infrastructure Development Package – NEOM</h5>
+                                            <p>Roads, utilities, and site development works supporting NEOM infrastructure.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Infrastructure Development Package – NEOM</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> NEOM, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> Infrastructure</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Roads, utilities, and site development works supporting NEOM infrastructure.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-700">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/electrical-work.png" alt="Substation"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Substation &amp; Electrical Works – Jeddah</h5>
+                                            <p>Design, supply, installation, and testing of electrical substation and systems.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Substation &amp; Electrical Works – Jeddah</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> Jeddah, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> MEP Works</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Design, supply, installation, and testing of electrical substation and systems.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pr-card animate-slide-up delay-800">
+                                <div class="pr-card-image">
+                                    <img src="/pr_website/static/images/porta-cabins-2.png" alt="Site Offices"/>
+                                    <div class="card-overlay">
+                                        <div class="overlay-content">
+                                            <h5>Temporary Site Offices &amp; Camp Facilities – Qiddiya</h5>
+                                            <p>Provision of temporary site offices and camp facilities for project operations.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pr-card-body">
+                                    <h5>Temporary Site Offices &amp; Camp Facilities – Qiddiya</h5>
+                                    <p class="meta"><i class="fa fa-map-marker"/> Qiddiya, Saudi Arabia</p>
+                                    <div class="row-between">
+                                        <span class="cat"><i class="fa fa-folder-o"/> Modular Facilities</span>
+                                        <span class="badge-done">Completed</span>
+                                    </div>
+                                    <p class="desc">Provision of temporary site offices and camp facilities for project operations.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ PROJECT CATEGORIES ============ -->
+                <section class="pr-categories container py-5">
+                    <h2 class="pr-title-blue text-center animate-slide-up">Project Categories</h2>
+                    <div class="gold-line mx-auto mb-5 animate-expand delay-200"></div>
+                    <div class="row g-3">
+                        <div class="col">
+                            <div class="pr-cat-card animate-scale-up delay-100">
+                                <i class="fa fa-industry"/>
+                                <h6>Industrial</h6>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="pr-cat-card animate-scale-up delay-200">
+                                <i class="fa fa-road"/>
+                                <h6>Infrastructure</h6>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="pr-cat-card animate-scale-up delay-300">
+                                <i class="fa fa-building"/>
+                                <h6>Buildings</h6>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="pr-cat-card animate-scale-up delay-400">
+                                <i class="fa fa-cogs"/>
+                                <h6>MEP Works</h6>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="pr-cat-card animate-scale-up delay-500">
+                                <i class="fa fa-home"/>
+                                <h6>Modular Facilities</h6>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ CTA BANNER ============ -->
+                <section class="container mb-5">
+                    <div class="pr-cta animate-slide-up">
+                        <div class="pr-cta-icon animate-pulse">
+                            <i class="fa fa-building"/>
+                        </div>
+                        <div class="pr-cta-text">
+                            <h3>Let's build your next project.</h3>
+                            <p>Partner with PETRORAQ for reliable solutions and lasting results.</p>
+                        </div>
+                        <div class="pr-cta-btns">
+                            <a href="/contactus" class="btn-gold animate-scale-up">
+                                Contact Us <i class="fa fa-arrow-right"/>
+                            </a>
+                            <a href="/contactus" class="btn-ghost animate-scale-up delay-100">
+                                Request Proposal <i class="fa fa-arrow-right"/>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============ ENHANCED STYLES WITH ANIMATIONS ============ -->
+                <style>
+                    .petroraq-projects-page {
+                        --blue: #0a2647;
+                        --gold: #d4a017;
+                        color: #333;
+                        overflow-x: hidden;
+                    }
+
+                    /* ANIMATION CLASSES */
+                    .animate-slide-up {
+                        opacity: 0;
+                        transform: translateY(40px);
+                        animation: slideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    }
+                    .animate-scale-up {
+                        opacity: 0;
+                        transform: scale(0.9);
+                        animation: scaleUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    }
+                    .animate-fade-in {
+                        opacity: 0;
+                        animation: fadeIn 1s ease forwards;
+                    }
+                    .animate-expand {
+                        transform: scaleX(0);
+                        transform-origin: left;
+                        animation: expand 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    }
+                    .animate-pulse {
+                        animation: pulse 2s infinite;
+                    }
+                    .delay-100 { animation-delay: 0.1s; }
+                    .delay-200 { animation-delay: 0.2s; }
+                    .delay-300 { animation-delay: 0.3s; }
+                    .delay-400 { animation-delay: 0.4s; }
+                    .delay-500 { animation-delay: 0.5s; }
+                    .delay-600 { animation-delay: 0.6s; }
+                    .delay-700 { animation-delay: 0.7s; }
+                    .delay-800 { animation-delay: 0.8s; }
+
+                    @keyframes slideUp {
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                    @keyframes scaleUp {
+                        to {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                    }
+                    @keyframes fadeIn {
+                        to { opacity: 1; }
+                    }
+                    @keyframes expand {
+                        to { transform: scaleX(1); }
+                    }
+                    @keyframes pulse {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.05); }
+                    }
+
+                    /* SCROLL REVEAL */
+                    .petroraq-projects-page [class*="animate-"] {
+                        opacity: 0;
+                    }
+                    .petroraq-projects-page.animate-loaded [class*="animate-"] {
+                        opacity: 1;
+                        transform: none;
+                        animation-play-state: running;
+                    }
+
+                    .petroraq-projects-page .pr-title-blue {
+                        color: var(--blue);
+                        font-weight: 700;
+                    }
+                    .petroraq-projects-page .gold-line {
+                        width: 70px; height: 3px;
+                        background: var(--gold);
+                        margin-top: 12px;
+                    }
+
+                    /* HERO */
+                    .petroraq-projects-page .pr-hero {
+                        display: flex;
+                        background: linear-gradient(135deg,#f5f7fa,#e8edf3);
+                        min-height: 340px;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .petroraq-projects-page .pr-hero::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(90deg, rgba(10,38,71,0.05) 0%, transparent 50%);
+                        z-index: 1;
+                    }
+                    .petroraq-projects-page .pr-hero-left {
+                        flex: 1;
+                        padding: 70px 60px;
+                        position: relative;
+                        z-index: 2;
+                    }
+                    .petroraq-projects-page .pr-hero-left h1 {
+                        font-size: 3.2rem;
+                        color: var(--blue);
+                        font-weight: 800;
+                        line-height: 1.1;
+                    }
+                    .petroraq-projects-page .pr-hero-left .dot {
+                        color: var(--gold);
+                        position: relative;
+                    }
+                    .petroraq-projects-page .pr-hero-left .dot::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -5px;
+                        left: 0;
+                        width: 100%;
+                        height: 2px;
+                        background: var(--gold);
+                        transform: scaleX(0);
+                        transition: transform 0.3s ease;
+                    }
+                    .petroraq-projects-page .pr-hero:hover .dot::after {
+                        transform: scaleX(1);
+                    }
+                    .petroraq-projects-page .pr-hero-left p {
+                        color: #555;
+                        margin-top: 20px;
+                        max-width: 420px;
+                    }
+                    .petroraq-projects-page .pr-hero-right {
+                        flex: 1.2;
+                        background-size: cover;
+                        background-position: center;
+                        position: relative;
+                        transition: transform 0.6s ease;
+                    }
+                    .petroraq-projects-page .pr-hero:hover .pr-hero-right {
+                        transform: scale(1.02);
+                    }
+                    .petroraq-projects-page .hero-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(45deg, rgba(212,160,23,0.1) 0%, transparent 70%);
+                    }
+
+                    /* STATS */
+                    .petroraq-projects-page .pr-stat {
+                        background: #fff;
+                        border: 1px solid #eee;
+                        border-radius: 12px;
+                        padding: 30px 20px;
+                        text-align: center;
+                        height: 100%;
+                        box-shadow: 0 4px 20px rgba(0,0,0,.05);
+                        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .petroraq-projects-page .pr-stat::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 0;
+                        height: 3px;
+                        background: var(--gold);
+                        transition: width 0.4s ease;
+                    }
+                    .petroraq-projects-page .pr-stat:hover::before {
+                        width: 100%;
+                    }
+                    .petroraq-projects-page .pr-stat:hover {
+                        transform: translateY(-8px) scale(1.02);
+                        box-shadow: 0 20px 40px rgba(0,0,0,.12);
+                        border-color: rgba(212,160,23,.2);
+                    }
+                    .petroraq-projects-page .pr-stat i {
+                        font-size: 2.2rem;
+                        color: var(--gold);
+                        margin-bottom: 15px;
+                        transition: transform 0.3s ease;
+                    }
+                    .petroraq-projects-page .pr-stat:hover i {
+                        transform: scale(1.2) rotate(10deg);
+                    }
+                    .petroraq-projects-page .pr-stat h2 {
+                        color: var(--blue);
+                        font-weight: 800;
+                        font-size: 2.2rem;
+                        margin: 0 0 8px 0;
+                    }
+                    .petroraq-projects-page .pr-stat h6 {
+                        color: var(--blue);
+                        font-weight: 700;
+                        font-size: 1rem;
+                    }
+                    .petroraq-projects-page .pr-stat p {
+                        color: #777;
+                        font-size: .82rem;
+                        margin: 8px 0 0;
+                    }
+
+                    /* PROJECT CARDS */
+                    .petroraq-projects-page .pr-card {
+                        background: #fff;
+                        border: 1px solid #eee;
+                        border-radius: 12px;
+                        overflow: hidden;
+                        height: 100%;
+                        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        box-shadow: 0 4px 20px rgba(0,0,0,.06);
+                    }
+                    .petroraq-projects-page .pr-card:hover {
+                        transform: translateY(-12px) rotateX(5deg);
+                        box-shadow: 0 25px 50px rgba(0,0,0,.15);
+                        border-color: rgba(212,160,23,.3);
+                    }
+                    .petroraq-projects-page .pr-card-image {
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .petroraq-projects-page .pr-card-image img {
+                        width: 100%;
+                        height: 180px;
+                        object-fit: cover;
+                        transition: transform 0.6s ease;
+                    }
+                    .petroraq-projects-page .pr-card:hover .pr-card-image img {
+                        transform: scale(1.1);
+                    }
+                    .petroraq-projects-page .card-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(135deg, rgba(10,38,71,0.9) 0%, rgba(10,38,71,0.7) 100%);
+                        opacity: 0;
+                        transition: opacity 0.4s ease;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .petroraq-projects-page .pr-card:hover .card-overlay {
+                        opacity: 1;
+                    }
+                    .petroraq-projects-page .overlay-content {
+                        color: white;
+                        text-align: center;
+                        padding: 20px;
+                        transform: translateY(20px);
+                        transition: transform 0.4s ease;
+                    }
+                    .petroraq-projects-page .pr-card:hover .overlay-content {
+                        transform: translateY(0);
+                    }
+                    .petroraq-projects-page .overlay-content h5 {
+                        font-size: 1.1rem;
+                        margin: 0 0 10px 0;
+                        color: var(--gold);
+                    }
+                    .petroraq-projects-page .overlay-content p {
+                        font-size: 0.85rem;
+                        margin: 0;
+                        opacity: 0.9;
+                    }
+                    .petroraq-projects-page .pr-card-body {
+                        padding: 20px;
+                        position: relative;
+                    }
+                    .petroraq-projects-page .pr-card-body h5 {
+                        color: var(--blue);
+                        font-weight: 700;
+                        font-size: 1.05rem;
+                        margin: 0 0 8px 0;
+                        transition: color 0.3s ease;
+                    }
+                    .petroraq-projects-page .pr-card:hover .pr-card-body h5 {
+                        color: var(--gold);
+                    }
+                    .petroraq-projects-page .pr-card .meta {
+                        color: #666;
+                        font-size: .82rem;
+                        margin: 8px 0;
+                    }
+                    .petroraq-projects-page .pr-card .meta i {
+                        color: var(--gold);
+                        transition: transform 0.3s ease;
+                    }
+                    .petroraq-projects-page .pr-card:hover .meta i {
+                        transform: scale(1.2);
+                    }
+                    .petroraq-projects-page .pr-card .row-between {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 12px;
+                    }
+                    .petroraq-projects-page .pr-card .cat {
+                        color: #666;
+                        font-size: .82rem;
+                        transition: color 0.3s ease;
+                    }
+                    .petroraq-projects-page .pr-card:hover .cat {
+                        color: var(--gold);
+                    }
+                    .petroraq-projects-page .pr-card .badge-done {
+                        background: linear-gradient(135deg, #e6f7ec, #d4f1d8);
+                        color: #1e8e3e;
+                        padding: 4px 12px;
+                        border-radius: 20px;
+                        font-size: .75rem;
+                        font-weight: 700;
+                        transition: all 0.3s ease;
+                        transform: scale(1);
+                    }
+                    .petroraq-projects-page .pr-card:hover .badge-done {
+                        transform: scale(1.1);
+                    }
+                    .petroraq-projects-page .pr-card .desc {
+                        color: #555;
+                        font-size: .85rem;
+                        margin: 0;
+                        line-height: 1.5;
+                    }
+
+                    /* CATEGORIES */
+                    .petroraq-projects-page .pr-cat-card {
+                        background: linear-gradient(145deg, #fff, #f8f9fa);
+                        border: 2px solid transparent;
+                        border-radius: 16px;
+                        text-align: center;
+                        padding: 35px 15px;
+                        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                        cursor: pointer;
+                    }
+                    .petroraq-projects-page .pr-cat-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(212,160,23,0.1), transparent);
+                        transition: left 0.6s ease;
+                    }
+                    .petroraq-projects-page .pr-cat-card:hover::before {
+                        left: 100%;
+                    }
+                    .petroraq-projects-page .pr-cat-card:hover {
+                        border-color: var(--gold);
+                        transform: translateY(-10px) scale(1.05);
+                        box-shadow: 0 20px 40px rgba(212,160,23,.2);
+                        background: linear-gradient(145deg, #fff, #fff);
+                    }
+                    .petroraq-projects-page .pr-cat-card i {
+                        font-size: 2.6rem;
+                        color: var(--gold);
+                        margin-bottom: 18px;
+                        transition: all 0.4s ease;
+                        display: block;
+                    }
+                    .petroraq-projects-page .pr-cat-card:hover i {
+                        transform: scale(1.2) rotateY(360deg);
+                    }
+                    .petroraq-projects-page .pr-cat-card h6 {
+                        color: var(--blue);
+                        font-weight: 700;
+                        margin: 0;
+                        font-size: 1.05rem;
+                        transition: color 0.3s ease;
+                    }
+                    .petroraq-projects-page .pr-cat-card:hover h6 {
+                        color: var(--gold);
+                    }
+
+                    /* CTA */
+                    .petroraq-projects-page .pr-cta {
+                        background: linear-gradient(135deg, var(--blue), #1a3a6a);
+                        border-radius: 20px;
+                        padding: 40px 50px;
+                        display: flex;
+                        align-items: center;
+                        gap: 30px;
+                        flex-wrap: wrap;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .petroraq-projects-page .pr-cta::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        left: -50%;
+                        width: 200%;
+                        height: 200%;
+                        background: radial-gradient(circle, rgba(212,160,23,0.1) 0%, transparent 70%);
+                        animation: rotate 20s linear infinite;
+                        z-index: 0;
+                    }
+                    .petroraq-projects-page .pr-cta-icon {
+                        background: rgba(212,160,23,.2);
+                        width: 80px;
+                        height: 80px;
+                        border-radius: 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                        z-index: 2;
+                        transition: all 0.3s ease;
+                    }
+                    .petroraq-projects-page .pr-cta:hover .pr-cta-icon {
+                        transform: scale(1.1) rotate(360deg);
+                        background: rgba(212,160,23,.3);
+                    }
+                    .petroraq-projects-page .pr-cta-icon i {
+                        color: var(--gold);
+                        font-size: 2rem;
+                    }
+                    .petroraq-projects-page .pr-cta-text {
+                        flex: 1;
+                        color: #fff;
+                        position: relative;
+                        z-index: 2;
+                    }
+                    .petroraq-projects-page .pr-cta-text h3 {
+                        font-weight: 700;
+                        margin: 0 0 8px 0;
+                        font-size: 1.6rem;
+                    }
+                    .petroraq-projects-page .pr-cta-text p {
+                        margin: 0;
+                        opacity: .9;
+                        font-size: 1.05rem;
+                    }
+                    .petroraq-projects-page .btn-gold,
+                    .petroraq-projects-page .btn-ghost {
+                        padding: 12px 28px;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        text-decoration: none;
+                        display: inline-flex;
+                        align-items: center;
+                        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                        position: relative;
+                        overflow: hidden;
+                        font-size: 0.95rem;
+                    }
+                    .petroraq-projects-page .btn-gold {
+                        background: linear-gradient(135deg, var(--gold), #e6b923);
+                        color: #fff !important;
+                        margin-right: 15px;
+                        box-shadow: 0 4px 15px rgba(212,160,23,.4);
+                    }
+                    .petroraq-projects-page .btn-gold:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 25px rgba(212,160,23,.6);
+                        background: linear-gradient(135deg, #e6b923, var(--gold));
+                    }
+                    .petroraq-projects-page .btn-ghost {
+                        border: 2px solid rgba(255,255,255,.9);
+                        color: #fff !important;
+                        backdrop-filter: blur(10px);
+                    }
+                    .petroraq-projects-page .btn-ghost:hover {
+                        background: rgba(255,255,255,.1);
+                        border-color: var(--gold);
+                        color: var(--gold) !important;
+                        transform: translateY(-2px);
+                    }
+                    .petroraq-projects-page .btn-gold i,
+                    .petroraq-projects-page .btn-ghost i {
+                        margin-left: 8px;
+                        transition: margin-left 0.3s ease;
+                    }
+                    .petroraq-projects-page .btn-gold:hover i,
+                    .petroraq-projects-page .btn-ghost:hover i {
+                        margin-left: 12px;
+                    }
+
+                    @keyframes rotate {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+
+                    /* RESPONSIVE */
+                    @media (max-width: 768px) {
+                        .petroraq-projects-page .pr-hero {
+                            flex-direction: column;
+                            min-height: 400px;
+                        }
+                        .petroraq-projects-page .pr-hero-right {
+                            min-height: 200px;
+                            flex: none;
+                            width: 100%;
+                        }
+                        .petroraq-projects-page .pr-hero-left {
+                            padding: 40px 25px;
+                            text-align: center;
+                        }
+                        .petroraq-projects-page .pr-hero-left h1 {
+                            font-size: 2.4rem;
+                        }
+                        .petroraq-projects-page .pr-cta {
+                            flex-direction: column;
+                            text-align: center;
+                            padding: 30px 25px;
+                        }
+                        .petroraq-projects-page .pr-card:hover {
+                            transform: translateY(-8px);
+                            rotate: none;
+                        }
+                    }
+                </style>
+
+            </div>
+        </t>
+
+        <!-- SCROLL ANIMATION SCRIPT -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.closest('.petroraq-projects-page').classList.add('animate-loaded');
+                        }
+                    });
+                }, observerOptions);
+
+                // Observe sections
+                document.querySelectorAll('.pr-hero, .pr-confidence, .pr-featured, .pr-categories, .pr-cta').forEach(section => {
+                    observer.observe(section);
+                });
+
+                // Smooth hover effects for cards
+                document.querySelectorAll('.pr-card, .pr-stat, .pr-cat-card').forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-12px) scale(1.02)';
+                    });
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0) scale(1)';
+                    });
+                });
+
+                // Parallax effect for hero
+                window.addEventListener('scroll', function() {
+                    const scrolled = window.pageYOffset;
+                    const hero = document.querySelector('.pr-hero-right');
+                    if (hero) {
+                        hero.style.transform = `translateY(${scrolled * 0.5}px) scale(1.02)`;
+                    }
+                });
+            });
+        </script>
+    </template>
+</odoo>

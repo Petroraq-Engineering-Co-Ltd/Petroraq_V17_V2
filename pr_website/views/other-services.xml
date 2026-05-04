@@ -1,0 +1,801 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="service_other_services" name="Service - Other Services">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Other Services - PETRORAQ</t>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+            <style>
+                .pr-other-page * {
+                    box-sizing: border-box;
+                    font-family: 'Poppins', sans-serif;
+                }
+                .pr-other-page {
+                    --navy: #06264B;
+                    --navy-deep: #051d3a;
+                    --gold: #e9a23e;
+                    --green: #4caf50;
+                    --text: #333;
+                    --muted: #6b7a8f;
+                    --bg: #f5f6f8;
+                    --border: #e5e8ec;
+                    background: var(--bg);
+                    color: var(--text);
+                }
+
+                /* ===== SCROLL ANIMATIONS ===== */
+                .pr-other-page .scroll-fade {
+                    opacity: 0;
+                    transform: translateY(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-other-page .scroll-fade.visible { opacity: 1; transform: translateY(0); }
+                .pr-other-page .scroll-left {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-other-page .scroll-left.visible { opacity: 1; transform: translateX(0); }
+                .pr-other-page .scroll-right {
+                    opacity: 0;
+                    transform: translateX(40px);
+                    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+                }
+                .pr-other-page .scroll-right.visible { opacity: 1; transform: translateX(0); }
+
+                @keyframes fadeInLeft {
+                    from { opacity: 0; transform: translateX(-30px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes pulseDot {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.1); }
+                }
+                @keyframes expandLine {
+                    from { width: 0; }
+                    to { width: 70px; }
+                }
+                @keyframes floatGlow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-8px); }
+                }
+
+                /* ===== HERO ===== */
+                .pr-other-page .os-hero {
+                    position: relative;
+                    min-height: 380px;
+                    background: url('/pr_website/static/images/other-services-bg.png') center/cover no-repeat;
+                    display: flex;
+                    align-items: center;
+                    overflow: hidden;
+                }
+                .pr-other-page .os-hero-overlay {
+                    position: absolute; inset: 0;
+                    background: linear-gradient(90deg, rgba(6,38,75,0.95) 0%, rgba(6,38,75,0.75) 45%, rgba(6,38,75,0.2) 80%, rgba(6,38,75,0) 100%);
+                }
+                .pr-other-page .os-hero-content {
+                    position: relative; z-index: 2;
+                    padding: 0 60px;
+                    color: #fff;
+                    max-width: 600px;
+                    animation: fadeInLeft 1s ease-out;
+                }
+                .pr-other-page .breadcrumb-nav {
+                    color: #cbd5e1;
+                    font-size: 13px;
+                    margin-bottom: 25px;
+                }
+                .pr-other-page .breadcrumb-nav a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-other-page .breadcrumb-nav a:hover { color: var(--gold); }
+                .pr-other-page .breadcrumb-nav .current { color: var(--gold); font-weight: 500; }
+                .pr-other-page .breadcrumb-nav i { margin: 0 8px; font-size: 10px; }
+
+                .pr-other-page .os-hero-content h1 {
+                    font-size: 56px;
+                    font-weight: 800;
+                    line-height: 1.05;
+                    color: #fff;
+                    margin-bottom: 15px;
+                }
+                .pr-other-page .os-hero-content h1 .dot {
+                    color: var(--gold);
+                    display: inline-block;
+                    animation: pulseDot 2s ease-in-out infinite;
+                }
+                .pr-other-page .gold-line {
+                    width: 70px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    margin: 20px 0;
+                    animation: expandLine 1s ease-out 0.5s both;
+                }
+                .pr-other-page .os-hero-content p {
+                    font-size: 15px;
+                    line-height: 1.7;
+                    color: #e0e6ef;
+                    max-width: 450px;
+                }
+
+                /* ===== MAIN LAYOUT ===== */
+                .pr-other-page .os-main {
+                    max-width: 1200px;
+                    margin: 30px auto;
+                    padding: 0 20px;
+                    display: grid;
+                    grid-template-columns: 1fr 340px;
+                    gap: 25px;
+                    align-items: start;
+                }
+
+                /* ===== LEFT COLUMN ===== */
+                .pr-other-page .os-left {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 25px;
+                }
+
+                .pr-other-page .section-title-wrap {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 10px;
+                }
+                .pr-other-page .title-bar {
+                    width: 5px;
+                    height: 28px;
+                    background: linear-gradient(180deg, var(--gold), #d8902f);
+                    border-radius: 2px;
+                }
+                .pr-other-page .section-title-wrap h2 {
+                    color: var(--navy);
+                    font-size: 22px;
+                    font-weight: 800;
+                    letter-spacing: 2px;
+                }
+
+                /* Service card */
+                .pr-other-page .service-card {
+                    background: #fff;
+                    border-radius: 12px;
+                    padding: 38px 42px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                    display: grid;
+                    grid-template-columns: 90px 1fr 340px;
+                    gap: 25px;
+                    align-items: start;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-other-page .service-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.5s ease;
+                }
+                .pr-other-page .service-card:hover::before { transform: scaleX(1); }
+                .pr-other-page .service-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                }
+
+                /* Side icon */
+                .pr-other-page .side-icon {
+                    width: 82px; height: 82px;
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0;
+                    transition: all 0.4s ease;
+                }
+                .pr-other-page .side-icon.env {
+                    border: 2px solid var(--green);
+                    background: #fff;
+                }
+                .pr-other-page .service-card:hover .side-icon.env {
+                    background: var(--green);
+                    transform: rotate(360deg) scale(1.1);
+                    box-shadow: 0 8px 25px rgba(76,175,80,0.4);
+                }
+                .pr-other-page .side-icon.env i {
+                    color: var(--green);
+                    font-size: 34px;
+                    transition: color 0.4s ease;
+                }
+                .pr-other-page .service-card:hover .side-icon.env i {
+                    color: #fff;
+                }
+                .pr-other-page .side-icon.constr {
+                    background: var(--navy);
+                }
+                .pr-other-page .service-card:hover .side-icon.constr {
+                    background: var(--gold);
+                    transform: rotate(360deg) scale(1.1);
+                    box-shadow: 0 8px 25px rgba(233,162,62,0.4);
+                }
+                .pr-other-page .side-icon.constr i {
+                    color: #fff;
+                    font-size: 34px;
+                    transition: color 0.4s ease;
+                }
+                .pr-other-page .service-card:hover .side-icon.constr i {
+                    color: var(--navy);
+                }
+
+                /* Text column */
+                .pr-other-page .service-text .pre-title {
+                    color: var(--muted);
+                    font-size: 12px;
+                    font-weight: 500;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                    margin-bottom: 5px;
+                }
+                .pr-other-page .service-text h3 {
+                    color: var(--navy);
+                    font-size: 28px;
+                    font-weight: 800;
+                    line-height: 1.15;
+                    margin-bottom: 15px;
+                    position: relative;
+                    display: inline-block;
+                    padding-bottom: 8px;
+                }
+                .pr-other-page .service-text h3::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 50px;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--gold), transparent);
+                    transition: width 0.4s ease;
+                }
+                .pr-other-page .service-card:hover .service-text h3::after {
+                    width: 100px;
+                }
+                .pr-other-page .service-text p {
+                    color: var(--text);
+                    font-size: 13px;
+                    line-height: 1.7;
+                    margin-bottom: 12px;
+                }
+
+                /* Image column */
+                .pr-other-page .service-image {
+                    border-radius: 50% 50% 10px 50%;
+                    overflow: hidden;
+                    height: 320px;
+                    position: relative;
+                    transition: all 0.5s ease;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }
+                .pr-other-page .service-image:hover {
+                    border-radius: 10px 50% 50% 50%;
+                }
+                .pr-other-page .service-image.construction {
+                    border-radius: 12px;
+                    height: 220px;
+                }
+                .pr-other-page .service-image.construction:hover {
+                    border-radius: 30px;
+                }
+                .pr-other-page .service-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.7s ease;
+                }
+                .pr-other-page .service-image:hover img {
+                    transform: scale(1.1);
+                }
+
+                /* Capabilities list */
+                .pr-other-page .capabilities-wrap {
+                    grid-column: 1 / -1;
+                    padding-top: 18px;
+                    border-top: 1px solid var(--border);
+                }
+                .pr-other-page .capabilities-title {
+                    color: var(--navy);
+                    font-size: 14px;
+                    font-weight: 700;
+                    margin-bottom: 14px;
+                    position: relative;
+                    display: inline-block;
+                    padding-bottom: 5px;
+                }
+                .pr-other-page .capabilities-title::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 30px;
+                    height: 2px;
+                    background: var(--gold);
+                }
+                .pr-other-page .env-title { color: var(--green); }
+                .pr-other-page .env-title::after { background: var(--green); }
+
+                .pr-other-page .cap-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                .pr-other-page .cap-list.single { display: block; }
+                .pr-other-page .cap-list.multi-col {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr;
+                    gap: 5px 25px;
+                }
+                .pr-other-page .cap-list li {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 8px;
+                    color: var(--text);
+                    font-size: 12.5px;
+                    padding: 5px 0;
+                    line-height: 1.5;
+                    transition: all 0.3s ease;
+                    border-radius: 4px;
+                }
+                .pr-other-page .cap-list li:hover {
+                    color: var(--navy);
+                    transform: translateX(5px);
+                }
+                .pr-other-page .cap-list li i {
+                    color: var(--green);
+                    font-size: 13px;
+                    margin-top: 3px;
+                    flex-shrink: 0;
+                    transition: transform 0.3s ease;
+                }
+                .pr-other-page .cap-list li:hover i {
+                    transform: scale(1.3) rotate(15deg);
+                }
+                .pr-other-page .cap-list.blue-check li i {
+                    color: #1a73e8;
+                }
+
+                /* ===== RIGHT NAVY PANEL (STICKY - KEEP AS IS) ===== */
+                .pr-other-page .os-right {
+                    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+                    border-radius: 12px;
+                    padding: 50px 35px;
+                    color: #fff;
+                    position: sticky;
+                    top: 20px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+                    overflow: hidden;
+                }
+                .pr-other-page .os-right::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -30%;
+                    width: 300px;
+                    height: 300px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.1) 0%, transparent 70%);
+                    animation: floatGlow 5s ease-in-out infinite;
+                }
+                .pr-other-page .os-right .right-head {
+                    text-align: center;
+                    margin-bottom: 35px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-other-page .os-right .right-head .pre {
+                    color: #cbd5e1;
+                    font-size: 13px;
+                    font-weight: 500;
+                    letter-spacing: 2px;
+                    margin-bottom: 8px;
+                }
+                .pr-other-page .os-right .right-head h2 {
+                    color: var(--gold);
+                    font-size: 32px;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                    line-height: 1.1;
+                }
+
+                .pr-other-page .services-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 25px 15px;
+                    padding-bottom: 22px;
+                    border-bottom: 1px solid rgba(233,162,62,0.3);
+                    margin-bottom: 25px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-other-page .services-grid.row2 {
+                    grid-template-columns: 1fr 1fr 1fr;
+                    border-bottom: 1px solid rgba(233,162,62,0.3);
+                }
+                .pr-other-page .services-grid.row3 {
+                    grid-template-columns: 1fr 1fr;
+                    border-bottom: none;
+                    padding-bottom: 0;
+                    margin-bottom: 0;
+                }
+
+                .pr-other-page .srv-item {
+                    text-align: center;
+                    padding: 12px 5px;
+                    border-right: 1px dashed rgba(255,255,255,0.15);
+                    transition: all 0.3s ease;
+                    border-radius: 8px;
+                    cursor: pointer;
+                }
+                .pr-other-page .srv-item:last-child { border-right: none; }
+                .pr-other-page .srv-item:hover {
+                    background: rgba(233,162,62,0.08);
+                    transform: translateY(-5px);
+                }
+                .pr-other-page .srv-ico {
+                    width: 60px; height: 60px;
+                    margin: 0 auto 12px;
+                    display: flex; align-items: center; justify-content: center;
+                    border-radius: 50%;
+                    transition: all 0.4s ease;
+                }
+                .pr-other-page .srv-ico.green {
+                    border: 2px solid var(--green);
+                }
+                .pr-other-page .srv-item:hover .srv-ico.green {
+                    background: var(--green);
+                    transform: rotate(360deg) scale(1.1);
+                    box-shadow: 0 6px 15px rgba(76,175,80,0.4);
+                }
+                .pr-other-page .srv-ico.green i {
+                    color: var(--green);
+                    font-size: 26px;
+                    transition: color 0.4s ease;
+                }
+                .pr-other-page .srv-item:hover .srv-ico.green i { color: #fff; }
+                .pr-other-page .srv-ico.plain i {
+                    color: #fff;
+                    font-size: 30px;
+                    transition: all 0.4s ease;
+                }
+                .pr-other-page .srv-item:hover .srv-ico.plain {
+                    background: var(--gold);
+                    transform: scale(1.1) rotate(10deg);
+                    box-shadow: 0 6px 15px rgba(233,162,62,0.4);
+                }
+                .pr-other-page .srv-item:hover .srv-ico.plain i {
+                    color: var(--navy);
+                }
+
+                .pr-other-page .srv-item h5 {
+                    color: #fff;
+                    font-size: 13px;
+                    font-weight: 600;
+                    line-height: 1.3;
+                    transition: color 0.3s ease;
+                }
+                .pr-other-page .srv-item:hover h5 {
+                    color: var(--gold);
+                }
+
+                /* ===== CONTACT BAR ===== */
+                .pr-other-page .contact-bar {
+                    background: linear-gradient(135deg, var(--navy) 0%, #0a3d6e 100%);
+                    padding: 25px 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto 30px;
+                    border-radius: 12px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .pr-other-page .contact-bar::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    right: -10%;
+                    width: 400px;
+                    height: 400px;
+                    background: radial-gradient(circle, rgba(233,162,62,0.08) 0%, transparent 70%);
+                    animation: floatGlow 6s ease-in-out infinite;
+                }
+                .pr-other-page .cb-brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    position: relative;
+                    z-index: 2;
+                }
+                .pr-other-page .cb-logo {
+                    width: 42px; height: 42px;
+                    background: var(--gold);
+                    border-radius: 50%;
+                    display: flex; align-items: center; justify-content: center;
+                    transition: all 0.4s ease;
+                    box-shadow: 0 4px 15px rgba(233,162,62,0.4);
+                }
+                .pr-other-page .contact-bar:hover .cb-logo {
+                    transform: rotate(360deg) scale(1.1);
+                }
+                .pr-other-page .cb-logo i { color: #fff; font-size: 20px; }
+                .pr-other-page .cb-brand .brand-name {
+                    color: #fff;
+                    font-size: 16px;
+                    font-weight: 700;
+                    line-height: 1;
+                }
+                .pr-other-page .cb-brand .brand-sub {
+                    color: var(--gold);
+                    font-size: 10px;
+                    font-weight: 500;
+                    letter-spacing: 1.5px;
+                }
+                .pr-other-page .cb-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: #cbd5e1;
+                    font-size: 12.5px;
+                    border-left: 1px solid rgba(255,255,255,0.1);
+                    padding-left: 20px;
+                    position: relative;
+                    z-index: 2;
+                    transition: color 0.3s ease;
+                }
+                .pr-other-page .cb-item:hover { color: #fff; }
+                .pr-other-page .cb-item i {
+                    color: var(--gold);
+                    font-size: 14px;
+                    transition: transform 0.3s ease;
+                }
+                .pr-other-page .cb-item:hover i { transform: scale(1.2); }
+                .pr-other-page .cb-item a {
+                    color: #cbd5e1;
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                .pr-other-page .cb-item a:hover { color: var(--gold); }
+
+                /* ===== RESPONSIVE ===== */
+                @media (max-width: 992px) {
+                    .pr-other-page .os-hero-content { padding: 0 30px; }
+                    .pr-other-page .os-hero-content h1 { font-size: 40px; }
+                    .pr-other-page .os-main { grid-template-columns: 1fr; }
+                    .pr-other-page .os-right { position: static; }
+                    .pr-other-page .service-card { grid-template-columns: 1fr; }
+                    .pr-other-page .service-image,
+                    .pr-other-page .service-image.construction { height: 240px; border-radius: 12px; }
+                    .pr-other-page .cap-list.multi-col { grid-template-columns: 1fr 1fr; }
+                    .pr-other-page .services-grid,
+                    .pr-other-page .services-grid.row2,
+                    .pr-other-page .services-grid.row3 { grid-template-columns: 1fr 1fr; }
+                    .pr-other-page .contact-bar { flex-direction: column; text-align: center; }
+                    .pr-other-page .cb-item { border-left: none; padding-left: 0; }
+                }
+                @media (max-width: 600px) {
+                    .pr-other-page .os-hero-content h1 { font-size: 30px; }
+                    .pr-other-page .cap-list.multi-col { grid-template-columns: 1fr; }
+                    .pr-other-page .services-grid,
+                    .pr-other-page .services-grid.row2,
+                    .pr-other-page .services-grid.row3 { grid-template-columns: 1fr; }
+                }
+            </style>
+
+            <div class="pr-other-page">
+
+                <!-- ===== HERO ===== -->
+                <section class="os-hero">
+                    <div class="os-hero-overlay"></div>
+                    <div class="os-hero-content">
+                        <div class="breadcrumb-nav">
+                            <a href="/">Home</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <a href="/services">Services</a>
+                            <i class="fa fa-chevron-right"></i>
+                            <span class="current">Other Services</span>
+                        </div>
+                        <h1>Other Services<span class="dot">.</span></h1>
+                        <div class="gold-line"></div>
+                        <p>Comprehensive support services — from environmental engineering to construction management, quality control, survey, procurement, operations and turnaround solutions.</p>
+                    </div>
+                </section>
+
+                <!-- ===== MAIN 2-COLUMN LAYOUT ===== -->
+                <section class="os-main">
+
+                    <!-- ===== LEFT COLUMN ===== -->
+                    <div class="os-left">
+
+                        <div class="section-title-wrap scroll-fade">
+                            <div class="title-bar"></div>
+                            <h2>OTHER SERVICES</h2>
+                        </div>
+
+                        <!-- ===== ENVIRONMENTAL ENGINEERING ===== -->
+                        <div class="service-card scroll-left">
+                            <div class="side-icon env">
+                                <i class="fa fa-seedling"></i>
+                            </div>
+
+                            <div class="service-text">
+                                <div class="pre-title">WE ALSO PROVIDE</div>
+                                <h3>Environmental<br/>Engineering</h3>
+                                <p>PETRORAQ has specialized expertise and capability in different aspects of environmental engineering and infrastructure. This expertise, gained in infrastructure and environmental engineering, has led to a strong knowledge and capability which has been employed in major schemes. This expertise is available to meet the ever increasing demand for an improved environment in the future.</p>
+                                <p>PETRORAQ's experience and capabilities have resulted in tailored treatment systems for waste water treatment and re-use in agricultural and landscape irrigation schemes in addition to development in air pollution control systems and Environmental Impact Studies.</p>
+                            </div>
+
+                            <div class="service-image">
+                                <img src="/pr_website/static/images/other-services-card-1.png" alt="Water treatment facility"/>
+                            </div>
+
+                            <div class="capabilities-wrap">
+                                <h4 class="capabilities-title env-title">The Environmental Engineering capabilities include the following:</h4>
+                                <ul class="cap-list single">
+                                    <li><i class="fa fa-check-circle"></i>Studies and Environmental Impact Assessments</li>
+                                    <li><i class="fa fa-check-circle"></i>Waste Water Collection, Treatment and Disposal</li>
+                                    <li><i class="fa fa-check-circle"></i>Sludge Treatment and Treated Effluent Utilization</li>
+                                    <li><i class="fa fa-check-circle"></i>Irrigation and Water Conveyance Systems</li>
+                                    <li><i class="fa fa-check-circle"></i>Potable Water Treatment</li>
+                                    <li><i class="fa fa-check-circle"></i>Pumping, Storage Facilities and Distribution Networks</li>
+                                    <li><i class="fa fa-check-circle"></i>Systems Rehabilitation</li>
+                                    <li><i class="fa fa-check-circle"></i>Treatment and Collection</li>
+                                    <li><i class="fa fa-check-circle"></i>Leakage Detection Systems</li>
+                                    <li><i class="fa fa-check-circle"></i>Contaminated Land Assessment and Improvement</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- ===== CONSTRUCTION MANAGEMENT ===== -->
+                        <div class="service-card scroll-left">
+                            <div class="side-icon constr">
+                                <i class="fa fa-hard-hat"></i>
+                            </div>
+
+                            <div class="service-text">
+                                <h3>Construction<br/>Management</h3>
+                                <p>PETRORAQ's Construction Management team comprises of professionally qualified engineers who have rich and varied experiences related to the execution of industrial and infrastructure projects. In addition, they have been trained in usage of latest management tools and techniques this includes all aspects of project management such as planning, monitoring, coordination, quality control, safety principles, preparation of budgeting and cost control, materials procurement, equipment selection, labor management and settlement of claims.</p>
+                                <p>Project Manager and team are selected considering the type and size of project and the background experiences needed. Our teams have carved a niche for timely execution of prestigious projects maintaining highest quality standards.</p>
+                            </div>
+
+                            <div class="service-image construction">
+                                <img src="/pr_website/static/images/other-services-card-2.png" alt="Construction supervisors"/>
+                            </div>
+
+                            <div class="capabilities-wrap">
+                                <h4 class="capabilities-title">Capabilities</h4>
+                                <ul class="cap-list multi-col blue-check">
+                                    <li><i class="fa fa-check-circle"></i>Contract Documents – Preparation, Bid Invitation, Evaluation, Negotiation</li>
+                                    <li><i class="fa fa-check-circle"></i>Assessment of Labor and Equipment requirements</li>
+                                    <li><i class="fa fa-check-circle"></i>Change Order and Claims Evaluation</li>
+                                    <li><i class="fa fa-check-circle"></i>Construction and Fabrication Drawings Scrutiny and Approval</li>
+                                    <li><i class="fa fa-check-circle"></i>Monitoring and Reporting</li>
+                                    <li><i class="fa fa-check-circle"></i>Inspection, Testing and Commissioning</li>
+                                    <li><i class="fa fa-check-circle"></i>Market Survey Material Selection, Testing and Acceptance</li>
+                                    <li><i class="fa fa-check-circle"></i>Quality Control and Assurance</li>
+                                    <li><i class="fa fa-check-circle"></i>Prepare As-Built Drawings and other records</li>
+                                    <li><i class="fa fa-check-circle"></i>Planning, Scheduling and Monitoring progress</li>
+                                    <li><i class="fa fa-check-circle"></i>Cost Control</li>
+                                    <li><i class="fa fa-check-circle"></i>Measurements, Billing and Passing for Payment</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ===== RIGHT NAVY PANEL (STICKY - PRESERVED) ===== -->
+                    <aside class="os-right">
+                        <div class="right-head">
+                            <div class="pre">WE ALSO PROVIDE</div>
+                            <h2>OTHER<br/>SERVICES</h2>
+                        </div>
+
+                        <div class="services-grid">
+                            <div class="srv-item">
+                                <div class="srv-ico green"><i class="fa fa-seedling"></i></div>
+                                <h5>Environmental<br/>Engineering</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-hard-hat"></i></div>
+                                <h5>Construction<br/>Management</h5>
+                            </div>
+                        </div>
+
+                        <div class="services-grid row2">
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-clipboard-check"></i></div>
+                                <h5>Quality Assurance &amp; Quality Control</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-map-marked-alt"></i></div>
+                                <h5>Survey Services</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-file-signature"></i></div>
+                                <h5>Procurement Services</h5>
+                            </div>
+                        </div>
+
+                        <div class="services-grid row3">
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-cogs"></i></div>
+                                <h5>Operation &amp; Maintenance Services</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-wrench"></i></div>
+                                <h5>Shutdowns &amp; Turnarounds</h5>
+                            </div>
+                        </div>
+                    </aside>
+
+                </section>
+
+                <!-- ===== CONTACT BAR ===== -->
+                <section class="contact-bar scroll-fade">
+                    <div class="cb-brand">
+                        <div class="cb-logo"><i class="fa fa-tint"></i></div>
+                        <div>
+                            <div class="brand-name">PETRORAQ</div>
+                            <div class="brand-sub">ENERGY SERVICES</div>
+                        </div>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-map-marker-alt"></i>
+                        <span>Al-Majd square, King Faisal (West) Road, Basra, Iraq</span>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-phone"></i>
+                        <span>+964 781 000 9131 / +964 771 529 7877</span>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-envelope"></i>
+                        <a href="mailto:info@petroraq.com">info@petroraq.com</a>
+                    </div>
+                    <div class="cb-item">
+                        <i class="fa fa-globe"></i>
+                        <a href="http://www.petroraq.com" target="_blank">www.petroraq.com</a>
+                    </div>
+                </section>
+
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function() {
+                    var observerOptions = {
+                        threshold: 0.1,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    var observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, observerOptions);
+
+                    var animatedElements = document.querySelectorAll('.pr-other-page .scroll-fade, .pr-other-page .scroll-left, .pr-other-page .scroll-right');
+                    animatedElements.forEach(function(el) {
+                        observer.observe(el);
+                    });
+                });
+            </script>
+        </t>
+    </template>
+</odoo>
