@@ -462,6 +462,98 @@ class SaleOrderInherit(models.Model):
     inquiry_contact_person_email = fields.Char(related='order_inquiry_id.contact_person_email', store=True)
     inquiry_contact_person_designation = fields.Char(related='order_inquiry_id.designation', store=True)
 
+    def action_merge_draft_quotations(self):
+        orders = self
+        if self.env.context.get("active_model") == "sale.order":
+            orders = self.browse(self.env.context.get("active_ids", []))
+
+        if len(orders) < 2:
+            raise UserError(_("Please select at least two quotations to merge."))
+
+        invalid = orders.filtered(lambda o: o.state in ("sale", "done") or o.approval_state in ("approved",))
+        if invalid:
+            raise UserError(_("You can only merge draft quotations that are not approved or confirmed."))
+
+        partners = orders.mapped("partner_id")
+        if len(partners) != 1:
+            raise UserError(_("You can only merge quotations for the same customer."))
+
+        inquiries = orders.mapped("order_inquiry_id")
+        if any(not o.order_inquiry_id for o in orders):
+            raise UserError(_("All selected quotations must be linked to an inquiry."))
+        inquiry_customers = inquiries.mapped("partner_id")
+        if len(inquiry_customers) != 1:
+            raise UserError(_("Cannot merge because inquiries belong to different customers."))
+
+        main_order = orders.sorted("id")[0]
+        other_orders = orders - main_order
+
+        main_estimation = main_order.estimation_id
+        if not main_estimation:
+            main_estimation = self.env["petroraq.estimation"].create({
+                "partner_id": main_order.partner_id.id,
+                "company_id": main_order.company_id.id,
+                "order_inquiry_id": main_order.order_inquiry_id.id,
+            })
+            main_order.estimation_id = main_estimation.id
+
+        for order in other_orders:
+            for line in order.order_line.sorted("sequence"):
+                vals = line.copy_data()[0]
+                vals.update({"order_id": main_order.id})
+                self.env["sale.order.line"].create(vals)
+
+            if order.estimation_id:
+                for est_line in order.estimation_id.line_ids:
+                    est_vals = est_line.copy_data()[0]
+                    est_vals.update({"estimation_id": main_estimation.id})
+                    self.env["petroraq.estimation.line"].create(est_vals)
+
+                order.estimation_id.sale_order_id = False
+
+            if order.order_inquiry_id and order.order_inquiry_id != main_order.order_inquiry_id:
+                if order.estimation_id:
+                    order.estimation_id.order_inquiry_id = main_order.order_inquiry_id.id
+
+                if order.id in order.order_inquiry_id.sale_order_ids.ids:
+                    order.order_inquiry_id.sale_order_ids = [(3, order.id)]
+
+        all_orders = orders.sorted("id")
+        for order in all_orders:
+            order.order_line._compute_tax_id()
+
+        main_estimation.sale_order_id = main_order.id
+        main_estimation.order_inquiry_id = main_order.order_inquiry_id.id
+
+        merged_inquiries = inquiries - main_order.order_inquiry_id
+        main_order.order_inquiry_id.sale_order_ids = [(4, main_order.id)]
+        main_order.order_inquiry_id.estimation_id = main_estimation.id
+        main_order.order_inquiry_id.state = "quotation_created"
+
+        for inq in merged_inquiries:
+            if main_order.id not in inq.sale_order_ids.ids:
+                inq.sale_order_ids = [(4, main_order.id)]
+            if inq.estimation_id and inq.estimation_id != main_estimation:
+                inq.estimation_id.sale_order_id = False
+            inq.estimation_id = main_estimation.id
+            inq.sale_order_id = main_order.id
+            inq.state = "quotation_created"
+
+        for order in other_orders:
+            order.state = "cancel"
+            order.approval_state = "rejected"
+
+        main_order.order_line._compute_tax_id()
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Merged Quotation"),
+            "res_model": "sale.order",
+            "res_id": main_order.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
     def action_confirm(self):
         res = super().action_confirm()
         for order in self:

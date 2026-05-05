@@ -170,7 +170,8 @@
                 <field name="deadline_submission" optional="show"/>
                 <field name="user_id" optional="show"/>
                 <field name="company_id" optional="show"/>
-                <field name="state" widget="badge" decoration-info="state in ('pending', 'estimation_created', 'quotation_created')"
+                <field name="state" widget="badge"
+                       decoration-info="state in ('pending', 'estimation_created', 'quotation_created')"
                        decoration-success="state in ('confirm', 'accept', 'closed')"
                        decoration-danger="state in ('cancel', 'reject', 'expire')"
                        decoration-warning="state == 'draft'"/>
@@ -237,6 +238,15 @@
               parent="sale.sale_menu_root">
         <menuitem id="menu_action_order_inquiry" name="Inquiries" action="action_order_inquiry"/>
     </menuitem>
+
+    <record id="action_server_merge_draft_quotations" model="ir.actions.server">
+        <field name="name">Merge Draft Quotations</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_merge_draft_quotations()</field>
+    </record>
 
 
 </odoo>
