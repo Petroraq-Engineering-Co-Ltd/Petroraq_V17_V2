@@ -37,7 +37,7 @@
                         transform: scale(1.05);
                     }
                     .navbar-logo img {
-                        height: 55px;
+                        height: 80px;
                         transition: height 0.3s ease;
                     }
                     .navbar.scrolled .navbar-logo img { height: 45px; }

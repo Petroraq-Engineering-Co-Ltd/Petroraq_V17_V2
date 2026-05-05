@@ -165,7 +165,7 @@
                 }
                 .pr-civil-page .description-section p {
                     color: var(--text);
-                    font-size: 13.5px;
+                    font-size: 15px;
                     line-height: 1.8;
                 }
                 .pr-civil-page .description-image {
@@ -440,7 +440,7 @@
                 }
                 .pr-civil-page .value-item p {
                     color: var(--muted);
-                    font-size: 12.5px;
+                    font-size: 15px;
                     line-height: 1.6;
                 }
 
@@ -501,7 +501,7 @@
                 }
                 .pr-civil-page .cta-text p {
                     color: #cbd5e1;
-                    font-size: 14px;
+                    font-size: 15px;
                 }
                 .pr-civil-page .cta-btn {
                     background: linear-gradient(45deg, var(--gold), #d8902f);

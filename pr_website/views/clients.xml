@@ -72,7 +72,7 @@
                 .petroraq-clients .clients-hero {
                 position: relative;
                 min-height: 320px;
-                background: url('/pr_website/static/src/img/hero-bg.png')
+                background: url('/pr_website/static/images/hero-bg.png')
                 right center/cover no-repeat;
                 overflow: hidden;
                 display: flex;

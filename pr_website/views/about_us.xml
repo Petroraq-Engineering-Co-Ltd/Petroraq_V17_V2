@@ -70,7 +70,7 @@
                     .petroraq-about .about-hero {
                         position: relative;
                         min-height: 550px;
-                        background: linear-gradient(135deg, rgba(10,37,64,0.05) 0%, rgba(248,250,252,0.8) 50%),
+                        background: linear-gradient(90deg, rgba(6,38,75,0.75) 0%, rgba(6,38,75,0.4) 60%, rgba(6,38,75,0.15) 100%),
                                     url('/pr_website/static/images/hero-bg.png') center/cover no-repeat;
                         display: flex;
                         align-items: center;
@@ -637,12 +637,12 @@
                                     <p>With a commitment to safety, quality, and innovation, we partner with clients to build infrastructure that stands the test of time.</p>
                                 </div>
                                 <div class="who-stats">
-                                    <div class="stat-card animate-scale-up delay-200">
+                                    <div class="value-card animate-scale-up delay-200">
                                         <i class="fa fa-users"></i>
                                         <h3>250+</h3>
                                         <p>Skilled Professionals</p>
                                     </div>
-                                    <div class="stat-card animate-scale-up delay-300">
+                                    <div class="value-card animate-scale-up delay-300">
                                         <i class="fa fa-globe"></i>
                                         <h3>GCC Wide</h3>
                                         <p>Projects Across Region</p>
@@ -789,7 +789,7 @@
                                         Get In Touch
                                         <i class="fa fa-arrow-right"></i>
                                     </a>
-                                    <a href="/careers" class="btn-cta-outline">
+                                    <a href="/jobs" class="btn-cta-outline">
                                         Join Our Team
                                         <i class="fa fa-users"></i>
                                     </a>

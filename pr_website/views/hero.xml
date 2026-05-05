@@ -60,7 +60,7 @@
                     .hero {
                         position: relative;
                         height: 100vh;
-                        min-height: 600px;
+                        min-height: 400px;
                         background: linear-gradient(90deg, rgba(6,38,75,0.75) 0%, rgba(6,38,75,0.4) 60%, rgba(6,38,75,0.15) 100%),
                                     url('pr_website/static/images/hero-bg.png') center/cover no-repeat;
                         color: #fff;
@@ -70,7 +70,7 @@
                         position: relative;
                         max-width: 1200px;
                         margin: 0 auto;
-                        padding: 120px 40px;
+                        padding: 100px 10px;
                         z-index: 2;
                         text-align: left;
                     }
@@ -494,7 +494,7 @@
                 <section class="featured">
                     <div class="featured-header scroll-animate">
                         <h2>Featured Projects</h2>
-                        <a href="#">View All Projects
+                        <a href="/projects">View All Projects
                             <i class="fa fa-arrow-right"></i>
                         </a>
                     </div>
@@ -502,33 +502,33 @@
                         <div class="project-card scroll-animate-left delay-1">
                             <img src="pr_website/static/images/basra.png" alt="Al Basrah Refinery Upgrade"/>
                             <div class="project-body">
-                                <h4>Al Basrah Refinery Upgrade</h4>
-                                <p>Basrah, Iraq</p>
+                                <h4>Industrial Plant Upgrade – Jubail</h4>
+                                <p> Jubail, Saudi Arabia</p>
                                 <span>Industrial</span>
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-2">
                             <img src="pr_website/static/images/missan.png" alt="South Gas Compression Project"/>
                             <div class="project-body">
-                                <h4>South Gas Compression Project</h4>
-                                <p>Missan, Iraq</p>
-                                <span>Mechanical</span>
+                                <h4>Commercial Building Fit-Out – Khobar</h4>
+                                <p>Khobar, Saudi Arabia</p>
+                                <span>Buildings</span>
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-3">
                             <img src="pr_website/static/images/dhiqar.png" alt="132kV Substation Construction"/>
                             <div class="project-body">
-                                <h4>132kV Substation Construction</h4>
-                                <p>Dhi Qar, Iraq</p>
-                                <span>Electrical</span>
+                                <h4>Substation &amp; Electrical Works – Jeddah</h4>
+                                <p>Jeddah, Saudi Arabia</p>
+                                <span>MEP Work</span>
                             </div>
                         </div>
                         <div class="project-card scroll-animate-right delay-4">
                             <img src="pr_website/static/images/najaf.png" alt="Water Treatment Plant"/>
                             <div class="project-body">
-                                <h4>Water Treatment Plant</h4>
-                                <p>Najaf, Iraq</p>
-                                <span>Civil</span>
+                                <h4>Water Treatment Facility – Dammam</h4>
+                                <p>Dammam, Saudi Arabia</p>
+                                <span>Infrastructure</span>
                             </div>
                         </div>
                     </div>

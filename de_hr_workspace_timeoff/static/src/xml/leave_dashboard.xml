@@ -1,361 +1,724 @@
-<!--<templates xml:space="preserve">-->
-<!--    <t t-name="de_hr_workspace_timeoff.CustomLeaveDashboard">-->
-<!--        <style>-->
-<!--        body {-->
-<!--            font-family: 'Segoe UI', sans-serif !important;-->
-<!--        }-->
-
-<!--        .sidebar {-->
-<!--            height: 100vh;-->
-<!--            background-color: #0f172a;-->
-<!--            color: white;-->
-<!--        }-->
-
-<!--        .sidebar a {-->
-<!--            color: white;-->
-<!--            text-decoration: none;-->
-<!--            display: block;-->
-<!--            padding: 10px 20px;-->
-<!--        }-->
-
-<!--        .sidebar a:hover,-->
-<!--        .sidebar .active {-->
-<!--            background-color: #1e293b;-->
-<!--        }-->
-
-<!--        .card {-->
-<!--            border: none;-->
-<!--            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);-->
-<!--        }-->
-
-<!--        .status-badge {-->
-<!--            background-color: #ffe6cc;-->
-<!--            color: #ff8c00;-->
-<!--            padding: 3px 8px;-->
-<!--            border-radius: 8px;-->
-<!--            font-size: 0.8rem;-->
-<!--        }-->
-<!--    </style>-->
-<!--        <div class="container-fluid">-->
-<!--            <div class="row">-->
-<!--                &lt;!&ndash; Sidebar &ndash;&gt;-->
-<!--                <nav class="col-md-2 sidebar d-flex flex-column py-4 bg-dark text-white" style="height: 100vh;">-->
-<!--                    <h5 class="text-center mb-4">Logo</h5>-->
-<!--                    <a href="#" class="text-white px-3 py-2 bg-secondary">Leave Management</a>-->
-<!--                    <ul class="ps-4">-->
-<!--                        <li><a href="#" class="text-white">Dashboard</a></li>-->
-<!--                    </ul>-->
-<!--                </nav>-->
-
-<!--                &lt;!&ndash; Main Content &ndash;&gt;-->
-<!--                <main class="col-md-10 p-4 bg-light">-->
-<!--                    &lt;!&ndash; Summary Cards &ndash;&gt;-->
-<!--                    <div class="row g-3 mb-4">-->
-<!--                        <t t-if="state.summary and state.summary.length">-->
-<!--                            <t t-foreach="state.summary" t-as="leave_type" t-key="leave_type.leave_name">-->
-<!--                                <div class="col-md-3">-->
-<!--                                    <div class="card p-3">-->
-<!--                                        <h6><t t-esc="leave_type.leave_name"/></h6>-->
-<!--                                        <t t-if="leave_type.requires_allocation === 'yes'">-->
-<!--                                            <span style="width: 29%;display: inline-block;"><span t-esc="leave_type.leave_days"/></span><span style="width: 29%;display: inline-block;">/</span><span style="width: 29%;display: inline-block;"><span t-esc="leave_type.allocation_days"/></span>-->
-<!--                                        </t>-->
-<!--                                        <t t-else="">-->
-<!--                                            <span><t t-esc="leave_type.leave_days"/></span>-->
-<!--                                        </t>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </t>-->
-<!--                        </t>-->
-<!--                        <t t-else="">-->
-<!--                            <p><strong>There Are No Leave Types</strong></p>-->
-<!--                        </t>-->
-<!--                    </div>-->
-
-<!--                    &lt;!&ndash; Chart + Upcoming Leaves &ndash;&gt;-->
-<!--                    <div class="row g-3 mb-4">-->
-<!--                        <div class="col-md-6">-->
-<!--                            <div class="card p-3">-->
-<!--                                <h6>Leave Trend</h6>-->
-<!--                                <canvas id="leaveChart" height="200"></canvas>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <t t-if="state.upcomingLeaves and state.upcomingLeaves.length">-->
-<!--                            <div class="col-md-6">-->
-<!--                            <div class="card p-3">-->
-<!--                                <h6>Upcoming Leaves</h6>-->
-<!--                                <table class="table table-sm mt-3">-->
-<!--                                    <thead>-->
-<!--                                        <tr>-->
-<!--                                            <th>Employee</th>-->
-<!--                                            <th>Leave Type</th>-->
-<!--                                            <th>From</th>-->
-<!--                                            <th>To</th>-->
-<!--                                            <th>Days</th>-->
-<!--                                        </tr>-->
-<!--                                    </thead>-->
-<!--                                    <tbody>-->
-<!--                                        <tr t-foreach="state.upcomingLeaves" t-as="leave" t-key="leave.employee" >-->
-<!--                                            <t t-if="leave">-->
-<!--                                                <td><t t-esc="leave.employee"/></td>-->
-<!--                                                <td><t t-esc="leave.leave_type"/></td>-->
-<!--                                                <td><t t-esc="leave.from"/></td>-->
-<!--                                                <td><t t-esc="leave.to"/></td>-->
-<!--                                                <td><t t-esc="leave.days"/></td>-->
-<!--                                            </t>-->
-<!--                                        </tr>-->
-<!--                                    </tbody>-->
-<!--                                </table>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        </t>-->
-<!--                        <t t-else="">-->
-<!--                            <div class="col-md-6" >-->
-<!--                                <p><strong>There Are No Upcoming Leaves</strong></p>-->
-<!--                            </div>-->
-<!--                        </t>-->
-
-<!--                    </div>-->
-
-<!--                    &lt;!&ndash; Pending Approvals &ndash;&gt;-->
-<!--                    <t t-if="state.pendingApprovals and state.pendingApprovals.length">-->
-<!--                        <div class="card p-3">-->
-<!--                        <h6>Pending Approvals</h6>-->
-<!--                        <table class="table table-hover mt-3">-->
-<!--                            <thead>-->
-<!--                                <tr>-->
-<!--                                    <th>Employee</th>-->
-<!--                                    <th>Leave Type</th>-->
-<!--                                    <th>From</th>-->
-<!--                                    <th>To</th>-->
-<!--                                    <th>Days</th>-->
-<!--                                    <th>Status</th>-->
-<!--                                </tr>-->
-<!--                            </thead>-->
-<!--                            <tbody>-->
-<!--                                <tr t-foreach="state.pendingApprovals" t-as="leave" t-key="leave.employee">-->
-<!--                                    <t t-if="leave">-->
-<!--                                        <td><t t-esc="leave.employee"/></td>-->
-<!--                                        <td><t t-esc="leave.leave_type"/></td>-->
-<!--                                        <td><t t-esc="leave.from"/></td>-->
-<!--                                        <td><t t-esc="leave.to"/></td>-->
-<!--                                        <td><t t-esc="leave.days"/></td>-->
-<!--                                        <td><span class="badge bg-warning"><t t-esc="leave.status"/></span></td>-->
-<!--                                    </t>-->
-<!--                                </tr>-->
-<!--                            </tbody>-->
-<!--                        </table>-->
-<!--                    </div>-->
-<!--                    </t>-->
-<!--                    <t  t-else="">-->
-<!--                        <div class="card p-3">-->
-<!--                            <p><strong>There Are No Pending Leaves</strong></p>-->
-<!--                        </div>-->
-<!--                    </t>-->
-
-<!--                </main>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </t>-->
-<!--</templates>-->
-
-
-
 <templates xml:space="preserve">
     <t t-name="de_hr_workspace_timeoff.CustomLeaveDashboard">
         <style>
+            /* ============================================
+               PETRORAQ THEME - Custom Leave Dashboard
+               ============================================ */
+
             body {
-                font-family: 'Segoe UI', sans-serif !important;
-                background-color: #f8fafc;
+                font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
+                background-color: #f0f4fb !important;
             }
 
-            .sidebar {
-                height: 135vh;
-                background-color: #1e293b;
-                color: white;
-                padding: 20px 10px;
+            .de-cld-wrapper {
+                background:
+                    radial-gradient(900px 400px at 0% 0%, rgba(10, 37, 64, 0.06) 0%, transparent 60%),
+                    radial-gradient(700px 400px at 100% 0%, rgba(245, 165, 36, 0.05) 0%, transparent 60%),
+                    linear-gradient(180deg, #eef2f8 0%, #e4ebf5 100%);
+                min-height: 100vh;
             }
 
-            .sidebar h5 {
-                color: #e2e8f0;
-                font-weight: 600;
-                margin-bottom: 30px;
-                text-align: center;
-            }
-
-            .sidebar a {
-                color: #cbd5e1;
-                text-decoration: none;
-                padding: 12px 20px;
-                border-radius: 6px;
-                display: block;
-                transition: background-color 0.2s;
-            }
-
-            .sidebar a:hover,
-            .sidebar .active {
-                background-color: #334155;
+            /* -------- SIDEBAR -------- */
+            .de-cld-sidebar {
+                min-height: 100vh;
+                background: linear-gradient(180deg, #0a2540 0%, #13315c 100%);
                 color: #fff;
+                padding: 28px 14px;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 4px 0 18px rgba(10, 37, 64, 0.2);
             }
 
-            .main-content {
-                padding: 30px;
-                background-color: #f8fafc;
-                min-height: 135vh;
+            .de-cld-sidebar::before {
+                content: "";
+                position: absolute;
+                top: -40%;
+                right: -20%;
+                width: 260px;
+                height: 260px;
+                background: radial-gradient(circle, rgba(245, 165, 36, 0.18) 0%, transparent 65%);
+                border-radius: 50%;
+                pointer-events: none;
             }
 
-            .card {
-                border: none;
-                border-radius: 12px;
-                background-color: white;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                padding: 20px;
+            .de-cld-sidebar::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background-image:
+                    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+                background-size: 30px 30px;
+                pointer-events: none;
             }
 
-            .card h6 {
+            .de-cld-sidebar > * {
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-brand {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                color: #fff;
+                font-weight: 800;
+                font-size: 1.1rem;
+                padding: 12px 14px;
+                margin-bottom: 24px;
+                border-bottom: 2px solid rgba(245, 165, 36, 0.35);
+                padding-bottom: 20px;
+                letter-spacing: -0.2px;
+            }
+
+            .de-cld-brand .de-cld-brand-accent {
+                color: #f5a524;
+            }
+
+            .de-cld-nav-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                color: rgba(255,255,255,0.78);
+                text-decoration: none;
+                padding: 12px 16px;
+                border-radius: 10px;
                 font-weight: 600;
+                font-size: 0.92rem;
+                margin-bottom: 6px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .de-cld-nav-link i {
+                font-size: 1rem;
+                color: #f5a524;
+                transition: transform 0.3s ease;
+            }
+
+            .de-cld-nav-link::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 20%;
+                bottom: 20%;
+                width: 0;
+                background: #f5a524;
+                border-radius: 0 3px 3px 0;
+                transition: width 0.3s ease;
+            }
+
+            .de-cld-nav-link:hover,
+            .de-cld-nav-link.active {
+                background: rgba(255,255,255,0.08);
+                color: #fff;
+                padding-left: 22px;
+            }
+
+            .de-cld-nav-link:hover::before,
+            .de-cld-nav-link.active::before {
+                width: 4px;
+            }
+
+            .de-cld-nav-link:hover i,
+            .de-cld-nav-link.active i {
+                transform: scale(1.15) rotate(-6deg);
+            }
+
+            .de-cld-nav-link.active {
+                background: linear-gradient(135deg, rgba(245, 165, 36, 0.15) 0%, rgba(255,255,255,0.06) 100%);
+            }
+
+            /* -------- MAIN CONTENT -------- */
+            .de-cld-main {
+                padding: 30px 34px;
+                min-height: 100vh;
+            }
+
+            .de-cld-page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-bottom: 26px;
+                padding-bottom: 16px;
+                border-bottom: 1px solid #d4dde9;
+            }
+
+            .de-cld-page-title {
+                font-size: 1.9rem;
+                font-weight: 800;
+                color: #0a2540;
+                letter-spacing: -0.5px;
+                margin: 0;
+                position: relative;
+                padding-bottom: 8px;
+            }
+
+            .de-cld-page-title .de-cld-accent-dot {
+                color: #f5a524;
+            }
+
+            .de-cld-page-title::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 52px;
+                height: 4px;
+                background: #f5a524;
+                border-radius: 3px;
+            }
+
+            .de-cld-page-subtitle {
+                color: #5b6b85;
+                font-size: 0.95rem;
+                font-style: italic;
+                margin: 0;
+            }
+
+            /* -------- SECTION HEADER -------- */
+            .de-cld-section-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+
+            .de-cld-section-title {
+                font-size: 1.15rem;
+                font-weight: 800;
+                color: #0a2540;
+                margin: 0;
+                letter-spacing: -0.2px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .de-cld-section-title i {
+                color: #f5a524;
+            }
+
+            .de-cld-section-underline {
+                flex: 1;
+                height: 2px;
+                background: linear-gradient(90deg, #f5a524 0%, transparent 50%);
+                border-radius: 2px;
+            }
+
+            /* -------- SUMMARY CARDS -------- */
+            .de-cld-summary-card {
+                position: relative;
+                border: 1px solid #d4dde9;
+                border-radius: 14px;
+                background: #fff;
+                padding: 22px 20px;
+                text-align: center;
+                box-shadow: 0 6px 18px rgba(10, 37, 64, 0.08);
+                transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                overflow: hidden;
+                cursor: default;
+                height: 100%;
+            }
+
+            .de-cld-summary-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #0a2540 0%, #f5a524 100%);
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 0.4s ease;
+            }
+
+            .de-cld-summary-card::after {
+                content: "";
+                position: absolute;
+                right: -30px;
+                bottom: -30px;
+                width: 120px;
+                height: 120px;
+                background: radial-gradient(circle, rgba(10, 37, 64, 0.06) 0%, transparent 70%);
+                border-radius: 50%;
+                transition: all 0.45s ease;
+            }
+
+            .de-cld-summary-card:hover {
+                transform: translateY(-6px);
+                border-color: #1e4074;
+                box-shadow: 0 20px 40px rgba(10, 37, 64, 0.18);
+            }
+
+            .de-cld-summary-card:hover::before {
+                transform: scaleX(1);
+            }
+
+            .de-cld-summary-card:hover::after {
+                background: radial-gradient(circle, rgba(245, 165, 36, 0.2) 0%, transparent 70%);
+                transform: scale(1.4);
+            }
+
+            .de-cld-summary-icon {
+                width: 48px;
+                height: 48px;
+                margin: 0 auto 12px auto;
+                border-radius: 12px;
+                background: #eaf0f9;
+                color: #0a2540;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.3rem;
+                transition: all 0.35s ease;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-summary-card:hover .de-cld-summary-icon {
+                background: #0a2540;
+                color: #f5a524;
+                transform: scale(1.08) rotate(-6deg);
+            }
+
+            .de-cld-summary-label {
+                font-size: 0.78rem;
+                font-weight: 700;
+                color: #5b6b85;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                margin-bottom: 8px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-summary-value {
+                font-size: 1.75rem;
+                font-weight: 800;
+                color: #0a2540;
+                letter-spacing: -1px;
+                line-height: 1.1;
+                position: relative;
+                z-index: 2;
+                transition: color 0.3s ease;
+            }
+
+            .de-cld-summary-card:hover .de-cld-summary-value {
+                color: #d98e0b;
+            }
+
+            .de-cld-summary-value .de-cld-divider {
+                color: #f5a524;
+                margin: 0 6px;
+                font-weight: 700;
+            }
+
+            .de-cld-summary-value .de-cld-max {
+                color: #5b6b85;
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+
+            /* -------- CONTENT CARDS -------- */
+            .de-cld-card {
+                position: relative;
+                border: 1px solid #d4dde9;
+                border-radius: 16px;
+                background: #fff;
+                padding: 22px;
+                box-shadow: 0 6px 20px rgba(10, 37, 64, 0.08);
+                transition: all 0.35s ease;
+                overflow: hidden;
+                height: 100%;
+            }
+
+            .de-cld-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: #0a2540;
+                transition: all 0.3s ease;
+            }
+
+            .de-cld-card::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 0;
+                height: 3px;
+                background: #f5a524;
+                transition: width 0.45s ease;
+                z-index: 2;
+            }
+
+            .de-cld-card:hover {
+                transform: translateY(-3px);
+                border-color: #1e4074;
+                box-shadow: 0 18px 38px rgba(10, 37, 64, 0.16);
+            }
+
+            .de-cld-card:hover::after {
+                width: 100%;
+            }
+
+            .de-cld-card-title {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 1.05rem;
+                font-weight: 800;
+                color: #0a2540;
+                margin-bottom: 16px;
+                padding-bottom: 10px;
+                position: relative;
+                letter-spacing: -0.2px;
+            }
+
+            .de-cld-card-title i {
+                color: #f5a524;
+                font-size: 1rem;
+            }
+
+            .de-cld-card-title::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 38px;
+                height: 3px;
+                background: #f5a524;
+                border-radius: 3px;
+                transition: width 0.3s ease;
+            }
+
+            .de-cld-card:hover .de-cld-card-title::after {
+                width: 60px;
+            }
+
+            /* -------- TABLES -------- */
+            .de-cld-table {
+                width: 100%;
+                margin-bottom: 0;
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+
+            .de-cld-table thead tr {
+                background: linear-gradient(135deg, #0a2540 0%, #13315c 100%) !important;
+            }
+
+            .de-cld-table thead th {
+                color: #fff !important;
+                background: transparent !important;
+                font-weight: 700;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.7px;
+                padding: 12px 14px;
+                border: 0;
+                border-bottom: 3px solid #f5a524 !important;
+                text-align: left;
+            }
+
+            .de-cld-table thead th:first-child {
+                border-top-left-radius: 10px;
+            }
+
+            .de-cld-table thead th:last-child {
+                border-top-right-radius: 10px;
+            }
+
+            .de-cld-table tbody td {
+                padding: 12px 14px;
+                font-size: 0.88rem;
+                color: #1f2937;
+                border-bottom: 1px solid #e3e9f2;
+                vertical-align: middle;
+                transition: all 0.25s ease;
+            }
+
+            .de-cld-table tbody tr {
+                transition: all 0.25s ease;
+                background: #fff;
+            }
+
+            .de-cld-table tbody tr.de-cld-row-alt {
+                background: #fafbfd;
+            }
+
+            .de-cld-table tbody tr:hover {
+                background: linear-gradient(90deg, #eaf0f9 0%, rgba(234, 240, 249, 0.3) 100%) !important;
+                box-shadow: inset 3px 0 0 #f5a524;
+                transform: translateX(2px);
+            }
+
+            .de-cld-table tbody tr:hover td {
+                color: #0a2540;
+                font-weight: 500;
+            }
+
+            /* -------- STATUS BADGE -------- */
+            .de-cld-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 30px;
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 0.4px;
+                text-transform: uppercase;
+                background: #fff6e3;
+                color: #d98e0b;
+                border: 1px solid rgba(245, 165, 36, 0.35);
+            }
+
+            /* -------- EMPTY STATE -------- */
+            .de-cld-empty {
+                text-align: center;
+                padding: 34px 18px;
+                color: #5b6b85;
+                font-style: italic;
+                background: #fafbfd;
+                border: 1px dashed #d4dde9;
+                border-radius: 12px;
+                font-size: 0.92rem;
+            }
+
+            .de-cld-empty i {
+                display: block;
+                font-size: 2rem;
+                color: #b8c3d4;
                 margin-bottom: 10px;
             }
 
-            .status-badge {
-                background-color: #fff4e5;
-                color: #d97706;
-                padding: 4px 10px;
-                border-radius: 6px;
-                font-size: 0.75rem;
+            /* -------- CHART WRAPPER -------- */
+            .de-cld-chart-wrap {
+                padding: 8px 4px;
+                position: relative;
             }
 
-            .table th,
-            .table td {
-                vertical-align: middle;
+            /* -------- SCROLLBAR -------- */
+            .de-cld-main::-webkit-scrollbar { width: 10px; }
+            .de-cld-main::-webkit-scrollbar-track { background: #eaf0f9; }
+            .de-cld-main::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, #0a2540, #1e4074);
+                border-radius: 10px;
+            }
+            .de-cld-main::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, #f5a524, #d98e0b);
             }
 
-            .card p {
-                margin-bottom: 0;
-            }
-            .even-row {
-                background-color: white;
-                color: #4071c1;
-            }
-            .odd-row {
-                background-color: #white;
-                color: #4071c1;
+            /* -------- RESPONSIVE -------- */
+            @media (max-width: 991px) {
+                .de-cld-sidebar {
+                    min-height: auto;
+                    padding: 18px 14px;
+                }
+                .de-cld-main {
+                    padding: 20px 18px;
+                }
+                .de-cld-page-title {
+                    font-size: 1.5rem;
+                }
             }
         </style>
 
-        <div class="container-fluid">
-            <div class="row">
-                <!-- Sidebar -->
-                <nav class="col-md-2 sidebar d-flex flex-column">
-                    <h5>🌿 Leave Management</h5>
-                    <a href="#" class="active">Dashboard</a>
-<!--                    <ul class="list-unstyled ps-3 mt-2">-->
-<!--                        <li><a href="#">Dashboard</a></li>-->
-<!--                    </ul>-->
-                </nav>
+        <div class="de-cld-wrapper">
+            <div class="container-fluid p-0">
+                <div class="row g-0">
+                    <!-- SIDEBAR -->
+                    <nav class="col-lg-2 col-md-3 de-cld-sidebar d-flex flex-column">
+                        <div class="de-cld-brand">
+                            <i class="fa fa-leaf" style="color:#f5a524;"/>
+                            <span>Leave<span class="de-cld-brand-accent">.</span></span>
+                        </div>
+                        <a href="#" class="de-cld-nav-link active">
+                            <i class="fa fa-th-large"/>
+                            <span>Dashboard</span>
+                        </a>
+                    </nav>
 
-                <!-- Main Content -->
-                <main class="col-md-10 main-content">
-                    <!-- Summary Cards -->
-                    <div class="row g-4 mb-4">
-                        <t t-if="state.summary and state.summary.length">
-                            <t t-foreach="state.summary" t-as="leave_type" t-key="leave_type.leave_name">
-                                <div class="col-md-3">
-                                    <div class="card text-center">
-                                        <h6><t t-esc="leave_type.leave_name" /></h6>
-                                        <div class="fs-5 fw-bold text-primary">
-                                            <t t-if="leave_type.requires_allocation === 'yes'">
-                                                <t t-esc="leave_type.leave_days" /> / <t t-esc="leave_type.allocation_days" />
-                                            </t>
-                                            <t t-else="">
-                                                <t t-esc="leave_type.leave_days" />
-                                            </t>
-                                        </div>
-                                    </div>
-                                </div>
-                            </t>
-                        </t>
-                        <t t-else="">
-                            <p><strong>There Are No Leave Types</strong></p>
-                        </t>
-                    </div>
-
-                    <!-- Chart and Upcoming Leaves -->
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <h6>Taken Leaves</h6>
-                                <canvas t-ref="leaveChart" id="leaveChart" height="200"></canvas>
+                    <!-- MAIN CONTENT -->
+                    <main class="col-lg-10 col-md-9 de-cld-main">
+                        <!-- PAGE HEADER -->
+                        <div class="de-cld-page-header">
+                            <div>
+                                <h1 class="de-cld-page-title">
+                                    Leave Dashboard<span class="de-cld-accent-dot">.</span>
+                                </h1>
+                                <p class="de-cld-page-subtitle mt-2">
+                                    Overview of your leave balances, history &amp; pending requests
+                                </p>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="card">
-                                <h6>Pending Leaves</h6>
-                                <t t-if="state.pendingApprovals and state.pendingApprovals.length">
-                                    <table class="table table-sm mt-3">
-                                        <t t-set="loop_cycle_number" t-value="0" />
-<!--                                        <thead class="table-light">-->
+                        <!-- SUMMARY CARDS -->
+                        <div class="de-cld-section-header">
+                            <h3 class="de-cld-section-title">
+                                <i class="fa fa-pie-chart"/> Leave Balances
+                            </h3>
+                            <div class="de-cld-section-underline"/>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <t t-if="state.summary and state.summary.length">
+                                <t t-foreach="state.summary" t-as="leave_type" t-key="leave_type.leave_name">
+                                    <div class="col-xl-3 col-md-6 col-sm-6">
+                                        <div class="de-cld-summary-card">
+                                            <div class="de-cld-summary-icon">
+                                                <i class="fa fa-calendar-check-o"/>
+                                            </div>
+                                            <div class="de-cld-summary-label">
+                                                <t t-esc="leave_type.leave_name"/>
+                                            </div>
+                                            <div class="de-cld-summary-value">
+                                                <t t-if="leave_type.requires_allocation === 'yes'">
+                                                    <t t-esc="leave_type.leave_days"/>
+                                                    <span class="de-cld-divider">/</span>
+                                                    <span class="de-cld-max">
+                                                        <t t-esc="leave_type.allocation_days"/>
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="leave_type.leave_days"/>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="col-12">
+                                    <div class="de-cld-empty">
+                                        <i class="fa fa-inbox"/>
+                                        <div><strong>No leave types configured</strong></div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- CHART + PENDING LEAVES -->
+                        <div class="de-cld-section-header">
+                            <h3 class="de-cld-section-title">
+                                <i class="fa fa-bar-chart"/> Analytics &amp; Requests
+                            </h3>
+                            <div class="de-cld-section-underline"/>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-lg-6">
+                                <div class="de-cld-card">
+                                    <div class="de-cld-card-title">
+                                        <i class="fa fa-line-chart"/> Taken Leaves
+                                    </div>
+                                    <div class="de-cld-chart-wrap">
+                                        <canvas t-ref="leaveChart" id="leaveChart" height="200"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="de-cld-card">
+                                    <div class="de-cld-card-title">
+                                        <i class="fa fa-hourglass-half"/> Pending Leaves
+                                    </div>
+                                    <t t-if="state.pendingApprovals and state.pendingApprovals.length">
+                                        <div class="table-responsive">
+                                            <table class="de-cld-table">
+                                                <t t-set="loop_cycle_number" t-value="0"/>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Leave Type</th>
+                                                        <th>From</th>
+                                                        <th>To</th>
+                                                        <th>Days</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr t-foreach="state.pendingApprovals" t-as="leave"
+                                                        t-key="leave.leave_type"
+                                                        t-att-class="loop_cycle_number % 2 === 0 ? '' : 'de-cld-row-alt'">
+                                                        <t t-set="loop_cycle_number" t-value="loop_cycle_number + 1"/>
+                                                        <td><t t-esc="leave.leave_type"/></td>
+                                                        <td><t t-esc="leave.from"/></td>
+                                                        <td><t t-esc="leave.to"/></td>
+                                                        <td><strong><t t-esc="leave.days"/></strong></td>
+                                                        <td>
+                                                            <span class="de-cld-badge"><t t-esc="leave.status"/></span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="de-cld-empty">
+                                            <i class="fa fa-check-circle"/>
+                                            <div>No pending leaves</div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LEAVE HISTORY -->
+                        <div class="de-cld-section-header">
+                            <h3 class="de-cld-section-title">
+                                <i class="fa fa-history"/> Leave History
+                            </h3>
+                            <div class="de-cld-section-underline"/>
+                        </div>
+
+                        <div class="de-cld-card mb-4">
+                            <div class="de-cld-card-title">
+                                <i class="fa fa-archive"/> Past Leave Records
+                            </div>
+                            <t t-if="state.LeavesHistory and state.LeavesHistory.length">
+                                <div class="table-responsive">
+                                    <table class="de-cld-table">
+                                        <t t-set="loop_cycle_number" t-value="0"/>
                                         <thead>
-                                            <tr style="background-color: #2e3f5b; color: white;width: 100%;">
+                                            <tr>
                                                 <th>Leave Type</th>
                                                 <th>From</th>
                                                 <th>To</th>
                                                 <th>Days</th>
-                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr t-foreach="state.pendingApprovals" t-as="leave" t-key="leave.leave_type" t-att-class="loop_cycle_number % 2 === 0 ? 'even-row' : 'odd-row'">
-                                                <t t-set="loop_cycle_number" t-value="loop_cycle_number + 1" />
-                                                <td><t t-esc="leave.leave_type" /></td>
-                                                <td><t t-esc="leave.from" /></td>
-                                                <td><t t-esc="leave.to" /></td>
-                                                <td><t t-esc="leave.days" /></td>
-                                                <td><span class="badge bg-warning text-dark"><t t-esc="leave.status" /></span></td>
+                                            <tr t-foreach="state.LeavesHistory" t-as="leave"
+                                                t-key="leave.leave_type"
+                                                t-att-class="loop_cycle_number % 2 === 0 ? '' : 'de-cld-row-alt'">
+                                                <t t-set="loop_cycle_number" t-value="loop_cycle_number + 1"/>
+                                                <td><t t-esc="leave.leave_type"/></td>
+                                                <td><t t-esc="leave.from"/></td>
+                                                <td><t t-esc="leave.to"/></td>
+                                                <td><strong><t t-esc="leave.days"/></strong></td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                </t>
-                                <t t-else="">
-                                    <p>No Pending Leaves.</p>
-                                </t>
-                            </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="de-cld-empty">
+                                    <i class="fa fa-folder-open-o"/>
+                                    <div>No leave history found</div>
+                                </div>
+                            </t>
                         </div>
-                    </div>
-
-                    <!-- Pending Approvals -->
-                    <div class="card mb-4">
-                        <h6>Leave History</h6>
-                        <t t-if="state.LeavesHistory and state.LeavesHistory.length">
-                            <table class="table table-hover mt-3">
-                                <t t-set="loop_cycle_number" t-value="0" />
-<!--                                <thead class="table-light">-->
-                                <thead>
-                                    <tr style="background-color: #2e3f5b !important; color: white;width: 100%;">
-                                        <th>Leave Type</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Days</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="state.LeavesHistory" t-as="leave" t-key="leave.leave_type" t-att-class="loop_cycle_number % 2 === 0 ? 'even-row' : 'odd-row'">
-                                        <t t-set="loop_cycle_number" t-value="loop_cycle_number + 1" />
-                                        <td><t t-esc="leave.leave_type" /></td>
-                                        <td><t t-esc="leave.from" /></td>
-                                        <td><t t-esc="leave.to" /></td>
-                                        <td><t t-esc="leave.days" /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </t>
-                        <t t-else="">
-                            <p>No Taken Leaves Founded.</p>
-                        </t>
-                    </div>
-                </main>
+                    </main>
+                </div>
             </div>
         </div>
     </t>
 </templates>
-

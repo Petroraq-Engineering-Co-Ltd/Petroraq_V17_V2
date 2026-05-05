@@ -238,7 +238,7 @@
 
                 .pr-mech-page .mp-desc p {
                     color: var(--text);
-                    font-size: 13.5px;
+                    font-size: 15px;
                     line-height: 1.8;
                     margin-bottom: 15px;
                 }
@@ -417,7 +417,7 @@
                 }
                 .pr-mech-page .value-item p {
                     color: var(--muted);
-                    font-size: 12px;
+                    font-size: 15px;
                     line-height: 1.6;
                 }
 
@@ -481,7 +481,7 @@
                 }
                 .pr-mech-page .cta-text p {
                     color: #cbd5e1;
-                    font-size: 13.5px;
+                    font-size: 15px;
                     max-width: 380px;
                     line-height: 1.5;
                 }

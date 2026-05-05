@@ -171,7 +171,7 @@
                 }
                 .pr-arch-page .description-text p {
                     color: var(--text);
-                    font-size: 14px;
+                    font-size: 15px;
                     line-height: 1.8;
                     margin-bottom: 18px;
                 }
@@ -450,7 +450,7 @@
                 }
                 .pr-arch-page .why-item p {
                     color: var(--muted);
-                    font-size: 12.5px;
+                    font-size: 15px;
                     line-height: 1.6;
                 }
 
@@ -511,7 +511,7 @@
                 }
                 .pr-arch-page .cta-text p {
                     color: #cbd5e1;
-                    font-size: 14px;
+                    font-size: 15px;
                 }
                 .pr-arch-page .cta-btn {
                     background: linear-gradient(45deg, var(--gold), #d8902f);

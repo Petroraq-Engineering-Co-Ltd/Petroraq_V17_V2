@@ -239,7 +239,7 @@
 
                 .pr-cad-page .cad-desc p {
                     color: var(--text);
-                    font-size: 13.5px;
+                    font-size: 15px;
                     line-height: 1.8;
                     margin-bottom: 15px;
                 }
@@ -402,7 +402,7 @@
                 }
                 .pr-cad-page .feat-card p {
                     color: var(--muted);
-                    font-size: 12.5px;
+                    font-size: 15px;
                     line-height: 1.6;
                     margin-bottom: 18px;
                     flex-grow: 1;

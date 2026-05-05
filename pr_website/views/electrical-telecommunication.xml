@@ -230,7 +230,7 @@
 
                 .pr-elec-page .et-desc p {
                     color: var(--text);
-                    font-size: 13.5px;
+                    font-size: 15px;
                     line-height: 1.8;
                     margin-bottom: 15px;
                 }
@@ -377,7 +377,7 @@
                 }
                 .pr-elec-page .cta-text p {
                     color: #cbd5e1;
-                    font-size: 14px;
+                    font-size: 15px;
                 }
                 .pr-elec-page .cta-btn {
                     background: linear-gradient(45deg, var(--gold), #d8902f);
