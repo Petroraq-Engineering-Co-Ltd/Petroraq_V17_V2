@@ -43,6 +43,8 @@ class HrLeaveRequest(models.Model):
                                          'leave_request_id', string='HR Supervisors', tracking=True, readonly=True)
     hr_manager_ids = fields.Many2many('res.users', 'leave_request_hr_manager_users', 'hr_manager_id',
                                       'leave_request_id', string='HR Managers', tracking=True, readonly=True)
+    manager_approved_user_id = fields.Many2one('res.users', string='Manager Approved By', readonly=True, copy=False)
+    hr_supervisor_approved_user_id = fields.Many2one('res.users', string='HR Supervisor Approved By', readonly=True, copy=False)
     reject_reason = fields.Text(string="Rejection Reason", readonly=True)
     note = fields.Text(string="Note")
     state = fields.Selection([
@@ -373,12 +375,72 @@ class HrLeaveRequest(models.Model):
                                           "available": max(0.0, available_days),
                                       })
 
+
+    def _get_user_identity_key(self, user):
+        employee = self.env["hr.employee"].sudo().search([("user_id", "=", user.id)], limit=1)
+        if employee:
+            return ("emp", employee.id)
+        return ("user", user.id)
+
+    def _get_approval_user_ids_by_stage(self, extra_excluded_user_ids=None):
+        self.ensure_one()
+        manager_users = self.employee_manager_id.user_id.filtered(lambda u: u.active)
+        supervisor_users = self.hr_supervisor_ids.filtered(lambda u: u.active)
+        hr_manager_users = self.hr_manager_ids.filtered(lambda u: u.active)
+
+        excluded_users = self.env["res.users"].browse([self.create_uid.id])
+        excluded_users |= (self.manager_approved_user_id | self.hr_supervisor_approved_user_id)
+        if extra_excluded_user_ids:
+            excluded_users |= self.env["res.users"].browse(list(extra_excluded_user_ids))
+        excluded_identity_keys = {self._get_user_identity_key(user) for user in excluded_users if user}
+
+        def _filter_users(users):
+            return users.filtered(lambda u: self._get_user_identity_key(u) not in excluded_identity_keys)
+
+        stage_users = {
+            "draft": _filter_users(manager_users),
+            "manager_approve": _filter_users(supervisor_users),
+            "hr_supervisor": _filter_users(hr_manager_users),
+        }
+
+        seen_identity_keys = set()
+        stage_map = {}
+        for stage in ("draft", "manager_approve", "hr_supervisor"):
+            unique_ids = []
+            for user in stage_users[stage]:
+                key = self._get_user_identity_key(user)
+                if key in seen_identity_keys:
+                    continue
+                seen_identity_keys.add(key)
+                unique_ids.append(user.id)
+            stage_map[stage] = unique_ids
+        return stage_map
+
+    def _auto_progress_approval_route(self, extra_excluded_user_ids=None):
+        self.ensure_one()
+        stage_map = self._get_approval_user_ids_by_stage(extra_excluded_user_ids=extra_excluded_user_ids)
+        if self.state == "draft" and not stage_map.get("draft"):
+            self.with_context(approval_excluded_user_ids=list(extra_excluded_user_ids or [])).action_manager_approve()
+            stage_map = self._get_approval_user_ids_by_stage(extra_excluded_user_ids=extra_excluded_user_ids)
+        if self.state == "manager_approve" and not stage_map.get("manager_approve"):
+            self.with_context(approval_excluded_user_ids=list(extra_excluded_user_ids or [])).action_hr_supervisor_approve()
+            stage_map = self._get_approval_user_ids_by_stage(extra_excluded_user_ids=extra_excluded_user_ids)
+        if self.state == "hr_supervisor" and not stage_map.get("hr_supervisor"):
+            self.action_hr_manager_approve()
+
     def action_manager_approve(self):
+        actor_user_id = self.env.user.id
+        excluded_user_ids = set(self.env.context.get("approval_excluded_user_ids", []))
+        excluded_user_ids.add(actor_user_id)
         for rec in self:
             rec = rec.sudo()
             rec.state = "manager_approve"
             rec.approval_state = "manager_approve"
+            rec.manager_approved_user_id = actor_user_id
             rec._send_hr_supervisor_email()
+            rec.with_context(approval_excluded_user_ids=list(excluded_user_ids))._auto_progress_approval_route(
+                extra_excluded_user_ids=list(excluded_user_ids)
+            )
 
     def action_employee_cancel_request(self):
         for rec in self:
@@ -412,11 +474,18 @@ class HrLeaveRequest(models.Model):
             return view
 
     def action_hr_supervisor_approve(self):
+        actor_user_id = self.env.user.id
+        excluded_user_ids = set(self.env.context.get("approval_excluded_user_ids", []))
+        excluded_user_ids.add(actor_user_id)
         for rec in self:
             rec = rec.sudo()
             rec.state = "hr_supervisor"
             rec.approval_state = "hr_supervisor"
+            rec.hr_supervisor_approved_user_id = actor_user_id
             rec._send_hr_manager_email()
+            rec.with_context(approval_excluded_user_ids=list(excluded_user_ids))._auto_progress_approval_route(
+                extra_excluded_user_ids=list(excluded_user_ids)
+            )
 
     def action_hr_supervisor_reject(self):
         for rec in self:
@@ -553,7 +622,9 @@ class HrLeaveRequest(models.Model):
             if hr_manager_ids:
                 rec.hr_manager_ids = hr_manager_ids.ids
             rec._check_requested_days_with_allocation()
-            rec.sudo()._send_manager_email()
+            rec.sudo()._auto_progress_approval_route()
+            if rec.state == "draft":
+                rec.sudo()._send_manager_email()
         return records
 
     def write(self, vals):
