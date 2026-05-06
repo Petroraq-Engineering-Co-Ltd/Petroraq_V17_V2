@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="module_category_onboarding" model="ir.module.category">
+            <field name="name">Onboarding</field>
+            <field name="description">Hr custom Groups for Onboarding and Offboarding</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="group_onboarding_supervisor" model="res.groups">
+            <field name="name">Onboarding Supervisor</field>
+            <field name="category_id" ref="module_category_onboarding"/>
+        </record>
+
+        <record id="group_onboarding_manager" model="res.groups">
+            <field name="name">Onboarding Manager</field>
+            <field name="category_id" ref="module_category_onboarding"/>
+
+        </record>
+
+        <record id="group_onboarding_md" model="res.groups">
+            <field name="name">Onboarding MD</field>
+            <field name="category_id" ref="module_category_onboarding"/>
+        </record>
+
+    </data>
+</odoo>
