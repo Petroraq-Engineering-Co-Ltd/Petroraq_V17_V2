@@ -66,7 +66,7 @@
                         50% { transform: translateY(-12px); }
                     }
 
-                    /* ===== Hero Section - BLENDED DESIGN ===== */
+                    /* ===== Hero Section - LEFT ALIGNED ===== */
                     .petroraq-about .about-hero {
                         position: relative;
                         min-height: 550px;
@@ -88,12 +88,14 @@
                     .petroraq-about .hero-content {
                         position: relative;
                         z-index: 2;
-                        padding: 100px 80px;
+                        padding: 100px 80px 100px 80px;
                         color: #fff;
                         max-width: 700px;
                         display: flex;
                         flex-direction: column;
                         justify-content: center;
+                        align-items: flex-start; /* LEFT ALIGN */
+                        text-align: left; /* LEFT ALIGN TEXT */
                     }
                     .petroraq-about .hero-content h1 {
                         font-size: 58px;
@@ -495,7 +497,7 @@
                         font-size: 32px;
                     }
                     .petroraq-about .cta-text h3 {
-                        color: #fff;
+                        color: #DB9332;
                         font-size: 36px;
                         font-weight: 800;
                         margin-bottom: 12px;
@@ -566,7 +568,7 @@
                         }
                         .petroraq-about .hero-content {
                             padding: 60px 40px;
-                            text-align: center;
+                            text-align: left; /* Keep left aligned on tablet */
                         }
                         .petroraq-about .hero-content h1 {
                             font-size: 42px;
@@ -608,14 +610,18 @@
                             width: 100%;
                             justify-content: center;
                         }
+                        .petroraq-about .hero-content {
+                            text-align: center; /* Center on mobile for better UX */
+                            align-items: center;
+                        }
                     }
                 </style>
 
                 <div class="petroraq-about">
-                    <!-- ===== Hero Section ===== -->
+                    <!-- ===== Hero Section - LEFT ALIGNED ===== -->
                     <section class="about-hero animate-fade-in">
                         <div class="hero-overlay"></div>
-                        <div class="pr-container">
+                        <div class="">
                             <div class="hero-content animate-slide-up">
                                 <h1>About PETRORAQ
                                     <span class="dot">.</span>
@@ -639,12 +645,12 @@
                                 <div class="who-stats">
                                     <div class="value-card animate-scale-up delay-200">
                                         <i class="fa fa-users"></i>
-                                        <h3>250+</h3>
+                                        <h3>800+</h3>
                                         <p>Skilled Professionals</p>
                                     </div>
                                     <div class="value-card animate-scale-up delay-300">
                                         <i class="fa fa-globe"></i>
-                                        <h3>GCC Wide</h3>
+                                        <h3>KSA</h3>
                                         <p>Projects Across Region</p>
                                     </div>
                                 </div>

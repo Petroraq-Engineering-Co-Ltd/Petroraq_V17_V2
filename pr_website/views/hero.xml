@@ -466,17 +466,17 @@
                 <section class="stats scroll-animate">
                     <div class="stat-item">
                         <img src="pr_website/static/images/labors.png" alt="Skilled Professionals"/>
-                        <h2>250+</h2>
+                        <h2>800+</h2>
                         <p>Skilled Professionals</p>
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/building.png" alt="Projects Completed"/>
-                        <h2>150+</h2>
+                        <h2>25+</h2>
                         <p>Projects Completed</p>
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/globe.png" alt="Years of Experience"/>
-                        <h2>12+</h2>
+                        <h2>3+</h2>
                         <p>Years of Experience</p>
                     </div>
                     <div class="stat-item">
@@ -486,7 +486,7 @@
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/hand_shake.png" alt="Client Satisfaction"/>
-                        <h2>98%</h2>
+                        <h2>99%</h2>
                         <p>Client Satisfaction</p>
                     </div>
                 </section>
