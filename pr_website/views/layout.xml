@@ -386,7 +386,7 @@
 
                             <!-- Services Dropdown -->
                             <div t-att-class="'nav-item active' if request.httprequest.path.startswith('/services') else 'nav-item'">
-                                <a href="/services">
+                                <a href="#">
                                     Services
                                     <i class="fa fa-chevron-down dropdown-arrow"></i>
                                 </a>
