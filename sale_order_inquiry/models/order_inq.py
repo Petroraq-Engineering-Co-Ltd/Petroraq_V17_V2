@@ -14,11 +14,20 @@ class OrderInquiry(models.Model):
     name = fields.Char(default="New", readonly=True, copy=False, tracking=True, string="Inquiry No")
     description = fields.Char(string="Inquiry Description", required=True)
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id.id, string='Company')
-    contact_person = fields.Char(string="Contact Person", required=True)
+    contact_person = fields.Char(
+        string="Contact Person Name",
+        help="Stored display name of the selected contact person for reporting and legacy integrations.",
+    )
     designation = fields.Char(string="Designation")
     user_id = fields.Many2one('res.users', string='Inquiry By',
                               domain=lambda self: self._get_salesperson_domain(), required=True)
-    partner_id = fields.Many2one('res.partner', string='Customer', required=True, )
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Customer',
+        required=True,
+        domain=[('parent_id', '=', False)],
+        help="Select the main customer/company only; child contacts are selected in Contact Person.",
+    )
     email = fields.Char(string="Customer Email", related='partner_id.email')
     contact_person_email = fields.Char(string="Contact Person Email", required=True)
     contact_person_phone = fields.Char(string="Contact Person Phone", required=True)
@@ -97,13 +106,75 @@ class OrderInquiry(models.Model):
     )
     contact_partner_id = fields.Many2one(
         "res.partner",
-        string="Contact Partner",
-        help="Contact created/linked for this inquiry contact person."
+        string="Contact Person",
+        required=True,
+        domain="[('parent_id', '=', partner_id)]",
+        help="Contact person under the selected customer. New contacts are created below that customer.",
     )
+
+    def _prepare_contact_partner_values(self):
+        self.ensure_one()
+        values = {}
+        if self.contact_partner_id.type != "contact":
+            values["type"] = "contact"
+        if self.contact_person_email and self.contact_partner_id.email != self.contact_person_email:
+            values["email"] = self.contact_person_email
+        if self.contact_person_phone and self.contact_partner_id.phone != self.contact_person_phone:
+            values["phone"] = self.contact_person_phone
+        if self.designation:
+            if self.contact_partner_id.designation != self.designation:
+                values["designation"] = self.designation
+            if self.contact_partner_id.function != self.designation:
+                values["function"] = self.designation
+        return values
+
+    def _sync_selected_contact_partner(self):
+        for rec in self.filtered("contact_partner_id"):
+            values = rec._prepare_contact_partner_values()
+            if values:
+                rec.contact_partner_id.write(values)
+
+    def _get_contact_detail_vals(self, contact):
+        return {
+            "contact_person": contact.name or False,
+            "contact_person_email": contact.email or False,
+            "contact_person_phone": contact.phone or contact.mobile or False,
+            "designation": contact.designation or contact.function or False,
+        }
+
+    @api.onchange("partner_id")
+    def _onchange_partner_id_contact_domain(self):
+        for rec in self:
+            if rec.contact_partner_id and rec.contact_partner_id.parent_id != rec.partner_id:
+                rec.contact_partner_id = False
+                rec.contact_person = False
+                rec.contact_person_email = False
+                rec.contact_person_phone = False
+                rec.designation = False
+        return {
+            "domain": {
+                "contact_partner_id": [("parent_id", "=", self.partner_id.id)]
+                if self.partner_id
+                else [("id", "=", False)]
+            }
+        }
+
+    @api.onchange("contact_partner_id")
+    def _onchange_contact_partner_id(self):
+        for rec in self:
+            if rec.contact_partner_id:
+                for field_name, value in rec._get_contact_detail_vals(rec.contact_partner_id).items():
+                    setattr(rec, field_name, value)
+            else:
+                rec.contact_person = False
+                rec.contact_person_email = False
+                rec.contact_person_phone = False
+                rec.designation = False
 
     def _get_or_create_contact_partner(self):
         self.ensure_one()
         if self.contact_partner_id:
+            self._sync_selected_contact_partner()
             return self.contact_partner_id
 
         parent = self.partner_id
@@ -131,6 +202,7 @@ class OrderInquiry(models.Model):
                 "email": email or False,
                 "phone": phone or False,
                 "function": (self.designation or "").strip() or False,
+                "designation": (self.designation or "").strip() or False,
                 # optional:
                 # "mobile": phone or False,
             })
@@ -234,6 +306,18 @@ class OrderInquiry(models.Model):
                         _("Invalid phone number. Use digits only, minimum 9 digits, optionally starting with +")
                     )
 
+    @api.constrains("partner_id", "contact_partner_id")
+    def _check_contact_partner_parent(self):
+        for rec in self:
+            if (
+                rec.partner_id
+                and rec.contact_partner_id
+                and rec.contact_partner_id.parent_id != rec.partner_id
+            ):
+                raise ValidationError(
+                    _("Contact Person must be one of the contacts under the selected Customer.")
+                )
+
     @api.constrains('contact_person')
     def _check_contact_person_chars(self):
 
@@ -277,6 +361,20 @@ class OrderInquiry(models.Model):
                         _("Deadline of Submission cannot exceed 30 days from the Inquiry Date.")
                     )
 
+    def _apply_contact_partner_details_to_vals(self, vals):
+        contact_id = vals.get("contact_partner_id")
+        if not contact_id:
+            return vals
+
+        contact = self.env["res.partner"].browse(contact_id)
+        if not contact.exists():
+            return vals
+
+        contact_vals = self._get_contact_detail_vals(contact)
+        for field_name, value in contact_vals.items():
+            vals.setdefault(field_name, value)
+        return vals
+
     @api.depends('sale_order_ids')
     def compute_sale_count(self):
         if self.sale_order_id:
@@ -288,6 +386,9 @@ class OrderInquiry(models.Model):
         self.state = 'accept'
 
     def write(self, vals):
+        vals = dict(vals)
+        self._apply_contact_partner_details_to_vals(vals)
+
         if "inquiry_type" in vals and vals.get("inquiry_type") == "trading":
             non_trading_records = self.filtered(lambda rec: rec.inquiry_type != "trading")
             if non_trading_records:
@@ -300,6 +401,16 @@ class OrderInquiry(models.Model):
         # if attachments changed, relink them
         if "required_attachment_ids" in vals:
             self._relink_required_attachments()
+
+        contact_sync_fields = {
+            "contact_partner_id",
+            "contact_person_email",
+            "contact_person_phone",
+            "designation",
+            "partner_id",
+        }
+        if contact_sync_fields & set(vals):
+            self._sync_selected_contact_partner()
 
         return res
 
@@ -320,6 +431,8 @@ class OrderInquiry(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            self._apply_contact_partner_details_to_vals(vals)
+
             if vals.get("inquiry_type") == "trading":
                 raise UserError(
                     _("Trading inquiry type is temporarily disabled for new selections.")
@@ -333,6 +446,7 @@ class OrderInquiry(models.Model):
         records = super().create(vals_list)
 
         records._relink_required_attachments()
+        records._sync_selected_contact_partner()
         return records
 
     def button_cancel(self):
@@ -461,98 +575,6 @@ class SaleOrderInherit(models.Model):
     inquiry_contact_person_phone = fields.Char(related='order_inquiry_id.contact_person_phone', store=True)
     inquiry_contact_person_email = fields.Char(related='order_inquiry_id.contact_person_email', store=True)
     inquiry_contact_person_designation = fields.Char(related='order_inquiry_id.designation', store=True)
-
-    def action_merge_draft_quotations(self):
-        orders = self
-        if self.env.context.get("active_model") == "sale.order":
-            orders = self.browse(self.env.context.get("active_ids", []))
-
-        if len(orders) < 2:
-            raise UserError(_("Please select at least two quotations to merge."))
-
-        invalid = orders.filtered(lambda o: o.state in ("sale", "done") or o.approval_state in ("approved",))
-        if invalid:
-            raise UserError(_("You can only merge draft quotations that are not approved or confirmed."))
-
-        partners = orders.mapped("partner_id")
-        if len(partners) != 1:
-            raise UserError(_("You can only merge quotations for the same customer."))
-
-        inquiries = orders.mapped("order_inquiry_id")
-        if any(not o.order_inquiry_id for o in orders):
-            raise UserError(_("All selected quotations must be linked to an inquiry."))
-        inquiry_customers = inquiries.mapped("partner_id")
-        if len(inquiry_customers) != 1:
-            raise UserError(_("Cannot merge because inquiries belong to different customers."))
-
-        main_order = orders.sorted("id")[0]
-        other_orders = orders - main_order
-
-        main_estimation = main_order.estimation_id
-        if not main_estimation:
-            main_estimation = self.env["petroraq.estimation"].create({
-                "partner_id": main_order.partner_id.id,
-                "company_id": main_order.company_id.id,
-                "order_inquiry_id": main_order.order_inquiry_id.id,
-            })
-            main_order.estimation_id = main_estimation.id
-
-        for order in other_orders:
-            for line in order.order_line.sorted("sequence"):
-                vals = line.copy_data()[0]
-                vals.update({"order_id": main_order.id})
-                self.env["sale.order.line"].create(vals)
-
-            if order.estimation_id:
-                for est_line in order.estimation_id.line_ids:
-                    est_vals = est_line.copy_data()[0]
-                    est_vals.update({"estimation_id": main_estimation.id})
-                    self.env["petroraq.estimation.line"].create(est_vals)
-
-                order.estimation_id.sale_order_id = False
-
-            if order.order_inquiry_id and order.order_inquiry_id != main_order.order_inquiry_id:
-                if order.estimation_id:
-                    order.estimation_id.order_inquiry_id = main_order.order_inquiry_id.id
-
-                if order.id in order.order_inquiry_id.sale_order_ids.ids:
-                    order.order_inquiry_id.sale_order_ids = [(3, order.id)]
-
-        all_orders = orders.sorted("id")
-        for order in all_orders:
-            order.order_line._compute_tax_id()
-
-        main_estimation.sale_order_id = main_order.id
-        main_estimation.order_inquiry_id = main_order.order_inquiry_id.id
-
-        merged_inquiries = inquiries - main_order.order_inquiry_id
-        main_order.order_inquiry_id.sale_order_ids = [(4, main_order.id)]
-        main_order.order_inquiry_id.estimation_id = main_estimation.id
-        main_order.order_inquiry_id.state = "quotation_created"
-
-        for inq in merged_inquiries:
-            if main_order.id not in inq.sale_order_ids.ids:
-                inq.sale_order_ids = [(4, main_order.id)]
-            if inq.estimation_id and inq.estimation_id != main_estimation:
-                inq.estimation_id.sale_order_id = False
-            inq.estimation_id = main_estimation.id
-            inq.sale_order_id = main_order.id
-            inq.state = "quotation_created"
-
-        for order in other_orders:
-            order.state = "cancel"
-            order.approval_state = "rejected"
-
-        main_order.order_line._compute_tax_id()
-
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Merged Quotation"),
-            "res_model": "sale.order",
-            "res_id": main_order.id,
-            "view_mode": "form",
-            "target": "current",
-        }
 
     def action_confirm(self):
         res = super().action_confirm()

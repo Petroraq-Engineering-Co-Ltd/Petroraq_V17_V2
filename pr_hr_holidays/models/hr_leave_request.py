@@ -179,47 +179,6 @@ class HrLeaveRequest(models.Model):
         return working_days
 
     def _get_non_working_dates_in_period(self):
-        """Weekends + public holidays for validation"""
-        self.ensure_one()
-        if not self.date_from or not self.date_to or self.date_to < self.date_from:
-            return []
-
-        # Weekends
-        calendar_id = self._get_request_calendar()
-        if calendar_id and calendar_id.attendance_ids:
-            working_weekdays = {int(attendance.dayofweek) for attendance in calendar_id.attendance_ids}
-        else:
-            working_weekdays = set(range(5))
-
-        non_working_dates = []
-
-        # Add weekends
-        current_date = self.date_from
-        while current_date <= self.date_to:
-            if current_date.weekday() not in working_weekdays:
-                non_working_dates.append(current_date)
-            current_date += timedelta(days=1)
-
-        # Add public holidays
-        public_holidays = self.env['hr.public.holiday'].sudo().search([
-            ('date_from', '<=', self.date_to),
-            ('date_to', '>=', self.date_from),
-            '|', ('company_id', '=', self.company_id.id), ('company_id', '=', False),
-            ('state', '=', 'active')
-        ])
-
-        for holiday in public_holidays:
-            start_date = max(self.date_from, holiday.date_from)
-            end_date = min(self.date_to, holiday.date_to)
-            holiday_date = start_date
-            while holiday_date <= end_date:
-                if holiday_date not in non_working_dates:  # Avoid duplicates
-                    non_working_dates.append(holiday_date)
-                holiday_date += timedelta(days=1)
-
-        return sorted(non_working_dates)
-
-    def _get_non_working_dates_in_period(self):
         """Get ALL non-working dates (weekends + public holidays) for validation"""
         self.ensure_one()
         if not self.date_from or not self.date_to or self.date_to < self.date_from:
@@ -236,10 +195,10 @@ class HrLeaveRequest(models.Model):
         holiday_domain = [
             ('date_from', '<=', self.date_to),
             ('date_to', '>=', self.date_from),
-            ('company_id', 'in', [self.company_id.id, False]),
+            # ('company_id', 'in', [self.company_id.id, False]),
             ('state', '=', 'active')
         ]
-        public_holidays = self.env['hr.holidays.public'].sudo().search(holiday_domain)
+        public_holidays = self.env['hr.public.holiday'].sudo().search(holiday_domain)
 
         non_working_dates = set()
 
