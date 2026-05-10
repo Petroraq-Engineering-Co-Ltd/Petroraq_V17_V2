@@ -44,7 +44,8 @@ class HrLeaveRequest(models.Model):
     hr_manager_ids = fields.Many2many('res.users', 'leave_request_hr_manager_users', 'hr_manager_id',
                                       'leave_request_id', string='HR Managers', tracking=True, readonly=True)
     manager_approved_user_id = fields.Many2one('res.users', string='Manager Approved By', readonly=True, copy=False)
-    hr_supervisor_approved_user_id = fields.Many2one('res.users', string='HR Supervisor Approved By', readonly=True, copy=False)
+    hr_supervisor_approved_user_id = fields.Many2one('res.users', string='HR Supervisor Approved By', readonly=True,
+                                                     copy=False)
     reject_reason = fields.Text(string="Rejection Reason", readonly=True)
     note = fields.Text(string="Note")
     state = fields.Selection([
@@ -128,13 +129,136 @@ class HrLeaveRequest(models.Model):
     @api.depends("date_from", "date_to")
     def _compute_requested_days(self):
         for rec in self:
-            if not rec.date_from or not rec.date_to:
+            if not rec.date_from or not rec.date_to or rec.date_to < rec.date_from:
                 rec.requested_days = 0.0
                 continue
-            if rec.date_to < rec.date_from:
-                rec.requested_days = 0.0
-                continue
-            rec.requested_days = float((rec.date_to - rec.date_from).days + 1)
+            working_days = rec._get_working_days_in_period()
+            rec.requested_days = len(working_days)
+
+    def _get_working_days_in_period(self):
+        """Working days excluding weekends + public holidays (hr.public.holiday)"""
+        self.ensure_one()
+        if not self.date_from or not self.date_to or self.date_to < self.date_from:
+            return []
+
+        # 1. Weekends from work calendar
+        calendar_id = self._get_request_calendar()
+        if calendar_id and calendar_id.attendance_ids:
+            working_weekdays = {int(attendance.dayofweek) for attendance in calendar_id.attendance_ids}
+        else:
+            working_weekdays = set(range(5))  # Mon-Fri
+
+        # 2. Public holidays (CORRECT MODEL: hr.public.holiday)
+        holiday_dates = set()
+        public_holidays = self.env['hr.public.holiday'].sudo().search([
+            ('date_from', '<=', self.date_to),
+            ('date_to', '>=', self.date_from),
+            ('state', '=', 'active')
+            # Removed company_id - not all instances have it
+        ])
+
+        for holiday in public_holidays:
+            # Handle single-day and multi-day holidays
+            start_date = max(self.date_from, holiday.date_from)
+            end_date = min(self.date_to, holiday.date_to)
+            current_date = start_date
+            while current_date <= end_date:
+                holiday_dates.add(current_date)
+                current_date += timedelta(days=1)
+
+        # 3. Count only working days (exclude weekends + holidays)
+        working_days = []
+        current_date = self.date_from
+        while current_date <= self.date_to:
+            is_weekend = current_date.weekday() not in working_weekdays
+            is_public_holiday = current_date in holiday_dates
+            if not is_weekend and not is_public_holiday:
+                working_days.append(current_date)
+            current_date += timedelta(days=1)
+
+        return working_days
+
+    def _get_non_working_dates_in_period(self):
+        """Weekends + public holidays for validation"""
+        self.ensure_one()
+        if not self.date_from or not self.date_to or self.date_to < self.date_from:
+            return []
+
+        # Weekends
+        calendar_id = self._get_request_calendar()
+        if calendar_id and calendar_id.attendance_ids:
+            working_weekdays = {int(attendance.dayofweek) for attendance in calendar_id.attendance_ids}
+        else:
+            working_weekdays = set(range(5))
+
+        non_working_dates = []
+
+        # Add weekends
+        current_date = self.date_from
+        while current_date <= self.date_to:
+            if current_date.weekday() not in working_weekdays:
+                non_working_dates.append(current_date)
+            current_date += timedelta(days=1)
+
+        # Add public holidays
+        public_holidays = self.env['hr.public.holiday'].sudo().search([
+            ('date_from', '<=', self.date_to),
+            ('date_to', '>=', self.date_from),
+            '|', ('company_id', '=', self.company_id.id), ('company_id', '=', False),
+            ('state', '=', 'active')
+        ])
+
+        for holiday in public_holidays:
+            start_date = max(self.date_from, holiday.date_from)
+            end_date = min(self.date_to, holiday.date_to)
+            holiday_date = start_date
+            while holiday_date <= end_date:
+                if holiday_date not in non_working_dates:  # Avoid duplicates
+                    non_working_dates.append(holiday_date)
+                holiday_date += timedelta(days=1)
+
+        return sorted(non_working_dates)
+
+    def _get_non_working_dates_in_period(self):
+        """Get ALL non-working dates (weekends + public holidays) for validation"""
+        self.ensure_one()
+        if not self.date_from or not self.date_to or self.date_to < self.date_from:
+            return []
+
+        # Weekends
+        calendar_id = self._get_request_calendar()
+        if calendar_id and calendar_id.attendance_ids:
+            working_weekdays = {int(attendance.dayofweek) for attendance in calendar_id.attendance_ids}
+        else:
+            working_weekdays = set(range(5))
+
+        # Public holidays
+        holiday_domain = [
+            ('date_from', '<=', self.date_to),
+            ('date_to', '>=', self.date_from),
+            ('company_id', 'in', [self.company_id.id, False]),
+            ('state', '=', 'active')
+        ]
+        public_holidays = self.env['hr.holidays.public'].sudo().search(holiday_domain)
+
+        non_working_dates = set()
+
+        # Add weekends
+        current_date = self.date_from
+        while current_date <= self.date_to:
+            if current_date.weekday() not in working_weekdays:
+                non_working_dates.add(current_date)
+            current_date += timedelta(days=1)
+
+        # Add public holidays
+        for holiday in public_holidays:
+            current_holiday_date = max(self.date_from, holiday.date_from)
+            end_holiday_date = min(self.date_to, holiday.date_to)
+            while current_holiday_date <= end_holiday_date:
+                non_working_dates.add(current_holiday_date)
+                current_holiday_date += timedelta(days=1)
+
+        return sorted(list(non_working_dates))
 
     @api.depends("requested_days", "leave_type_id", "employee_id", "state")
     def _compute_allocation_bypassed(self):
@@ -147,6 +271,52 @@ class HrLeaveRequest(models.Model):
                     available_days != float("inf")
                     and rec._get_requested_days_count() > (available_days + 1e-6)
             )
+
+    def _get_request_calendar(self):
+        self.ensure_one()
+        return (
+                self.employee_id.resource_calendar_id
+                or self.company_id.resource_calendar_id
+                or self.env.company.resource_calendar_id
+        )
+
+    def _get_weekend_dates_in_period(self):
+        self.ensure_one()
+        if not self.date_from or not self.date_to or self.date_to < self.date_from:
+            return []
+
+        calendar_id = self._get_request_calendar()
+        if calendar_id and calendar_id.attendance_ids:
+            working_weekdays = {int(attendance.dayofweek) for attendance in calendar_id.attendance_ids}
+        else:
+            working_weekdays = set(range(5))  # Default Mon-Fri
+
+        weekend_dates = []
+        current_date = self.date_from
+        while current_date <= self.date_to:
+            if current_date.weekday() not in working_weekdays:
+                weekend_dates.append(current_date)
+            current_date += timedelta(days=1)
+        return weekend_dates
+
+    def _check_leave_request_weekend_dates(self):
+        """Block single-day non-working requests, allow multi-day"""
+        for rec in self:
+            non_working_dates = rec._get_non_working_dates_in_period()
+            total_days = (rec.date_to - rec.date_from).days + 1
+
+            if total_days > 1:
+                continue  # ✅ Multi-day OK
+
+            if non_working_dates:
+                formatted_dates = ", ".join(date.strftime("%d/%m/%Y") for date in non_working_dates)
+                raise ValidationError(_(
+                    "Cannot request leave on non-working date(s) (weekend/public holiday): %(dates)s"
+                ) % {"dates": formatted_dates})
+
+    @api.constrains("employee_id", "company_id", "date_from", "date_to")
+    def _check_weekend_dates(self):
+        self._check_leave_request_weekend_dates()
 
     @api.constrains("leave_type_id", "date_from")
     def _check_annual_leave_start_date(self):
@@ -172,6 +342,24 @@ class HrLeaveRequest(models.Model):
         self.ensure_one()
         if self.employee_id.company_id:
             self.company_id = self.employee_id.company_id.id
+
+    @api.onchange("employee_id", "company_id", "date_from", "date_to")
+    def _onchange_leave_request_dates(self):
+        for rec in self:
+            weekend_dates = rec._get_weekend_dates_in_period()
+            total_days = (rec.date_to - rec.date_from).days + 1 if rec.date_from and rec.date_to else 0
+
+            # Only show warning for single-day weekend requests
+            if total_days == 1 and weekend_dates:
+                formatted_dates = ", ".join(date.strftime("%d/%m/%Y") for date in weekend_dates)
+                return {
+                    "warning": {
+                        "title": _("Weekend Date Selected"),
+                        "message": _(
+                            "You cannot request leave on weekend/non-working date(s): %(dates)s."
+                        ) % {"dates": formatted_dates},
+                    }
+                }
 
     def _send_hr_manager_cancellation_email(self):
         for rec in self:
@@ -317,7 +505,7 @@ class HrLeaveRequest(models.Model):
         self.ensure_one()
         if self.date_from and self.date_to and self.date_to < self.date_from:
             raise ValidationError(_("Date To must be greater than or equal to Date From."))
-        return self.requested_days
+        return self.requested_days  # Now correctly reflects working days only
 
     def _get_available_days_for_request(self):
         self.ensure_one()
@@ -375,7 +563,6 @@ class HrLeaveRequest(models.Model):
                                           "available": max(0.0, available_days),
                                       })
 
-
     def _get_user_identity_key(self, user):
         employee = self.env["hr.employee"].sudo().search([("user_id", "=", user.id)], limit=1)
         if employee:
@@ -423,7 +610,8 @@ class HrLeaveRequest(models.Model):
             self.with_context(approval_excluded_user_ids=list(extra_excluded_user_ids or [])).action_manager_approve()
             stage_map = self._get_approval_user_ids_by_stage(extra_excluded_user_ids=extra_excluded_user_ids)
         if self.state == "manager_approve" and not stage_map.get("manager_approve"):
-            self.with_context(approval_excluded_user_ids=list(extra_excluded_user_ids or [])).action_hr_supervisor_approve()
+            self.with_context(
+                approval_excluded_user_ids=list(extra_excluded_user_ids or [])).action_hr_supervisor_approve()
             stage_map = self._get_approval_user_ids_by_stage(extra_excluded_user_ids=extra_excluded_user_ids)
         if self.state == "hr_supervisor" and not stage_map.get("hr_supervisor"):
             self.action_hr_manager_approve()
@@ -621,6 +809,8 @@ class HrLeaveRequest(models.Model):
                 rec.hr_supervisor_ids = hr_supervisor_ids.ids
             if hr_manager_ids:
                 rec.hr_manager_ids = hr_manager_ids.ids
+
+            rec._check_leave_request_weekend_dates()
             rec._check_requested_days_with_allocation()
             rec.sudo()._auto_progress_approval_route()
             if rec.state == "draft":
@@ -631,6 +821,7 @@ class HrLeaveRequest(models.Model):
         res = super().write(vals)
         watched_fields = {"employee_id", "leave_type_id", "date_from", "date_to", "state"}
         if watched_fields.intersection(vals.keys()):
+            self._check_leave_request_weekend_dates()
             self._check_requested_days_with_allocation()
         return res
 
