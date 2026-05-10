@@ -5,7 +5,7 @@
         This Module is created to manage Accounting""",
 
     'description': """
-        
+
     """,
 
     'author': "Mahmoud Salah",
@@ -33,6 +33,7 @@
         'views/account_analytic_account.xml',
         'views/account_move.xml',
         'views/account_move_line.xml',
+        'views/res_partner.xml',
         'views/payment_receipt.xml',
         'views/reject_reason_wizard.xml',
         'views/bank_payment_reject_reason_wizard.xml',
