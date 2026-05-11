@@ -59,7 +59,7 @@
         </record>
 
         <menuitem id="menu_my_timeoff_leave_request"
-                  name="Leave Dashboard"
+                  name="Personal Leave Dashboard"
                   parent="menu_my_timeoff"
                   action="action_custom_leave_dashboard"
                   sequence="10" />

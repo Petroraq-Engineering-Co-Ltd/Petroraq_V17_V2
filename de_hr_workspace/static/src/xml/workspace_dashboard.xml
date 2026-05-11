@@ -57,7 +57,7 @@
                                     <div class="de-dashboard-info">
                                         <div class="de-dashboard-label" t-esc="tile.name"/>
                                         <div class="de-dashboard-hint">
-                                            <span>View / Apply</span>
+<!--                                            <span>View / Apply</span>-->
                                             <i class="fa fa-arrow-right ms-2 de-hint-arrow"/>
                                         </div>
                                     </div>
