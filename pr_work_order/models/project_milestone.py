@@ -1,10 +1,12 @@
-from odoo import api, models, _
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 from odoo.tools.float_utils import float_compare
 
 
 class ProjectMilestone(models.Model):
     _inherit = "project.milestone"
+
+    quantity_percentage = fields.Float(digits=(16, 8))
 
     @api.constrains("sale_line_id", "product_uom_qty", "quantity_percentage")
     def _check_sale_line_milestone_percentage(self):
