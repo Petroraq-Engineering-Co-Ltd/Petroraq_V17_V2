@@ -167,13 +167,19 @@ class PurchaseOrder(models.Model):
         if not self.order_line:
             raise UserError(_("This RFQ has no order lines."))
 
-        rfq_product_ids = self.order_line.filtered("product_id").mapped("product_id").ids
+        rfq_lines = self.order_line.filtered("product_id")
+        rfq_product_ids = rfq_lines.mapped("product_id").ids
+        rfq_requisition_line_ids = rfq_lines.filtered("custom_requisition_line_id").mapped("custom_requisition_line_id").ids
         if self.requisition_id:
-            existing_po_lines = self.env["purchase.order.line"].sudo().search([
+            existing_domain = [
                 ("order_id.requisition_id", "=", self.requisition_id.id),
                 ("order_id.state", "in", ["pending", "purchase", "done"]),
-                ("product_id", "in", rfq_product_ids),
-            ])
+            ]
+            if rfq_requisition_line_ids and len(rfq_requisition_line_ids) == len(rfq_lines):
+                existing_domain.append(("custom_requisition_line_id", "in", rfq_requisition_line_ids))
+            else:
+                existing_domain.append(("product_id", "in", rfq_product_ids))
+            existing_po_lines = self.env["purchase.order.line"].sudo().search(existing_domain)
             if existing_po_lines:
                 duplicate_products = ", ".join(sorted(set(existing_po_lines.mapped("product_id.display_name"))))
                 raise UserError(
@@ -254,6 +260,7 @@ class PurchaseOrder(models.Model):
                     "date_planned": line.date_planned or fields.Datetime.now(),
                     "taxes_id": [(6, 0, line.taxes_id.ids)],
                     "analytic_distribution": line.analytic_distribution,
+                    "custom_requisition_line_id": line.custom_requisition_line_id.id,
                 })
                 for line in self.order_line if line.product_id
             ],

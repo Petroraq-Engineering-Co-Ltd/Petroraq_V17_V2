@@ -538,30 +538,75 @@ class PurchaseRequisition(models.Model):
             quantities[line.description.id] += line.quantity or 0.0
         return quantities
 
-    def _get_purchased_product_quantities(self):
+    def _get_purchased_requisition_line_quantities(self):
         self.ensure_one()
-        quantities = {}
+        requisition_lines = self.line_ids.filtered("description")
+        quantities = {line.id: 0.0 for line in requisition_lines}
         po_lines = self.env["purchase.order.line"].sudo().search([
             ("order_id.requisition_id", "=", self.id),
             ("order_id.state", "in", ["pending", "purchase", "done"]),
             ("product_id", "!=", False),
         ])
+
         for line in po_lines:
-            quantities.setdefault(line.product_id.id, 0.0)
-            quantities[line.product_id.id] += line.product_qty or 0.0
+            requisition_line = line.custom_requisition_line_id
+            if requisition_line and requisition_line.requisition_id.id == self.id:
+                quantities.setdefault(requisition_line.id, 0.0)
+                quantities[requisition_line.id] += line.product_qty or 0.0
+                continue
+
+            distribution = line.analytic_distribution or {}
+            distribution_cc_ids = {int(key) for key in distribution.keys() if str(key).isdigit()}
+            candidates = requisition_lines.filtered(
+                lambda req_line: req_line.description.id == line.product_id.id
+                and (
+                    not distribution_cc_ids
+                    or req_line.cost_center_id.id in distribution_cc_ids
+                )
+            ).sorted(key=lambda req_line: req_line.id)
+
+            qty_to_apply = line.product_qty or 0.0
+            for req_line in candidates:
+                if qty_to_apply <= 1e-6:
+                    break
+                remaining_capacity = max((req_line.quantity or 0.0) - quantities.get(req_line.id, 0.0), 0.0)
+                if remaining_capacity <= 1e-6:
+                    continue
+                applied_qty = min(qty_to_apply, remaining_capacity)
+                quantities[req_line.id] = quantities.get(req_line.id, 0.0) + applied_qty
+                qty_to_apply -= applied_qty
+
         return quantities
+
+    def _get_purchased_product_quantities(self):
+        self.ensure_one()
+        purchased_by_line = self._get_purchased_requisition_line_quantities()
+        quantities = {}
+        for line in self.line_ids.filtered("description"):
+            quantities.setdefault(line.description.id, 0.0)
+            quantities[line.description.id] += purchased_by_line.get(line.id, 0.0)
+        return quantities
+
+    def _get_remaining_requisition_line_quantities(self):
+        self.ensure_one()
+        purchased_quantities = self._get_purchased_requisition_line_quantities()
+        return {
+            line.id: max((line.quantity or 0.0) - purchased_quantities.get(line.id, 0.0), 0.0)
+            for line in self.line_ids.filtered("description")
+        }
 
     def _get_remaining_product_quantities(self):
         self.ensure_one()
-        purchased_quantities = self._get_purchased_product_quantities()
-        return {
-            product_id: max(quantity - purchased_quantities.get(product_id, 0.0), 0.0)
-            for product_id, quantity in self._get_requested_product_quantities().items()
-        }
+        remaining_by_line = self._get_remaining_requisition_line_quantities()
+        quantities = {}
+        for line in self.line_ids.filtered("description"):
+            quantities.setdefault(line.description.id, 0.0)
+            quantities[line.description.id] += remaining_by_line.get(line.id, 0.0)
+        return quantities
 
     def _has_remaining_product_quantities(self):
         self.ensure_one()
-        return any(quantity > 1e-6 for quantity in self._get_remaining_product_quantities().values())
+        return any(quantity > 1e-6 for quantity in self._get_remaining_requisition_line_quantities().values())
 
     def action_create_rfq(self):
         """Create Custom RFQ from this PR and keep PO sequencing independent."""
@@ -573,13 +618,13 @@ class PurchaseRequisition(models.Model):
                 raise UserError(_("Supervisor approval is required before creating RFQ."))
             if not pr.line_ids:
                 raise UserError(_("This PR has no line items to create an RFQ."))
-            remaining_quantities = pr._get_remaining_product_quantities()
+            remaining_quantities = pr._get_remaining_requisition_line_quantities()
             if not any(quantity > 1e-6 for quantity in remaining_quantities.values()):
                 raise UserError(_("All requested products have already been fully purchased for requisition %s.") % pr.name)
 
             line_amounts = {}
             for line in pr.line_ids:
-                remaining_qty = remaining_quantities.get(line.description.id, 0.0)
+                remaining_qty = remaining_quantities.get(line.id, 0.0)
                 if remaining_qty <= 1e-6:
                     continue
                 line_cc = line.cost_center_id.sudo()
@@ -615,7 +660,7 @@ class PurchaseRequisition(models.Model):
             }
 
             for line in pr.line_ids:
-                remaining_qty = remaining_quantities.get(line.description.id, 0.0)
+                remaining_qty = remaining_quantities.get(line.id, 0.0)
                 if remaining_qty <= 1e-6:
                     continue
                 analytic_distribution = (
@@ -630,6 +675,7 @@ class PurchaseRequisition(models.Model):
                     "price_unit": 0.0,
                     "date_planned": fields.Datetime.now(),
                     "analytic_distribution": analytic_distribution,
+                    "custom_requisition_line_id": line.id,
                 }))
 
             rfq = CustomRFQ.sudo().create(rfq_vals)
@@ -665,13 +711,13 @@ class PurchaseRequisition(models.Model):
                 raise UserError(
                     _("This PR has no line items to create a Purchase Order.")
                 )
-            remaining_quantities = pr._get_remaining_product_quantities()
+            remaining_quantities = pr._get_remaining_requisition_line_quantities()
             if not any(quantity > 1e-6 for quantity in remaining_quantities.values()):
                 raise UserError(_("All requested products have already been fully purchased for requisition %s.") % pr.name)
 
             line_amounts = {}
             for line in pr.line_ids:
-                remaining_qty = remaining_quantities.get(line.description.id, 0.0)
+                remaining_qty = remaining_quantities.get(line.id, 0.0)
                 if remaining_qty <= 1e-6:
                     continue
                 line_cc = line.cost_center_id.sudo()
@@ -714,7 +760,7 @@ class PurchaseRequisition(models.Model):
             }
 
             for line in pr.line_ids:
-                remaining_qty = remaining_quantities.get(line.description.id, 0.0)
+                remaining_qty = remaining_quantities.get(line.id, 0.0)
                 if remaining_qty <= 1e-6:
                     continue
                 analytic_distribution = (
@@ -733,6 +779,7 @@ class PurchaseRequisition(models.Model):
                         "price_unit": line.unit_price,
                         "date_planned": fields.Datetime.now(),
                         "analytic_distribution": analytic_distribution,
+                        "custom_requisition_line_id": line.id,
                     },
                 )
                 po_vals["order_line"].append(line_vals)
@@ -1130,3 +1177,15 @@ class PurchaseOrderCustomLine(models.Model):
                 raise ValidationError("Quantity cannot be negative.")
             if line.price_unit < 0:
                 raise ValidationError("Unit Price cannot be negative.")
+
+
+class PurchaseOrderLine(models.Model):
+    _inherit = "purchase.order.line"
+
+    custom_requisition_line_id = fields.Many2one(
+        "purchase.requisition.line",
+        string="Source PR Line",
+        index=True,
+        copy=False,
+        ondelete="set null",
+    )
