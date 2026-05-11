@@ -13,10 +13,10 @@
         </field>
     </record>
 
-    <menuitem id="expense_bucket_approvals_view_menu"
-              parent="menu_my_purchase_approvals"
-              name="Budgets"
-              action="pr_sale_expense_bucket_approvals_action"
-              sequence="6"
-              groups="de_hr_workspace.group_hr_employee_approvals,pr_custom_purchase.project_manager,account.group_account_manager,account.group_account_user,pr_custom_purchase.managing_director"/>
+<!--    <menuitem id="expense_bucket_approvals_view_menu"-->
+<!--              parent="menu_my_purchase_approvals"-->
+<!--              name="Budgets"-->
+<!--              action="pr_sale_expense_bucket_approvals_action"-->
+<!--              sequence="6"-->
+<!--              groups="de_hr_workspace.group_hr_employee_approvals,pr_custom_purchase.project_manager,account.group_account_manager,account.group_account_user,pr_custom_purchase.managing_director"/>-->
 </odoo>
