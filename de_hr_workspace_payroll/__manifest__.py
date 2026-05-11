@@ -13,7 +13,7 @@
     'category': 'Human Resources',
 
     # any module necessary for this one to work correctly
-    'depends': ['de_hr_workspace','pr_hr_payroll'],
+    'depends': ['de_hr_workspace','pr_hr_payroll','pr_tax_Invoice_report_custom'],
 
     # always loaded
     'data': [
@@ -21,6 +21,7 @@
         'views/hr_payslip_views.xml',
         'views/hr_payslip_run.xml',
         'views/hr_payslip_portal.xml',
+        'views/payslip_report.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

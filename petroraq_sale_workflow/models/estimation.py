@@ -130,35 +130,40 @@ class PetroraqEstimation(models.Model):
     )
     work_order_id = fields.Many2one("pr.work.order", string="Work Order", readonly=True, copy=False)
 
-    material_total = fields.Monetary(
+    material_total = fields.Float(
         string="Material Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
-    labor_total = fields.Monetary(
+    labor_total = fields.Float(
         string="Labor Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
-    equipment_total = fields.Monetary(
+    equipment_total = fields.Float(
         string="Equipment Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
-    subcontract_total = fields.Monetary(
+    subcontract_total = fields.Float(
         string="Sub Contract / TPS Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
-    total_amount = fields.Monetary(
+    total_amount = fields.Float(
         string="Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
     overhead_percent = fields.Float(
         string="Over Head (%)",
@@ -176,36 +181,41 @@ class PetroraqEstimation(models.Model):
         default=0.0,
         digits=(16, 2),
     )
-    overhead_amount = fields.Monetary(
+    overhead_amount = fields.Float(
         string="Over Head Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
-    risk_amount = fields.Monetary(
+    risk_amount = fields.Float(
         string="Risk Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
-    buffer_total_amount = fields.Monetary(
+    buffer_total_amount = fields.Float(
         string="Computed Total Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         help="Total amount including overhead and risk (no profit).",
+        digits="Product Price",
     )
-    profit_amount = fields.Monetary(
+    profit_amount = fields.Float(
         string="Profit Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
-    total_with_profit = fields.Monetary(
+    total_with_profit = fields.Float(
         string="Total With Profit",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
+        digits="Product Price",
     )
 
     @api.model
@@ -587,7 +597,6 @@ class PetroraqEstimation(models.Model):
                 "section_id": False,
             })
 
-
         for line_vals in self._prepare_work_order_boq_lines(work_order):
             work_order.boq_line_ids.create(line_vals)
 
@@ -713,13 +722,14 @@ class PetroraqEstimationLine(models.Model):
         readonly=True,
     )
 
-    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id")
+    unit_cost = fields.Float(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
 
-    subtotal = fields.Monetary(
+    subtotal = fields.Float(
         string="Subtotal",
         currency_field="currency_id",
         compute="_compute_subtotal",
         store=False,
+        digits="Product Price",
     )
 
     @api.depends("estimation_id.currency_id")
@@ -828,19 +838,21 @@ class PetroraqEstimationDisplayLine(models.Model):
         store=True,
         readonly=True,
     )
-    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id")
-    subtotal = fields.Monetary(
+    unit_cost = fields.Float(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
+    subtotal = fields.Float(
         string="Subtotal",
         currency_field="currency_id",
         compute="_compute_subtotal",
         store=False,
+        digits="Product Price",
     )
-    section_subtotal_amount = fields.Monetary(
+    section_subtotal_amount = fields.Float(
         string="Section Subtotal",
         compute="_compute_section_subtotal_amount",
         store=False,
         currency_field="currency_id",
         help="Subtotal of the lines within this section.",
+        digits="Product Price",
     )
     section_subtotal_display = fields.Html(
         string="Section Subtotal Display",

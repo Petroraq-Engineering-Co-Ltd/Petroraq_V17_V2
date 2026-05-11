@@ -13,19 +13,16 @@ class LeaveRequestTemplate(http.Controller):
     @http.route('/leave_request', auth='user', type='http')
     def display_leave_request_form(self, **kw):
 
-        if request.env.user.has_group('base.group_user'):
-            current_user = request.env.user
-            current_employee_id = request.env["hr.employee"].sudo().search([("user_id", "=", current_user.id)], limit=1)
-            email = current_employee_id.work_email
-            return http.request.render('de_hr_workspace_timeoff.leave_request_template', {
-                "current_employee_id": current_employee_id,
-                "employee_email": email,
-                "company_name": current_employee_id.company_id.name,
-                "form_values": {},
-                "error_message": False,
-            })
-        else:
-            return NotFound()
+        current_user = request.env.user
+        current_employee_id = request.env["hr.employee"].sudo().search([("user_id", "=", current_user.id)], limit=1)
+        email = current_employee_id.work_email
+        return http.request.render('de_hr_workspace_timeoff.leave_request_template', {
+            "current_employee_id": current_employee_id,
+            "employee_email": email,
+            "company_name": current_employee_id.company_id.name,
+            "form_values": {},
+            "error_message": False,
+        })
 
     @http.route('/leave_request/create', type='http', auth="user")
     def leave_created(self, **kw):

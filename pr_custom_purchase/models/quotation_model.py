@@ -167,20 +167,38 @@ class PurchaseOrder(models.Model):
         if not self.order_line:
             raise UserError(_("This RFQ has no order lines."))
 
-        existing_po = self.env["purchase.order"].sudo().search_count([
-            ("requisition_id", "=", self.requisition_id.id),
-            ("state", "in", ["pending", "purchase", "done"]),
-        ]) if self.requisition_id else self.env["purchase.order"].sudo().search_count([
-            ("origin", "=", self.name),
-            ("state", "in", ["pending", "purchase", "done"]),
-        ])
-        if existing_po:
-            raise UserError(_("A Purchase Order already exists for RFQ %s.") % self.name)
+        rfq_lines = self.order_line.filtered("product_id")
+        rfq_product_ids = rfq_lines.mapped("product_id").ids
+        rfq_requisition_line_ids = rfq_lines.filtered("custom_requisition_line_id").mapped("custom_requisition_line_id").ids
+        if self.requisition_id:
+            existing_domain = [
+                ("order_id.requisition_id", "=", self.requisition_id.id),
+                ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ]
+            if rfq_requisition_line_ids and len(rfq_requisition_line_ids) == len(rfq_lines):
+                existing_domain.append(("custom_requisition_line_id", "in", rfq_requisition_line_ids))
+            else:
+                existing_domain.append(("product_id", "in", rfq_product_ids))
+            existing_po_lines = self.env["purchase.order.line"].sudo().search(existing_domain)
+            if existing_po_lines:
+                duplicate_products = ", ".join(sorted(set(existing_po_lines.mapped("product_id.display_name"))))
+                raise UserError(
+                    _("A Purchase Order already exists for RFQ %(rfq)s product(s): %(products)s.")
+                    % {"rfq": self.name, "products": duplicate_products}
+                )
+        else:
+            existing_po = self.env["purchase.order"].sudo().search_count([
+                ("origin", "=", self.name),
+                ("state", "in", ["pending", "purchase", "done"]),
+            ])
+            if existing_po:
+                raise UserError(_("A Purchase Order already exists for RFQ %s.") % self.name)
 
         sibling_rfqs = self.env["purchase.order"].sudo().search([
             ("requisition_id", "=", self.requisition_id.id),
             ("id", "!=", self.id),
             ("state", "in", ["draft", "sent"]),
+            ("order_line.product_id", "in", rfq_product_ids),
         ]) if self.requisition_id else self.env["purchase.order"]
 
         line_amounts = {}
@@ -242,6 +260,7 @@ class PurchaseOrder(models.Model):
                     "date_planned": line.date_planned or fields.Datetime.now(),
                     "taxes_id": [(6, 0, line.taxes_id.ids)],
                     "analytic_distribution": line.analytic_distribution,
+                    "custom_requisition_line_id": line.custom_requisition_line_id.id,
                 })
                 for line in self.order_line if line.product_id
             ],
@@ -375,6 +394,59 @@ class PurchaseOrder(models.Model):
                     "body_html": f"<p>{note}</p>",
                 }).send()
 
+
+    def _auto_approve_following_stages_for_user(self, approver_user):
+        self.ensure_one()
+        if self.state != "pending":
+            return
+
+        def _next_stage(order):
+            amount = order.subtotal
+            if amount <= 10000:
+                return None if order.pe_approved else "pe"
+            if amount <= 100000:
+                if not order.pe_approved:
+                    return "pe"
+                return None if order.pm_approved else "pm"
+            if amount <= 500000:
+                if not order.pe_approved:
+                    return "pe"
+                if not order.pm_approved:
+                    return "pm"
+                return None if order.od_approved else "od"
+            if not order.pe_approved:
+                return "pe"
+            if not order.pm_approved:
+                return "pm"
+            if not order.od_approved:
+                return "od"
+            return None if order.md_approved else "md"
+
+        stage_group = {
+            "pe": "pr_custom_purchase.project_engineer",
+            "pm": "pr_custom_purchase.project_manager",
+            "od": "pr_custom_purchase.operations_director",
+            "md": "pr_custom_purchase.managing_director",
+        }
+        stage_field = {
+            "pe": "pe_approved",
+            "pm": "pm_approved",
+            "od": "od_approved",
+            "md": "md_approved",
+        }
+
+        while True:
+            stage = _next_stage(self)
+            if not stage:
+                break
+            if not approver_user.has_group(stage_group[stage]):
+                break
+            self.write({stage_field[stage]: True})
+            self.message_post(body=_("Auto-approved %(stage)s stage by same approver %(user)s.") % {
+                "stage": stage.upper(),
+                "user": approver_user.name,
+            })
+
     # main approval logic
     def action_approve(self):
         self.ensure_one()
@@ -447,6 +519,11 @@ class PurchaseOrder(models.Model):
             elif not self.md_approved:
                 self.write({"md_approved": True})
                 self.message_post(body="Approved by Managing Director.")
+
+        self._auto_approve_following_stages_for_user(self.env.user)
+
+        if self.state == "pending" and self.can_confirm_order:
+            self.button_confirm()
 
         return self._reload_action()
 

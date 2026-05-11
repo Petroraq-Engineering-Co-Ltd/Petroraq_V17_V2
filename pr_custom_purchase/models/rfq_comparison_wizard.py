@@ -52,24 +52,45 @@ class RFQComparisonWizard(models.TransientModel):
         self.ensure_one()
         rfqs = self._get_candidate_rfqs()
 
-        lines_by_product = {}
+        lines_by_req_line = {}
+        req_lines_by_product = defaultdict(list)
         for req_line in self.requisition_id.line_ids:
             if not req_line.description:
                 continue
-            lines_by_product[req_line.description.id] = {
+            lines_by_req_line[req_line.id] = {
                 "req_line": req_line,
                 "offers": {},
             }
+            req_lines_by_product[req_line.description.id].append(req_line)
 
-        if not lines_by_product:
+        if not lines_by_req_line:
             raise UserError(_("No material requirement lines found on this requisition."))
 
         for rfq in rfqs:
             for po_line in rfq.order_line:
                 product = po_line.product_id
-                if not product or product.id not in lines_by_product:
+                if not product:
                     continue
-                vendor_offers = lines_by_product[product.id]["offers"]
+
+                req_line = po_line.custom_requisition_line_id
+                if req_line and req_line.requisition_id.id != self.requisition_id.id:
+                    req_line = False
+
+                if not req_line:
+                    distribution = po_line.analytic_distribution or {}
+                    distribution_cc_ids = {int(key) for key in distribution.keys() if str(key).isdigit()}
+                    candidates = [
+                        candidate
+                        for candidate in req_lines_by_product.get(product.id, [])
+                        if not distribution_cc_ids
+                        or candidate.cost_center_id.id in distribution_cc_ids
+                    ]
+                    req_line = candidates[0] if candidates else False
+
+                if not req_line or req_line.id not in lines_by_req_line:
+                    continue
+
+                vendor_offers = lines_by_req_line[req_line.id]["offers"]
                 existing_offer = vendor_offers.get(rfq.partner_id.id)
                 total_amount = po_line.price_unit * po_line.product_qty
                 offer_vals = {
@@ -86,7 +107,7 @@ class RFQComparisonWizard(models.TransientModel):
         vendor_ids = set()
         line_commands = []
         seq = 1
-        for product_id, data in lines_by_product.items():
+        for data in lines_by_req_line.values():
             req_line = data["req_line"]
             offers = data["offers"]
             vendor_ids.update(offers.keys())
@@ -108,7 +129,8 @@ class RFQComparisonWizard(models.TransientModel):
 
             line_commands.append((0, 0, {
                 "sequence": seq,
-                "product_id": product_id,
+                "requisition_line_id": req_line.id,
+                "product_id": req_line.description.id,
                 "description": req_line.description.display_name,
                 "unit": req_line.unit,
                 "quantity": req_line.quantity,
@@ -187,12 +209,31 @@ class RFQComparisonWizard(models.TransientModel):
         if not grouped_by_vendor:
             raise UserError(_("Please select at least one supplier with available quotation lines."))
 
-        existing_po = self.env["purchase.order"].sudo().search_count([
-            ("requisition_id", "=", self.requisition_id.id),
-            ("state", "in", ["pending", "purchase", "done"]),
-        ])
-        if existing_po:
-            raise UserError(_("A Purchase Order already exists for requisition %s.") % self.requisition_id.name)
+        selected_product_ids = set()
+        selected_requisition_line_ids = set()
+        for vendor_lines in grouped_by_vendor.values():
+            selected_product_ids.update(
+                line.product_id.id for line, _offer in vendor_lines if line.product_id
+            )
+            selected_requisition_line_ids.update(
+                line.requisition_line_id.id for line, _offer in vendor_lines if line.requisition_line_id
+            )
+
+        existing_domain = [
+            ("order_id.requisition_id", "=", self.requisition_id.id),
+            ("order_id.state", "in", ["pending", "purchase", "done"]),
+        ]
+        if selected_requisition_line_ids and len(selected_requisition_line_ids) == sum(len(lines) for lines in grouped_by_vendor.values()):
+            existing_domain.append(("custom_requisition_line_id", "in", list(selected_requisition_line_ids)))
+        else:
+            existing_domain.append(("product_id", "in", list(selected_product_ids)))
+        existing_po_lines = self.env["purchase.order.line"].sudo().search(existing_domain)
+        if existing_po_lines:
+            duplicate_products = ", ".join(sorted(set(existing_po_lines.mapped("product_id.display_name"))))
+            raise UserError(
+                _("A Purchase Order already exists for the selected product(s): %s.")
+                % duplicate_products
+            )
 
         purchase_orders = self.env["purchase.order"]
         for vendor, vendor_lines in grouped_by_vendor.items():
@@ -221,7 +262,7 @@ class RFQComparisonWizard(models.TransientModel):
                 "name": self.env["ir.sequence"].sudo().next_by_code("purchase.order") or "PO0001",
                 "state": "pending",
                 "partner_id": vendor.id,
-                "origin": self.requisition_id.name,
+                "origin": source_rfq.name if source_rfq else self.requisition_id.name,
                 "requisition_id": self.requisition_id.id,
                 "pr_name": self.requisition_id.name,
                 "partner_ref": source_rfq.partner_ref if source_rfq else False,
@@ -248,6 +289,7 @@ class RFQComparisonWizard(models.TransientModel):
                         "date_planned": fields.Datetime.now(),
                         "product_uom": offer.rfq_line_id.product_uom.id if offer.rfq_line_id and offer.rfq_line_id.product_uom else False,
                         "analytic_distribution": {str(line.cost_center_id.id): 100.0} if line.cost_center_id else False,
+                        "custom_requisition_line_id": line.requisition_line_id.id,
                     })
                     for line, offer in vendor_lines
                 ],
@@ -345,6 +387,7 @@ class RFQComparisonWizardLine(models.TransientModel):
 
     wizard_id = fields.Many2one("rfq.comparison.wizard", required=True, ondelete="cascade")
     sequence = fields.Integer(string="Sr No")
+    requisition_line_id = fields.Many2one("purchase.requisition.line", string="PR Line", readonly=True)
     product_id = fields.Many2one("product.product", string="Product", readonly=True)
     description = fields.Char(string="Description", readonly=True)
     unit = fields.Char(string="Unit", readonly=True)
@@ -353,10 +396,12 @@ class RFQComparisonWizardLine(models.TransientModel):
     selected_vendor_id = fields.Many2one("res.partner", string="Supplier")
     quote_line_ids = fields.One2many("rfq.comparison.wizard.quote", "wizard_line_id", string="Quotes", readonly=True)
 
-    @api.depends("product_id", "wizard_id.requisition_id")
+    @api.depends("requisition_line_id", "product_id", "wizard_id.requisition_id")
     def _compute_cost_center(self):
         for line in self:
-            req_line = line.wizard_id.requisition_id.line_ids.filtered(lambda l: l.description == line.product_id)[:1]
+            req_line = line.requisition_line_id or line.wizard_id.requisition_id.line_ids.filtered(
+                lambda req_line: req_line.description == line.product_id
+            )[:1]
             line.cost_center_id = req_line.cost_center_id
 
 

@@ -22,7 +22,7 @@
         'views/work_order.xml',
         'views/estimation.xml',
         'views/budget.xml',
-        'views/expense_bucket.xml',
+        # 'views/expense_bucket.xml',
         'views/purchase_order.xml',
     ],
     # only loaded in demonstration mode

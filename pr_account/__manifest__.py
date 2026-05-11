@@ -5,7 +5,7 @@
         This Module is created to manage Accounting""",
 
     'description': """
-        
+
     """,
 
     'author': "Mahmoud Salah",
@@ -16,7 +16,7 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Accounting/Accounting',
-    'version': '17.0.1.0.3',
+    'version': '17.0.1.0.4',
     "license": "LGPL-3",
     # any module necessary for this one to work correctly
     'depends': ['account_accountant', 'account_reports'],
@@ -33,6 +33,7 @@
         'views/account_analytic_account.xml',
         'views/account_move.xml',
         'views/account_move_line.xml',
+        'views/res_partner.xml',
         'views/payment_receipt.xml',
         'views/reject_reason_wizard.xml',
         'views/bank_payment_reject_reason_wizard.xml',

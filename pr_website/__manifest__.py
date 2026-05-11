@@ -10,23 +10,38 @@
     # Required
     "depends": [
         "website",
-        "hr_recruitment",            # for careers page
+        "hr_recruitment",  # for careers page
     ],
 
     # Data files (XML Views)
     "data": [
         # "views/assets.xml",          # CSS/JS
-        "views/layout.xml",          # custom header/footer
+        "views/layout.xml",  # custom header/footer
         "views/footer.xml",
         "views/hero.xml",
+        "views/contact_us.xml",
+        "views/about_us.xml",
+        "views/clients.xml",
+        "views/projects.xml",
+        "views/design_engineering.xml",
+        "views/architecture-planning.xml",
+        "views/civil-structural.xml",
+        "views/electrical-telecommunication.xml",
+        "views/mechanical-piping.xml",
+        "views/cad-services.xml",
+        "views/other-services.xml",
+        "views/project_management.xml",
+
         # "views/assets.xml",
         # "views/home.xml",
         # "views/about.xml",
         # "views/services.xml",
         # "views/projects.xml",
         # "views/careers.xml",
+        "views/404.xml",
         # "views/job_detail.xml",
         # "views/contact.xml",
+        "views/careers.xml",
     ],
 
     # QWeb templates (loaded globally)
