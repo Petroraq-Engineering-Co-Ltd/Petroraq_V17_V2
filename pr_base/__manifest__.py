@@ -6,7 +6,7 @@
         Manage custom development on Odoo Base Module""",
 
     'description': """
-        
+
     """,
 
     'author': "Mahmoud Salah",
@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'dashboard',
-    'version': '17.0.0.0.1',
+    'version': '17.0.0.0.2',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'contacts', 'product'],
@@ -29,6 +29,7 @@
         'views/res_partner.xml',
         'views/product_template.xml',
         'data/product_sequence.xml',
+        'data/partner_sequence.xml',
         'wizards/pr_reject_record.xml',
     ],
     # only loaded in demonstration mode
