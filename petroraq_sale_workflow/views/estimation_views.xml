@@ -143,7 +143,7 @@
                             </field>
                         </page>
                     </notebook>
-                    <group col="4" class="oe_subtotal_footer" colspan="2" readonly="is_locked_for_edit">
+                    <group col="2" class="oe_subtotal_footer"  readonly="is_locked_for_edit">
                         <field name="material_total" readonly="1"/>
                         <field name="labor_total" readonly="1"/>
                         <field name="equipment_total" readonly="1"/>
