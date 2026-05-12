@@ -8,6 +8,7 @@
     "license": "LGPL-3",
     "depends": [
         "sale_management",
+        "sale_project",
         "project",
         "analytic",
         "account",

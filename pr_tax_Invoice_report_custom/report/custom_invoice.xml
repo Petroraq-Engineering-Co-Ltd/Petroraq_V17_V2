@@ -381,6 +381,11 @@
                         <br/>
                         <table class="table table-bordered"
                                style="border:1px solid black;text-align:center;margin-top:-15px;font-family: 'DroidArabicNaskh';font-size: 17px !important;">
+                            <t t-set="invoice_lines" t-value="o.invoice_line_ids"/>
+                            <t t-set="regular_lines"
+                               t-value="invoice_lines.filtered(lambda l: not l.is_downpayment and not l.display_type=='line_section')"/>
+                            <t t-set="downpayment_lines" t-value="invoice_lines.filtered(lambda l: l.is_downpayment)"/>
+                            <t t-set="has_discount" t-value="any((l.discount or 0.0) for l in regular_lines)"/>
                             <tr style="background-color:#dbdbd9">
                                 <td width="10%">
                                     <b>الرقم التسلسلي
@@ -414,7 +419,7 @@
                                         UNIT PRICE
                                     </b>
                                 </td>
-                                <td width="10%">
+                                <td width="10%" t-if="has_discount">
                                     <b>مبلغ الخصم<br/>Discount Price
                                     </b>
                                 </td>
@@ -482,7 +487,7 @@
                                     <span t-esc="l.price_unit"
                                           t-options='{"widget": "monetary", "display_currency": l.currency_id}'/>
                                 </td>
-                                <td>
+                                <td t-if="has_discount">
                                     <span t-esc="(l.price_unit * (1 - (l.discount or 0.0)/100.0))"
                                     />
                                 </td>
@@ -507,7 +512,7 @@
                                 </td>
                             </tr>
                             <tr t-if="downpayment_lines">
-                                <td colspan="9" style="text-align:left;background-color:#f2f2f2;font-weight:bold;">
+                                <td t-att-colspan="9 if has_discount else 8" style="text-align:left;background-color:#f2f2f2;font-weight:bold;">
                                     Down Payments / الدفعات المقدمة
                                 </td>
                             </tr>
@@ -532,7 +537,7 @@
                                     <span t-esc="l.price_unit"
                                           t-options='{"widget": "monetary", "display_currency": l.currency_id}'/>
                                 </td>
-                                <td>
+                                <td t-if="has_discount">
 
                                 </td>
 
@@ -658,7 +663,9 @@
                             <!--                                    : إجمالي المبلغ المستحق-->
                             <!--                                </td>-->
                             <!--                            </tr>-->
-                            <tr t-if="o.retention_deduct_amount">
+                            <t t-set="fixed_payable"
+                               t-value="o.amount_total - (o.retention_deduct_amount or 0.0)"/>
+                            <tr t-if="not o.currency_id.is_zero(o.retention_deduct_amount or 0.0)">
                                 <td width="35%" style="border:1px solid #000000;">
                                     Retention
                                     <span t-if="o.retention_percent">
@@ -688,14 +695,11 @@
 
                                 </td>
                             </tr>
-                            <tr>
+                            <tr t-if="not o.currency_id.is_zero(o.retention_deduct_amount or 0.0)">
                                 <td width="35%" style="border:1px solid #000000;">
                                     Total Due Amount
                                 </td>
                                 <td width="23%" style="text-align:center;border:1px solid #000000">
-                                    <t t-set="fixed_payable"
-                                       t-value="o.amount_total - (o.retention_deduct_amount or 0.0)"/>
-
                                     <span t-esc="fixed_payable"
                                           t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                 </td>
