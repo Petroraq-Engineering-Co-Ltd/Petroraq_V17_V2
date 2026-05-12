@@ -14,14 +14,14 @@
 
         <!-- HEADER: Before Discount AFTER Unit Price -->
         <xpath expr="//th[@name='th_priceunit']" position="after">
-            <th name="th_before_discount" class="text-end">
+            <th name="th_before_discount" class="text-end" t-if="not doc.currency_id.is_zero(doc.discount_amount_total or 0.0)">
                 <span>Before Discount</span>
             </th>
         </xpath>
 
         <!-- BODY: Before Discount AFTER Unit Price -->
         <xpath expr="//td[@name='td_priceunit']" position="after">
-            <td name="td_before_discount" class="text-end">
+            <td name="td_before_discount" class="text-end" t-if="not doc.currency_id.is_zero(doc.discount_amount_total or 0.0)">
                 <t t-if="not line.display_type">
                     <t t-set="currency" t-value="doc.currency_id"/>
                     <t t-set="qty" t-value="line.product_uom_qty or 0.0"/>

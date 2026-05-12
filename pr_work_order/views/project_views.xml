@@ -10,4 +10,26 @@
             </xpath>
         </field>
     </record>
+
+    <record id="view_project_milestone_form_inherit_pr_invoice_amount" model="ir.ui.view">
+        <field name="name">project.milestone.form.pr.invoice.amount</field>
+        <field name="model">project.milestone</field>
+        <field name="inherit_id" ref="project.project_milestone_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='deadline']" position="after">
+                <field name="petroraq_invoice_amount"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_milestone_tree_inherit_pr_invoice_amount" model="ir.ui.view">
+        <field name="name">project.milestone.tree.pr.invoice.amount</field>
+        <field name="model">project.milestone</field>
+        <field name="inherit_id" ref="project.project_milestone_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='deadline']" position="after">
+                <field name="petroraq_invoice_amount" optional="show"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>
