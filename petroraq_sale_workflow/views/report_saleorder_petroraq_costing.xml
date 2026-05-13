@@ -7,6 +7,15 @@
         <xpath expr="//th[@name='th_taxes']" position="replace"/>
         <xpath expr="//td[@name='td_taxes']" position="replace"/>
 
+        <xpath expr="//td[@name='td_priceunit']" position="replace">
+            <td name="td_priceunit" class="text-end" t-if="not line.display_type">
+                <t t-set="price_raw" t-value="line.price_unit or 0.0"/>
+                <t t-set="price_str" t-value="'%.8f' % price_raw"/>
+                <t t-set="price_clean" t-value="price_str.rstrip('0').rstrip('.') if '.' in price_str else price_str"/>
+                <span t-esc="price_clean"/>
+            </td>
+        </xpath>
+
         <!-- Rename Amount header -->
         <xpath expr="//th[@name='th_subtotal']/span" position="replace">
             <span>Total</span>
@@ -14,14 +23,16 @@
 
         <!-- HEADER: Before Discount AFTER Unit Price -->
         <xpath expr="//th[@name='th_priceunit']" position="after">
-            <th name="th_before_discount" class="text-end">
+            <th name="th_before_discount" class="text-end"
+                t-if="not doc.currency_id.is_zero(doc.discount_amount_total or 0.0)">
                 <span>Before Discount</span>
             </th>
         </xpath>
 
         <!-- BODY: Before Discount AFTER Unit Price -->
         <xpath expr="//td[@name='td_priceunit']" position="after">
-            <td name="td_before_discount" class="text-end">
+            <td name="td_before_discount" class="text-end"
+                t-if="not doc.currency_id.is_zero(doc.discount_amount_total or 0.0)">
                 <t t-if="not line.display_type">
                     <t t-set="currency" t-value="doc.currency_id"/>
                     <t t-set="qty" t-value="line.product_uom_qty or 0.0"/>

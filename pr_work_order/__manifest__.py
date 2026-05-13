@@ -1,6 +1,6 @@
 {
     "name": "PR Work Order",
-    "version": "17.0.1.0.6",
+    "version": "17.0.1.0.7",
     "category": "Projects",
     "summary": "Construction Work Orders integrated with Sales, Accounting, Inventory",
     "author": "Petroraq Engineering",
@@ -8,6 +8,7 @@
     "license": "LGPL-3",
     "depends": [
         "sale_management",
+        "sale_project",
         "project",
         "analytic",
         "account",
