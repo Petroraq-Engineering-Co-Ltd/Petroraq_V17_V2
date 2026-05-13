@@ -169,9 +169,13 @@
 
         <xpath expr="//td[@name='td_quantity']" position="replace">
             <td name="td_quantity" class="text-end">
-                <span t-field="line.product_uom_qty">2.00</span>
+                <t t-set="qty_raw" t-value="line.product_uom_qty or 0.0"/>
+                <t t-set="qty_str" t-value="'%.8f' % qty_raw"/>
+                <t t-set="qty_clean" t-value="qty_str.rstrip('0').rstrip('.') if '.' in qty_str else qty_str"/>
+                <span t-esc="qty_clean"/>
             </td>
         </xpath>
+
 
         <xpath expr="//td[@name='td_quantity']" position="after">
             <td name="td_unit" class="text-start">
