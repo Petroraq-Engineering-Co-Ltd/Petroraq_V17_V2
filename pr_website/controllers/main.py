@@ -144,9 +144,9 @@ class CareersController(http.Controller):
             'legally_required': post.get('legally_required'),
             'salary_expected': post.get('salary_expected'),
             'type_id': int(post['type_id']) if post.get('type_id') and post.get('type_id').isdigit() else False,
+            'experience': int(post['experience']) if post.get('experience') and post.get(
+                'experience').isdigit() else False,
             'description': (
-                f"Experience (years): {post.get('experience') or ''}\n"
-                f"Highest Qualification ID: {post.get('type_id') or ''}"
             ),
         }
 

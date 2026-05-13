@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hr_applicant_view_inherit_salary_info" model="ir.ui.view">
+        <field name="name">hr.applicant.view.inherit.salary.info</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//group[@name='recruitment_contract']" position="attributes">
+                <attribute name="string">Salary Info</attribute>
+            </xpath>
+            <xpath expr="//field[@name='type_id']" position="after">
+                <field name="experience" />
+            </xpath>
+
+
+        </field>
+    </record>
+</odoo>
