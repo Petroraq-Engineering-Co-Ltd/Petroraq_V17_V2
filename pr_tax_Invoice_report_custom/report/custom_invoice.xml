@@ -477,7 +477,11 @@
                                     <span t-esc="l.name"/>
                                 </td>
                                 <td>
-                                    <span t-esc="l.quantity"/>
+                                    <t t-set="qty_raw" t-value="l.quantity or 0.0"/>
+                                    <t t-set="qty_str" t-value="'%.8f' % qty_raw"/>
+                                    <t t-set="qty_clean"
+                                       t-value="qty_str.rstrip('0').rstrip('.') if '.' in qty_str else qty_str"/>
+                                    <span t-esc="qty_clean"/>
                                 </td>
                                 <td>
                                     <span t-esc="l.product_uom_id.name"/>
@@ -512,7 +516,8 @@
                                 </td>
                             </tr>
                             <tr t-if="downpayment_lines">
-                                <td t-att-colspan="9 if has_discount else 8" style="text-align:left;background-color:#f2f2f2;font-weight:bold;">
+                                <td t-att-colspan="9 if has_discount else 8"
+                                    style="text-align:left;background-color:#f2f2f2;font-weight:bold;">
                                     Down Payments / الدفعات المقدمة
                                 </td>
                             </tr>
