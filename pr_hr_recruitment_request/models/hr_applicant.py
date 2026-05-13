@@ -8,5 +8,7 @@ class Applicant(models.Model):
     will_relocate = fields.Selection([('yes', 'Yes'), ('no', 'No')], string='Willing to Relocate')
     notice_period = fields.Char(string='Notice Period')
     legally_required = fields.Selection([('yes', 'Yes'), ('no', 'No')], string='Authorized to Work in Saudi Arabia')
+    availability = fields.Char(string='Joining Availability')
+    experience = fields.Char(string='Experience In Years')
 
 

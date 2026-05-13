@@ -12,6 +12,7 @@
         'security/ir.model.access.csv',
         'data/hr_recruitment_request_sequence.xml',
         'views/hr_recruitment_request_views.xml',
+        'views/hr_applicant_views_ext.xml',
         'views/hr_recruitment_request_approvals.xml',
     ],
     'application': True,
