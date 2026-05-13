@@ -1265,8 +1265,7 @@
                 .job-detail-hero {
                 position: relative;
                 min-height: 400px;
-                background: url('/pr_website/static/src/img/hero-bg.png') center/cover
-                no-repeat;
+                background: url('/pr_website/static/src/img/hero-bg.png') center/cover no-repeat;
                 display: flex;
                 align-items: center;
                 overflow: hidden;
@@ -1509,7 +1508,7 @@
                 max-width: 900px;
                 }
 
-                /* ===== Apply Section ===== */
+                /* ===== Apply Section - FIXED COLORS ===== */
                 .apply-section {
                 padding: 100px 0;
                 background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -1578,28 +1577,50 @@
                 color: var(--gold);
                 margin-left: 4px;
                 }
+
+                /* FIXED FORM INPUTS - PROPER CONTRAST */
                 .form-control, .form-select {
                 width: 100%;
                 padding: 18px 22px;
-                background: rgba(255,255,255,0.1);
-                border: 2px solid rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.12) !important;
+                border: 2px solid rgba(255,255,255,0.25);
                 border-radius: 16px;
-                color: #fff;
+                color: #ffffff !important;
                 font-size: 15px;
                 transition: all 0.4s ease;
                 backdrop-filter: blur(20px);
                 font-family: inherit;
+                min-height: 60px;
+                box-sizing: border-box;
                 }
                 .form-control::placeholder {
-                color: rgba(255,255,255,0.6);
+                color: rgba(255,255,255,0.5) !important;
                 }
                 .form-control:focus, .form-select:focus {
                 outline: none;
-                border-color: var(--gold);
+                border-color: var(--gold) !important;
                 box-shadow: 0 0 0 4px rgba(216,154,43,0.3);
-                background: rgba(255,255,255,0.15);
+                background: rgba(255,255,255,0.18) !important;
                 transform: translateY(-2px);
+                color: #ffffff !important;
                 }
+
+                /* FIXED SELECT OPTIONS - WHITE TEXT ON DARK BG */
+                .form-select option {
+                background: #1a2a40 !important;
+                color: #ffffff !important;
+                padding: 10px;
+                }
+                .form-select option:checked {
+                background: var(--gold) !important;
+                color: #ffffff !important;
+                }
+
+                /* Firefox select styling */
+                .form-select::-moz-focus-inner {
+                border: 0;
+                }
+
                 .full-width {
                 grid-column: 1 / -1;
                 }
@@ -1612,6 +1633,7 @@
                 border-radius: 16px;
                 padding: 20px;
                 transition: all 0.4s ease;
+                cursor: pointer;
                 }
                 .file-upload:hover {
                 border-color: var(--gold);
@@ -1635,10 +1657,12 @@
                 margin-top: 8px;
                 display: block;
                 }
+
+                /* FIXED SUBMIT BUTTON */
                 .submit-btn {
                 grid-column: 1 / -1;
                 background: linear-gradient(135deg, var(--gold), #e5b55b);
-                color: #fff;
+                color: #fff !important;
                 border: none;
                 padding: 22px 50px;
                 border-radius: 20px;
@@ -1656,13 +1680,20 @@
                 justify-content: center;
                 gap: 15px;
                 font-family: inherit;
+                pointer-events: auto;
                 }
-                .submit-btn:hover {
+                .submit-btn:hover:not(:disabled) {
                 transform: translateY(-8px) scale(1.05);
                 box-shadow: 0 35px 70px rgba(216,154,43,0.7);
                 background: linear-gradient(135deg, #e5b55b, var(--gold));
                 }
-                .submit-btn:active {
+                .submit-btn:disabled {
+                opacity: 0.7;
+                cursor: not-allowed !important;
+                transform: none !important;
+                pointer-events: none !important;
+                }
+                .submit-btn:active:not(:disabled) {
                 transform: translateY(-4px) scale(1.02);
                 }
 
@@ -1679,6 +1710,8 @@
                 margin-bottom: 30px;
                 backdrop-filter: blur(20px);
                 animation: slideUp 0.6s ease;
+                position: relative;
+                z-index: 1000;
                 }
                 .error-close {
                 margin-left: auto;
@@ -1690,36 +1723,46 @@
                 padding: 0 10px;
                 }
 
-                /* Location Suggestions */
+                /* ENHANCED Location Suggestions */
                 .location-suggestions {
                 position: absolute;
                 top: 100%;
                 left: 0;
                 right: 0;
-                background: rgba(10,37,64,0.95);
+                background: rgba(10,37,64,0.98);
                 border: 2px solid rgba(216,154,43,0.4);
                 border-radius: 16px;
-                margin-top: 10px;
-                max-height: 200px;
+                margin-top: 8px;
+                max-height: 240px;
                 overflow-y: auto;
-                z-index: 100;
-                backdrop-filter: blur(20px);
+                z-index: 1000;
+                backdrop-filter: blur(25px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+                display: none;
                 }
                 .suggestion-item {
                 display: block;
                 width: 100%;
-                padding: 15px 20px;
+                padding: 16px 24px;
                 background: transparent;
                 border: none;
-                color: #fff;
+                color: #ffffff;
                 text-align: left;
                 cursor: pointer;
                 font-size: 15px;
-                transition: all 0.3s ease;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
                 }
-                .suggestion-item:hover {
-                background: rgba(216,154,43,0.2);
-                padding-left: 25px;
+                .suggestion-item:hover, .suggestion-item:focus {
+                background: linear-gradient(90deg, rgba(216,154,43,0.2), rgba(216,154,43,0.1));
+                padding-left: 32px;
+                color: #ffffff;
+                outline: none;
+                }
+                .suggestion-item:active {
+                background: rgba(216,154,43,0.3);
                 }
 
                 @keyframes rotateGlow {
@@ -1740,14 +1783,16 @@
                 .info-grid { grid-template-columns: 1fr; }
                 .job-detail-hero { min-height: 350px; }
                 .job-card-detail:hover, .job-description-section:hover { transform: translateY(-10px) scale(1.01); }
+                .location-suggestions { right: -15px; left: -15px; }
                 }
             </style>
 
+            <!-- ERROR POPUP -->
             <t t-if="error_message">
-                <div class="error-popup animate-slide-up" id="errorPopup">
+                <div class="error-popup animate-slide-up" id="errorPopup" role="alert">
                     <i class="fa fa-exclamation-triangle"></i>
                     <span t-esc="error_message"/>
-                    <button type="button" class="error-close" id="errorClose">×</button>
+                    <button type="button" class="error-close" id="errorClose" aria-label="Close">×</button>
                 </div>
             </t>
 
@@ -1862,7 +1907,7 @@
                             </div>
 
                             <form t-att-action="'/job/%s/apply' % job.id" method="post" enctype="multipart/form-data"
-                                  class="form-grid">
+                                  class="form-grid" id="jobApplicationForm">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                                 <div class="form-group">
@@ -1882,8 +1927,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">Current Location</label>
-                                    <input class="form-control" name="partner_location" placeholder="City, Country"
-                                           required="required"/>
+                                    <input class="form-control" name="partner_location" id="locationInput"
+                                           placeholder="City, Country" required="required"/>
                                     <div class="location-suggestions" id="locationSuggestions"></div>
                                 </div>
                                 <div class="form-group">
@@ -1942,7 +1987,7 @@
                                     </div>
                                     <small class="file-help">PDF, DOC, DOCX (Max 5MB)</small>
                                 </div>
-                                <button class="submit-btn" type="submit">
+                                <button class="submit-btn" type="submit" id="submitBtn">
                                     <i class="fa fa-rocket"></i>
                                     Submit Application
                                 </button>
@@ -1951,118 +1996,418 @@
                     </div>
                 </section>
             </div>
-
             <script type="text/javascript">
-                document.addEventListener('DOMContentLoaded', function () {
-                // Scroll animations
-                const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -100px 0px'
-                };
-                const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
+                <![CDATA[
+document.addEventListener('DOMContentLoaded', function () {
+    var isSubmitting = false;
+
+    // =========================================================
+    // Helpers
+    // =========================================================
+    function showFormError(message) {
+        var popup = document.getElementById('errorPopup');
+        var messageBox = document.getElementById('errorMessage');
+
+        if (popup && messageBox) {
+            messageBox.textContent = message;
+            popup.style.display = 'block';
+
+            try {
+                popup.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            } catch (err) {
+                window.scrollTo(0, 0);
+            }
+        } else {
+            alert(message);
+        }
+    }
+
+    function clearSuggestions(suggestionsList) {
+        if (suggestionsList) {
+            suggestionsList.innerHTML = '';
+            suggestionsList.style.display = 'none';
+        }
+    }
+
+    function resetSubmitButton(submitBtn) {
+        isSubmitting = false;
+
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa fa-rocket"></i> Submit Application';
+            submitBtn.style.pointerEvents = 'auto';
+            submitBtn.style.opacity = '1';
+        }
+    }
+
+    function getFieldValue(form, fieldName) {
+        var field = form.querySelector('[name="' + fieldName + '"]');
+        return field ? String(field.value || '').trim() : '';
+    }
+
+    function focusField(form, fieldName) {
+        var field = form.querySelector('[name="' + fieldName + '"]');
+        if (field && typeof field.focus === 'function') {
+            field.focus();
+        }
+    }
+
+    function validateRegex(form, fieldName, pattern, message) {
+        var value = getFieldValue(form, fieldName);
+
+        if (!pattern.test(value)) {
+            showFormError(message);
+            focusField(form, fieldName);
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateNumberRange(form, fieldName, minValue, maxValue) {
+        var value = getFieldValue(form, fieldName);
+        var label = fieldName.replace(/_/g, ' ');
+
+        if (!/^[0-9]+$/.test(value)) {
+            showFormError('Please enter a valid numeric value for ' + label + '.');
+            focusField(form, fieldName);
+            return false;
+        }
+
+        var numberValue = parseInt(value, 10);
+
+        if (numberValue < minValue || numberValue > maxValue) {
+            showFormError(
+                label.replace(/\b\w/g, function (c) {
+                    return c.toUpperCase();
+                }) + ' must be between ' + minValue + ' and ' + maxValue + '.'
+            );
+            focusField(form, fieldName);
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateYesNo(form, fieldName, message) {
+        var value = getFieldValue(form, fieldName);
+
+        if (value !== 'yes' && value !== 'no') {
+            showFormError(message);
+            focusField(form, fieldName);
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateApplicationForm(form) {
+        // Same validation logic as backend
+        var validators = [
+            {
+                field: 'partner_name',
+                pattern: /^[A-Za-z][A-Za-z\s'.-]{1,79}$/,
+                message: 'Please enter a valid full name.'
+            },
+            {
+                field: 'email_from',
+                pattern: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+                message: 'Please enter a valid email address.'
+            },
+            {
+                field: 'partner_phone',
+                pattern: /^\+?[0-9][0-9\s().-]{7,19}$/,
+                message: 'Please enter a valid phone number.'
+            },
+            {
+                field: 'partner_location',
+                pattern: /^[A-Za-z0-9][A-Za-z0-9,\s'.-]{1,99}$/,
+                message: 'Please enter a valid location.'
+            },
+            {
+                field: 'linkedin_profile',
+                pattern: /^(https?:\/\/)?([a-z]{2,3}\.)?linkedin\.com\/.*$/i,
+                message: 'Please enter a valid LinkedIn URL.'
+            }
+        ];
+
+        for (var i = 0; i < validators.length; i++) {
+            var validator = validators[i];
+
+            if (!validateRegex(
+                form,
+                validator.field,
+                validator.pattern,
+                validator.message
+            )) {
+                return false;
+            }
+        }
+
+        if (!validateNumberRange(form, 'experience', 0, 60)) {
+            return false;
+        }
+
+        if (!validateNumberRange(form, 'salary_expected', 1, 100000000)) {
+            return false;
+        }
+
+        if (!validateNumberRange(form, 'notice_period', 0, 3650)) {
+            return false;
+        }
+
+        if (!validateYesNo(
+            form,
+            'will_relocate',
+            'Please select a valid answer for relocation.'
+        )) {
+            return false;
+        }
+
+        if (!validateYesNo(
+            form,
+            'legally_required',
+            'Please select a valid legal authorization option.'
+        )) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function createSuggestionButton(value) {
+        var button = document.createElement('button');
+
+        button.type = 'button';
+        button.className = 'suggestion-item';
+        button.dataset.value = value;
+        button.textContent = value;
+
+        return button;
+    }
+
+    function renderSuggestionMessage(suggestionsList, message) {
+        suggestionsList.innerHTML = '';
+
+        var div = document.createElement('div');
+        div.style.padding = '15px 20px';
+        div.style.color = 'rgba(255,255,255,0.6)';
+        div.style.textAlign = 'center';
+        div.style.fontStyle = 'italic';
+        div.textContent = message;
+
+        suggestionsList.appendChild(div);
+        suggestionsList.style.display = 'block';
+    }
+
+    // =========================================================
+    // Scroll animations
+    // =========================================================
+    if ('IntersectionObserver' in window) {
+        var observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                entry.target.classList.add('animate-loaded');
+                    entry.target.classList.add('animate-loaded');
                 }
-                });
-                }, observerOptions);
+            });
+        }, observerOptions);
 
-                document.querySelectorAll('.job-detail-hero, .job-card-detail, .job-description-section,
-                .apply-card').forEach(el => {
-                observer.observe(el);
-                });
+        document.querySelectorAll(
+            '.job-detail-hero, .job-card-detail, .job-description-section, .apply-card'
+        ).forEach(function (el) {
+            observer.observe(el);
+        });
+    }
 
-                // Error popup
-                var errorClose = document.getElementById('errorClose');
-                if (errorClose) {
-                errorClose.addEventListener('click', function () {
-                document.getElementById('errorPopup').remove();
-                });
-                }
+    // =========================================================
+    // Error popup close
+    // =========================================================
+    var errorClose = document.getElementById('errorClose');
 
-                // Form submission
-                var form = document.querySelector('.form-grid');
-                if (form) {
-                form.addEventListener('submit', function () {
-                var btn = this.querySelector('.submit-btn');
-                if (btn) {
-                btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
-                btn.disabled = true;
-                }
-                });
-                }
+    if (errorClose) {
+        errorClose.addEventListener('click', function () {
+            var popup = document.getElementById('errorPopup');
 
-                // Location suggestions
-                var locationInput = document.querySelector('input[name="partner_location"]');
-                var suggestionsList = document.getElementById('locationSuggestions');
-                if (locationInput &amp;&amp; suggestionsList) {
-                var timer = null;
+            if (popup) {
+                popup.style.display = 'none';
+            }
+        });
+    }
 
-                suggestionsList.addEventListener('click', function(ev) {
-                var target = ev.target.closest('.suggestion-item');
-                if (target) {
-                locationInput.value = target.dataset.value || target.textContent;
-                suggestionsList.innerHTML = '';
-                }
-                });
+    // =========================================================
+    // Form submit validation
+    // =========================================================
+    var form = document.getElementById('jobApplicationForm');
+    var submitBtn = document.getElementById('submitBtn');
 
-                locationInput.addEventListener('input', function() {
-                var term = this.value.trim();
-                clearTimeout(timer);
-                if (term.length
-                &lt;
-                2) {
-                suggestionsList.innerHTML = '';
+    if (form && submitBtn) {
+        form.addEventListener('submit', function (e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+
+            if (!validateApplicationForm(form)) {
+                e.preventDefault();
+                resetSubmitButton(submitBtn);
+                return false;
+            }
+
+            isSubmitting = true;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.style.pointerEvents = 'none';
+            submitBtn.style.opacity = '0.7';
+        });
+    }
+
+    // =========================================================
+    // Location suggestions
+    // =========================================================
+    var locationInput = document.getElementById('locationInput');
+    var suggestionsList = document.getElementById('locationSuggestions');
+
+    if (locationInput && suggestionsList) {
+        var timer = null;
+
+        suggestionsList.addEventListener('click', function (ev) {
+            var target = ev.target.closest('.suggestion-item');
+
+            if (!target) {
                 return;
-                }
-                timer = setTimeout(() => {
+            }
+
+            locationInput.value = target.dataset.value || target.textContent.trim();
+            clearSuggestions(suggestionsList);
+            locationInput.focus();
+        });
+
+        locationInput.addEventListener('input', function () {
+            var term = this.value.trim();
+
+            clearTimeout(timer);
+
+            if (term.length < 2) {
+                clearSuggestions(suggestionsList);
+                return;
+            }
+
+            renderSuggestionMessage(suggestionsList, 'Searching locations...');
+
+            timer = setTimeout(function () {
                 fetch('/jobs/location_suggest', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                jsonrpc: '2.0',
-                method: 'call',
-                params: {term: term},
-                id: Date.now()
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        method: 'call',
+                        params: {
+                            term: term
+                        },
+                        id: new Date().getTime()
+                    })
                 })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    return response.json();
                 })
-                .then(res => res.json())
-                .then(data => {
-                var suggestions = data.result || [];
-                suggestionsList.innerHTML = suggestions.map(item => {
-                var safe = String(item).replace(/"/g, '&quot;');
-                return `<button type="button" class="suggestion-item" data-value="${safe}">${item}</button>`;
-                }).join('');
+                .then(function (data) {
+                    var suggestions = [];
+
+                    if (data && Array.isArray(data.result)) {
+                        suggestions = data.result;
+                    } else if (data && data.result) {
+                        suggestions = [data.result];
+                    }
+
+                    suggestionsList.innerHTML = '';
+
+                    if (!suggestions.length) {
+                        renderSuggestionMessage(suggestionsList, 'No locations found');
+                        return;
+                    }
+
+                    suggestions.slice(0, 8).forEach(function (item) {
+                        var value = String(item || '').trim();
+
+                        if (value) {
+                            suggestionsList.appendChild(createSuggestionButton(value));
+                        }
+                    });
+
+                    suggestionsList.style.display = 'block';
                 })
-                .catch(() => { suggestionsList.innerHTML = ''; });
-                }, 300);
+                .catch(function (error) {
+                    console.error('Location suggestion error:', error);
+                    renderSuggestionMessage(suggestionsList, 'Unable to fetch locations');
                 });
+            }, 400);
+        });
 
-                locationInput.addEventListener('blur', () => {
-                setTimeout(() => { suggestionsList.innerHTML = ''; }, 200);
-                });
-                }
+        document.addEventListener('click', function (e) {
+            if (!locationInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+                clearSuggestions(suggestionsList);
+            }
+        });
 
-                // Hero parallax
-                window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const hero = document.querySelector('.job-detail-hero');
-                if (hero) {
-                hero.style.transform = `translateY(${scrolled * 0.3}px)`;
-                }
-                });
+        locationInput.addEventListener('focus', function () {
+            if (suggestionsList.innerHTML.trim()) {
+                suggestionsList.style.display = 'block';
+            }
+        });
+    }
 
-                // Enhanced hover effects
-                document.querySelectorAll('.info-card, .job-card-detail, .job-description-section').forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-15px) scale(1.02)';
-                });
-                card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-                });
-                });
-                });
+    // =========================================================
+    // Hero parallax
+    // =========================================================
+    window.addEventListener('scroll', function () {
+        var scrolled = window.pageYOffset || document.documentElement.scrollTop;
+        var hero = document.querySelector('.job-detail-hero');
+
+        if (hero) {
+            hero.style.transform = 'translateY(' + (scrolled * 0.3) + 'px)';
+        }
+    });
+
+    // =========================================================
+    // Hover effects
+    // =========================================================
+    document.querySelectorAll(
+        '.info-card, .job-card-detail, .job-description-section'
+    ).forEach(function (card) {
+        card.addEventListener('mouseenter', function () {
+            this.style.transform = 'translateY(-15px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // =========================================================
+    // Reset submit state on browser back / refresh cache
+    // =========================================================
+    window.addEventListener('pageshow', function () {
+        resetSubmitButton(submitBtn);
+    });
+});
+]]>
             </script>
+
         </t>
     </template>
     <template id="careers_thank_you" name="Careers Thank You">
