@@ -757,6 +757,14 @@ class HrLeaveRequest(models.Model):
 
     # region [Crud]
 
+    @api.model
+    def _validate_leave_request_create_vals(self, vals):
+        validation_record = self.new(dict(vals))
+        validation_record._compute_requested_days()
+        validation_record._check_leave_request_weekend_dates()
+        validation_record._check_annual_leave_start_date()
+        validation_record._check_requested_days_with_allocation()
+
     @api.model_create_multi
     def create(self, vals_list):
         '''
@@ -765,6 +773,7 @@ class HrLeaveRequest(models.Model):
         for vals in vals_list:
             if not vals.get("name"):
                 vals["name"] = self.env['ir.sequence'].next_by_code('hr.holidays.leave.request.seq.code') or '/'
+            self._validate_leave_request_create_vals(vals)
 
         records = super().create(vals_list)
         hr_supervisor_group_ids = [self.env.ref('pr_hr_holidays.custom_group_hr_holidays_supervisor').id]
@@ -781,8 +790,6 @@ class HrLeaveRequest(models.Model):
             if hr_manager_ids:
                 rec.hr_manager_ids = hr_manager_ids.ids
 
-            rec._check_leave_request_weekend_dates()
-            rec._check_requested_days_with_allocation()
             rec.sudo()._auto_progress_approval_route()
             if rec.state == "draft":
                 rec.sudo()._send_manager_email()

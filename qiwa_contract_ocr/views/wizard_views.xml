@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_contract_ocr_wizard_form" model="ir.ui.view">
+        <field name="name">contract.ocr.wizard.form</field>
+        <field name="model">contract.ocr.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Load Qiwa Contract">
+                <group>
+                    <field name="applicant_id" invisible="not applicant_id"/>
+                    <field name="pdf_file" filename="filename" required="1"/>
+                    <field name="filename" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_process_pdf" type="object" string="Process Contract" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_qiwa_contract_processor_tree" model="ir.ui.view">
+        <field name="name">qiwa.contract.processor.tree</field>
+        <field name="model">qiwa.contract.processor</field>
+        <field name="arch" type="xml">
+            <tree string="Qiwa Contracts">
+                <field name="name"/>
+                <field name="applicant_id"/>
+                <field name="employee_name"/>
+                <field name="contract_number"/>
+                <field name="employee_id"/>
+                <field name="contract_id"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'processed'"
+                       decoration-warning="state in ('draft', 'processing')"
+                       decoration-danger="state == 'error'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_qiwa_contract_processor_form" model="ir.ui.view">
+        <field name="name">qiwa.contract.processor.form</field>
+        <field name="model">qiwa.contract.processor</field>
+        <field name="arch" type="xml">
+            <form string="Qiwa Contract OCR">
+                <header>
+                    <button name="action_process_contract" type="object" string="Process Contract"
+                            class="btn-primary" invisible="state == 'processing'"/>
+                    <button name="action_open_employee" type="object" string="Employee"
+                            class="btn-secondary" invisible="not employee_id"/>
+                    <button name="action_open_contract" type="object" string="Contract"
+                            class="btn-secondary" invisible="not contract_id"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,processing,processed,error"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_employee" type="object" class="oe_stat_button"
+                                icon="fa-user" invisible="not employee_id" string="Employee"/>
+                        <button name="action_open_contract" type="object" class="oe_stat_button"
+                                icon="fa-file-text-o" invisible="not contract_id" string="Contract"/>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="applicant_id"/>
+                            <field name="filename"/>
+                            <field name="pdf_file" filename="filename"/>
+                            <field name="attachment_id" invisible="not attachment_id"/>
+                            <field name="processed_at" invisible="not processed_at"/>
+                        </group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="contract_id" readonly="1"/>
+                            <field name="error_message" invisible="state != 'error'" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Contract">
+                            <group>
+                                <group string="Qiwa Details">
+                                    <field name="contract_number"/>
+                                    <field name="contract_type"/>
+                                    <field name="contract_execution_date"/>
+                                    <field name="commencement_date"/>
+                                    <field name="contract_start"/>
+                                    <field name="contract_end"/>
+                                    <field name="contract_execution_location"/>
+                                </group>
+                                <group string="Terms">
+                                    <field name="contract_period_text"/>
+                                    <field name="contract_period_months"/>
+                                    <field name="probation_period_days"/>
+                                    <field name="notice_period_days"/>
+                                    <field name="annual_leave_days"/>
+                                    <field name="working_days_per_week"/>
+                                    <field name="working_hours_per_week"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Employee">
+                            <group>
+                                <group>
+                                    <field name="employee_name"/>
+                                    <field name="nationality"/>
+                                    <field name="id_type"/>
+                                    <field name="iqama_no"/>
+                                    <field name="passport_no"/>
+                                    <field name="gender"/>
+                                    <field name="marital_status"/>
+                                    <field name="birth_date"/>
+                                </group>
+                                <group>
+                                    <field name="employee_national_address"/>
+                                    <field name="education_level"/>
+                                    <field name="speciality"/>
+                                    <field name="mobile_number"/>
+                                    <field name="email"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Job">
+                            <group>
+                                <group>
+                                    <field name="occupation"/>
+                                    <field name="job_title"/>
+                                    <field name="work_domain"/>
+                                </group>
+                                <group>
+                                    <field name="work_location"/>
+                                    <field name="work_type"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Salary">
+                            <group>
+                                <group>
+                                    <field name="basic_salary"/>
+                                    <field name="housing_allowance"/>
+                                    <field name="transport_allowance"/>
+                                    <field name="total_salary"/>
+                                    <field name="due_date"/>
+                                </group>
+                                <group>
+                                    <field name="bank_name"/>
+                                    <field name="iban"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Employer">
+                            <group>
+                                <group>
+                                    <field name="employer_name"/>
+                                    <field name="establishment_type"/>
+                                    <field name="employer_cr"/>
+                                    <field name="employer_national_address"/>
+                                    <field name="employer_phone"/>
+                                    <field name="employer_mobile"/>
+                                    <field name="employer_email"/>
+                                </group>
+                                <group>
+                                    <field name="signatory_representative"/>
+                                    <field name="signatory_id_no"/>
+                                    <field name="signatory_capacity"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Raw Text" invisible="not raw_text">
+                            <field name="raw_text" nolabel="1" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_contract_ocr_wizard" model="ir.actions.act_window">
+        <field name="name">Load Qiwa Contract</field>
+        <field name="res_model">contract.ocr.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_qiwa_contract_processor" model="ir.actions.act_window">
+        <field name="name">Qiwa Contracts</field>
+        <field name="res_model">qiwa.contract.processor</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_qiwa_ocr_root"
+              name="Qiwa Contracts"
+              parent="hr.menu_hr_root"
+              action="action_qiwa_contract_processor"
+              sequence="10"/>
+</odoo>

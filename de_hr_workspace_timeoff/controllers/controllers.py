@@ -42,17 +42,18 @@ class LeaveRequestTemplate(http.Controller):
         hr_manager_ids = request.env['res.users'].sudo().search([('groups_id', 'in', hr_manager_group_ids)])
         notes = kw.get('message') if kw.get('message') else False
         try:
-            leave_request_id = request.env['pr.hr.leave.request'].sudo().create({
-                'employee_id': employee_id,
-                'leave_type_id': leave_type_id,
-                'date_from': date_from,
-                'date_to': date_to,
-                'note': notes if notes else False,
-                'company_id': employee_obj.company_id.id if employee_obj.company_id else request.env.company.id,
-                'employee_manager_id': employee_manager_id.id if employee_manager_id else False,
-                'hr_supervisor_ids': hr_supervisor_ids.ids if hr_supervisor_ids else False,
-                'hr_manager_ids': hr_manager_ids.ids if hr_manager_ids else False,
-            })
+            with request.env.cr.savepoint():
+                leave_request_id = request.env['pr.hr.leave.request'].sudo().create({
+                    'employee_id': employee_id,
+                    'leave_type_id': leave_type_id,
+                    'date_from': date_from,
+                    'date_to': date_to,
+                    'note': notes if notes else False,
+                    'company_id': employee_obj.company_id.id if employee_obj.company_id else request.env.company.id,
+                    'employee_manager_id': employee_manager_id.id if employee_manager_id else False,
+                    'hr_supervisor_ids': hr_supervisor_ids.ids if hr_supervisor_ids else False,
+                    'hr_manager_ids': hr_manager_ids.ids if hr_manager_ids else False,
+                })
         except (ValidationError, UserError) as ex:
             current_user = request.env.user
             current_employee_id = request.env["hr.employee"].sudo().search([("user_id", "=", current_user.id)], limit=1)

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_applicant_view_form_qiwa_contract" model="ir.ui.view">
+        <field name="name">hr.applicant.view.form.qiwa.contract</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='create_employee_from_applicant']" position="attributes">
+                <attribute name="string">Load Contract</attribute>
+                <attribute name="class">oe_highlight</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='application_status']" position="after">
+                <field name="show_load_qiwa_contract" invisible="1"/>
+                <field name="qiwa_contract_processor_id" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_qiwa_contract_processor"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o"
+                        type="object"
+                        invisible="not qiwa_contract_processor_id"
+                        string="Qiwa Contract"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

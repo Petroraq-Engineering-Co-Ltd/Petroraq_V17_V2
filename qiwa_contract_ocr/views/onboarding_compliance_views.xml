@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="de_hr_workspace.menu_my_employee_approvals" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_supervisor')), (4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
+    </record>
+
+    <record id="de_hr_workspace.hr_approvals_menu_root" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_supervisor')), (4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
+    </record>
+
+    <record id="hr_applicant_onboarding_form_view_compliance" model="ir.ui.view">
+        <field name="name">hr.applicant.onboarding.form.view.compliance</field>
+        <field name="model">hr.applicant.onboarding</field>
+        <field name="inherit_id" ref="pr_hr_recruitment.hr_applicant_onboarding_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='generate_checklist']" position="after">
+                <button name="action_create_compliance_request"
+                        string="CREATE COMPLIANCE REQUEST"
+                        class="btn-primary"
+                        type="object"
+                        groups="pr_hr_recruitment_request.group_onboarding_supervisor"
+                        invisible="not employee_id"/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_compliance_requests"
+                        class="oe_stat_button"
+                        icon="fa-check-square-o"
+                        type="object"
+                        invisible="not compliance_request_count">
+                    <field name="compliance_request_count" widget="statinfo" string="Compliance"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//field[@name='employee_id']" position="after">
+                <field name="employee_category" readonly="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='checklist_ids']/tree/field[@name='checklist_item']" position="after">
+                <field name="request_type"/>
+                <field name="compliance_request_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_compliance_request_search" model="ir.ui.view">
+        <field name="name">hr.onboarding.compliance.request.search</field>
+        <field name="model">hr.onboarding.compliance.request</field>
+        <field name="arch" type="xml">
+            <search string="Onboarding Compliance Requests">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="request_type"/>
+                <field name="employee_category"/>
+                <field name="state"/>
+                <filter name="pending_md" string="Pending MD Approval" domain="[('state', '=', 'md_approval')]"/>
+                <filter name="pending_accounting" string="Pending Accounting" domain="[('payment_state', '=', 'pending')]"/>
+                <filter name="paid" string="Paid" domain="[('payment_state', '=', 'paid')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_request_type" string="Request Type" domain="[]" context="{'group_by': 'request_type'}"/>
+                    <filter name="group_employee_category" string="Employee Type" domain="[]" context="{'group_by': 'employee_category'}"/>
+                    <filter name="group_state" string="Status" domain="[]" context="{'group_by': 'state'}"/>
+                    <filter name="group_payment_state" string="Payment Status" domain="[]" context="{'group_by': 'payment_state'}"/>
+                    <filter name="group_employee" string="Employee" domain="[]" context="{'group_by': 'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_compliance_request_tree" model="ir.ui.view">
+        <field name="name">hr.onboarding.compliance.request.tree</field>
+        <field name="model">hr.onboarding.compliance.request</field>
+        <field name="arch" type="xml">
+            <tree string="Onboarding Compliance Requests">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="employee_category"/>
+                <field name="request_type"/>
+                <field name="required_date"/>
+                <field name="expiry_date"/>
+                <field name="amount"/>
+                <field name="payment_state" widget="badge"
+                       decoration-muted="payment_state == 'not_required'"
+                       decoration-info="payment_state == 'draft'"
+                       decoration-warning="payment_state == 'pending'"
+                       decoration-success="payment_state == 'paid'"
+                       decoration-danger="payment_state == 'cancelled'"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'md_approval'"
+                       decoration-success="state in ('approved', 'done')"
+                       decoration-danger="state in ('rejected', 'cancelled')"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_compliance_request_form" model="ir.ui.view">
+        <field name="name">hr.onboarding.compliance.request.form</field>
+        <field name="model">hr.onboarding.compliance.request</field>
+        <field name="arch" type="xml">
+            <form string="Onboarding Compliance Request">
+                <header>
+                    <field name="is_onboarding_supervisor" invisible="1"/>
+                    <field name="is_onboarding_md" invisible="1"/>
+                    <field name="has_bank_payment" invisible="1"/>
+                    <button name="action_submit" string="Submit"
+                            type="object" class="btn-primary"
+                            groups="pr_hr_recruitment_request.group_onboarding_supervisor"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve_md" string="Approve (MD)"
+                            type="object" class="btn-primary"
+                            groups="pr_hr_recruitment_request.group_onboarding_md"
+                            invisible="state != 'md_approval'"/>
+                    <button name="action_send_to_accounting" string="Send to Accounting"
+                            type="object" class="btn-primary"
+                            groups="pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_md"
+                            invisible="state not in ('approved', 'done') or not requires_payment or payment_state in ('pending', 'paid')"/>
+                    <button name="action_reject" string="Reject"
+                            type="object" class="btn-secondary"
+                            groups="pr_hr_recruitment_request.group_onboarding_md"
+                            invisible="state != 'md_approval'"/>
+                    <button name="action_set_done" string="Mark Done"
+                            type="object" class="btn-success"
+                            groups="pr_hr_recruitment_request.group_onboarding_supervisor"
+                            invisible="state != 'approved'"/>
+                    <button name="action_cancel" string="Cancel"
+                            type="object" class="btn-secondary"
+                            groups="pr_hr_recruitment_request.group_onboarding_supervisor"
+                            invisible="state not in ('draft', 'md_approval', 'approved')"/>
+                    <button name="action_reset_to_draft" string="Reset to Draft"
+                            type="object" class="btn-secondary"
+                            groups="pr_hr_recruitment_request.group_onboarding_supervisor"
+                            invisible="state not in ('rejected', 'cancelled')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,md_approval,approved,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_work_permit"
+                                class="oe_stat_button"
+                                icon="fa-id-card-o"
+                                type="object"
+                                string="Work Permit"
+                                invisible="not work_permit_id"/>
+                        <button name="action_open_iqama"
+                                class="oe_stat_button"
+                                icon="fa-address-card"
+                                type="object"
+                                string="Iqama"
+                                invisible="not iqama_id"/>
+                        <button name="action_open_medical_insurance"
+                                class="oe_stat_button"
+                                icon="fa-hospital-o"
+                                type="object"
+                                string="Insurance"
+                                invisible="not medical_insurance_id"/>
+                        <button name="action_open_bank_payment"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                type="object"
+                                string="Bank Payment"
+                                groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
+                                invisible="not has_bank_payment"/>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Request">
+                            <field name="onboarding_id" readonly="state != 'draft'"/>
+                            <field name="applicant_id" readonly="1"/>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="contract_id" readonly="state != 'draft'"/>
+                            <field name="requested_by_id" readonly="1"/>
+                            <field name="employee_category" readonly="state != 'draft'"/>
+                            <field name="request_type" readonly="state != 'draft'"/>
+                            <field name="required_date" readonly="state not in ('draft', 'md_approval')"/>
+                        </group>
+                        <group string="Approval">
+                            <field name="md_approved_by_id" readonly="1"/>
+                            <field name="md_approved_date" readonly="1"/>
+                            <field name="government_reference" readonly="state not in ('draft', 'md_approval')"/>
+                            <field name="attachment_file" filename="attachment_filename"
+                                   readonly="state not in ('draft', 'md_approval')"/>
+                            <field name="attachment_filename" invisible="1"/>
+                        </group>
+                        <group string="Accounting">
+                            <field name="requires_payment" readonly="state not in ('draft', 'md_approval') or has_bank_payment"/>
+                            <field name="payment_state" readonly="1"/>
+                            <field name="payment_account_id"
+                                   readonly="state not in ('draft', 'md_approval') or has_bank_payment"
+                                   invisible="not requires_payment"
+                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
+                            <field name="payment_expense_account_id"
+                                   readonly="state not in ('draft', 'md_approval') or has_bank_payment"
+                                   invisible="not requires_payment"
+                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
+                            <field name="bank_payment_id" readonly="1" invisible="not has_bank_payment"
+                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                            <field name="paid_move_id" readonly="1"
+                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Compliance Details">
+                            <group>
+                                <group string="Identity / Work Permit"
+                                       invisible="request_type not in ('iqama_transfer', 'iqama_renewal', 'work_permit_issuance', 'work_permit_renewal')">
+                                    <field name="iqama_no" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="passport_no" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="visa_number" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="profession" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="issue_date" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="expiry_date" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                </group>
+                                <group string="Medical Insurance"
+                                       invisible="request_type != 'medical_insurance_activation'">
+                                    <field name="iqama_no" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="insurance_company" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="insurance_category" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="issue_date" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="expiry_date" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                </group>
+                                <group string="GOSI"
+                                       invisible="request_type != 'gosi_registration'">
+                                    <field name="gosi_number" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="gosi_registration_date" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                </group>
+                                <group string="Other"
+                                       invisible="request_type != 'other'">
+                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                </group>
+                            </group>
+                            <group string="Description">
+                                <field name="description" nolabel="1" readonly="state not in ('draft', 'md_approval')"/>
+                            </group>
+                        </page>
+                        <page string="Linked Records">
+                            <group>
+                                <field name="work_permit_id" readonly="1"/>
+                                <field name="iqama_id" readonly="1"/>
+                                <field name="medical_insurance_id" readonly="1"/>
+                                <field name="bank_payment_id" readonly="1"
+                                       groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                                <field name="paid_move_id" readonly="1"
+                                       groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_onboarding_compliance_request" model="ir.actions.act_window">
+        <field name="name">Onboarding Compliance Requests</field>
+        <field name="res_model">hr.onboarding.compliance.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hr_onboarding_compliance_request_search"/>
+    </record>
+
+    <record id="action_hr_onboarding_compliance_request_approvals" model="ir.actions.act_window">
+        <field name="name">Onboarding Compliance Approvals</field>
+        <field name="res_model">hr.onboarding.compliance.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'md_approval')]</field>
+        <field name="context">{'create': False}</field>
+        <field name="search_view_id" ref="view_hr_onboarding_compliance_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                There are no onboarding compliance requests to approve.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_hr_onboarding_compliance_request"
+              name="Compliance Requests"
+              parent="pr_hr_recruitment.hr_applicant_onboarding_root_menu"
+              action="action_hr_onboarding_compliance_request"
+              sequence="3"
+              groups="pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_md"/>
+
+    <menuitem id="menu_hr_onboarding_compliance_request_approvals"
+              name="Onboarding Compliance"
+              parent="de_hr_workspace.hr_approvals_menu_root"
+              action="action_hr_onboarding_compliance_request_approvals"
+              sequence="5"
+              groups="pr_hr_recruitment_request.group_onboarding_md,pr_hr_recruitment_request.group_onboarding_supervisor"/>
+
+    <record id="view_pr_account_bank_payment_form_onboarding_compliance" model="ir.ui.view">
+        <field name="name">pr.account.bank.payment.form.onboarding.compliance</field>
+        <field name="model">pr.account.bank.payment</field>
+        <field name="inherit_id" ref="pr_account.pr_account_bank_payment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <field name="onboarding_compliance_request_id" invisible="1"/>
+                <button name="open_onboarding_compliance_request"
+                        class="oe_stat_button"
+                        icon="fa-check-square-o"
+                        type="object"
+                        string="Compliance Request"
+                        invisible="not onboarding_compliance_request_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
