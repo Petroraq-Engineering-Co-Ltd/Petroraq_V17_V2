@@ -12,6 +12,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/onboarding_compliance_sequence.xml',
+        'data/onboarding_reminder_cron.xml',
         'views/wizard_views.xml',
         'views/hr_applicant_views.xml',
         'views/onboarding_compliance_views.xml',

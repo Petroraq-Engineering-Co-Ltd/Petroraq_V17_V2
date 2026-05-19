@@ -13,6 +13,7 @@
                 <field name="approval_state" invisible="1"/>
                 <field name="show_reject_button" invisible="1"/>
                 <field name="can_refund_remaining_dp" invisible="1"/>
+                <field name="work_order_id" invisible="1"/>
                 <!--                <field name="manager_approver_id" modifiers="{'invisible': True}"/>-->
                 <!--                <field name="md_approver_id" modifiers="{'invisible': True}"/>-->
                 <!--                <field name="show_manager_approve_button" modifiers="{'invisible': True}"/>-->
@@ -38,6 +39,14 @@
                         string="Refund Remaining DP"
                         class="btn-primary"
                         invisible="not can_refund_remaining_dp"/>
+
+                <button
+                        name="action_sync_work_order_budget"
+                        type="object"
+                        string="Sync Work Order/Budget"
+                        class="btn-secondary"
+                        groups="pr_work_order.custom_group_work_order_user"
+                        invisible="not work_order_id or state not in ('sale', 'done')"/>
 
                 <!--                <button string="Reset Draft"-->
                 <!--                        type="object"-->
@@ -360,6 +369,20 @@
                         <div class="o_petroraq_total_input"></div>
                         <div class="o_petroraq_total_value">
                             <field name="amount_untaxed" widget="monetary" readonly="1" nolabel="1" string=""/>
+                        </div>
+                    </div>
+                    <div class="o_petroraq_total_row o_petroraq_total_base">
+                        <span class="o_petroraq_total_label">Amount Invoiced:</span>
+                        <div class="o_petroraq_total_input"></div>
+                        <div class="o_petroraq_total_value">
+                            <field name="amount_invoiced" widget="monetary" readonly="1" nolabel="1" string=""/>
+                        </div>
+                    </div>
+                    <div class="o_petroraq_total_row o_petroraq_total_base">
+                        <span class="o_petroraq_total_label">Amount To Invoice:</span>
+                        <div class="o_petroraq_total_input"></div>
+                        <div class="o_petroraq_total_value">
+                            <field name="amount_to_invoice" widget="monetary" readonly="1" nolabel="1" string=""/>
                         </div>
                     </div>
                     <!--                    <div class="o_petroraq_total_row o_petroraq_total_great">-->

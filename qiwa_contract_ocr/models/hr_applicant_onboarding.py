@@ -14,6 +14,37 @@ COMPLIANCE_REQUEST_TYPES = [
     ('other', 'Other Compliance Requirement'),
 ]
 
+ONBOARDING_TASK_TYPES = [
+    ('employee_id_assignment', 'Employee ID Assignment'),
+    ('hr_laptop_assignment', 'HR Laptop Assignment'),
+    ('official_email_creation', 'Official Email ID Creation'),
+    ('work_permit_issuance', 'Work Permit Issuance'),
+    ('iqama_transfer_completion', 'Iqama Transfer Completion'),
+    ('gosi_registration', 'GOSI Registration'),
+    ('medical_insurance_activation', 'Medical Insurance Activation'),
+    ('company_car_assignment', 'Company Car Assignment'),
+    ('signed_contract', 'Signed Contract'),
+    ('bank_iban', 'Bank IBAN Confirmation'),
+    ('emergency_contact', 'Emergency Contact Details'),
+    ('passport_copy', 'Passport Copy'),
+    ('iqama_copy', 'Iqama Copy'),
+    ('national_id_copy', 'National ID Copy'),
+    ('other', 'Other'),
+]
+
+TASK_TO_REQUEST_TYPE = {
+    'work_permit_issuance': 'work_permit_issuance',
+    'iqama_transfer_completion': 'iqama_transfer',
+    'gosi_registration': 'gosi_registration',
+    'medical_insurance_activation': 'medical_insurance_activation',
+}
+
+AUTO_ONBOARDING_TASK_TYPES = {
+    task_type
+    for task_type, _label in ONBOARDING_TASK_TYPES
+    if task_type != 'other'
+}
+
 PAYMENT_REQUIRED_REQUEST_TYPES = {
     'iqama_transfer',
     'work_permit_issuance',
@@ -42,6 +73,45 @@ class HrApplicantOnboarding(models.Model):
         string='Compliance Requests',
         compute='_compute_compliance_request_count',
     )
+    onboarding_start_date = fields.Date(
+        string='Onboarding Start Date',
+        default=fields.Date.context_today,
+        tracking=True,
+    )
+    onboarding_task_initialized = fields.Boolean(
+        string='Reminder Tasks Started',
+        readonly=True,
+        copy=False,
+    )
+    needs_hr_laptop = fields.Boolean(string='HR Laptop Required', default=True, tracking=True)
+    needs_official_email = fields.Boolean(string='Official Email Required', default=True, tracking=True)
+    needs_medical_insurance = fields.Boolean(string='Medical Insurance Required', default=True, tracking=True)
+    needs_company_car = fields.Boolean(string='Company Car Required', tracking=True)
+    checklist_total_count = fields.Integer(string='Total Tasks', compute='_compute_checklist_progress')
+    checklist_done_count = fields.Integer(string='Done Tasks', compute='_compute_checklist_progress')
+    checklist_overdue_count = fields.Integer(string='Overdue Tasks', compute='_compute_checklist_progress')
+    checklist_progress = fields.Float(string='Progress', compute='_compute_checklist_progress')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        if not self.env.context.get('skip_onboarding_auto_tasks'):
+            records.filtered('employee_id')._auto_start_onboarding_reminders()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        watched_fields = {
+            'employee_id',
+            'hire_type',
+            'needs_hr_laptop',
+            'needs_official_email',
+            'needs_medical_insurance',
+            'needs_company_car',
+        }
+        if not self.env.context.get('skip_onboarding_auto_tasks') and watched_fields.intersection(vals):
+            self.filtered('employee_id').with_context(skip_onboarding_auto_tasks=True).action_start_onboarding_reminders()
+        return res
 
     @api.depends('employee_id', 'employee_id.country_id', 'employee_id.country_id.is_homeland')
     def _compute_employee_category(self):
@@ -53,56 +123,148 @@ class HrApplicantOnboarding(models.Model):
         for rec in self:
             rec.compliance_request_count = len(rec.compliance_request_ids)
 
+    @api.depends('checklist_ids', 'checklist_ids.task_state', 'checklist_ids.is_completed')
+    def _compute_checklist_progress(self):
+        for rec in self:
+            required_tasks = rec.checklist_ids.filtered(lambda line: line.is_required and line.task_state != 'cancelled')
+            rec.checklist_total_count = len(required_tasks)
+            rec.checklist_done_count = len(required_tasks.filtered(lambda line: line.task_state == 'done' or line.is_completed))
+            rec.checklist_overdue_count = len(required_tasks.filtered(lambda line: line.task_state == 'overdue'))
+            rec.checklist_progress = (
+                (rec.checklist_done_count / rec.checklist_total_count) * 100.0
+                if rec.checklist_total_count else 0.0
+            )
+
     def generate_checklist(self):
         for rec in self:
             rec._sync_employee_type_checklist()
             rec.state = 'checklist'
+            rec._schedule_open_task_reminders()
+
+    def action_start_onboarding_reminders(self):
+        for rec in self:
+            was_initialized = rec.onboarding_task_initialized
+            rec._sync_employee_type_checklist()
+            rec.with_context(skip_onboarding_auto_tasks=True).write({
+                'state': 'checklist',
+                'onboarding_task_initialized': True,
+            })
+            rec._schedule_open_task_reminders()
+            rec.message_post(body=_(
+                'Onboarding checklist reminders have been refreshed.'
+                if was_initialized else 'Onboarding checklist reminders have been started.'
+            ))
+
+    def _auto_start_onboarding_reminders(self):
+        for rec in self:
+            if rec.onboarding_task_initialized or not rec.employee_id:
+                continue
+            rec.with_context(skip_onboarding_auto_tasks=True).action_start_onboarding_reminders()
 
     def _sync_employee_type_checklist(self):
         self.ensure_one()
+        self.checklist_ids._apply_missing_task_defaults()
         checklist_vals = self._get_employee_type_checklist_vals()
+        desired_task_types = {item.get('task_type') for item in checklist_vals if item.get('task_type')}
         existing_keys = set()
+        existing_task_types = set()
         for checklist in self.checklist_ids:
             existing_keys.add(checklist.request_type or checklist.checklist_item)
+            if checklist.task_type and checklist.task_type != 'other':
+                existing_task_types.add(checklist.task_type)
 
         lines_to_create = []
         for item in checklist_vals:
+            if item.get('task_type') in existing_task_types:
+                continue
             key = item.get('request_type') or item['checklist_item']
             if key not in existing_keys:
                 lines_to_create.append((0, 0, item))
         if lines_to_create:
             self.write({'checklist_ids': lines_to_create})
+        self._cancel_no_longer_applicable_tasks(desired_task_types)
+        self.checklist_ids._apply_missing_task_defaults()
+
+    def _cancel_no_longer_applicable_tasks(self, desired_task_types):
+        self.ensure_one()
+        stale_tasks = self.checklist_ids.filtered(
+            lambda line: (
+                line.task_type in AUTO_ONBOARDING_TASK_TYPES
+                and line.task_type not in desired_task_types
+                and line.task_state not in ('done', 'cancelled')
+                and not line.compliance_request_id
+            )
+        )
+        if stale_tasks:
+            stale_tasks.action_cancel_task()
 
     def _get_employee_type_checklist_vals(self):
         self.ensure_one()
         common_items = [
-            {'checklist_item': 'Signed Qiwa Contract / Employment Contract'},
-            {'checklist_item': 'Bank IBAN Confirmation'},
-            {'checklist_item': 'Emergency Contact Details'},
+            self._prepare_task_vals('employee_id_assignment', 'Employee ID Assignment', due_days=0),
+            self._prepare_task_vals('signed_contract', 'Signed Qiwa Contract / Employment Contract', due_days=0),
+            self._prepare_task_vals('bank_iban', 'Bank IBAN Confirmation', due_days=1),
+            self._prepare_task_vals('emergency_contact', 'Emergency Contact Details', due_days=1),
         ]
-        if self.employee_category == 'saudi':
-            return common_items + [
-                {'checklist_item': 'National ID Copy'},
-                {'checklist_item': 'GOSI Registration', 'request_type': 'gosi_registration'},
-                {
-                    'checklist_item': 'Medical Insurance Activation',
-                    'request_type': 'medical_insurance_activation',
-                },
-            ]
+        if self.needs_official_email:
+            common_items.append(self._prepare_task_vals('official_email_creation', 'Official Email ID Creation', due_days=1))
+        if self.needs_hr_laptop:
+            common_items.append(self._prepare_task_vals('hr_laptop_assignment', 'HR Laptop Assignment', due_days=1))
+        if self.needs_company_car:
+            common_items.append(self._prepare_task_vals('company_car_assignment', 'Company Car Assignment', due_days=3))
 
-        return common_items + [
-            {'checklist_item': 'Passport Copy'},
-            {'checklist_item': 'Iqama Copy'},
-            {'checklist_item': 'Iqama Transfer Request', 'request_type': 'iqama_transfer'},
-            {'checklist_item': 'Work Permit Issuance', 'request_type': 'work_permit_issuance'},
-            {'checklist_item': 'Work Permit Renewal', 'request_type': 'work_permit_renewal'},
-            {'checklist_item': 'Iqama Renewal', 'request_type': 'iqama_renewal'},
-            {
-                'checklist_item': 'Medical Insurance Activation',
-                'request_type': 'medical_insurance_activation',
-            },
-            {'checklist_item': 'GOSI Registration', 'request_type': 'gosi_registration'},
+        if self.employee_category == 'saudi':
+            items = common_items + [
+                self._prepare_task_vals('national_id_copy', 'National ID Copy', due_days=1),
+                self._prepare_task_vals('gosi_registration', 'GOSI Registration', due_days=3),
+            ]
+            if self.needs_medical_insurance:
+                items.append(self._prepare_task_vals('medical_insurance_activation', 'Medical Insurance Activation', due_days=3))
+            return items
+
+        items = common_items + [
+            self._prepare_task_vals('passport_copy', 'Passport Copy', due_days=1),
+            self._prepare_task_vals('iqama_copy', 'Iqama Copy', due_days=1),
+            self._prepare_task_vals('iqama_transfer_completion', 'Iqama Transfer Completion', due_days=5),
+            self._prepare_task_vals('work_permit_issuance', 'Work Permit Issuance', due_days=3),
+            self._prepare_task_vals('gosi_registration', 'GOSI Registration', due_days=4),
         ]
+        if self.needs_medical_insurance:
+            items.append(self._prepare_task_vals('medical_insurance_activation', 'Medical Insurance Activation', due_days=4))
+        return items
+
+    def _prepare_task_vals(self, task_type, checklist_item, due_days=1):
+        self.ensure_one()
+        start_date = self.onboarding_start_date or fields.Date.context_today(self)
+        due_date = start_date + timedelta(days=due_days)
+        group = self._get_default_task_group()
+        assigned_user = self._get_default_task_user(group)
+        return {
+            'checklist_item': checklist_item,
+            'task_type': task_type,
+            'request_type': TASK_TO_REQUEST_TYPE.get(task_type),
+            'responsible_group_id': group.id if group else False,
+            'assigned_user_id': assigned_user.id if assigned_user else False,
+            'due_date': due_date,
+            'reminder_date': start_date,
+            'is_required': True,
+            'task_state': 'pending',
+        }
+
+    def _get_default_task_group(self):
+        return (
+            self.env.ref('pr_hr_recruitment_request.group_onboarding_supervisor', raise_if_not_found=False)
+            or self.env.ref('hr_recruitment.group_hr_recruitment_user', raise_if_not_found=False)
+        )
+
+    @staticmethod
+    def _get_default_task_user(group):
+        return group.users.filtered(lambda user: user.active)[:1] if group else False
+
+    def _schedule_open_task_reminders(self):
+        for rec in self:
+            open_tasks = rec.checklist_ids.filtered(lambda line: line.task_state in ('pending', 'in_progress', 'overdue'))
+            open_tasks._schedule_reminder_activity(force=True)
 
     def action_create_compliance_request(self):
         if (
@@ -175,12 +337,251 @@ class HrApplicantOnboarding(models.Model):
 class HrApplicantOnboardingChecklist(models.Model):
     _inherit = 'hr.applicant.onboarding.checklist'
 
+    task_type = fields.Selection(ONBOARDING_TASK_TYPES, string='Task Type', default='other')
     request_type = fields.Selection(COMPLIANCE_REQUEST_TYPES, string='Request Type')
     compliance_request_id = fields.Many2one(
         'hr.onboarding.compliance.request',
         string='Compliance Request',
         readonly=True,
     )
+    employee_id = fields.Many2one(
+        'hr.employee',
+        string='Employee',
+        related='applicant_onboarding_id.employee_id',
+        store=True,
+        readonly=True,
+    )
+    responsible_group_id = fields.Many2one('res.groups', string='Responsible Group')
+    assigned_user_id = fields.Many2one('res.users', string='Assigned To')
+    due_date = fields.Date(string='Due Date')
+    reminder_date = fields.Date(string='First Reminder Date')
+    last_reminder_date = fields.Date(string='Last Reminder Date', readonly=True, copy=False)
+    reminder_count = fields.Integer(string='Reminders Sent', readonly=True, copy=False)
+    task_state = fields.Selection(
+        [
+            ('pending', 'Pending'),
+            ('in_progress', 'In Progress'),
+            ('done', 'Done'),
+            ('overdue', 'Overdue'),
+            ('cancelled', 'Cancelled'),
+        ],
+        string='Task Status',
+        default='pending',
+    )
+    is_required = fields.Boolean(string='Required', default=True)
+    activity_ids = fields.Many2many(
+        'mail.activity',
+        'hr_onboarding_checklist_activity_rel',
+        'checklist_id',
+        'activity_id',
+        string='Reminder Activities',
+        readonly=True,
+        copy=False,
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._apply_missing_task_defaults()
+        return records
+
+    def write(self, vals):
+        vals = dict(vals)
+        if vals.get('is_completed') and 'task_state' not in vals:
+            vals['task_state'] = 'done'
+        if vals.get('task_state') == 'done':
+            vals['is_completed'] = True
+        if vals.get('task_state') in ('pending', 'in_progress', 'overdue'):
+            vals.setdefault('is_completed', False)
+        res = super().write(vals)
+        if vals.get('task_state') == 'done' or vals.get('is_completed'):
+            self._clear_reminder_activities()
+        return res
+
+    def _apply_missing_task_defaults(self):
+        for rec in self:
+            vals = {}
+            inferred_task_type = rec._infer_task_type()
+            if (not rec.task_type or rec.task_type == 'other') and inferred_task_type != 'other':
+                vals['task_type'] = inferred_task_type
+            task_type = vals.get('task_type') or rec.task_type
+            if not rec.request_type and task_type in TASK_TO_REQUEST_TYPE:
+                vals['request_type'] = TASK_TO_REQUEST_TYPE[task_type]
+            if not rec.responsible_group_id:
+                group = rec.applicant_onboarding_id._get_default_task_group()
+                if group:
+                    vals['responsible_group_id'] = group.id
+            if not rec.assigned_user_id:
+                group = rec.responsible_group_id
+                if not group and vals.get('responsible_group_id'):
+                    group = self.env['res.groups'].browse(vals['responsible_group_id'])
+                assigned_user = rec.applicant_onboarding_id._get_default_task_user(group)
+                if assigned_user:
+                    vals['assigned_user_id'] = assigned_user.id
+            start_date = rec.applicant_onboarding_id.onboarding_start_date or fields.Date.context_today(rec)
+            if not rec.due_date:
+                vals['due_date'] = start_date + timedelta(days=rec._get_default_due_days(task_type))
+            if not rec.reminder_date:
+                vals['reminder_date'] = start_date
+            if vals:
+                rec.sudo().write(vals)
+
+    def _infer_task_type(self):
+        self.ensure_one()
+        label = (self.checklist_item or '').casefold()
+        candidates = [
+            ('employee_id_assignment', ('employee id',)),
+            ('hr_laptop_assignment', ('laptop',)),
+            ('official_email_creation', ('official email', 'email id')),
+            ('work_permit_issuance', ('work permit',)),
+            ('iqama_transfer_completion', ('iqama transfer', 'transfer request')),
+            ('gosi_registration', ('gosi',)),
+            ('medical_insurance_activation', ('medical insurance', 'insurance')),
+            ('company_car_assignment', ('company car', 'car assignment')),
+            ('signed_contract', ('contract',)),
+            ('bank_iban', ('iban', 'bank')),
+            ('emergency_contact', ('emergency',)),
+            ('passport_copy', ('passport',)),
+            ('iqama_copy', ('iqama copy',)),
+            ('national_id_copy', ('national id',)),
+        ]
+        for task_type, keywords in candidates:
+            if any(keyword in label for keyword in keywords):
+                return task_type
+        return 'other'
+
+    @staticmethod
+    def _get_default_due_days(task_type):
+        due_days = {
+            'employee_id_assignment': 0,
+            'signed_contract': 0,
+            'bank_iban': 1,
+            'emergency_contact': 1,
+            'official_email_creation': 1,
+            'hr_laptop_assignment': 1,
+            'company_car_assignment': 3,
+            'passport_copy': 1,
+            'iqama_copy': 1,
+            'national_id_copy': 1,
+            'work_permit_issuance': 3,
+            'iqama_transfer_completion': 5,
+            'gosi_registration': 4,
+            'medical_insurance_activation': 4,
+        }
+        return due_days.get(task_type, 2)
+
+    def action_start_progress(self):
+        self.write({'task_state': 'in_progress'})
+
+    def action_mark_done(self):
+        self.write({'task_state': 'done', 'is_completed': True})
+
+    def action_reset_pending(self):
+        self.write({'task_state': 'pending', 'is_completed': False})
+        self._schedule_reminder_activity(force=True)
+
+    def action_cancel_task(self):
+        self.write({'task_state': 'cancelled', 'is_completed': False})
+        self._clear_reminder_activities()
+
+    def _schedule_reminder_activity(self, force=False):
+        today = fields.Date.context_today(self)
+        activity_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+        if not activity_type:
+            return
+        onboarding_model = self.env['ir.model']._get('hr.applicant.onboarding')
+        for rec in self.sudo():
+            onboarding = rec.applicant_onboarding_id
+            if not onboarding or rec.task_state in ('done', 'cancelled') or not rec.is_required:
+                continue
+            if not force and rec.reminder_date and rec.reminder_date > today and rec.due_date and rec.due_date > today:
+                continue
+            responsible_users = rec._get_responsible_users()
+            if not responsible_users:
+                continue
+            if rec.due_date and rec.due_date < today and rec.task_state != 'overdue':
+                rec.task_state = 'overdue'
+            deadline = today if rec.task_state == 'overdue' else (rec.due_date or today)
+            created_or_updated = self.env['mail.activity']
+            for user in responsible_users:
+                activity = rec._find_existing_activity(user)
+                activity_vals = {
+                    'activity_type_id': activity_type.id,
+                    'summary': rec._get_activity_summary(),
+                    'note': rec._get_activity_note(),
+                    'date_deadline': deadline,
+                    'user_id': user.id,
+                    'res_model_id': onboarding_model.id,
+                    'res_id': onboarding.id,
+                }
+                if activity:
+                    activity.write(activity_vals)
+                else:
+                    activity = self.env['mail.activity'].sudo().create(activity_vals)
+                created_or_updated |= activity
+            rec.activity_ids = [(6, 0, created_or_updated.ids)]
+
+    def _get_responsible_users(self):
+        self.ensure_one()
+        if self.assigned_user_id and self.assigned_user_id.active:
+            return self.assigned_user_id
+        if self.responsible_group_id:
+            return self.responsible_group_id.users.filtered(lambda user: user.active)
+        return self.env['res.users']
+
+    def _find_existing_activity(self, user):
+        self.ensure_one()
+        onboarding_model = self.env['ir.model']._get('hr.applicant.onboarding')
+        return self.env['mail.activity'].sudo().search([
+            ('res_model_id', '=', onboarding_model.id),
+            ('res_id', '=', self.applicant_onboarding_id.id),
+            ('user_id', '=', user.id),
+            ('summary', '=', self._get_activity_summary()),
+        ], limit=1)
+
+    def _get_activity_summary(self):
+        self.ensure_one()
+        return _('Onboarding: %s') % (self.checklist_item or _('Checklist Task'))
+
+    def _get_activity_note(self):
+        self.ensure_one()
+        employee_name = self.employee_id.name or self.applicant_onboarding_id.name
+        status = dict(self._fields['task_state'].selection).get(self.task_state, self.task_state)
+        return _(
+            '<p>Please complete onboarding task <strong>%(task)s</strong> for %(employee)s.</p>'
+            '<p>Status: %(status)s<br/>Due Date: %(due_date)s</p>'
+        ) % {
+            'task': self.checklist_item or '',
+            'employee': employee_name or '',
+            'status': status,
+            'due_date': self.due_date or '',
+        }
+
+    def _clear_reminder_activities(self):
+        activities = self.mapped('activity_ids').exists()
+        if activities:
+            activities.sudo().unlink()
+        self.sudo().write({'activity_ids': [(5, 0, 0)]})
+
+    @api.model
+    def _cron_send_onboarding_task_reminders(self):
+        today = fields.Date.context_today(self)
+        tasks = self.sudo().search([
+            ('is_required', '=', True),
+            ('task_state', 'in', ['pending', 'in_progress', 'overdue']),
+            ('applicant_onboarding_id', '!=', False),
+            '|',
+            ('reminder_date', '<=', today),
+            ('due_date', '<=', today),
+        ])
+        for task in tasks:
+            if task.last_reminder_date == today:
+                continue
+            task._schedule_reminder_activity(force=True)
+            task.write({
+                'last_reminder_date': today,
+                'reminder_count': task.reminder_count + 1,
+            })
 
 
 class HrOnboardingComplianceRequest(models.Model):
@@ -328,7 +729,9 @@ class HrOnboardingComplianceRequest(models.Model):
             vals['requires_payment'] = vals['request_type'] in PAYMENT_REQUIRED_REQUEST_TYPES
         if 'payment_state' not in vals:
             vals['payment_state'] = 'draft' if vals.get('requires_payment') else 'not_required'
-        return super().create(vals)
+        rec = super().create(vals)
+        rec._link_checklist_task()
+        return rec
 
     @api.onchange('onboarding_id')
     def _onchange_onboarding_id(self):
@@ -382,6 +785,7 @@ class HrOnboardingComplianceRequest(models.Model):
         for rec in self:
             if rec.state == 'draft':
                 rec.state = 'md_approval'
+                rec._link_checklist_task(task_state='in_progress')
 
     def action_approve_md(self):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
@@ -391,6 +795,7 @@ class HrOnboardingComplianceRequest(models.Model):
                 continue
             rec._create_or_update_linked_record()
             rec._ensure_accounting_payment()
+            rec._link_checklist_task(task_state='in_progress')
             rec.write({
                 'state': 'approved',
                 'md_approved_by_id': self.env.user.id,
@@ -446,6 +851,19 @@ class HrOnboardingComplianceRequest(models.Model):
             self._ensure_medical_insurance()
         elif self.request_type == 'gosi_registration':
             self._update_contract_gosi()
+
+    def _link_checklist_task(self, task_state=False):
+        self.ensure_one()
+        if not self.onboarding_id or not self.request_type:
+            return
+        checklist = self.onboarding_id.checklist_ids.filtered(
+            lambda line: line.request_type == self.request_type
+        )[:1]
+        if checklist:
+            vals = {'compliance_request_id': self.id}
+            if task_state and checklist.task_state not in ('done', 'cancelled'):
+                vals['task_state'] = task_state
+            checklist.sudo().write(vals)
 
     def _ensure_work_permit(self):
         if self.work_permit_id:

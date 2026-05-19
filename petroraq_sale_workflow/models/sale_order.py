@@ -854,6 +854,263 @@ class SaleOrder(models.Model):
 
         return res
 
+    def _get_quotation_section_amounts(self):
+        self.ensure_one()
+        amounts = {}
+        current_section = False
+        for line in self.order_line.sorted(lambda order_line: (order_line.sequence, order_line.id)):
+            if line.display_type == "line_section":
+                current_section = line.name
+                amounts.setdefault(current_section, 0.0)
+                continue
+            if line.display_type or line.is_downpayment or not line.product_id:
+                continue
+            section_name = current_section or _("General")
+            amounts.setdefault(section_name, 0.0)
+            amounts[section_name] += (line.cost_price_unit or line.product_id.standard_price or 0.0) * (
+                line.product_uom_qty or 0.0
+            )
+        return amounts
+
+    def _sync_work_order_cost_centers_from_quotation(self, work_order):
+        self.ensure_one()
+        analytic_model = self.env["account.analytic.account"].sudo()
+        wo_cost_center_model = self.env["pr.work.order.cost.center"].sudo()
+        analytic_plan = self.env.ref("pr_account.pr_account_analytic_plan_our_project", raise_if_not_found=False)
+        existing_by_section = {
+            line.section_name: line
+            for line in work_order.cost_center_ids.filtered("section_name")
+        }
+
+        for section_name, amount in self._get_quotation_section_amounts().items():
+            cost_center = existing_by_section.get(section_name)
+            if not cost_center:
+                analytic_vals = {
+                    "name": f"{self.name} - {section_name}",
+                    "company_id": self.company_id.id,
+                    "partner_id": self.partner_id.id,
+                }
+                if analytic_plan and "plan_id" in analytic_model._fields:
+                    analytic_vals["plan_id"] = analytic_plan.id
+                if "budget_type" in analytic_model._fields:
+                    analytic_vals["budget_type"] = "capex"
+                if "budget_allowance" in analytic_model._fields:
+                    analytic_vals["budget_allowance"] = amount
+                analytic = analytic_model.create(analytic_vals)
+                wo_cost_center_model.create({
+                    "work_order_id": work_order.id,
+                    "section_name": section_name,
+                    "analytic_account_id": analytic.id,
+                    "partner_id": self.partner_id.id,
+                    "department_id": False,
+                    "section_id": False,
+                })
+                continue
+
+            vals = {"partner_id": self.partner_id.id}
+            if cost_center.analytic_account_id:
+                analytic_vals = {"partner_id": self.partner_id.id}
+                if "budget_allowance" in cost_center.analytic_account_id._fields:
+                    analytic_vals["budget_allowance"] = amount
+                cost_center.analytic_account_id.sudo().write(analytic_vals)
+            cost_center.write(vals)
+
+    def _prepare_work_order_boq_lines_from_quotation(self):
+        self.ensure_one()
+        lines = []
+        current_section = False
+        for line in self.order_line.sorted(lambda order_line: (order_line.sequence, order_line.id)):
+            if line.display_type == "line_section":
+                current_section = line.name
+                lines.append({
+                    "display_type": "line_section",
+                    "name": line.name,
+                    "product_id": False,
+                    "uom_id": False,
+                    "qty": 0.0,
+                    "unit_cost": 0.0,
+                    "section_name": current_section,
+                    "sale_order_line_id": line.id,
+                    "estimation_line_id": False,
+                })
+                continue
+            if line.display_type == "line_note":
+                lines.append({
+                    "display_type": "line_note",
+                    "name": line.name,
+                    "product_id": False,
+                    "uom_id": False,
+                    "qty": 0.0,
+                    "unit_cost": 0.0,
+                    "section_name": current_section,
+                    "sale_order_line_id": line.id,
+                    "estimation_line_id": False,
+                })
+                continue
+            if line.is_downpayment or not line.product_id:
+                continue
+            section_name = current_section or _("General")
+            lines.append({
+                "display_type": "product",
+                "name": line.name or line.product_id.display_name,
+                "product_id": line.product_id.id,
+                "uom_id": (line.product_uom or line.product_id.uom_id).id,
+                "qty": line.product_uom_qty or 0.0,
+                "unit_cost": line.cost_price_unit or line.product_id.standard_price or 0.0,
+                "section_name": section_name,
+                "sale_order_line_id": line.id,
+                "estimation_line_id": False,
+            })
+        return lines
+
+    def _match_existing_quotation_boq_line(self, existing_lines, used_lines, target):
+        used_line_ids = set(used_lines.ids)
+        source_line = target.get("sale_order_line_id")
+        if source_line:
+            match = existing_lines.filtered(
+                lambda line: line.sale_order_line_id.id == source_line and line.id not in used_line_ids
+            )[:1]
+            if match:
+                return match
+
+        def _same_line(line):
+            if line.id in used_line_ids:
+                return False
+            if line.display_type != target.get("display_type"):
+                return False
+            if (line.section_name or "") != (target.get("section_name") or ""):
+                return False
+            if target.get("display_type") == "product":
+                return line.product_id.id == target.get("product_id")
+            return (line.name or "") == (target.get("name") or "")
+
+        return existing_lines.filtered(_same_line)[:1]
+
+    def _quotation_boq_line_has_commitments(self, boq_line, work_order):
+        if self.env["stock.move"].sudo().search_count([("work_order_boq_line_id", "=", boq_line.id)]):
+            return True
+        if not boq_line.product_id:
+            return False
+        cost_center = work_order.cost_center_ids.filtered(lambda line: line.section_name == boq_line.section_name)[:1]
+        analytic = cost_center.analytic_account_id
+        if not analytic:
+            return False
+
+        pr_line_count = self.env["custom.pr.line"].sudo().search_count([
+            ("cost_center_id", "=", analytic.id),
+            ("description", "=", boq_line.product_id.id),
+            ("pr_id.approval", "!=", "rejected"),
+        ])
+        if pr_line_count:
+            return True
+
+        po_lines = self.env["purchase.order.line"].sudo().search([
+            ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ("product_id", "=", boq_line.product_id.id),
+            ("analytic_distribution", "!=", False),
+        ])
+        for po_line in po_lines:
+            distribution = po_line.analytic_distribution or {}
+            analytic_ids = {
+                str(key_part).strip()
+                for key in distribution
+                for key_part in str(key).split(",")
+            }
+            if str(analytic.id) in analytic_ids:
+                return True
+        return False
+
+    def _sync_work_order_boq_lines_from_quotation(self, work_order):
+        self.ensure_one()
+        target_lines = self._prepare_work_order_boq_lines_from_quotation()
+        existing_lines = work_order.boq_line_ids.sorted(lambda line: (line.sequence, line.id))
+        used_lines = self.env["pr.work.order.boq"]
+        sequence = 10
+
+        for target in target_lines:
+            target = dict(target, sequence=sequence)
+            sequence += 10
+            match = self._match_existing_quotation_boq_line(existing_lines, used_lines, target)
+            if match:
+                match.with_context(skip_estimation_sync=True).write(target)
+                used_lines |= match
+            else:
+                used_lines |= self.env["pr.work.order.boq"].create(dict(target, work_order_id=work_order.id))
+
+        obsolete_lines = existing_lines - used_lines
+        for line in obsolete_lines:
+            if line.display_type == "product" and self._quotation_boq_line_has_commitments(line, work_order):
+                line.write({"qty": 0.0, "unit_cost": 0.0, "sequence": sequence})
+                sequence += 10
+            elif line.display_type == "product":
+                line.unlink()
+            else:
+                line.write({"sequence": sequence})
+                sequence += 10
+
+    def _sync_work_order_tasks_from_quotation(self, work_order):
+        self.ensure_one()
+        project = work_order.project_id
+        if not project:
+            return
+        existing_task_names = set(work_order.task_ids.mapped("name"))
+        section_names = list(self._get_quotation_section_amounts())
+        for section_name in section_names:
+            if section_name in existing_task_names:
+                continue
+            self.env["project.task"].create({
+                "name": section_name,
+                "project_id": project.id,
+                "work_order_id": work_order.id,
+                "company_id": work_order.company_id.id,
+            })
+
+    def _sync_work_order_from_quotation(self, work_order):
+        self.ensure_one()
+        work_order.ensure_one()
+        if work_order.state in ("done", "cancel"):
+            raise UserError(_("Completed or cancelled Work Orders cannot be synced."))
+
+        work_order_vals = {
+            "sale_order_id": self.id,
+            "company_id": self.company_id.id,
+            "partner_id": self.partner_id.id,
+            "contract_amount": self.final_grand_total or self.amount_total,
+            "overhead_percent": self.overhead_percent or 0.0,
+            "risk_percent": self.risk_percent or 0.0,
+            "profit_percent": self.profit_percent or 0.0,
+        }
+        if self.project_id:
+            work_order_vals["project_id"] = self.project_id.id
+        if self.analytic_account_id:
+            work_order_vals["analytic_account_id"] = self.analytic_account_id.id
+        work_order.with_context(skip_estimation_sync=True).write(work_order_vals)
+
+        self._sync_work_order_cost_centers_from_quotation(work_order)
+        self._sync_work_order_boq_lines_from_quotation(work_order)
+        self._sync_work_order_tasks_from_quotation(work_order)
+        work_order._ensure_project_expense_bucket(sync_budget=True)
+        if "last_source_sync_date" in work_order._fields:
+            work_order.write({"last_source_sync_date": fields.Datetime.now()})
+        work_order.message_post(body=_("Work Order and budget were synced from quotation %s.") % self.name)
+        return work_order
+
+    def action_sync_work_order_budget(self):
+        self.ensure_one()
+        if not self.env.user.has_group("pr_work_order.custom_group_work_order_user"):
+            raise UserError(_("Only users in the Work Order / Estimation group can sync Work Orders."))
+        if not self.work_order_id:
+            raise UserError(_("No Work Order is linked to this quotation."))
+        self._sync_work_order_from_quotation(self.work_order_id)
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Work Order"),
+            "res_model": "pr.work.order",
+            "res_id": self.work_order_id.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
     def action_quotation_send(self):
         self.ensure_one()
 
@@ -920,3 +1177,15 @@ class SaleOrder(models.Model):
             return ""
         numerals_map = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
         return str(value).translate(numerals_map)
+
+
+class WorkOrderBOQ(models.Model):
+    _inherit = "pr.work.order.boq"
+
+    sale_order_line_id = fields.Many2one(
+        "sale.order.line",
+        string="Quotation Line",
+        readonly=True,
+        copy=False,
+        ondelete="set null",
+    )

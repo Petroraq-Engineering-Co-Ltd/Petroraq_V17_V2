@@ -18,6 +18,11 @@
             <!--            <xpath expr="//tree/field[@name='amount_total']" position="after">-->
             <!--                <field name="profit_grand_total"/>-->
             <!--            </xpath>-->
+            <xpath expr="//tree/field[@name='amount_to_invoice']" position="attributes">
+                <attribute name="column_invisible">0</attribute>
+                <attribute name="optional">show</attribute>
+                <attribute name="string">Amount To Invoice</attribute>
+            </xpath>
         </field>
     </record>
     <record id="view_order_tree_inherit_petroraq_great_total" model="ir.ui.view">
@@ -36,6 +41,10 @@
             <!--            <xpath expr="//tree/field[@name='amount_total']" position="after">-->
             <!--                <field name="profit_grand_total"/>-->
             <!--            </xpath>-->
+            <xpath expr="//tree/field[@name='amount_to_invoice']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="string">Amount To Invoice</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

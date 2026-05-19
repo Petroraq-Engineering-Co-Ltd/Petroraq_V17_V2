@@ -5,6 +5,7 @@ import math
 import random
 import re
 import string
+import unicodedata
 from datetime import datetime, timedelta
 
 from odoo import _, api, fields, models
@@ -181,6 +182,10 @@ class QiwaContractProcessor(models.Model):
         pdf_bytes = base64.b64decode(self.pdf_file)
         text = self._extract_text_with_pypdf(pdf_bytes)
         if text.strip():
+            if self._should_try_ocr_supplement(text):
+                ocr_text = self._extract_text_with_ocr_safely(pdf_bytes)
+                if ocr_text.strip():
+                    return '%s\n%s' % (text, ocr_text)
             return text
         return self._extract_text_with_ocr(pdf_bytes)
 
@@ -216,16 +221,33 @@ class QiwaContractProcessor(models.Model):
             raise ValueError(_('No text could be extracted from the uploaded contract.'))
         return text
 
+    def _extract_text_with_ocr_safely(self, pdf_bytes):
+        try:
+            return self._extract_text_with_ocr(pdf_bytes)
+        except Exception as error:
+            _logger.info('OCR supplement was skipped for Qiwa contract processing: %s', error)
+            return ''
+
+    @staticmethod
+    def _should_try_ocr_supplement(text):
+        page_match = re.search(r'Page\s+\d+\s+of\s+(\d+)', text or '', re.IGNORECASE)
+        page_count = int(page_match.group(1)) if page_match else 1
+        nonspace_count = len(''.join((text or '').split()))
+        sparse_text_layer = page_count and (nonspace_count / page_count) < 1800
+        stripped_numbered_clauses = bool(re.search(r'\n5\.\s*\.5\s*\n5\.1\s+5\.1', text or ''))
+        return sparse_text_layer and stripped_numbered_clauses
+
     def _parse_qiwa_data(self, text):
         clean_text = self._clean_text(text)
-        contract_section = self._section_between(clean_text, '1. Contract Information', '2. First Party')
-        employer_section = self._section_between(clean_text, '2. First Party', '3. Second Party')
-        employee_section = self._section_between(clean_text, '3. Second Party', '4. Profession')
-        profession_section = self._section_between(clean_text, '4. Profession', '5. Contract Period')
-        period_section = self._section_between(clean_text, '5. Contract Period', '7. Work Hours')
-        leave_section = self._section_between(clean_text, '8. Annual Leaves', '9. Wage')
-        wage_section = self._section_between(clean_text, '9. Wage', '11. First Party')
-        bank_section = self._section_between(clean_text, '10. Second Party', '11. First Party')
+        sections = self._get_qiwa_sections(clean_text)
+        contract_section = sections['contract']
+        employer_section = sections['employer']
+        employee_section = sections['employee']
+        profession_section = sections['profession']
+        period_section = sections['period']
+        leave_section = sections['leave']
+        wage_section = sections['wage']
+        bank_section = sections['bank']
 
         data = {
             'contract_number': self._extract_label(contract_section, 'Contract number'),
@@ -292,6 +314,8 @@ class QiwaContractProcessor(models.Model):
             'bank_name': self._extract_label(bank_section, 'Bank name'),
             'iban': self._normalize_iban(self._extract_label(bank_section, 'IBAN', max_follow=2)),
         }
+        self._apply_format_fallbacks(data, clean_text, sections)
+        data = self._normalize_extracted_data(data)
 
         if not data['employee_name']:
             raise ValueError(_('Employee name could not be extracted from the Qiwa contract.'))
@@ -306,11 +330,283 @@ class QiwaContractProcessor(models.Model):
 
     @staticmethod
     def _clean_text(text):
+        text = unicodedata.normalize('NFKC', text or '')
         text = text.replace('\x00', ' ')
         text = re.sub(r'[\x01-\x08\x0b-\x1f\x7f]', ' ', text)
         text = re.sub(r'[ \t]+', ' ', text)
         text = re.sub(r' *\n *', '\n', text)
         return text
+
+    @classmethod
+    def _get_qiwa_sections(cls, text):
+        return {
+            'contract': cls._section_between_any(
+                text,
+                ['1. Contract Information', '1. .1', 'Contract ID:', 'Contract number:'],
+                ['2. First Party', '2. .2', 'FIRST PARTY:', 'Establishment Name', 'Company/Corporation:'],
+            ),
+            'employer': cls._section_between_any(
+                text,
+                ['2. First Party', '2. .2', 'FIRST PARTY:', 'Establishment Name', 'Company/Corporation:'],
+                ['3. Second Party', '3. .3', 'SECOND PARTY:', 'Employee name:', '\nName:'],
+            ),
+            'employee': cls._section_between_any(
+                text,
+                ['3. Second Party', '3. .3', 'SECOND PARTY:', 'Employee name:', '\nName:'],
+                ['4. Profession', '4. .4', 'The two parties have agreed', 'Both Parties are'],
+            ),
+            'profession': cls._section_between_any(
+                text,
+                ['4. Profession', '4. .4', 'Occupation:', 'Profession:'],
+                ['5. Contract Period', '5. .5', 'The contract’s duration', "The contract's duration"],
+            ),
+            'period': cls._section_between_any(
+                text,
+                ['5. Contract Period', '5. .5', 'The contract’s duration', "The contract's duration"],
+                ['7. Work Hours', '7. .7', 'Working days and hours', 'The obligations of the first party'],
+            ),
+            'leave': cls._section_between_any(
+                text,
+                ['8. Annual Leaves', '8. .8', 'annual leave'],
+                ['9. Wage', '9. .9', 'The obligations of the first party'],
+            ),
+            'wage': cls._section_between_any(
+                text,
+                ['9. Wage', '9. .9', 'The obligations of the first party', 'The first party pays'],
+                ['10. Second Party', '10. .10', 'Bank name:', 'Iban:', 'IBAN'],
+            ),
+            'bank': cls._section_between_any(
+                text,
+                ['10. Second Party', '10. .10', 'Bank name:', 'Iban:', 'IBAN'],
+                ['11. First Party', '11. .11', 'The obligations of the second party'],
+            ),
+        }
+
+    @classmethod
+    def _section_between_any(cls, text, start_markers, end_markers=None):
+        start_match = cls._find_first_marker(text, start_markers)
+        if not start_match:
+            return ''
+        start = start_match.start()
+        if not end_markers:
+            return text[start:]
+        end_match = cls._find_first_marker(text, end_markers, start_match.end())
+        if not end_match:
+            return text[start:]
+        return text[start:end_match.start()]
+
+    @staticmethod
+    def _find_first_marker(text, markers, start=0):
+        matches = []
+        for marker in markers or []:
+            match = re.search(re.escape(marker), text[start:], re.IGNORECASE)
+            if match:
+                matches.append((start + match.start(), start + match.end()))
+        if not matches:
+            return None
+        match_start, match_end = min(matches, key=lambda item: item[0])
+
+        class MarkerMatch:
+            def start(self):
+                return match_start
+
+            def end(self):
+                return match_end
+
+        return MarkerMatch()
+
+    @classmethod
+    def _apply_format_fallbacks(cls, data, clean_text, sections):
+        contract_section = sections['contract'] or clean_text
+        employer_section = sections['employer'] or clean_text
+        employee_section = sections['employee'] or clean_text
+        profession_section = sections['profession'] or employee_section
+        period_section = sections['period'] or clean_text
+        leave_section = sections['leave'] or clean_text
+        wage_section = sections['wage'] or clean_text
+        bank_section = sections['bank'] or employee_section
+
+        cls._set_missing(data, 'contract_number',
+                         cls._extract_label_any(contract_section, ['Contract number', 'Contract ID'])
+                         or cls._extract_regex(r'\bContract ID:\s*(\d+)', clean_text))
+        cls._set_missing(data, 'contract_execution_date', cls._parse_date(
+            cls._extract_regex(r'\bon\s*\((\d{2}[-/]\d{2}[-/]\d{4}|\d{4}[-/]\d{2}[-/]\d{2})\)\s*,?\s*between', clean_text)
+        ))
+        cls._set_missing(data, 'employer_name',
+                         cls._extract_label_any(employer_section, ['Establishment Name', 'Company/Corporation'], max_follow=3))
+        cls._set_missing(data, 'employer_cr',
+                         cls._extract_label_any(employer_section, ['Unified national no.', 'National Unified Number']))
+        cls._set_missing(data, 'employer_national_address',
+                         cls._extract_label_any(employer_section, ['National address', 'Address']))
+        cls._set_missing(data, 'employer_email',
+                         cls._extract_label_any(employer_section, ['Official Email of the establishment', 'Email Address']))
+        cls._set_missing(data, 'signatory_representative',
+                         cls._clean_representative(cls._extract_label_any(employer_section, ['Signatory representative', 'Represented by'], max_follow=2)))
+
+        cls._set_missing(data, 'employee_name',
+                         cls._extract_label_any(employee_section, ['Employee name', 'Name'], max_follow=2))
+        cls._set_missing(data, 'nationality', cls._extract_label_any(employee_section, ['Nationality']))
+        cls._set_missing(data, 'id_type', cls._extract_label_any(employee_section, ['ID type', 'ID Type']))
+        cls._set_missing(data, 'iqama_no',
+                         cls._extract_label_any(employee_section, ['ID no.', 'Identity Number']))
+        cls._set_missing(data, 'passport_no', cls._extract_label_any(employee_section, ['Passport number']))
+        cls._set_missing(data, 'gender', cls._extract_label_any(employee_section, ['Gender']))
+        cls._set_missing(data, 'marital_status',
+                         cls._extract_label_any(employee_section, ['Marital status', 'Marital Status']))
+        cls._set_missing(data, 'birth_date',
+                         cls._parse_date(cls._extract_label_any(employee_section, ['Birth date', 'Date of Birth'])))
+        cls._set_missing(data, 'employee_national_address',
+                         cls._extract_label_any(employee_section, ['National address']))
+        cls._set_missing(data, 'education_level',
+                         cls._extract_label_any(employee_section, ['Education level', 'Education']))
+        cls._set_missing(data, 'speciality', cls._extract_label_any(employee_section, ['Speciality'], max_follow=3))
+        cls._set_missing(data, 'mobile_number',
+                         cls._extract_label_any(employee_section, ['Mobile number', 'Mobile Number']))
+        cls._set_missing(data, 'email',
+                         cls._extract_label_any(employee_section, ['E-mail', 'Email Address']))
+        cls._set_missing(data, 'occupation',
+                         cls._extract_label_any(profession_section, ['Occupation', 'Profession'])
+                         or cls._extract_label_any(employee_section, ['Profession']))
+        cls._set_missing(data, 'job_title',
+                         cls._extract_label_any(profession_section, ['Job title'])
+                         or data.get('occupation'))
+        cls._set_missing(data, 'work_location',
+                         cls._extract_label_any(profession_section, ['Work location', 'Work Location'])
+                         or cls._extract_label_any(employer_section, ['Work Location']))
+
+        cls._apply_period_fallbacks(data, clean_text, period_section)
+        cls._apply_time_and_leave_fallbacks(data, clean_text, leave_section)
+        cls._apply_wage_fallbacks(data, clean_text, wage_section)
+        cls._set_missing(data, 'bank_name', cls._extract_label_any(bank_section, ['Bank name', 'Bank Name']))
+        cls._set_missing(data, 'iban', cls._normalize_iban(cls._extract_label_any(bank_section, ['IBAN', 'Iban'], max_follow=2)))
+
+    @classmethod
+    def _apply_period_fallbacks(cls, data, clean_text, period_section):
+        period_text = (
+            cls._extract_contract_period_text(period_section)
+            or cls._extract_regex(
+                r"The contract[’']?s duration is\s+(.+?)(?:The contract will be renewed|The second party is subject|Working days and hours)",
+                clean_text,
+            )
+        )
+        cls._set_missing(data, 'contract_period_text', cls._squash_value(period_text))
+        if not data.get('contract_period_months'):
+            data['contract_period_months'] = cls._extract_contract_period_months_from_text(period_text)
+
+        date_pattern = r'(\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})'
+        dates_match = re.search(
+            r'duration is\s+.+?starting from\s+%s\s+and ends(?:\s+in)?\s+%s' % (date_pattern, date_pattern),
+            clean_text,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if dates_match:
+            cls._set_missing(data, 'contract_start', cls._parse_date(dates_match.group(1)))
+            cls._set_missing(data, 'commencement_date', cls._parse_date(dates_match.group(1)))
+            cls._set_missing(data, 'contract_end', cls._parse_date(dates_match.group(2)))
+
+        cls._set_missing(data, 'probation_period_days',
+                         cls._extract_int(r'(?:trial|probationary)\s+period(?:\s+of)?\s+(\d+)\s+days', clean_text))
+        cls._set_missing(data, 'notice_period_days',
+                         cls._extract_int(r'(\d+)\s+days\s+before\s+(?:the\s+)?contract\s+(?:expires|end date)', clean_text))
+
+    @classmethod
+    def _apply_time_and_leave_fallbacks(cls, data, clean_text, leave_section):
+        cls._set_missing(data, 'annual_leave_days',
+                         cls._extract_int(r'annual leave of\s+(\d+)\s+days', clean_text)
+                         or cls._extract_int(r'vacation of\s+(\d+)\s+calendar days', leave_section))
+        cls._set_missing(data, 'working_days_per_week',
+                         cls._extract_int(r'working days (?:are set as|shall be)\s+(\d+)\s+days', clean_text))
+        if not data.get('working_hours_per_week'):
+            weekly_hours = cls._extract_int(r'working hours shall be weekly\s*(\d+)', clean_text)
+            daily_hours = cls._extract_int(r'working hours\s+are\s+set\s+as\s+(\d+)\s+daily hours', clean_text)
+            if weekly_hours:
+                data['working_hours_per_week'] = weekly_hours
+            elif daily_hours and data.get('working_days_per_week'):
+                data['working_hours_per_week'] = daily_hours * data['working_days_per_week']
+
+    @classmethod
+    def _apply_wage_fallbacks(cls, data, clean_text, wage_section):
+        cls._set_missing(data, 'basic_salary',
+                         cls._extract_amount(r'Basic\s+Wage\s*:?\s*([\d,]+(?:\.\d+)?)', clean_text)
+                         or cls._extract_amount(r'basic fee of\s+([\d,]+(?:\.\d+)?)\s+Saudi Riyals', clean_text))
+        cls._set_missing(data, 'housing_allowance',
+                         cls._extract_amount(r'Housing\s+Allowance\s*:?\s*([\d,]+(?:\.\d+)?)', clean_text)
+                         or cls._extract_amount(r'Pay\s+([\d,]+(?:\.\d+)?)\s+Saudi Riyals,\s+a housing allowance', clean_text))
+        cls._set_missing(data, 'transport_allowance',
+                         cls._extract_amount(r'Transportation\s+Allowance\s*:?\s*([\d,]+(?:\.\d+)?)', clean_text)
+                         or cls._extract_amount(r'Pay\s+([\d,]+(?:\.\d+)?)\s+Saudi Riyals,\s+a [^.\n]*transport', clean_text))
+        total_wage = (
+            cls._extract_amount(r'Total\s+Wage\s*:?\s*([\d,]+(?:\.\d+)?)', clean_text)
+            or cls._extract_amount(r'Total\s+Wage:\s*([\d,]+(?:\.\d+)?)', wage_section)
+        )
+        if not total_wage and data.get('basic_salary'):
+            total_wage = data['basic_salary'] + cls._extract_legacy_cash_allowances(clean_text)
+        cls._set_missing(data, 'total_salary', total_wage)
+        cls._set_missing(data, 'due_date',
+                         cls._extract_label_any(wage_section, ['Due Date'])
+                         or ('End of each month' if re.search(r'due at the end of each month', clean_text, re.IGNORECASE) else ''))
+
+    @staticmethod
+    def _extract_legacy_cash_allowances(text):
+        amounts = re.findall(
+            r'\bPay\s+([\d,]+(?:\.\d+)?)\s+Saudi Riyals,\s+a\s+(.{0,140}?)(?:allowance|allowance payable)',
+            text or '',
+            re.IGNORECASE | re.DOTALL,
+        )
+        return sum(float(amount.replace(',', '')) for amount, dummy in amounts)
+
+    @classmethod
+    def _extract_label_any(cls, text, labels, max_follow=1):
+        for label in labels:
+            value = cls._extract_label(text, label, max_follow=max_follow)
+            if value:
+                return value
+        return ''
+
+    @classmethod
+    def _set_missing(cls, data, field_name, value):
+        if data.get(field_name) in (False, None, '', 0, 0.0) and value not in (False, None, '', 0, 0.0):
+            data[field_name] = cls._squash_value(value) if isinstance(value, str) else value
+
+    @classmethod
+    def _extract_regex(cls, pattern, text):
+        match = re.search(pattern, text or '', re.IGNORECASE | re.DOTALL)
+        return cls._squash_value(match.group(1)) if match else ''
+
+    @staticmethod
+    def _clean_representative(value):
+        value = re.sub(r'\bas\b.*$', '', value or '', flags=re.IGNORECASE).strip()
+        return value
+
+    @classmethod
+    def _normalize_extracted_data(cls, data):
+        data = dict(data)
+        data['contract_number'] = cls._clean_numeric_identifier(data.get('contract_number'))
+        data['iqama_no'] = cls._clean_numeric_identifier(data.get('iqama_no'))
+        data['employer_cr'] = cls._clean_numeric_identifier(data.get('employer_cr'))
+        data['signatory_id_no'] = cls._clean_numeric_identifier(data.get('signatory_id_no'))
+        data['email'] = cls._clean_email(data.get('email'))
+        data['employer_email'] = cls._clean_email(data.get('employer_email'))
+        data['mobile_number'] = cls._clean_phone(data.get('mobile_number'))
+        data['employer_phone'] = cls._clean_phone(data.get('employer_phone'))
+        data['employer_mobile'] = cls._clean_phone(data.get('employer_mobile'))
+        data['iban'] = cls._normalize_iban(data.get('iban'))
+        return data
+
+    @staticmethod
+    def _clean_numeric_identifier(value):
+        match = re.search(r'\b(\d{6,})\b', value or '')
+        return match.group(1) if match else (value or '')
+
+    @staticmethod
+    def _clean_email(value):
+        match = re.search(r'[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}', value or '', re.IGNORECASE)
+        return match.group(0) if match else (value or '')
+
+    @staticmethod
+    def _clean_phone(value):
+        match = re.search(r'\+?\d[\d ]{7,22}\d', value or '')
+        return re.sub(r'\s+', ' ', match.group(0)).strip() if match else (value or '')
 
     @classmethod
     def _sanitize_write_values(cls, values):
@@ -364,6 +660,7 @@ class QiwaContractProcessor(models.Model):
         return bool(
             re.match(r'^[A-Z][A-Za-z0-9 &/.\'ʼ()_-]{1,70}:', line)
             or re.match(r'^IBAN\b', line)
+            or re.match(r'^(Hereinafter|The two parties|Both Parties|Download at)\b', line, re.IGNORECASE)
         )
 
     @staticmethod
@@ -411,6 +708,10 @@ class QiwaContractProcessor(models.Model):
     @classmethod
     def _extract_contract_period_months(cls, text):
         period_text = cls._extract_contract_period_text(text)
+        return cls._extract_contract_period_months_from_text(period_text)
+
+    @staticmethod
+    def _extract_contract_period_months_from_text(period_text):
         match = re.search(r'(\d+)\s*(year|years|month|months)', period_text, re.IGNORECASE)
         if not match:
             return 0

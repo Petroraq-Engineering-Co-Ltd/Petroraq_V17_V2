@@ -486,15 +486,19 @@ class HrLeaveRequest(models.Model):
         leave_type = self.leave_type_id
         employee = self.employee_id
 
-        # Match the same source used by Time Off dashboard cards as much as possible.
-        leave_type_ctx = leave_type.with_context(
-            employee_id=employee.id,
-            default_employee_id=employee.id,
+        target_date = self.date_from or fields.Date.context_today(self)
+        allocation_data = leave_type.get_allocation_data(employee, target_date).get(employee, [])
+        leave_type_data = next(
+            (
+                data
+                for _name, data, _requires_allocation, leave_type_id in allocation_data
+                if leave_type_id == leave_type.id
+            ),
+            {},
         )
-        virtual_remaining = float(
-            getattr(leave_type_ctx, "virtual_remaining_leaves", getattr(leave_type_ctx, "remaining_leaves", 0.0))
-            or 0.0
-        )
+        virtual_remaining = float(leave_type_data.get("virtual_remaining_leaves", 0.0) or 0.0)
+        if leave_type.allows_negative:
+            virtual_remaining += float(leave_type.max_allowed_negative or 0.0)
 
         # Fallback for custom leave types where dashboard-like computed balances are not available.
         if abs(virtual_remaining) < 1e-6 and leave_type.requires_allocation != "yes":
