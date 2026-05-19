@@ -1,6 +1,6 @@
 {
     "name": "Petroraq Custom Website",
-    "version": "1.0",
+    "version": "1.1",
     "category": "Website",
     "summary": "Custom full website for Petroraq Engineering built in Odoo.",
     "author": "Mudassir",
