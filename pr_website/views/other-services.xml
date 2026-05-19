@@ -610,7 +610,7 @@
                             <i class="fa fa-chevron-right"></i>
                             <span class="current">Other Services</span>
                         </div>
-                        <h1>Other Services<span class="dot">.</span></h1>
+                        <h1>Other Services<span class="dot"></span></h1>
                         <div class="gold-line"></div>
                         <p>Comprehensive support services — from environmental engineering to construction management, quality control, survey, procurement, operations and turnaround solutions.</p>
                     </div>
@@ -756,11 +756,11 @@
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-map-marker-alt"></i>
-                        <span>Al-Majd square, King Faisal (West) Road, Basra, Iraq</span>
+                        <span>Al-Majd square, King Faisal (West) Road, Al-Jubail, KSA</span>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-phone"></i>
-                        <span>+964 781 000 9131 / +964 771 529 7877</span>
+                        <span>+966 13 - 361 - 4446</span>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-envelope"></i>

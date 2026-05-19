@@ -412,8 +412,8 @@
 
                 <section class="hero">
                     <div class="hero-content">
-                        <h1>Engineering<span>.</span><br/>Procurement<span>.</span><br/>Construction<span>.</span></h1>
-                        <p>Delivering industrial and infrastructure projects with precision, safety, and excellence.</p>
+                        <h1>Engineering<span></span><br/>Procurement<span></span><br/>Construction<span></span></h1>
+                        <p>Delivering comprehensive engineering, infrastructure, industrial, and project financing solutions with technical precision, safe execution, and lasting excellence.</p>
                         <button class="hero-btn">Explore Our Services
                             <i class="fa fa-arrow-right"></i>
                         </button>
@@ -471,12 +471,12 @@
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/building.png" alt="Projects Completed"/>
-                        <h2>25+</h2>
+                        <h2>17+</h2>
                         <p>Projects Completed</p>
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/globe.png" alt="Years of Experience"/>
-                        <h2>3+</h2>
+                        <h2>4+</h2>
                         <p>Years of Experience</p>
                     </div>
                     <div class="stat-item">

@@ -591,10 +591,10 @@
                     <div class="pr-container">
                         <div class="hero-content animate-slide-up">
                             <h1>Let's Connect
-                                <span class="dot">.</span>
+                                <span class="dot"></span>
                             </h1>
                             <p>Ready to start your next project? Our team is here to bring your vision to life with engineering excellence.</p>
-                            <div class="hero-line animate-scale-up delay-200"></div>
+
                         </div>
                     </div>
                 </section>
