@@ -147,6 +147,7 @@ class CareersController(http.Controller):
             'experience': int(post['experience']) if post.get('experience') and post.get(
                 'experience').isdigit() else False,
             'description': (
+                (post.get('description') or '').strip()
             ),
         }
 

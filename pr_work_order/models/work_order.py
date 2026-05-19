@@ -867,19 +867,12 @@ class WorkOrderCostCenter(models.Model):
         store=False,
     )
 
+    @api.depends("analytic_account_id")
     def _compute_spent_amount(self):
-        AnalyticLine = self.env["account.analytic.line"]
+        analytics = self.mapped("analytic_account_id").sudo()
+        spent_by_analytic = analytics._get_po_budget_spent_map() if analytics else {}
         for rec in self:
-            if not rec.analytic_account_id:
-                rec.spent_amount = 0.0
-                continue
-
-            lines = AnalyticLine.search([
-                ("account_id", "=", rec.analytic_account_id.id),
-                ("move_line_id.move_id.state", "=", "posted"),
-            ])
-
-            rec.spent_amount = abs(sum(lines.mapped("amount")))
+            rec.spent_amount = spent_by_analytic.get(rec.analytic_account_id.id, 0.0) if rec.analytic_account_id else 0.0
 
     def _compute_remaining_amount(self):
         for rec in self:

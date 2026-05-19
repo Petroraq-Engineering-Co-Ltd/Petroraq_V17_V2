@@ -25,6 +25,7 @@
                     <field name="quotation_approval_state" invisible="1"/>
                     <field name="is_locked_for_edit" invisible="1"/>
                     <field name="current_revision_id" invisible="1"/>
+                    <field name="sync_work_order_id" invisible="1"/>
                     <field name="has_old_revisions" invisible="1"/>
                     <button name="create_revision"
                             type="object"
@@ -43,23 +44,35 @@
                             string="Create Quotation"
                             class="btn-primary"
                             invisible="sale_order_id"/>
-                    <button name="action_create_sale_order"
-                            type="object"
-                            string="Open Quotation"
-                            class="btn-secondary"
-                            invisible="not sale_order_id"/>
                     <button name="action_create_work_order"
                             type="object"
                             string="Create Work Order"
                             class="btn-primary"
                             invisible="work_order_id or sale_order_state != 'sale'"/>
-                    <button name="action_create_work_order"
+                    <button name="action_sync_work_order"
                             type="object"
-                            string="Open Work Order"
-                            class="btn-secondary"
-                            invisible="not work_order_id"/>
+                            string="Sync Work Order"
+                            class="btn-primary"
+                            groups="pr_work_order.custom_group_work_order_user"
+                            invisible="not sync_work_order_id"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_create_sale_order"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                invisible="not sale_order_id">
+                            <field name="sale_order_count" widget="statinfo" string="Quotation"/>
+                        </button>
+                        <button name="action_create_work_order"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-briefcase"
+                                invisible="not work_order_id">
+                            <field name="work_order_count" widget="statinfo" string="Work Order"/>
+                        </button>
+                    </div>
                     <group readonly="is_locked_for_edit">
                         <field name="name" readonly="1"/>
                         <field name="partner_id"/>
@@ -167,6 +180,39 @@
         <field name="name">Estimations</field>
         <field name="res_model">petroraq.estimation</field>
         <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_pr_work_order_form_inherit_estimation_sync" model="ir.ui.view">
+        <field name="name">pr.work.order.form.estimation.sync</field>
+        <field name="model">pr.work.order</field>
+        <field name="inherit_id" ref="pr_work_order.view_pr_work_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="has_estimation_source" invisible="1"/>
+                <button name="action_sync_from_estimation"
+                        type="object"
+                        string="Sync From Estimation"
+                        class="btn-secondary"
+                        groups="pr_work_order.custom_group_work_order_user"
+                        invisible="not has_estimation_source or state in ['done', 'cancel']"/>
+            </xpath>
+            <xpath expr="//field[@name='sale_order_id']" position="after">
+                <field name="source_estimation_id" readonly="1"/>
+                <field name="last_source_sync_date" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pr_work_order_tree_inherit_estimation_sync" model="ir.ui.view">
+        <field name="name">pr.work.order.tree.estimation.sync</field>
+        <field name="model">pr.work.order</field>
+        <field name="inherit_id" ref="pr_work_order.view_pr_work_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sale_order_id']" position="after">
+                <field name="source_estimation_id" optional="show"/>
+                <field name="last_source_sync_date" optional="hide"/>
+            </xpath>
+        </field>
     </record>
 
     <menuitem id="menu_petroraq_estimation_root"

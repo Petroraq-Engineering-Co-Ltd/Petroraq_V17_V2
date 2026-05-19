@@ -486,15 +486,19 @@ class HrLeaveRequest(models.Model):
         leave_type = self.leave_type_id
         employee = self.employee_id
 
-        # Match the same source used by Time Off dashboard cards as much as possible.
-        leave_type_ctx = leave_type.with_context(
-            employee_id=employee.id,
-            default_employee_id=employee.id,
+        target_date = self.date_from or fields.Date.context_today(self)
+        allocation_data = leave_type.get_allocation_data(employee, target_date).get(employee, [])
+        leave_type_data = next(
+            (
+                data
+                for _name, data, _requires_allocation, leave_type_id in allocation_data
+                if leave_type_id == leave_type.id
+            ),
+            {},
         )
-        virtual_remaining = float(
-            getattr(leave_type_ctx, "virtual_remaining_leaves", getattr(leave_type_ctx, "remaining_leaves", 0.0))
-            or 0.0
-        )
+        virtual_remaining = float(leave_type_data.get("virtual_remaining_leaves", 0.0) or 0.0)
+        if leave_type.allows_negative:
+            virtual_remaining += float(leave_type.max_allowed_negative or 0.0)
 
         # Fallback for custom leave types where dashboard-like computed balances are not available.
         if abs(virtual_remaining) < 1e-6 and leave_type.requires_allocation != "yes":
@@ -757,6 +761,14 @@ class HrLeaveRequest(models.Model):
 
     # region [Crud]
 
+    @api.model
+    def _validate_leave_request_create_vals(self, vals):
+        validation_record = self.new(dict(vals))
+        validation_record._compute_requested_days()
+        validation_record._check_leave_request_weekend_dates()
+        validation_record._check_annual_leave_start_date()
+        validation_record._check_requested_days_with_allocation()
+
     @api.model_create_multi
     def create(self, vals_list):
         '''
@@ -765,6 +777,7 @@ class HrLeaveRequest(models.Model):
         for vals in vals_list:
             if not vals.get("name"):
                 vals["name"] = self.env['ir.sequence'].next_by_code('hr.holidays.leave.request.seq.code') or '/'
+            self._validate_leave_request_create_vals(vals)
 
         records = super().create(vals_list)
         hr_supervisor_group_ids = [self.env.ref('pr_hr_holidays.custom_group_hr_holidays_supervisor').id]
@@ -781,8 +794,6 @@ class HrLeaveRequest(models.Model):
             if hr_manager_ids:
                 rec.hr_manager_ids = hr_manager_ids.ids
 
-            rec._check_leave_request_weekend_dates()
-            rec._check_requested_days_with_allocation()
             rec.sudo()._auto_progress_approval_route()
             if rec.state == "draft":
                 rec.sudo()._send_manager_email()

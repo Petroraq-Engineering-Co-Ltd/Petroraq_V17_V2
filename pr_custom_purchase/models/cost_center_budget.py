@@ -20,28 +20,62 @@ class AccountAnalyticAccount(models.Model):
     budget_spent = fields.Float(string="Budget Spent", compute="_compute_budget_metrics", store=False)
     budget_left = fields.Float(string="Budget Left", compute="_compute_budget_metrics", store=False)
 
+    def _get_po_budget_spent_map(self):
+        """Return PO committed spend by analytic account.
+
+        This is the cost-center budget consumption used by the purchasing
+        workflow: a PO in Pending/Purchase/Done consumes budget through the PO
+        line analytic distribution before any accounting entry is posted.
+        """
+        analytic_ids = set(self.ids)
+        spent_by_analytic = {analytic_id: 0.0 for analytic_id in analytic_ids}
+        if not analytic_ids:
+            return spent_by_analytic
+
+        PurchaseOrderLine = self.env["purchase.order.line"].sudo()
+        po_lines = PurchaseOrderLine.search([
+            ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ("analytic_distribution", "!=", False),
+        ])
+        for line in po_lines:
+            distribution = line.analytic_distribution or {}
+            if not distribution:
+                continue
+
+            amount = line.price_subtotal or 0.0
+            order = line.order_id
+            line_currency = order.currency_id or line.company_id.currency_id
+            company_currency = line.company_id.currency_id
+            if line_currency and company_currency and line_currency != company_currency:
+                amount = line_currency._convert(
+                    amount,
+                    company_currency,
+                    line.company_id,
+                    order.date_order or fields.Date.context_today(line),
+                )
+
+            for analytic_key, percentage in distribution.items():
+                try:
+                    percentage = float(percentage or 0.0)
+                except (TypeError, ValueError):
+                    percentage = 0.0
+                if not percentage:
+                    continue
+                for key_part in str(analytic_key).split(","):
+                    if not key_part.strip().isdigit():
+                        continue
+                    analytic_id = int(key_part)
+                    if analytic_id in spent_by_analytic:
+                        spent_by_analytic[analytic_id] += amount * (percentage / 100.0)
+
+        return spent_by_analytic
+
     @api.depends("budget_allowance", "budget_code", "budget_type")
     def _compute_budget_metrics(self):
-        PurchaseOrder = self.env["purchase.order"].sudo()
         BudgetLine = self.env["crossovered.budget.lines"].sudo()
+        spent_by_analytic = self.sudo()._get_po_budget_spent_map()
         for rec in self:
-            spent = 0.0
-            if rec.id:
-                pos = PurchaseOrder.search([
-                    ("state", "in", ["pending", "purchase", "done"]),
-                    ("order_line.analytic_distribution", "!=", False),
-                ])
-                for po in pos:
-                    for line in po.order_line:
-                        distribution = line.analytic_distribution or {}
-                        percentage = distribution.get(str(rec.id), 0.0)
-                        try:
-                            percentage = float(percentage)
-                        except (TypeError, ValueError):
-                            percentage = 0.0
-                        if not percentage:
-                            continue
-                        spent += (line.price_subtotal or 0.0) * (percentage / 100.0)
+            spent = spent_by_analytic.get(rec.id, 0.0)
 
             effective_allowance = rec.budget_allowance or 0.0
             if rec.id and BudgetLine:

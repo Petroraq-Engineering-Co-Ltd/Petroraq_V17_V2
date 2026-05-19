@@ -129,6 +129,13 @@ class PetroraqEstimation(models.Model):
         string="Locked For Edit",
     )
     work_order_id = fields.Many2one("pr.work.order", string="Work Order", readonly=True, copy=False)
+    sync_work_order_id = fields.Many2one(
+        "pr.work.order",
+        string="Work Order To Sync",
+        compute="_compute_sync_work_order_id",
+    )
+    sale_order_count = fields.Integer(string="Quotations", compute="_compute_linked_document_counts")
+    work_order_count = fields.Integer(string="Work Orders", compute="_compute_linked_document_counts")
 
     material_total = fields.Float(
         string="Material Total",
@@ -249,6 +256,17 @@ class PetroraqEstimation(models.Model):
             record.is_locked_for_edit = bool(
                 record.sale_order_id and record.sale_order_id.approval_state in locked_states
             )
+
+    @api.depends("work_order_id", "sale_order_id.work_order_id")
+    def _compute_sync_work_order_id(self):
+        for record in self:
+            record.sync_work_order_id = record.work_order_id or record.sale_order_id.work_order_id
+
+    @api.depends("sale_order_id", "work_order_id")
+    def _compute_linked_document_counts(self):
+        for record in self:
+            record.sale_order_count = 1 if record.sale_order_id else 0
+            record.work_order_count = 1 if record.work_order_id else 0
 
     def write(self, vals):
         self._ensure_unlocked()
@@ -447,6 +465,8 @@ class PetroraqEstimation(models.Model):
                     "qty": qty,
                     "unit_cost": line.unit_cost or 0.0,
                     "section_name": section_name,
+                    "estimation_line_id": line.id,
+                    "sale_order_line_id": False,
                 })
         return lines
 
@@ -625,6 +645,230 @@ class PetroraqEstimation(models.Model):
             "target": "current",
         }
 
+    def action_sync_work_order(self):
+        self.ensure_one()
+        if not self.env.user.has_group("pr_work_order.custom_group_work_order_user"):
+            raise UserError(_("Only users in the Work Order / Estimation group can sync Work Orders."))
+        work_order = self.sync_work_order_id
+        if not work_order:
+            raise UserError(_("No Work Order is linked to this estimation/quotation yet."))
+        self._sync_work_order_from_estimation(work_order)
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Work Order"),
+            "res_model": "pr.work.order",
+            "res_id": work_order.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
+    def _sync_work_order_from_estimation(self, work_order):
+        self.ensure_one()
+        work_order.ensure_one()
+        if work_order.state in ("done", "cancel"):
+            raise UserError(_("Completed or cancelled Work Orders cannot be synced."))
+
+        order = self.sale_order_id or work_order.sale_order_id
+        if not order:
+            raise UserError(_("Please create/open the quotation before syncing the Work Order."))
+
+        work_order_vals = {
+            "sale_order_id": order.id,
+            "company_id": order.company_id.id,
+            "partner_id": order.partner_id.id,
+            "contract_amount": order.final_grand_total or order.amount_total,
+            "overhead_percent": self.overhead_percent or 0.0,
+            "risk_percent": self.risk_percent or 0.0,
+            "profit_percent": self.profit_percent or 0.0,
+        }
+        if order.project_id:
+            work_order_vals["project_id"] = order.project_id.id
+        if order.analytic_account_id:
+            work_order_vals["analytic_account_id"] = order.analytic_account_id.id
+        work_order.with_context(skip_estimation_sync=True).write(work_order_vals)
+
+        self._sync_work_order_cost_centers(work_order, order)
+        self._sync_work_order_boq_lines(work_order)
+        self._sync_work_order_tasks(work_order)
+        work_order._ensure_project_expense_bucket(sync_budget=True)
+        work_order.write({"last_source_sync_date": fields.Datetime.now()})
+
+        if order.work_order_id != work_order:
+            order.sudo().write({"work_order_id": work_order.id})
+        if self.work_order_id != work_order:
+            self.with_context(allow_estimation_write=True).work_order_id = work_order.id
+
+        work_order.message_post(body=_("Work Order and budget were synced from estimation %s.") % self.name)
+        return work_order
+
+    def _get_estimation_section_name(self, section_type):
+        section_map = {
+            "material": _("Material"),
+            "labor": _("Labor"),
+            "equipment": _("Equipment"),
+            "subcontract": _("Sub Contract / TPS"),
+        }
+        return section_map.get(section_type, dict(SECTION_TYPES).get(section_type, section_type))
+
+    def _get_estimation_section_amounts(self):
+        self.ensure_one()
+        amounts = {}
+        for section_type, _label in SECTION_TYPES:
+            section_name = self._get_estimation_section_name(section_type)
+            amounts[section_name] = sum(
+                self.line_ids.filtered(lambda l: l.section_type == section_type).mapped("subtotal")
+            )
+        return amounts
+
+    def _sync_work_order_cost_centers(self, work_order, order):
+        self.ensure_one()
+        analytic_model = self.env["account.analytic.account"].sudo()
+        wo_cost_center_model = self.env["pr.work.order.cost.center"].sudo()
+        analytic_plan = self.env.ref("pr_account.pr_account_analytic_plan_our_project", raise_if_not_found=False)
+        section_amounts = self._get_estimation_section_amounts()
+        existing_by_section = {
+            line.section_name: line
+            for line in work_order.cost_center_ids.filtered("section_name")
+        }
+
+        for section_name, amount in section_amounts.items():
+            if not self.line_ids.filtered(lambda line: self._get_estimation_section_name(line.section_type) == section_name):
+                continue
+            cost_center = existing_by_section.get(section_name)
+            if not cost_center:
+                analytic_vals = {
+                    "name": f"{order.name} - {section_name}",
+                    "company_id": order.company_id.id,
+                    "partner_id": order.partner_id.id,
+                }
+                if analytic_plan and "plan_id" in analytic_model._fields:
+                    analytic_vals["plan_id"] = analytic_plan.id
+                if "budget_type" in analytic_model._fields:
+                    analytic_vals["budget_type"] = "capex"
+                if "budget_allowance" in analytic_model._fields:
+                    analytic_vals["budget_allowance"] = amount
+                analytic = analytic_model.create(analytic_vals)
+                wo_cost_center_model.create({
+                    "work_order_id": work_order.id,
+                    "section_name": section_name,
+                    "analytic_account_id": analytic.id,
+                    "partner_id": order.partner_id.id,
+                    "department_id": False,
+                    "section_id": False,
+                })
+                continue
+
+            vals = {"partner_id": order.partner_id.id}
+            if cost_center.analytic_account_id:
+                analytic_vals = {"partner_id": order.partner_id.id}
+                if "budget_allowance" in cost_center.analytic_account_id._fields:
+                    analytic_vals["budget_allowance"] = amount
+                cost_center.analytic_account_id.sudo().write(analytic_vals)
+            cost_center.write(vals)
+
+    def _match_existing_boq_line(self, existing_lines, used_lines, target):
+        used_line_ids = set(used_lines.ids)
+        source_line = target.get("estimation_line_id")
+        if source_line:
+            match = existing_lines.filtered(
+                lambda line: line.estimation_line_id.id == source_line and line.id not in used_line_ids
+            )[:1]
+            if match:
+                return match
+
+        def _same_line(line):
+            if line.id in used_line_ids:
+                return False
+            if line.display_type != target.get("display_type"):
+                return False
+            if (line.section_name or "") != (target.get("section_name") or ""):
+                return False
+            if target.get("display_type") == "product":
+                return line.product_id.id == target.get("product_id")
+            return (line.name or "") == (target.get("name") or "")
+
+        return existing_lines.filtered(_same_line)[:1]
+
+    def _boq_line_has_commitments(self, boq_line, work_order):
+        if self.env["stock.move"].sudo().search_count([("work_order_boq_line_id", "=", boq_line.id)]):
+            return True
+        if not boq_line.product_id:
+            return False
+        cost_center = work_order.cost_center_ids.filtered(lambda line: line.section_name == boq_line.section_name)[:1]
+        analytic = cost_center.analytic_account_id
+        if not analytic:
+            return False
+
+        pr_line_count = self.env["custom.pr.line"].sudo().search_count([
+            ("cost_center_id", "=", analytic.id),
+            ("description", "=", boq_line.product_id.id),
+            ("pr_id.approval", "!=", "rejected"),
+        ])
+        if pr_line_count:
+            return True
+
+        po_lines = self.env["purchase.order.line"].sudo().search([
+            ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ("product_id", "=", boq_line.product_id.id),
+            ("analytic_distribution", "!=", False),
+        ])
+        for po_line in po_lines:
+            distribution = po_line.analytic_distribution or {}
+            if str(analytic.id) in {str(key_part).strip() for key in distribution for key_part in str(key).split(",")}:
+                return True
+        return False
+
+    def _sync_work_order_boq_lines(self, work_order):
+        self.ensure_one()
+        target_lines = self._prepare_work_order_boq_lines(work_order)
+        existing_lines = work_order.boq_line_ids.sorted(lambda line: (line.sequence, line.id))
+        used_lines = self.env["pr.work.order.boq"]
+        sequence = 10
+
+        for target in target_lines:
+            target = dict(target)
+            target.pop("work_order_id", None)
+            target["sequence"] = sequence
+            sequence += 10
+            match = self._match_existing_boq_line(existing_lines, used_lines, target)
+            if match:
+                match.with_context(skip_estimation_sync=True).write(target)
+                used_lines |= match
+            else:
+                used_lines |= work_order.boq_line_ids.create(dict(target, work_order_id=work_order.id))
+
+        obsolete_lines = existing_lines - used_lines
+        for line in obsolete_lines:
+            if line.display_type == "product" and self._boq_line_has_commitments(line, work_order):
+                line.write({"qty": 0.0, "unit_cost": 0.0, "sequence": sequence})
+                sequence += 10
+            elif line.display_type == "product":
+                line.unlink()
+            else:
+                line.write({"sequence": sequence})
+                sequence += 10
+
+    def _sync_work_order_tasks(self, work_order):
+        self.ensure_one()
+        project = work_order.project_id
+        if not project:
+            return
+        existing_task_names = set(work_order.task_ids.mapped("name"))
+        section_names = [
+            self._get_estimation_section_name(section_type)
+            for section_type, _label in SECTION_TYPES
+            if self.line_ids.filtered(lambda line: line.section_type == section_type)
+        ]
+        for section_name in section_names:
+            if section_name in existing_task_names:
+                continue
+            self.env["project.task"].create({
+                "name": section_name,
+                "project_id": project.id,
+                "work_order_id": work_order.id,
+                "company_id": work_order.company_id.id,
+            })
+
     def action_confirm_estimation(self):
         for record in self:
             if not record.line_ids:
@@ -654,6 +898,53 @@ class PetroraqEstimation(models.Model):
         for record in self:
             if record.approval_state == "rejected":
                 record.approval_state = "draft"
+
+
+class PRWorkOrder(models.Model):
+    _inherit = "pr.work.order"
+
+    source_estimation_id = fields.Many2one(
+        "petroraq.estimation",
+        string="Source Estimation",
+        compute="_compute_source_estimation_id",
+    )
+    has_estimation_source = fields.Boolean(compute="_compute_source_estimation_id")
+    last_source_sync_date = fields.Datetime(string="Last Estimation Sync", readonly=True, copy=False)
+
+    @api.depends("sale_order_id.estimation_id")
+    def _compute_source_estimation_id(self):
+        for work_order in self:
+            estimation = work_order.sale_order_id.estimation_id
+            work_order.source_estimation_id = estimation
+            work_order.has_estimation_source = bool(estimation)
+
+    def action_sync_from_estimation(self):
+        self.ensure_one()
+        if not self.env.user.has_group("pr_work_order.custom_group_work_order_user"):
+            raise UserError(_("Only users in the Work Order / Estimation group can sync Work Orders."))
+        if not self.source_estimation_id:
+            raise UserError(_("No source estimation is linked to this Work Order quotation."))
+        self.source_estimation_id._sync_work_order_from_estimation(self)
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Work Order"),
+            "res_model": "pr.work.order",
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
+
+class WorkOrderBOQ(models.Model):
+    _inherit = "pr.work.order.boq"
+
+    estimation_line_id = fields.Many2one(
+        "petroraq.estimation.line",
+        string="Estimation Line",
+        readonly=True,
+        copy=False,
+        ondelete="set null",
+    )
 
 
 class PetroraqEstimationLine(models.Model):

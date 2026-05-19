@@ -10,6 +10,7 @@
             </xpath>
             <xpath expr="//field[@name='overtime_for_approval']" position="after">
                 <field name="attachment_ids" widget="many2many_binary" optional="show"/>
+                <field name="auto_generated_attendance" readonly="1"/>
             </xpath>
 
             <xpath expr="//div[hasclass('oe_chatter')]" position="replace">
@@ -29,6 +30,9 @@
                 <attribute name="string">Over Time</attribute>
             </xpath>
             <xpath expr="//field[@name='overtime_hours']" position="replace"/>
+            <xpath expr="//field[@name='overtime_for_approval']" position="after">
+                <field name="auto_generated_attendance" optional="hide"/>
+            </xpath>
         </field>
     </record>
 </odoo>

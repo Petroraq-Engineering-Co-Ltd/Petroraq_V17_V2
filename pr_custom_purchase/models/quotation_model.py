@@ -94,6 +94,23 @@ class PurchaseOrder(models.Model):
         compute="_compute_display_total",
         store=False,
     )
+    budget_consumed_amount = fields.Monetary(
+        string="PO Budget Consumed",
+        currency_field="currency_id",
+        compute="_compute_po_budget_info",
+        store=False,
+    )
+    budget_remaining_amount = fields.Monetary(
+        string="Budget Remaining",
+        currency_field="currency_id",
+        compute="_compute_po_budget_info",
+        store=False,
+    )
+    budget_count = fields.Integer(
+        string="Budgets",
+        compute="_compute_po_budget_info",
+        store=False,
+    )
     vendor_ids = fields.Many2many("res.partner", string="All Vendors")
     custom_line_ids = fields.One2many("purchase.order.custom.line", "order_id", string="Custom Lines")
     date_request = fields.Date(
@@ -141,6 +158,69 @@ class PurchaseOrder(models.Model):
                 rec.linked_quotation_status = "po" if top_state in ("pending", "purchase", "done") else "quote"
             else:
                 rec.linked_quotation_status = "missing"
+
+    @api.depends("order_line.price_subtotal", "order_line.analytic_distribution", "state")
+    def _compute_po_budget_info(self):
+        Budget = self.env["crossovered.budget"].sudo()
+        for order in self:
+            analytic_ids = set()
+            consumed = 0.0
+            for line in order.order_line:
+                distribution = line.analytic_distribution or {}
+                for analytic_key, percentage in distribution.items():
+                    try:
+                        percentage = float(percentage or 0.0)
+                    except (TypeError, ValueError):
+                        percentage = 0.0
+                    if not percentage:
+                        continue
+                    for key_part in str(analytic_key).split(","):
+                        if not key_part.strip().isdigit():
+                            continue
+                        analytic_ids.add(int(key_part))
+                        consumed += (line.price_subtotal or 0.0) * (percentage / 100.0)
+
+            budgets = Budget.search([
+                ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
+            ]) if analytic_ids else Budget
+            remaining = 0.0
+            for budget in budgets:
+                budget_remaining = budget.budget_remaining_amount or 0.0
+                company_currency = budget.company_id.currency_id or self.env.company.currency_id
+                if company_currency and order.currency_id and company_currency != order.currency_id:
+                    budget_remaining = company_currency._convert(
+                        budget_remaining,
+                        order.currency_id,
+                        budget.company_id or order.company_id,
+                        order.date_order or fields.Date.context_today(order),
+                    )
+                remaining += budget_remaining
+            order.budget_consumed_amount = consumed
+            order.budget_remaining_amount = remaining
+            order.budget_count = len(budgets)
+
+    def action_view_related_budgets(self):
+        self.ensure_one()
+        analytic_ids = set()
+        for line in self.order_line:
+            for analytic_key in (line.analytic_distribution or {}):
+                for key_part in str(analytic_key).split(","):
+                    if key_part.strip().isdigit():
+                        analytic_ids.add(int(key_part))
+        budgets = self.env["crossovered.budget"].sudo().search([
+            ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
+        ]) if analytic_ids else self.env["crossovered.budget"]
+        action = {
+            "type": "ir.actions.act_window",
+            "name": _("Related Budgets"),
+            "res_model": "crossovered.budget",
+            "view_mode": "tree,form",
+            "domain": [("id", "in", budgets.ids)],
+            "target": "current",
+        }
+        if len(budgets) == 1:
+            action.update({"view_mode": "form", "res_id": budgets.id})
+        return action
 
     def action_view_quotations(self):
         return self.action_view_rfq_quotations()
