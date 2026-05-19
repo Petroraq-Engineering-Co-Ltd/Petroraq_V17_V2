@@ -29,7 +29,7 @@
                                     </span>
                                     <h1 class="animate-slide-up delay-100">
                                         Our Completed<br/>Projects
-                                        <span class="dot">.</span>
+                                        <span class="dot"></span>
                                     </h1>
                                     <p class="animate-slide-up delay-200">
                                         Delivering excellence across industrial, infrastructure,
@@ -39,7 +39,7 @@
                                     <div class="pr-hero-meta animate-slide-up delay-500">
                                         <span>
                                             <i class="fa fa-check-circle"/>
-                                            25+ Delivered
+                                            17+ Delivered
                                         </span>
                                         <span>
                                             <i class="fa fa-map-marker"/>
@@ -74,7 +74,7 @@
                                 <div class="col-md-3 col-sm-6">
                                     <div class="pr-stat animate-scale-up delay-100">
                                         <i class="fa fa-users"/>
-                                        <h2>25+</h2>
+                                        <h2>17+</h2>
                                         <h6>Completed Projects</h6>
                                         <p>Successfully delivered across Saudi Arabia.</p>
                                     </div>

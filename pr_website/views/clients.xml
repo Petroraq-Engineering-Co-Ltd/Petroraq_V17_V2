@@ -581,12 +581,12 @@
                     <div class="hero-overlay"></div>
                     <div class="hero-content animate-slide-up">
                         <h1>Our Clients
-                            <span class="dot">.</span>
+                            <span class="dot"></span>
                         </h1>
                         <p>Trusted by leading organizations across Saudi Arabia's industrial, infrastructure, and
                             development sectors.
                         </p>
-                        <div class="hero-accent"></div>
+
                     </div>
                 </section>
 

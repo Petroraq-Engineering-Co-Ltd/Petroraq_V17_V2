@@ -556,7 +556,7 @@
                             <i class="fa fa-chevron-right"></i>
                             <span class="current">Mechanical &amp; Piping</span>
                         </div>
-                        <h1>Mechanical &amp;<br/>Piping<span class="dot">.</span></h1>
+                        <h1>Mechanical &amp;<br/>Piping<span class="dot"></span></h1>
                         <div class="gold-line"></div>
                         <p>Engineering solutions that drive efficiency, safety and performance. Built to last. Designed to perform.</p>
                     </div>
@@ -567,11 +567,11 @@
                     <div class="mp-content">
                         <div class="mp-header">
                             <div class="mp-icon"><i class="fa fa-cogs"></i></div>
-                            <h2>Mechanical &amp; Piping</h2>
+                            <h2>Mechanical</h2>
                         </div>
 
                         <div class="mp-desc">
-                            <p>PETRORAQ's Mechanical &amp; Piping Division comprises qualified engineers experienced in the design of mechanical equipment, tanks, vessels, plant piping and related systems for power and industrial facilities. The team is also experienced in FEED, engineering for brownfield and revamp initiatives, delivering practical, efficient and cost-effective solutions that support safe and reliable operations.</p>
+                            <p>PETRORAQ's Mechanical Division comprises qualified engineers experienced in the design of mechanical equipment, tanks, vessels, plant piping and related systems for power and industrial facilities. The team is also experienced in FEED, engineering for brownfield and revamp initiatives, delivering practical, efficient and cost-effective solutions that support safe and reliable operations.</p>
                         </div>
 
                         <h4 class="mp-subtitle">Design Capabilities</h4>

@@ -2,7 +2,7 @@
 <odoo>
     <template id="service_design_engineering" name="Service - Design and Engineering">
         <t t-call="website.layout">
-            <t t-set="additional_title">Design and Engineering - PETRORAQ</t>
+            <t t-set="additional_title">Design &amp; Engineering - PETRORAQ</t>
 
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
             <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
@@ -645,9 +645,9 @@
                             <i class="fa fa-chevron-right"></i>
                             <a href="/services">Services</a>
                             <i class="fa fa-chevron-right"></i>
-                            <span class="current">Design and Engineering</span>
+                            <span class="current">Design &amp; Engineering</span>
                         </div>
-                        <h1>Design and<br/>Engineering<span class="dot">.</span></h1>
+                        <h1>Design &amp; Engineering<span class="dot"></span></h1>
                         <div class="gold-line"></div>
                         <p>Multi-disciplinary engineering, design and consultancy services delivering innovative, safe and cost-effective solutions across the industrial and infrastructure sectors.</p>
                     </div>
@@ -677,7 +677,7 @@
 
                 <!-- ===== ENGINEERING SERVICES LIST ===== -->
                 <section class="eng-services-section scroll-fade">
-                    <h2>Our Engineering &amp; Design Services</h2>
+                    <h2>Our Design &amp; Engineering Services</h2>
                     <div class="title-line"></div>
 
                     <div class="services-columns">
