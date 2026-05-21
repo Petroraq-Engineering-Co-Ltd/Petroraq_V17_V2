@@ -1,7 +1,10 @@
 from datetime import timedelta
+import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 COMPLIANCE_REQUEST_TYPES = [
@@ -520,6 +523,7 @@ class HrApplicantOnboardingChecklist(models.Model):
                     activity = self.env['mail.activity'].sudo().create(activity_vals)
                 created_or_updated |= activity
             rec.activity_ids = [(6, 0, created_or_updated.ids)]
+            rec._send_reminder_email(responsible_users)
 
     def _get_responsible_users(self):
         self.ensure_one()
@@ -556,6 +560,39 @@ class HrApplicantOnboardingChecklist(models.Model):
             'status': status,
             'due_date': self.due_date or '',
         }
+
+    def _send_reminder_email(self, users):
+        self.ensure_one()
+        email_users = users.filtered(lambda user: user.active and user.email)
+        if not email_users:
+            return
+
+        onboarding = self.applicant_onboarding_id
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        record_url = ''
+        if base_url and onboarding:
+            record_url = '%s/web#id=%s&model=hr.applicant.onboarding&view_type=form' % (
+                base_url.rstrip('/'),
+                onboarding.id,
+            )
+
+        subject = self._get_activity_summary()
+        body = self._get_activity_note()
+        if record_url:
+            body += _('<p><a href="%s">Open Onboarding Record</a></p>') % record_url
+
+        sender = self.env.company.email or self.env.user.email or 'noreply@petroraq.com'
+        for user in email_users:
+            try:
+                self.env['mail.mail'].sudo().create({
+                    'subject': subject,
+                    'body_html': body,
+                    'email_from': sender,
+                    'email_to': user.email,
+                    'auto_delete': True,
+                }).send()
+            except Exception:
+                _logger.exception('Failed to send onboarding reminder email to %s', user.email)
 
     def _clear_reminder_activities(self):
         activities = self.mapped('activity_ids').exists()

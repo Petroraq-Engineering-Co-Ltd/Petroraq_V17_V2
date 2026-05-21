@@ -468,7 +468,7 @@ class PurchaseOrder(models.Model):
             )
             if user.email:
                 self.env["mail.mail"].sudo().create({
-                    "email_from": "hr@petroraq.com",
+                    "email_from": "noreply@petroraq.com",
                     "email_to": user.email,
                     "subject": summary,
                     "body_html": f"<p>{note}</p>",
@@ -854,7 +854,7 @@ class PurchaseOrder(models.Model):
 
                 if supervisor_partner.email:
                     mail_values = {
-                        "email_from": "hr@petroraq.com",
+                        "email_from": "noreply@petroraq.com",
                         "subject": _("Purchase Order %s Rejected") % order.name,
                         "body_html": _(
                             "<p>Hello %s,</p>"

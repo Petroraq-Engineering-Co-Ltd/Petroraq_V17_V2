@@ -460,7 +460,7 @@ class HRComplianceExpiryReminderLog(models.Model):
 
     @api.model
     def _send_email(self, subject, body, supervisor_users):
-        sender = self.env.company.email or self.env.user.email or 'hr@petroraq.com'
+        sender = self.env.company.email or self.env.user.email or 'noreply@petroraq.com'
         for user in supervisor_users.filtered(lambda rec: rec.email):
             try:
                 self.env['mail.mail'].sudo().create({

@@ -2,7 +2,7 @@
     <record id="seq_hr_recruitment_request" model="ir.sequence">
         <field name="name">Recruitment Request</field>
         <field name="code">pr.hr.recruitment.request</field>
-        <field name="prefix">RR%(year)s/</field>
+        <field name="prefix">PEC/REC/%(year)s/</field>
         <field name="padding">4</field>
         <field name="company_id" eval="False"/>
 

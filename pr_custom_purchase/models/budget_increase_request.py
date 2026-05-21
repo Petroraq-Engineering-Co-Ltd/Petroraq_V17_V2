@@ -83,7 +83,7 @@ class BudgetIncreaseRequest(models.Model):
             emails = ",".join(users.filtered(lambda u: u.email).mapped("email"))
             if emails:
                 self.env["mail.mail"].sudo().create({
-                    "email_from": "hr@petroraq.com",
+                    "email_from": "noreply@petroraq.com",
                     "email_to": emails,
                     "subject": summary,
                     "body_html": f"<p>{note}</p>",
