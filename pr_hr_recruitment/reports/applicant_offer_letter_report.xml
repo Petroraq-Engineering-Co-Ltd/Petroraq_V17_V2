@@ -32,8 +32,11 @@
                         <p style="margin: 0 0 12px 0;">
                             <strong>To: Mr. <span t-out="offer.get('candidate_name')"/></strong>
                         </p>
-                        <p style="margin: 0 0 36px 0;">
-                            <strong>Nationality – <span t-out="offer.get('nationality') or 'To be confirmed'"/></strong>
+                        <p style="margin: 0 0 8px 0;">
+                            <strong>Nationality - <span t-out="offer.get('nationality') or 'To be confirmed'"/></strong>
+                        </p>
+                        <p t-if="offer.get('iqama_number')" style="margin: 0 0 36px 0;">
+                            <strong>Iqama Number - <span t-out="offer.get('iqama_number')"/></strong>
                         </p>
 
                         <p style="margin: 0 0 28px 0; max-width: 720px;">
@@ -47,6 +50,8 @@
                                 <tr><td><strong>Basic Salary</strong></td><td>:</td><td><strong><span t-out="offer.get('basic_salary')"/></strong> per month</td></tr>
                                 <tr><td><strong>Housing Allowance</strong></td><td>:</td><td><span t-out="offer.get('housing_allowance')"/></td></tr>
                                 <tr><td><strong>Transportation Allowance</strong></td><td>:</td><td><span t-out="offer.get('transportation_allowance')"/></td></tr>
+                                <tr><td><strong>Food Allowance</strong></td><td>:</td><td><span t-out="offer.get('food_allowance')"/></td></tr>
+                                <tr><td><strong>Fixed Overtime</strong></td><td>:</td><td><span t-out="offer.get('fixed_overtime')"/></td></tr>
                                 <tr><td><strong>Gross</strong></td><td>:</td><td><strong><span t-out="offer.get('gross_salary')"/></strong></td></tr>
                                 <tr><td><strong>Contract Status</strong></td><td>:</td><td><span t-out="offer.get('contract_status')"/></td></tr>
                                 <tr><td><strong>Medical</strong></td><td>:</td><td><span t-out="offer.get('medical')"/></td></tr>

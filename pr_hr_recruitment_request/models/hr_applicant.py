@@ -10,5 +10,6 @@ class Applicant(models.Model):
     legally_required = fields.Selection([('yes', 'Yes'), ('no', 'No')], string='Authorized to Work in Saudi Arabia')
     availability = fields.Char(string='Joining Availability')
     experience = fields.Char(string='Experience In Years')
+    nationality_id = fields.Many2one('res.country', string='Nationality')
 
 

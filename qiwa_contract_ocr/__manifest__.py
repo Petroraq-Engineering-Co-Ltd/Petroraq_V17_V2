@@ -1,6 +1,6 @@
 {
     'name': 'Qiwa Contract OCR Processor',
-    'version': '17.0.1.0.0',
+    'version': '17.0.1.0.1',
     'depends': [
         'hr_recruitment',
         'pr_hr_recruitment',
@@ -19,6 +19,13 @@
     ],
     'external_dependencies': {
         'python': ['pypdf'],
+    },
+    'assets': {
+        'web.assets_backend': [
+            'qiwa_contract_ocr/static/src/js/reminder_dashboard_action.js',
+            'qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml',
+            'qiwa_contract_ocr/static/src/css/reminder_dashboard.css',
+        ],
     },
     'installable': True,
     'auto_install': False,
