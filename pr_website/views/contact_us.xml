@@ -76,6 +76,7 @@
                     background: url('/pr_website/static/images/hero-bg.png') center/cover no-repeat;
                     display: flex;
                     align-items: center;
+                    text-align-left;
                     overflow: hidden;
                 }
                 .petroraq-contact .hero-overlay {
@@ -476,7 +477,7 @@
                     font-size: 32px;
                 }
                 .petroraq-contact .assistance-text h3 {
-                    color: #fff;
+                    color: #C46A1A;
                     font-size: 32px;
                     font-weight: 800;
                     margin-bottom: 10px;
@@ -588,9 +589,9 @@
                 <!-- ===== Hero Section ===== -->
                 <section class="contact-hero animate-fade-in">
                     <div class="hero-overlay"></div>
-                    <div class="pr-container">
+                    <div class="">
                         <div class="hero-content animate-slide-up">
-                            <h1>Let's Connect
+                            <h1 >Let's Connect
                                 <span class="dot"></span>
                             </h1>
                             <p>Ready to start your next project? Our team is here to bring your vision to life with engineering excellence.</p>

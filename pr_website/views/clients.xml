@@ -460,14 +460,15 @@
                 font-size: 26px;
                 }
                 .petroraq-clients .cta-text h3 {
-                color: #fff;
+                color: #DB9332;
                 font-size: 24px;
                 font-weight: 700;
                 margin-bottom: 8px;
                 }
                 .petroraq-clients .cta-text p {
-                color: #b8c5d6;
+                color: #000;
                 font-size: 15px;
+
                 }
                 .petroraq-clients .cta-buttons {
                 display: flex;
@@ -696,8 +697,16 @@
                                 <img src="/pr_website/static/images/red-sea-client.png"
                                      alt="Red Sea Global"/>
                             </div>
-                            <div class="org-card" style="border: none; background: transparent;"></div>
-                            <div class="org-card" style="border: none; background: transparent;"></div>
+                            <div class="org-card" >
+                                <img src="/pr_website/static/images/nbc_logo.png"
+                                     alt="Al Bawani"/>
+
+                            </div>
+                            <div class="org-card">
+                                <img src="/pr_website/static/images/asda_logo.png"
+                                     alt="Al Bawani"/>
+
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -764,7 +773,7 @@
                                     Contact Us
                                     <i class="fa fa-arrow-right"></i>
                                 </a>
-                                <a href="#" class="btn-cta-outline">
+                                <a href="/projects" class="btn-cta-primary">
                                     Explore Projects
                                     <i class="fa fa-arrow-right"></i>
                                 </a>
