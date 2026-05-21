@@ -21,13 +21,13 @@ class HrJob(models.Model):
         ("review", "Reviewed"),
         ("post", "Posted"),
         ("reject", "Rejected"),
-    ], string="Status", default="initialize")
+    ], string="Status", default="post")
     approval_state = fields.Selection([
         ("initialize", "Initialized"),
         ("review", "Reviewed / Pending Approval"),
         ("post", "Posted"),
         ("reject", "Rejected"),
-    ], string="Status", default="initialize")
+    ], string="Status", default="post")
 
     # endregion [Fields]
 
@@ -46,3 +46,8 @@ class HrJob(models.Model):
         for rec in self:
             rec.job_state = "reject"
             rec.approval_state = "reject"
+
+    def _compute_website_url(self):
+        super()._compute_website_url()
+        for job in self:
+            job.website_url = f"/job/{job.id}"

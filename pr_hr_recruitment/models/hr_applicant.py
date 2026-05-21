@@ -32,6 +32,12 @@ INTERVIEW_RECOMMENDATION_SELECTION = [
     ('hire', 'Hire'),
 ]
 
+ALLOWANCE_TYPE_SELECTION = [
+    ('none', 'None'),
+    ('fixed', 'Fixed Amount'),
+    ('percentage', 'Percentage of Basic Salary'),
+]
+
 FIRST_INTERVIEW_STAGE_KEYWORDS = (
     '1st interview',
     'first interview',
@@ -74,6 +80,7 @@ class HrApplicant(models.Model):
     readonly_first_interview_evaluation = fields.Boolean(compute="_compute_interview_evaluation_visibility")
     readonly_second_interview_evaluation = fields.Boolean(compute="_compute_interview_evaluation_visibility")
     check_contract_proposal_stage = fields.Boolean(compute="_compute_check_contract_proposal_stage")
+    show_recruitment_tracking_fields = fields.Boolean(compute="_compute_show_recruitment_tracking_fields")
     offer_letter_attachment_id = fields.Many2one(
         "ir.attachment", string="Offer Letter PDF", readonly=True, copy=False)
     offer_letter_sent_date = fields.Datetime(string="Offer Letter Sent On", readonly=True, copy=False)
@@ -92,7 +99,7 @@ class HrApplicant(models.Model):
         string="Total Score", compute="_compute_interview_scores", store=True)
     first_average_score = fields.Float(
         string="Average Score", compute="_compute_interview_scores", store=True, digits=(16, 2))
-    first_interview_summary = fields.Text(string="Interview Summary", tracking=True)
+    first_interview_summary = fields.Text(string="Feedback", tracking=True)
     first_strengths = fields.Text(string="Strengths", tracking=True)
     first_recommendation = fields.Selection(
         INTERVIEW_RECOMMENDATION_SELECTION, string="Recommendation", tracking=True)
@@ -111,10 +118,37 @@ class HrApplicant(models.Model):
         string="Total Score", compute="_compute_interview_scores", store=True)
     second_average_score = fields.Float(
         string="Average Score", compute="_compute_interview_scores", store=True, digits=(16, 2))
-    second_interview_summary = fields.Text(string="Interview Summary", tracking=True)
+    second_interview_summary = fields.Text(string="Feedback", tracking=True)
     second_strengths = fields.Text(string="Strengths", tracking=True)
     second_recommendation = fields.Selection(
         INTERVIEW_RECOMMENDATION_SELECTION, string="Recommendation", tracking=True)
+    overall_interview_summary = fields.Text(string="Overall Interview Summary", tracking=True)
+
+    offer_basic_salary = fields.Float(string="Basic Salary", tracking=True)
+    offer_housing_allowance_type = fields.Selection(
+        ALLOWANCE_TYPE_SELECTION, string="Housing Allowance", default="percentage", tracking=True)
+    offer_housing_allowance_amount = fields.Float(string="Housing Fixed Amount", tracking=True)
+    offer_housing_allowance_percentage = fields.Float(string="Housing Percentage", default=25.0, tracking=True)
+    offer_transportation_allowance_type = fields.Selection(
+        ALLOWANCE_TYPE_SELECTION, string="Transportation Allowance", default="percentage", tracking=True)
+    offer_transportation_allowance_amount = fields.Float(string="Transportation Fixed Amount", tracking=True)
+    offer_transportation_allowance_percentage = fields.Float(
+        string="Transportation Percentage", default=10.0, tracking=True)
+    offer_food_allowance_type = fields.Selection(
+        ALLOWANCE_TYPE_SELECTION, string="Food Allowance", default="none", tracking=True)
+    offer_food_allowance_amount = fields.Float(string="Food Fixed Amount", tracking=True)
+    offer_food_allowance_percentage = fields.Float(string="Food Percentage", tracking=True)
+    offer_fixed_overtime = fields.Float(string="Fixed Overtime", tracking=True)
+    offer_gross_salary = fields.Float(
+        string="Gross Salary", compute="_compute_offer_gross_salary", store=True, tracking=True)
+    offer_contract_status = fields.Char(string="Contract Status", default="Single", tracking=True)
+    offer_medical = fields.Char(string="Medical", default="Provided by company as per company policy", tracking=True)
+    offer_contract_duration = fields.Char(string="Contract Duration", default="02 (Two) Years (Renewable)", tracking=True)
+    offer_probation_period = fields.Char(string="Probation Period", default="90 Days", tracking=True)
+    offer_vacation = fields.Char(string="Vacation", default="21 working days paid vacation per annum", tracking=True)
+    offer_working_hours = fields.Char(string="Working Hours", default="48 hours per week", tracking=True)
+    offer_validity = fields.Char(string="Offer Validity", tracking=True)
+    offer_iqama_number = fields.Char(string="Iqama Number", tracking=True)
 
     # endregion [Fields]
 
@@ -184,6 +218,59 @@ class HrApplicant(models.Model):
             rec.check_contract_proposal_stage = rec._stage_matches_keywords(
                 rec.stage_id, CONTRACT_PROPOSAL_STAGE_KEYWORDS)
 
+    def _get_recruitment_stages_for_job(self):
+        self.ensure_one()
+        domain = []
+        if self.job_id:
+            domain = ["|", ("job_ids", "=", False), ("job_ids", "in", self.job_id.ids)]
+        return self.env["hr.recruitment.stage"].search(domain, order="sequence, id")
+
+    @api.depends("stage_id", "job_id")
+    def _compute_show_recruitment_tracking_fields(self):
+        for rec in self:
+            rec.show_recruitment_tracking_fields = False
+            if not rec.stage_id:
+                continue
+            stages = rec._get_recruitment_stages_for_job()
+            if len(stages) >= 2 and rec.stage_id in stages:
+                rec.show_recruitment_tracking_fields = rec.stage_id not in stages[:2]
+            elif len(stages) >= 2:
+                rec.show_recruitment_tracking_fields = rec.stage_id.sequence > stages[1].sequence
+
+    def _get_offer_allowance_amount(self, allowance_type, fixed_amount, percentage, basic_salary=None):
+        self.ensure_one()
+        basic_salary = self.offer_basic_salary if basic_salary is None else basic_salary
+        if allowance_type == "fixed":
+            return fixed_amount or 0.0
+        if allowance_type == "percentage":
+            return basic_salary * (percentage or 0.0) / 100.0
+        return 0.0
+
+    @api.depends(
+        "offer_basic_salary",
+        "offer_housing_allowance_type", "offer_housing_allowance_amount", "offer_housing_allowance_percentage",
+        "offer_transportation_allowance_type", "offer_transportation_allowance_amount",
+        "offer_transportation_allowance_percentage",
+        "offer_food_allowance_type", "offer_food_allowance_amount", "offer_food_allowance_percentage",
+        "offer_fixed_overtime")
+    def _compute_offer_gross_salary(self):
+        for rec in self:
+            gross_salary = rec.offer_basic_salary or 0.0
+            gross_salary += rec._get_offer_allowance_amount(
+                rec.offer_housing_allowance_type,
+                rec.offer_housing_allowance_amount,
+                rec.offer_housing_allowance_percentage)
+            gross_salary += rec._get_offer_allowance_amount(
+                rec.offer_transportation_allowance_type,
+                rec.offer_transportation_allowance_amount,
+                rec.offer_transportation_allowance_percentage)
+            gross_salary += rec._get_offer_allowance_amount(
+                rec.offer_food_allowance_type,
+                rec.offer_food_allowance_amount,
+                rec.offer_food_allowance_percentage)
+            gross_salary += rec.offer_fixed_overtime or 0.0
+            rec.offer_gross_salary = gross_salary
+
     def _format_offer_letter_date(self, date_value):
         date_value = fields.Date.to_date(date_value)
         day = date_value.day
@@ -197,14 +284,46 @@ class HrApplicant(models.Model):
     def _format_offer_letter_amount(amount, currency_name='SAR'):
         return f"{amount:,.2f} {currency_name or 'SAR'}"
 
+    def _format_offer_letter_free_text(self, value, default='To be confirmed'):
+        return (value or '').strip() or default
+
+    def _format_offer_allowance_line(self, allowance_type, fixed_amount, percentage, currency_name, basic_salary=None):
+        amount = self._get_offer_allowance_amount(allowance_type, fixed_amount, percentage, basic_salary)
+        if allowance_type == "fixed":
+            return f"{self._format_offer_letter_amount(amount, currency_name)} per month"
+        if allowance_type == "percentage":
+            return "%s%% of Basic Salary (%s)" % (
+                ("%g" % (percentage or 0.0)),
+                self._format_offer_letter_amount(amount, currency_name),
+            )
+        return "Not Applicable"
+
     def _get_offer_letter_values(self):
         self.ensure_one()
         offer_date = fields.Date.context_today(self)
         validity_date = offer_date + timedelta(days=1)
-        gross_salary = self.second_salary_proposed or self.salary_proposed or 0.0
-        basic_salary = gross_salary / 1.35 if gross_salary else 0.0
+        gross_salary = self.offer_gross_salary or self.second_salary_proposed or self.salary_proposed or 0.0
+        basic_salary = self.offer_basic_salary or (gross_salary / 1.35 if gross_salary else 0.0)
+        housing_type = self.offer_housing_allowance_type or "percentage"
+        housing_percentage = self.offer_housing_allowance_percentage or 25.0
+        transportation_type = self.offer_transportation_allowance_type or "percentage"
+        transportation_percentage = self.offer_transportation_allowance_percentage or 10.0
+        food_type = self.offer_food_allowance_type or "none"
+        food_percentage = self.offer_food_allowance_percentage or 0.0
+        if self.offer_basic_salary:
+            gross_salary = basic_salary
+            gross_salary += self._get_offer_allowance_amount(
+                housing_type, self.offer_housing_allowance_amount, housing_percentage, basic_salary)
+            gross_salary += self._get_offer_allowance_amount(
+                transportation_type, self.offer_transportation_allowance_amount,
+                transportation_percentage, basic_salary)
+            gross_salary += self._get_offer_allowance_amount(
+                food_type, self.offer_food_allowance_amount, food_percentage, basic_salary)
+            gross_salary += self.offer_fixed_overtime or 0.0
         country = self.env['res.country']
-        if 'country_id' in self._fields and self.country_id:
+        if 'nationality_id' in self._fields and self.nationality_id:
+            country = self.nationality_id
+        elif 'country_id' in self._fields and self.country_id:
             country = self.country_id
         elif self.partner_id.country_id:
             country = self.partner_id.country_id
@@ -214,20 +333,41 @@ class HrApplicant(models.Model):
         currency_name = (self.company_id.currency_id or self.env.company.currency_id).name or 'SAR'
         return {
             'date': self._format_offer_letter_date(offer_date),
-            'validity_date': self._format_offer_letter_date(validity_date),
             'candidate_name': self.partner_name or self.name or '',
             'nationality': nationality,
+            'iqama_number': self._format_offer_letter_free_text(self.offer_iqama_number, ''),
             'position': self.job_id.name or '',
             'basic_salary': self._format_offer_letter_amount(basic_salary, currency_name),
             'gross_salary': self._format_offer_letter_amount(gross_salary, currency_name),
-            'housing_allowance': '25% of Basic Salary',
-            'transportation_allowance': '10% of Basic Salary',
-            'contract_status': 'Single',
-            'medical': 'Provided by company as per company policy',
-            'contract_duration': '02 (Two) Years (Renewable)',
-            'probation_period': '90 Days',
-            'vacation': '21 working days paid vacation per annum',
-            'working_hours': '48 hours per week',
+            'housing_allowance': self._format_offer_allowance_line(
+                housing_type,
+                self.offer_housing_allowance_amount,
+                housing_percentage,
+                currency_name,
+                basic_salary),
+            'transportation_allowance': self._format_offer_allowance_line(
+                transportation_type,
+                self.offer_transportation_allowance_amount,
+                transportation_percentage,
+                currency_name,
+                basic_salary),
+            'food_allowance': self._format_offer_allowance_line(
+                food_type,
+                self.offer_food_allowance_amount,
+                food_percentage,
+                currency_name,
+                basic_salary),
+            'fixed_overtime': self._format_offer_letter_amount(self.offer_fixed_overtime or 0.0, currency_name),
+            'contract_status': self._format_offer_letter_free_text(self.offer_contract_status, 'Single'),
+            'medical': self._format_offer_letter_free_text(
+                self.offer_medical, 'Provided by company as per company policy'),
+            'contract_duration': self._format_offer_letter_free_text(
+                self.offer_contract_duration, '02 (Two) Years (Renewable)'),
+            'probation_period': self._format_offer_letter_free_text(self.offer_probation_period, '90 Days'),
+            'vacation': self._format_offer_letter_free_text(
+                self.offer_vacation, '21 working days paid vacation per annum'),
+            'working_hours': self._format_offer_letter_free_text(self.offer_working_hours, '48 hours per week'),
+            'validity_date': self.offer_validity or self._format_offer_letter_date(validity_date),
             'company_name': self.company_id.name or self.env.company.name or 'Petroraq Engineering Co. Ltd.',
             'signatory_name': 'Mustafa Abdulrasheed',
             'signatory_title': 'Managing Director',
@@ -346,6 +486,8 @@ class HrApplicant(models.Model):
         if not email_to:
             raise UserError(_(
                 "Please set an email address for %s before sending the offer letter.") % self.display_name)
+        if self.check_contract_proposal_stage and not self.offer_basic_salary:
+            raise UserError(_("Please fill the Contract Proposal tab before sending the offer letter."))
 
         attachment = self._generate_offer_letter_attachment()
         template = self._get_offer_letter_email_template()
@@ -378,19 +520,10 @@ class HrApplicant(models.Model):
         }
 
     def _send_offer_letter_on_contract_proposal(self):
-        for rec in self:
-            if (
-                rec.stage_id
-                and not rec.offer_letter_sent_date
-                and rec._stage_matches_keywords(rec.stage_id, CONTRACT_PROPOSAL_STAGE_KEYWORDS)
-            ):
-                rec._send_offer_letter_direct()
+        return True
 
     def write(self, vals):
-        res = super().write(vals)
-        if 'stage_id' in vals:
-            self._send_offer_letter_on_contract_proposal()
-        return res
+        return super().write(vals)
 
     @api.depends(
         "first_communication_score", "first_technical_score", "first_experience_score",

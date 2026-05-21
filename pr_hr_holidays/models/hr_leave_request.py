@@ -219,7 +219,7 @@ class HrLeaveRequest(models.Model):
 
         return sorted(list(non_working_dates))
 
-    @api.depends("requested_days", "leave_type_id", "employee_id", "state")
+    @api.depends("requested_days", "leave_type_id", "employee_id", "date_from", "date_to", "state")
     def _compute_allocation_bypassed(self):
         for rec in self:
             if not rec.employee_id or not rec.leave_type_id:
@@ -486,7 +486,7 @@ class HrLeaveRequest(models.Model):
         leave_type = self.leave_type_id
         employee = self.employee_id
 
-        target_date = self.date_from or fields.Date.context_today(self)
+        target_date = self.date_to or self.date_from or fields.Date.context_today(self)
         allocation_data = leave_type.get_allocation_data(employee, target_date).get(employee, [])
         leave_type_data = next(
             (
@@ -713,6 +713,7 @@ class HrLeaveRequest(models.Model):
                 "mail_activity_automation_skip": True,
                 "leave_fast_create": True,
                 "leave_skip_state_check": True,
+                "pr_leave_request_allocation_checked": True,
             }
             if allocation_override:
                 leave_context["pr_leave_allocation_override"] = True

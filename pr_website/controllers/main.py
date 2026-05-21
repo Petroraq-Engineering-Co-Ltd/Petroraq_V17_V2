@@ -75,9 +75,17 @@ class CareersController(http.Controller):
         if not job.exists() or not job.website_published:
             return request.not_found()
         degrees = request.env['hr.recruitment.degree'].sudo().search([], order='name')
+        countries = request.env['res.country'].sudo().search([], order='name')
+        skills = request.env['hr.skill'].sudo().search([], order='skill_type_id, name')
         error_message = kwargs.get('error')
         return request.render('pr_website.careers_job_detail',
-                              {'job': job, 'degrees': degrees, 'error_message': error_message})
+                              {
+                                  'job': job,
+                                  'degrees': degrees,
+                                  'countries': countries,
+                                  'skills': skills,
+                                  'error_message': error_message,
+                              })
 
     def _validate_application_payload(self, post):
         validators = [
@@ -108,6 +116,14 @@ class CareersController(http.Controller):
             return 'Please select a valid answer for relocation.'
         if (post.get('legally_required') or '') not in {'yes', 'no'}:
             return 'Please select a valid legal authorization option.'
+
+        nationality_id = (post.get('nationality_id') or '').strip()
+        if not nationality_id.isdigit() or not request.env['res.country'].sudo().browse(int(nationality_id)).exists():
+            return 'Please select a valid nationality.'
+
+        for skill_id in request.httprequest.form.getlist('skill_ids'):
+            if skill_id and not skill_id.isdigit():
+                return 'Please select valid skills.'
 
         return None
 
@@ -143,6 +159,8 @@ class CareersController(http.Controller):
             'notice_period': post.get('notice_period'),
             'legally_required': post.get('legally_required'),
             'salary_expected': post.get('salary_expected'),
+            'nationality_id': int(post['nationality_id']) if post.get('nationality_id') and post.get(
+                'nationality_id').isdigit() else False,
             'type_id': int(post['type_id']) if post.get('type_id') and post.get('type_id').isdigit() else False,
             'experience': int(post['experience']) if post.get('experience') and post.get(
                 'experience').isdigit() else False,
@@ -152,6 +170,22 @@ class CareersController(http.Controller):
         }
 
         applicant = request.env['hr.applicant'].sudo().create(applicant_vals)
+        skill_ids = {
+            int(skill_id)
+            for skill_id in request.httprequest.form.getlist('skill_ids')
+            if skill_id and skill_id.isdigit()
+        }
+        skills = request.env['hr.skill'].sudo().browse(list(skill_ids)).exists()
+        for skill in skills:
+            skill_levels = skill.skill_type_id.skill_level_ids
+            skill_level = skill_levels.filtered('default_level')[:1] or skill_levels[:1]
+            if skill_level:
+                request.env['hr.applicant.skill'].sudo().create({
+                    'applicant_id': applicant.id,
+                    'skill_type_id': skill.skill_type_id.id,
+                    'skill_id': skill.id,
+                    'skill_level_id': skill_level.id,
+                })
 
         resume = post.get('resume')
         if resume and getattr(resume, 'filename', False):

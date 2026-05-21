@@ -631,6 +631,7 @@ class HrOnboardingComplianceRequest(models.Model):
     state = fields.Selection(
         [
             ('draft', 'Draft'),
+            ('hr_manager_approval', 'HR Manager Approval'),
             ('md_approval', 'MD Approval'),
             ('approved', 'Approved'),
             ('rejected', 'Rejected'),
@@ -642,6 +643,7 @@ class HrOnboardingComplianceRequest(models.Model):
         tracking=True,
     )
     is_onboarding_supervisor = fields.Boolean(compute='_compute_approval_permissions')
+    is_onboarding_manager = fields.Boolean(compute='_compute_approval_permissions')
     is_onboarding_md = fields.Boolean(compute='_compute_approval_permissions')
 
     iqama_no = fields.Char(string='Iqama / ID No.', tracking=True)
@@ -705,6 +707,13 @@ class HrOnboardingComplianceRequest(models.Model):
         store=True,
     )
 
+    hr_manager_approved_by_id = fields.Many2one(
+        'res.users',
+        string='HR Manager Approved By',
+        readonly=True,
+        copy=False,
+    )
+    hr_manager_approved_date = fields.Datetime(string='HR Manager Approved On', readonly=True, copy=False)
     md_approved_by_id = fields.Many2one('res.users', string='MD Approved By', readonly=True, copy=False)
     md_approved_date = fields.Datetime(string='MD Approved On', readonly=True, copy=False)
 
@@ -769,10 +778,18 @@ class HrOnboardingComplianceRequest(models.Model):
 
     def _compute_approval_permissions(self):
         is_supervisor = self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_supervisor')
+        is_manager = self._is_hr_manager_approver()
         is_md = self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md')
         for rec in self:
             rec.is_onboarding_supervisor = is_supervisor
+            rec.is_onboarding_manager = is_manager
             rec.is_onboarding_md = is_md
+
+    def _is_hr_manager_approver(self):
+        return (
+            self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_manager')
+            or self.env.user.has_group('hr.group_hr_manager')
+        )
 
     @api.depends('bank_payment_id')
     def _compute_payment_flags(self):
@@ -784,8 +801,20 @@ class HrOnboardingComplianceRequest(models.Model):
             raise UserError(_('Only Onboarding Supervisor can submit onboarding compliance requests.'))
         for rec in self:
             if rec.state == 'draft':
-                rec.state = 'md_approval'
+                rec.state = 'hr_manager_approval'
                 rec._link_checklist_task(task_state='in_progress')
+
+    def action_approve_hr_manager(self):
+        if not self._is_hr_manager_approver():
+            raise UserError(_('Only HR Manager can approve onboarding compliance requests.'))
+        for rec in self:
+            if rec.state != 'hr_manager_approval':
+                continue
+            rec.write({
+                'state': 'md_approval',
+                'hr_manager_approved_by_id': self.env.user.id,
+                'hr_manager_approved_date': fields.Datetime.now(),
+            })
 
     def action_approve_md(self):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
@@ -803,9 +832,16 @@ class HrOnboardingComplianceRequest(models.Model):
             })
 
     def action_reject(self):
-        if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
-            raise UserError(_('Only Onboarding MD can reject onboarding compliance requests.'))
-        self.write({'state': 'rejected'})
+        for rec in self:
+            if rec.state == 'hr_manager_approval':
+                if not self._is_hr_manager_approver():
+                    raise UserError(_('Only HR Manager can reject onboarding compliance requests.'))
+            elif rec.state == 'md_approval':
+                if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
+                    raise UserError(_('Only Onboarding MD can reject onboarding compliance requests.'))
+            else:
+                continue
+            rec.state = 'rejected'
 
     def action_set_done(self):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_supervisor'):
@@ -823,7 +859,9 @@ class HrOnboardingComplianceRequest(models.Model):
     def action_cancel(self):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_supervisor'):
             raise UserError(_('Only Onboarding Supervisor can cancel onboarding compliance requests.'))
-        self.write({'state': 'cancelled'})
+        self.filtered(lambda rec: rec.state in ('draft', 'hr_manager_approval', 'md_approval', 'approved')).write({
+            'state': 'cancelled'
+        })
 
     def action_reset_to_draft(self):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_supervisor'):
@@ -890,13 +928,18 @@ class HrOnboardingComplianceRequest(models.Model):
             'iqama_issuance_date': issue_date,
             'iqama_expiry_date': expiry_date,
             'work_permit_expiry_date': expiry_date,
-            'state': 'draft',
+            'state': 'approved',
+            'payment_state': 'pending' if self.requires_payment else 'draft',
         }
         if work_permit:
             work_permit_vals.pop('state', None)
             work_permit.write(work_permit_vals)
         else:
             work_permit = self.env['hr.work.permit'].sudo().create(work_permit_vals)
+        if work_permit.state not in ('approved', 'issued', 'reject'):
+            work_permit.state = 'approved'
+        if self.requires_payment and work_permit.payment_state == 'draft':
+            work_permit.payment_state = 'pending'
         self.work_permit_id = work_permit.id
         if 'onboarding_compliance_request_id' in work_permit._fields:
             work_permit.onboarding_compliance_request_id = self.id
@@ -989,6 +1032,8 @@ class HrOnboardingComplianceRequest(models.Model):
                 self.work_permit_id.bank_payment_id = bank_payment.id
             if 'payment_state' in self.work_permit_id._fields:
                 self.work_permit_id.payment_state = 'pending'
+            if self.work_permit_id.state not in ('approved', 'issued', 'reject'):
+                self.work_permit_id.state = 'approved'
 
         bank_payment.action_submit()
         self.write({
@@ -1087,31 +1132,237 @@ class HrOnboardingComplianceRequest(models.Model):
 class HRWorkPermit(models.Model):
     _inherit = 'hr.work.permit'
 
+    state = fields.Selection(
+        selection_add=[
+            ('hr_manager_approval', 'HR Manager Approval'),
+            ('md_approval', 'MD Approval'),
+        ],
+        ondelete={
+            'hr_manager_approval': 'set default',
+            'md_approval': 'set default',
+        },
+    )
     onboarding_compliance_request_id = fields.Many2one(
         'hr.onboarding.compliance.request',
         string='Onboarding Compliance Request',
         readonly=True,
     )
+    hr_manager_approved_by_id = fields.Many2one(
+        'res.users',
+        string='HR Manager Approved By',
+        readonly=True,
+        copy=False,
+    )
+    hr_manager_approved_date = fields.Datetime(string='HR Manager Approved On', readonly=True, copy=False)
+    md_approved_by_id = fields.Many2one('res.users', string='MD Approved By', readonly=True, copy=False)
+    md_approved_date = fields.Datetime(string='MD Approved On', readonly=True, copy=False)
+
+    def _is_hr_manager_approver(self):
+        return (
+            self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_manager')
+            or self.env.user.has_group('hr.group_hr_manager')
+            or self.env.user.has_group('hr_recruitment.group_hr_recruitment_manager')
+        )
+
+    def action_submit(self):
+        for rec in self:
+            if rec.state == 'draft':
+                rec.state = 'hr_manager_approval'
+
+    def action_approve_hr_manager(self):
+        if not self._is_hr_manager_approver():
+            raise UserError(_('Only HR Manager can approve work permits.'))
+        for rec in self:
+            if rec.state not in ('submit', 'hr_manager_approval'):
+                continue
+            rec.write({
+                'state': 'md_approval',
+                'hr_manager_approved_by_id': self.env.user.id,
+                'hr_manager_approved_date': fields.Datetime.now(),
+            })
+
+    def action_approve_md(self):
+        if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
+            raise UserError(_('Only Onboarding MD can approve work permits.'))
+        for rec in self:
+            if rec.state != 'md_approval':
+                continue
+            rec._create_or_reuse_bank_payment()
+            if rec.applicant_onboarding_id:
+                rec.applicant_onboarding_id.work_permit_id = rec.id
+                rec.applicant_onboarding_id.state = 'work_permit'
+            rec.write({
+                'state': 'approved',
+                'payment_state': 'paid' if rec.bank_payment_id.state == 'posted' else 'pending',
+                'md_approved_by_id': self.env.user.id,
+                'md_approved_date': fields.Datetime.now(),
+            })
+
+    def action_approve(self):
+        return self.action_approve_hr_manager()
+
+    def action_reject(self):
+        for rec in self:
+            if rec.state in ('submit', 'hr_manager_approval'):
+                if not self._is_hr_manager_approver():
+                    raise UserError(_('Only HR Manager can reject work permits.'))
+            elif rec.state == 'md_approval':
+                if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
+                    raise UserError(_('Only Onboarding MD can reject work permits.'))
+            else:
+                continue
+            rec.state = 'reject'
+
+    def _create_or_reuse_bank_payment(self):
+        self.ensure_one()
+        if self.bank_payment_id and self.bank_payment_id.state != 'cancel':
+            return self.bank_payment_id
+        bank_account_id = self.env['account.account'].sudo().search([('code', '=', '1001.02.00.07')], limit=1)
+        account_id = bank_account_id if bank_account_id else self.env['account.account'].sudo().browse(749)
+        bank_payment = self.env['pr.account.bank.payment'].sudo().create({
+            'account_id': account_id.id,
+            'description': _('Payment For Work Permit of Visa Number %s') % self.visa_number,
+        })
+        self.bank_payment_id = bank_payment.id
+        bank_payment.work_permit_id = self.id
+        return bank_payment
+
+    def _cron_check_alerts(self):
+        return self.env['hr.compliance.expiry.reminder.log']._cron_send_expiry_reminders()
 
 
 class HREmployeeIqama(models.Model):
     _inherit = 'hr.employee.iqama'
 
+    state = fields.Selection(
+        selection_add=[
+            ('hr_manager_approval', 'HR Manager Approval'),
+            ('md_approval', 'MD Approval'),
+        ],
+        ondelete={
+            'hr_manager_approval': 'set default',
+            'md_approval': 'set default',
+        },
+    )
     onboarding_compliance_request_id = fields.Many2one(
         'hr.onboarding.compliance.request',
         string='Onboarding Compliance Request',
         readonly=True,
     )
+    hr_manager_approved_by_id = fields.Many2one(
+        'res.users',
+        string='HR Manager Approved By',
+        readonly=True,
+        copy=False,
+    )
+    hr_manager_approved_date = fields.Datetime(string='HR Manager Approved On', readonly=True, copy=False)
+    md_approved_by_id = fields.Many2one('res.users', string='MD Approved By', readonly=True, copy=False)
+    md_approved_date = fields.Datetime(string='MD Approved On', readonly=True, copy=False)
+
+    def _is_hr_manager_approver(self):
+        return (
+            self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_manager')
+            or self.env.user.has_group('hr.group_hr_manager')
+        )
+
+    def action_request_approval(self):
+        for rec in self:
+            if rec.state == 'draft':
+                rec.state = 'hr_manager_approval'
+
+    def action_approve_hr_manager(self):
+        if not self._is_hr_manager_approver():
+            raise UserError(_('Only HR Manager can approve Iqama requests.'))
+        for rec in self:
+            if rec.state not in ('pending_approval', 'hr_manager_approval'):
+                continue
+            rec.write({
+                'state': 'md_approval',
+                'hr_manager_approved_by_id': self.env.user.id,
+                'hr_manager_approved_date': fields.Datetime.now(),
+            })
+
+    def action_approve_md(self):
+        if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
+            raise UserError(_('Only Onboarding MD can approve Iqama requests.'))
+        for rec in self:
+            if rec.state != 'md_approval':
+                continue
+            rec.write({
+                'state': 'approve',
+                'md_approved_by_id': self.env.user.id,
+                'md_approved_date': fields.Datetime.now(),
+            })
+
+    def action_approve(self):
+        return self.action_approve_hr_manager()
 
 
 class HREmployeeMedicalInsurance(models.Model):
     _inherit = 'hr.employee.medical.insurance'
 
+    state = fields.Selection(
+        selection_add=[
+            ('hr_manager_approval', 'HR Manager Approval'),
+            ('md_approval', 'MD Approval'),
+        ],
+        ondelete={
+            'hr_manager_approval': 'set default',
+            'md_approval': 'set default',
+        },
+    )
     onboarding_compliance_request_id = fields.Many2one(
         'hr.onboarding.compliance.request',
         string='Onboarding Compliance Request',
         readonly=True,
     )
+    hr_manager_approved_by_id = fields.Many2one(
+        'res.users',
+        string='HR Manager Approved By',
+        readonly=True,
+        copy=False,
+    )
+    hr_manager_approved_date = fields.Datetime(string='HR Manager Approved On', readonly=True, copy=False)
+    md_approved_by_id = fields.Many2one('res.users', string='MD Approved By', readonly=True, copy=False)
+    md_approved_date = fields.Datetime(string='MD Approved On', readonly=True, copy=False)
+
+    def _is_hr_manager_approver(self):
+        return (
+            self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_manager')
+            or self.env.user.has_group('hr.group_hr_manager')
+        )
+
+    def action_request_approval(self):
+        for rec in self:
+            if rec.state == 'draft':
+                rec.state = 'hr_manager_approval'
+
+    def action_approve_hr_manager(self):
+        if not self._is_hr_manager_approver():
+            raise UserError(_('Only HR Manager can approve medical insurance requests.'))
+        for rec in self:
+            if rec.state not in ('pending_approval', 'hr_manager_approval'):
+                continue
+            rec.write({
+                'state': 'md_approval',
+                'hr_manager_approved_by_id': self.env.user.id,
+                'hr_manager_approved_date': fields.Datetime.now(),
+            })
+
+    def action_approve_md(self):
+        if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
+            raise UserError(_('Only Onboarding MD can approve medical insurance requests.'))
+        for rec in self:
+            if rec.state != 'md_approval':
+                continue
+            rec.write({
+                'state': 'approve',
+                'md_approved_by_id': self.env.user.id,
+                'md_approved_date': fields.Datetime.now(),
+            })
+
+    def action_approve(self):
+        return self.action_approve_hr_manager()
 
 
 class AccountBankPayment(models.Model):

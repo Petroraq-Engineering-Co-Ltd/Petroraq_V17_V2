@@ -9,4 +9,16 @@
         <field name="interval_type">days</field>
         <field name="active">True</field>
     </record>
+
+    <record id="cron_hr_compliance_expiry_reminders" model="ir.cron">
+        <field name="name">HR Compliance Expiry Reminders</field>
+        <field name="model_id" ref="model_hr_compliance_expiry_reminder_log"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_expiry_reminders()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="nextcall" eval="datetime.now().replace(hour=8, minute=0, second=0).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
 </odoo>

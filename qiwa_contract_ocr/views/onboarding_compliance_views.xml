@@ -210,6 +210,18 @@
         <field name="context">{'search_default_open': 1}</field>
     </record>
 
+    <record id="action_hr_reminder_dashboard_client" model="ir.actions.client">
+        <field name="name">Reminders Dashboard</field>
+        <field name="tag">qiwa_contract_ocr.reminder_dashboard</field>
+    </record>
+
+    <menuitem id="menu_hr_reminder_dashboard"
+              name="Reminders Dashboard"
+              parent="pr_hr_recruitment.hr_applicant_onboarding_root_menu"
+              action="action_hr_reminder_dashboard_client"
+              sequence="1"
+              groups="pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager,pr_hr_recruitment_request.group_onboarding_md,hr.group_hr_manager"/>
+
     <menuitem id="menu_hr_applicant_onboarding_tasks"
               name="Onboarding Reminders"
               parent="pr_hr_recruitment.hr_applicant_onboarding_root_menu"
@@ -227,6 +239,7 @@
                 <field name="request_type"/>
                 <field name="employee_category"/>
                 <field name="state"/>
+                <filter name="pending_hr_manager" string="Pending HR Manager" domain="[('state', '=', 'hr_manager_approval')]"/>
                 <filter name="pending_md" string="Pending MD Approval" domain="[('state', '=', 'md_approval')]"/>
                 <filter name="pending_accounting" string="Pending Accounting" domain="[('payment_state', '=', 'pending')]"/>
                 <filter name="paid" string="Paid" domain="[('payment_state', '=', 'paid')]"/>
@@ -263,7 +276,7 @@
                        decoration-danger="payment_state == 'cancelled'"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
-                       decoration-warning="state == 'md_approval'"
+                       decoration-warning="state in ('hr_manager_approval', 'md_approval')"
                        decoration-success="state in ('approved', 'done')"
                        decoration-danger="state in ('rejected', 'cancelled')"/>
             </tree>
@@ -277,12 +290,17 @@
             <form string="Onboarding Compliance Request">
                 <header>
                     <field name="is_onboarding_supervisor" invisible="1"/>
+                    <field name="is_onboarding_manager" invisible="1"/>
                     <field name="is_onboarding_md" invisible="1"/>
                     <field name="has_bank_payment" invisible="1"/>
                     <button name="action_submit" string="Submit"
                             type="object" class="btn-primary"
                             groups="pr_hr_recruitment_request.group_onboarding_supervisor"
                             invisible="state != 'draft'"/>
+                    <button name="action_approve_hr_manager" string="Approve (HR Manager)"
+                            type="object" class="btn-primary"
+                            groups="pr_hr_recruitment_request.group_onboarding_manager,hr.group_hr_manager"
+                            invisible="state != 'hr_manager_approval'"/>
                     <button name="action_approve_md" string="Approve (MD)"
                             type="object" class="btn-primary"
                             groups="pr_hr_recruitment_request.group_onboarding_md"
@@ -293,8 +311,8 @@
                             invisible="state not in ('approved', 'done') or not requires_payment or payment_state in ('pending', 'paid')"/>
                     <button name="action_reject" string="Reject"
                             type="object" class="btn-secondary"
-                            groups="pr_hr_recruitment_request.group_onboarding_md"
-                            invisible="state != 'md_approval'"/>
+                            groups="pr_hr_recruitment_request.group_onboarding_manager,hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_md"
+                            invisible="state not in ('hr_manager_approval', 'md_approval')"/>
                     <button name="action_set_done" string="Mark Done"
                             type="object" class="btn-success"
                             groups="pr_hr_recruitment_request.group_onboarding_supervisor"
@@ -302,13 +320,13 @@
                     <button name="action_cancel" string="Cancel"
                             type="object" class="btn-secondary"
                             groups="pr_hr_recruitment_request.group_onboarding_supervisor"
-                            invisible="state not in ('draft', 'md_approval', 'approved')"/>
+                            invisible="state not in ('draft', 'hr_manager_approval', 'md_approval', 'approved')"/>
                     <button name="action_reset_to_draft" string="Reset to Draft"
                             type="object" class="btn-secondary"
                             groups="pr_hr_recruitment_request.group_onboarding_supervisor"
                             invisible="state not in ('rejected', 'cancelled')"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,md_approval,approved,done"/>
+                           statusbar_visible="draft,hr_manager_approval,md_approval,approved,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -351,26 +369,28 @@
                             <field name="requested_by_id" readonly="1"/>
                             <field name="employee_category" readonly="state != 'draft'"/>
                             <field name="request_type" readonly="state != 'draft'"/>
-                            <field name="required_date" readonly="state not in ('draft', 'md_approval')"/>
+                            <field name="required_date" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                         </group>
                         <group string="Approval">
+                            <field name="hr_manager_approved_by_id" readonly="1"/>
+                            <field name="hr_manager_approved_date" readonly="1"/>
                             <field name="md_approved_by_id" readonly="1"/>
                             <field name="md_approved_date" readonly="1"/>
-                            <field name="government_reference" readonly="state not in ('draft', 'md_approval')"/>
+                            <field name="government_reference" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                             <field name="attachment_file" filename="attachment_filename"
-                                   readonly="state not in ('draft', 'md_approval')"/>
+                                   readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                             <field name="attachment_filename" invisible="1"/>
                         </group>
                         <group string="Accounting">
-                            <field name="requires_payment" readonly="state not in ('draft', 'md_approval') or has_bank_payment"/>
+                            <field name="requires_payment" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_bank_payment"/>
                             <field name="payment_state" readonly="1"/>
                             <field name="payment_account_id"
-                                   readonly="state not in ('draft', 'md_approval') or has_bank_payment"
+                                   readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_bank_payment"
                                    invisible="not requires_payment"
                                    groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                             <field name="payment_expense_account_id"
-                                   readonly="state not in ('draft', 'md_approval') or has_bank_payment"
+                                   readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_bank_payment"
                                    invisible="not requires_payment"
                                    groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
@@ -385,36 +405,36 @@
                             <group>
                                 <group string="Identity / Work Permit"
                                        invisible="request_type not in ('iqama_transfer', 'iqama_renewal', 'work_permit_issuance', 'work_permit_renewal')">
-                                    <field name="iqama_no" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="passport_no" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="visa_number" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="profession" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="issue_date" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="expiry_date" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="iqama_no" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="passport_no" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="visa_number" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="profession" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="issue_date" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="expiry_date" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="amount" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                                 </group>
                                 <group string="Medical Insurance"
                                        invisible="request_type != 'medical_insurance_activation'">
-                                    <field name="iqama_no" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="insurance_company" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="insurance_category" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="issue_date" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="expiry_date" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="iqama_no" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="insurance_company" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="insurance_category" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="issue_date" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="expiry_date" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="amount" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                                 </group>
                                 <group string="GOSI"
                                        invisible="request_type != 'gosi_registration'">
-                                    <field name="gosi_number" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="gosi_registration_date" readonly="state not in ('draft', 'md_approval')"/>
-                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="gosi_number" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="gosi_registration_date" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
+                                    <field name="amount" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                                 </group>
                                 <group string="Other"
                                        invisible="request_type != 'other'">
-                                    <field name="amount" readonly="state not in ('draft', 'md_approval')"/>
+                                    <field name="amount" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                                 </group>
                             </group>
                             <group string="Description">
-                                <field name="description" nolabel="1" readonly="state not in ('draft', 'md_approval')"/>
+                                <field name="description" nolabel="1" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval')"/>
                             </group>
                         </page>
                         <page string="Linked Records">
@@ -449,7 +469,7 @@
         <field name="name">Onboarding Compliance Approvals</field>
         <field name="res_model">hr.onboarding.compliance.request</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('state', '=', 'md_approval')]</field>
+        <field name="domain">[('state', 'in', ('hr_manager_approval', 'md_approval'))]</field>
         <field name="context">{'create': False}</field>
         <field name="search_view_id" ref="view_hr_onboarding_compliance_request_search"/>
         <field name="help" type="html">
@@ -464,14 +484,194 @@
               parent="pr_hr_recruitment.hr_applicant_onboarding_root_menu"
               action="action_hr_onboarding_compliance_request"
               sequence="3"
-              groups="pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_md"/>
+              groups="pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager,pr_hr_recruitment_request.group_onboarding_md"/>
 
     <menuitem id="menu_hr_onboarding_compliance_request_approvals"
               name="Onboarding Compliance"
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_hr_onboarding_compliance_request_approvals"
               sequence="5"
-              groups="pr_hr_recruitment_request.group_onboarding_md,pr_hr_recruitment_request.group_onboarding_supervisor"/>
+              groups="pr_hr_recruitment_request.group_onboarding_manager,pr_hr_recruitment_request.group_onboarding_md,pr_hr_recruitment_request.group_onboarding_supervisor"/>
+
+    <record id="view_hr_work_permit_form_two_step_approval" model="ir.ui.view">
+        <field name="name">hr.work.permit.form.two.step.approval</field>
+        <field name="model">hr.work.permit</field>
+        <field name="inherit_id" ref="pr_hr_recruitment.hr_work_permit_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_submit']" position="attributes">
+                <attribute name="groups">pr_hr_recruitment_request.group_onboarding_supervisor,hr_recruitment.group_hr_recruitment_user</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_approve']" position="attributes">
+                <attribute name="name">action_approve_hr_manager</attribute>
+                <attribute name="string">APPROVE (HR MANAGER)</attribute>
+                <attribute name="invisible">state not in ('submit', 'hr_manager_approval')</attribute>
+                <attribute name="groups">pr_hr_recruitment_request.group_onboarding_manager,hr.group_hr_manager,hr_recruitment.group_hr_recruitment_manager</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_approve_hr_manager']" position="after">
+                <button name="action_approve_md" string="APPROVE (MD)" class="btn-success"
+                        invisible="state != 'md_approval'"
+                        type="object" groups="pr_hr_recruitment_request.group_onboarding_md"/>
+            </xpath>
+            <xpath expr="//header/button[@name='action_reject']" position="attributes">
+                <attribute name="invisible">state not in ('submit', 'hr_manager_approval', 'md_approval')</attribute>
+                <attribute name="groups">pr_hr_recruitment_request.group_onboarding_manager,hr.group_hr_manager,hr_recruitment.group_hr_recruitment_manager,pr_hr_recruitment_request.group_onboarding_md</attribute>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,submit,hr_manager_approval,md_approval,approved,issued</attribute>
+            </xpath>
+            <xpath expr="//field[@name='payment_state']" position="after">
+                <field name="hr_manager_approved_by_id" readonly="1"/>
+                <field name="hr_manager_approved_date" readonly="1"/>
+                <field name="md_approved_by_id" readonly="1"/>
+                <field name="md_approved_date" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_work_permit_tree_two_step_approval" model="ir.ui.view">
+        <field name="name">hr.work.permit.tree.two.step.approval</field>
+        <field name="model">hr.work.permit</field>
+        <field name="inherit_id" ref="pr_hr_recruitment.hr_work_permit_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-info">state in ('draft', 'hr_manager_approval', 'md_approval')</attribute>
+                <attribute name="decoration-warning">state == 'approved'</attribute>
+                <attribute name="decoration-success">state == 'issued'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="pr_hr_recruitment.hr_work_permit_approvals_view_action" model="ir.actions.act_window">
+        <field name="domain">[('state', 'in', ('submit', 'hr_manager_approval', 'md_approval'))]</field>
+    </record>
+
+    <record id="pr_hr_recruitment.hr_work_permit_approvals_view_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md')), (4, ref('hr.group_hr_manager'))]"/>
+    </record>
+
+    <record id="view_hr_employee_iqama_form_two_step_approval" model="ir.ui.view">
+        <field name="name">hr.employee.iqama.form.two.step.approval</field>
+        <field name="model">hr.employee.iqama</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_iqama_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_approve']" position="attributes">
+                <attribute name="name">action_approve_hr_manager</attribute>
+                <attribute name="string">Approve (HR Manager)</attribute>
+                <attribute name="invisible">state not in ('pending_approval', 'hr_manager_approval')</attribute>
+                <attribute name="groups">pr_hr_recruitment_request.group_onboarding_manager,hr.group_hr_manager</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_approve_hr_manager']" position="after">
+                <button name="action_approve_md"
+                        string="Approve (MD)"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-thumbs-up"
+                        invisible="state != 'md_approval'"
+                        groups="pr_hr_recruitment_request.group_onboarding_md"/>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,pending_approval,hr_manager_approval,md_approval,approve,valid,expired</attribute>
+            </xpath>
+            <xpath expr="//group[@name='main']" position="after">
+                <group string="Approval">
+                    <field name="hr_manager_approved_by_id" readonly="1"/>
+                    <field name="hr_manager_approved_date" readonly="1"/>
+                    <field name="md_approved_by_id" readonly="1"/>
+                    <field name="md_approved_date" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_iqama_tree_two_step_approval" model="ir.ui.view">
+        <field name="name">hr.employee.iqama.tree.two.step.approval</field>
+        <field name="model">hr.employee.iqama</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_iqama_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-info">state in ['draft', 'pending_approval', 'hr_manager_approval', 'md_approval']</attribute>
+                <attribute name="decoration-warning">state == 'approve'</attribute>
+                <attribute name="decoration-success">state == 'valid'</attribute>
+                <attribute name="decoration-danger">state == 'expired'</attribute>
+            </xpath>
+            <xpath expr="(//button[@name='action_renew'])[1]" position="attributes">
+                <attribute name="invisible">check_renews == False or state != 'approve'</attribute>
+            </xpath>
+            <xpath expr="(//button[@name='action_renew'])[2]" position="attributes">
+                <attribute name="invisible">check_renews == True or state != 'approve'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="de_hr_workspace.de_hr_workspace_hr_employee_iqama_approvals_view_action" model="ir.actions.act_window">
+        <field name="domain">[('state', 'in', ('pending_approval', 'hr_manager_approval', 'md_approval'))]</field>
+    </record>
+
+    <record id="de_hr_workspace.de_hr_workspace_hr_employee_iqama_approvals_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
+    </record>
+
+    <record id="view_hr_employee_medical_insurance_form_two_step_approval" model="ir.ui.view">
+        <field name="name">hr.employee.medical.insurance.form.two.step.approval</field>
+        <field name="model">hr.employee.medical.insurance</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_medical_insurance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_approve']" position="attributes">
+                <attribute name="name">action_approve_hr_manager</attribute>
+                <attribute name="string">Approve (HR Manager)</attribute>
+                <attribute name="invisible">state not in ('pending_approval', 'hr_manager_approval')</attribute>
+                <attribute name="groups">pr_hr_recruitment_request.group_onboarding_manager,hr.group_hr_manager</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_approve_hr_manager']" position="after">
+                <button name="action_approve_md"
+                        string="Approve (MD)"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-thumbs-up"
+                        invisible="state != 'md_approval'"
+                        groups="pr_hr_recruitment_request.group_onboarding_md"/>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,pending_approval,hr_manager_approval,md_approval,approve,valid,expired</attribute>
+            </xpath>
+            <xpath expr="//group[@name='main']" position="after">
+                <group string="Approval">
+                    <field name="hr_manager_approved_by_id" readonly="1"/>
+                    <field name="hr_manager_approved_date" readonly="1"/>
+                    <field name="md_approved_by_id" readonly="1"/>
+                    <field name="md_approved_date" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_medical_insurance_tree_two_step_approval" model="ir.ui.view">
+        <field name="name">hr.employee.medical.insurance.tree.two.step.approval</field>
+        <field name="model">hr.employee.medical.insurance</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_medical_insurance_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-info">state in ['draft', 'pending_approval', 'hr_manager_approval', 'md_approval']</attribute>
+                <attribute name="decoration-warning">state == 'approve'</attribute>
+                <attribute name="decoration-success">state == 'valid'</attribute>
+                <attribute name="decoration-danger">state == 'expired'</attribute>
+            </xpath>
+            <xpath expr="(//button[@name='action_renew'])[1]" position="attributes">
+                <attribute name="invisible">check_renews == False or state != 'approve'</attribute>
+            </xpath>
+            <xpath expr="(//button[@name='action_renew'])[2]" position="attributes">
+                <attribute name="invisible">check_renews == True or state != 'approve'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_view_action" model="ir.actions.act_window">
+        <field name="domain">[('state', 'in', ('pending_approval', 'hr_manager_approval', 'md_approval'))]</field>
+    </record>
+
+    <record id="de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
+    </record>
 
     <record id="view_pr_account_bank_payment_form_onboarding_compliance" model="ir.ui.view">
         <field name="name">pr.account.bank.payment.form.onboarding.compliance</field>

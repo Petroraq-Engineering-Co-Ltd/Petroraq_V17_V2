@@ -206,6 +206,10 @@
                                     <field name="hr_approved_by_id" readonly="1"/>
                                     <field name="hr_approved_date" readonly="1"/>
                                 </group>
+                                <group string="HR Manager">
+                                    <field name="hrm_approved_by_id" readonly="1"/>
+                                    <field name="hrm_approved_date" readonly="1"/>
+                                </group>
                                 <group string="MD">
                                     <field name="md_approved_by_id" readonly="1"/>
                                     <field name="md_approved_date" readonly="1"/>

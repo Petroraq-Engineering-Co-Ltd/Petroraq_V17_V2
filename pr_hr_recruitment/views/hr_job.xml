@@ -12,21 +12,6 @@
                 <field name="experience_years"/>
             </xpath>
 
-            <xpath expr="//header" position="inside">
-                <button name="action_review" string="APPROVE" class="btn-info"
-                        type="object" groups="hr_recruitment.group_hr_recruitment_user"
-                        invisible="job_state != 'initialize'"
-                />
-                <button name="action_post" string="Approve" class="btn-success" type="object"
-                        invisible="job_state != 'review'"
-                        groups="hr_recruitment.group_hr_recruitment_manager"/>
-                <button name="action_reject" string="Reject" class="btn-danger" type="object"
-                        invisible="job_state != 'review'"
-                        groups="hr_recruitment.group_hr_recruitment_manager"/>
-                <field name="job_state" widget="statusbar"/>
-                <field name="approval_state" invisible="1"/>
-            </xpath>
-
         </field>
     </record>
 
@@ -37,7 +22,7 @@
         <field name="arch" type="xml">
 
             <xpath expr="//field[@name='website_published']" position="attributes">
-                <attribute name="readonly">1</attribute>
+                <attribute name="readonly">0</attribute>
                 <attribute name="force_save">1</attribute>
             </xpath>
 

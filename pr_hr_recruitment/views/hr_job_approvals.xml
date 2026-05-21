@@ -3,6 +3,7 @@
 
     <record id="hr_job_approvals_view_tree" model="ir.ui.view">
         <field name="model">hr.job</field>
+        <field name="active" eval="False"/>
         <field name="inherit_id" ref="hr_recruitment.hr_job_view_tree_inherit"/>
         <field name="arch" type="xml">
             <xpath expr="//tree" position="inside">
@@ -44,7 +45,7 @@
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'tree', 'view_id': ref('hr_job_approvals_view_tree')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('hr.view_hr_job_form')})]"/>
-        <field name="domain">[('approval_state', '=', 'review')]</field>
+        <field name="domain">[('id', '=', 0)]</field>
         <field name="context">{'create': False,'edit': False}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -60,5 +61,9 @@
               sequence="60"
               groups="de_hr_workspace.group_hr_employee_approvals,hr_recruitment.group_hr_recruitment_manager"
     />
+
+    <record id="hr_job_approvals_view_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
 
 </odoo>

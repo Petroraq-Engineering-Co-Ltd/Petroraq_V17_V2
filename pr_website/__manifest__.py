@@ -11,6 +11,8 @@
     "depends": [
         "website",
         "hr_recruitment",  # for careers page
+        "hr_recruitment_skills",
+        "pr_hr_recruitment_request",
     ],
 
     # Data files (XML Views)

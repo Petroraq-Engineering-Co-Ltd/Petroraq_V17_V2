@@ -214,6 +214,7 @@ class HrHolidays(models.Model):
     def _is_allocation_override_enabled(self):
         return (
                 self.env.context.get("pr_leave_allocation_override")
+                or self.env.context.get("pr_leave_request_allocation_checked")
                 or self.env.user.has_group('pr_hr_holidays.group_leave_allocation_limit_override')
         )
 

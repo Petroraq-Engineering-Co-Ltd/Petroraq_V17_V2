@@ -114,6 +114,8 @@ class HrRecruitmentRequest(models.Model):
     )
     hr_approved_by_id = fields.Many2one("res.users", string="HR Supervisor Approved By", readonly=True, copy=False)
     hr_approved_date = fields.Datetime(string="HR Supervisor Approved On", readonly=True, copy=False)
+    hrm_approved_by_id = fields.Many2one("res.users", string="HR Manager Approved By", readonly=True, copy=False)
+    hrm_approved_date = fields.Datetime(string="HR Manager Approved On", readonly=True, copy=False)
     md_approved_by_id = fields.Many2one("res.users", string="MD Approved By", readonly=True, copy=False)
     md_approved_date = fields.Datetime(string="MD Approved On", readonly=True, copy=False)
     is_hr_supervisor_approver = fields.Boolean(compute="_compute_approval_permissions")
@@ -188,38 +190,73 @@ class HrRecruitmentRequest(models.Model):
         if not self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_md"):
             raise UserError(_("Only MD can perform this approval."))
 
+    def _current_user_is_hrm_approver(self):
+        return self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_manager")
+
+    def _current_user_is_md_approver(self):
+        return self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_md")
+
+    def _get_current_approval_stamp(self):
+        return self.env.user.id, fields.Datetime.now()
+
+    def _approve_as_md(self):
+        for rec in self:
+            if rec.state == "approved":
+                continue
+            user_id, approval_date = rec._get_current_approval_stamp()
+            rec._apply_job_changes()
+            rec.sudo().write({
+                "state": "approved",
+                "md_approved_by_id": rec.md_approved_by_id.id or user_id,
+                "md_approved_date": rec.md_approved_date or approval_date,
+            })
+
     def action_approve_hr_supervisor(self):
         for rec in self:
             if rec.state != "hr_approval":
                 continue
             rec._check_hr_supervisor_approver()
-            rec.sudo().write({
-                "state": "hrm_approval",
+            user_id, approval_date = rec._get_current_approval_stamp()
+            vals = {
                 "hr_approved_by_id": self.env.user.id,
-                "hr_approved_date": fields.Datetime.now(),
-            })
+                "hr_approved_date": approval_date,
+            }
+            if rec._current_user_is_hrm_approver():
+                vals.update({
+                    "hrm_approved_by_id": user_id,
+                    "hrm_approved_date": approval_date,
+                })
+                if rec._current_user_is_md_approver():
+                    vals["state"] = "md_approval"
+                    rec.sudo().write(vals)
+                    rec._approve_as_md()
+                else:
+                    vals["state"] = "md_approval"
+                    rec.sudo().write(vals)
+            else:
+                vals["state"] = "hrm_approval"
+                rec.sudo().write(vals)
 
     def action_approve_hrm(self):
         for rec in self:
             if rec.state != "hrm_approval":
                 continue
             rec._check_hrm_approver()
+            user_id, approval_date = rec._get_current_approval_stamp()
             rec.sudo().write({
+                "hrm_approved_by_id": user_id,
+                "hrm_approved_date": approval_date,
                 "state": "md_approval",
             })
+            if rec._current_user_is_md_approver():
+                rec._approve_as_md()
 
     def action_approve_md(self):
         for rec in self:
             if rec.state != "md_approval":
                 continue
             rec._check_md_approver()
-            rec._apply_job_changes()
-
-            rec.sudo().write({
-                "state": "approved",
-                "md_approved_by_id": self.env.user.id,
-                "md_approved_date": fields.Datetime.now(),
-            })
+            rec._approve_as_md()
 
     def _apply_job_changes(self):
         self.ensure_one()
@@ -242,6 +279,18 @@ class HrRecruitmentRequest(models.Model):
                 job.no_of_recruitment += self.requested_employees
             else:
                 raise UserError(_("no job position is configured for this request"))
+        self._publish_recruitment_job(job)
+
+    def _publish_recruitment_job(self, job):
+        vals = {}
+        if "website_published" in job._fields:
+            vals["website_published"] = True
+        if "job_state" in job._fields:
+            vals["job_state"] = "post"
+        if "approval_state" in job._fields:
+            vals["approval_state"] = "post"
+        if vals:
+            job.sudo().write(vals)
 
     def action_approve(self):
         return self.action_approve_md()
