@@ -62,7 +62,7 @@
                         height: 100vh;
                         min-height: 400px;
                         background: linear-gradient(90deg, rgba(6,38,75,0.75) 0%, rgba(6,38,75,0.4) 60%, rgba(6,38,75,0.15) 100%),
-                                    url('pr_website/static/images/hero-bg.png') center/cover no-repeat;
+                                    url('pr_website/static/images/main_page.png') center/cover no-repeat;
                         color: #fff;
                         overflow: hidden;
                     }
@@ -414,7 +414,8 @@
                     <div class="hero-content">
                         <h1>Engineering<span></span><br/>Procurement<span></span><br/>Construction<span></span></h1>
                         <p>Delivering comprehensive engineering, infrastructure, industrial, and project financing solutions with technical precision, safe execution, and lasting excellence.</p>
-                        <button class="hero-btn">Explore Our Services
+                        <button class="hero-btn">
+                            <a href="/about-us">About Us</a>
                             <i class="fa fa-arrow-right"></i>
                         </button>
                     </div>
@@ -500,11 +501,11 @@
                     </div>
                     <div class="projects-grid">
                         <div class="project-card scroll-animate-left delay-1">
-                            <img src="pr_website/static/images/basra.png" alt="Al Basrah Refinery Upgrade"/>
+                            <img src="pr_website/static/images/structure.png" alt="Al Basrah Refinery Upgrade"/>
                             <div class="project-body">
-                                <h4>Industrial Plant Upgrade – Jubail</h4>
-                                <p> Jubail, Saudi Arabia</p>
-                                <span>Industrial</span>
+                                <h4>Structural Work at Qiddya – Riyadh</h4>
+                                <p> Riyadh, Saudi Arabia</p>
+                                <span>Structural</span>
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-2">
@@ -516,19 +517,19 @@
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-3">
-                            <img src="pr_website/static/images/dhiqar.png" alt="132kV Substation Construction"/>
+                            <img src="pr_website/static/images/swcc1.jpeg" alt="Admin Building Fit-Out"/>
                             <div class="project-body">
-                                <h4>Substation &amp; Electrical Works – Jeddah</h4>
-                                <p>Jeddah, Saudi Arabia</p>
-                                <span>MEP Work</span>
+                                <h4>Admin Block Finishing Works <br/> Jubail</h4>
+                                <p>Jubail, Saudi Arabia</p>
+                                <span>Civil</span>
                             </div>
                         </div>
                         <div class="project-card scroll-animate-right delay-4">
-                            <img src="pr_website/static/images/najaf.png" alt="Water Treatment Plant"/>
+                            <img src="pr_website/static/images/weatherford.jpeg" alt="Weatherford's Interior Finishing"/>
                             <div class="project-body">
-                                <h4>Water Treatment Facility – Dammam</h4>
+                                <h4>Weatherford's interior finishing<br/>Dammam</h4>
                                 <p>Dammam, Saudi Arabia</p>
-                                <span>Infrastructure</span>
+                                <span>Fit-Out</span>
                             </div>
                         </div>
                     </div>

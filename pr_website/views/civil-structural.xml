@@ -581,9 +581,11 @@
 
                 <!-- ===== DESCRIPTION ===== -->
                 <section class="description-section scroll-fade">
-                    <p>PETRORAQ has contributed its civil engineering expertise for the design of reinforced concrete and steel structures using latest design software. Similarly, we have provided innovative solutions for the repair and rehabilitation of existing structures. The designs, which are cost effective and safe, are done by adopting latest methods for analysis and design of structures to international standards.</p>
+                    <p style="text-align: justify;">PETRORAQ has contributed its civil engineering expertise to the design of reinforced concrete and steel structures using the latest design software and advanced engineering practices. Similarly, we have provided innovative solutions for the repair, strengthening, and rehabilitation of existing structures to improve their safety, durability, and performance. Our designs are cost-effective, reliable, and safe, developed by adopting modern methods for structural analysis and design in accordance with international standards. Through practical engineering judgment and technical excellence, we ensure that every structure meets project requirements while maintaining quality, efficiency, and long-term stability.</p>
 
-                    <p>PETRORAQ provides structural design solutions, focused on constructability, safety and ease of installation. Its engineers have the capability to design among others a wide range of reinforced concrete and steel structures. Also included is pre-cast and pre-stressed concrete construction. They have developed expertise in the repair and rehabilitation of structures using construction chemicals and analysis and design of Blast proof and Earthquake resistant structures. Alternate design methods are used to verify the adequacy of the designs.</p>
+                    <p style="text-align: justify;">PETRORAQ provides structural design solutions focused on constructability, safety, and ease of installation. Its engineers have the capability to design a wide range of reinforced concrete and steel structures, including pre-cast and pre-stressed concrete construction. The team has also developed expertise in the repair and rehabilitation of structures using advanced construction chemicals, as well as the analysis and design of blast-proof and earthquake-resistant structures. Alternate design methods are used to verify the adequacy, reliability, and efficiency of the designs.
+
+                    PETRORAQ ensures durable, cost-effective, and technically sound structural solutions. Our approach supports smooth site execution while maintaining quality and safety.</p>
 
                     <div class="description-image">
                         <img src="/pr_website/static/images/civil-hero-1.png" alt="Engineers on site"/>
@@ -609,6 +611,10 @@
                                 <li><i class="fa fa-check-circle"></i>Grading and Drainage Plans</li>
                                 <li><i class="fa fa-check-circle"></i>Roads and Highways</li>
                                 <li><i class="fa fa-check-circle"></i>External Utilities</li>
+                                <li><i class="fa fa-check-circle"></i>Earthwork and Cut-Fill Optimization</li>
+                                <li><i class="fa fa-check-circle"></i>Parking Areas and Access Roads</li>
+                                <li><i class="fa fa-check-circle"></i>Site Development and Infrastructure</li>
+                                <li><i class="fa fa-check-circle"></i>Utility Corridors and Service Routing</li>
                             </ul>
                             <div class="card-image">
                                 <img src="/pr_website/static/images/civil-card-1.png" alt="Highway aerial"/>
@@ -628,12 +634,9 @@
                                 <li><i class="fa fa-check-circle"></i>Pre-stressed concrete Structures</li>
                                 <li><i class="fa fa-check-circle"></i>Steel Structures</li>
                                 <li><i class="fa fa-check-circle"></i>Building and equipment foundations</li>
-                                <li><i class="fa fa-check-circle"></i>Bridges, Culverts, Tunnels and Retaining Walls</li>
+                                <li><i class="fa fa-check-circle"></i>Bridges, Tunnels and Retaining Walls</li>
                                 <li><i class="fa fa-check-circle"></i>Electrical Substations</li>
                                 <li><i class="fa fa-check-circle"></i>Multi-storied Parking Lots</li>
-                                <li><i class="fa fa-check-circle"></i>Underground Reservoirs and Elevated Water Tanks</li>
-                                <li><i class="fa fa-check-circle"></i>Wharfs and Docking Yards</li>
-                                <li><i class="fa fa-check-circle"></i>Power Transmission and Communication Towers</li>
                             </ul>
                             <div class="card-image">
                                 <img src="/pr_website/static/images/civil-card-2.png" alt="Steel structure"/>

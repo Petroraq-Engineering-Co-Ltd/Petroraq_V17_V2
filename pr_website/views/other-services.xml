@@ -287,6 +287,7 @@
                 .pr-other-page .service-image.construction {
                     border-radius: 12px;
                     height: 220px;
+                    margin-top:100px
                 }
                 .pr-other-page .service-image.construction:hover {
                     border-radius: 30px;
@@ -636,8 +637,7 @@
                             <div class="service-text">
                                 <div class="pre-title">WE ALSO PROVIDE</div>
                                 <h3>Environmental<br/>Engineering</h3>
-                                <p>PETRORAQ has specialized expertise and capability in different aspects of environmental engineering and infrastructure. This expertise, gained in infrastructure and environmental engineering, has led to a strong knowledge and capability which has been employed in major schemes. This expertise is available to meet the ever increasing demand for an improved environment in the future.</p>
-                                <p>PETRORAQ's experience and capabilities have resulted in tailored treatment systems for waste water treatment and re-use in agricultural and landscape irrigation schemes in addition to development in air pollution control systems and Environmental Impact Studies.</p>
+                                <p style="text-align: justify;">PETRORAQ has specialized expertise and capability in different aspects of environmental engineering and infrastructure. This expertise, gained in infrastructure and environmental engineering, has led to a strong knowledge and capability which has been employed in major schemes. This expertise is available to meet the ever increasing demand for an improved environment in the future.</p>
                             </div>
 
                             <div class="service-image">
@@ -646,7 +646,7 @@
 
                             <div class="capabilities-wrap">
                                 <h4 class="capabilities-title env-title">The Environmental Engineering capabilities include the following:</h4>
-                                <ul class="cap-list single">
+                                <ul class="cap-list multi-col">
                                     <li><i class="fa fa-check-circle"></i>Studies and Environmental Impact Assessments</li>
                                     <li><i class="fa fa-check-circle"></i>Waste Water Collection, Treatment and Disposal</li>
                                     <li><i class="fa fa-check-circle"></i>Sludge Treatment and Treated Effluent Utilization</li>
@@ -669,11 +669,10 @@
 
                             <div class="service-text">
                                 <h3>Construction<br/>Management</h3>
-                                <p>PETRORAQ's Construction Management team comprises of professionally qualified engineers who have rich and varied experiences related to the execution of industrial and infrastructure projects. In addition, they have been trained in usage of latest management tools and techniques this includes all aspects of project management such as planning, monitoring, coordination, quality control, safety principles, preparation of budgeting and cost control, materials procurement, equipment selection, labor management and settlement of claims.</p>
-                                <p>Project Manager and team are selected considering the type and size of project and the background experiences needed. Our teams have carved a niche for timely execution of prestigious projects maintaining highest quality standards.</p>
+                                <p style="text-align: justify;">PETRORAQ's Construction Management team comprises of professionally qualified engineers who have rich and varied experiences related to the execution of industrial and infrastructure projects. In addition, they have been trained in usage of latest management tools and techniques this includes all aspects of project management such as planning, monitoring, coordination, quality control, safety principles, preparation of budgeting and cost control, materials procurement, equipment selection, labor management and settlement of claims.</p>
                             </div>
 
-                            <div class="service-image construction">
+                            <div class="service-image">
                                 <img src="/pr_website/static/images/other-services-card-2.png" alt="Construction supervisors"/>
                             </div>
 
@@ -701,8 +700,7 @@
                     <!-- ===== RIGHT NAVY PANEL (STICKY - PRESERVED) ===== -->
                     <aside class="os-right">
                         <div class="right-head">
-                            <div class="pre">WE ALSO PROVIDE</div>
-                            <h2>OTHER<br/>SERVICES</h2>
+                            <h2>We Also Provide</h2>
                         </div>
 
                         <div class="services-grid">
