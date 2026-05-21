@@ -382,7 +382,7 @@
                         <span class="o_petroraq_total_label">Amount To Invoice:</span>
                         <div class="o_petroraq_total_input"></div>
                         <div class="o_petroraq_total_value">
-                            <field name="amount_to_invoice" widget="monetary" readonly="1" nolabel="1" string=""/>
+                            <field name="amount_to_invoice_untaxed" widget="monetary" readonly="1" nolabel="1" string=""/>
                         </div>
                     </div>
                     <!--                    <div class="o_petroraq_total_row o_petroraq_total_great">-->
