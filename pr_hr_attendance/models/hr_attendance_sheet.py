@@ -356,7 +356,7 @@ class HrAttendanceSheet(models.Model):
                     receivers_emails = [employee_email]
                     for receiver in receivers_emails:
                         message = {
-                            "email_from": "hr@petroraq.com",
+                            "email_from": "noreply@petroraq.com",
                             "subject": f"{employee_id.code} - Shortage Notifications Of {sheet.date_from} Attendance",
                             "body_html": body_message,
                             "email_to": receiver,

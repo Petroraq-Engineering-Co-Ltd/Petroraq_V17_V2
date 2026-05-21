@@ -122,7 +122,16 @@ class HrApplicant(models.Model):
     second_strengths = fields.Text(string="Strengths", tracking=True)
     second_recommendation = fields.Selection(
         INTERVIEW_RECOMMENDATION_SELECTION, string="Recommendation", tracking=True)
-    overall_interview_summary = fields.Text(string="Overall Interview Summary", tracking=True)
+    overall_total_score = fields.Integer(
+        string="Overall Total Score", compute="_compute_interview_scores", store=True)
+    overall_average_score = fields.Float(
+        string="Overall Average Score", compute="_compute_interview_scores", store=True, digits=(16, 2))
+    overall_interview_summary = fields.Text(
+        string="Overall Interview Summary",
+        compute="_compute_overall_interview_summary",
+        store=True,
+        readonly=True,
+        tracking=True)
 
     offer_basic_salary = fields.Float(string="Basic Salary", tracking=True)
     offer_housing_allowance_type = fields.Selection(
@@ -147,7 +156,11 @@ class HrApplicant(models.Model):
     offer_probation_period = fields.Char(string="Probation Period", default="90 Days", tracking=True)
     offer_vacation = fields.Char(string="Vacation", default="21 working days paid vacation per annum", tracking=True)
     offer_working_hours = fields.Char(string="Working Hours", default="48 hours per week", tracking=True)
-    offer_validity = fields.Char(string="Offer Validity", tracking=True)
+    offer_validity = fields.Char(string="Offer Validity (Legacy)", tracking=True)
+    offer_validity_date = fields.Date(
+        string="Offer Validity",
+        default=lambda self: fields.Date.context_today(self) + timedelta(days=1),
+        tracking=True)
     offer_iqama_number = fields.Char(string="Iqama Number", tracking=True)
 
     # endregion [Fields]
@@ -331,6 +344,9 @@ class HrApplicant(models.Model):
         if country and 'nationality' in country._fields and country.nationality:
             nationality = country.nationality
         currency_name = (self.company_id.currency_id or self.env.company.currency_id).name or 'SAR'
+        validity_display = self._format_offer_letter_date(self.offer_validity_date or validity_date)
+        if not self.offer_validity_date and self.offer_validity:
+            validity_display = self.offer_validity
         return {
             'date': self._format_offer_letter_date(offer_date),
             'candidate_name': self.partner_name or self.name or '',
@@ -367,7 +383,7 @@ class HrApplicant(models.Model):
             'vacation': self._format_offer_letter_free_text(
                 self.offer_vacation, '21 working days paid vacation per annum'),
             'working_hours': self._format_offer_letter_free_text(self.offer_working_hours, '48 hours per week'),
-            'validity_date': self.offer_validity or self._format_offer_letter_date(validity_date),
+            'validity_date': validity_display,
             'company_name': self.company_id.name or self.env.company.name or 'Petroraq Engineering Co. Ltd.',
             'signatory_name': 'Mustafa Abdulrasheed',
             'signatory_title': 'Managing Director',
@@ -546,6 +562,40 @@ class HrApplicant(models.Model):
             rec.first_average_score = first_total / len(first_fields)
             rec.second_total_score = second_total
             rec.second_average_score = second_total / len(second_fields)
+            rec.overall_total_score = first_total + second_total
+            rec.overall_average_score = rec.overall_total_score / (len(first_fields) + len(second_fields))
+
+    @api.depends(
+        "first_total_score", "first_average_score", "first_interview_summary",
+        "first_strengths", "first_recommendation", "second_total_score",
+        "second_average_score", "second_interview_summary", "second_strengths",
+        "second_recommendation", "overall_total_score", "overall_average_score")
+    def _compute_overall_interview_summary(self):
+        recommendation_labels = dict(INTERVIEW_RECOMMENDATION_SELECTION)
+        for rec in self:
+            first_recommendation = recommendation_labels.get(rec.first_recommendation or "", "Not provided")
+            second_recommendation = recommendation_labels.get(rec.second_recommendation or "", "Not provided")
+            rec.overall_interview_summary = "\n".join([
+                "Scores",
+                "1st Interview: %s/25, Average %.2f/5" % (
+                    rec.first_total_score or 0, rec.first_average_score or 0.0),
+                "2nd Interview: %s/25, Average %.2f/5" % (
+                    rec.second_total_score or 0, rec.second_average_score or 0.0),
+                "Overall: %s/50, Average %.2f/5" % (
+                    rec.overall_total_score or 0, rec.overall_average_score or 0.0),
+                "",
+                "Recommendations",
+                "1st Interview: %s" % first_recommendation,
+                "2nd Interview: %s" % second_recommendation,
+                "",
+                "Feedback / Remarks",
+                "1st Interview: %s" % (rec.first_interview_summary or "Not provided"),
+                "2nd Interview: %s" % (rec.second_interview_summary or "Not provided"),
+                "",
+                "Strengths",
+                "1st Interview: %s" % (rec.first_strengths or "Not provided"),
+                "2nd Interview: %s" % (rec.second_strengths or "Not provided"),
+            ])
 
     @api.depends("stage_id")
     def _compute_check_first_interview_stage_sequence(self):

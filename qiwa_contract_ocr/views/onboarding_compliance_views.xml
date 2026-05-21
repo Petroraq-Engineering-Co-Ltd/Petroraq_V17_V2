@@ -13,6 +13,14 @@
         <field name="model">hr.applicant.onboarding</field>
         <field name="inherit_id" ref="pr_hr_recruitment.hr_applicant_onboarding_form_view"/>
         <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_generate_work_permit']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']/button[@name='open_work_permit_id_view_form']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
             <xpath expr="//header/button[@name='generate_checklist']" position="after">
                 <button name="action_start_onboarding_reminders"
                         string="START REMINDERS"
@@ -216,10 +224,10 @@
     </record>
 
     <menuitem id="menu_hr_reminder_dashboard"
-              name="Reminders Dashboard"
-              parent="pr_hr_recruitment.hr_applicant_onboarding_root_menu"
+              name="Reminders"
               action="action_hr_reminder_dashboard_client"
               sequence="1"
+              web_icon="qiwa_contract_ocr,static/description/logo.png"
               groups="pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager,pr_hr_recruitment_request.group_onboarding_md,hr.group_hr_manager"/>
 
     <menuitem id="menu_hr_applicant_onboarding_tasks"

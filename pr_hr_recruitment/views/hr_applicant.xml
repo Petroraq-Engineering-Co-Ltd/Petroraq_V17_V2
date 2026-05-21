@@ -153,8 +153,10 @@
                 <page string="Interview Summary" name="overall_interview_summary"
                       invisible="not show_second_interview_evaluation">
                     <group>
+                        <field name="overall_total_score" readonly="1"/>
+                        <field name="overall_average_score" readonly="1"/>
                         <field name="overall_interview_summary"
-                               placeholder="Overall summary from the first and second interview feedback..."/>
+                               readonly="1"/>
                     </group>
                 </page>
                 <page string="Contract Proposal" name="contract_proposal"
@@ -188,7 +190,7 @@
                             <field name="offer_probation_period"/>
                             <field name="offer_vacation"/>
                             <field name="offer_working_hours"/>
-                            <field name="offer_validity"/>
+                            <field name="offer_validity_date"/>
                         </group>
                     </group>
                 </page>

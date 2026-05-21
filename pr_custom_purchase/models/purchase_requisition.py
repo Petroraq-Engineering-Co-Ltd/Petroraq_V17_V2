@@ -367,7 +367,7 @@ class PurchaseRequisition(models.Model):
                 )
                 if supervisor_user.email:
                     self.env["mail.mail"].sudo().create({
-                        "email_from": "hr@petroraq.com",
+                        "email_from": "noreply@petroraq.com",
                         "email_to": supervisor_user.email,
                         "subject": _("Purchase Requisition %s waiting for approval") % rec.name,
                         "body_html": _(
@@ -402,7 +402,7 @@ class PurchaseRequisition(models.Model):
                     )
                     if user.email:
                         self.env["mail.mail"].sudo().create({
-                            "email_from": "hr@petroraq.com",
+                            "email_from": "noreply@petroraq.com",
                             "email_to": user.email,
                             "subject": _("Approved Purchase Requisition %s") % pr.name,
                             "body_html": _(
@@ -412,7 +412,7 @@ class PurchaseRequisition(models.Model):
                 requester_email = pr.requested_user_id.email if pr.requested_user_id else False
                 if requester_email:
                     self.env["mail.mail"].sudo().create({
-                        "email_from": "hr@petroraq.com",
+                        "email_from": "noreply@petroraq.com",
                         "email_to": requester_email,
                         "subject": _("Your Purchase Requisition %s is approved") % pr.name,
                         "body_html": _(

@@ -24,7 +24,7 @@ class PRWorkOrder(models.Model):
                 )
             if user.email:
                 self.env["mail.mail"].sudo().create({
-                    "email_from": "hr@petroraq.com",
+                    "email_from": "noreply@petroraq.com",
                     "email_to": user.email,
                     "subject": summary,
                     "body_html": body_html,

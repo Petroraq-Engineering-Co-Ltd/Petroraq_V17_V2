@@ -367,7 +367,7 @@ class HrLeaveRequest(models.Model):
     def _prepare_email_vals(self, body_message, receiver):
         for rec in self:
             message = {
-                "email_from": "hr@petroraq.com",
+                "email_from": "noreply@petroraq.com",
                 "subject": f"{rec.employee_id.code} - Leave Request From {rec.date_from} To {rec.date_to}",
                 "body_html": body_message,
                 "email_to": receiver,
