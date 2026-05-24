@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pr_hr_recruitment.RecruitmentDashboardAction" owl="1">
+        <div class="o_pr_recruitment_dashboard">
+            <t t-if="state.loading">
+                <div class="pr-rec-loading">
+                    <i class="fa fa-spinner fa-spin"/>
+                    <span>Loading recruitment dashboard...</span>
+                </div>
+            </t>
+            <t t-else="">
+                <div class="pr-rec-header">
+                    <div>
+                        <span class="pr-rec-eyebrow">Recruitment Overview</span>
+                        <h1>Recruitment Dashboard</h1>
+                        <p>Applicants, hiring progress, open positions, approvals, and recent activity in one view.</p>
+                    </div>
+                    <button class="btn btn-outline-primary" type="button" t-on-click="loadDashboardData">
+                        <i class="fa fa-refresh me-1"/>
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="pr-rec-kpi-grid">
+                    <t t-foreach="state.data.cards || []" t-as="card" t-key="card.key">
+                        <button class="pr-rec-kpi-card" type="button"
+                                t-on-click="() => this.openRecords(card.model, card.domain, card.label)">
+                            <div class="pr-rec-kpi-icon">
+                                <i t-att-class="'fa ' + card.icon"/>
+                            </div>
+                            <div>
+                                <span t-esc="card.label"/>
+                                <strong t-esc="card.value"/>
+                            </div>
+                        </button>
+                    </t>
+                </div>
+
+                <div class="pr-rec-main-grid">
+                    <section class="pr-rec-panel pr-rec-panel-large">
+                        <div class="pr-rec-panel-title">
+                            <div>
+                                <h2>Recruitment Pipeline</h2>
+                                <p>Applicants currently active in each recruitment stage.</p>
+                            </div>
+                            <span class="pr-rec-pill">Live</span>
+                        </div>
+                        <div class="pr-rec-pipeline">
+                            <t t-foreach="state.data.pipeline || []" t-as="stage" t-key="stage.id">
+                                <button class="pr-rec-stage-row" type="button"
+                                        t-on-click="() => this.openStage(stage.id, stage.name)">
+                                    <div class="pr-rec-stage-label">
+                                        <span t-esc="stage.name"/>
+                                        <strong t-esc="stage.count"/>
+                                    </div>
+                                    <div class="pr-rec-progress">
+                                        <div t-att-class="stage.hired ? 'pr-rec-progress-fill hired' : 'pr-rec-progress-fill'"
+                                             t-att-style="'width: ' + stage.percent + '%'"/>
+                                    </div>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-rec-panel pr-rec-conversion-panel">
+                        <div class="pr-rec-panel-title">
+                            <div>
+                                <h2>Hiring Conversion</h2>
+                                <p>Total hires compared with all applicants.</p>
+                            </div>
+                        </div>
+                        <div class="pr-rec-donut-wrap">
+                            <div class="pr-rec-donut"
+                                 t-att-style="'--value:' + (state.data.summary.conversion_rate || 0)"/>
+                            <div class="pr-rec-donut-center">
+                                <strong t-esc="(state.data.summary.conversion_rate || 0) + '%'"/>
+                                <span>Converted</span>
+                            </div>
+                        </div>
+                        <div class="pr-rec-mini-metrics">
+                            <div>
+                                <span>This Month Applicants</span>
+                                <strong t-esc="state.data.summary.month_applicants"/>
+                            </div>
+                            <div>
+                                <span>This Month Hires</span>
+                                <strong t-esc="state.data.summary.month_hires"/>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-rec-main-grid">
+                    <section class="pr-rec-panel">
+                        <div class="pr-rec-panel-title">
+                            <div>
+                                <h2>Top Hiring Positions</h2>
+                                <p>Jobs with the highest applicant volume.</p>
+                            </div>
+                        </div>
+                        <div class="pr-rec-list">
+                            <t t-foreach="state.data.top_jobs || []" t-as="job" t-key="job.id">
+                                <button class="pr-rec-list-row" type="button" t-on-click="() => this.openJob(job.id)">
+                                    <div>
+                                        <strong t-esc="job.name"/>
+                                        <span t-esc="job.department"/>
+                                    </div>
+                                    <div class="pr-rec-list-number">
+                                        <strong t-esc="job.count"/>
+                                        <span>Applicants</span>
+                                    </div>
+                                </button>
+                            </t>
+                            <div class="pr-rec-empty" t-if="!(state.data.top_jobs || []).length">
+                                No applicant data yet.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-rec-panel">
+                        <div class="pr-rec-panel-title">
+                            <div>
+                                <h2>Monthly Movement</h2>
+                                <p>Applications and hires over the last six months.</p>
+                            </div>
+                        </div>
+                        <div class="pr-rec-month-chart">
+                            <t t-foreach="state.data.monthly || []" t-as="month" t-key="month.label">
+                                <div class="pr-rec-month">
+                                    <div class="pr-rec-month-bars">
+                                        <span class="applications"
+                                              t-att-style="'height:' + Math.max(month.applications_percent, month.applications ? 8 : 0) + '%'"/>
+                                        <span class="hires"
+                                              t-att-style="'height:' + Math.max(month.hires_percent, month.hires ? 8 : 0) + '%'"/>
+                                    </div>
+                                    <strong t-esc="month.label"/>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="pr-rec-chart-legend">
+                            <span><i class="applications"/>Applications</span>
+                            <span><i class="hires"/>Hires</span>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-rec-main-grid">
+                    <section class="pr-rec-panel">
+                        <div class="pr-rec-panel-title">
+                            <div>
+                                <h2>Department Demand</h2>
+                                <p>Applicant spread by department.</p>
+                            </div>
+                        </div>
+                        <div class="pr-rec-pipeline compact">
+                            <t t-foreach="state.data.departments || []" t-as="department" t-key="department.id">
+                                <div class="pr-rec-stage-row static">
+                                    <div class="pr-rec-stage-label">
+                                        <span t-esc="department.name"/>
+                                        <strong t-esc="department.count"/>
+                                    </div>
+                                    <div class="pr-rec-progress">
+                                        <div class="pr-rec-progress-fill" t-att-style="'width: ' + department.percent + '%'"/>
+                                    </div>
+                                </div>
+                            </t>
+                            <div class="pr-rec-empty" t-if="!(state.data.departments || []).length">
+                                No department data yet.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-rec-panel">
+                        <div class="pr-rec-panel-title">
+                            <div>
+                                <h2>Recent Applicants</h2>
+                                <p>Latest candidates submitted into recruitment.</p>
+                            </div>
+                        </div>
+                        <div class="pr-rec-table">
+                            <t t-foreach="state.data.recent_applicants || []" t-as="applicant" t-key="applicant.id">
+                                <button class="pr-rec-table-row" type="button"
+                                        t-on-click="() => this.openApplicant(applicant.id)">
+                                    <div>
+                                        <strong t-esc="applicant.name"/>
+                                        <span t-esc="applicant.job"/>
+                                    </div>
+                                    <span t-att-class="applicant.hired ? 'pr-rec-status hired' : 'pr-rec-status'"
+                                          t-esc="applicant.stage"/>
+                                </button>
+                            </t>
+                            <div class="pr-rec-empty" t-if="!(state.data.recent_applicants || []).length">
+                                No applicants yet.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

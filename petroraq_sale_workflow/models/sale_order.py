@@ -185,6 +185,115 @@ class SaleOrder(models.Model):
                 order.estimation_id._rebuild_display_lines()
             order.estimation_display_line_ids = order.estimation_id.display_line_ids
 
+    def _prepare_sale_order_lines_from_estimation(self):
+        self.ensure_one()
+        estimation = self.estimation_id
+        currency = self.currency_id or self.company_id.currency_id
+        section_map = {
+            "material": _("Material"),
+            "labor": _("Labor"),
+            "equipment": _("Equipment"),
+            "subcontract": _("Sub Contract / TPS"),
+        }
+        commands = [(5, 0, 0)]
+        sequence = 10
+        synced_untaxed_total = 0.0
+        adjustable_product_lines = []
+
+        estimation_lines = estimation.line_ids.sorted(lambda line: (line.section_type or "", line.id))
+        for section_type, section_label in [
+            ("material", _("Material")),
+            ("labor", _("Labor")),
+            ("equipment", _("Equipment")),
+            ("subcontract", _("Sub Contract / TPS")),
+        ]:
+            section_lines = estimation_lines.filtered(lambda line: line.section_type == section_type)
+            if not section_lines:
+                continue
+
+            section_name = section_map.get(section_type, section_label)
+            commands.append((0, 0, {
+                "sequence": sequence,
+                "display_type": "line_section",
+                "name": section_name,
+            }))
+            sequence += 10
+
+            for estimation_line in section_lines:
+                line_name = estimation_line.name or (
+                    estimation_line.product_id.display_name if estimation_line.product_id else section_name
+                )
+                if not estimation_line.product_id:
+                    commands.append((0, 0, {
+                        "sequence": sequence,
+                        "display_type": "line_note",
+                        "name": line_name,
+                    }))
+                    sequence += 10
+                    continue
+
+                qty = (
+                    estimation_line.quantity_hours
+                    if estimation_line.section_type in ("labor", "equipment")
+                    else estimation_line.quantity
+                ) or 0.0
+                price_unit = self._costing_line_breakdown(
+                    base_unit=estimation_line.unit_cost or 0.0,
+                    qty=qty,
+                    currency=currency,
+                )["final_u"]
+                line_vals = {
+                    "sequence": sequence,
+                    "product_id": estimation_line.product_id.id,
+                    "name": line_name,
+                    "product_uom_qty": qty,
+                    "price_unit": price_unit,
+                }
+                commands.append((0, 0, line_vals))
+                synced_untaxed_total += currency.round(price_unit * qty)
+                if qty:
+                    adjustable_product_lines.append((line_vals, qty))
+                sequence += 10
+
+        target_total = currency.round(estimation.total_with_profit or 0.0)
+        diff = currency.round(target_total - synced_untaxed_total)
+        if adjustable_product_lines and diff:
+            line_vals, qty = adjustable_product_lines[-1]
+            line_vals["price_unit"] = (line_vals["price_unit"] or 0.0) + (diff / qty)
+
+        return commands
+
+    def action_sync_products_from_estimation(self):
+        for order in self:
+            if order.state != "draft" or order.approval_state != "draft":
+                raise UserError(_("Products can only be synced on unapproved draft quotations."))
+            if not order.estimation_id:
+                raise UserError(_("No estimation is linked to this quotation."))
+            if not order.estimation_id.line_ids:
+                raise UserError(_("The linked estimation has no products to sync."))
+
+            estimation = order.estimation_id
+            order.write({
+                "overhead_percent": estimation.overhead_percent or 0.0,
+                "risk_percent": estimation.risk_percent or 0.0,
+                "profit_percent": estimation.profit_percent or 0.0,
+            })
+            order.write({
+                "order_line": order._prepare_sale_order_lines_from_estimation(),
+            })
+            order.message_post(body=_("Quotation products were synced from estimation %s.") % estimation.name)
+
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Products Synced"),
+                "message": _("Quotation products were synced from the linked estimation."),
+                "type": "success",
+                "sticky": False,
+            },
+        }
+
     def action_create_remaining_delivery(self):
         self.ensure_one()
 

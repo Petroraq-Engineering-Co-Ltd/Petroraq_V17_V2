@@ -31,6 +31,7 @@
         'views/hr_employee.xml',
         'data/data.xml',
         'data/ir_sequence.xml',
+        'data/annual_leave_cron.xml',
     ],
     # only loaded in demonstration mode
     'demo': [],

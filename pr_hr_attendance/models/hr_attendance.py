@@ -70,8 +70,8 @@ class HrAttendance(models.Model):
     @api.model
     def _get_auto_attendance_datetimes(self, employee, target_date):
         timezone = pytz.timezone(self._get_auto_attendance_timezone(employee))
-        check_in = timezone.localize(datetime.combine(target_date, time(hour=9)))
-        check_out = timezone.localize(datetime.combine(target_date, time(hour=18)))
+        check_in = timezone.localize(datetime.combine(target_date, time(hour=8)))
+        check_out = timezone.localize(datetime.combine(target_date, time(hour=17)))
         return (
             check_in.astimezone(pytz.UTC).replace(tzinfo=None),
             check_out.astimezone(pytz.UTC).replace(tzinfo=None),

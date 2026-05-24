@@ -13,7 +13,6 @@ class HrEmployee(models.Model):
 
     # region [Fields]
 
-
     # endregion [Fields]
 
     def check_annual_leave_balance(self):

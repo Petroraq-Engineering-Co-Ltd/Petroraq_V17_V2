@@ -73,7 +73,7 @@
                 .petroraq-contact .contact-hero {
                     position: relative;
                     min-height: 500px;
-                    background: url('/pr_website/static/images/hero-bg.png') center/cover no-repeat;
+                    background: url('/pr_website/static/images/contact.png') center/cover no-repeat;
                     display: flex;
                     align-items: center;
                     text-align-left;
@@ -607,7 +607,7 @@
                             <!-- Send Message Form -->
                             <div class="contact-card form-card animate-slide-up delay-100">
                                 <h2>Send a Message</h2>
-                                <p class="card-subtitle">Share your project details and our experts will respond within 24 hours.</p>
+                                <p class="card-subtitle">Share your project details and our experts will respond within 24 working hours.</p>
 
                                 <form class="contact-form" action="/website/mail/contact" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -660,7 +660,7 @@
                             <!-- Contact Information -->
                             <div class="contact-card info-card animate-slide-up delay-200">
                                 <h2>Get In Touch</h2>
-                                <p class="card-subtitle">Multiple ways to connect with our team for project discussions and support.</p>
+                                <p class="card-subtitle">Multiple ways to connect with our team for project discussions, quotations and support.</p>
 
                                 <div class="info-list">
                                     <div class="info-item animate-scale-up delay-100">
@@ -669,7 +669,7 @@
                                         </div>
                                         <div class="info-text">
                                             <h4>Head Office</h4>
-                                            <p>Majd Square, King Faisal (West) Rd<br/>Al Jubail City, Kingdom of Saudi Arabia</p>
+                                            <p>Majd Square, King Faisal (West) Rd<br/>Al-Jubail, Kingdom of Saudi Arabia</p>
                                         </div>
                                     </div>
 
@@ -736,7 +736,7 @@
                                 </div>
                                 <div class="assistance-text">
                                     <h3>Immediate Assistance Available</h3>
-                                    <p>Our team responds to inquiries within 24 hours</p>
+                                    <p style="color: var(--blue);">Our team responds to inquiries within 24 working hours</p>
                                 </div>
                             </div>
                             <div class="assistance-buttons">

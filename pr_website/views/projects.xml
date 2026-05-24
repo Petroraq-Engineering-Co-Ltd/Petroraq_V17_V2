@@ -9,7 +9,7 @@
                 <section class="pr-hero">
                     <!-- Background image layer (full width) -->
                     <div class="pr-hero-bg"
-                         style="background-image:url('/pr_website/static/images/industrial-bg.png')"/>
+                         style="background-image:url('/pr_website/static/images/projects-bg.png')"/>
 
                     <!-- Gradient overlay that blends image into text side -->
                     <div class="pr-hero-gradient"/>
@@ -302,10 +302,10 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="pr-card animate-slide-up delay-700">
                                 <div class="pr-card-image">
-                                    <img src="/pr_website/static/images/swcc1.jpeg" alt="Admin Block Finising Works"/>
+                                    <img src="/pr_website/static/images/swcc1.jpeg" alt="Admin Building Finising Works"/>
                                     <div class="card-overlay">
                                         <div class="overlay-content">
-                                            <h5>Admin Block Finising Works</h5>
+                                            <h5>Admin Building Finising Works</h5>
                                             <p>Interior fit-out, ceiling and partition works
                                             </p>
                                         </div>
@@ -336,7 +336,7 @@
                                     <img src="/pr_website/static/images/porta-cabins-2.png" alt="Site Offices"/>
                                     <div class="card-overlay">
                                         <div class="overlay-content">
-                                            <h5>Temporary Site Offices &amp; Camp Facilities – Qiddiya</h5>
+                                            <h5>Site Offices &amp; Camp Facilities<br/>Qiddiya</h5>
                                             <p>Provision of temporary site offices and camp facilities for project
                                                 operations.
                                             </p>
@@ -344,7 +344,7 @@
                                     </div>
                                 </div>
                                 <div class="pr-card-body">
-                                    <h5>Temporary Site Offices &amp; Camp Facilities – Qiddiya</h5>
+                                    <h5>Site Offices &amp; Camp Facilities<br/>Qiddiya</h5>
                                     <p class="meta">
                                         <i class="fa fa-map-marker"/>
                                         Qiddiya, Saudi Arabia

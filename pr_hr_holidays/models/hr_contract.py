@@ -1,5 +1,7 @@
 import logging
+from datetime import timedelta
 
+from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models
 
 
@@ -99,6 +101,7 @@ class HrContract(models.Model):
         if spec["allocation_type"] == "accrual":
             vals.update({
                 "name": f"{leave_type.name} Accrual Allocation - {self.employee_id.name}",
+                "date_to": self.date_start + relativedelta(years=1) - timedelta(days=1),
                 "number_of_days": 0.0,
                 "accrual_plan_id": accrual_plan.id,
             })
@@ -143,14 +146,15 @@ class HrContract(models.Model):
                     contract._pr_prepare_onboarding_allocation_vals(leave_type, spec, accrual_plan)
                 )
                 if allocation.allocation_type == "accrual":
+                    process_until = min(today, allocation.date_to)
                     allocation.write({
                         "lastcall": contract.date_start,
                         "nextcall": False,
                         "number_of_days": 0.0,
                         "already_accrued": False,
                     })
-                    if contract.date_start <= today:
-                        allocation._process_accrual_plans(today, log=False)
+                    if contract.date_start <= process_until:
+                        allocation._process_accrual_plans(process_until, log=False)
                 allocation.action_validate()
 
     @api.model_create_multi

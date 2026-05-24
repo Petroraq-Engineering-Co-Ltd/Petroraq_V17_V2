@@ -23,6 +23,7 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'views/recruitment_dashboard_views.xml',
         'views/hr_job.xml',
         'views/website_hr_recruitment_detail.xml',
         'views/hr_job_approvals.xml',
@@ -37,5 +38,11 @@
     ],
     # only loaded in demonstration mode
     'demo': [],
-    # 'assets': {}
+    'assets': {
+        'web.assets_backend': [
+            'pr_hr_recruitment/static/src/js/recruitment_dashboard_action.js',
+            'pr_hr_recruitment/static/src/xml/recruitment_dashboard_templates.xml',
+            'pr_hr_recruitment/static/src/css/recruitment_dashboard.css',
+        ],
+    },
 }
