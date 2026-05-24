@@ -713,30 +713,32 @@
                                 <h5>Construction<br/>Management</h5>
                             </div>
                         </div>
-
-                        <div class="services-grid row2">
+                        <div class="services-grid row3">
                             <div class="srv-item">
-                                <div class="srv-ico plain"><i class="fa fa-clipboard-check"></i></div>
-                                <h5>Quality Assurance &amp; Quality Control</h5>
+                                <div class="srv-ico plain"><i class="fa fa-hand-holding-dollar"></i></div>
+                                <h5>Project<br/>Financing</h5>
                             </div>
                             <div class="srv-item">
                                 <div class="srv-ico plain"><i class="fa fa-map-marked-alt"></i></div>
                                 <h5>Survey Services</h5>
                             </div>
-                            <div class="srv-item">
-                                <div class="srv-ico plain"><i class="fa fa-file-signature"></i></div>
-                                <h5>Procurement Services</h5>
-                            </div>
                         </div>
-
                         <div class="services-grid row3">
                             <div class="srv-item">
                                 <div class="srv-ico plain"><i class="fa fa-cogs"></i></div>
                                 <h5>Operation &amp; Maintenance Services</h5>
                             </div>
                             <div class="srv-item">
-                                <div class="srv-ico plain"><i class="fa fa-wrench"></i></div>
-                                <h5>Shutdowns &amp; Turnarounds</h5>
+                                <div class="srv-ico plain"><i class="fa fa-building-columns"></i></div>
+                                <h5>Building<br/>Materials</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-clipboard-check"></i></div>
+                                <h5>Quality Assurance &amp; Quality Control</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-file-signature"></i></div>
+                                <h5>Procurement Services</h5>
                             </div>
                         </div>
                     </aside>
@@ -749,7 +751,7 @@
                         <div class="cb-logo"><i class="fa fa-tint"></i></div>
                         <div>
                             <div class="brand-name">PETRORAQ</div>
-                            <div class="brand-sub">ENERGY SERVICES</div>
+                            <div class="brand-sub">Engineering Co. Ltd.</div>
                         </div>
                     </div>
                     <div class="cb-item">

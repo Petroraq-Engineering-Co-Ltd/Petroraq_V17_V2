@@ -74,7 +74,7 @@
                     min-height: 550px;
                     background: linear-gradient(90deg, rgba(6,38,75,0.75) 0%, rgba(6,38,75,0.4) 60%, rgba(6,38,75,0.15)
                     100%),
-                    url('/pr_website/static/images/hero-bg.png') center/cover no-repeat;
+                    url('/pr_website/static/images/about_bg.png') center/cover no-repeat;
                     display: flex;
                     align-items: center;
                     overflow: hidden;
@@ -645,15 +645,15 @@
                             <div class="who-grid">
                                 <div class="who-text animate-slide-up delay-100">
                                     <h2>Who We Are?</h2>
-                                    <p>PETRORAQ is a leading multidisciplinary engineering, procurement, construction,
+                                    <p style="text-align: justify; color: var(--blue);">PETRORAQ is a leading multidisciplinary engineering, procurement, construction,
                                         and project management company in Jubail since 2022 delivering turnkey solutions
                                         across diverse sectors in the Kingdom of Saudi Arabia.
                                     </p>
-                                    <p>Our expertise spans design and engineering, civil, MEP, telecommunications,
+                                    <p style="text-align: justify; color: var(--blue);">Our expertise spans design and engineering, civil, MEP, telecommunications,
                                         fitout works, building materials, BIM and project finance services, ensuring
                                         seamless project execution from concept to completion.
                                     </p>
-                                    <p>Our commitment to safety, quality, and innovation enables us to deliver enduring
+                                    <p style="text-align: justify; color: var(--blue);">Our commitment to safety, quality, and innovation enables us to deliver enduring
                                         infrastructure solutions that meet today’s needs and support tomorrow’s growth.
                                     </p>
                                 </div>
@@ -661,7 +661,7 @@
                                     <div class="value-card animate-scale-up delay-200">
                                         <i class="fa fa-users"></i>
                                         <h3>800+</h3>
-                                        <p>Skilled Professionals</p>
+                                        <p>Professional Resources</p>
                                     </div>
                                     <div class="value-card animate-scale-up delay-300">
                                         <i class="fa fa-globe"></i>
@@ -670,12 +670,12 @@
                                     </div>
                                     <div class="value-card animate-scale-up delay-200">
                                         <i class="fa fa-industry"></i>
-                                        <h3>17+</h3>
+                                        <h3>35+</h3>
                                         <p>Projects</p>
                                     </div>
                                     <div class="value-card animate-scale-up delay-300">
                                         <i class="fa fa-chart-line"></i>
-                                        <h3>4+</h3>
+                                        <h3>7+</h3>
                                         <p>Years of Excellence</p>
                                     </div>
                                 </div>
@@ -697,7 +697,7 @@
                                     </div>
                                     <div class="mv-text">
                                         <h3>Our Mission</h3>
-                                        <p>To deliver exceptional EPC, Project Management and innovative project
+                                        <p style="text-align: justify; color: var(--blue);">To deliver exceptional EPC, Project Management and innovative project
                                             financing solutions, contributing to the growth and development of the
                                             Kingdom's infrastructure. We strive for excellence in every project,
                                             building long-term relationships with our clients.
@@ -710,7 +710,7 @@
                                     </div>
                                     <div class="mv-text">
                                         <h3>Our Vision</h3>
-                                        <p>Delivering end-to-end project management and turnkey solutions for industrial
+                                        <p style="text-align: justify; color: var(--blue);">Delivering end-to-end project management and turnkey solutions for industrial
                                             and infrastructure sectors, with expertise in planning, resource management,
                                             risk mitigation, and quality execution from concept to completion.
                                         </p>
@@ -827,7 +827,7 @@
                                     </div>
                                     <div class="cta-text">
                                         <h3>Let’s Build Your Vision with Confidence</h3>
-                                        <p>Partner with PETRORAQ for your next engineering and construction project</p>
+                                        <p style="color: var(--blue);">Partner with PETRORAQ for your next engineering and construction project</p>
                                     </div>
                                 </div>
                                 <div class="cta-buttons">

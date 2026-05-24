@@ -466,19 +466,19 @@
 
                 <section class="stats scroll-animate">
                     <div class="stat-item">
-                        <img src="pr_website/static/images/labors.png" alt="Skilled Professionals"/>
+                        <img src="pr_website/static/images/labors.png" alt="Professional Resources"/>
                         <h2>800+</h2>
-                        <p>Skilled Professionals</p>
+                        <p>Professional Resources</p>
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/building.png" alt="Projects Completed"/>
-                        <h2>17+</h2>
+                        <h2>35+</h2>
                         <p>Projects Completed</p>
                     </div>
                     <div class="stat-item">
-                        <img src="pr_website/static/images/globe.png" alt="Years of Experience"/>
-                        <h2>4+</h2>
-                        <p>Years of Experience</p>
+                        <img src="pr_website/static/images/globe.png" alt="Years of Excellence"/>
+                        <h2>7+</h2>
+                        <p>Years of Excellence</p>
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/check_box.png" alt="Lost Time Injury"/>
@@ -509,7 +509,7 @@
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-2">
-                            <img src="pr_website/static/images/missan.png" alt="South Gas Compression Project"/>
+                            <img src="pr_website/static/images/missan.png" alt="Commercial Building Fit-Out"/>
                             <div class="project-body">
                                 <h4>Commercial Building Fit-Out – Khobar</h4>
                                 <p>Khobar, Saudi Arabia</p>
@@ -519,7 +519,7 @@
                         <div class="project-card scroll-animate delay-3">
                             <img src="pr_website/static/images/swcc1.jpeg" alt="Admin Building Fit-Out"/>
                             <div class="project-body">
-                                <h4>Admin Block Finishing Works <br/> Jubail</h4>
+                                <h4>Admin Building Finishing Works <br/> Jubail</h4>
                                 <p>Jubail, Saudi Arabia</p>
                                 <span>Civil</span>
                             </div>

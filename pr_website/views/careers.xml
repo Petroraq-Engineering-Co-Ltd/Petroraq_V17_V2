@@ -74,7 +74,7 @@
                 .petroraq-careers .careers-hero {
                 position: relative;
                 min-height: 450px;
-                background: url('/pr_website/static/images/hero-bg.png')
+                background: url('/pr_website/static/images/careers-bg.png')
                 center/cover no-repeat;
                 display: flex;
                 align-items: center;
@@ -957,16 +957,16 @@
                                 <div class="benefit-card animate-scale-up delay-100">
                                     <i class="fa fa-users"></i>
                                     <h3>800+</h3>
-                                    <p>Employees</p>
+                                    <p>Professional Resources</p>
                                 </div>
                                 <div class="benefit-card animate-scale-up delay-200">
                                     <i class="fa fa-globe"></i>
-                                    <h3>4+</h3>
-                                    <p>Years Experience</p>
+                                    <h3>7+</h3>
+                                    <p>Years of Excellence</p>
                                 </div>
                                 <div class="benefit-card animate-scale-up delay-300">
                                     <i class="fa fa-building"></i>
-                                    <h3>17+</h3>
+                                    <h3>35+</h3>
                                     <p>Projects</p>
                                 </div>
                                 <div class="benefit-card animate-scale-up delay-400">
@@ -1135,21 +1135,93 @@
                         <h2 class="animate-slide-up">Life at PETRORAQ</h2>
                         <div class="life-grid">
                             <div class="life-card animate-scale-up delay-100">
-                                <img src="/pr_website/static/images/life-1.png"
+                                <img src="/pr_website/static/images/life1.webp"
                                      alt="Empowered People"/>
                                 <div class="life-content">
-                                    <h4>Empowered People</h4>
-                                    <p>We invest in our people, provide learning opportunities, and support career
-                                        growth.
+                                    <h4>Meeting With Chinese Delegation</h4>
+                                    <p style="text-align: justify;">Higher management's meeting with Chinese delegation, exploring the opportunities for
+                                        collaboration, growth and joint ventures.
                                     </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
-                                <img src="/pr_website/static/images/life-2.png"
+                                <img src="/pr_website/static/images/award1.webp"
                                      alt="Meaningful Work"/>
                                 <div class="life-content">
-                                    <h4>Meaningful Work</h4>
-                                    <p>Be part of impactful projects that drive progress and improve communities.</p>
+                                    <h4>Award From Pakistani Ambassador</h4>
+                                    <p style="text-align: justify;">Received award from H.E Mr. Ahmad Farooq (Ambassador of Pakistan to Saudi Arabia) during a business meetup organized by PEF.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/meet2.webp"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>MD's Meeting with Clients</h4>
+                                    <p>Managing Director Mr. Mustafa Abdul Rasheed is meeting with clients to discuss their needs and provide solutions.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/staff.png"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>Our Head Office Staff Members</h4>
+                                    <p style="text-align: justify;">A team of dedicated professionals working together to deliver exceptional results by collaboration, expertise, and commitment.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/meet1.webp"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>Chinese Delegation in Petroraq</h4>
+                                    <p style="text-align: justify;">A Chinese delegation visited us to explore strategic business opportunities, potential avenues for collaboration and growth.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/ifftar1.webp"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>Annual Ifftar Party &amp; Dinner 2026</h4>
+                                    <p style="text-align: justify;">A gathering of employees, clients, and their families to celebrate the blessings of Ramadan and strengthen bonds of unity and gratitude.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/noor.jpeg"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>Professional Working Environment</h4>
+                                    <p style="text-align: justify;">PETRORAQ provides a flexible work environment where professionals are encouraged to work independently or collaborate as strong team players.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/pef1.jpg"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>PEF Business Meetup, Dammam</h4>
+                                    <p style="text-align: justify;">PETRORAQ’s team attended the PEF Business Meetup – Dammam Chapter and proudly represented our organization among leading professionals and business leaders.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/noor2.jpeg"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>Delevering Petroraq's Vision at PEF</h4>
+                                    <p style="text-align: justify;">PETRORAQ proudly represented the company’s vision at the PEF Business Meetup by highlighting our commitment to growth, innovation, and collaboration.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/itTeam1.jpeg"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>Team Work Culture</h4>
+                                    <p style="text-align: justify;">IT team works with a collaborative spirit, supporting each department through reliable systems, smart solutions, and continuous improvement.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/khurram.png"
+                                     alt="Meaningful Work"/>
+                                <div class="life-content">
+                                    <h4>Project Manager Visiting Site</h4>
+                                    <p style="text-align: justify;">Building tomorrow with precision, safety, and vision, where every blueprint becomes reality through dedication, leadership, and excellence on site.</p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-300">
@@ -1175,7 +1247,7 @@
                                 </div>
                                 <div class="cta-text">
                                     <h3>Ready to Build the Future With Us?</h3>
-                                    <p>Join PETRORAQ and be part of a team delivering excellence every day.</p>
+                                    <p style="color: var(--blue);">Join PETRORAQ and be part of a team delivering excellence every day.</p>
                                 </div>
                             </div>
                             <a href="#openings" class="btn-cta animate-scale-up delay-100">
@@ -1438,7 +1510,7 @@
                 .job-detail-hero {
                 position: relative;
                 min-height: 400px;
-                background: url('/pr_website/static/src/img/hero-bg.png') center/cover no-repeat;
+                background: url('/pr_website/static/src/img/staff.png') center/cover no-repeat;
                 display: flex;
                 align-items: center;
                 overflow: hidden;
@@ -3269,10 +3341,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <i class="fa fa-briefcase"></i>
                                 View More Jobs
                             </a>
-<!--                            <a href="mailto:careers@petroraq.com" class="secondary-btn animate-scale-up delay-400">-->
-<!--                                <i class="fa fa-envelope"></i>-->
-<!--                                Contact HR-->
-<!--                            </a>-->
+                            <!--                            <a href="mailto:careers@petroraq.com" class="secondary-btn animate-scale-up delay-400">-->
+                            <!--                                <i class="fa fa-envelope"></i>-->
+                            <!--                                Contact HR-->
+                            <!--                            </a>-->
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 import base64
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
@@ -654,4 +655,218 @@ class HrApplicant(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'res_id': self.applicant_onboarding_id.id,
+        }
+
+    @api.model
+    def get_recruitment_dashboard_data(self):
+        Applicant = self.env["hr.applicant"].sudo().with_context(active_test=False)
+        ActiveApplicant = self.env["hr.applicant"].sudo()
+        Job = self.env["hr.job"].sudo().with_context(active_test=False)
+        today = fields.Date.context_today(self)
+        month_start = today.replace(day=1)
+
+        hired_domain = ["|", ("stage_id.hired_stage", "=", True), ("emp_id", "!=", False)]
+        open_applicant_domain = [
+            ("active", "=", True),
+            "|", ("stage_id", "=", False), ("stage_id.hired_stage", "=", False),
+        ]
+        published_job_domain = [("active", "=", True)]
+        if "website_published" in Job._fields:
+            published_job_domain.append(("website_published", "=", True))
+
+        total_applicants = Applicant.search_count([])
+        hired_applicants = Applicant.search_count(hired_domain)
+        open_applicants = Applicant.search_count(open_applicant_domain)
+        published_jobs = Job.search_count(published_job_domain)
+        active_jobs = Job.search_count([("active", "=", True)])
+        month_applicants = Applicant.search_count([
+            ("create_date", ">=", fields.Datetime.to_string(month_start)),
+        ])
+        month_hires = Applicant.search_count(hired_domain + [
+            ("write_date", ">=", fields.Datetime.to_string(month_start)),
+        ])
+        conversion_rate = round((hired_applicants / total_applicants) * 100.0, 1) if total_applicants else 0.0
+
+        pipeline = []
+        stages = self.env["hr.recruitment.stage"].sudo().search([], order="sequence, id")
+        max_stage_count = 1
+        stage_counts = {}
+        for stage in stages:
+            count = ActiveApplicant.search_count([("stage_id", "=", stage.id)])
+            stage_counts[stage.id] = count
+            max_stage_count = max(max_stage_count, count)
+        for stage in stages:
+            count = stage_counts[stage.id]
+            pipeline.append({
+                "id": stage.id,
+                "name": stage.name,
+                "count": count,
+                "percent": round((count / max_stage_count) * 100.0, 1) if count else 0.0,
+                "hired": bool(stage.hired_stage),
+            })
+
+        top_jobs = []
+        job_groups = Applicant.read_group(
+            [("job_id", "!=", False)],
+            ["job_id"],
+            ["job_id"],
+            orderby="job_id_count desc",
+            limit=6,
+        )
+        for group in job_groups:
+            job_id = group.get("job_id")
+            if not job_id:
+                continue
+            job = Job.browse(job_id[0])
+            hired_for_job = Applicant.search_count([("job_id", "=", job.id)] + hired_domain)
+            total_for_job = group.get("job_id_count") or group.get("__count", 0)
+            top_jobs.append({
+                "id": job.id,
+                "name": job.display_name,
+                "department": job.department_id.display_name or _("No Department"),
+                "count": total_for_job,
+                "hired": hired_for_job,
+                "target": job.no_of_recruitment or 0,
+                "percent": round((hired_for_job / (job.no_of_recruitment or total_for_job or 1)) * 100.0, 1),
+            })
+
+        department_counts = {}
+        applicants_with_department = Applicant.search([("job_id", "!=", False)])
+        for applicant in applicants_with_department:
+            department = applicant.job_id.department_id
+            if not department:
+                continue
+            department_counts.setdefault(department.id, {
+                "id": department.id,
+                "name": department.display_name,
+                "count": 0,
+            })
+            department_counts[department.id]["count"] += 1
+        departments = sorted(
+            department_counts.values(),
+            key=lambda department: department["count"],
+            reverse=True,
+        )[:6]
+        max_department_count = max([department["count"] for department in departments] or [1])
+        for department in departments:
+            department["percent"] = round(
+                (department["count"] / max_department_count) * 100.0,
+                1,
+            ) if department["count"] else 0.0
+
+        monthly = []
+        for index in range(5, -1, -1):
+            start = (month_start - relativedelta(months=index))
+            end = start + relativedelta(months=1)
+            start_dt = fields.Datetime.to_string(start)
+            end_dt = fields.Datetime.to_string(end)
+            applications = Applicant.search_count([
+                ("create_date", ">=", start_dt),
+                ("create_date", "<", end_dt),
+            ])
+            hires = Applicant.search_count(hired_domain + [
+                ("write_date", ">=", start_dt),
+                ("write_date", "<", end_dt),
+            ])
+            monthly.append({
+                "label": start.strftime("%b"),
+                "applications": applications,
+                "hires": hires,
+            })
+        max_monthly = max([max(item["applications"], item["hires"]) for item in monthly] or [1])
+        for item in monthly:
+            item["applications_percent"] = round((item["applications"] / max_monthly) * 100.0, 1) if item["applications"] else 0.0
+            item["hires_percent"] = round((item["hires"] / max_monthly) * 100.0, 1) if item["hires"] else 0.0
+
+        request_states = []
+        pending_requests = 0
+        approved_requests = 0
+        if self.env.registry.get("hr.recruitment.request"):
+            Request = self.env["hr.recruitment.request"].sudo()
+            labels = dict(Request._fields["state"].selection)
+            request_groups = Request.read_group([], ["state"], ["state"])
+            request_counts = {
+                group.get("state"): group.get("state_count") or group.get("__count", 0)
+                for group in request_groups
+            }
+            pending_requests = sum(
+                request_counts.get(state, 0)
+                for state in ("hr_approval", "hrm_approval", "md_approval")
+            )
+            approved_requests = request_counts.get("approved", 0)
+            for state, label in labels.items():
+                request_states.append({
+                    "state": state,
+                    "label": label,
+                    "count": request_counts.get(state, 0),
+                })
+
+        recent_applicants = []
+        for applicant in Applicant.search([], order="create_date desc", limit=8):
+            recent_applicants.append({
+                "id": applicant.id,
+                "name": applicant.partner_name or applicant.name,
+                "job": applicant.job_id.display_name or _("No Job"),
+                "stage": applicant.stage_id.display_name or _("No Stage"),
+                "created": fields.Date.to_string(fields.Date.to_date(applicant.create_date)),
+                "hired": bool(applicant.stage_id.hired_stage or applicant.emp_id),
+            })
+
+        return {
+            "cards": [
+                {
+                    "key": "applicants",
+                    "label": _("Total Applicants"),
+                    "value": total_applicants,
+                    "icon": "fa-users",
+                    "model": "hr.applicant",
+                    "domain": [],
+                },
+                {
+                    "key": "open_applicants",
+                    "label": _("In Progress"),
+                    "value": open_applicants,
+                    "icon": "fa-hourglass-half",
+                    "model": "hr.applicant",
+                    "domain": open_applicant_domain,
+                },
+                {
+                    "key": "hired",
+                    "label": _("Hired"),
+                    "value": hired_applicants,
+                    "icon": "fa-check-circle",
+                    "model": "hr.applicant",
+                    "domain": hired_domain,
+                },
+                {
+                    "key": "jobs",
+                    "label": _("Open Positions"),
+                    "value": published_jobs,
+                    "icon": "fa-briefcase",
+                    "model": "hr.job",
+                    "domain": published_job_domain,
+                },
+                {
+                    "key": "requests",
+                    "label": _("Pending Requests"),
+                    "value": pending_requests,
+                    "icon": "fa-file-text-o",
+                    "model": "hr.recruitment.request" if self.env.registry.get("hr.recruitment.request") else False,
+                    "domain": [("state", "in", ["hr_approval", "hrm_approval", "md_approval"])],
+                },
+            ],
+            "summary": {
+                "active_jobs": active_jobs,
+                "published_jobs": published_jobs,
+                "month_applicants": month_applicants,
+                "month_hires": month_hires,
+                "conversion_rate": conversion_rate,
+                "approved_requests": approved_requests,
+            },
+            "pipeline": pipeline,
+            "top_jobs": top_jobs,
+            "departments": departments,
+            "monthly": monthly,
+            "request_states": request_states,
+            "recent_applicants": recent_applicants,
         }
