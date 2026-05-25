@@ -35,3 +35,50 @@ class AccountPaymentRegister(models.TransientModel):
     #         if wiz.journal_id.type == "bank" and not wiz.received_bank_account_id:
     #             raise ValidationError(_("Please select the bank account where payment was received."))
     #     return super().action_create_payments()
+
+    def _pr_requires_vendor_payment_approval(self, process_vals):
+        payment_vals = process_vals.get("create_vals", {})
+        source_lines = process_vals.get("to_reconcile", self.env["account.move.line"])
+        source_moves = source_lines.move_id
+        return (
+            payment_vals.get("payment_type") == "outbound"
+            and payment_vals.get("partner_type") == "supplier"
+            and source_moves
+            and all(move.move_type in ("in_invoice", "in_receipt") for move in source_moves)
+        )
+
+    def _init_payments(self, to_process, edit_mode=False):
+        payments = super()._init_payments(to_process, edit_mode=edit_mode)
+        for process_vals in to_process:
+            payment = process_vals.get("payment")
+            if not payment or not self._pr_requires_vendor_payment_approval(process_vals):
+                continue
+
+            source_lines = process_vals.get("to_reconcile", self.env["account.move.line"])
+            payment.write({
+                "pr_requires_vendor_payment_approval": True,
+                "pr_payment_approval_state": "submit",
+                "pr_vendor_payment_source_line_ids": [(6, 0, source_lines.ids)],
+            })
+            payment.message_post(body=_("Vendor payment submitted for approval from Register Payment."))
+        return payments
+
+    def _post_payments(self, to_process, edit_mode=False):
+        immediate_process = [
+            process_vals
+            for process_vals in to_process
+            if not process_vals.get("payment").pr_requires_vendor_payment_approval
+        ]
+        if immediate_process:
+            return super()._post_payments(immediate_process, edit_mode=edit_mode)
+        return None
+
+    def _reconcile_payments(self, to_process, edit_mode=False):
+        immediate_process = [
+            process_vals
+            for process_vals in to_process
+            if not process_vals.get("payment").pr_requires_vendor_payment_approval
+        ]
+        if immediate_process:
+            return super()._reconcile_payments(immediate_process, edit_mode=edit_mode)
+        return None

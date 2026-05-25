@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="paperformat_petroraq_estimation_landscape" model="report.paperformat">
+        <field name="name">Estimation Landscape</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">12</field>
+        <field name="margin_right">6</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">6</field>
+        <field name="header_line" eval="False"/>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_petroraq_estimation_pdf" model="ir.actions.report">
+        <field name="name">Estimation PDF</field>
+        <field name="model">petroraq.estimation</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">petroraq_sale_workflow.estimation_pdf</field>
+        <field name="report_file">petroraq_sale_workflow.estimation_pdf</field>
+        <field name="binding_model_id" ref="model_petroraq_estimation"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_petroraq_estimation_landscape"/>
+        <field name="print_report_name">'Estimation - %s' % (object.name)</field>
+    </record>
+
+    <record id="action_report_petroraq_estimation_xlsx" model="ir.actions.report">
+        <field name="name">Estimation Excel</field>
+        <field name="model">petroraq.estimation</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">petroraq_sale_workflow.estimation_xlsx_report</field>
+        <field name="report_file">Estimation</field>
+        <field name="binding_model_id" ref="model_petroraq_estimation"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Estimation - %s' % (object.name)</field>
+    </record>
+
+    <template id="estimation_pdf">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page" style="font-size:12px;">
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                        <tr>
+                            <td style="background:#173b76; color:#ffffff; text-align:center; font-weight:bold; font-size:20px; padding:8px; border:1px solid #173b76;">
+                                <span t-esc="doc.company_id.display_name or doc.env.company.display_name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background:#173b76; color:#ffffff; text-align:center; font-weight:bold; font-size:16px; padding:6px; border:1px solid #173b76;">
+                                ESTIMATION
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                        <tr>
+                            <td style="width:15%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Estimation</td>
+                            <td style="width:35%; border:1px solid #cccccc; padding:5px;"><span t-esc="doc.name"/></td>
+                            <td style="width:15%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Status</td>
+                            <td style="width:35%; border:1px solid #cccccc; padding:5px;"><span t-esc="dict(doc._fields['approval_state'].selection).get(doc.approval_state, doc.approval_state or '')"/></td>
+                        </tr>
+                        <tr>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Customer</td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.partner_id.display_name or ''"/></td>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Date</td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.date and doc.date.strftime('%d-%m-%Y') or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Quotation</td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.sale_order_id.name or ''"/></td>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Work Order</td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.work_order_id.name or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Currency</td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.currency_id.name or ''"/></td>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Revision</td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.revision_number or ''"/></td>
+                        </tr>
+                    </table>
+
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:4%;">#</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:13%;">Section</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:18%;">Product</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:33%;">Description</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:8%;">Qty</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:8%;">UoM</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:8%;">Unit Cost</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:5px; width:8%;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="line_no" t-value="0"/>
+                            <t t-foreach="doc.display_line_ids" t-as="line">
+                                <tr t-if="line.display_type == 'line_section'">
+                                    <td colspan="5" style="background:#cfe2f3; font-weight:bold; border:1px solid #999999; padding:5px;">
+                                        <span t-esc="line.name or ''"/>
+                                    </td>
+                                    <td colspan="3" style="background:#cfe2f3; font-weight:bold; border:1px solid #999999; padding:5px; text-align:right;">
+                                        Sub Total:
+                                        <span t-esc="'{:,.2f}'.format(line.section_subtotal_amount or 0.0)"/>
+                                    </td>
+                                </tr>
+                                <tr t-elif="line.display_type == 'line_note'">
+                                    <td colspan="8" style="font-style:italic; border:1px solid #dddddd; padding:5px;">
+                                        <span t-esc="line.name or ''"/>
+                                    </td>
+                                </tr>
+                                <tr t-else="">
+                                    <t t-set="line_no" t-value="line_no + 1"/>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:center;"><span t-esc="line_no"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px;"><span t-esc="dict(line._fields['section_type'].selection).get(line.section_type, line.section_type or '')"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px;"><span t-esc="line.product_id.display_name or ''"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px;"><span t-esc="line.name or ''"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format((line.quantity_hours if line.section_type in ('labor', 'equipment') else line.quantity) or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px;"><span t-esc="line.uom_id.name or ''"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.unit_cost or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.subtotal or 0.0)"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <table style="width:38%; margin-left:auto; margin-top:10px; border-collapse:collapse;">
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Material Total</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.material_total or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Labor Total</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.labor_total or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Equipment Total</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.equipment_total or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Sub Contract / TPS Total</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.subcontract_total or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Base Total</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.total_amount or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Overhead</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.overhead_amount or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Risk</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.risk_amount or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Profit</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.profit_amount or 0.0)"/></td></tr>
+                        <tr><td style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">Total With Profit</td><td style="border:1px solid #000; padding:5px; text-align:right;"><span t-esc="'{:,.2f}'.format(doc.total_with_profit or 0.0)"/> <span t-esc="doc.currency_id.name or ''"/></td></tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

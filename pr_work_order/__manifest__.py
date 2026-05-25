@@ -17,10 +17,12 @@
         "mail",
         "purchase",
         "pr_custom_purchase",
+        "report_xlsx",
     ],
     "data": [
         "security/groups.xml",
         "security/ir.model.access.csv",
+        "report/work_order_report.xml",
         "views/work_order_views.xml",
         "views/job_costing_report_views.xml",
 

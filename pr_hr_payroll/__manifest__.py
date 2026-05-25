@@ -18,7 +18,7 @@
     'category': 'Human Resources/Payroll',
     'version': '17.0.1.0.4',
     # any module necessary for this one to work correctly
-    'depends': ['pr_hr_contract'],
+    'depends': ['pr_hr_contract', 'pr_account'],
 
     # always loaded
     'data': [
