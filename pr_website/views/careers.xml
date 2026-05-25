@@ -919,7 +919,7 @@
                 <!-- ===== Hero Section ===== -->
                 <section class="careers-hero animate-fade-in">
                     <div class="hero-overlay"></div>
-                    <div class="pr-container">
+                    <div class="">
                         <div class="hero-content animate-slide-up">
                             <h1>Build Your Career<br/>With PETRORAQ
                                 <span class="dot"></span>
@@ -948,7 +948,7 @@
                         <div class="why-top">
                             <div class="why-text animate-slide-up">
                                 <h2>Why Work With Us</h2>
-                                <p>At PETRORAQ, we empower our people to grow, innovate, and make an impact. We foster a
+                                <p style="text-align: justify; color: var(--blue);">At PETRORAQ, we empower our people to grow, innovate, and make an impact. We foster a
                                     culture of safety, collaboration, and excellence while delivering meaningful
                                     projects that shape communities and industries.
                                 </p>
@@ -1001,7 +1001,7 @@
                             <div class="benefit-card animate-scale-up delay-500">
                                 <i class="fa fa-users"></i>
                                 <h4>Team Collaboration</h4>
-                                <p>Collaborative teams</p>
+                                <p style="text-align: center;">Team collaboration ensures safe, efficient, and timely civil project delivery.</p>
                             </div>
                             <div class="benefit-card animate-scale-up delay-600">
                                 <i class="fa fa-trophy"></i>

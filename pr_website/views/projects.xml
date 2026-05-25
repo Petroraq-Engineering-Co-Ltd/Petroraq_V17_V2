@@ -371,7 +371,12 @@
                     <div class="row g-3">
                         <div class="col">
                             <div class="pr-cat-card animate-scale-up delay-100">
-
+                                <i class="fa fa-building"/>
+                                <h6>Buildings</h6>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="pr-cat-card animate-scale-up delay-100">
                                 <i class="fa fa-building"/>
                                 <h6>Buildings</h6>
                             </div>
