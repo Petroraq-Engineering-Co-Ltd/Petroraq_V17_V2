@@ -650,6 +650,108 @@
     color: #00254D;
 }
 
+/* ========== GLOBAL CARD IMAGE PREVIEW ========== */
+
+.prq-previewable-image {
+    cursor: zoom-in;
+}
+
+.prq-previewable-image:hover {
+    filter: brightness(0.96);
+}
+
+.prq-lightbox-open {
+    overflow: hidden;
+}
+
+.prq-image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    background: rgba(2, 12, 26, 0.84);
+}
+
+.prq-image-lightbox.is-open {
+    display: flex;
+}
+
+.prq-image-lightbox-dialog {
+    width: min(1100px, 96vw);
+    max-height: 92vh;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36);
+}
+
+.prq-image-lightbox-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    background: #06264B;
+    color: #ffffff;
+}
+
+.prq-image-lightbox-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.prq-image-lightbox-close {
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 6px;
+    padding: 8px 14px;
+    background: #FDB514;
+    color: #06264B;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.prq-image-lightbox-body {
+    max-height: calc(92vh - 58px);
+    overflow: auto;
+    padding: 18px;
+    background: #f8fafc;
+}
+
+.prq-image-lightbox-img {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    max-height: calc(92vh - 94px);
+    height: auto;
+    margin: 0 auto;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(6, 38, 75, 0.16);
+}
+
+@media (max-width: 768px) {
+    .prq-image-lightbox {
+        padding: 14px;
+    }
+
+    .prq-image-lightbox-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .prq-image-lightbox-body {
+        padding: 12px;
+    }
+}
+
 .service-desc {
     font-size: 15px;
     margin: 0 15px 20px;

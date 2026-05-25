@@ -1017,44 +1017,65 @@
                             <div class="fn-grid">
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-file-lines"></i></div>
-                                    <h5>Design &amp;<br/>Engineering</h5>
+                                    <h5>Project Identification</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-file-alt"></i></div>
-                                    <h5>Evaluation of<br/>Project Documents</h5>
+                                    <h5>Feasibility Study</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-calculator"></i></div>
-                                    <h5>Cost Estimation</h5>
+                                    <h5>Setting Objectives</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-calendar-alt"></i></div>
-                                    <h5>Planning and<br/>Scheduling</h5>
+                                    <h5>Project Planning</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-shield-alt"></i></div>
-                                    <h5>Construction<br/>Permits</h5>
+                                    <h5>Resource Allocation</h5>
                                 </div>
                             </div>
 
-                            <div class="fn-grid last-row">
+<div class="fn-grid last-row">
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-truck-loading"></i></div>
-                                    <h5>HSE / QA  Policies</h5>
+                                    <h5>Budgeting &amp; Cost Estimation</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-star"></i></div>
-                                    <h5>Material Submittals</h5>
+                                    <h5>Risk Assessment</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-user-friends"></i></div>
-                                    <h5>Approvals</h5>
+                                    <h5>Stake Holder Analysis</h5>
                                 </div>
-                                <div class="fn-item" style="grid-column: span 2;">
+                                <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-file-signature"></i></div>
-                                    <h5>Start of Project</h5>
+                                    <h5>Team Formation</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-file-contract"></i></div>
+                                    <h5>Approval &amp; Authorization</h5>
                                 </div>
                             </div>
+                            <div class="fn-flow">
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-headset"></i></div>
+                                    <h5>Communication Planning </h5>
+                                </div>
+                                <div class="fn-flow-arrow"></div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-critical-role"></i></div>
+                                    <h5>Procurement Planning</h5>
+                                </div>
+                                <div class="fn-flow-arrow"></div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-arrow-up-right-dots"></i></div>
+                                    <h5>Project Start</h5>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -1106,7 +1127,7 @@
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-file-contract"></i></div>
-                                    <h5>Administrative<br/>and Change Order</h5>
+                                    <h5>Admin &amp; <br/> Change Order</h5>
                                 </div>
                             </div>
 
@@ -1115,12 +1136,12 @@
                                     <div class="fn-icon-wrap"><i class="fa fa-search"></i></div>
                                     <h5>Plan, Interpretation<br/>&amp; Corrections</h5>
                                 </div>
-                                <div class="fn-flow-arrow"><i class="fa fa-arrow-right"></i></div>
+                                <div class="fn-flow-arrow"></div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-award"></i></div>
                                     <h5>Final Inspection &amp;<br/>Acceptance of work</h5>
                                 </div>
-                                <div class="fn-flow-arrow"><i class="fa fa-arrow-right"></i></div>
+                                <div class="fn-flow-arrow"></div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-handshake"></i></div>
                                     <h5>Project<br/>Handing over</h5>
