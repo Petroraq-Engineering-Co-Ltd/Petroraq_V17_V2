@@ -1,4 +1,5 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 import requests
 import json
 
@@ -45,6 +46,42 @@ class AccountMove(models.Model):
         string="Has PR Voucher",
         compute="_compute_pr_vouchers",
         store=False,
+    )
+    pr_pending_vendor_payment_approval_ids = fields.Many2many(
+        "account.payment",
+        "pr_account_move_pending_vendor_payment_rel",
+        "move_id",
+        "payment_id",
+        string="Pending Vendor Payment Approvals",
+        compute="_compute_pr_pending_vendor_payment_approvals",
+    )
+    pr_pending_vendor_payment_approval_count = fields.Integer(
+        string="Pending Vendor Payment Approval Count",
+        compute="_compute_pr_pending_vendor_payment_approvals",
+    )
+    pr_has_pending_vendor_payment_approval = fields.Boolean(
+        string="Has Pending Vendor Payment Approval",
+        compute="_compute_pr_pending_vendor_payment_approvals",
+    )
+    pr_rejected_vendor_payment_approval_ids = fields.Many2many(
+        "account.payment",
+        "pr_account_move_rejected_vendor_payment_rel",
+        "move_id",
+        "payment_id",
+        string="Rejected Vendor Payment Approvals",
+        compute="_compute_pr_pending_vendor_payment_approvals",
+    )
+    pr_rejected_vendor_payment_approval_count = fields.Integer(
+        string="Rejected Vendor Payment Approval Count",
+        compute="_compute_pr_pending_vendor_payment_approvals",
+    )
+    pr_has_rejected_vendor_payment_approval = fields.Boolean(
+        string="Has Rejected Vendor Payment Approval",
+        compute="_compute_pr_pending_vendor_payment_approvals",
+    )
+    pr_last_vendor_payment_rejection_reason = fields.Text(
+        string="Last Vendor Payment Rejection Reason",
+        compute="_compute_pr_pending_vendor_payment_approvals",
     )
 
     def action_open_bpv(self):
@@ -94,6 +131,103 @@ class AccountMove(models.Model):
             "view_mode": "form",
             "res_id": self.crv_id.id,
         }
+
+    @api.depends("line_ids")
+    def _compute_pr_pending_vendor_payment_approvals(self):
+        pending_states = ("submit", "finance_approve")
+        Payment = self.env["account.payment"]
+
+        for move in self:
+            payments = Payment.browse()
+            rejected_payments = Payment.browse()
+            latest_rejection_reason = False
+            if move.move_type in ("in_invoice", "in_receipt") and move.line_ids:
+                vendor_payments = Payment.search([
+                    ("pr_requires_vendor_payment_approval", "=", True),
+                    ("payment_type", "=", "outbound"),
+                    ("partner_type", "=", "supplier"),
+                    ("state", "=", "draft"),
+                    ("pr_vendor_payment_source_line_ids", "in", move.line_ids.ids),
+                ])
+                payments = vendor_payments.filtered(
+                    lambda payment: payment.pr_payment_approval_state in pending_states
+                )
+                rejected_payments = vendor_payments.filtered(
+                    lambda payment: payment.pr_payment_approval_state == "reject"
+                )
+                latest_rejected_payment = rejected_payments.sorted(
+                    lambda payment: (payment.write_date or payment.create_date, payment.id),
+                    reverse=True,
+                )[:1]
+                if latest_rejected_payment:
+                    latest_rejection_reason = latest_rejected_payment.pr_vendor_payment_reject_reason
+
+            move.pr_pending_vendor_payment_approval_ids = payments
+            move.pr_pending_vendor_payment_approval_count = len(payments)
+            move.pr_has_pending_vendor_payment_approval = bool(payments)
+            move.pr_rejected_vendor_payment_approval_ids = rejected_payments
+            move.pr_rejected_vendor_payment_approval_count = len(rejected_payments)
+            move.pr_has_rejected_vendor_payment_approval = bool(rejected_payments)
+            move.pr_last_vendor_payment_rejection_reason = latest_rejection_reason
+
+    def action_pr_open_pending_vendor_payment_approval(self):
+        self.ensure_one()
+        payments = self.pr_pending_vendor_payment_approval_ids
+        action = {
+            "name": _("Pending Vendor Payment Approval"),
+            "type": "ir.actions.act_window",
+            "res_model": "account.payment",
+            "context": {"create": False},
+        }
+        if len(payments) == 1:
+            action.update({
+                "view_mode": "form",
+                "res_id": payments.id,
+            })
+        else:
+            action.update({
+                "view_mode": "tree,form",
+                "domain": [("id", "in", payments.ids)],
+            })
+        return action
+
+    def action_pr_open_rejected_vendor_payment_approval(self):
+        self.ensure_one()
+        payments = self.pr_rejected_vendor_payment_approval_ids
+        action = {
+            "name": _("Rejected Vendor Payment"),
+            "type": "ir.actions.act_window",
+            "res_model": "account.payment",
+            "context": {"create": False},
+        }
+        if len(payments) == 1:
+            action.update({
+                "view_mode": "form",
+                "res_id": payments.id,
+            })
+        else:
+            action.update({
+                "view_mode": "tree,form",
+                "domain": [("id", "in", payments.ids)],
+            })
+        return action
+
+    def action_register_payment(self):
+        pending_moves = self.filtered("pr_has_pending_vendor_payment_approval")
+        if pending_moves:
+            if len(self) == 1:
+                return self.action_pr_open_pending_vendor_payment_approval()
+            raise UserError(_(
+                "A vendor payment approval is already pending for: %s"
+            ) % ", ".join(pending_moves.mapped("name")))
+        rejected_moves = self.filtered("pr_has_rejected_vendor_payment_approval")
+        if rejected_moves:
+            if len(self) == 1:
+                return self.action_pr_open_rejected_vendor_payment_approval()
+            raise UserError(_(
+                "A rejected vendor payment already exists for: %s. Open and resubmit it instead of creating a duplicate."
+            ) % ", ".join(rejected_moves.mapped("name")))
+        return super().action_register_payment()
 
     # def action_open_jjv(self):
     #     self.ensure_one()
