@@ -10,6 +10,7 @@
     # Required
     "depends": [
         "website",
+        "crm",
         "hr_recruitment",  # for careers page
         "hr_recruitment_skills",
         "pr_hr_recruitment_request",

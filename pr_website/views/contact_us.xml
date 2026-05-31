@@ -186,6 +186,27 @@
                     line-height: 1.8;
                     margin-bottom: 40px;
                 }
+                .petroraq-contact .contact-alert {
+                    padding: 16px 18px;
+                    border-radius: 14px;
+                    margin-bottom: 24px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    line-height: 1.5;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .petroraq-contact .contact-alert.success {
+                    background: rgba(22, 163, 74, 0.1);
+                    color: #166534;
+                    border: 1px solid rgba(22, 163, 74, 0.25);
+                }
+                .petroraq-contact .contact-alert.error {
+                    background: rgba(220, 38, 38, 0.1);
+                    color: #991b1b;
+                    border: 1px solid rgba(220, 38, 38, 0.25);
+                }
 
                 /* ===== Form Styles ===== */
                 .petroraq-contact .form-row {
@@ -608,6 +629,14 @@
                             <div class="contact-card form-card animate-slide-up delay-100">
                                 <h2>Send a Message</h2>
                                 <p class="card-subtitle">Share your project details and our experts will respond within 24 working hours.</p>
+                                <div t-if="contact_success" class="contact-alert success">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span>Your message has been sent. Our sales team will contact you soon.</span>
+                                </div>
+                                <div t-if="contact_error" class="contact-alert error">
+                                    <i class="fa fa-exclamation-circle"></i>
+                                    <span t-esc="contact_error"/>
+                                </div>
 
                                 <form class="contact-form" action="/website/mail/contact" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>

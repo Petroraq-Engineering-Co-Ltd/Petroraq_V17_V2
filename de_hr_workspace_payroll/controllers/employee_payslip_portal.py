@@ -40,12 +40,9 @@ class EmployeePayslipPortal(CustomerPortal):
             raise MissingError(_("This payslip does not exist or you do not have access to it."))
 
     def _get_payslip_report_action(self):
-        report = request.env.ref('hr_payroll.action_report_payslip', raise_if_not_found=False)
-        if not report:
-            report = request.env['ir.actions.report'].sudo().search([
-                ('model', '=', 'hr.payslip'),
-                ('report_type', '=', 'qweb-pdf'),
-            ], limit=1)
+        Report = request.env['ir.actions.report'].sudo()
+        Report._pr_configure_payslip_paperformat()
+        report = Report._pr_find_payslip_report_action()
         if not report:
             raise MissingError(_("No payslip report is available for download."))
         return report.sudo()
