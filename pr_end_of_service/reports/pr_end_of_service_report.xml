@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_pr_end_of_service">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 style="text-align:center;">End of Service Settlement</h2>
+                        <table class="table table-sm o_main_table" style="width:100%; margin-top:16px;">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Number</strong></td>
+                                    <td><span t-field="doc.name"/></td>
+                                    <td><strong>Status</strong></td>
+                                    <td><span t-field="doc.state"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Employee</strong></td>
+                                    <td><span t-field="doc.employee_id"/></td>
+                                    <td><strong>Reason</strong></td>
+                                    <td><span t-field="doc.reason_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Joining Date</strong></td>
+                                    <td><span t-field="doc.joining_date"/></td>
+                                    <td><strong>Service End Date</strong></td>
+                                    <td><span t-field="doc.service_end_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Service Duration</strong></td>
+                                    <td colspan="3">
+                                        <span t-esc="'%s years, %s months, %s days' % (doc.years, doc.months, doc.days)"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4 style="margin-top:18px;">Amounts</h4>
+                        <table class="table table-sm o_main_table" style="width:100%;">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Monthly Base</strong></td>
+                                    <td class="text-end"><span t-field="doc.monthly_base_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>EOS Benefit</strong></td>
+                                    <td class="text-end"><span t-field="doc.eos_benefit_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Annual Leave Days</strong></td>
+                                    <td class="text-end"><span t-field="doc.annual_leave_days"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Leave Settlement</strong></td>
+                                    <td class="text-end"><span t-field="doc.leave_settlement_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Other Additions</strong></td>
+                                    <td class="text-end"><span t-field="doc.other_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Deductions</strong></td>
+                                    <td class="text-end"><span t-field="doc.deduction_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Deserved</strong></td>
+                                    <td class="text-end"><span t-field="doc.total_deserved_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Previously Disbursed</strong></td>
+                                    <td class="text-end"><span t-field="doc.previously_disbursed_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Requested Amount</strong></td>
+                                    <td class="text-end"><span t-field="doc.requested_amount"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p t-if="doc.notes">
+                            <strong>Notes:</strong>
+                            <span t-field="doc.notes"/>
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_pr_end_of_service" model="ir.actions.report">
+        <field name="name">End of Service Settlement</field>
+        <field name="model">pr.end.of.service</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pr_end_of_service.report_pr_end_of_service</field>
+        <field name="report_file">pr_end_of_service.report_pr_end_of_service</field>
+        <field name="print_report_name">'End_of_Service_%s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_pr_end_of_service"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

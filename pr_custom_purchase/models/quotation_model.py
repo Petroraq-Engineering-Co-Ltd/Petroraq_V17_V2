@@ -65,6 +65,20 @@ class PurchaseOrder(models.Model):
     pm_approved = fields.Boolean(string="Approved", default=False)
     od_approved = fields.Boolean(string="Approved", default=False)
     md_approved = fields.Boolean(string="Approved", default=False)
+    approval_status = fields.Selection(
+        [
+            ("not_submitted", "Not Submitted"),
+            ("pending_pe", "Pending Procurement Manager"),
+            ("pending_pm", "Pending Project Manager"),
+            ("pending_od", "Pending Operations Director"),
+            ("pending_md", "Pending Managing Director"),
+            ("approved", "Approved"),
+            ("rejected", "Rejected"),
+        ],
+        string="Approval",
+        compute="_compute_approval_status",
+        store=False,
+    )
     can_confirm_order = fields.Boolean(
         compute="_compute_can_confirm_order", store=False
     )
@@ -606,6 +620,59 @@ class PurchaseOrder(models.Model):
             self.button_confirm()
 
         return self._reload_action()
+
+    def _get_pending_approval_stage(self):
+        self.ensure_one()
+        if self.state != "pending":
+            return False
+
+        amount = self.subtotal
+        if amount <= 10000:
+            return False if self.pe_approved else "pe"
+        if amount <= 100000:
+            if not self.pe_approved:
+                return "pe"
+            return False if self.pm_approved else "pm"
+        if amount <= 500000:
+            if not self.pe_approved:
+                return "pe"
+            if not self.pm_approved:
+                return "pm"
+            return False if self.od_approved else "od"
+        if not self.pe_approved:
+            return "pe"
+        if not self.pm_approved:
+            return "pm"
+        if not self.od_approved:
+            return "od"
+        return False if self.md_approved else "md"
+
+    @api.depends(
+        "state",
+        "subtotal",
+        "pe_approved",
+        "pm_approved",
+        "od_approved",
+        "md_approved",
+        "rejection_reason",
+    )
+    def _compute_approval_status(self):
+        stage_to_status = {
+            "pe": "pending_pe",
+            "pm": "pending_pm",
+            "od": "pending_od",
+            "md": "pending_md",
+        }
+        for order in self:
+            if order.state == "cancel" and order.rejection_reason:
+                order.approval_status = "rejected"
+            elif order.state in ("purchase", "done"):
+                order.approval_status = "approved"
+            elif order.state != "pending":
+                order.approval_status = "not_submitted"
+            else:
+                pending_stage = order._get_pending_approval_stage()
+                order.approval_status = stage_to_status.get(pending_stage, "approved")
 
     # confirm order button visibility
     @api.depends(

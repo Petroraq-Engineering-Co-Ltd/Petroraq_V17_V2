@@ -616,7 +616,7 @@
                     </div>
                     <div class="projects-grid">
                         <div class="project-card scroll-animate-left delay-1">
-                            <img src="pr_website/static/images/structure.png" alt="Al Basrah Refinery Upgrade"/>
+                            <img src="pr_website/static/images/structure.png" alt="Structural Work at Qiddya – Riyadh"/>
                             <div class="project-body">
                                 <h4>Structural Work at Qiddya – Riyadh</h4>
                                 <p> Riyadh, Saudi Arabia</p>
@@ -624,7 +624,7 @@
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-2">
-                            <img src="pr_website/static/images/missan.png" alt="Commercial Building Fit-Out"/>
+                            <img src="pr_website/static/images/missan.png" alt="Commercial Building Fit-Out - Khobar"/>
                             <div class="project-body">
                                 <h4>Commercial Building Fit-Out – Khobar</h4>
                                 <p>Khobar, Saudi Arabia</p>
@@ -632,7 +632,7 @@
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-3">
-                            <img src="pr_website/static/images/swcc1.jpeg" alt="Admin Building Fit-Out"/>
+                            <img src="pr_website/static/images/swcc1.jpeg" alt="Admin Building Finishing Works - Jubail"/>
                             <div class="project-body">
                                 <h4>Admin Building Finishing Works <br/> Jubail</h4>
                                 <p>Jubail, Saudi Arabia</p>
@@ -640,7 +640,7 @@
                             </div>
                         </div>
                         <div class="project-card scroll-animate-right delay-4">
-                            <img src="pr_website/static/images/weatherford.jpeg" alt="Weatherford's Interior Finishing"/>
+                            <img src="pr_website/static/images/weatherford.jpeg" alt="Weatherford's Interior Finishing - Dammam"/>
                             <div class="project-body">
                                 <h4>Weatherford's interior finishing<br/>Dammam</h4>
                                 <p>Dammam, Saudi Arabia</p>
@@ -660,14 +660,13 @@
                                 <a href="/pr_website/static/images/9001.jpg"
                                    class="cert-action cert-preview-btn"
                                    data-cert-src="/pr_website/static/images/9001.jpg"
-                                   data-cert-title="ISO 9001:2015 Quality Management Certificate">
-                                    Preview
+                                   data-cert-title="ISO 9001:2015 Quality Management Certificate"> Click To View Certificate
                                 </a>
-                                <a href="/pr_website/static/images/9001.jpg"
-                                   class="cert-action cert-download-btn"
-                                   download="ISO-9001-Certificate.jpg">
-                                    Download
-                                </a>
+<!--                                <a href="/pr_website/static/images/9001.jpg"-->
+<!--                                   class="cert-action cert-download-btn"-->
+<!--                                   download="ISO-9001-Certificate.jpg">-->
+<!--                                    Download-->
+<!--                                </a>-->
                             </div>
                         </div>
                         <div class="cert-item scroll-animate delay-2">
@@ -677,14 +676,13 @@
                                 <a href="/pr_website/static/images/14001.jpg"
                                    class="cert-action cert-preview-btn"
                                    data-cert-src="/pr_website/static/images/14001.jpg"
-                                   data-cert-title="ISO 14001:2015 Environmental Management Certificate">
-                                    Preview
+                                   data-cert-title="ISO 14001:2015 Environmental Management Certificate">Click To View Certificate
                                 </a>
-                                <a href="/pr_website/static/images/14001.jpg"
-                                   class="cert-action cert-download-btn"
-                                   download="ISO-14001-Certificate.jpg">
-                                    Download
-                                </a>
+<!--                                <a href="/pr_website/static/images/14001.jpg"-->
+<!--                                   class="cert-action cert-download-btn"-->
+<!--                                   download="ISO-14001-Certificate.jpg">-->
+<!--                                    Download-->
+<!--                                </a>-->
                             </div>
                         </div>
                         <div class="cert-item scroll-animate delay-3">
@@ -694,14 +692,13 @@
                                 <a href="/pr_website/static/images/45001.jpg"
                                    class="cert-action cert-preview-btn"
                                    data-cert-src="/pr_website/static/images/45001.jpg"
-                                   data-cert-title="ISO 45001:2018 Occupational Health and Safety Certificate">
-                                    Preview
+                                   data-cert-title="ISO 45001:2018 Occupational Health and Safety Certificate">Click To View Certificate
                                 </a>
-                                <a href="/pr_website/static/images/45001.jpg"
-                                   class="cert-action cert-download-btn"
-                                   download="ISO-45001-Certificate.jpg">
-                                    Download
-                                </a>
+<!--                                <a href="/pr_website/static/images/45001.jpg"-->
+<!--                                   class="cert-action cert-download-btn"-->
+<!--                                   download="ISO-45001-Certificate.jpg">-->
+<!--                                    Download-->
+<!--                                </a>-->
                             </div>
                         </div>
                     </div>

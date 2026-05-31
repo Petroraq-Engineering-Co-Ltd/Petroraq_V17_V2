@@ -27,6 +27,7 @@
                 <field name="show_od_approved" invisible="1"/>
                 <field name="show_md_approved" invisible="1"/>
                 <field name="can_confirm_order" invisible="1"/>
+                <field name="approval_status" widget="badge" readonly="1"/>
             </field>
         </field>
     </record>
@@ -185,8 +186,14 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='amount_total']" position="replace">
-                <field name="display_total" string="Subtotal" widget="monetary"/>
+            <xpath expr="//tree/field[@name='state']" position="after">
+                <field name="approval_status" widget="badge" optional="show"
+                       decoration-success="approval_status == 'approved'"
+                       decoration-danger="approval_status == 'rejected'"
+                       decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
+                       decoration-muted="approval_status == 'not_submitted'"/>
+            </xpath>
+            <xpath expr="//tree/field[@name='amount_total']" position="after">
                 <field name="budget_consumed_amount" optional="hide"/>
                 <field name="budget_remaining_amount" optional="show"/>
             </xpath>
@@ -197,8 +204,14 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='amount_total']" position="replace">
-                <field name="grand_total" string="Total" widget="monetary"/>
+            <xpath expr="//tree/field[@name='state']" position="after">
+                <field name="approval_status" widget="badge" optional="show"
+                       decoration-success="approval_status == 'approved'"
+                       decoration-danger="approval_status == 'rejected'"
+                       decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
+                       decoration-muted="approval_status == 'not_submitted'"/>
+            </xpath>
+            <xpath expr="//tree/field[@name='amount_total']" position="after">
                 <field name="budget_consumed_amount" optional="hide"/>
                 <field name="budget_remaining_amount" optional="show"/>
             </xpath>
@@ -209,8 +222,12 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='amount_total']" position="replace">
-                <field name="display_total" widget="monetary"/>
+            <xpath expr="//tree/field[@name='state']" position="after">
+                <field name="approval_status" widget="badge" optional="show"
+                       decoration-success="approval_status == 'approved'"
+                       decoration-danger="approval_status == 'rejected'"
+                       decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
+                       decoration-muted="approval_status == 'not_submitted'"/>
             </xpath>
         </field>
     </record>
