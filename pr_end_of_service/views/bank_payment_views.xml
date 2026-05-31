@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_pr_account_bank_payment_form_inherit_pr_eos" model="ir.ui.view">
+        <field name="name">pr.account.bank.payment.form.inherit.pr.eos</field>
+        <field name="model">pr.account.bank.payment</field>
+        <field name="inherit_id" ref="pr_account.pr_account_bank_payment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='description']" position="after">
+                <field name="eos_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pr_account_bank_payment_tree_inherit_pr_eos" model="ir.ui.view">
+        <field name="name">pr.account.bank.payment.tree.inherit.pr.eos</field>
+        <field name="model">pr.account.bank.payment</field>
+        <field name="inherit_id" ref="pr_account.pr_account_bank_payment_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='name']" position="after">
+                <field name="eos_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

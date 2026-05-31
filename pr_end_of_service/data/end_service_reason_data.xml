@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="reason_standard_final_settlement" model="pr.end.service.reason">
+            <field name="name">Standard Final Settlement</field>
+            <field name="deserved_after">0.0</field>
+            <field name="zero_message">No end of service benefit is due.</field>
+            <field name="is_partial">False</field>
+        </record>
+        <record id="reason_standard_final_settlement_line_first_five" model="pr.end.service.reason.line">
+            <field name="reason_id" ref="reason_standard_final_settlement"/>
+            <field name="sequence">10</field>
+            <field name="name">First 5 Years</field>
+            <field name="deserved_for_first">5.0</field>
+            <field name="deserved_month_for_year">0.5</field>
+        </record>
+        <record id="reason_standard_final_settlement_line_after_five" model="pr.end.service.reason.line">
+            <field name="reason_id" ref="reason_standard_final_settlement"/>
+            <field name="sequence">20</field>
+            <field name="name">After 5 Years</field>
+            <field name="deserved_for_first">99.0</field>
+            <field name="deserved_month_for_year">1.0</field>
+        </record>
+
+        <record id="reason_partial_advance" model="pr.end.service.reason">
+            <field name="name">Partial End of Service Advance</field>
+            <field name="deserved_after">0.0</field>
+            <field name="zero_message">No end of service advance is available.</field>
+            <field name="is_partial">True</field>
+        </record>
+        <record id="reason_partial_advance_line_first_five" model="pr.end.service.reason.line">
+            <field name="reason_id" ref="reason_partial_advance"/>
+            <field name="sequence">10</field>
+            <field name="name">First 5 Years</field>
+            <field name="deserved_for_first">5.0</field>
+            <field name="deserved_month_for_year">0.5</field>
+        </record>
+        <record id="reason_partial_advance_line_after_five" model="pr.end.service.reason.line">
+            <field name="reason_id" ref="reason_partial_advance"/>
+            <field name="sequence">20</field>
+            <field name="name">After 5 Years</field>
+            <field name="deserved_for_first">99.0</field>
+            <field name="deserved_month_for_year">1.0</field>
+        </record>
+    </data>
+</odoo>

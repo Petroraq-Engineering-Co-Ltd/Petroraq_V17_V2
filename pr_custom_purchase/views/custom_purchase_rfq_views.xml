@@ -18,6 +18,11 @@
                        decoration-danger="state == 'cancel'"
                        decoration-warning="state in ('sent','pending')"
                        decoration-info="state == 'draft'"/>
+                <field name="approval_status" widget="badge"
+                       decoration-success="approval_status == 'approved'"
+                       decoration-danger="approval_status == 'rejected'"
+                       decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
+                       decoration-muted="approval_status == 'not_submitted'"/>
                 <field name="linked_pr_state" widget="badge"
                        decoration-success="linked_pr_state == 'purchase'"
                        decoration-danger="linked_pr_state == 'cancel'"
@@ -105,6 +110,7 @@
                             <field name="requested_by" readonly="1"/>
                             <field name="department" readonly="1"/>
                             <field name="supervisor" readonly="1"/>
+                            <field name="approval_status" widget="badge" readonly="1"/>
                         </group>
                     </group>
 
@@ -186,14 +192,14 @@
               name="Purchase Orders"
               parent="purchase.menu_purchase_root"
               sequence="133"
-              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
+              groups="base.group_no_one"/>
 
     <menuitem id="menu_custom_purchase_order"
               name="All Purchase Orders"
               parent="menu_custom_purchase_order_root"
               action="action_custom_purchase_order"
               sequence="10"
-              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
+              groups="base.group_no_one"/>
 
     <!-- Keep Odoo core actions aligned with custom state semantics. -->
     <record id="purchase.purchase_rfq" model="ir.actions.act_window">
@@ -206,13 +212,13 @@
         <field name="domain">[('state','in',['pending','purchase','done'])]</field>
     </record>
 
-    <!-- Hide Odoo default Purchasing menus to avoid conflicting definitions. -->
+    <!-- Hide the default RFQ menu; Purchase Orders uses the standard Orders menu. -->
     <record id="purchase.menu_purchase_rfq" model="ir.ui.menu">
         <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
     </record>
 
     <record id="purchase.menu_purchase_form_action" model="ir.ui.menu">
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+        <field name="groups_id" eval="[(6, 0, [ref('purchase.group_purchase_user'), ref('purchase.group_purchase_manager'), ref('pr_custom_purchase.procurement_admin')])]"/>
     </record>
 
 </odoo>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_pr_end_of_service_search" model="ir.ui.view">
+        <field name="name">pr.end.of.service.search</field>
+        <field name="model">pr.end.of.service</field>
+        <field name="arch" type="xml">
+            <search string="End of Service">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="reason_id"/>
+                <field name="state"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="HR Approval" name="hr_approval" domain="[('state', '=', 'hr_approval')]"/>
+                <filter string="Accounts Approval" name="accounts_approval" domain="[('state', '=', 'accounts_approval')]"/>
+                <filter string="Payment" name="payment" domain="[('state', '=', 'payment')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Final Settlements" name="final" domain="[('settlement_type', '=', 'final')]"/>
+                <filter string="Partial Settlements" name="partial" domain="[('settlement_type', '=', 'partial')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Reason" name="group_reason" context="{'group_by': 'reason_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Request Date" name="group_request_date" context="{'group_by': 'date_request'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_pr_end_of_service_tree" model="ir.ui.view">
+        <field name="name">pr.end.of.service.tree</field>
+        <field name="model">pr.end.of.service</field>
+        <field name="arch" type="xml">
+            <tree string="End of Service" decoration-success="state == 'done'" decoration-danger="state == 'cancel'" decoration-warning="state in ('hr_approval', 'accounts_approval', 'payment')">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="settlement_type"/>
+                <field name="reason_id"/>
+                <field name="service_end_date"/>
+                <field name="service_years"/>
+                <field name="requested_amount" widget="monetary"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'cancel'"
+                       decoration-warning="state in ('hr_approval', 'accounts_approval', 'payment')"
+                       decoration-muted="state == 'draft'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_end_of_service_pivot" model="ir.ui.view">
+        <field name="name">pr.end.of.service.pivot</field>
+        <field name="model">pr.end.of.service</field>
+        <field name="arch" type="xml">
+            <pivot string="End of Service Analysis">
+                <field name="employee_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="requested_amount" type="measure"/>
+                <field name="total_deserved_amount" type="measure"/>
+                <field name="leave_settlement_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_pr_end_of_service_form" model="ir.ui.view">
+        <field name="name">pr.end.of.service.form</field>
+        <field name="model">pr.end.of.service</field>
+        <field name="arch" type="xml">
+            <form string="End of Service">
+                <header>
+                    <button name="action_submit" type="object" string="Submit" class="oe_highlight"
+                            invisible="state != 'draft'" groups="hr.group_hr_user"/>
+                    <button name="action_hr_approve" type="object" string="HR Approve" class="oe_highlight"
+                            invisible="state != 'hr_approval'" groups="hr.group_hr_manager"/>
+                    <button name="action_accounting_approve" type="object" string="Create Bank Payment" class="oe_highlight"
+                            invisible="state != 'accounts_approval'"
+                            groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                    <button name="action_mark_done" type="object" string="Mark Done" class="oe_highlight"
+                            invisible="state != 'payment'"
+                            groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft"
+                            invisible="state not in ('hr_approval', 'accounts_approval', 'payment', 'cancel')"
+                            groups="hr.group_hr_manager,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state in ('done', 'cancel')"
+                            groups="hr.group_hr_manager,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,hr_approval,accounts_approval,payment,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bank_payment" type="object" class="oe_stat_button" icon="fa-bank"
+                                invisible="bank_payment_count == 0">
+                            <field name="bank_payment_count" widget="statinfo" string="Bank Payment"/>
+                        </button>
+                        <button name="action_view_journal_entry" type="object" class="oe_stat_button" icon="fa-file"
+                                invisible="not journal_entry_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Journal Entry</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="DONE" bg_color="bg-success" invisible="state != 'done'"/>
+                    <widget name="web_ribbon" title="CANCELLED" bg_color="bg-danger" invisible="state != 'cancel'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Employee">
+                            <field name="employee_id" readonly="state != 'draft'"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="contract_id" readonly="1"/>
+                            <field name="joining_date" readonly="1"/>
+                            <field name="service_end_date" readonly="state not in ('draft', 'hr_approval')"/>
+                            <field name="company_id" readonly="state != 'draft'" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Request">
+                            <field name="date_request" readonly="state != 'draft'"/>
+                            <field name="settlement_type" readonly="state != 'draft'"/>
+                            <field name="reason_id" readonly="state != 'draft'"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="is_partial" invisible="1"/>
+                            <field name="date_hr_approval" readonly="1"/>
+                            <field name="date_accounting_approval" readonly="1"/>
+                            <field name="date_payment" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Service Duration">
+                        <field name="service_years" readonly="1"/>
+                        <field name="years" readonly="1"/>
+                        <field name="months" readonly="1"/>
+                        <field name="days" readonly="1"/>
+                    </group>
+                    <group string="Settlement Amounts">
+                        <group>
+                            <field name="monthly_base_amount" readonly="1" widget="monetary"/>
+                            <field name="daily_base_amount" readonly="1" widget="monetary"/>
+                            <field name="eos_benefit_amount" readonly="1" widget="monetary"/>
+                            <field name="annual_leave_type_id" readonly="1"/>
+                            <field name="annual_leave_days" readonly="state != 'draft'"/>
+                            <field name="leave_settlement_amount" readonly="1" widget="monetary"/>
+                        </group>
+                        <group>
+                            <field name="other_amount" readonly="state != 'draft'" widget="monetary"/>
+                            <field name="deduction_amount" readonly="state != 'draft'" widget="monetary"/>
+                            <field name="total_deserved_amount" readonly="1" widget="monetary"/>
+                            <field name="previously_disbursed_amount" readonly="1" widget="monetary"/>
+                            <field name="available_amount" readonly="1" widget="monetary"/>
+                            <field name="requested_amount" readonly="state != 'draft' or not is_partial" widget="monetary"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Accounting">
+                            <group>
+                                <field name="bank_payment_id" readonly="1"/>
+                                <field name="journal_entry_id" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes" readonly="state in ('done', 'cancel')"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pr_end_of_service" model="ir.actions.act_window">
+        <field name="name">End of Service</field>
+        <field name="res_model">pr.end.of.service</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="search_view_id" ref="view_pr_end_of_service_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new end of service settlement.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_pr_end_of_service_accounting" model="ir.actions.act_window">
+        <field name="name">End of Service</field>
+        <field name="res_model">pr.end.of.service</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="search_view_id" ref="view_pr_end_of_service_search"/>
+        <field name="domain">[('state', 'in', ['accounts_approval', 'payment', 'done'])]</field>
+        <field name="context">{'search_default_accounts_approval': 1}</field>
+    </record>
+
+    <menuitem id="menu_pr_end_of_service_root"
+              name="End of Service"
+              parent="hr.menu_hr_root"
+              sequence="4"
+              groups="hr.group_hr_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+
+    <menuitem id="menu_pr_end_of_service"
+              name="Settlements"
+              parent="menu_pr_end_of_service_root"
+              action="action_pr_end_of_service"
+              sequence="10"
+              groups="hr.group_hr_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+
+    <menuitem id="menu_pr_end_of_service_accounting"
+              name="End of Service"
+              parent="pr_account.account_transactions_main_menu"
+              action="action_pr_end_of_service_accounting"
+              sequence="35"
+              groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+</odoo>
