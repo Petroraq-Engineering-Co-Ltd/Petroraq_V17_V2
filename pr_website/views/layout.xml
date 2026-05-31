@@ -98,6 +98,9 @@
                         gap: 15px;
                         flex-shrink: 0;
                     }
+                    .mobile-auth-buttons {
+                        display: none;
+                    }
                     .signin-btn,
                     .logout-btn {
                         color: #fff;
@@ -412,6 +415,31 @@
                                t-att-class="'active' if (request.httprequest.path.startswith('/jobs') or request.httprequest.path.startswith('/careers') or request.httprequest.path.startswith('/job/')) else ''">Careers</a>
                             <a href="/contact-us"
                                t-att-class="'active' if request.httprequest.path.startswith('/contact') else ''">Contact Us</a>
+
+                            <t t-if="not request.session.uid">
+                                <div class="mobile-auth-buttons">
+                                    <a href="/web/login" class="signin-btn" t-translation="Sign In">
+                                        <i class="fa fa-sign-in-alt"></i>
+                                        Sign In
+                                    </a>
+                                </div>
+                            </t>
+                            <t t-if="request.session.uid">
+                                <div class="mobile-auth-buttons">
+                                    <a href="/my" class="signin-btn" title="Portal">
+                                        <i class="fa fa-th-large"></i>
+                                        Portal
+                                    </a>
+                                    <a href="/my/account" class="signin-btn" title="My Account">
+                                        <i class="fa fa-user"></i>
+                                        My Account
+                                    </a>
+                                    <a href="/web/session/logout" class="logout-btn" t-translation="Log Out">
+                                        <i class="fa fa-sign-out-alt"></i>
+                                        Log Out
+                                    </a>
+                                </div>
+                            </t>
                         </div>
 
                         <!-- Auth Buttons Container -->
@@ -425,6 +453,10 @@
                         </t>
                         <t t-if="request.session.uid">
                             <div class="auth-buttons">
+                                <a href="/my" class="signin-btn" title="Portal">
+                                    <i class="fa fa-th-large"></i>
+                                    Portal
+                                </a>
                                 <a href="/my/account" class="signin-btn" title="My Account">
                                     <i class="fa fa-user"></i>
                                     <t t-esc="request.env.user.name or 'Account'"/>
