@@ -183,9 +183,15 @@ class PrBudgetRequisition(models.Model):
     def _check_ready_for_submission(self):
         for rec in self:
             if not rec.line_ids:
-                raise UserError(_("Add at least one cost center budget line."))
+                raise UserError(_("Add at least one budget item line."))
             if rec.total_requested_amount <= 0:
                 raise UserError(_("Total requested amount must be greater than zero."))
+            missing_item_lines = rec.line_ids.filtered(lambda line: not line.item_name)
+            if missing_item_lines:
+                raise UserError(_("Please enter an item description for every budget line."))
+            invalid_amount_lines = rec.line_ids.filtered(lambda line: line.requested_amount <= 0.0)
+            if invalid_amount_lines:
+                raise UserError(_("Every budget item line must have a line total greater than zero."))
             if not rec.department_manager_user_id:
                 raise UserError(
                     _("Please set a Department Manager user on the selected department before submitting.")
@@ -333,13 +339,19 @@ class PrBudgetRequisition(models.Model):
                 "department_id": self.department_id.id,
                 "source_budget_limit": self.total_requested_amount,
             })
+            planned_by_cost_center = {}
             for line in self.line_ids:
+                planned_by_cost_center[line.cost_center_id.id] = (
+                    planned_by_cost_center.get(line.cost_center_id.id, 0.0) + line.requested_amount
+                )
+
+            for analytic_id, planned_amount in planned_by_cost_center.items():
                 BudgetLine.create({
                     "crossovered_budget_id": budget.id,
-                    "analytic_account_id": line.cost_center_id.id,
+                    "analytic_account_id": analytic_id,
                     "date_from": self.period_date_from,
                     "date_to": self.period_date_to,
-                    "planned_amount": line.requested_amount,
+                    "planned_amount": planned_amount,
                 })
             budget.message_post(body=_("Generated from department budget requisition %s.") % self.display_name)
 
@@ -362,9 +374,29 @@ class PrBudgetRequisitionLine(models.Model):
     _description = "Department Budget Requisition Line"
     _order = "id"
 
+    def init(self):
+        self.env.cr.execute(
+            'ALTER TABLE pr_budget_requisition_line '
+            'DROP CONSTRAINT IF EXISTS pr_budget_requisition_line_unique'
+        )
+        self.env.cr.execute(
+            'ALTER TABLE pr_budget_requisition_line '
+            'DROP CONSTRAINT IF EXISTS pr_budget_requisition_line_pr_budget_requisition_line_unique'
+        )
+
     requisition_id = fields.Many2one("pr.budget.requisition", required=True, ondelete="cascade")
     company_id = fields.Many2one(related="requisition_id.company_id", store=True, readonly=True)
     currency_id = fields.Many2one(related="requisition_id.currency_id", readonly=True)
+    product_id = fields.Many2one(
+        "product.product",
+        string="Product/Item",
+        help="Optional product reference. You can also type a custom item description.",
+    )
+    item_name = fields.Char(
+        string="Item Description",
+        required=True,
+        help="Detailed item being requested, such as coffee, tea, stationery, or pantry supplies.",
+    )
     cost_center_id = fields.Many2one(
         "account.analytic.account",
         string="Cost Center",
@@ -373,24 +405,51 @@ class PrBudgetRequisitionLine(models.Model):
     budget_code = fields.Char(string="Budget Code", related="cost_center_id.budget_code", readonly=True)
     current_budget = fields.Float(string="Current Budget", related="cost_center_id.budget_allowance", readonly=True)
     budget_left = fields.Float(string="Budget Left", related="cost_center_id.budget_left", readonly=True)
-    requested_amount = fields.Monetary(string="Requested Amount", currency_field="currency_id", required=True)
+    quantity = fields.Float(string="Quantity", default=1.0)
+    unit = fields.Char(string="Unit", default="Unit")
+    unit_price = fields.Monetary(string="Unit Price", currency_field="currency_id")
+    requested_amount = fields.Monetary(string="Line Total", currency_field="currency_id", required=True)
     remarks = fields.Char(string="Remarks")
 
     _sql_constraints = [
         (
-            "pr_budget_requisition_line_unique",
-            "unique(requisition_id, cost_center_id)",
-            "Cost center already exists in this budget requisition.",
-        ),
-        (
             "pr_budget_requisition_amount_positive",
             "CHECK(requested_amount > 0)",
-            "Requested amount must be greater than zero.",
+            "Line total must be greater than zero.",
         ),
     ]
 
+    @api.onchange("product_id")
+    def _onchange_product_id(self):
+        for line in self:
+            product = line.product_id
+            if not product:
+                continue
+            line.item_name = line.item_name or product.display_name
+            if product.uom_id and not line.unit:
+                line.unit = product.uom_id.name
+            if not line.unit_price:
+                line.unit_price = product.lst_price or 0.0
+            if line.quantity and line.unit_price:
+                line.requested_amount = line.quantity * line.unit_price
+
+    @api.onchange("quantity", "unit_price")
+    def _onchange_line_amount(self):
+        for line in self:
+            if line.quantity and line.unit_price:
+                line.requested_amount = line.quantity * line.unit_price
+
     def write(self, vals):
-        if {"cost_center_id", "requested_amount", "remarks"}.intersection(vals):
+        if {
+            "product_id",
+            "item_name",
+            "cost_center_id",
+            "quantity",
+            "unit",
+            "unit_price",
+            "requested_amount",
+            "remarks",
+        }.intersection(vals):
             for rec in self:
                 if rec.requisition_id.state != "draft":
                     raise UserError(_("Submitted budget requisition lines cannot be edited."))
