@@ -113,15 +113,21 @@
                         <field name="rejection_reason" readonly="1" invisible="not rejection_reason"/>
                     </group>
                     <notebook>
-                        <page string="Cost Centers">
+                        <page string="Budget Items">
                             <field name="line_ids" readonly="state != 'draft'">
                                 <tree editable="bottom">
                                     <field name="company_id" column_invisible="True"/>
                                     <field name="currency_id" column_invisible="True"/>
+                                    <field name="product_id" optional="hide"
+                                           options="{'no_create_edit': True, 'no_quick_create': True}"/>
+                                    <field name="item_name"/>
                                     <field name="cost_center_id"/>
                                     <field name="budget_code" column_invisible="1"/>
                                     <field name="current_budget" readonly="1"/>
                                     <field name="budget_left" readonly="1"/>
+                                    <field name="quantity"/>
+                                    <field name="unit"/>
+                                    <field name="unit_price"/>
                                     <field name="requested_amount" sum="Total Requested"/>
                                     <field name="remarks"/>
                                 </tree>
