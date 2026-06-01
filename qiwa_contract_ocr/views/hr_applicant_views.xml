@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='create_employee_from_applicant']" position="attributes">
-                <attribute name="string">Load Contract</attribute>
+                <attribute name="string">Upload Contract</attribute>
                 <attribute name="class">oe_highlight</attribute>
             </xpath>
 
