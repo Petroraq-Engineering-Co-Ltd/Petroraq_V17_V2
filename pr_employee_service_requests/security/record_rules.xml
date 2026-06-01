@@ -8,24 +8,43 @@
             <field name="domain_force">['|', ('requested_by_id', '=', user.id), ('employee_id.user_id', '=', user.id)]</field>
         </record>
 
+        <record id="rule_pr_employee_service_request_employee_manager" model="ir.rule">
+            <field name="name">Employee Service Request: employee manager approvals</field>
+            <field name="model_id" ref="model_pr_employee_service_request"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('employee_manager_user_id', '=', user.id)]</field>
+        </record>
+
         <record id="rule_pr_employee_service_request_hr_all" model="ir.rule">
             <field name="name">Employee Service Request: HR can see all</field>
             <field name="model_id" ref="model_pr_employee_service_request"/>
             <field name="groups" eval="[
                 (4, ref('hr.group_hr_manager')),
-                (4, ref('de_hr_workspace.group_hr_employee_approvals'))
+                (4, ref('de_hr_workspace.group_hr_employee_approvals')),
+                (4, ref('pr_hr_recruitment_request.group_onboarding_supervisor')),
+                (4, ref('pr_hr_recruitment_request.group_onboarding_manager'))
+            ]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_pr_employee_service_request_md_all" model="ir.rule">
+            <field name="name">Employee Service Request: MD can see all</field>
+            <field name="model_id" ref="model_pr_employee_service_request"/>
+            <field name="groups" eval="[
+                (4, ref('pr_custom_purchase.managing_director')),
+                (4, ref('pr_hr_recruitment_request.group_onboarding_md'))
             ]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
         <record id="rule_pr_employee_service_request_accounts_all" model="ir.rule">
-            <field name="name">Employee Service Request: Accounts can see reimbursements</field>
+            <field name="name">Employee Service Request: Accounts can see payment requests</field>
             <field name="model_id" ref="model_pr_employee_service_request"/>
             <field name="groups" eval="[
                 (4, ref('account.group_account_manager')),
                 (4, ref('pr_account.custom_group_accounting_manager'))
             ]"/>
-            <field name="domain_force">[('request_type', '=', 'reimbursement')]</field>
+            <field name="domain_force">[('state', 'in', ['payment_approval', 'paid', 'issued'])]</field>
         </record>
     </data>
 </odoo>

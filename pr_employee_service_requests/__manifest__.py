@@ -4,14 +4,14 @@
     "summary": "Employee reimbursement and exit/re-entry self-service requests",
     "description": """
 Adds employee self-service requests for reimbursements and exit/re-entry visas,
-with HR and accounting approval menus in the existing Workspace/Approvals flow.
+with HR Supervisor, Employee Manager, HR Manager, MD, and accounting voucher flow.
 """,
     "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",
     "category": "Human Resources",
     "version": "17.0.1.0.0",
     "license": "LGPL-3",
-    "depends": ["de_hr_workspace", "pr_account"],
+    "depends": ["de_hr_workspace", "pr_account", "pr_hr_account", "pr_hr_recruitment_request", "pr_custom_purchase"],
     "data": [
         "security/ir.model.access.csv",
         "security/record_rules.xml",

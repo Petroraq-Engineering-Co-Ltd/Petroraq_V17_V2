@@ -95,7 +95,7 @@ class QiwaContractProcessor(models.Model):
     work_domain = fields.Char('Work Domain')
     work_location = fields.Char('Work Location')
     work_type = fields.Char('Work Type')
-    contract_period_text = fields.Char('Contract Period Text')
+    contract_period_text = fields.Char('Contract Duration')
     contract_period_months = fields.Integer('Contract Period (Months)')
     probation_period_days = fields.Integer('Probation Period (Days)')
     notice_period_days = fields.Integer('Notice Period (Days)')
