@@ -370,11 +370,14 @@
                         transition: all 0.3s ease;
                         border-radius: 12px;
                         background: rgba(255,255,255,0.6);
+                        cursor: pointer;
                     }
-                    .cert-item:hover {
+                    .cert-item:hover,
+                    .cert-item:focus-visible {
                         transform: translateY(-8px);
                         box-shadow: 0 15px 40px rgba(0,0,0,0.1);
                         background: #fff;
+                        outline: none;
                     }
                     .cert-item img {
                         height: 70px;
@@ -384,47 +387,6 @@
                     }
                     .cert-item:hover img {
                         transform: scale(1.1);
-                    }
-                    .cert-actions {
-                        display: flex;
-                        justify-content: center;
-                        gap: 10px;
-                        flex-wrap: wrap;
-                        margin-top: 18px;
-                    }
-                    .cert-action {
-                        min-width: 105px;
-                        border: 1px solid rgba(6, 38, 75, 0.16);
-                        border-radius: 6px;
-                        padding: 8px 14px;
-                        font-size: 12px;
-                        font-weight: 800;
-                        letter-spacing: 0.4px;
-                        text-transform: uppercase;
-                        text-decoration: none;
-                        transition: all 0.25s ease;
-                        cursor: pointer;
-                    }
-                    .cert-preview-btn {
-                        background: #06264B;
-                        color: #ffffff;
-                    }
-                    .cert-download-btn {
-                        background: #FDB514;
-                        color: #06264B;
-                    }
-                    .cert-action:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 10px 24px rgba(6, 38, 75, 0.14);
-                        text-decoration: none;
-                    }
-                    .cert-preview-btn:hover {
-                        color: #ffffff;
-                        background: #0b376b;
-                    }
-                    .cert-download-btn:hover {
-                        color: #06264B;
-                        background: #f4a600;
                     }
                     .cert-preview-modal {
                         position: fixed;
@@ -653,53 +615,35 @@
                 <section class="certifications">
                     <h2 class="scroll-animate">Certifications &amp; Compliance</h2>
                     <div class="cert-grid">
-                        <div class="cert-item scroll-animate delay-1">
+                        <div class="cert-item scroll-animate delay-1"
+                             role="button"
+                             tabindex="0"
+                             data-no-preview="1"
+                             aria-label="View ISO 9001:2015 Quality Management Certificate"
+                             data-cert-src="/pr_website/static/images/9001.jpg"
+                             data-cert-title="ISO 9001:2015 Quality Management Certificate">
                             <img src="pr_website/static/images/iso-9001.png" alt="ISO 9001"/>
                             <p>9001:2015<br/>Quality Management</p>
-                            <div class="cert-actions">
-                                <a href="/pr_website/static/images/9001.jpg"
-                                   class="cert-action cert-preview-btn"
-                                   data-cert-src="/pr_website/static/images/9001.jpg"
-                                   data-cert-title="ISO 9001:2015 Quality Management Certificate"> Click To View Certificate
-                                </a>
-<!--                                <a href="/pr_website/static/images/9001.jpg"-->
-<!--                                   class="cert-action cert-download-btn"-->
-<!--                                   download="ISO-9001-Certificate.jpg">-->
-<!--                                    Download-->
-<!--                                </a>-->
-                            </div>
                         </div>
-                        <div class="cert-item scroll-animate delay-2">
+                        <div class="cert-item scroll-animate delay-2"
+                             role="button"
+                             tabindex="0"
+                             data-no-preview="1"
+                             aria-label="View ISO 14001:2015 Environmental Management Certificate"
+                             data-cert-src="/pr_website/static/images/14001.jpg"
+                             data-cert-title="ISO 14001:2015 Environmental Management Certificate">
                             <img src="pr_website/static/images/iso-14100.png" alt="ISO 14001"/>
                             <p>14001:2015<br/>Environmental Management</p>
-                            <div class="cert-actions">
-                                <a href="/pr_website/static/images/14001.jpg"
-                                   class="cert-action cert-preview-btn"
-                                   data-cert-src="/pr_website/static/images/14001.jpg"
-                                   data-cert-title="ISO 14001:2015 Environmental Management Certificate">Click To View Certificate
-                                </a>
-<!--                                <a href="/pr_website/static/images/14001.jpg"-->
-<!--                                   class="cert-action cert-download-btn"-->
-<!--                                   download="ISO-14001-Certificate.jpg">-->
-<!--                                    Download-->
-<!--                                </a>-->
-                            </div>
                         </div>
-                        <div class="cert-item scroll-animate delay-3">
+                        <div class="cert-item scroll-animate delay-3"
+                             role="button"
+                             tabindex="0"
+                             data-no-preview="1"
+                             aria-label="View ISO 45001:2018 Occupational Health and Safety Certificate"
+                             data-cert-src="/pr_website/static/images/45001.jpg"
+                             data-cert-title="ISO 45001:2018 Occupational Health and Safety Certificate">
                             <img src="pr_website/static/images/iso-45001.png" alt="ISO 45001"/>
                             <p>45001:2018<br/>Occupational Health &amp; Safety</p>
-                            <div class="cert-actions">
-                                <a href="/pr_website/static/images/45001.jpg"
-                                   class="cert-action cert-preview-btn"
-                                   data-cert-src="/pr_website/static/images/45001.jpg"
-                                   data-cert-title="ISO 45001:2018 Occupational Health and Safety Certificate">Click To View Certificate
-                                </a>
-<!--                                <a href="/pr_website/static/images/45001.jpg"-->
-<!--                                   class="cert-action cert-download-btn"-->
-<!--                                   download="ISO-45001-Certificate.jpg">-->
-<!--                                    Download-->
-<!--                                </a>-->
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -745,7 +689,7 @@
                         const certTitle = document.getElementById('certPreviewTitle');
                         const certDownload = document.getElementById('certPreviewDownload');
                         const certClose = document.getElementById('certPreviewClose');
-                        const certPreviewButtons = document.querySelectorAll('.cert-preview-btn');
+                        const certCards = document.querySelectorAll('.cert-item[data-cert-src]');
 
                         function closeCertificatePreview() {
                             if (!certModal) {
@@ -758,21 +702,31 @@
                             }
                         }
 
-                        certPreviewButtons.forEach(function(button) {
-                            button.addEventListener('click', function(event) {
-                                event.preventDefault();
-                                const src = button.getAttribute('data-cert-src');
-                                const title = button.getAttribute('data-cert-title') || 'Certificate Preview';
-                                if (!src || !certModal || !certImage || !certDownload || !certTitle) {
-                                    window.open(button.getAttribute('href'), '_blank');
+                        function openCertificatePreview(card) {
+                            const src = card.getAttribute('data-cert-src');
+                            const title = card.getAttribute('data-cert-title') || 'Certificate Preview';
+                            if (!src || !certModal || !certImage || !certDownload || !certTitle) {
+                                window.open(src, '_blank');
+                                return;
+                            }
+                            certImage.setAttribute('src', src);
+                            certTitle.textContent = title;
+                            certDownload.setAttribute('href', src);
+                            certDownload.setAttribute('download', title.replace(/[^a-z0-9]+/gi, '-') + '.jpg');
+                            certModal.classList.add('is-open');
+                            certModal.setAttribute('aria-hidden', 'false');
+                        }
+
+                        certCards.forEach(function(card) {
+                            card.addEventListener('click', function() {
+                                openCertificatePreview(card);
+                            });
+                            card.addEventListener('keydown', function(event) {
+                                if (event.key !== 'Enter' &amp;&amp; event.key !== ' ') {
                                     return;
                                 }
-                                certImage.setAttribute('src', src);
-                                certTitle.textContent = title;
-                                certDownload.setAttribute('href', src);
-                                certDownload.setAttribute('download', title.replace(/[^a-z0-9]+/gi, '-') + '.jpg');
-                                certModal.classList.add('is-open');
-                                certModal.setAttribute('aria-hidden', 'false');
+                                event.preventDefault();
+                                openCertificatePreview(card);
                             });
                         });
 

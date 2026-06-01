@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pr_sales_dashboard.SalesDashboardAction" owl="1">
+        <div class="o_pr_sales_dashboard">
+            <t t-if="state.loading">
+                <div class="pr-sales-loading">
+                    <i class="fa fa-spinner fa-spin"/>
+                    <span>Loading sales dashboard...</span>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-set="summary" t-value="state.data.summary || {}"/>
+                <t t-set="customers" t-value="state.data.customers || {}"/>
+                <div class="pr-sales-header">
+                    <div>
+                        <span class="pr-sales-eyebrow">Sales Overview</span>
+                        <h1>Sales Dashboard</h1>
+                        <p>Revenue, orders, customers, product movement, geography, and team performance in one view.</p>
+                    </div>
+                    <button class="btn pr-sales-refresh" type="button" t-on-click="loadDashboardData">
+                        <i class="fa fa-refresh me-1"/>
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="pr-sales-grid pr-sales-top-grid">
+                    <section class="pr-sales-card pr-sales-kpi-card pr-span-2"
+                             t-on-click="() => this.openRecords('sale.order', summary.domain || [], 'Confirmed Sales Orders')">
+                        <span>Total Revenue</span>
+                        <strong t-esc="this.formatMoney(summary.total_revenue || 0)"/>
+                        <div class="pr-sales-kpi-divider"/>
+                        <span>Total Sale Orders</span>
+                        <strong t-esc="this.formatNumber(summary.total_orders || 0)"/>
+                        <svg class="pr-sales-sparkline" viewBox="0 0 150 60" preserveAspectRatio="none">
+                            <polyline t-att-points="this.sparklinePoints(state.data.monthly || [])"/>
+                        </svg>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-4">
+                        <div class="pr-sales-card-title">
+                            <h2>Monthly Sales Revenue Trends</h2>
+                            <i class="fa fa-info-circle" title="Confirmed sales order revenue by month"/>
+                        </div>
+                        <div class="pr-sales-line-chart">
+                            <svg viewBox="0 0 520 170" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="prSalesLineArea" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#2f95ed" stop-opacity="0.22"/>
+                                        <stop offset="100%" stop-color="#2f95ed" stop-opacity="0.02"/>
+                                    </linearGradient>
+                                </defs>
+                                <line x1="10" y1="30" x2="510" y2="30"/>
+                                <line x1="10" y1="80" x2="510" y2="80"/>
+                                <line x1="10" y1="130" x2="510" y2="130"/>
+                                <polygon class="area" t-att-points="this.lineAreaPoints(state.data.monthly || [])"/>
+                                <polyline class="line" t-att-points="this.linePoints(state.data.monthly || [])"/>
+                            </svg>
+                            <div class="pr-sales-month-labels">
+                                <t t-foreach="state.data.monthly || []" t-as="month" t-key="month.label">
+                                    <span>
+                                        <strong t-esc="month.label"/>
+                                        <em t-esc="this.formatMoney(month.revenue || 0)"/>
+                                    </span>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-2">
+                        <div class="pr-sales-card-title">
+                            <h2>Customer Requisition Insights</h2>
+                            <i class="fa fa-info-circle" title="New and repeat customer split"/>
+                        </div>
+                        <div class="pr-sales-insight-row">
+                            <div class="pr-sales-mini-donut" t-att-style="this.donutStyle(customers.new_customer_percent || 0, '#2f95ed')">
+                                <span t-esc="this.formatPercent(customers.new_customer_percent || 0)"/>
+                            </div>
+                            <div>
+                                <strong>New Customers</strong>
+                                <span t-esc="this.formatNumber(customers.new_customers || 0) + ' customers'"/>
+                            </div>
+                        </div>
+                        <div class="pr-sales-insight-row">
+                            <div class="pr-sales-mini-donut" t-att-style="this.donutStyle(customers.repeat_customer_percent || 0, '#18cf93')">
+                                <span t-esc="this.formatPercent(customers.repeat_customer_percent || 0)"/>
+                            </div>
+                            <div>
+                                <strong>Repeat Customers</strong>
+                                <span t-esc="this.formatNumber(customers.repeat_customers || 0) + ' customers'"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-2">
+                        <div class="pr-sales-card-title">
+                            <h2>Sale Orders from New Customers</h2>
+                            <i class="fa fa-info-circle" title="Share of confirmed orders from one-time customers"/>
+                        </div>
+                        <div class="pr-sales-gauge" t-att-style="this.gaugeStyle(customers.new_order_percent || 0, '#2f95ed')">
+                            <div class="pr-sales-gauge-value">
+                                <strong t-esc="this.formatPercent(customers.new_order_percent || 0)"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-2">
+                        <div class="pr-sales-card-title">
+                            <h2>Sale Orders from Repeat Customers</h2>
+                            <i class="fa fa-info-circle" title="Share of confirmed orders from repeat customers"/>
+                        </div>
+                        <div class="pr-sales-gauge" t-att-style="this.gaugeStyle(customers.repeat_order_percent || 0, '#2f95ed')">
+                            <div class="pr-sales-gauge-value">
+                                <strong t-esc="this.formatPercent(customers.repeat_order_percent || 0)"/>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-sales-grid">
+                    <section class="pr-sales-card pr-span-3 pr-sales-tall">
+                        <div class="pr-sales-card-title">
+                            <h2>Sales Revenue by Product Category</h2>
+                            <i class="fa fa-info-circle" title="Revenue distribution by product category"/>
+                        </div>
+                        <div class="pr-sales-category-rings" t-if="(state.data.product_categories || []).length">
+                            <t t-foreach="state.data.product_categories || []" t-as="category" t-key="category.id">
+                                <div class="pr-sales-ring"
+                                     t-att-style="'--ring-index:' + category_index + '; --ring-value:' + this.clampPercent(category.percent) + '%; --ring-color:' + category.color + ';'"/>
+                            </t>
+                            <div class="pr-sales-category-center">
+                                <strong>Total</strong>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                        <div class="pr-sales-empty" t-if="!(state.data.product_categories || []).length">No product category revenue yet.</div>
+                        <div class="pr-sales-legend-list">
+                            <t t-foreach="state.data.product_categories || []" t-as="category" t-key="category.id">
+                                <button type="button" t-on-click="() => this.openRecords('sale.order.line', category.domain, category.name)">
+                                    <i t-att-style="'background:' + category.color"/>
+                                    <span t-esc="category.name"/>
+                                    <strong t-esc="this.formatPercent(category.percent)"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-4">
+                        <div class="pr-sales-card-title">
+                            <h2>Top 5 Highest Revenue-Generating Products</h2>
+                            <i class="fa fa-info-circle" title="Products ranked by confirmed sales revenue"/>
+                        </div>
+                        <div class="pr-sales-bar-chart">
+                            <t t-foreach="state.data.top_products_revenue || []" t-as="product" t-key="product.id">
+                                <button class="pr-sales-vertical-bar" type="button"
+                                        t-on-click="() => this.openRecords('sale.order.line', product.domain, product.name)">
+                                    <span class="pr-sales-vertical-track">
+                                        <span t-att-style="'height:' + this.clampPercent(product.percent) + '%; background:' + product.color"/>
+                                    </span>
+                                    <strong t-esc="this.formatMoney(product.revenue || 0)"/>
+                                    <em t-esc="product.name"/>
+                                </button>
+                            </t>
+                            <div class="pr-sales-empty" t-if="!(state.data.top_products_revenue || []).length">No product revenue yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-2">
+                        <div class="pr-sales-card-title">
+                            <h2>Sales by Salesperson</h2>
+                            <i class="fa fa-info-circle" title="Revenue split by salesperson"/>
+                        </div>
+                        <div class="pr-sales-progress-list">
+                            <t t-foreach="state.data.salespeople || []" t-as="person" t-key="person.id || person.name">
+                                <button type="button" t-on-click="() => this.openRecords('sale.order', person.domain, person.name)">
+                                    <div>
+                                        <span t-esc="person.name"/>
+                                        <strong t-esc="this.formatMoney(person.revenue || 0)"/>
+                                    </div>
+                                    <span class="pr-sales-progress">
+                                        <span t-att-style="'width:' + this.clampPercent(person.percent) + '%; background:' + person.color"/>
+                                    </span>
+                                </button>
+                            </t>
+                            <div class="pr-sales-empty" t-if="!(state.data.salespeople || []).length">No salesperson revenue yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-3 pr-sales-tall">
+                        <div class="pr-sales-card-title">
+                            <h2>Geographical Sales Analysis</h2>
+                            <i class="fa fa-info-circle" title="Revenue by customer country"/>
+                        </div>
+                        <div class="pr-sales-geo-chart">
+                            <t t-foreach="state.data.geography || []" t-as="country" t-key="country.id || country.name">
+                                <button type="button" t-on-click="() => this.openRecords('sale.order', country.domain, country.name)">
+                                    <span class="pr-sales-geo-bar">
+                                        <span t-att-style="'height:' + this.clampPercent(country.percent) + '%'"/>
+                                    </span>
+                                    <strong t-esc="this.formatMoney(country.revenue || 0)"/>
+                                    <em t-esc="country.name"/>
+                                </button>
+                            </t>
+                            <div class="pr-sales-empty" t-if="!(state.data.geography || []).length">No country data yet.</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-sales-grid">
+                    <section class="pr-sales-card pr-span-2">
+                        <div class="pr-sales-card-title">
+                            <h2>Customer Retention Rate</h2>
+                        </div>
+                        <div class="pr-sales-gauge" t-att-style="this.gaugeStyle(customers.retention_rate || 0, '#2f95ed')">
+                            <div class="pr-sales-gauge-value">
+                                <strong t-esc="this.formatPercent(customers.retention_rate || 0)"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-7">
+                        <div class="pr-sales-card-title">
+                            <h2>Top 5 Customers - Cumulative Revenue Analysis</h2>
+                            <i class="fa fa-info-circle" title="Highest revenue customers"/>
+                        </div>
+                        <div class="pr-sales-customer-columns">
+                            <t t-foreach="state.data.top_customers || []" t-as="customer" t-key="customer.id">
+                                <button type="button" t-on-click="() => this.openRecords('sale.order', customer.domain, customer.name)">
+                                    <span>
+                                        <i t-att-style="'height:' + this.clampPercent(customer.percent) + '%'"/>
+                                    </span>
+                                    <strong t-esc="this.formatMoney(customer.revenue || 0)"/>
+                                    <em t-esc="customer.name"/>
+                                </button>
+                            </t>
+                            <div class="pr-sales-empty" t-if="!(state.data.top_customers || []).length">No customer revenue yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-3">
+                        <div class="pr-sales-card-title">
+                            <h2>Top 5 Best-Selling Products by Volume</h2>
+                            <i class="fa fa-info-circle" title="Products ranked by ordered quantity"/>
+                        </div>
+                        <div class="pr-sales-volume-list">
+                            <t t-foreach="state.data.top_products_volume || []" t-as="product" t-key="product.id">
+                                <button type="button" t-on-click="() => this.openRecords('sale.order.line', product.domain, product.name)">
+                                    <span t-att-style="'--dot:' + product.color">
+                                        <i/>
+                                        <strong t-esc="product.name"/>
+                                    </span>
+                                    <em t-esc="this.formatNumber(product.quantity || 0)"/>
+                                </button>
+                            </t>
+                            <div class="pr-sales-empty" t-if="!(state.data.top_products_volume || []).length">No volume data yet.</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-sales-grid">
+                    <section class="pr-sales-card pr-span-5">
+                        <div class="pr-sales-card-title">
+                            <h2>Sales Revenue From Top 5 Customers</h2>
+                            <i class="fa fa-info-circle" title="Horizontal comparison of top customers"/>
+                        </div>
+                        <div class="pr-sales-horizontal-bars">
+                            <t t-foreach="state.data.top_customers || []" t-as="customer" t-key="customer.id">
+                                <button type="button" t-on-click="() => this.openRecords('sale.order', customer.domain, customer.name)">
+                                    <span t-esc="customer.name"/>
+                                    <div>
+                                        <i t-att-style="'width:' + this.clampPercent(customer.percent) + '%'"/>
+                                        <strong t-esc="this.formatMoney(customer.revenue || 0)"/>
+                                    </div>
+                                </button>
+                            </t>
+                            <div class="pr-sales-empty" t-if="!(state.data.top_customers || []).length">No customer revenue yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-sales-card pr-span-7">
+                        <div class="pr-sales-card-title">
+                            <h2>Revenue Target Achievement by Sales Teams</h2>
+                            <i class="fa fa-info-circle" title="Actual confirmed revenue compared with configured sales team target"/>
+                        </div>
+                        <div class="pr-sales-team-chart">
+                            <t t-foreach="state.data.teams || []" t-as="team" t-key="team.id || team.name">
+                                <button type="button" t-on-click="() => this.openRecords('sale.order', team.domain, team.name)">
+                                    <div class="pr-sales-team-bars">
+                                        <span class="actual" t-att-style="'height:' + this.clampPercent(team.actual_percent) + '%'"/>
+                                        <span class="target" t-att-style="'height:' + this.clampPercent(team.target_percent) + '%'"/>
+                                    </div>
+                                    <strong t-esc="team.name"/>
+                                    <em t-esc="this.formatPercent(team.achievement || 0)"/>
+                                </button>
+                            </t>
+                            <div class="pr-sales-empty" t-if="!(state.data.teams || []).length">No sales team data yet.</div>
+                        </div>
+                        <div class="pr-sales-chart-legend">
+                            <span><i class="actual"/>Actual</span>
+                            <span><i class="target"/>Target</span>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

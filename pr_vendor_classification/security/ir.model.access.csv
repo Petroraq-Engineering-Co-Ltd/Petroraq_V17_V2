@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pr_vendor_category_user,pr.vendor.category user,model_pr_vendor_category,base.group_user,1,0,0,0
+access_pr_vendor_category_purchase_manager,pr.vendor.category purchase manager,model_pr_vendor_category,purchase.group_purchase_manager,1,1,1,1

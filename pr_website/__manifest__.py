@@ -3,7 +3,7 @@
     "version": "1.1",
     "category": "Website",
     "summary": "Custom full website for Petroraq Engineering built in Odoo.",
-    "author": "Mudassir",
+    "author": "Mudassir Amin",
     "website": "https://petroraq.com",
     "license": "LGPL-3",
 

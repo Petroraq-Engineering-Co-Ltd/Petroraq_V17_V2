@@ -20,199 +20,213 @@
         <t t-call="portal.portal_layout">
 
             <style>
-                /* Base styling */
-                body {
-                    font-family: 'Segoe UI', sans-serif !important;
-                    background-color: #f8fafc;
-                    color: #334155;
+                #pr_leave_dashboard {
+                    --pr-blue: #06264B;
+                    --pr-blue-light: #0a3d6e;
+                    --pr-gold: #e9a23e;
+                    --pr-gold-dark: #d8902f;
+                    --pr-ink: #222;
+                    --pr-muted: #657385;
+                    --pr-border: #dce5ef;
+                    --pr-soft: #f6f8fb;
+                    color: var(--pr-ink);
+                    padding: 24px 0 40px;
                 }
 
-                /* Sidebar styling if active (optional) */
-                .sidebar {
-                    height: 135vh;
-                    background-color: #1e293b;
-                    color: white;
-                    padding: 20px 10px;
+                #pr_leave_dashboard .main-content {
+                    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+                    border: 1px solid var(--pr-border);
+                    border-radius: 8px;
+                    min-height: auto;
+                    padding: 24px;
                 }
 
-                .sidebar h5 {
-                    color: #e2e8f0;
-                    font-weight: 600;
-                    margin-bottom: 30px;
-                    text-align: center;
-                }
-
-                .sidebar a {
-                    color: #cbd5e1;
-                    text-decoration: none;
-                    padding: 12px 20px;
-                    border-radius: 6px;
-                    display: block;
-                    transition: background-color 0.3s ease, color 0.3s ease;
-                }
-
-                .sidebar a:hover,
-                .sidebar .active {
-                    background-color: #f59e0b;  /* Orange highlight on hover */
-                    color: #1e293b;
-                    box-shadow: 0 0 8px #f59e0b;
-                }
-
-                /* Main content */
-                .main-content {
-                    padding: 30px;
-                    background-color: #f8fafc;
-                    min-height: 135vh;
-                }
-
-                /* Cards */
-                .card {
-                    border: none;
-                    border-radius: 12px;
-                    background-color: white;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                    padding: 20px;
-                    text-align: center;
-                    color: #334155;
-                    transition: box-shadow 0.3s ease, transform 0.3s ease;
+                #pr_leave_dashboard .card {
+                    background: #fff;
+                    border: 1px solid var(--pr-border);
+                    border-radius: 8px;
+                    box-shadow: 0 6px 18px rgba(6, 38, 75, 0.08);
+                    color: var(--pr-ink);
                     cursor: default;
-                    user-select: none;
+                    padding: 20px;
+                    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
                 }
 
-                .card:hover {
-                    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5);
-                    transform: translateY(-6px);
+                #pr_leave_dashboard .card:hover {
+                    border-color: rgba(233, 162, 62, 0.7);
+                    box-shadow: 0 12px 28px rgba(6, 38, 75, 0.14);
+                    transform: translateY(-2px);
                 }
 
-                .card h6 {
-                    font-weight: 600;
-                    margin-bottom: 10px;
-                    color: #1e293b;
+                #pr_leave_dashboard .leave-summary-card {
+                    border-top: 3px solid var(--pr-gold);
+                    min-height: 124px;
+                    text-align: center;
                 }
 
-                .card .fs-5 {
+                #pr_leave_dashboard .card h6 {
+                    color: var(--pr-blue);
+                    font-size: 0.95rem;
                     font-weight: 700;
-                    color: #f59e0b;
+                    margin-bottom: 12px;
                 }
 
-                /* Status badge styles */
-                .status-badge {
-                    background-color: #fff4e5;
-                    color: #d97706;
-                    padding: 4px 10px;
-                    border-radius: 6px;
-                    font-size: 0.75rem;
+                #pr_leave_dashboard .leave-summary-card .fs-5 {
+                    color: var(--pr-gold-dark) !important;
+                    font-size: 1.45rem;
+                    font-weight: 800;
                 }
 
-                /* Tables */
-                table.table {
-                    width: 100%;
-                    border-collapse: separate;
-                    border-spacing: 0 10px;
-                }
-
-                thead tr {
-                    background-color: #f59e0b; /* orange header */
-                    color: white;
-                }
-
-                th, td {
-                    padding: 12px 15px;
-                    vertical-align: middle;
+                #pr_leave_dashboard .leave-panel-card h6 {
+                    align-items: center;
+                    border-bottom: 1px solid var(--pr-border);
+                    display: flex;
+                    gap: 8px;
+                    padding-bottom: 12px;
                     text-align: left;
                 }
 
-                tbody tr {
-                    background-color: white;
-                    color: #334155;
-                    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.1);
+                #pr_leave_dashboard .leave-panel-card h6::before {
+                    background: var(--pr-gold);
+                    border-radius: 2px;
+                    content: "";
+                    display: inline-block;
+                    height: 18px;
+                    width: 4px;
+                }
+
+                #pr_leave_dashboard table.table {
+                    border-collapse: separate;
+                    border-spacing: 0;
+                    margin-bottom: 0;
+                    width: 100%;
+                }
+
+                #pr_leave_dashboard .table-responsive {
+                    border: 1px solid var(--pr-border);
                     border-radius: 8px;
-                    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-                    cursor: pointer;
-                }
-
-                tbody tr:nth-child(odd) {
-                    background-color: #fff8e1; /* light orange alternate rows */
-                }
-
-                tbody tr:hover {
-                    background-color: #ffefb4;
-                    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
-                    transform: translateX(8px);
-                }
-
-                /* Status badge colors */
-                .badge.bg-warning.text-dark {
-                    background-color: #fbbf24;
-                    color: #78350f;
-                    box-shadow: 0 0 8px #fbbf24;
-                }
-
-                .badge.bg-success {
-                    background-color: #22c55e;
-                    color: white;
-                    box-shadow: 0 0 10px #22c55e;
-                }
-
-                .badge.bg-danger {
-                    background-color: #ef4444;
-                    color: white;
-                    box-shadow: 0 0 10px #ef4444;
-                }
-
-                .badge.bg-secondary {
-                    background-color: #94a3b8;
-                    color: white;
-                }
-
-                /* Scrollbars for scrollable tables/containers */
-                .table-responsive {
                     max-height: 350px;
                     overflow-y: auto;
+                    scrollbar-color: var(--pr-gold) var(--pr-soft);
                     scrollbar-width: thin;
-                    scrollbar-color: #f59e0b #f3f4f6;
-                    border-radius: 12px;
                 }
 
-                .table-responsive::-webkit-scrollbar {
+                #pr_leave_dashboard .table-responsive::-webkit-scrollbar {
                     width: 8px;
                 }
 
-                .table-responsive::-webkit-scrollbar-track {
-                    background: #f3f4f6;
-                    border-radius: 10px;
+                #pr_leave_dashboard .table-responsive::-webkit-scrollbar-track {
+                    background: var(--pr-soft);
                 }
 
-                .table-responsive::-webkit-scrollbar-thumb {
-                    background-color: #f59e0b;
-                    border-radius: 10px;
-                    border: 2px solid #f3f4f6;
+                #pr_leave_dashboard .table-responsive::-webkit-scrollbar-thumb {
+                    background-color: var(--pr-gold);
+                    border: 2px solid var(--pr-soft);
+                    border-radius: 8px;
                 }
 
-                /* Paragraph */
-                p {
-                    color: #64748b;
+                #pr_leave_dashboard thead tr {
+                    background: linear-gradient(135deg, var(--pr-blue) 0%, var(--pr-blue-light) 100%);
+                    color: #fff;
                 }
 
-                /* Fix for odd-row class typo */
-                .odd-row {
-                    background-color: white;
-                    color: #4071c1;
+                #pr_leave_dashboard th,
+                #pr_leave_dashboard td {
+                    padding: 12px 14px;
+                    text-align: left;
+                    vertical-align: middle;
+                }
+
+                #pr_leave_dashboard th {
+                    border-bottom: 3px solid var(--pr-gold);
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    letter-spacing: 0.3px;
+                    text-transform: uppercase;
+                }
+
+                #pr_leave_dashboard tbody tr {
+                    background: #fff;
+                    color: var(--pr-ink);
+                    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+                }
+
+                #pr_leave_dashboard tbody tr:nth-child(even) {
+                    background: #f8fafc;
+                }
+
+                #pr_leave_dashboard tbody tr:hover {
+                    background: #fff7ec;
+                    box-shadow: inset 3px 0 0 var(--pr-gold);
+                }
+
+                #pr_leave_dashboard tbody td {
+                    border-bottom: 1px solid #edf1f6;
+                    color: #344052;
+                    font-size: 0.92rem;
+                }
+
+                #pr_leave_dashboard .badge {
+                    border-radius: 999px;
+                    font-size: 0.74rem;
+                    font-weight: 700;
+                    padding: 6px 10px;
+                }
+
+                #pr_leave_dashboard .badge.bg-warning.text-dark {
+                    background: #fff3df !important;
+                    border: 1px solid rgba(233, 162, 62, 0.45);
+                    color: #915f13 !important;
+                }
+
+                #pr_leave_dashboard .badge.bg-success {
+                    background: #198754 !important;
+                    color: #fff !important;
+                }
+
+                #pr_leave_dashboard .badge.bg-danger {
+                    background: #dc3545 !important;
+                    color: #fff !important;
+                }
+
+                #pr_leave_dashboard .badge.bg-secondary {
+                    background: #667085 !important;
+                    color: #fff !important;
+                }
+
+                #pr_leave_dashboard p {
+                    color: var(--pr-muted);
+                    margin: 8px 0 0;
+                }
+
+                @media (max-width: 768px) {
+                    #pr_leave_dashboard {
+                        padding-top: 12px;
+                    }
+
+                    #pr_leave_dashboard .main-content {
+                        padding: 16px;
+                    }
+
+                    #pr_leave_dashboard th,
+                    #pr_leave_dashboard td {
+                        padding: 10px;
+                    }
                 }
 
             </style>
 
-            <div class="container-fluid">
+            <div class="container-fluid" id="pr_leave_dashboard">
                 <div class="row">
                     <!-- Main Content -->
-                    <main class="col-md-10 main-content">
+                    <main class="col-12 main-content">
                         <!-- Summary Cards -->
                         <div class="row g-4 mb-4">
                             <t t-if="leaves_dashboard_summary">
                                 <t t-foreach="leaves_dashboard_summary" t-as="summ">
                                     <div class="col-md-3">
                                         <!-- Removed title with QWeb from attribute to fix error -->
-                                        <div class="card">
+                                        <div class="card leave-summary-card">
                                             <h6>
                                                 <t t-esc="summ['leave_name']"/>
                                             </h6>
@@ -240,7 +254,7 @@
                         <!-- Pending Leaves -->
                         <div class="row g-4 mb-4">
                             <div class="col-md-12">
-                                <div class="card">
+                                <div class="card leave-panel-card">
                                     <h6>Pending Leaves</h6>
                                     <t t-if="leaves_dashboard_pending and leaves_dashboard_pending">
                                         <div class="table-responsive">
@@ -286,7 +300,7 @@
                         </div>
 
                         <!-- Leave History -->
-                        <div class="card mb-4">
+                        <div class="card leave-panel-card mb-4">
                             <h6>Leave History</h6>
                             <t t-if="leaves_dashboard_all_leaves">
                                 <div class="table-responsive">

@@ -4,7 +4,7 @@
     "version": "17.0.1.0.0",
     "category": "Productivity/Sign",
     "summary": "Show pending signature requests in Petroraq approvals.",
-    "author": "Petroraq",
+    "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",
     "depends": [
         "de_hr_workspace",

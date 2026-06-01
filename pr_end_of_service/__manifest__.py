@@ -6,7 +6,7 @@
         Manage employee end of service settlements using Petroraq contracts,
         leave balances, employee lifecycle states, and bank payment vouchers.
     """,
-    "author": "Petroraq",
+    "author": "Mudassir Amin",
     "website": "https://webmail.petroraq.com/",
     "category": "Human Resources",
     "version": "17.0.1.0.0",

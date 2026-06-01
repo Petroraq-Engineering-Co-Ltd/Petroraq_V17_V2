@@ -9,6 +9,7 @@
         'pr_account',
         'mail',
     ],
+    'author': 'Mudassir Amin',
     'data': [
         'security/ir.model.access.csv',
         'data/onboarding_compliance_sequence.xml',
