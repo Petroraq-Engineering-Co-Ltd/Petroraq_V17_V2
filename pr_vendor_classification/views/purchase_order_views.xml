@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_purchase_order_tree_vendor_category" model="ir.ui.view">
+        <field name="name">purchase.order.tree.vendor.category</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="pr_vendor_category_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_purchase_rfq_tree_vendor_category" model="ir.ui.view">
+        <field name="name">purchase.rfq.tree.vendor.category</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="pr_vendor_category_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_search_vendor_category" model="ir.ui.view">
+        <field name="name">purchase.order.search.vendor.category</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_search"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="pr_vendor_category_id"/>
+            </field>
+            <filter name="vendor" position="after">
+                <filter string="Vendor Category" name="groupby_pr_vendor_category_id" context="{'group_by': 'pr_vendor_category_id'}"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="view_purchase_rfq_search_vendor_category" model="ir.ui.view">
+        <field name="name">purchase.rfq.search.vendor.category</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="pr_vendor_category_id"/>
+            </field>
+            <filter name="vendor" position="after">
+                <filter string="Vendor Category" name="groupby_pr_vendor_category_id" context="{'group_by': 'pr_vendor_category_id'}"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_line_search_vendor_category" model="ir.ui.view">
+        <field name="name">purchase.order.line.search.vendor.category</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_search"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="pr_vendor_category_id"/>
+            </field>
+            <filter name="groupby_supplier" position="after">
+                <filter string="Vendor Category" name="groupby_pr_vendor_category_id" context="{'group_by': 'pr_vendor_category_id'}"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="view_purchase_history_tree_vendor_category" model="ir.ui.view">
+        <field name="name">purchase.history.tree.vendor.category</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_history_tree"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="pr_vendor_category_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

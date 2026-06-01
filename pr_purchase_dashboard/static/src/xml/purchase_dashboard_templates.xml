@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pr_purchase_dashboard.PurchaseDashboardAction" owl="1">
+        <div class="o_pr_purchase_dashboard">
+            <t t-if="state.loading">
+                <div class="pr-purchase-loading">
+                    <i class="fa fa-spinner fa-spin"/>
+                    <span>Loading purchase dashboard...</span>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-set="summary" t-value="state.data.summary || {}"/>
+                <t t-set="approval" t-value="state.data.po_approval || {}"/>
+                <t t-set="budget" t-value="state.data.budget_watch || {}"/>
+
+                <div class="pr-purchase-header">
+                    <div>
+                        <span class="pr-purchase-eyebrow">Purchase Overview</span>
+                        <h1>Purchase Dashboard</h1>
+                        <p>Requisitions, RFQs, purchase orders, approvals, vendors, cost centers, and budget movement in one view.</p>
+                    </div>
+                    <button class="btn pr-purchase-refresh" type="button" t-on-click="loadDashboardData">
+                        <i class="fa fa-refresh me-1"/>
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="pr-purchase-grid pr-purchase-top-grid">
+                    <section class="pr-purchase-card pr-purchase-kpi-card pr-span-2"
+                             t-on-click="() => this.openRecords('purchase.order', summary.po_domain || [], 'Purchase Orders')">
+                        <span>Total PO Value</span>
+                        <strong t-esc="this.formatMoney(summary.total_po_value || 0)"/>
+                        <div class="pr-purchase-kpi-divider"/>
+                        <span>Purchase Orders</span>
+                        <strong t-esc="this.formatNumber(summary.total_po_count || 0)"/>
+                        <svg class="pr-purchase-sparkline" viewBox="0 0 150 60" preserveAspectRatio="none">
+                            <polyline t-att-points="this.sparklinePoints(state.data.monthly || [])"/>
+                        </svg>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-4">
+                        <div class="pr-purchase-card-title">
+                            <h2>Monthly Purchase Spend Trends</h2>
+                            <i class="fa fa-info-circle" title="Purchase order value by order month"/>
+                        </div>
+                        <div class="pr-purchase-line-chart">
+                            <svg viewBox="0 0 520 170" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="prPurchaseLineArea" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#2f95ed" stop-opacity="0.22"/>
+                                        <stop offset="100%" stop-color="#2f95ed" stop-opacity="0.02"/>
+                                    </linearGradient>
+                                </defs>
+                                <line x1="10" y1="30" x2="510" y2="30"/>
+                                <line x1="10" y1="80" x2="510" y2="80"/>
+                                <line x1="10" y1="130" x2="510" y2="130"/>
+                                <polygon class="area" t-att-points="this.lineAreaPoints(state.data.monthly || [])"/>
+                                <polyline class="line" t-att-points="this.linePoints(state.data.monthly || [])"/>
+                            </svg>
+                            <div class="pr-purchase-month-labels">
+                                <t t-foreach="state.data.monthly || []" t-as="month" t-key="month.label">
+                                    <button type="button" t-on-click="() => this.openRecords('purchase.order', month.domain, month.label)">
+                                        <strong t-esc="month.label"/>
+                                        <em t-esc="this.formatMoney(month.amount || 0)"/>
+                                    </button>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-2">
+                        <div class="pr-purchase-card-title">
+                            <h2>Requisition Type Insights</h2>
+                            <i class="fa fa-info-circle" title="Regular and cash PR split"/>
+                        </div>
+                        <t t-foreach="state.data.pr_types || []" t-as="type" t-key="type.value">
+                            <div class="pr-purchase-insight-row"
+                                 t-on-click="() => this.openRecords('purchase.requisition', type.domain, type.label)">
+                                <div class="pr-purchase-mini-donut" t-att-style="this.donutStyle(type.count_percent || 0, type.color)">
+                                    <span t-esc="this.formatPercent(type.count_percent || 0)"/>
+                                </div>
+                                <div>
+                                    <strong t-esc="type.label"/>
+                                    <span t-esc="this.formatNumber(type.count || 0) + ' requisitions'"/>
+                                </div>
+                            </div>
+                        </t>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-2">
+                        <div class="pr-purchase-card-title">
+                            <h2>Pending PO Approvals</h2>
+                            <i class="fa fa-info-circle" title="Purchase orders waiting for approval"/>
+                        </div>
+                        <div class="pr-purchase-gauge" t-att-style="this.gaugeStyle(approval.pending_percent || 0, '#ffbd45')"
+                             t-on-click="() => this.openRecords('purchase.order', approval.pending_domain || [], 'Pending Purchase Orders')">
+                            <div class="pr-purchase-gauge-value">
+                                <strong t-esc="this.formatPercent(approval.pending_percent || 0)"/>
+                            </div>
+                        </div>
+                        <p class="pr-purchase-card-note" t-esc="this.formatNumber(approval.pending || 0) + ' pending POs'"/>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-2">
+                        <div class="pr-purchase-card-title">
+                            <h2>Approved PO Rate</h2>
+                            <i class="fa fa-info-circle" title="Confirmed or locked purchase order share"/>
+                        </div>
+                        <div class="pr-purchase-gauge" t-att-style="this.gaugeStyle(approval.approved_percent || 0, '#18cf93')"
+                             t-on-click="() => this.openRecords('purchase.order', approval.approved_domain || [], 'Approved Purchase Orders')">
+                            <div class="pr-purchase-gauge-value">
+                                <strong t-esc="this.formatPercent(approval.approved_percent || 0)"/>
+                            </div>
+                        </div>
+                        <p class="pr-purchase-card-note" t-esc="this.formatNumber(approval.approved || 0) + ' approved POs'"/>
+                    </section>
+                </div>
+
+                <div class="pr-purchase-grid">
+                    <section class="pr-purchase-card pr-span-3 pr-purchase-tall">
+                        <div class="pr-purchase-card-title">
+                            <h2>PR Approval Breakdown</h2>
+                            <i class="fa fa-info-circle" title="Supervisor approval state for purchase requisitions"/>
+                        </div>
+                        <div class="pr-purchase-approval-list">
+                            <t t-foreach="state.data.pr_approvals || []" t-as="row" t-key="row.value">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.requisition', row.domain, row.label)">
+                                    <span>
+                                        <i t-att-style="'background:' + row.color"/>
+                                        <strong t-esc="row.label"/>
+                                    </span>
+                                    <em t-esc="this.formatNumber(row.count || 0)"/>
+                                    <div>
+                                        <b t-att-style="'width:' + this.clampPercent(row.count_percent || 0) + '%; background:' + row.color"/>
+                                    </div>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-4">
+                        <div class="pr-purchase-card-title">
+                            <h2>Top 5 Highest Value Vendors</h2>
+                            <i class="fa fa-info-circle" title="Vendors ranked by purchase order value"/>
+                        </div>
+                        <div class="pr-purchase-bar-chart">
+                            <t t-foreach="state.data.top_vendors || []" t-as="vendor" t-key="vendor.id">
+                                <button class="pr-purchase-vertical-bar" type="button"
+                                        t-on-click="() => this.openRecords('purchase.order', vendor.domain, vendor.name)">
+                                    <span class="pr-purchase-vertical-track">
+                                        <span t-att-style="'height:' + this.clampPercent(vendor.percent) + '%; background:#2f95ed'"/>
+                                    </span>
+                                    <strong t-esc="this.formatMoney(vendor.amount || 0)"/>
+                                    <em t-esc="vendor.name"/>
+                                </button>
+                            </t>
+                            <div class="pr-purchase-empty" t-if="!(state.data.top_vendors || []).length">No vendor purchase value yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-2">
+                        <div class="pr-purchase-card-title">
+                            <h2>Purchase by Buyer</h2>
+                            <i class="fa fa-info-circle" title="PO value split by buyer"/>
+                        </div>
+                        <div class="pr-purchase-progress-list">
+                            <t t-foreach="state.data.buyers || []" t-as="buyer" t-key="buyer.id || buyer.name">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.order', buyer.domain, buyer.name)">
+                                    <div>
+                                        <span t-esc="buyer.name"/>
+                                        <strong t-esc="this.formatMoney(buyer.amount || 0)"/>
+                                    </div>
+                                    <span class="pr-purchase-progress">
+                                        <span t-att-style="'width:' + this.clampPercent(buyer.percent) + '%; background:' + buyer.color"/>
+                                    </span>
+                                </button>
+                            </t>
+                            <div class="pr-purchase-empty" t-if="!(state.data.buyers || []).length">No buyer data yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-3 pr-purchase-tall">
+                        <div class="pr-purchase-card-title">
+                            <h2>RFQ Pipeline</h2>
+                            <i class="fa fa-info-circle" title="RFQs by current state"/>
+                        </div>
+                        <div class="pr-purchase-pipeline">
+                            <t t-foreach="state.data.rfq_pipeline || []" t-as="step" t-key="step.state">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.order', step.domain, step.label)">
+                                    <span class="pr-purchase-mini-donut" t-att-style="this.donutStyle(step.count_percent || 0, step.color)">
+                                        <span t-esc="this.formatPercent(step.count_percent || 0)"/>
+                                    </span>
+                                    <strong t-esc="step.label"/>
+                                    <em t-esc="this.formatNumber(step.count || 0) + ' RFQs'"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-purchase-grid">
+                    <section class="pr-purchase-card pr-span-3 pr-purchase-tall">
+                        <div class="pr-purchase-card-title">
+                            <h2>Purchase Value by Product Category</h2>
+                            <i class="fa fa-info-circle" title="PO value distribution by product category"/>
+                        </div>
+                        <div class="pr-purchase-category-rings" t-if="(state.data.product_categories || []).length">
+                            <t t-foreach="state.data.product_categories || []" t-as="category" t-key="category.id">
+                                <div class="pr-purchase-ring"
+                                     t-att-style="'--ring-index:' + category_index + '; --ring-value:' + this.clampPercent(category.percent) + '%; --ring-color:' + category.color + ';'"/>
+                            </t>
+                            <div class="pr-purchase-category-center">
+                                <strong>Total</strong>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                        <div class="pr-purchase-empty" t-if="!(state.data.product_categories || []).length">No product category value yet.</div>
+                        <div class="pr-purchase-legend-list">
+                            <t t-foreach="state.data.product_categories || []" t-as="category" t-key="category.id">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.order.line', category.domain, category.name)">
+                                    <i t-att-style="'background:' + category.color"/>
+                                    <span t-esc="category.name"/>
+                                    <strong t-esc="this.formatPercent(category.percent)"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-4">
+                        <div class="pr-purchase-card-title">
+                            <h2>Top 5 Purchased Products by Value</h2>
+                            <i class="fa fa-info-circle" title="Products ranked by purchase order value"/>
+                        </div>
+                        <div class="pr-purchase-bar-chart">
+                            <t t-foreach="state.data.top_products_value || []" t-as="product" t-key="product.id">
+                                <button class="pr-purchase-vertical-bar" type="button"
+                                        t-on-click="() => this.openRecords('purchase.order.line', product.domain, product.name)">
+                                    <span class="pr-purchase-vertical-track">
+                                        <span t-att-style="'height:' + this.clampPercent(product.percent) + '%; background:' + product.color"/>
+                                    </span>
+                                    <strong t-esc="this.formatMoney(product.amount || 0)"/>
+                                    <em t-esc="product.name"/>
+                                </button>
+                            </t>
+                            <div class="pr-purchase-empty" t-if="!(state.data.top_products_value || []).length">No product value yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-2">
+                        <div class="pr-purchase-card-title">
+                            <h2>Expense Type Split</h2>
+                            <i class="fa fa-info-circle" title="PR amount split by Opex and Capex"/>
+                        </div>
+                        <div class="pr-purchase-volume-list">
+                            <t t-foreach="state.data.expense_types || []" t-as="row" t-key="row.value">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.requisition', row.domain, row.label)">
+                                    <span t-att-style="'--dot:' + row.color">
+                                        <i/>
+                                        <strong t-esc="row.label"/>
+                                    </span>
+                                    <em t-esc="this.formatMoney(row.amount || 0)"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-3 pr-purchase-tall">
+                        <div class="pr-purchase-card-title">
+                            <h2>Vendor Country Analysis</h2>
+                            <i class="fa fa-info-circle" title="PO value by vendor country"/>
+                        </div>
+                        <div class="pr-purchase-geo-chart">
+                            <t t-foreach="state.data.vendor_countries || []" t-as="country" t-key="country.id || country.name">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.order', country.domain, country.name)">
+                                    <span class="pr-purchase-geo-bar">
+                                        <span t-att-style="'height:' + this.clampPercent(country.percent) + '%'"/>
+                                    </span>
+                                    <strong t-esc="this.formatMoney(country.amount || 0)"/>
+                                    <em t-esc="country.name"/>
+                                </button>
+                            </t>
+                            <div class="pr-purchase-empty" t-if="!(state.data.vendor_countries || []).length">No vendor country data yet.</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-purchase-grid">
+                    <section class="pr-purchase-card pr-span-5">
+                        <div class="pr-purchase-card-title">
+                            <h2>Purchase Value From Top 5 Vendors</h2>
+                            <i class="fa fa-info-circle" title="Horizontal comparison of top vendors"/>
+                        </div>
+                        <div class="pr-purchase-horizontal-bars">
+                            <t t-foreach="state.data.top_vendors || []" t-as="vendor" t-key="vendor.id">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.order', vendor.domain, vendor.name)">
+                                    <span t-esc="vendor.name"/>
+                                    <div>
+                                        <i t-att-style="'width:' + this.clampPercent(vendor.percent) + '%'"/>
+                                        <strong t-esc="this.formatMoney(vendor.amount || 0)"/>
+                                    </div>
+                                </button>
+                            </t>
+                            <div class="pr-purchase-empty" t-if="!(state.data.top_vendors || []).length">No vendor value yet.</div>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-4">
+                        <div class="pr-purchase-card-title">
+                            <h2>PO Approval Stages by Role</h2>
+                            <i class="fa fa-info-circle" title="Pending approvals according to Petroraq PO thresholds"/>
+                        </div>
+                        <div class="pr-purchase-stage-chart">
+                            <t t-foreach="state.data.approval_stages || []" t-as="stage" t-key="stage.key">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.order', stage.domain, stage.label)">
+                                    <div class="pr-purchase-stage-bars">
+                                        <span t-att-style="'height:' + this.clampPercent(stage.amount_percent || 0) + '%; background:' + stage.color"/>
+                                    </div>
+                                    <strong t-esc="stage.label"/>
+                                    <em t-esc="this.formatNumber(stage.count || 0) + ' POs'"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-3">
+                        <div class="pr-purchase-card-title">
+                            <h2>Top Cost Centers Requested</h2>
+                            <i class="fa fa-info-circle" title="PR line amounts by cost center"/>
+                        </div>
+                        <div class="pr-purchase-progress-list">
+                            <t t-foreach="state.data.cost_centers || []" t-as="center" t-key="center.id">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.requisition.line', center.domain, center.name)">
+                                    <div>
+                                        <span t-esc="center.name"/>
+                                        <strong t-esc="this.formatMoney(center.amount || 0)"/>
+                                    </div>
+                                    <span class="pr-purchase-progress">
+                                        <span t-att-style="'width:' + this.clampPercent(center.percent) + '%; background:' + center.color"/>
+                                    </span>
+                                </button>
+                            </t>
+                            <div class="pr-purchase-empty" t-if="!(state.data.cost_centers || []).length">No cost center requests yet.</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-purchase-grid">
+                    <section class="pr-purchase-card pr-span-3">
+                        <div class="pr-purchase-card-title">
+                            <h2>Budget Watch</h2>
+                            <i class="fa fa-info-circle" title="Budget increase requests and work-order variance"/>
+                        </div>
+                        <div class="pr-purchase-watch-list">
+                            <button type="button" t-on-click="() => this.openRecords('purchase.requisition', budget.wo_variance_domain || [], 'WO Variance PRs')">
+                                <span>WO Variance PRs</span>
+                                <strong t-esc="this.formatNumber(budget.wo_variance_count || 0)"/>
+                                <em t-esc="this.formatMoney(budget.wo_variance_amount || 0)"/>
+                            </button>
+                            <button type="button" t-on-click="() => this.openRecords('purchase.requisition', budget.overdue_domain || [], 'Overdue Requisitions')">
+                                <span>Overdue Requisitions</span>
+                                <strong t-esc="this.formatNumber(budget.overdue_count || 0)"/>
+                                <em t-esc="this.formatMoney(budget.overdue_amount || 0)"/>
+                            </button>
+                            <button type="button" t-on-click="() => this.openRecords('budget.increase.request', budget.pending_budget_domain || [], 'Pending Budget Requests')">
+                                <span>Pending Budget Requests</span>
+                                <strong t-esc="this.formatNumber(budget.pending_budget_count || 0)"/>
+                                <em t-esc="this.formatMoney(budget.pending_budget_amount || 0)"/>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-4">
+                        <div class="pr-purchase-card-title">
+                            <h2>Budget Increase Workflow</h2>
+                            <i class="fa fa-info-circle" title="Budget increase request state counts"/>
+                        </div>
+                        <div class="pr-purchase-budget-columns">
+                            <t t-foreach="budget.budget_requests || []" t-as="row" t-key="row.value">
+                                <button type="button" t-on-click="() => this.openRecords('budget.increase.request', row.domain, row.label)">
+                                    <strong t-esc="this.formatNumber(row.count || 0)"/>
+                                    <span t-esc="row.label"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-purchase-card pr-span-5">
+                        <div class="pr-purchase-card-title">
+                            <h2>Top 5 Purchased Products by Volume</h2>
+                            <i class="fa fa-info-circle" title="Products ranked by ordered quantity"/>
+                        </div>
+                        <div class="pr-purchase-volume-list pr-purchase-volume-wide">
+                            <t t-foreach="state.data.top_products_volume || []" t-as="product" t-key="product.id">
+                                <button type="button" t-on-click="() => this.openRecords('purchase.order.line', product.domain, product.name)">
+                                    <span t-att-style="'--dot:' + product.color">
+                                        <i/>
+                                        <strong t-esc="product.name"/>
+                                    </span>
+                                    <em t-esc="this.formatNumber(product.quantity || 0)"/>
+                                </button>
+                            </t>
+                            <div class="pr-purchase-empty" t-if="!(state.data.top_products_volume || []).length">No volume data yet.</div>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>
