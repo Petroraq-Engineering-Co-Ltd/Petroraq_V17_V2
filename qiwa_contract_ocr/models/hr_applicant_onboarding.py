@@ -530,8 +530,24 @@ class HrApplicantOnboardingChecklist(models.Model):
         if self.assigned_user_id and self.assigned_user_id.active:
             return self.assigned_user_id
         if self.responsible_group_id:
-            return self.responsible_group_id.users.filtered(lambda user: user.active)
-        return self.env['res.users']
+            users = self.responsible_group_id.users.filtered(lambda user: user.active)
+            if users:
+                return users
+        return self._get_fallback_reminder_users()
+
+    def _get_fallback_reminder_users(self):
+        users = self.env['res.users']
+        group_xmlids = [
+            'pr_hr_recruitment_request.group_onboarding_supervisor',
+            'hr_recruitment.group_hr_recruitment_user',
+            'hr.group_hr_user',
+            'hr.group_hr_manager',
+        ]
+        for group_xmlid in group_xmlids:
+            group = self.env.ref(group_xmlid, raise_if_not_found=False)
+            if group:
+                users |= group.users.filtered(lambda user: user.active)
+        return users
 
     def _find_existing_activity(self, user):
         self.ensure_one()
@@ -1072,7 +1088,7 @@ class HrOnboardingComplianceRequest(models.Model):
             if self.work_permit_id.state not in ('approved', 'issued', 'reject'):
                 self.work_permit_id.state = 'approved'
 
-        bank_payment.action_submit()
+        # bank_payment.action_submit()
         self.write({
             'bank_payment_id': bank_payment.id,
             'payment_state': 'pending',
