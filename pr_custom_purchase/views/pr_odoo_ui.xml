@@ -11,7 +11,13 @@
                 <field name="status" widget="badge"
                        decoration-success="status in ('po', 'completed')"
                        decoration-warning="status == 'rfq'"
-                       decoration-info="status == 'pr'"/>
+                       decoration-info="status in ('pr', 'payment')"/>
+                <field name="cash_pr_voucher_state" widget="badge"
+                       optional="show"
+                       decoration-success="cash_pr_voucher_state == 'posted'"
+                       decoration-warning="cash_pr_voucher_state in ('submit', 'finance_approve')"
+                       decoration-muted="cash_pr_voucher_state == 'not_created'"
+                       decoration-danger="cash_pr_voucher_state == 'cancel'"/>
                 <field name="approval" widget="badge"
                        decoration-success="approval == 'approved'"
                        decoration-danger="approval == 'rejected'"
@@ -48,24 +54,26 @@
                             class="btn-primary"
                             groups="pr_custom_purchase.procurement_admin"
                             invisible="not show_create_rfq_button"/>
-                    <!-- Show Create Purchase Order button only if pr_type == 'cash' -->
-                    <button name="action_create_purchase_order"
+                    <button name="action_create_cash_pr_payment_voucher"
                             type="object"
-                            string="Create Purchase Order"
+                            string="Create Payment Voucher"
                             class="btn-primary"
-                            groups="pr_custom_purchase.procurement_admin"
-                            invisible="not show_create_po_button"/>
+                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"
+                            invisible="not show_create_payment_voucher_button"/>
                 </header>
                 <sheet>
                     <!-- Hidden fields for button visibility logic -->
                     <field name="pr_type" invisible="1"/>
                     <field name="show_create_rfq_button" invisible="1"/>
                     <field name="show_create_po_button" invisible="1"/>
+                    <field name="show_create_payment_voucher_button" invisible="1"/>
                     <field name="is_supervisor" invisible="1"/>
                     <field name="wo_variance_requires_approval" invisible="1"/>
                     <field name="rfq_count" invisible="1"/>
                     <field name="rfq_sent_count" invisible="1"/>
                     <field name="show_request_budget_increase_button" invisible="1"/>
+                    <field name="cash_payment_id" invisible="1"/>
+                    <field name="bank_payment_id" invisible="1"/>
 
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_related_rfqs"
@@ -74,6 +82,17 @@
                                 icon="fa-envelope-open-o"
                                 groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager">
                             <field name="rfq_count" widget="statinfo" string="RFQs"/>
+                        </button>
+                        <button name="action_open_cash_pr_payment_voucher"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                invisible="not cash_payment_id and not bank_payment_id"
+                                groups="account.group_account_invoice,account.group_account_user,account.group_account_manager">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Payment</span>
+                                <span class="o_stat_text">Voucher</span>
+                            </div>
                         </button>
                     </div>
 
@@ -102,19 +121,39 @@
                             <field name="required_date" readonly="1"/>
                             <field name="priority" readonly="1"/>
                             <field name="approval" readonly="1"/>
+                            <field name="cash_pr_payment_method"
+                                   readonly="cash_payment_id or bank_payment_id"
+                                   invisible="pr_type != 'cash' or approval != 'approved'"
+                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                            <field name="cash_pr_payment_account_id"
+                                   readonly="cash_payment_id or bank_payment_id"
+                                   invisible="pr_type != 'cash' or approval != 'approved'"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
+                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                            <field name="cash_pr_voucher_state"
+                                   readonly="1"
+                                   invisible="pr_type != 'cash'"
+                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Products">
                             <field name="allowed_cost_center_ids" invisible="1"/>
-                            <field name="line_ids" readonly="1">
-                                <tree editable="bottom">
-                                    <field name="description"/>
-                                    <field name="cost_center_id" domain="[('id', 'in', parent.allowed_cost_center_ids)]"/>
-                                    <field name="type"/>
-                                    <field name="unit"/>
-                                    <field name="quantity"/>
-                                    <field name="unit_price"/>
+                            <field name="line_ids"
+                                   readonly="not (pr_type == 'cash' and approval == 'approved' and not cash_payment_id and not bank_payment_id)">
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="description" readonly="1"/>
+                                    <field name="cost_center_id" domain="[('id', 'in', parent.allowed_cost_center_ids)]" readonly="1"/>
+                                    <field name="expense_account_id"
+                                           optional="show"
+                                           column_invisible="parent.pr_type != 'cash' or parent.approval != 'approved' or parent.cash_payment_id or parent.bank_payment_id"
+                                           readonly="parent.pr_type != 'cash' or parent.approval != 'approved' or parent.cash_payment_id or parent.bank_payment_id"
+                                           options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
+                                           groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                                    <field name="type" readonly="1"/>
+                                    <field name="unit" readonly="1"/>
+                                    <field name="quantity" readonly="1"/>
+                                    <field name="unit_price" readonly="1"/>
                                 </tree>
                             </field>
                         </page>
@@ -211,7 +250,7 @@
               name="Requisitions"
               parent="purchase.menu_purchase_root"
               sequence="131"
-              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver"/>
+              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver,account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
 
     <menuitem id="pr_custom_purchase.menu_pr_others"
               name="Regular PR"
@@ -225,5 +264,29 @@
               parent="pr_custom_purchase.menu_purchase_requisition_main_others"
               action="pr_custom_purchase.action_purchase_requisition_cash"
               sequence="20"
-              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver"/>
+              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver,account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+
+    <record id="view_cash_payment_form_cash_pr_source" model="ir.ui.view">
+        <field name="name">pr.account.cash.payment.form.cash.pr.source</field>
+        <field name="model">pr.account.cash.payment</field>
+        <field name="inherit_id" ref="pr_account.pr_account_cash_payment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='description']" position="after">
+                <field name="purchase_requisition_id" readonly="1"
+                       invisible="not purchase_requisition_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_bank_payment_form_cash_pr_source" model="ir.ui.view">
+        <field name="name">pr.account.bank.payment.form.cash.pr.source</field>
+        <field name="model">pr.account.bank.payment</field>
+        <field name="inherit_id" ref="pr_account.pr_account_bank_payment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='description']" position="after">
+                <field name="purchase_requisition_id" readonly="1"
+                       invisible="not purchase_requisition_id"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

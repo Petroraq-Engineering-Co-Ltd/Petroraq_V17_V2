@@ -1,5 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from dateutil.relativedelta import relativedelta
 
 
 class PrBudgetRequisition(models.Model):
@@ -44,8 +45,25 @@ class PrBudgetRequisition(models.Model):
         store=True,
         readonly=True,
     )
-    period_date_from = fields.Date(string="Budget Start Date", required=True, tracking=True)
-    period_date_to = fields.Date(string="Budget End Date", required=True, tracking=True)
+    budget_period_months = fields.Selection(
+        [("3", "3 Months"), ("6", "6 Months"), ("12", "12 Months")],
+        string="Budget Period",
+        default="6",
+        required=True,
+        tracking=True,
+    )
+    period_date_from = fields.Date(
+        string="Budget Start Date",
+        default=lambda self: self._default_period_date_from(),
+        required=True,
+        tracking=True,
+    )
+    period_date_to = fields.Date(
+        string="Budget End Date",
+        default=lambda self: self._default_period_date_to(),
+        required=True,
+        tracking=True,
+    )
     expense_type = fields.Selection(
         [("opex", "Opex"), ("capex", "Capex")],
         string="Expense Type",
@@ -88,6 +106,21 @@ class PrBudgetRequisition(models.Model):
         compute="_compute_total_requested_amount",
         store=True,
     )
+    total_budget_amount = fields.Monetary(
+        string="Current Budget",
+        currency_field="currency_id",
+        compute="_compute_budget_totals",
+    )
+    total_spent_amount = fields.Monetary(
+        string="Spent Amount",
+        currency_field="currency_id",
+        compute="_compute_budget_totals",
+    )
+    total_remaining_amount = fields.Monetary(
+        string="Budget Remaining",
+        currency_field="currency_id",
+        compute="_compute_budget_totals",
+    )
     generated_budget_id = fields.Many2one(
         "crossovered.budget",
         string="Generated Budget",
@@ -111,10 +144,48 @@ class PrBudgetRequisition(models.Model):
         ], limit=1)
         return employee.department_id.id if employee and employee.department_id else False
 
+    @api.model
+    def _default_period_date_from(self):
+        today = fields.Date.context_today(self)
+        return today.replace(day=1)
+
+    @api.model
+    def _default_period_date_to(self):
+        return self._get_period_date_to(self._default_period_date_from(), "6")
+
+    @api.model
+    def _get_period_date_to(self, date_from, months):
+        if not date_from or not months:
+            return False
+        return fields.Date.to_date(date_from) + relativedelta(months=int(months), days=-1)
+
+    @api.onchange("period_date_from", "budget_period_months")
+    def _onchange_budget_period(self):
+        for rec in self:
+            rec.period_date_to = rec._get_period_date_to(rec.period_date_from, rec.budget_period_months)
+
     @api.depends("line_ids.requested_amount")
     def _compute_total_requested_amount(self):
         for rec in self:
             rec.total_requested_amount = sum(rec.line_ids.mapped("requested_amount"))
+
+    @api.depends(
+        "line_ids.cost_center_id",
+        "period_date_from",
+        "period_date_to",
+        "expense_type",
+    )
+    def _compute_budget_totals(self):
+        for rec in self:
+            cost_centers = rec.line_ids.mapped("cost_center_id")
+            metrics = cost_centers.sudo()._get_budget_metrics_map(
+                date_from=rec.period_date_from,
+                date_to=rec.period_date_to,
+                expense_type=rec.expense_type,
+            ) if cost_centers else {}
+            rec.total_budget_amount = sum(metric["allowance"] for metric in metrics.values())
+            rec.total_spent_amount = sum(metric["spent"] for metric in metrics.values())
+            rec.total_remaining_amount = sum(metric["remaining"] for metric in metrics.values())
 
     @api.depends_context("uid")
     @api.depends("state", "requested_by_id", "department_manager_user_id")
@@ -149,11 +220,15 @@ class PrBudgetRequisition(models.Model):
         for vals in vals_list:
             if vals.get("name", "New") == "New":
                 vals["name"] = self.env["ir.sequence"].next_by_code("pr.budget.requisition") or "New"
+            period_date_from = vals.get("period_date_from") or self._default_period_date_from()
+            period_months = vals.get("budget_period_months") or "6"
+            vals["period_date_to"] = self._get_period_date_to(period_date_from, period_months)
         return super().create(vals_list)
 
     def write(self, vals):
         protected_fields = {
             "department_id",
+            "budget_period_months",
             "period_date_from",
             "period_date_to",
             "expense_type",
@@ -164,6 +239,10 @@ class PrBudgetRequisition(models.Model):
             for rec in self:
                 if rec.state != "draft":
                     raise UserError(_("Submitted budget requisitions cannot be edited. Reject and reset it first."))
+        if len(self) == 1 and ("period_date_from" in vals or "budget_period_months" in vals):
+            date_from = vals.get("period_date_from") or self.period_date_from
+            months = vals.get("budget_period_months") or self.budget_period_months
+            vals["period_date_to"] = self._get_period_date_to(date_from, months)
         return super().write(vals)
 
     def unlink(self):
@@ -334,6 +413,7 @@ class PrBudgetRequisition(models.Model):
                 "user_id": self.requested_by_id.id,
                 "date_from": self.period_date_from,
                 "date_to": self.period_date_to,
+                "budget_period_months": self.budget_period_months,
                 "expense_type": self.expense_type,
                 "scope": "department",
                 "department_id": self.department_id.id,
@@ -403,8 +483,14 @@ class PrBudgetRequisitionLine(models.Model):
         required=True,
     )
     budget_code = fields.Char(string="Budget Code", related="cost_center_id.budget_code", readonly=True)
-    current_budget = fields.Float(string="Current Budget", related="cost_center_id.budget_allowance", readonly=True)
-    budget_left = fields.Float(string="Budget Left", related="cost_center_id.budget_left", readonly=True)
+    current_budget = fields.Float(string="Current Budget", compute="_compute_period_budget_metrics")
+    budget_spent = fields.Float(string="Spent Amount", compute="_compute_period_budget_metrics")
+    budget_left = fields.Float(string="Budget Left", compute="_compute_period_budget_metrics")
+    remaining_after_request = fields.Monetary(
+        string="Remaining After Request",
+        currency_field="currency_id",
+        compute="_compute_remaining_after_request",
+    )
     quantity = fields.Float(string="Quantity", default=1.0)
     unit = fields.Char(string="Unit", default="Unit")
     unit_price = fields.Monetary(string="Unit Price", currency_field="currency_id")
@@ -418,6 +504,48 @@ class PrBudgetRequisitionLine(models.Model):
             "Line total must be greater than zero.",
         ),
     ]
+
+    @api.depends(
+        "cost_center_id",
+        "requisition_id.period_date_from",
+        "requisition_id.period_date_to",
+        "requisition_id.expense_type",
+    )
+    def _compute_period_budget_metrics(self):
+        for line in self:
+            if not line.cost_center_id:
+                line.current_budget = 0.0
+                line.budget_spent = 0.0
+                line.budget_left = 0.0
+                continue
+            metrics = line.cost_center_id.sudo()._get_budget_metrics_map(
+                date_from=line.requisition_id.period_date_from,
+                date_to=line.requisition_id.period_date_to,
+                expense_type=line.requisition_id.expense_type,
+            )
+            metric = metrics.get(line.cost_center_id.id, {})
+            line.current_budget = metric.get("allowance", 0.0)
+            line.budget_spent = metric.get("spent", 0.0)
+            line.budget_left = metric.get("remaining", 0.0)
+
+    @api.depends(
+        "requested_amount",
+        "cost_center_id",
+        "budget_left",
+        "requisition_id.line_ids.requested_amount",
+        "requisition_id.line_ids.cost_center_id",
+    )
+    def _compute_remaining_after_request(self):
+        for line in self:
+            if not line.cost_center_id:
+                line.remaining_after_request = 0.0
+                continue
+            requested_for_cost_center = sum(
+                line.requisition_id.line_ids.filtered(
+                    lambda req_line: req_line.cost_center_id == line.cost_center_id
+                ).mapped("requested_amount")
+            )
+            line.remaining_after_request = (line.budget_left or 0.0) - requested_for_cost_center
 
     @api.onchange("product_id")
     def _onchange_product_id(self):

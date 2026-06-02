@@ -194,7 +194,11 @@ class PurchaseOrder(models.Model):
                         analytic_ids.add(int(key_part))
                         consumed += (line.price_subtotal or 0.0) * (percentage / 100.0)
 
+            usage_date = fields.Date.to_date(order.date_order or order.date_planned or fields.Date.context_today(order))
             budgets = Budget.search([
+                ("state", "in", ["validate", "done"]),
+                ("date_from", "<=", usage_date),
+                ("date_to", ">=", usage_date),
                 ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
             ]) if analytic_ids else Budget
             remaining = 0.0
@@ -221,7 +225,11 @@ class PurchaseOrder(models.Model):
                 for key_part in str(analytic_key).split(","):
                     if key_part.strip().isdigit():
                         analytic_ids.add(int(key_part))
+        usage_date = fields.Date.to_date(self.date_order or self.date_planned or fields.Date.context_today(self))
         budgets = self.env["crossovered.budget"].sudo().search([
+            ("state", "in", ["validate", "done"]),
+            ("date_from", "<=", usage_date),
+            ("date_to", ">=", usage_date),
             ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
         ]) if analytic_ids else self.env["crossovered.budget"]
         action = {
@@ -308,7 +316,17 @@ class PurchaseOrder(models.Model):
                 line_amounts.setdefault(int(cc_id), 0.0)
                 line_amounts[int(cc_id)] += share
 
-        if line_amounts:
+        if line_amounts and self.requisition_id:
+            amount_by_cost_center = {}
+            cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
+            cc_map = {cc.id: cc for cc in cost_centers}
+            for cc_id, amount in line_amounts.items():
+                cc = cc_map.get(cc_id)
+                if not cc:
+                    raise ValidationError(_("Invalid cost center found in RFQ analytic distribution."))
+                amount_by_cost_center[cc_id] = {"cc": cc, "amount": amount}
+            self.requisition_id._check_amounts_against_selected_budget(amount_by_cost_center, exception_cls=ValidationError)
+        elif line_amounts:
             cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
             cc_map = {cc.id: cc for cc in cost_centers}
             for cc_id, amount in line_amounts.items():
