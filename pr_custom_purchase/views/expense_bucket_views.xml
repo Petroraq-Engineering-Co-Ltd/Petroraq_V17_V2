@@ -75,6 +75,7 @@
 
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="budget_sequence" />
+                <field name="budget_period_months"/>
                 <field name="expense_type" required="1"/>
                 <field name="department_id"/>
                 <field name="department_manager_user_id" readonly="1"/>
@@ -125,6 +126,7 @@
                 <field name="expense_type" required="1"/>
                 <field name="department_id"/>
                 <field name="budget_sequence" />
+                <field name="budget_period_months" optional="hide"/>
                 <field name="budget_amount_total" optional="show"/>
                 <field name="po_spent_amount" optional="show"/>
                 <field name="budget_remaining_amount" optional="show"/>

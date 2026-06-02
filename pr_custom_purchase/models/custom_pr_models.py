@@ -180,19 +180,39 @@ class CustomPR(models.Model):
         for rec in self:
             rec.budget_increase_request_count = Request.search_count([('custom_pr_id', '=', rec.id)])
 
-    @api.depends('line_ids.total_price', 'line_ids.cost_center_id', 'line_ids.cost_center_id.budget_left')
+    def _budget_usage_date(self):
+        self.ensure_one()
+        return fields.Date.to_date(self.date_request) or fields.Date.context_today(self)
+
+    def _amount_by_cost_center(self):
+        self.ensure_one()
+        amount_by_cost_center = {}
+        for line in self.line_ids:
+            if not line.cost_center_id:
+                continue
+            cc = line.cost_center_id.sudo()
+            amount_by_cost_center.setdefault(cc.id, {"cc": cc, "amount": 0.0})
+            amount_by_cost_center[cc.id]["amount"] += line.total_price
+        return amount_by_cost_center
+
+    def _get_selected_budget_remaining_by_cost_center(self):
+        self.ensure_one()
+        if not self.expense_bucket_id:
+            return {}
+        return self.expense_bucket_id.sudo()._get_remaining_by_cost_center()
+
+    @api.depends(
+        'line_ids.total_price',
+        'line_ids.cost_center_id',
+        'expense_bucket_id',
+        'expense_bucket_id.budget_remaining_amount',
+    )
     def _compute_show_request_budget_increase_button(self):
         for rec in self:
-            amount_by_cost_center = {}
-            for line in rec.line_ids:
-                if not line.cost_center_id:
-                    continue
-                cc = line.cost_center_id
-                amount_by_cost_center.setdefault(cc.id, {"cc": cc, "amount": 0.0})
-                amount_by_cost_center[cc.id]["amount"] += line.total_price
-
+            remaining_by_cost_center = rec._get_selected_budget_remaining_by_cost_center()
             rec.show_request_budget_increase_button = any(
-                item['amount'] > item['cc'].budget_left for item in amount_by_cost_center.values()
+                item['amount'] > remaining_by_cost_center.get(item['cc'].id, 0.0)
+                for item in rec._amount_by_cost_center().values()
             )
 
     def _required_date_from_priority(self, priority):
@@ -372,6 +392,7 @@ class CustomPR(models.Model):
             raise ValidationError(_("Please select a budget before getting products."))
         if self.expense_bucket_id.state not in ("validate", "done"):
             raise ValidationError(_("Only validated budgets can be used."))
+        self.expense_bucket_id._check_active_for_date(self._budget_usage_date())
 
         line_values = self._prepare_source_product_line_values()
         if not line_values:
@@ -397,6 +418,7 @@ class CustomPR(models.Model):
             raise ValidationError(
                 _("Only validated budgets can be used. Please submit and approve the selected budget first.")
             )
+        rec.expense_bucket_id._check_active_for_date(rec._budget_usage_date())
 
         # Enforce WO per-product mini-budget caps at submit time as a hard gate
         # (in addition to line-level constrains) so users cannot bypass via UI flow.
@@ -415,23 +437,23 @@ class CustomPR(models.Model):
             rec.wo_variance_requires_approval = wo_variance_requires_approval
 
         # Validate cost center budget per line (supports multiple cost centers in one PR)
-        amount_by_cost_center = {}
+        amount_by_cost_center = rec._amount_by_cost_center()
+        remaining_by_cost_center = rec._get_selected_budget_remaining_by_cost_center()
         for line in rec.line_ids:
             cost_center = line.cost_center_id.sudo()
             if not cost_center:
                 raise ValidationError(
                     f"Please select a cost center for line '{line.description.display_name}'."
                 )
-            amount_by_cost_center.setdefault(cost_center.id, {"cc": cost_center, "amount": 0.0})
-            amount_by_cost_center[cost_center.id]["amount"] += line.total_price
 
         for item in amount_by_cost_center.values():
             cost_center = item["cc"]
             required_amount = item["amount"]
-            if required_amount > cost_center.budget_left:
+            remaining = remaining_by_cost_center.get(cost_center.id, 0.0)
+            if required_amount > remaining:
                 raise ValidationError(
                     f"This cost center {cost_center.display_name}has low budget for this PR "
-                    f"Required budget is SAR. ({required_amount}) Remaining budget is SAR. ({cost_center.budget_left})."
+                    f"Required budget is SAR. ({required_amount}) Remaining budget is SAR. ({remaining})."
                 )
 
         # Validation: prevent 0 amount PR
@@ -527,17 +549,11 @@ class CustomPR(models.Model):
 
     def action_request_budget_increase(self):
         self.ensure_one()
-        amount_by_cost_center = {}
-        for line in self.line_ids:
-            if not line.cost_center_id:
-                continue
-            cc = line.cost_center_id
-            amount_by_cost_center.setdefault(cc.id, {"cc": cc, "amount": 0.0})
-            amount_by_cost_center[cc.id]["amount"] += line.total_price
+        remaining_by_cost_center = self._get_selected_budget_remaining_by_cost_center()
 
         exceeded_cost_centers = [
-            item for item in amount_by_cost_center.values()
-            if item['amount'] > item['cc'].budget_left
+            item for item in self._amount_by_cost_center().values()
+            if item['amount'] > remaining_by_cost_center.get(item['cc'].id, 0.0)
         ]
 
         if not exceeded_cost_centers:
@@ -550,7 +566,10 @@ class CustomPR(models.Model):
             'line_ids': [
                 (0, 0, {
                     'cost_center_id': item['cc'].id,
-                    'requested_increase': max(item['amount'] - item['cc'].budget_left, 1.0),
+                    'requested_increase': max(
+                        item['amount'] - remaining_by_cost_center.get(item['cc'].id, 0.0),
+                        1.0,
+                    ),
                 })
                 for item in exceeded_cost_centers
             ]
@@ -576,6 +595,8 @@ class CustomPR(models.Model):
                 raise ValidationError(_('Expense bucket must match selected expense type.'))
             if rec.expense_bucket_id and rec.expense_bucket_id.state not in ("validate", "done"):
                 raise ValidationError(_('Selected budget must be validated before it can be used in PR.'))
+            if rec.expense_bucket_id:
+                rec.expense_bucket_id._check_active_for_date(rec._budget_usage_date())
 
 
 class CustomPRLine(models.Model):

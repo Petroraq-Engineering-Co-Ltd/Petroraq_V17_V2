@@ -7,6 +7,10 @@ class CrossoveredBudget(models.Model):
     _rec_name = "budget_sequence"
 
     budget_sequence = fields.Char(string="Budget Code", readonly=True, default='New')
+    budget_period_months = fields.Selection(
+        [("3", "3 Months"), ("6", "6 Months"), ("12", "12 Months")],
+        string="Budget Period",
+    )
     expense_type = fields.Selection(
         [("opex", "Opex"), ("capex", "Capex")],
         string="Expense Type",
@@ -51,7 +55,7 @@ class CrossoveredBudget(models.Model):
         string="Spent Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_metrics",
-        help="Amount consumed by Pending/Purchase/Done purchase orders through cost-center analytic distribution.",
+        help="Amount consumed by purchase orders and submitted/approved payment vouchers through cost-center analytic distribution.",
     )
     budget_remaining_amount = fields.Monetary(
         string="Budget Remaining",
@@ -117,13 +121,22 @@ class CrossoveredBudget(models.Model):
 
     @api.depends(
         "source_budget_limit",
+        "date_from",
+        "date_to",
         "crossovered_budget_line.planned_amount",
         "crossovered_budget_line.analytic_account_id",
+        "crossovered_budget_line.date_from",
+        "crossovered_budget_line.date_to",
     )
     def _compute_po_budget_metrics(self):
         analytics = self.mapped("crossovered_budget_line.analytic_account_id").sudo()
-        spent_by_analytic = analytics._get_po_budget_spent_map() if analytics else {}
         for rec in self:
+            rec_analytics = rec.crossovered_budget_line.mapped("analytic_account_id").sudo()
+            spent_by_analytic = (
+                rec_analytics._get_po_budget_spent_map(date_from=rec.date_from, date_to=rec.date_to)
+                if rec_analytics
+                else {}
+            )
             planned_amount = sum(rec.crossovered_budget_line.mapped("planned_amount"))
             budget_amount = planned_amount or rec.source_budget_limit or 0.0
             analytic_ids = rec.crossovered_budget_line.mapped("analytic_account_id").ids
@@ -131,6 +144,46 @@ class CrossoveredBudget(models.Model):
             rec.budget_amount_total = budget_amount
             rec.po_spent_amount = spent_amount
             rec.budget_remaining_amount = budget_amount - spent_amount
+
+    def _is_active_for_date(self, target_date=False):
+        self.ensure_one()
+        target_date = fields.Date.to_date(target_date or fields.Date.context_today(self))
+        return (
+            self.state in ("validate", "done")
+            and (not self.date_from or self.date_from <= target_date)
+            and (not self.date_to or self.date_to >= target_date)
+        )
+
+    def _check_active_for_date(self, target_date=False):
+        self.ensure_one()
+        target_date = fields.Date.to_date(target_date or fields.Date.context_today(self))
+        if not self._is_active_for_date(target_date):
+            raise UserError(
+                _("Budget %(budget)s is not active on %(date)s. Create/select a new budget for this period.")
+                % {
+                    "budget": self.display_name,
+                    "date": fields.Date.to_string(target_date),
+                }
+            )
+
+    def _get_remaining_by_cost_center(self):
+        self.ensure_one()
+        lines = self.crossovered_budget_line.filtered("analytic_account_id")
+        planned_by_analytic = {}
+        for line in lines:
+            analytic_id = line.analytic_account_id.id
+            planned_by_analytic[analytic_id] = planned_by_analytic.get(analytic_id, 0.0) + (line.planned_amount or 0.0)
+
+        analytics = lines.mapped("analytic_account_id").sudo()
+        spent_by_analytic = (
+            analytics._get_po_budget_spent_map(date_from=self.date_from, date_to=self.date_to)
+            if analytics
+            else {}
+        )
+        return {
+            analytic_id: planned_amount - spent_by_analytic.get(analytic_id, 0.0)
+            for analytic_id, planned_amount in planned_by_analytic.items()
+        }
 
     def _budget_order_is_rfq(self, order):
         name = (order.name or "").upper()
@@ -149,6 +202,7 @@ class CrossoveredBudget(models.Model):
         return order.state in ("pending", "purchase", "done")
 
     def _get_orders_by_budget_analytics(self):
+        self.ensure_one()
         analytic_ids = set(self.crossovered_budget_line.mapped("analytic_account_id").ids)
         orders = self.env["purchase.order"].sudo()
         if not analytic_ids:
@@ -158,6 +212,9 @@ class CrossoveredBudget(models.Model):
             ("order_line.analytic_distribution", "!=", False),
         ])
         for order in candidate_orders:
+            order_date = order.date_order or order.date_approve or order.create_date
+            if not self.env["account.analytic.account"]._date_in_period(order_date, self.date_from, self.date_to):
+                continue
             for line in order.order_line:
                 distribution = line.analytic_distribution or {}
                 distribution_ids = {
@@ -317,6 +374,8 @@ class CrossoveredBudget(models.Model):
                 domain=[
                     ("analytic_account_id", "in", analytics.ids),
                     ("crossovered_budget_id.state", "in", ["validate", "done"]),
+                    ("date_from", "<=", fields.Date.context_today(self)),
+                    ("date_to", ">=", fields.Date.context_today(self)),
                 ],
                 fields=["analytic_account_id", "planned_amount:sum"],
                 groupby=["analytic_account_id"],
@@ -341,10 +400,10 @@ class CrossoveredBudgetLines(models.Model):
     _inherit = "crossovered.budget.lines"
 
     po_spent_amount = fields.Monetary(
-        string="PO Spent",
+        string="Spent Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_line_metrics",
-        help="Amount consumed by Pending/Purchase/Done purchase orders for this cost center.",
+        help="Amount consumed by purchase orders and submitted/approved payment vouchers for this cost center.",
     )
     budget_remaining_amount = fields.Monetary(
         string="Budget Remaining",
@@ -352,11 +411,16 @@ class CrossoveredBudgetLines(models.Model):
         compute="_compute_po_budget_line_metrics",
     )
 
-    @api.depends("planned_amount", "analytic_account_id")
+    @api.depends("planned_amount", "analytic_account_id", "date_from", "date_to")
     def _compute_po_budget_line_metrics(self):
-        analytics = self.mapped("analytic_account_id").sudo()
-        spent_by_analytic = analytics._get_po_budget_spent_map() if analytics else {}
         for line in self:
-            spent = spent_by_analytic.get(line.analytic_account_id.id, 0.0) if line.analytic_account_id else 0.0
+            spent = (
+                line.analytic_account_id.sudo()._get_po_budget_spent_map(
+                    date_from=line.date_from,
+                    date_to=line.date_to,
+                ).get(line.analytic_account_id.id, 0.0)
+                if line.analytic_account_id
+                else 0.0
+            )
             line.po_spent_amount = spent
             line.budget_remaining_amount = (line.planned_amount or 0.0) - spent

@@ -6,10 +6,10 @@
     'author': 'My Company',
     'website': 'https://www.yourcompany.com',
     'category': 'Operations',
-    'version': '17.0.1.0.11',
+    'version': '17.0.1.0.12',
     'license': 'LGPL-3',
     'depends': ['base', 'portal', 'product', 'hr', 'mail', 'web', 'purchase', 'purchase_stock', 'stock', 'bus',
-                'project', 'account', 'account_budget'],
+                'project', 'account', 'account_budget', 'pr_account'],
     'data': [
         'security/custom_pr_groups.xml',
         'security/user_portal_groups.xml',

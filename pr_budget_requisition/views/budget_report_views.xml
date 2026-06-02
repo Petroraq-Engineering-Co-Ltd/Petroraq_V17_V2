@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pr_budget_report_wizard_form" model="ir.ui.view">
+        <field name="name">pr.budget.report.wizard.form</field>
+        <field name="model">pr.budget.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Budget Analysis Report">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="budget_state"/>
+                        </group>
+                        <group>
+                            <field name="scope"/>
+                            <field name="expense_type"/>
+                            <field name="department_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_generate_report" type="object" string="Generate Report" class="btn-primary"/>
+                        <button name="action_print_pdf" type="object" string="Export PDF" class="btn-secondary"/>
+                        <button name="action_print_xlsx" type="object" string="Export Excel" class="btn-secondary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pr_budget_report_line_tree" model="ir.ui.view">
+        <field name="name">pr.budget.report.line.tree</field>
+        <field name="model">pr.budget.report.line</field>
+        <field name="arch" type="xml">
+            <tree string="Budget Analysis Report" create="0" edit="0" delete="0">
+                <field name="department_id"/>
+                <field name="budget_id"/>
+                <field name="source_requisition_id"/>
+                <field name="cost_center_id"/>
+                <field name="expense_type"/>
+                <field name="scope"/>
+                <field name="budget_period_months"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="planned_amount" sum="Budget Created"/>
+                <field name="requested_amount" sum="Requested"/>
+                <field name="spent_amount" sum="Spent"/>
+                <field name="po_spent_amount" sum="PO Spend"/>
+                <field name="cash_spent_amount" sum="CPV Spend"/>
+                <field name="bank_spent_amount" sum="BPV Spend"/>
+                <field name="remaining_amount" sum="Remaining"/>
+                <field name="utilization_rate" avg="Avg Utilization"/>
+                <field name="po_count" sum="PO Count"/>
+                <field name="cash_voucher_count" sum="CPV Count"/>
+                <field name="bank_voucher_count" sum="BPV Count"/>
+                <field name="budget_state" widget="badge"
+                       decoration-success="budget_state in ('validate', 'done')"
+                       decoration-warning="budget_state == 'confirm'"
+                       decoration-danger="budget_state == 'cancel'"/>
+                <field name="approval_state" widget="badge"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-warning="approval_state in ('pm_approval', 'accounts_approval', 'md_approval')"
+                       decoration-danger="approval_state == 'rejected'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_budget_report_line_pivot" model="ir.ui.view">
+        <field name="name">pr.budget.report.line.pivot</field>
+        <field name="model">pr.budget.report.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Budget Analysis">
+                <field name="department_id" type="row"/>
+                <field name="budget_id" type="row"/>
+                <field name="expense_type" type="col"/>
+                <field name="planned_amount" type="measure"/>
+                <field name="spent_amount" type="measure"/>
+                <field name="remaining_amount" type="measure"/>
+                <field name="po_spent_amount" type="measure"/>
+                <field name="cash_spent_amount" type="measure"/>
+                <field name="bank_spent_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_pr_budget_report_line_graph" model="ir.ui.view">
+        <field name="name">pr.budget.report.line.graph</field>
+        <field name="model">pr.budget.report.line</field>
+        <field name="arch" type="xml">
+            <graph string="Budget Analysis" type="bar">
+                <field name="department_id"/>
+                <field name="planned_amount" type="measure"/>
+                <field name="spent_amount" type="measure"/>
+                <field name="remaining_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_pr_budget_report_line_search" model="ir.ui.view">
+        <field name="name">pr.budget.report.line.search</field>
+        <field name="model">pr.budget.report.line</field>
+        <field name="arch" type="xml">
+            <search string="Budget Analysis">
+                <field name="department_id"/>
+                <field name="budget_id"/>
+                <field name="source_requisition_id"/>
+                <field name="cost_center_id"/>
+                <field name="expense_type"/>
+                <field name="scope"/>
+                <filter name="opex" string="Opex" domain="[('expense_type', '=', 'opex')]"/>
+                <filter name="capex" string="Capex" domain="[('expense_type', '=', 'capex')]"/>
+                <separator/>
+                <filter name="validated" string="Validated" domain="[('budget_state', 'in', ['validate', 'done'])]"/>
+                <filter name="over_spent" string="Over Spent" domain="[('remaining_amount', '&lt;', 0)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_budget" string="Budget" context="{'group_by': 'budget_id'}"/>
+                    <filter name="group_cost_center" string="Cost Center" context="{'group_by': 'cost_center_id'}"/>
+                    <filter name="group_expense_type" string="Expense Type" context="{'group_by': 'expense_type'}"/>
+                    <filter name="group_period" string="Budget Period" context="{'group_by': 'budget_period_months'}"/>
+                    <filter name="group_status" string="Budget Status" context="{'group_by': 'budget_state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pr_budget_report_wizard" model="ir.actions.act_window">
+        <field name="name">Budget Analysis Report</field>
+        <field name="res_model">pr.budget.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_pr_budget_report"
+              name="Budget Analysis Report"
+              parent="menu_pr_budget_requisition_root"
+              action="action_pr_budget_report_wizard"
+              sequence="40"
+              groups="base.group_user"/>
+</odoo>

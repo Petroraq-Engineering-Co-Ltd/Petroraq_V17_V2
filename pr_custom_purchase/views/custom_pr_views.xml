@@ -166,6 +166,7 @@
                                 <field name="expense_type"
                                        readonly="state == 'purchase' or state == 'cancel' or approval == 'approved'"/>
                                 <field name="expense_bucket_id"
+                                       domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('date_from', '&lt;=', context_today()), ('date_to', '&gt;=', context_today())]"
                                        readonly="state == 'purchase' or state == 'cancel' or approval == 'approved'"/>
                             </group>
                         </group>

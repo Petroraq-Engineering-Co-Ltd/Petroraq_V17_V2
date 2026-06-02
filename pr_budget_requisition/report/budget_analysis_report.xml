@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_pr_budget_analysis_landscape" model="report.paperformat">
+        <field name="name">Budget Analysis Landscape</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">10</field>
+        <field name="margin_right">6</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">6</field>
+        <field name="header_line" eval="False"/>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_pr_budget_analysis_pdf" model="ir.actions.report">
+        <field name="name">Budget Analysis PDF</field>
+        <field name="model">pr.budget.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pr_budget_requisition.budget_analysis_pdf</field>
+        <field name="report_file">pr_budget_requisition.budget_analysis_pdf</field>
+        <field name="paperformat_id" ref="paperformat_pr_budget_analysis_landscape"/>
+        <field name="print_report_name">'Budget Analysis Report - %s to %s' % (object.date_from, object.date_to)</field>
+    </record>
+
+    <record id="action_report_pr_budget_analysis_xlsx" model="ir.actions.report">
+        <field name="name">Budget Analysis Excel</field>
+        <field name="model">pr.budget.report.wizard</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">pr_budget_requisition.budget_analysis_xlsx_report</field>
+        <field name="report_file">Budget Analysis</field>
+        <field name="print_report_name">'Budget Analysis Report - %s to %s' % (object.date_from, object.date_to)</field>
+    </record>
+
+    <template id="budget_analysis_pdf">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page" style="font-size:10px;">
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:8px;">
+                        <tr>
+                            <td style="background:#173b76; color:#ffffff; text-align:center; font-weight:bold; font-size:18px; padding:8px; border:1px solid #173b76;">
+                                <span t-esc="filters['company']"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background:#173b76; color:#ffffff; text-align:center; font-weight:bold; font-size:14px; padding:6px; border:1px solid #173b76;">
+                                BUDGET ANALYSIS REPORT
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:8px;">
+                        <tr>
+                            <td style="width:12%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Period</td>
+                            <td style="width:21%; border:1px solid #cccccc; padding:4px;"><span t-esc="filters['date_from']"/> to <span t-esc="filters['date_to']"/></td>
+                            <td style="width:12%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Departments</td>
+                            <td style="width:21%; border:1px solid #cccccc; padding:4px;"><span t-esc="filters['departments']"/></td>
+                            <td style="width:12%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Generated On</td>
+                            <td style="width:22%; border:1px solid #cccccc; padding:4px;"><span t-esc="filters['generated_on']"/></td>
+                        </tr>
+                        <tr>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Expense Type</td>
+                            <td style="border:1px solid #cccccc; padding:4px;"><span t-esc="filters['expense_type']"/></td>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Applies To</td>
+                            <td style="border:1px solid #cccccc; padding:4px;"><span t-esc="filters['scope']"/></td>
+                            <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Budget Status</td>
+                            <td style="border:1px solid #cccccc; padding:4px;"><span t-esc="filters['budget_state']"/></td>
+                        </tr>
+                    </table>
+
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                        <thead>
+                            <tr>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Budgets</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Requisitions</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Departments</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Cost Centers</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Created Budget</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Requested</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Total Spent</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Remaining</th>
+                                <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Utilization %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:center;"><span t-esc="summary['budget_count']"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:center;"><span t-esc="summary['requisition_count']"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:center;"><span t-esc="summary['department_count']"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:center;"><span t-esc="summary['cost_center_count']"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(summary['planned_amount'] or 0.0)"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(summary['requested_amount'] or 0.0)"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(summary['spent_amount'] or 0.0)"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(summary['remaining_amount'] or 0.0)"/></td>
+                                <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(summary['utilization_rate'] or 0.0)"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <t t-if="not groups">
+                        <div style="border:1px solid #cccccc; padding:8px;">No budget data found for the selected filters.</div>
+                    </t>
+
+                    <t t-foreach="groups" t-as="group">
+                        <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                            <tr>
+                                <td colspan="8" style="background:#173b76; color:#ffffff; font-weight:bold; border:1px solid #000; padding:5px;">
+                                    <span t-esc="group['budget_name']"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:12%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Requisition</td>
+                                <td style="width:13%; border:1px solid #cccccc; padding:4px;"><span t-esc="group['source_requisition_name']"/></td>
+                                <td style="width:12%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Department</td>
+                                <td style="width:13%; border:1px solid #cccccc; padding:4px;"><span t-esc="group['department_name']"/></td>
+                                <td style="width:12%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Manager</td>
+                                <td style="width:13%; border:1px solid #cccccc; padding:4px;"><span t-esc="group['manager_name']"/></td>
+                                <td style="width:12%; background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Status</td>
+                                <td style="width:13%; border:1px solid #cccccc; padding:4px;"><span t-esc="group['budget_state_label']"/></td>
+                            </tr>
+                            <tr>
+                                <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Period</td>
+                                <td style="border:1px solid #cccccc; padding:4px;"><span t-esc="group['date_from']"/> to <span t-esc="group['date_to']"/></td>
+                                <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Expense Type</td>
+                                <td style="border:1px solid #cccccc; padding:4px;"><span t-esc="group['expense_type_label']"/></td>
+                                <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Applies To</td>
+                                <td style="border:1px solid #cccccc; padding:4px;"><span t-esc="group['scope_label']"/></td>
+                                <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:4px;">Approval</td>
+                                <td style="border:1px solid #cccccc; padding:4px;"><span t-esc="group['approval_state_label']"/></td>
+                            </tr>
+                        </table>
+
+                        <table style="width:100%; border-collapse:collapse; margin-top:4px;">
+                            <thead>
+                                <tr>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Created Budget</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Requested</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">PO Spend</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">CPV Spend</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">BPV Spend</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Total Spent</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Remaining</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Utilization %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['planned_amount'] or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['requested_amount'] or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['po_spent_amount'] or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['cash_spent_amount'] or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['bank_spent_amount'] or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['spent_amount'] or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['remaining_amount'] or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:4px; text-align:right;"><span t-esc="'{:,.2f}'.format(group['utilization_rate'] or 0.0)"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <t t-if="group['items']">
+                            <div style="font-weight:bold; margin-top:6px;">Requested Budget Items</div>
+                            <table style="width:100%; border-collapse:collapse; margin-top:3px;">
+                                <thead>
+                                    <tr>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:4%;">#</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:24%;">Item</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:20%;">Cost Center</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:8%;">Qty</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:8%;">Unit</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:12%;">Unit Price</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:12%;">Requested</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px; width:12%;">Remaining After</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="item_no" t-value="0"/>
+                                    <tr t-foreach="group['items']" t-as="item">
+                                        <t t-set="item_no" t-value="item_no + 1"/>
+                                        <td style="border:1px solid #dddddd; padding:3px; text-align:center;"><span t-esc="item_no"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="item.item_name or item.product_id.display_name or ''"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="item.cost_center_id.display_name or ''"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(item.quantity or 0.0)"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="item.unit or ''"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(item.unit_price or 0.0)"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(item.requested_amount or 0.0)"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(item.remaining_after_request or 0.0)"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <div style="font-weight:bold; margin-top:6px;">Budget Utilization By Cost Center</div>
+                        <table style="width:100%; border-collapse:collapse; margin-top:3px;">
+                            <thead>
+                                <tr>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Cost Center</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Created Budget</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">PO</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">CPV</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">BPV</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Spent</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Remaining</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Utilization %</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="group['lines']" t-as="line">
+                                    <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="line.cost_center_id.display_name or ''"/></td>
+                                    <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.planned_amount or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.po_spent_amount or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.cash_spent_amount or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.bank_spent_amount or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.spent_amount or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.remaining_amount or 0.0)"/></td>
+                                    <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(line.utilization_rate or 0.0)"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <t t-if="group['spend_documents']">
+                            <div style="font-weight:bold; margin-top:6px;">Spend Sources</div>
+                            <table style="width:100%; border-collapse:collapse; margin-top:3px;">
+                                <thead>
+                                    <tr>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Source</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Document</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Date</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Status</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Partner</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Description</th>
+                                        <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="group['spend_documents']" t-as="spent_doc">
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="spent_doc['source']"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="spent_doc['document']"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="spent_doc['date']"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="spent_doc['state']"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="spent_doc['partner']"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px;"><span t-esc="spent_doc['description']"/></td>
+                                        <td style="border:1px solid #dddddd; padding:3px; text-align:right;"><span t-esc="'{:,.2f}'.format(spent_doc['amount'] or 0.0)"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
