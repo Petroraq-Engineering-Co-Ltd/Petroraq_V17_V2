@@ -157,8 +157,12 @@ class PurchaseOrder(models.Model):
     def _compute_linked_statuses(self):
         po_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
         for rec in self:
-            pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
-            rec.linked_pr_state = pr.state if pr else "missing"
+            requisition = rec.requisition_id or (
+                self.env["purchase.requisition"].sudo().search([("name", "=", rec.pr_name)], limit=1)
+                if rec.pr_name else False
+            )
+            legacy_pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
+            rec.linked_pr_state = self._map_requisition_to_legacy_pr_state(requisition) if requisition else (legacy_pr.state if legacy_pr else "missing")
             linked_pos = self.env["purchase.order"].sudo().search([("origin", "=", rec.name)]) if rec.name else \
                 self.env["purchase.order"]
             rec.linked_po_state = max(linked_pos,
@@ -172,6 +176,17 @@ class PurchaseOrder(models.Model):
                 rec.linked_quotation_status = "po" if top_state in ("pending", "purchase", "done") else "quote"
             else:
                 rec.linked_quotation_status = "missing"
+
+    def _map_requisition_to_legacy_pr_state(self, requisition):
+        if not requisition:
+            return "missing"
+        if requisition.approval == "rejected":
+            return "cancel"
+        if requisition.status == "rfq":
+            return "rfq_sent"
+        if requisition.status in ("po", "payment", "completed"):
+            return "purchase"
+        return "pending"
 
     @api.depends("order_line.price_subtotal", "order_line.analytic_distribution", "state")
     def _compute_po_budget_info(self):
@@ -832,9 +847,17 @@ class PurchaseOrder(models.Model):
             })
 
             if order.pr_name:
+                requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
+                    [("name", "=", order.pr_name)], limit=1
+                )
+                if requisition:
+                    requisition.sudo().write({"status": "pr", "approval": "pending"})
                 custom_pr = self.env["custom.pr"].sudo().search([("name", "=", order.pr_name)], limit=1)
                 if custom_pr:
-                    custom_pr.write({"state": "draft", "approval": "pending", "pr_created": False})
+                    vals = {"state": "draft", "approval": "pending", "pr_created": False}
+                    if requisition and not custom_pr.purchase_requisition_id:
+                        vals["purchase_requisition_id"] = requisition.id
+                    custom_pr.write(vals)
 
             if order.origin:
                 rfqs = self.env["purchase.order"].sudo().search([("name", "=", order.origin)])

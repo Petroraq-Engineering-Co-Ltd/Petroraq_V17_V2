@@ -54,6 +54,11 @@
                             string="Request Budget Revision"
                             class="btn-secondary"
                             invisible="not show_request_budget_increase_button"/>
+                    <button name="action_get_all_products"
+                            type="object"
+                            string="Get All Products"
+                            class="btn-secondary"
+                            invisible="not expense_bucket_id or approval != 'pending' or status != 'pr'"/>
                     <button name="action_create_rfq"
                             type="object"
                             string="Create RFQ"
@@ -81,6 +86,7 @@
                     <field name="cash_payment_id" invisible="1"/>
                     <field name="bank_payment_id" invisible="1"/>
                     <field name="payment_request_id" invisible="1"/>
+                    <field name="legacy_custom_pr_id" invisible="1"/>
 
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_related_rfqs"
@@ -127,16 +133,21 @@
                             <field name="department" readonly="1"/>
                             <field name="supervisor" readonly="1"/>
                             <field name="vendor_id" groups="pr_custom_purchase.procurement_admin"/>
-                            <field name="expense_bucket_id" readonly="1"/>
+                            <field name="expense_type"
+                                   readonly="approval != 'pending' or status != 'pr'"/>
+                            <field name="expense_bucket_id"
+                                   domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('date_from', '&lt;=', context_today()), ('date_to', '&gt;=', context_today())]"
+                                   readonly="approval != 'pending' or status != 'pr'"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                             <field name="expense_scope" readonly="1"/>
-                            <field name="expense_type" readonly="1"/>
                             <field name="status" invisible="1"/>
                             <field name="rfq_sent_count" readonly="1"/>
                             <field name="requested_user_id" invisible="1"/>
                         </group>
                         <group>
                             <field name="required_date" readonly="1"/>
-                            <field name="priority" readonly="1"/>
+                            <field name="priority"
+                                   readonly="approval != 'pending' or status != 'pr'"/>
                             <field name="approval" readonly="1"/>
                             <field name="payment_request_state"
                                    readonly="1"
@@ -151,10 +162,10 @@
                         <page string="Products">
                             <field name="allowed_cost_center_ids" invisible="1"/>
                             <field name="line_ids"
-                                   readonly="1">
-                                <tree editable="bottom" create="false" delete="false">
-                                    <field name="description" readonly="1"/>
-                                    <field name="cost_center_id" domain="[('id', 'in', parent.allowed_cost_center_ids)]" readonly="1"/>
+                                   readonly="approval != 'pending' or status != 'pr'">
+                                <tree editable="bottom">
+                                    <field name="description"/>
+                                    <field name="cost_center_id" domain="[('id', 'in', parent.allowed_cost_center_ids)]"/>
                                     <field name="expense_account_id"
                                            optional="hide"
                                            column_invisible="1"
@@ -163,14 +174,14 @@
                                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
                                     <field name="type" readonly="1"/>
                                     <field name="unit" readonly="1"/>
-                                    <field name="quantity" readonly="1"/>
-                                    <field name="unit_price" readonly="1"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_price"/>
                                 </tree>
                             </field>
                         </page>
                         <page string="Notes">
                             <group>
-                                <field name="notes" readonly="1"/>
+                                <field name="notes" readonly="approval != 'pending' or status != 'pr'"/>
                             </group>
                         </page>
                         <page string="Comments">
@@ -231,7 +242,8 @@
         <field name="res_model">purchase.requisition</field>
         <field name="view_mode">tree,form</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="domain">[('pr_type', '!=', 'cash')]</field>
+        <field name="domain">[('pr_type', '=', 'pr')]</field>
+        <field name="context">{'default_pr_type': 'pr'}</field>
     </record>
     <!-- Menu item under Purchase -->
     <!-- End User Requisitions (folder, no action) -->
@@ -239,7 +251,7 @@
               name="New Requisition"
               parent="purchase.menu_purchase_root"
               sequence="130"
-              groups="pr_custom_purchase.group_custom_pr_end_user"/>
+              groups="base.group_no_one"/>
     <!-- Re-parent PR menu -->
     <menuitem id="pr_custom_purchase.menu_pr"
               name="Regular PR"
@@ -261,21 +273,41 @@
               name="Requisitions"
               parent="purchase.menu_purchase_root"
               sequence="131"
-              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver,account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+              groups="pr_custom_purchase.group_custom_pr_end_user,pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver,account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
 
     <menuitem id="pr_custom_purchase.menu_pr_others"
               name="Regular PR"
               parent="pr_custom_purchase.menu_purchase_requisition_main_others"
               action="pr_custom_purchase.action_purchase_requisition_list"
               sequence="10"
-              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver"/>
+              groups="pr_custom_purchase.group_custom_pr_end_user,pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver"/>
 
     <menuitem id="pr_custom_purchase.menu_cash_pr_others"
               name="Cash PR"
               parent="pr_custom_purchase.menu_purchase_requisition_main_others"
               action="pr_custom_purchase.action_purchase_requisition_cash"
               sequence="20"
-              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver,account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+              groups="pr_custom_purchase.group_custom_pr_end_user,pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver,account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+
+    <menuitem id="menu_legacy_custom_prs"
+              name="Legacy Custom PRs"
+              parent="pr_custom_purchase.menu_purchase_requisition_main_others"
+              action="pr_custom_purchase.action_custom_pr_all"
+              sequence="90"
+              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
+
+    <!-- Keep the legacy end-user custom.pr entry fully hidden. group_no_one
+         is still visible for technical users, so active=False is the hard gate. -->
+    <record id="menu_purchase_requisition_main" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+        <field name="active" eval="False"/>
+    </record>
+    <record id="menu_pr" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="menu_cash_pr" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
 
     <record id="view_cash_payment_form_cash_pr_source" model="ir.ui.view">
         <field name="name">pr.account.cash.payment.form.cash.pr.source</field>

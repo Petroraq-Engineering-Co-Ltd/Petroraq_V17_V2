@@ -12,7 +12,7 @@ budget used by purchase requisitions.
     "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",
     "category": "Operations/Purchase",
-    "version": "17.0.1.0.2",
+    "version": "17.0.1.0.3",
     "license": "LGPL-3",
     "depends": ["pr_custom_purchase", "de_hr_workspace", "report_xlsx"],
     "data": [

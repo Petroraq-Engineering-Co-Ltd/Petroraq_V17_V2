@@ -799,12 +799,17 @@ class PetroraqEstimation(models.Model):
         if not analytic:
             return False
 
-        pr_line_count = self.env["custom.pr.line"].sudo().search_count([
+        legacy_pr_line_count = self.env["custom.pr.line"].sudo().search_count([
             ("cost_center_id", "=", analytic.id),
             ("description", "=", boq_line.product_id.id),
             ("pr_id.approval", "!=", "rejected"),
         ])
-        if pr_line_count:
+        requisition_line_count = self.env["purchase.requisition.line"].sudo().search_count([
+            ("cost_center_id", "=", analytic.id),
+            ("description", "=", boq_line.product_id.id),
+            ("requisition_id.approval", "!=", "rejected"),
+        ])
+        if legacy_pr_line_count or requisition_line_count:
             return True
 
         po_lines = self.env["purchase.order.line"].sudo().search([

@@ -61,6 +61,18 @@ class CustomPR(models.Model):
         currency_field="currency_id",
     )
     pr_created = fields.Boolean(string="PR Created", default=False)
+    purchase_requisition_id = fields.Many2one(
+        "purchase.requisition",
+        string="Linked Purchase Requisition",
+        readonly=True,
+        copy=False,
+        index=True,
+    )
+    legacy_migrated = fields.Boolean(
+        string="Migrated to Purchase Requisition",
+        readonly=True,
+        copy=False,
+    )
     line_ids = fields.One2many('custom.pr.line', 'pr_id', string="PR Lines")
     expense_type = fields.Selection(
         [('opex', 'Opex'), ('capex', 'Capex')],
@@ -151,7 +163,7 @@ class CustomPR(models.Model):
         po_priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'done': 5, 'cancel': 6}
 
         for rec in self:
-            requisition = self.env['purchase.requisition'].sudo().search([('name', '=', rec.name)], limit=1)
+            requisition = rec.purchase_requisition_id or self.env['purchase.requisition'].sudo().search([('name', '=', rec.name)], limit=1)
             rec.linked_requisition_status = requisition.approval if requisition else 'missing'
 
             rfqs = self.env['purchase.order'].sudo().search([('pr_name', '=', rec.name)])
@@ -468,60 +480,153 @@ class CustomPR(models.Model):
         if rec.total_excl_vat == 0.00:
             raise ValidationError("Add Unit Price First.")
 
-        # Check if an old PR exists for this record name
-
-        # SIDISSUE1
-        existing_pr = self.env['purchase.requisition'].sudo().search([('name', '=', rec.name)], limit=1)
-        if existing_pr:
-            existing_pr.sudo().unlink()
-
-        # Create new Purchase Requisition
-        requester = rec.requested_user_id.sudo() if rec.requested_user_id else self.env.user.sudo()
-        supervisor_user = requester.supervisor_user_id if requester else False
-        supervisor_name = rec.supervisor or (supervisor_user.name if supervisor_user else False)
-        supervisor_partner_id = rec.supervisor_partner_id or (
-            supervisor_user.partner_id.id if supervisor_user and supervisor_user.partner_id else False)
-
-        requisition = self.env['purchase.requisition'].sudo().create({
-            'name': rec.name,
-            'date_request': rec.date_request,
-            'requested_by': rec.requested_by,
-            'department': rec.department,
-            'supervisor': supervisor_name,
-            'supervisor_partner_id': supervisor_partner_id,
-            'required_date': rec.required_date,
-            'priority': rec.priority,
-            'notes': rec.notes,
-            'comments': rec.comments,
-            'pr_type': 'cash' if rec.pr_type == 'cash' else 'pr',
-            'wo_variance_requires_approval': wo_variance_requires_approval,
-            'expense_bucket_id': rec.expense_bucket_id.id,
-            'expense_scope': rec.expense_bucket_id.scope,
-            'expense_type': rec.expense_type,
-        })
-
-        # Create Lines
-        for line in rec.line_ids:
-            self.env['purchase.requisition.line'].sudo().create({
-                'requisition_id': requisition.id,
-                'description': line.description.id,
-                'type': line.type,
-                'cost_center_id': line.cost_center_id.id,
-                'quantity': line.quantity,
-                'unit': line.unit.name,
-                'unit_price': line.unit_price,
-            })
+        requisition = rec._ensure_purchase_requisition_from_legacy(
+            skip_notifications=False,
+            wo_variance_requires_approval=wo_variance_requires_approval,
+        )
 
         rec.pr_created = True
 
+        return rec.action_open_purchase_requisition()
+
+    def _get_existing_purchase_requisition(self):
+        self.ensure_one()
+        requisition = self.purchase_requisition_id
+        if not requisition and self.name:
+            requisition = self.env["purchase.requisition"].sudo().search([("name", "=", self.name)], limit=1)
+        return requisition
+
+    def _prepare_purchase_requisition_vals(self, wo_variance_requires_approval=False):
+        self.ensure_one()
+        requester = self.requested_user_id.sudo() if self.requested_user_id else self.env.user.sudo()
+        supervisor_user = requester.supervisor_user_id if requester else False
+        supervisor_name = self.supervisor or (supervisor_user.name if supervisor_user else False)
+        supervisor_partner_id = self.supervisor_partner_id or (
+            supervisor_user.partner_id.id if supervisor_user and supervisor_user.partner_id else False
+        )
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': "Success",
-                'message': f"PR {requisition.name} has been created (old one replaced if existed).",
-                'sticky': False,
+            "name": self.name,
+            "date_request": fields.Date.to_date(self.date_request) or fields.Date.context_today(self),
+            "requested_user_id": requester.id if requester else False,
+            "requested_by": self.requested_by,
+            "department": self.department,
+            "supervisor": supervisor_name,
+            "supervisor_partner_id": str(supervisor_partner_id) if supervisor_partner_id else False,
+            "required_date": self.required_date,
+            "priority": self.priority,
+            "notes": self.notes,
+            "comments": self.comments,
+            "approval": self.approval or "pending",
+            "status": self._map_legacy_status(),
+            "pr_type": "cash" if self.pr_type == "cash" else "pr",
+            "wo_variance_requires_approval": wo_variance_requires_approval,
+            "expense_bucket_id": self.expense_bucket_id.id,
+            "expense_scope": self.expense_bucket_id.scope,
+            "expense_type": self.expense_type,
+            "legacy_custom_pr_id": self.id,
+        }
+
+    def _prepare_purchase_requisition_line_vals(self):
+        self.ensure_one()
+        line_vals = []
+        for line in self.line_ids:
+            line_vals.append({
+                "description": line.description.id,
+                "type": line.type,
+                "cost_center_id": line.cost_center_id.id,
+                "quantity": line.quantity,
+                "unit": line.unit.name if line.unit else False,
+                "unit_price": line.unit_price,
+            })
+        return line_vals
+
+    def _map_legacy_status(self):
+        self.ensure_one()
+        return {
+            "draft": "pr",
+            "pending": "pr",
+            "rfq_sent": "rfq",
+            "purchase": "po",
+            "cancel": "pr",
+        }.get(self.state or "draft", "pr")
+
+    def _link_purchase_requisition(self, requisition):
+        self.ensure_one()
+        if requisition:
+            self.sudo().write({
+                "purchase_requisition_id": requisition.id,
+                "legacy_migrated": True,
+                "pr_created": True,
+            })
+            if "legacy_custom_pr_id" in requisition._fields and not requisition.legacy_custom_pr_id:
+                requisition.sudo().legacy_custom_pr_id = self.id
+
+    def _ensure_purchase_requisition_from_legacy(self, skip_notifications=True, wo_variance_requires_approval=False):
+        self.ensure_one()
+        requisition = self._get_existing_purchase_requisition()
+        if requisition:
+            self._link_purchase_requisition(requisition)
+            if not requisition.line_ids and self.line_ids:
+                for line_vals in self._prepare_purchase_requisition_line_vals():
+                    line_vals["requisition_id"] = requisition.id
+                    self.env["purchase.requisition.line"].sudo().create(line_vals)
+            return requisition
+
+        requisition = self.env["purchase.requisition"].sudo().with_context(
+            skip_pr_notifications=skip_notifications
+        ).create(self._prepare_purchase_requisition_vals(wo_variance_requires_approval))
+        for line_vals in self._prepare_purchase_requisition_line_vals():
+            line_vals["requisition_id"] = requisition.id
+            self.env["purchase.requisition.line"].sudo().create(line_vals)
+        self._link_purchase_requisition(requisition)
+        requisition.message_post(
+            body=_("Created from legacy Custom PR %s.") % self.display_name,
+            message_type="notification",
+        )
+        return requisition
+
+    def action_migrate_to_purchase_requisition(self):
+        migrated = self.env["purchase.requisition"]
+        for rec in self:
+            migrated |= rec._ensure_purchase_requisition_from_legacy(skip_notifications=True)
+        if len(migrated) == 1:
+            requisition = migrated[0]
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Purchase Requisition"),
+                "res_model": "purchase.requisition",
+                "res_id": requisition.id,
+                "view_mode": "form",
+                "target": "current",
             }
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Legacy PR Migration"),
+                "message": _("%s legacy Custom PR records are now linked to Purchase Requisitions.") % len(migrated),
+                "sticky": False,
+            },
+        }
+
+    @api.model
+    def action_migrate_all_legacy_custom_prs(self):
+        legacy_prs = self.search([("purchase_requisition_id", "=", False)])
+        return legacy_prs.action_migrate_to_purchase_requisition()
+
+    def action_open_purchase_requisition(self):
+        self.ensure_one()
+        requisition = self._get_existing_purchase_requisition()
+        if not requisition:
+            raise UserError(_("No linked Purchase Requisition exists yet."))
+        self._link_purchase_requisition(requisition)
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Purchase Requisition"),
+            "res_model": "purchase.requisition",
+            "res_id": requisition.id,
+            "view_mode": "form",
+            "target": "current",
         }
 
 
@@ -967,17 +1072,33 @@ class PurchaseOrder(models.Model):
         for order in self:
             if order.pr_name:
                 pr = self.env['custom.pr'].sudo().search([('name', '=', order.pr_name)], limit=1)
-                if pr:
-                    all_pos = self.env['purchase.order'].sudo().search([('pr_name', '=', order.pr_name)])
-                    priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'cancel': 5}
-                    best_po = max(all_pos, key=lambda po: priority.get(po.state, 0))
+                requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
+                    [("name", "=", order.pr_name)], limit=1
+                )
+                all_pos = self.env['purchase.order'].sudo().search([('pr_name', '=', order.pr_name)])
+                if not all_pos:
+                    continue
+                priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'done': 5, 'cancel': 6}
+                best_po = max(all_pos, key=lambda po: priority.get(po.state, 0))
 
-                    # Update PR state
+                if requisition:
+                    status_mapping = {
+                        'draft': 'rfq',
+                        'sent': 'rfq',
+                        'pending': 'po',
+                        'purchase': 'po',
+                        'done': 'completed',
+                        'cancel': 'pr',
+                    }
+                    requisition.sudo().status = status_mapping.get(best_po.state, requisition.status)
+
+                if pr:
                     mapping = {
                         'draft': 'draft',
                         'sent': 'rfq_sent',
                         'pending': 'pending',
                         'purchase': 'purchase',
+                        'done': 'purchase',
                         'cancel': 'cancel',
                     }
                     pr.state = mapping.get(best_po.state, pr.state)
@@ -987,6 +1108,11 @@ class PurchaseOrder(models.Model):
         order = super().create(vals)
         # When PO is created, immediately set PR → pending
         if order.pr_name:
+            requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
+                [("name", "=", order.pr_name)], limit=1
+            )
+            if requisition:
+                requisition.sudo().status = "rfq"
             pr = self.env['custom.pr'].sudo().search([('name', '=', order.pr_name)], limit=1)
             if pr:
                 pr.state = 'pending'

@@ -750,7 +750,7 @@ class PrBudgetRequisitionLine(models.Model):
     quantity = fields.Float(string="Quantity", default=1.0)
     unit = fields.Char(string="Unit", default="Unit")
     unit_price = fields.Monetary(string="Unit Price", currency_field="currency_id")
-    requested_amount = fields.Monetary(string="Line Total", currency_field="currency_id", required=True)
+    requested_amount = fields.Monetary(string="Total Amount", currency_field="currency_id", required=True)
     remarks = fields.Char(string="Remarks")
 
     _sql_constraints = [
