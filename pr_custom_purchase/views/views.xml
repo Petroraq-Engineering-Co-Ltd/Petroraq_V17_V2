@@ -95,7 +95,7 @@
                         type="object"
                         string="Reset to Draft"
                         class="btn btn-secondary"
-                        invisible="state == 'draft'"
+                        invisible="state in ('draft', 'done')"
                         groups="pr_custom_purchase.procurement_admin,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director"/>
             </xpath>
         </field>
@@ -108,7 +108,7 @@
         <field name="arch" type="xml">
             <!-- Extend the statusbar to show 'pending' before 'purchase' -->
             <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,sent,pending,purchase</attribute>
+                <attribute name="statusbar_visible">draft,sent,pending,purchase,done,cancel</attribute>
             </xpath>
         </field>
     </record>
