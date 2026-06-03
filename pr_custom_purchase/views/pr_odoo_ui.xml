@@ -18,6 +18,12 @@
                        decoration-warning="cash_pr_voucher_state in ('submit', 'finance_approve')"
                        decoration-muted="cash_pr_voucher_state == 'not_created'"
                        decoration-danger="cash_pr_voucher_state == 'cancel'"/>
+                <field name="payment_request_state" widget="badge"
+                       optional="show"
+                       decoration-info="payment_request_state == 'requested'"
+                       decoration-success="payment_request_state == 'voucher_created'"
+                       decoration-muted="payment_request_state == 'not_requested'"
+                       decoration-danger="payment_request_state == 'cancelled'"/>
                 <field name="approval" widget="badge"
                        decoration-success="approval == 'approved'"
                        decoration-danger="approval == 'rejected'"
@@ -45,7 +51,7 @@
                             invisible="not is_supervisor or approval != 'pending'"/>
                     <button name="action_request_budget_increase"
                             type="object"
-                            string="Request Budget Increase"
+                            string="Request Budget Revision"
                             class="btn-secondary"
                             invisible="not show_request_budget_increase_button"/>
                     <button name="action_create_rfq"
@@ -54,12 +60,11 @@
                             class="btn-primary"
                             groups="pr_custom_purchase.procurement_admin"
                             invisible="not show_create_rfq_button"/>
-                    <button name="action_create_cash_pr_payment_voucher"
+                    <button name="action_request_cash_pr_payment"
                             type="object"
-                            string="Create Payment Voucher"
+                            string="Request Payment"
                             class="btn-primary"
-                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"
-                            invisible="not show_create_payment_voucher_button"/>
+                            invisible="not show_request_payment_button"/>
                 </header>
                 <sheet>
                     <!-- Hidden fields for button visibility logic -->
@@ -67,6 +72,7 @@
                     <field name="show_create_rfq_button" invisible="1"/>
                     <field name="show_create_po_button" invisible="1"/>
                     <field name="show_create_payment_voucher_button" invisible="1"/>
+                    <field name="show_request_payment_button" invisible="1"/>
                     <field name="is_supervisor" invisible="1"/>
                     <field name="wo_variance_requires_approval" invisible="1"/>
                     <field name="rfq_count" invisible="1"/>
@@ -74,6 +80,7 @@
                     <field name="show_request_budget_increase_button" invisible="1"/>
                     <field name="cash_payment_id" invisible="1"/>
                     <field name="bank_payment_id" invisible="1"/>
+                    <field name="payment_request_id" invisible="1"/>
 
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_related_rfqs"
@@ -92,6 +99,16 @@
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Payment</span>
                                 <span class="o_stat_text">Voucher</span>
+                            </div>
+                        </button>
+                        <button name="action_open_cash_pr_payment_request"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                invisible="not payment_request_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Payment</span>
+                                <span class="o_stat_text">Request</span>
                             </div>
                         </button>
                     </div>
@@ -121,15 +138,9 @@
                             <field name="required_date" readonly="1"/>
                             <field name="priority" readonly="1"/>
                             <field name="approval" readonly="1"/>
-                            <field name="cash_pr_payment_method"
-                                   readonly="cash_payment_id or bank_payment_id"
-                                   invisible="pr_type != 'cash' or approval != 'approved'"
-                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
-                            <field name="cash_pr_payment_account_id"
-                                   readonly="cash_payment_id or bank_payment_id"
-                                   invisible="pr_type != 'cash' or approval != 'approved'"
-                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
-                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                            <field name="payment_request_state"
+                                   readonly="1"
+                                   invisible="pr_type != 'cash'"/>
                             <field name="cash_pr_voucher_state"
                                    readonly="1"
                                    invisible="pr_type != 'cash'"
@@ -140,14 +151,14 @@
                         <page string="Products">
                             <field name="allowed_cost_center_ids" invisible="1"/>
                             <field name="line_ids"
-                                   readonly="not (pr_type == 'cash' and approval == 'approved' and not cash_payment_id and not bank_payment_id)">
+                                   readonly="1">
                                 <tree editable="bottom" create="false" delete="false">
                                     <field name="description" readonly="1"/>
                                     <field name="cost_center_id" domain="[('id', 'in', parent.allowed_cost_center_ids)]" readonly="1"/>
                                     <field name="expense_account_id"
-                                           optional="show"
-                                           column_invisible="parent.pr_type != 'cash' or parent.approval != 'approved' or parent.cash_payment_id or parent.bank_payment_id"
-                                           readonly="parent.pr_type != 'cash' or parent.approval != 'approved' or parent.cash_payment_id or parent.bank_payment_id"
+                                           optional="hide"
+                                           column_invisible="1"
+                                           readonly="1"
                                            options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
                                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
                                     <field name="type" readonly="1"/>

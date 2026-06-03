@@ -1,5 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.float_utils import float_compare
 from dateutil.relativedelta import relativedelta
 
 
@@ -127,12 +128,30 @@ class PrBudgetRequisition(models.Model):
         readonly=True,
         copy=False,
     )
+    revision_of_id = fields.Many2one(
+        "pr.budget.requisition",
+        string="Revision Of",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    revision_ids = fields.One2many(
+        "pr.budget.requisition",
+        "revision_of_id",
+        string="Revisions",
+        readonly=True,
+    )
+    revision_count = fields.Integer(string="Revisions", compute="_compute_revision_count")
+    revision_number = fields.Integer(string="Revision No.", readonly=True, copy=False)
+    is_revision = fields.Boolean(string="Revision", compute="_compute_is_revision", store=True)
+    budget_version_label = fields.Char(string="Budget Version", compute="_compute_budget_version_label")
 
     can_department_approve = fields.Boolean(compute="_compute_role_flags")
     can_accounts_approve = fields.Boolean(compute="_compute_role_flags")
     can_md_approve = fields.Boolean(compute="_compute_role_flags")
     can_reject = fields.Boolean(compute="_compute_role_flags")
     can_reset_to_draft = fields.Boolean(compute="_compute_role_flags")
+    can_request_revision = fields.Boolean(compute="_compute_role_flags")
 
     @api.model
     def _default_department_id(self):
@@ -169,6 +188,28 @@ class PrBudgetRequisition(models.Model):
         for rec in self:
             rec.total_requested_amount = sum(rec.line_ids.mapped("requested_amount"))
 
+    @api.depends("revision_ids")
+    def _compute_revision_count(self):
+        for rec in self:
+            rec.revision_count = len(rec.revision_ids)
+
+    @api.depends("revision_of_id", "revision_number")
+    def _compute_is_revision(self):
+        for rec in self:
+            rec.is_revision = bool(rec.revision_of_id or rec.revision_number)
+
+    @api.depends("revision_of_id", "revision_number", "revision_count")
+    def _compute_budget_version_label(self):
+        for rec in self:
+            if rec.revision_number:
+                rec.budget_version_label = _("Revised Budget R%s") % (rec.revision_number or 1)
+            elif rec.revision_of_id:
+                rec.budget_version_label = _("Revised Budget")
+            elif rec.revision_count:
+                rec.budget_version_label = _("Original - Revised")
+            else:
+                rec.budget_version_label = _("Original")
+
     @api.depends(
         "line_ids.cost_center_id",
         "period_date_from",
@@ -188,7 +229,7 @@ class PrBudgetRequisition(models.Model):
             rec.total_remaining_amount = sum(metric["remaining"] for metric in metrics.values())
 
     @api.depends_context("uid")
-    @api.depends("state", "requested_by_id", "department_manager_user_id")
+    @api.depends("state", "requested_by_id", "department_manager_user_id", "generated_budget_id")
     def _compute_role_flags(self):
         user = self.env.user
         is_accounts = user.has_group("account.group_account_manager") or user.has_group("account.group_account_user")
@@ -214,6 +255,23 @@ class PrBudgetRequisition(models.Model):
                 )
             )
             rec.can_reset_to_draft = rec.state == "rejected" and (is_requester or is_admin)
+            rec.can_request_revision = rec._can_user_request_revision(user)
+
+    def _can_user_request_revision(self, user):
+        self.ensure_one()
+        is_admin = (
+            user.has_group("pr_custom_purchase.procurement_admin")
+            or user.has_group("purchase.group_purchase_manager")
+        )
+        return (
+            self.state == "approved"
+            and bool(self.generated_budget_id)
+            and (
+                self.requested_by_id == user
+                or self.department_manager_user_id == user
+                or is_admin
+            )
+        )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -226,6 +284,21 @@ class PrBudgetRequisition(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        revision_identity_fields = {
+            "department_id",
+            "budget_period_months",
+            "period_date_from",
+            "period_date_to",
+            "expense_type",
+            "scope",
+        }
+        if revision_identity_fields.intersection(vals):
+            for rec in self:
+                if rec.generated_budget_id:
+                    raise UserError(
+                        _("Budget revisions keep the original department, period, and Opex/Capex type. "
+                          "Edit the budget lines only, or create a new budget for a different period/type.")
+                    )
         protected_fields = {
             "department_id",
             "budget_period_months",
@@ -259,6 +332,44 @@ class PrBudgetRequisition(models.Model):
             if rec.period_date_from and rec.period_date_to and rec.period_date_to < rec.period_date_from:
                 raise ValidationError(_("Budget End Date cannot be before Budget Start Date."))
 
+    def _planned_amounts_by_cost_center(self):
+        self.ensure_one()
+        planned_by_cost_center = {}
+        for line in self.line_ids:
+            if not line.cost_center_id:
+                continue
+            planned_by_cost_center[line.cost_center_id.id] = (
+                planned_by_cost_center.get(line.cost_center_id.id, 0.0) + line.requested_amount
+            )
+        return planned_by_cost_center
+
+    def _check_requested_amounts_not_below_spent(self):
+        self.ensure_one()
+        planned_by_cost_center = self._planned_amounts_by_cost_center()
+        if not planned_by_cost_center:
+            return
+        analytics = self.env["account.analytic.account"].sudo().browse(list(planned_by_cost_center))
+        spent_by_analytic = analytics._get_po_budget_spent_map(
+            date_from=self.period_date_from,
+            date_to=self.period_date_to,
+        )
+        precision = self.currency_id.rounding or 0.01
+        for analytic in analytics:
+            planned_amount = planned_by_cost_center.get(analytic.id, 0.0)
+            spent_amount = spent_by_analytic.get(analytic.id, 0.0)
+            if float_compare(planned_amount, spent_amount, precision_rounding=precision) < 0:
+                raise UserError(
+                    _(
+                        "Budget for cost center %(cost_center)s cannot be %(planned).2f because "
+                        "%(spent).2f is already spent/committed in this period."
+                    )
+                    % {
+                        "cost_center": analytic.display_name,
+                        "planned": planned_amount,
+                        "spent": spent_amount,
+                    }
+                )
+
     def _check_ready_for_submission(self):
         for rec in self:
             if not rec.line_ids:
@@ -275,6 +386,7 @@ class PrBudgetRequisition(models.Model):
                 raise UserError(
                     _("Please set a Department Manager user on the selected department before submitting.")
                 )
+            rec._check_requested_amounts_not_below_spent()
 
     def _notify_users(self, users, summary, note):
         users = users.filtered(lambda user: user.active)
@@ -357,7 +469,11 @@ class PrBudgetRequisition(models.Model):
                 "state": "approved",
                 "generated_budget_id": budget.id,
             })
-            rec.message_post(body=_("Managing Director approved this request and generated budget %s.") % budget.display_name)
+            if rec.revision_of_id or rec.revision_number:
+                message = _("Managing Director approved this revision and updated budget %s.")
+            else:
+                message = _("Managing Director approved this request and generated budget %s.")
+            rec.message_post(body=message % budget.display_name)
 
     def action_reset_to_draft(self):
         for rec in self:
@@ -399,13 +515,152 @@ class PrBudgetRequisition(models.Model):
             "target": "current",
         }
 
+    def _get_revision_root(self):
+        self.ensure_one()
+        root = self
+        while root.revision_of_id:
+            root = root.revision_of_id
+        return root
+
+    def _get_latest_revision_source(self):
+        self.ensure_one()
+        root = self._get_revision_root()
+        latest_revision = self.sudo().search([
+            ("revision_of_id", "=", root.id),
+            ("state", "=", "approved"),
+            ("generated_budget_id", "!=", False),
+        ], order="revision_number desc, id desc", limit=1)
+        return latest_revision or root
+
+    def _get_revision_backend_budget(self):
+        self.ensure_one()
+        source = self._get_latest_revision_source()
+        budget = source.generated_budget_id or source._get_revision_root().generated_budget_id
+        if not budget:
+            raise UserError(_("The original requisition does not have an approved backend budget to revise."))
+        return budget.sudo()
+
+    def _get_pending_revision(self):
+        self.ensure_one()
+        root = self._get_revision_root()
+        return self.sudo().search([
+            ("revision_of_id", "=", root.id),
+            ("state", "not in", ["approved", "rejected"]),
+        ], order="id desc", limit=1)
+
+    def _open_requisition_action(self, requisition, name=False):
+        return {
+            "type": "ir.actions.act_window",
+            "name": name or _("Budget Requisition"),
+            "res_model": "pr.budget.requisition",
+            "view_mode": "form",
+            "res_id": requisition.id,
+            "target": "current",
+        }
+
+    def action_open_revisions(self):
+        self.ensure_one()
+        root = self._get_revision_root()
+        revisions = self.sudo().search([("revision_of_id", "=", root.id)], order="revision_number desc, id desc")
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Budget Revisions"),
+            "res_model": "pr.budget.requisition",
+            "view_mode": "tree,form",
+            "domain": [("id", "in", revisions.ids)],
+            "target": "current",
+        }
+
+    def action_request_revision(self):
+        self.ensure_one()
+        if not self._can_user_request_revision(self.env.user):
+            raise UserError(_("You cannot request a revision for this budget."))
+        if not self.generated_budget_id:
+            raise UserError(_("No approved backend budget is available to revise."))
+        if self.state != "approved":
+            return self._open_requisition_action(self, _("Budget Revision"))
+
+        revision_number = (self.revision_number or 0) + 1
+        self.write({
+            "state": "draft",
+            "revision_number": revision_number,
+            "rejection_reason": False,
+        })
+        self.message_post(
+            body=_("Budget revision R%s started. Edit the existing lines, then submit for approval again.")
+            % revision_number
+        )
+        return self._open_requisition_action(self, _("Budget Revision"))
+
+    def _apply_planned_amounts_to_budget(self, budget, planned_by_cost_center):
+        self.ensure_one()
+        BudgetLine = self.env["crossovered.budget.lines"].sudo()
+        budget = budget.sudo()
+        analytic_ids = set(planned_by_cost_center)
+        existing_lines = budget.crossovered_budget_line.filtered("analytic_account_id")
+        analytic_ids.update(existing_lines.mapped("analytic_account_id").ids)
+        analytics = self.env["account.analytic.account"].sudo().browse(list(analytic_ids))
+        spent_by_analytic = analytics._get_po_budget_spent_map(
+            date_from=self.period_date_from,
+            date_to=self.period_date_to,
+        )
+        precision = self.currency_id.rounding or 0.01
+        for analytic in analytics:
+            planned_amount = planned_by_cost_center.get(analytic.id, 0.0)
+            spent_amount = spent_by_analytic.get(analytic.id, 0.0)
+            if float_compare(planned_amount, spent_amount, precision_rounding=precision) < 0:
+                raise UserError(
+                    _(
+                        "Cannot revise budget line %(cost_center)s below already spent/committed amount. "
+                        "Proposed: %(planned).2f, spent: %(spent).2f."
+                    )
+                    % {
+                        "cost_center": analytic.display_name,
+                        "planned": planned_amount,
+                        "spent": spent_amount,
+                    }
+                )
+
+        existing_by_analytic = {}
+        duplicate_lines = self.env["crossovered.budget.lines"].sudo()
+        for budget_line in existing_lines:
+            analytic_id = budget_line.analytic_account_id.id
+            if analytic_id in existing_by_analytic:
+                duplicate_lines |= budget_line
+            else:
+                existing_by_analytic[analytic_id] = budget_line
+
+        for analytic_id, planned_amount in planned_by_cost_center.items():
+            budget_line = existing_by_analytic.get(analytic_id)
+            vals = {
+                "crossovered_budget_id": budget.id,
+                "analytic_account_id": analytic_id,
+                "date_from": self.period_date_from,
+                "date_to": self.period_date_to,
+                "planned_amount": planned_amount,
+            }
+            if budget_line:
+                budget_line.write(vals)
+            else:
+                BudgetLine.create(vals)
+
+        obsolete_lines = (
+            existing_lines.filtered(lambda line: line.analytic_account_id.id not in planned_by_cost_center)
+            | duplicate_lines
+        )
+        if obsolete_lines:
+            obsolete_lines.unlink()
+
     def _create_or_validate_generated_budget(self):
         self.ensure_one()
         self._check_ready_for_submission()
 
         Budget = self.env["crossovered.budget"].sudo()
-        BudgetLine = self.env["crossovered.budget.lines"].sudo()
         budget = self.generated_budget_id.sudo()
+        planned_by_cost_center = self._planned_amounts_by_cost_center()
+        if self.revision_of_id:
+            budget = self._get_revision_backend_budget()
+
         if not budget:
             budget = Budget.create({
                 "name": _("%s - %s Budget") % (self.department_id.name, self.expense_type.upper()),
@@ -419,21 +674,21 @@ class PrBudgetRequisition(models.Model):
                 "department_id": self.department_id.id,
                 "source_budget_limit": self.total_requested_amount,
             })
-            planned_by_cost_center = {}
-            for line in self.line_ids:
-                planned_by_cost_center[line.cost_center_id.id] = (
-                    planned_by_cost_center.get(line.cost_center_id.id, 0.0) + line.requested_amount
-                )
-
-            for analytic_id, planned_amount in planned_by_cost_center.items():
-                BudgetLine.create({
-                    "crossovered_budget_id": budget.id,
-                    "analytic_account_id": analytic_id,
-                    "date_from": self.period_date_from,
-                    "date_to": self.period_date_to,
-                    "planned_amount": planned_amount,
-                })
             budget.message_post(body=_("Generated from department budget requisition %s.") % self.display_name)
+        else:
+            budget.write({
+                "date_from": self.period_date_from,
+                "date_to": self.period_date_to,
+                "budget_period_months": self.budget_period_months,
+                "expense_type": self.expense_type,
+                "scope": "department",
+                "department_id": self.department_id.id,
+                "source_budget_limit": self.total_requested_amount,
+            })
+            if self.revision_of_id:
+                budget.message_post(body=_("Revised from department budget requisition %s.") % self.display_name)
+
+        self._apply_planned_amounts_to_budget(budget, planned_by_cost_center)
 
         for line in self.line_ids:
             if line.cost_center_id.budget_type != self.expense_type:
@@ -446,6 +701,7 @@ class PrBudgetRequisition(models.Model):
             budget.action_budget_validate()
         if budget.state not in ("validate", "done"):
             raise UserError(_("Generated budget could not be validated. Current status: %s") % budget.state)
+        budget._sync_cost_center_budget_allowance()
         return budget
 
 
@@ -487,7 +743,7 @@ class PrBudgetRequisitionLine(models.Model):
     budget_spent = fields.Float(string="Spent Amount", compute="_compute_period_budget_metrics")
     budget_left = fields.Float(string="Budget Left", compute="_compute_period_budget_metrics")
     remaining_after_request = fields.Monetary(
-        string="Remaining After Request",
+        string="Remaining After Approval",
         currency_field="currency_id",
         compute="_compute_remaining_after_request",
     )
@@ -545,7 +801,7 @@ class PrBudgetRequisitionLine(models.Model):
                     lambda req_line: req_line.cost_center_id == line.cost_center_id
                 ).mapped("requested_amount")
             )
-            line.remaining_after_request = (line.budget_left or 0.0) - requested_for_cost_center
+            line.remaining_after_request = requested_for_cost_center - (line.budget_spent or 0.0)
 
     @api.onchange("product_id")
     def _onchange_product_id(self):

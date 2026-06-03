@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from dateutil.relativedelta import relativedelta
 
 
@@ -201,6 +201,14 @@ class CustomPR(models.Model):
             return {}
         return self.expense_bucket_id.sudo()._get_remaining_by_cost_center()
 
+    def _get_selected_budget_requisition(self):
+        self.ensure_one()
+        if not self.expense_bucket_id or "pr.budget.requisition" not in self.env:
+            return False
+        return self.env["pr.budget.requisition"].sudo().search([
+            ("generated_budget_id", "=", self.expense_bucket_id.id),
+        ], order="revision_number desc, id desc", limit=1)
+
     @api.depends(
         'line_ids.total_price',
         'line_ids.cost_center_id',
@@ -213,7 +221,7 @@ class CustomPR(models.Model):
             rec.show_request_budget_increase_button = any(
                 item['amount'] > remaining_by_cost_center.get(item['cc'].id, 0.0)
                 for item in rec._amount_by_cost_center().values()
-            )
+            ) and bool(rec._get_selected_budget_requisition())
 
     def _required_date_from_priority(self, priority):
         today = fields.Date.context_today(self)
@@ -538,6 +546,16 @@ class CustomPR(models.Model):
 
     def action_open_budget_requests(self):
         self.ensure_one()
+        requisition = self._get_selected_budget_requisition()
+        if requisition:
+            return {
+                'name': 'Budget Requisition',
+                'type': 'ir.actions.act_window',
+                'res_model': 'pr.budget.requisition',
+                'view_mode': 'form',
+                'res_id': requisition.id,
+                'target': 'current',
+            }
         return {
             'name': 'Budget Increase Requests',
             'type': 'ir.actions.act_window',
@@ -546,6 +564,15 @@ class CustomPR(models.Model):
             'domain': [('custom_pr_id', '=', self.id)],
             'context': {'default_custom_pr_id': self.id},
         }
+
+    def action_request_cash_pr_payment(self):
+        self.ensure_one()
+        if self.pr_type != "cash":
+            raise UserError(_("Payment requests are only for Cash PRs."))
+        requisition = self.env["purchase.requisition"].sudo().search([("name", "=", self.name)], limit=1)
+        if not requisition:
+            raise UserError(_("Create and approve the linked Cash PR before requesting payment."))
+        return requisition.with_user(self.env.user).action_request_cash_pr_payment()
 
     def action_request_budget_increase(self):
         self.ensure_one()
@@ -560,25 +587,26 @@ class CustomPR(models.Model):
             raise ValidationError(
                 _("All cost center lines are within budget. Budget increase request is not required."))
 
-        request = self.env['budget.increase.request'].create({
-            'custom_pr_id': self.id,
-            'reason': f'Budget increase requested for PR {self.name}.',
-            'line_ids': [
-                (0, 0, {
-                    'cost_center_id': item['cc'].id,
-                    'requested_increase': max(
-                        item['amount'] - remaining_by_cost_center.get(item['cc'].id, 0.0),
-                        1.0,
-                    ),
-                })
-                for item in exceeded_cost_centers
-            ]
-        })
+        requisition = self._get_selected_budget_requisition()
+        if not requisition:
+            raise UserError(
+                _("Selected budget was not created from Budget Requisition, so it cannot be revised here.")
+            )
+
+        if requisition.state == "approved":
+            if not requisition._can_user_request_revision(self.env.user):
+                raise UserError(
+                    _("Budget is exceeded. Ask the budget requester, department manager, or procurement/admin "
+                      "to revise Budget Requisition %s.")
+                    % requisition.display_name
+                )
+            return requisition.with_user(self.env.user).action_request_revision()
+
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Budget Increase Request',
-            'res_model': 'budget.increase.request',
-            'res_id': request.id,
+            'name': 'Budget Revision',
+            'res_model': 'pr.budget.requisition',
+            'res_id': requisition.id,
             'view_mode': 'form',
             'target': 'current',
         }

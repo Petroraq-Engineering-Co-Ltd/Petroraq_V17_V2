@@ -118,6 +118,23 @@ class PurchaseRequisition(models.Model):
         copy=False,
         tracking=True,
     )
+    payment_request_id = fields.Many2one(
+        "purchase.requisition.payment.request",
+        string="Payment Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    payment_request_state = fields.Selection(
+        [
+            ("not_requested", "Not Requested"),
+            ("requested", "Requested"),
+            ("voucher_created", "Voucher Created"),
+            ("cancelled", "Cancelled"),
+        ],
+        string="Payment Request Status",
+        compute="_compute_payment_request_state",
+    )
     cash_pr_voucher_state = fields.Selection(
         [
             ("not_created", "Not Created"),
@@ -131,6 +148,10 @@ class PurchaseRequisition(models.Model):
         compute="_compute_cash_pr_voucher_state",
     )
     show_create_payment_voucher_button = fields.Boolean(
+        compute="_compute_button_visibility",
+        store=False,
+    )
+    show_request_payment_button = fields.Boolean(
         compute="_compute_button_visibility",
         store=False,
     )
@@ -294,6 +315,8 @@ class PurchaseRequisition(models.Model):
         "rfq_ids.order_line.product_qty",
         "cash_payment_id",
         "bank_payment_id",
+        "payment_request_id",
+        "payment_request_id.state",
     )
     def _compute_button_visibility(self):
         """Compute button visibility from approval state and remaining purchasable quantities."""
@@ -307,14 +330,21 @@ class PurchaseRequisition(models.Model):
             )
 
             rec.show_create_po_button = False
-            rec.show_create_payment_voucher_button = (
+            rec.show_create_payment_voucher_button = False
+            rec.show_request_payment_button = (
                 rec.pr_type == "cash"
                 and rec.approval == "approved"
                 and rec.status in ["pr", "rfq", "po", "payment"]
                 and not rec.cash_payment_id
                 and not rec.bank_payment_id
+                and not rec.payment_request_id
                 and has_remaining_qty
             )
+
+    @api.depends("payment_request_id.state")
+    def _compute_payment_request_state(self):
+        for rec in self:
+            rec.payment_request_state = rec.payment_request_id.state if rec.payment_request_id else "not_requested"
 
     @api.depends("cash_payment_id.state", "bank_payment_id.state")
     def _compute_cash_pr_voucher_state(self):
@@ -352,7 +382,7 @@ class PurchaseRequisition(models.Model):
             rec.show_request_budget_increase_button = any(
                 item["amount"] > remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left)
                 for item in rec._amount_by_cost_center().values()
-            )
+            ) and bool(rec._get_selected_budget_requisition())
 
     def _budget_usage_date(self):
         self.ensure_one()
@@ -383,6 +413,14 @@ class PurchaseRequisition(models.Model):
         if self.expense_bucket_id:
             return self.expense_bucket_id.sudo()._get_remaining_by_cost_center()
         return {}
+
+    def _get_selected_budget_requisition(self):
+        self.ensure_one()
+        if not self.expense_bucket_id or "pr.budget.requisition" not in self.env:
+            return False
+        return self.env["pr.budget.requisition"].sudo().search([
+            ("generated_budget_id", "=", self.expense_bucket_id.id),
+        ], order="revision_number desc, id desc", limit=1)
 
     def _check_amounts_against_selected_budget(self, amount_by_cost_center, exception_cls=UserError):
         self.ensure_one()
@@ -421,29 +459,26 @@ class PurchaseRequisition(models.Model):
                 _("All cost center lines are within budget. Budget increase request is not required.")
             )
 
-        custom_pr = self.env["custom.pr"].sudo().search([("name", "=", self.name)], limit=1)
+        requisition = self._get_selected_budget_requisition()
+        if not requisition:
+            raise UserError(
+                _("Selected budget was not created from Budget Requisition, so it cannot be revised here.")
+            )
 
-        request = self.env["budget.increase.request"].create({
-            "custom_pr_id": custom_pr.id,
-            "requisition_id": self.id,
-            "reason": _("Budget increase requested for PR %s") % self.name,
-            "line_ids": [
-                (0, 0, {
-                    "cost_center_id": item["cc"].id,
-                    "requested_increase": max(
-                        item["amount"] - remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left),
-                        1.0,
-                    ),
-                })
-                for item in exceeded_cost_centers
-            ],
-        })
+        if requisition.state == "approved":
+            if not requisition._can_user_request_revision(self.env.user):
+                raise UserError(
+                    _("Budget is exceeded. Ask the budget requester, department manager, or procurement/admin "
+                      "to revise Budget Requisition %s.")
+                    % requisition.display_name
+                )
+            return requisition.with_user(self.env.user).action_request_revision()
 
         return {
             "type": "ir.actions.act_window",
-            "name": _("Budget Increase Request"),
-            "res_model": "budget.increase.request",
-            "res_id": request.id,
+            "name": _("Budget Revision"),
+            "res_model": "pr.budget.requisition",
+            "res_id": requisition.id,
             "view_mode": "form",
             "target": "current",
         }
@@ -813,6 +848,68 @@ class PurchaseRequisition(models.Model):
             raise UserError(_("Cash PR has no positive amount lines to create a voucher."))
         return line_vals
 
+    def _prepare_payment_request_line_vals(self):
+        self.ensure_one()
+        line_vals = []
+        for line in self.line_ids:
+            amount = line.total_price or 0.0
+            if amount <= 0.0:
+                continue
+            line_vals.append((0, 0, {
+                "source_line_id": line.id,
+                "product_id": line.description.id,
+                "cost_center_id": line.cost_center_id.id,
+                "quantity": line.quantity,
+                "unit": line.unit,
+                "unit_price": line.unit_price,
+                "amount": amount,
+                "expense_account_id": line.expense_account_id.id,
+            }))
+        if not line_vals:
+            raise UserError(_("Cash PR has no positive amount lines to request payment."))
+        return line_vals
+
+    def action_request_cash_pr_payment(self):
+        PaymentRequest = self.env["purchase.requisition.payment.request"]
+        request = False
+        for pr in self:
+            if pr.pr_type != "cash":
+                raise UserError(_("Payment requests are only for Cash PRs."))
+            if pr.approval != "approved":
+                raise UserError(_("Supervisor approval is required before requesting payment."))
+            if pr.cash_payment_id or pr.bank_payment_id:
+                raise UserError(_("A payment voucher already exists for requisition %s.") % pr.name)
+            if pr.payment_request_id:
+                if pr.payment_request_id.state == "cancelled":
+                    pr.payment_request_id.state = "requested"
+                request = pr.payment_request_id
+                continue
+            if not pr.line_ids:
+                raise UserError(_("This Cash PR has no line items."))
+
+            pr._check_cash_pr_budget()
+            request = PaymentRequest.create({
+                "purchase_requisition_id": pr.id,
+                "requested_user_id": self.env.user.id,
+                "company_id": pr.company_id.id if "company_id" in pr._fields and pr.company_id else self.env.company.id,
+                "line_ids": pr._prepare_payment_request_line_vals(),
+            })
+            pr.status = "payment"
+            request._notify_accounts()
+            pr.message_post(
+                body=_("Payment request %s created and sent to Accounts.") % request.name,
+                message_type="notification",
+            )
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Payment Request"),
+            "res_model": "purchase.requisition.payment.request",
+            "res_id": request.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
     def action_create_cash_pr_payment_voucher(self):
         self._check_cash_pr_account_user()
         voucher = False
@@ -887,6 +984,19 @@ class PurchaseRequisition(models.Model):
             "name": _("Payment Voucher"),
             "res_model": voucher._name,
             "res_id": voucher.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
+    def action_open_cash_pr_payment_request(self):
+        self.ensure_one()
+        if not self.payment_request_id:
+            raise UserError(_("No payment request has been created yet."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Payment Request"),
+            "res_model": "purchase.requisition.payment.request",
+            "res_id": self.payment_request_id.id,
             "view_mode": "form",
             "target": "current",
         }
@@ -974,7 +1084,7 @@ class PurchaseRequisition(models.Model):
     def action_create_purchase_order(self):
         """Create a PO from cash PR using the same approval entry point as RFQ-selected POs."""
         if any(pr.pr_type == "cash" for pr in self):
-            return self.filtered(lambda pr: pr.pr_type == "cash").action_create_cash_pr_payment_voucher()
+            return self.filtered(lambda pr: pr.pr_type == "cash").action_request_cash_pr_payment()
 
         PurchaseOrder = self.env["purchase.order"]
 

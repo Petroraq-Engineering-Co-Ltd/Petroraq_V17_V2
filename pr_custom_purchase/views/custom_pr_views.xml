@@ -96,7 +96,7 @@
                     <header>
                         <button name="action_request_budget_increase"
                                 type="object"
-                                string="Request Budget Increase"
+                                string="Request Budget Revision"
                                 class="btn btn-secondary"
                                 invisible="not show_request_budget_increase_button"/>
 
@@ -105,6 +105,11 @@
                                 string="Get All Products"
                                 class="btn btn-secondary"
                                 invisible="not expense_bucket_id or state == 'purchase' or state == 'cancel' or approval == 'approved'"/>
+                        <button name="action_request_cash_pr_payment"
+                                type="object"
+                                string="Request Payment"
+                                class="btn btn-primary"
+                                invisible="pr_type != 'cash' or linked_requisition_status != 'approved'"/>
                         <button name="action_create_pr"
                                 type="object"
                                 string="Create PR"
@@ -134,7 +139,7 @@
                             <button icon="fa-pencil-square-o" type="object" string="Budget Requests"
                                     class="oe_stat_button"
                                     name="action_open_budget_requests"
-                                    invisible="budget_increase_request_count == 0"
+                                    invisible="1"
                             >
                                 <field name="budget_increase_request_count" widget="statinfo" string="Budget Requests"/>
                             </button>

@@ -32,6 +32,7 @@
         'report/custom_purchase_order_report.xml',
         'views/custom_purchase_rfq_views.xml',
         'views/cash_odoo_ui.xml',
+        'views/payment_request_views.xml',
         'views/pr_odoo_ui.xml',
         'views/project_view.xml',
         'views/expense_bucket_views.xml',

@@ -10,6 +10,8 @@ access_custom_purchase_rfq_user,custom.purchase.rfq user,model_custom_purchase_r
 access_custom_purchase_rfq_line_user,custom.purchase.rfq.line user,model_custom_purchase_rfq_line,base.group_user,1,1,1,1
 access_purchase_requisition_user,purchase.requisition user,model_purchase_requisition,base.group_user,1,1,1,1
 access_purchase_requisition_line_user,purchase.requisition.line user,model_purchase_requisition_line,base.group_user,1,1,1,1
+access_purchase_requisition_payment_request_user,purchase.requisition.payment.request user,model_purchase_requisition_payment_request,base.group_user,1,1,1,0
+access_purchase_requisition_payment_request_line_user,purchase.requisition.payment.request.line user,model_purchase_requisition_payment_request_line,base.group_user,1,1,1,0
 access_purchase_order_custom_line_stock_manager,purchase.order.custom.line stock manager,model_purchase_order_custom_line,base.group_user,1,1,1,1
 access_budget_increase_request_user,budget.increase.request user,model_budget_increase_request,base.group_user,1,1,1,1
 access_budget_increase_request_line_user,budget.increase.request.line user,model_budget_increase_request_line,base.group_user,1,1,1,1

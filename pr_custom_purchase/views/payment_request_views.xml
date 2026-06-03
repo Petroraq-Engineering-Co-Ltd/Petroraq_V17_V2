@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_requisition_payment_request_tree" model="ir.ui.view">
+        <field name="name">purchase.requisition.payment.request.tree</field>
+        <field name="model">purchase.requisition.payment.request</field>
+        <field name="arch" type="xml">
+            <tree string="PR Payment Requests">
+                <field name="name"/>
+                <field name="request_date"/>
+                <field name="purchase_requisition_id"/>
+                <field name="requested_user_id"/>
+                <field name="department"/>
+                <field name="vendor_id"/>
+                <field name="transfer_type"/>
+                <field name="total_amount" sum="Total"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'requested'"
+                       decoration-success="state == 'voucher_created'"
+                       decoration-danger="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_purchase_requisition_payment_request_search" model="ir.ui.view">
+        <field name="name">purchase.requisition.payment.request.search</field>
+        <field name="model">purchase.requisition.payment.request</field>
+        <field name="arch" type="xml">
+            <search string="PR Payment Requests">
+                <field name="name"/>
+                <field name="purchase_requisition_id"/>
+                <field name="requested_user_id"/>
+                <field name="vendor_id"/>
+                <filter name="requested" string="Requested" domain="[('state', '=', 'requested')]"/>
+                <filter name="voucher_created" string="Voucher Created" domain="[('state', '=', 'voucher_created')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_requested_user" string="Requested By" context="{'group_by': 'requested_user_id'}"/>
+                    <filter name="group_vendor" string="Vendor" context="{'group_by': 'vendor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_purchase_requisition_payment_request_form" model="ir.ui.view">
+        <field name="name">purchase.requisition.payment.request.form</field>
+        <field name="model">purchase.requisition.payment.request</field>
+        <field name="arch" type="xml">
+            <form string="PR Payment Request">
+                <header>
+                    <button name="action_create_payment_voucher"
+                            type="object"
+                            string="Create Payment Voucher"
+                            class="btn-primary"
+                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"
+                            invisible="state != 'requested'"/>
+                    <button name="action_open_payment_voucher"
+                            type="object"
+                            string="Open Voucher"
+                            class="btn-secondary"
+                            invisible="state != 'voucher_created'"/>
+                    <button name="action_cancel"
+                            type="object"
+                            string="Cancel"
+                            class="btn-secondary"
+                            invisible="state != 'requested'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="requested,voucher_created,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_payment_voucher"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                invisible="state != 'voucher_created'">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Payment</span>
+                                <span class="o_stat_text">Voucher</span>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="request_date" readonly="1"/>
+                            <field name="requested_user_id" readonly="1"/>
+                            <field name="purchase_requisition_id" readonly="1"/>
+                            <field name="department" readonly="1"/>
+                            <field name="vendor_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="expense_bucket_id" readonly="1"/>
+                            <field name="transfer_type"
+                                   readonly="state != 'requested'"
+                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                            <field name="pay_from_account_id"
+                                   readonly="state != 'requested'"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
+                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                            <field name="total_amount" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Payment Lines">
+                            <field name="line_ids" readonly="state != 'requested'">
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="company_id" column_invisible="True"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="source_line_id" column_invisible="True"/>
+                                    <field name="product_id" readonly="1"/>
+                                    <field name="cost_center_id" readonly="1"/>
+                                    <field name="quantity" readonly="1"/>
+                                    <field name="unit" readonly="1"/>
+                                    <field name="unit_price" readonly="1"/>
+                                    <field name="amount" readonly="1" sum="Total"/>
+                                    <field name="expense_account_id"
+                                           options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
+                                           groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                                    <field name="remarks"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_purchase_requisition_payment_request" model="ir.actions.act_window">
+        <field name="name">PR Payment Requests</field>
+        <field name="res_model">purchase.requisition.payment.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_purchase_requisition_payment_request_search"/>
+        <field name="context">{'search_default_requested': 1}</field>
+    </record>
+
+    <menuitem id="menu_purchase_requisition_payment_request"
+              name="PR Payment Requests"
+              parent="pr_account.payment_receipt_vouchers_main_menu"
+              action="action_purchase_requisition_payment_request"
+              sequence="1"
+              groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+</odoo>

@@ -2,6 +2,7 @@ from . import custom_pr_models
 from . import custom_pr_quotations
 from . import inventory
 from . import purchase_requisition
+from . import payment_request
 from . import purchase_requisition_inherit
 from . import quotation_model
 from . import project
