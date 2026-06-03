@@ -6,6 +6,7 @@
         <field name="res_model">purchase.requisition</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[('pr_type', '=', 'cash')]</field>
+        <field name="context">{'default_pr_type': 'cash'}</field>
     </record>
 
     <!-- Menu item under Purchase -->

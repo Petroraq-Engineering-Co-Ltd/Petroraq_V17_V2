@@ -237,8 +237,16 @@ class CrossoveredBudget(models.Model):
         PurchaseOrder = self.env["purchase.order"].sudo()
 
         for rec in self:
-            custom_prs = CustomPR.search([("expense_bucket_id", "=", rec.id)])
+            custom_prs = CustomPR.search([
+                ("expense_bucket_id", "=", rec.id),
+                ("purchase_requisition_id", "=", False),
+            ])
             requisitions = PurchaseRequisition.search([("expense_bucket_id", "=", rec.id)])
+            linked_custom_prs = CustomPR.search([
+                ("expense_bucket_id", "=", rec.id),
+                ("purchase_requisition_id", "!=", False),
+            ])
+            requisitions |= linked_custom_prs.mapped("purchase_requisition_id")
             pr_names = set(custom_prs.mapped("name") + requisitions.mapped("name"))
             if pr_names:
                 requisitions |= PurchaseRequisition.search([("name", "in", list(pr_names))])

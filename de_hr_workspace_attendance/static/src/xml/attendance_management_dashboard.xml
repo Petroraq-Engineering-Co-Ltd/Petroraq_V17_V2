@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="de_hr_workspace_attendance.AttendanceManagementDashboard" owl="1">
+        <div class="o_pr_att_mgmt_dashboard">
+            <t t-if="state.loading">
+                <div class="pr-att-mgmt-loading">
+                    <i class="fa fa-spinner fa-spin"/>
+                    <span>Loading attendance dashboard...</span>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-set="data" t-value="state.data || {}"/>
+                <t t-set="summary" t-value="data.summary || {}"/>
+
+                <header class="pr-att-mgmt-toolbar">
+                    <div>
+                        <span class="pr-att-mgmt-eyebrow">Management Attendance</span>
+                        <h1>Attendance Dashboard</h1>
+                        <p t-esc="data.display_date"/>
+                    </div>
+                    <div class="pr-att-mgmt-filters">
+                        <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(-1)" title="Previous day">
+                            <i class="fa fa-chevron-left"/>
+                        </button>
+                        <input type="date" class="form-control" t-att-value="state.selectedDate" t-on-change="onDateChange"/>
+                        <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(1)" title="Next day">
+                            <i class="fa fa-chevron-right"/>
+                        </button>
+                        <button type="button" class="btn pr-att-mgmt-soft-btn" t-on-click="setToday">
+                            Today
+                        </button>
+                        <select class="form-select" t-att-value="state.departmentId" t-on-change="onDepartmentChange">
+                            <option value="0">All Departments</option>
+                            <t t-foreach="data.departments || []" t-as="department" t-key="department.id">
+                                <option t-att-value="department.id" t-esc="department.name"/>
+                            </t>
+                        </select>
+                        <button type="button" class="btn pr-att-mgmt-refresh" t-on-click="loadDashboardData">
+                            <i class="fa fa-refresh me-1"/>
+                            Refresh
+                        </button>
+                    </div>
+                </header>
+
+                <section class="pr-att-mgmt-kpis">
+                    <t t-foreach="summaryCards" t-as="card" t-key="card.key">
+                        <div t-att-class="kpiToneClass(card.tone)">
+                            <span class="pr-att-mgmt-kpi-icon">
+                                <i t-att-class="'fa ' + card.icon"/>
+                            </span>
+                            <span class="pr-att-mgmt-kpi-copy">
+                                <em t-esc="card.label"/>
+                                <strong t-esc="card.value"/>
+                                <small t-esc="card.sub"/>
+                            </span>
+                        </div>
+                    </t>
+                </section>
+
+                <section class="pr-att-mgmt-grid">
+                    <article class="pr-att-mgmt-panel pr-span-5">
+                        <div class="pr-att-mgmt-panel-title">
+                            <h2>Daily Attendance Trend</h2>
+                            <span>Last 7 days</span>
+                        </div>
+                        <div class="pr-att-mgmt-trend">
+                            <t t-foreach="data.daily_trend || []" t-as="day" t-key="day.date">
+                                <button type="button" class="pr-att-mgmt-trend-day">
+                                    <div class="pr-att-mgmt-trend-stack">
+                                        <i class="present" t-att-style="trendStackStyle(day, 'present')"/>
+                                        <i class="checked_in" t-att-style="trendStackStyle(day, 'checked_in')"/>
+                                        <i class="late" t-att-style="trendStackStyle(day, 'late')"/>
+                                        <i class="missing" t-att-style="trendStackStyle(day, 'missing_checkout')"/>
+                                        <i class="leave" t-att-style="trendStackStyle(day, 'on_leave')"/>
+                                        <i class="absent" t-att-style="trendStackStyle(day, 'absent')"/>
+                                    </div>
+                                    <strong t-esc="formatPercent(day.coverage || 0)"/>
+                                    <span t-esc="day.label"/>
+                                    <em t-esc="day.day"/>
+                                </button>
+                            </t>
+                        </div>
+                        <div class="pr-att-mgmt-legend">
+                            <span><i class="present"/>Present</span>
+                            <span><i class="checked_in"/>Checked In</span>
+                            <span><i class="late"/>Late</span>
+                            <span><i class="missing"/>Missing Checkout</span>
+                            <span><i class="leave"/>Leave</span>
+                            <span><i class="absent"/>Absent</span>
+                        </div>
+                    </article>
+
+                    <article class="pr-att-mgmt-panel pr-span-3">
+                        <div class="pr-att-mgmt-panel-title">
+                            <h2>Status Mix</h2>
+                            <span t-esc="formatNumber(summary.total || 0) + ' employees'"/>
+                        </div>
+                        <div class="pr-att-mgmt-status-list">
+                            <t t-foreach="data.status_breakdown || []" t-as="status" t-key="status.key">
+                                <div class="pr-att-mgmt-status-row">
+                                    <div>
+                                        <i t-att-style="'background:' + status.color"/>
+                                        <span t-esc="status.label"/>
+                                    </div>
+                                    <strong t-esc="formatNumber(status.count || 0)"/>
+                                    <span class="pr-att-mgmt-status-track">
+                                        <em t-att-style="'width:' + clampPercent(status.percent || 0) + '%; background:' + status.color"/>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                    </article>
+
+                    <article class="pr-att-mgmt-panel pr-span-4">
+                        <div class="pr-att-mgmt-panel-title">
+                            <h2>Department Exposure</h2>
+                            <span>Absent, late, leave</span>
+                        </div>
+                        <div class="pr-att-mgmt-departments">
+                            <t t-foreach="data.department_breakdown || []" t-as="department" t-key="department.name">
+                                <div class="pr-att-mgmt-department-row">
+                                    <div class="pr-att-mgmt-department-head">
+                                        <strong t-esc="department.name"/>
+                                        <span t-esc="formatPercent(department.coverage || 0)"/>
+                                    </div>
+                                    <div class="pr-att-mgmt-department-bar">
+                                        <i class="present" t-att-style="departmentBarStyle(department, 'present')"/>
+                                        <i class="checked_in" t-att-style="departmentBarStyle(department, 'checked_in')"/>
+                                        <i class="leave" t-att-style="departmentBarStyle(department, 'on_leave')"/>
+                                        <i class="late" t-att-style="departmentBarStyle(department, 'late')"/>
+                                        <i class="late" t-att-style="departmentBarStyle(department, 'early_exit')"/>
+                                        <i class="missing" t-att-style="departmentBarStyle(department, 'missing_checkout')"/>
+                                        <i class="absent" t-att-style="departmentBarStyle(department, 'absent')"/>
+                                    </div>
+                                    <div class="pr-att-mgmt-department-meta">
+                                        <span t-esc="formatNumber(department.present || 0) + ' normal'"/>
+                                        <span t-esc="formatNumber(department.checked_in || 0) + ' checked in'"/>
+                                        <span t-esc="formatNumber(department.absent || 0) + ' absent'"/>
+                                        <span t-esc="formatNumber(department.on_leave || 0) + ' leave'"/>
+                                    </div>
+                                </div>
+                            </t>
+                            <div class="pr-att-mgmt-empty" t-if="!(data.department_breakdown || []).length">No department data.</div>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="pr-att-mgmt-panel pr-att-mgmt-pipe-panel">
+                    <div class="pr-att-mgmt-panel-title pr-att-mgmt-pipe-title">
+                        <div>
+                            <h2>Employee Daily Pipeline</h2>
+                            <span>Attendance, absences, leaves, and missing checkouts by hour</span>
+                        </div>
+                        <strong t-esc="data.company"/>
+                    </div>
+
+                    <div class="pr-att-mgmt-pipe">
+                        <div class="pr-att-mgmt-pipe-head">
+                            <span>Employee</span>
+                            <div class="pr-att-mgmt-hour-grid">
+                                <t t-foreach="data.hours || []" t-as="hour" t-key="hour">
+                                    <i t-esc="hour"/>
+                                </t>
+                            </div>
+                            <span>Status</span>
+                        </div>
+
+                        <div class="pr-att-mgmt-pipe-body">
+                            <t t-foreach="data.timeline_rows || []" t-as="row" t-key="row.employee_id">
+                                <button type="button" class="pr-att-mgmt-pipe-row" t-on-click="() => this.openTimelineRow(row)">
+                                    <div class="pr-att-mgmt-employee-cell">
+                                        <span class="pr-att-mgmt-avatar" t-esc="(row.employee_name || '?').slice(0, 1)"/>
+                                        <div>
+                                            <strong t-esc="row.employee_name"/>
+                                            <small>
+                                                <t t-if="row.employee_code">
+                                                    <span t-esc="row.employee_code"/>
+                                                    <span> - </span>
+                                                </t>
+                                                <span t-esc="row.department"/>
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <div class="pr-att-mgmt-pipe-track">
+                                        <div class="pr-att-mgmt-pipe-lines">
+                                            <t t-foreach="data.hours || []" t-as="hour" t-key="hour">
+                                                <i/>
+                                            </t>
+                                        </div>
+                                        <t t-foreach="row.segments || []" t-as="segment" t-key="segment_index">
+                                            <span t-att-class="pipeSegmentClass(segment)" t-att-style="pipeSegmentStyle(segment)">
+                                                <em t-esc="segment.label"/>
+                                            </span>
+                                        </t>
+                                    </div>
+
+                                    <div class="pr-att-mgmt-result-cell">
+                                        <span t-att-class="statusPillClass(row.status)" t-esc="row.status_label"/>
+                                        <small>
+                                            <t t-if="row.status == 'on_leave'">
+                                                <span t-esc="row.leave || 'Approved leave'"/>
+                                            </t>
+                                            <t t-elif="row.status == 'absent'">
+                                                <span>Scheduled: </span>
+                                                <span t-esc="row.schedule"/>
+                                            </t>
+                                            <t t-elif="row.status == 'missing_checkout'">
+                                                <span>Check in </span>
+                                                <span t-esc="row.check_in"/>
+                                            </t>
+                                            <t t-elif="row.status == 'checked_in'">
+                                                <span>Checked in </span>
+                                                <span t-esc="row.check_in"/>
+                                            </t>
+                                            <t t-elif="row.status == 'late'">
+                                                <span t-esc="formatNumber(row.late_minutes || 0) + ' min late'"/>
+                                            </t>
+                                            <t t-elif="row.status == 'early_exit'">
+                                                <span t-esc="formatNumber(row.early_minutes || 0) + ' min early'"/>
+                                            </t>
+                                            <t t-else="">
+                                                <span t-esc="formatHours(row.worked_hours || 0)"/>
+                                            </t>
+                                        </small>
+                                    </div>
+                                </button>
+                            </t>
+                            <div class="pr-att-mgmt-empty" t-if="!(data.timeline_rows || []).length">No active employees found.</div>
+                        </div>
+                    </div>
+                </section>
+            </t>
+        </div>
+    </t>
+</templates>

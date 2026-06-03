@@ -1,6 +1,6 @@
 {
     "name": "PR Work Order",
-    "version": "17.0.1.0.8",
+    "version": "17.0.1.0.9",
     "category": "Projects",
     "summary": "Construction Work Orders integrated with Sales, Accounting, Inventory",
     "author": "Petroraq Engineering",

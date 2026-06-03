@@ -188,12 +188,14 @@ class PrBudgetReportWizard(models.TransientModel):
         Budget = self.env["crossovered.budget"].sudo()
         Requisition = self.env["pr.budget.requisition"].sudo()
         budgets = Budget.search(self._budget_domain(), order="date_from desc, id desc")
-        requisitions = Requisition.search([("generated_budget_id", "in", budgets.ids)])
-        requisition_by_budget = {
-            requisition.generated_budget_id.id: requisition
-            for requisition in requisitions
-            if requisition.generated_budget_id
-        }
+        requisitions = Requisition.search([
+            ("generated_budget_id", "in", budgets.ids),
+            ("state", "=", "approved"),
+        ], order="id desc")
+        requisition_by_budget = {}
+        for requisition in requisitions:
+            if requisition.generated_budget_id:
+                requisition_by_budget.setdefault(requisition.generated_budget_id.id, requisition)
 
         vals_list = []
         for budget in budgets:

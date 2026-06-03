@@ -10,10 +10,10 @@ class PurchaseRequisition(models.Model):
         res = super().write(vals)
         if 'rejection_reason' in vals:
             for rec in self:
-                # Sync to related custom.pr by name if it exists
-                custom_pr = self.env['custom.pr'].sudo().search([('name', '=', rec.name)], limit=1)
+                custom_pr = rec.legacy_custom_pr_id or self.env['custom.pr'].sudo().search([('name', '=', rec.name)], limit=1)
                 if custom_pr:
+                    if not custom_pr.purchase_requisition_id:
+                        custom_pr.sudo().purchase_requisition_id = rec.id
                     custom_pr.sudo().write({'rejection_reason': rec.rejection_reason})
         return res
-
 

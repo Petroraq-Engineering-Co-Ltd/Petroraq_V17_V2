@@ -62,8 +62,12 @@ class CustomPurchaseRFQ(models.Model):
         rfq_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
 
         for rec in self:
-            pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
-            rec.linked_pr_state = pr.state if pr else "missing"
+            requisition = rec.requisition_id or (
+                self.env["purchase.requisition"].sudo().search([("name", "=", rec.pr_name)], limit=1)
+                if rec.pr_name else False
+            )
+            legacy_pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
+            rec.linked_pr_state = self._map_requisition_to_legacy_pr_state(requisition) if requisition else (legacy_pr.state if legacy_pr else "missing")
 
             linked_pos = self.env["purchase.order"].sudo().search([("origin", "=", rec.name)]) if rec.name else self.env["purchase.order"]
             if linked_pos:
@@ -77,6 +81,17 @@ class CustomPurchaseRFQ(models.Model):
                 rec.linked_quotation_status = "po" if max_state in ("pending", "purchase", "done") else "quote"
             else:
                 rec.linked_quotation_status = "missing"
+
+    def _map_requisition_to_legacy_pr_state(self, requisition):
+        if not requisition:
+            return "missing"
+        if requisition.approval == "rejected":
+            return "cancel"
+        if requisition.status == "rfq":
+            return "rfq_sent"
+        if requisition.status in ("po", "payment", "completed"):
+            return "purchase"
+        return "pending"
 
     @api.depends("requisition_id")
     def _compute_related_rfqs(self):

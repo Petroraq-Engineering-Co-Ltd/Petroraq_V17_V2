@@ -14,7 +14,7 @@
         <record id="seq_cash_purchase_requisition" model="ir.sequence">
             <field name="name">Cash Purchase Requisition</field>
             <field name="code">cash.purchase.requisition</field>
-            <field name="prefix">NCPR</field>
+            <field name="prefix">PEC-CPR-%(year)s-</field>
             <field name="padding">4</field>
             <field name="implementation">no_gap</field>
             <field name="company_id" eval="False"/>

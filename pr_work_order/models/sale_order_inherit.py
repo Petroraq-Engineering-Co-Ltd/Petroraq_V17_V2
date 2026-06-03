@@ -119,10 +119,13 @@ class SaleOrder(models.Model):
         for order in self:
             if not order.trading_expense_bucket_id:
                 continue
-            linked_pr_count = self.env["custom.pr"].sudo().search_count([
+            linked_custom_pr_count = self.env["custom.pr"].sudo().search_count([
                 ("expense_bucket_id", "=", order.trading_expense_bucket_id.id)
             ])
-            if linked_pr_count:
+            linked_requisition_count = self.env["purchase.requisition"].sudo().search_count([
+                ("expense_bucket_id", "=", order.trading_expense_bucket_id.id)
+            ])
+            if linked_custom_pr_count or linked_requisition_count:
                 raise UserError(
                     _(
                         "Cannot delete trading expense bucket %s because it is already linked to Purchase Requisitions."
