@@ -93,6 +93,7 @@
                                 type="object"
                                 class="oe_stat_button"
                                 icon="fa-envelope-open-o"
+                                invisible="pr_type == 'cash'"
                                 groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager">
                             <field name="rfq_count" widget="statinfo" string="RFQs"/>
                         </button>
@@ -132,7 +133,9 @@
                             <field name="date_request" readonly="1"/>
                             <field name="department" readonly="1"/>
                             <field name="supervisor" readonly="1"/>
-                            <field name="vendor_id" groups="pr_custom_purchase.procurement_admin"/>
+                            <field name="vendor_id"
+                                   invisible="pr_type == 'cash'"
+                                   groups="pr_custom_purchase.procurement_admin"/>
                             <field name="expense_type"
                                    readonly="approval != 'pending' or status != 'pr'"/>
                             <field name="expense_bucket_id"

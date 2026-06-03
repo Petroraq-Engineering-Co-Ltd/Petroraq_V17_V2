@@ -53,12 +53,12 @@
                     <button name="action_rfq_send" type="object" string="Send by Email" class="btn-primary"
                             invisible="not is_rfq_record"/>
                     <button name="button_confirm" type="object" string="Confirm Order" class="btn-primary"
-                            invisible="is_rfq_record"
+                            invisible="is_rfq_record or state not in ('draft', 'sent', 'pending')"
                             groups="purchase.group_purchase_user"/>
                     <button name="button_cancel" type="object" string="Cancel" class="btn-secondary"
                             invisible="not is_rfq_record"/>
                     <button name="button_draft" type="object" string="Reset to RFQ" class="btn-secondary"
-                            invisible="is_rfq_record"/>
+                            invisible="is_rfq_record or state in ('purchase', 'done')"/>
                     <button name="action_view_quotations" type="object" string="Related RFQs"
                             class="btn-primary"
                             groups="pr_custom_purchase.procurement_admin"
@@ -83,20 +83,20 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id"/>
-                            <field name="partner_ref"/>
+                            <field name="partner_id" readonly="state in ('purchase', 'done')"/>
+                            <field name="partner_ref" readonly="state in ('purchase', 'done')"/>
                             <field name="name" readonly="1"/>
-                            <field name="origin"/>
-                            <field name="currency_id"/>
-                            <field name="company_id"/>
+                            <field name="origin" readonly="state in ('purchase', 'done')"/>
+                            <field name="currency_id" readonly="state in ('purchase', 'done')"/>
+                            <field name="company_id" readonly="state in ('purchase', 'done')"/>
                         </group>
                         <group>
-                            <field name="date_order"/>
-                            <field name="date_planned"/>
-                            <field name="payment_term_id"/>
-                            <field name="fiscal_position_id"/>
-                            <field name="incoterm_id"/>
-                            <field name="user_id" string="Buyer"/>
+                            <field name="date_order" readonly="state in ('purchase', 'done')"/>
+                            <field name="date_planned" readonly="state in ('purchase', 'done')"/>
+                            <field name="payment_term_id" readonly="state in ('purchase', 'done')"/>
+                            <field name="fiscal_position_id" readonly="state in ('purchase', 'done')"/>
+                            <field name="incoterm_id" readonly="state in ('purchase', 'done')"/>
+                            <field name="user_id" string="Buyer" readonly="state in ('purchase', 'done')"/>
                         </group>
                     </group>
 
@@ -131,8 +131,8 @@
                         <page string="Other Information">
                             <group>
                                 <group>
-                                    <field name="project_id"/>
-                                    <field name="notes" placeholder="Terms and conditions..."/>
+                                    <field name="project_id" readonly="state in ('purchase', 'done')"/>
+                                    <field name="notes" placeholder="Terms and conditions..." readonly="state in ('purchase', 'done')"/>
                                 </group>
                                 <group>
                                     <field name="linked_pr_state" widget="badge"
@@ -188,18 +188,18 @@
         <field name="domain">[('state','in',['pending','purchase','done'])]</field>
     </record>
 
-    <menuitem id="menu_custom_purchase_order_root"
-              name="Purchase Orders"
-              parent="purchase.menu_purchase_root"
-              sequence="133"
-              groups="base.group_no_one"/>
+<!--    <menuitem id="menu_custom_purchase_order_root"-->
+<!--              name="Purchase Orders"-->
+<!--              parent="purchase.menu_purchase_root"-->
+<!--              sequence="133"-->
+<!--              groups="base.group_no_one"/>-->
 
-    <menuitem id="menu_custom_purchase_order"
-              name="All Purchase Orders"
-              parent="menu_custom_purchase_order_root"
-              action="action_custom_purchase_order"
-              sequence="10"
-              groups="base.group_no_one"/>
+<!--    <menuitem id="menu_custom_purchase_order"-->
+<!--              name="All Purchase Orders"-->
+<!--              parent="menu_custom_purchase_order_root"-->
+<!--              action="action_custom_purchase_order"-->
+<!--              sequence="10"-->
+<!--              groups="base.group_no_one"/>-->
 
     <!-- Keep Odoo core actions aligned with custom state semantics. -->
     <record id="purchase.purchase_rfq" model="ir.actions.act_window">

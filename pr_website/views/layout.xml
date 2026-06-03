@@ -426,14 +426,16 @@
                             </t>
                             <t t-if="request.session.uid">
                                 <div class="mobile-auth-buttons">
-                                    <a href="/my" class="signin-btn" title="Portal">
-                                        <i class="fa fa-th-large"></i>
-                                        Portal
-                                    </a>
-                                    <a href="/my/account" class="signin-btn" title="My Account">
-                                        <i class="fa fa-user"></i>
-                                        My Account
-                                    </a>
+                                    <t t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('base.group_user')">
+                                        <a href="/my" class="signin-btn" title="Portal">
+                                            <i class="fa fa-th-large"></i>
+                                            Portal
+                                        </a>
+                                        <a href="/my/account" class="signin-btn" title="My Account">
+                                            <i class="fa fa-user"></i>
+                                            My Account
+                                        </a>
+                                    </t>
                                     <a href="/web/session/logout" class="logout-btn" t-translation="Log Out">
                                         <i class="fa fa-sign-out-alt"></i>
                                         Log Out
@@ -453,14 +455,16 @@
                         </t>
                         <t t-if="request.session.uid">
                             <div class="auth-buttons">
-                                <a href="/my" class="signin-btn" title="Portal">
-                                    <i class="fa fa-th-large"></i>
-                                    Portal
-                                </a>
-                                <a href="/my/account" class="signin-btn" title="My Account">
-                                    <i class="fa fa-user"></i>
-                                    <t t-esc="request.env.user.name or 'Account'"/>
-                                </a>
+                                <t t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('base.group_user')">
+                                    <a href="/my" class="signin-btn" title="Portal">
+                                        <i class="fa fa-th-large"></i>
+                                        Portal
+                                    </a>
+                                    <a href="/my/account" class="signin-btn" title="My Account">
+                                        <i class="fa fa-user"></i>
+                                        <t t-esc="request.env.user.name or 'Account'"/>
+                                    </a>
+                                </t>
                                 <a href="/web/session/logout" class="logout-btn" t-translation="Log Out">
                                     <i class="fa fa-sign-out-alt"></i>
                                     Log Out
