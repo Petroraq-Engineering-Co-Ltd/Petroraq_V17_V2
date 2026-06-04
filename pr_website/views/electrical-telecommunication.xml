@@ -447,7 +447,7 @@
                             <i class="fa fa-chevron-right"></i>
                             <span class="current">Electrical &amp; Telecommunication</span>
                         </div>
-                        <h1>Electrical &amp;<br/>Telecommunication<span class="dot">.</span></h1>
+                        <h1>Electrical &amp;<br/>Telecommunication<span class="dot"></span></h1>
                         <div class="gold-line"></div>
                         <p>Integrated solutions. Reliable systems.<br/>Connected for a smarter tomorrow.</p>
                     </div>
@@ -463,7 +463,7 @@
                         <div class="et-sub-line"></div>
 
                         <div class="et-desc">
-                            <p>The electrical division is equipped with qualified engineers experienced in all types of lighting and power distribution systems. They have experience and skills in system design, relay selection and coordination.</p>
+                            <p style="text-align: justify;">The electrical division is equipped with qualified engineers experienced in all types of lighting and power distribution systems. They have experience and skills in system design, relay selection and coordination.</p>
                         </div>
 
                         <h4 class="dc-title">Design Capabilities:</h4>
@@ -498,8 +498,8 @@
                         <div class="et-sub-line"></div>
 
                         <div class="et-desc">
-                            <p>PETRORAQ has the capability to design a wide range of state of the art telecommunications systems based on Client's requirements. Our engineers possess many years of directly relevant experience across the telecommunications field. We can also provide construction supervision and project management services.</p>
-                            <p>Our telecommunication systems are designed in accordance with Client's Standards and Specifications, applicable national/international standards and backed-up by our own extensive experience in the field, incorporating best practices.</p>
+                            <p style="text-align: justify;">PETRORAQ has the capability to design a wide range of state of the art telecommunications systems based on Client's requirements. Our engineers possess many years of directly relevant experience across the telecommunications field. We can also provide construction supervision and project management services.</p>
+                            <p style="text-align: justify;">Our telecommunication systems are designed in accordance with Client's Standards and Specifications, applicable national/international standards and backed-up by our own extensive experience in the field, incorporating best practices.</p>
                         </div>
 
                         <h4 class="dc-title">Design Capabilities</h4>

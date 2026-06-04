@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="qiwa_contract_ocr.HRReminderDashboardAction" owl="1">
+        <div class="o_timeoff_dashboard de_leave_mgmt_dashboard o_hr_reminder_dashboard p-2">
+            <div class="o_hr_reminder_header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <div>
+                    <h2 class="m-0">HR Reminders Dashboard</h2>
+                    <span class="text-muted">Compliance expiries, onboarding tasks, approvals, and activities</span>
+                </div>
+                <button type="button" class="btn btn-primary" t-on-click="loadDashboard">
+                    <i class="fa fa-refresh me-1"/>Refresh
+                </button>
+            </div>
+
+            <t t-if="state.loading">
+                <div class="o_hr_reminder_loading p-4 text-center text-muted">Loading reminders...</div>
+            </t>
+            <t t-else="">
+                <div class="o_hr_reminder_tiles">
+                    <t t-foreach="state.data.tiles" t-as="tile" t-key="tile.key">
+                        <div t-att-class="'o_hr_reminder_tile o_hr_reminder_tile_' + tile.tone + (tile.model ? ' o_hr_reminder_clickable' : '')"
+                             t-on-click="() => this.openTile(tile)">
+                            <div class="o_hr_reminder_tile_icon">
+                                <i t-att-class="'fa ' + tile.icon"/>
+                            </div>
+                            <div class="o_hr_reminder_tile_body">
+                                <span class="o_hr_reminder_tile_title" t-esc="tile.title"/>
+                                <strong class="o_hr_reminder_tile_count" t-esc="tile.count"/>
+                                <span class="o_hr_reminder_tile_subtitle" t-esc="tile.subtitle"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <div class="o_hr_reminder_sections">
+                    <section class="o_hr_reminder_panel">
+                        <div class="o_hr_reminder_panel_header">
+                            <h3>Expiry Watch</h3>
+                            <span>Expired and next 30 days</span>
+                        </div>
+                        <table class="table table-sm o_hr_reminder_table">
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Employee</th>
+                                    <th>Expiry</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="!state.data.expiry_rows.length">
+                                    <tr><td colspan="4" class="text-muted text-center py-3">No expiry reminders found.</td></tr>
+                                </t>
+                                <t t-foreach="state.data.expiry_rows" t-as="row" t-key="row.id">
+                                    <tr class="o_hr_reminder_row" t-on-click="() => this.openRecord(row)">
+                                        <td><span t-esc="row.document"/></td>
+                                        <td><span t-esc="row.employee"/></td>
+                                        <td><span t-esc="row.expiry_date"/></td>
+                                        <td><span t-att-class="'o_hr_reminder_badge o_hr_reminder_badge_' + row.tone" t-esc="row.status"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section class="o_hr_reminder_panel">
+                        <div class="o_hr_reminder_panel_header">
+                            <h3>Onboarding Tasks</h3>
+                            <span>Open required tasks</span>
+                        </div>
+                        <table class="table table-sm o_hr_reminder_table">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Employee</th>
+                                    <th>Due</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="!state.data.task_rows.length">
+                                    <tr><td colspan="4" class="text-muted text-center py-3">No open onboarding tasks.</td></tr>
+                                </t>
+                                <t t-foreach="state.data.task_rows" t-as="row" t-key="row.id">
+                                    <tr class="o_hr_reminder_row" t-on-click="() => this.openRecord(row)">
+                                        <td><span t-esc="row.task"/></td>
+                                        <td><span t-esc="row.employee"/></td>
+                                        <td><span t-esc="row.due_date"/></td>
+                                        <td><span t-att-class="'o_hr_reminder_badge o_hr_reminder_badge_' + row.tone" t-esc="row.state"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section class="o_hr_reminder_panel o_hr_reminder_panel_wide">
+                        <div class="o_hr_reminder_panel_header">
+                            <h3>My Due Activities</h3>
+                            <span>Reminder activities due today or overdue</span>
+                        </div>
+                        <table class="table table-sm o_hr_reminder_table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>Record</th>
+                                    <th>Deadline</th>
+                                    <th>Assigned To</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="!state.data.activity_rows.length">
+                                    <tr><td colspan="4" class="text-muted text-center py-3">No due reminder activities.</td></tr>
+                                </t>
+                                <t t-foreach="state.data.activity_rows" t-as="row" t-key="row.id">
+                                    <tr class="o_hr_reminder_row" t-on-click="() => this.openRecord(row)">
+                                        <td><span t-esc="row.summary"/></td>
+                                        <td><span t-esc="row.record_name"/></td>
+                                        <td><span t-esc="row.deadline"/></td>
+                                        <td><span t-esc="row.assigned_to"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

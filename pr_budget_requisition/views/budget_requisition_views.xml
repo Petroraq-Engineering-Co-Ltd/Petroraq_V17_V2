@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pr_budget_requisition_tree" model="ir.ui.view">
+        <field name="name">pr.budget.requisition.tree</field>
+        <field name="model">pr.budget.requisition</field>
+        <field name="arch" type="xml">
+            <tree string="Budget Requisitions" decoration-info="revision_number &gt; 0 or revision_of_id">
+                <field name="name"/>
+                <field name="request_date"/>
+                <field name="requested_by_id"/>
+                <field name="department_id"/>
+                <field name="expense_type"/>
+                <field name="budget_version_label" widget="badge"
+                       decoration-info="revision_number &gt; 0 or revision_of_id"/>
+                <field name="revision_of_id" optional="hide"/>
+                <field name="revision_number" optional="hide"/>
+                <field name="revision_count" optional="hide"/>
+                <field name="budget_period_months"/>
+                <field name="period_date_from"/>
+                <field name="period_date_to"/>
+                <field name="total_budget_amount" sum="Current Budget"/>
+                <field name="total_spent_amount" sum="Spent"/>
+                <field name="total_remaining_amount" sum="Remaining"/>
+                <field name="total_requested_amount" sum="Total"/>
+                <field name="generated_budget_id"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state in ('department_approval', 'accounts_approval', 'md_approval')"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_budget_requisition_search" model="ir.ui.view">
+        <field name="name">pr.budget.requisition.search</field>
+        <field name="model">pr.budget.requisition</field>
+        <field name="arch" type="xml">
+            <search string="Budget Requisitions">
+                <field name="name"/>
+                <field name="requested_by_id"/>
+                <field name="department_id"/>
+                <field name="generated_budget_id"/>
+                <field name="revision_of_id"/>
+                <filter name="my_requests" string="My Requests" domain="[('requested_by_id', '=', uid)]"/>
+                <filter name="my_department_approvals" string="My Department Approvals"
+                        domain="[('department_manager_user_id', '=', uid), ('state', '=', 'department_approval')]"/>
+                <filter name="to_approve" string="To Approve"
+                        domain="[('state', 'in', ['department_approval', 'accounts_approval', 'md_approval'])]"/>
+                <separator/>
+                <filter name="original_budgets" string="Original Budgets" domain="[('revision_number', '=', 0), ('revision_of_id', '=', False)]"/>
+                <filter name="budget_revisions" string="Revised Budgets" domain="['|', ('revision_number', '>', 0), ('revision_of_id', '!=', False)]"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="accounts_approval" string="Pending Accounts" domain="[('state', '=', 'accounts_approval')]"/>
+                <filter name="md_approval" string="Pending MD" domain="[('state', '=', 'md_approval')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_expense_type" string="Expense Type" context="{'group_by': 'expense_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_pr_budget_requisition_form" model="ir.ui.view">
+        <field name="name">pr.budget.requisition.form</field>
+        <field name="model">pr.budget.requisition</field>
+        <field name="arch" type="xml">
+            <form string="Budget Requisition">
+                <header>
+                    <field name="can_department_approve" invisible="1"/>
+                    <field name="can_accounts_approve" invisible="1"/>
+                    <field name="can_md_approve" invisible="1"/>
+                    <field name="can_reject" invisible="1"/>
+                    <field name="can_reset_to_draft" invisible="1"/>
+                    <field name="can_request_revision" invisible="1"/>
+                    <field name="revision_count" invisible="1"/>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_department_approve" type="object" string="Department Approve"
+                            class="btn-primary" invisible="not can_department_approve"/>
+                    <button name="action_accounts_approve" type="object" string="Accounts Approve"
+                            class="btn-primary" invisible="not can_accounts_approve"/>
+                    <button name="action_md_approve" type="object" string="MD Approve"
+                            class="btn-primary" invisible="not can_md_approve"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            class="btn-secondary" invisible="not can_reject"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft"
+                            class="btn-secondary" invisible="not can_reset_to_draft"/>
+                    <button name="action_request_revision" type="object" string="Revise Budget"
+                            class="btn-primary" invisible="not can_request_revision"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,department_approval,accounts_approval,md_approval,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert" invisible="revision_number == 0 and not revision_of_id">
+                        <strong>Revised Budget</strong>
+                        <span>
+                            This requisition is under budget revision. It keeps the same request and updates the budget after approval.
+                        </span>
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_generated_budget" type="object"
+                                class="oe_stat_button" icon="fa-bar-chart"
+                                invisible="not generated_budget_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Generated</span>
+                                <span class="o_stat_text">Budget</span>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="revision_of_id" invisible="1"/>
+                            <field name="name" readonly="1"/>
+                            <field name="request_date" readonly="state != 'draft'"/>
+                            <field name="requested_by_id" readonly="1"/>
+                            <field name="department_id" readonly="state != 'draft' or revision_of_id"/>
+                            <field name="department_manager_user_id" readonly="1"/>
+                            <field name="revision_number" readonly="1" invisible="revision_number == 0"/>
+                        </group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="scope" readonly="1"/>
+                            <field name="expense_type" readonly="state != 'draft' or revision_of_id"/>
+                            <field name="budget_period_months" readonly="state != 'draft' or revision_of_id"/>
+                            <field name="period_date_from" readonly="state != 'draft' or revision_of_id"/>
+                            <field name="period_date_to" readonly="1"/>
+                            <field name="generated_budget_id" readonly="1" invisible="not generated_budget_id"/>
+                        </group>
+                    </group>
+                    <group string="Budget Position">
+                        <field name="total_budget_amount" readonly="1"/>
+                        <field name="total_spent_amount" readonly="1"/>
+                        <field name="total_remaining_amount" readonly="1"/>
+                        <field name="total_requested_amount" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="reason" placeholder="Explain why this department budget is needed..."
+                               readonly="state != 'draft'"/>
+                        <field name="rejection_reason" readonly="1" invisible="not rejection_reason"/>
+                    </group>
+                    <notebook>
+                        <page string="Budget Items">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <tree editable="bottom">
+                                    <field name="company_id" column_invisible="True"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="product_id" optional="hide"
+                                           options="{'no_create_edit': True, 'no_quick_create': True}"/>
+                                    <field name="item_name"/>
+                                    <field name="cost_center_id"/>
+                                    <field name="budget_code" column_invisible="1"/>
+                                    <field name="current_budget" readonly="1"/>
+                                    <field name="budget_spent" readonly="1"/>
+                                    <field name="budget_left" readonly="1"/>
+                                    <field name="remaining_after_request" readonly="1"/>
+                                    <field name="quantity"/>
+                                    <field name="unit"/>
+                                    <field name="unit_price"/>
+                                    <field name="requested_amount" sum="Total Requested"/>
+                                    <field name="remarks"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_budget_amount" readonly="1"/>
+                                <field name="total_spent_amount" readonly="1"/>
+                                <field name="total_remaining_amount" readonly="1"/>
+                                <field name="total_requested_amount" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pr_budget_requisition_reject_wizard_form" model="ir.ui.view">
+        <field name="name">pr.budget.requisition.reject.wizard.form</field>
+        <field name="model">pr.budget.requisition.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Budget Requisition">
+                <group>
+                    <field name="requisition_id" readonly="1"/>
+                    <field name="rejection_reason" placeholder="Please provide rejection reason..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" type="object" string="Reject" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pr_budget_requisition_my" model="ir.actions.act_window">
+        <field name="name">Budget Requisitions</field>
+        <field name="res_model">pr.budget.requisition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_budget_requisition_search"/>
+        <field name="domain">[
+            '|', '|', '|',
+            ('requested_by_id', '=', uid),
+            ('department_manager_user_id', '=', uid),
+            ('revision_of_id.requested_by_id', '=', uid),
+            ('revision_of_id.department_manager_user_id', '=', uid)
+        ]</field>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_pr_budget_requisition_all" model="ir.actions.act_window">
+        <field name="name">Budget Requisitions</field>
+        <field name="res_model">pr.budget.requisition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_budget_requisition_search"/>
+        <field name="context">{}</field>
+    </record>
+
+    <record id="action_pr_budget_requisition_department_approvals" model="ir.actions.act_window">
+        <field name="name">Department Budget Approvals</field>
+        <field name="res_model">pr.budget.requisition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_budget_requisition_search"/>
+        <field name="domain">[('department_manager_user_id', '=', uid), ('state', '=', 'department_approval')]</field>
+        <field name="context">{'search_default_my_department_approvals': 1}</field>
+    </record>
+
+    <record id="action_pr_budget_requisition_pending_approvals" model="ir.actions.act_window">
+        <field name="name">Budget Requisition Approvals</field>
+        <field name="res_model">pr.budget.requisition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_budget_requisition_search"/>
+        <field name="domain">[('state', 'in', ['department_approval', 'accounts_approval', 'md_approval'])]</field>
+        <field name="context">{'create': False, 'edit': False, 'search_default_to_approve': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No budget requisitions are pending your approval.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_pr_budget_requisition_root"
+              name="Budget Requisitions"
+              sequence="55"
+              groups="base.group_user"
+              web_icon="pr_budget_requisition,static/description/icon.png"/>
+
+    <menuitem id="menu_pr_budget_requisition_my_global"
+              name="My Budget Requisitions"
+              parent="menu_pr_budget_requisition_root"
+              action="action_pr_budget_requisition_my"
+              sequence="10"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_pr_budget_requisition_department_approvals_global"
+              name="Department Budget Approvals"
+              parent="menu_pr_budget_requisition_root"
+              action="action_pr_budget_requisition_department_approvals"
+              sequence="20"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_pr_budget_requisition_all_global"
+              name="All Budget Requisitions"
+              parent="menu_pr_budget_requisition_root"
+              action="action_pr_budget_requisition_all"
+              sequence="30"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_pr_budget_requisition_pending_approvals_workspace"
+              name="Budget Requisitions"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_pr_budget_requisition_pending_approvals"
+              sequence="65"
+              groups="base.group_user"/>
+
+    <record id="pr_custom_purchase.menu_purchase_requisition_main" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]"/>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="pr_custom_purchase.menu_purchase_requisition_main_others" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('pr_custom_purchase.group_custom_pr_end_user'),
+            ref('pr_custom_purchase.procurement_admin'),
+            ref('purchase.group_purchase_manager'),
+            ref('pr_custom_purchase.project_engineer'),
+            ref('pr_custom_purchase.project_manager'),
+            ref('pr_custom_purchase.operations_director'),
+            ref('pr_custom_purchase.managing_director'),
+            ref('pr_custom_purchase.inventory_qc'),
+            ref('pr_custom_purchase.inventory_data_entry'),
+            ref('pr_custom_purchase.inventory_admin'),
+            ref('pr_custom_purchase.group_pr_approver'),
+            ref('account.group_account_invoice'),
+            ref('account.group_account_manager'),
+            ref('account.group_account_user')
+        ])]"/>
+    </record>
+
+    <menuitem id="menu_pr_budget_requisition_new"
+              name="Budget Requisition"
+              parent="pr_custom_purchase.menu_purchase_requisition_main"
+              action="action_pr_budget_requisition_my"
+              sequence="30"
+              groups="base.group_user"/>
+
+    <record id="menu_pr_budget_requisition_new" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <menuitem id="menu_pr_budget_requisition_department_approvals"
+              name="Department Budget Approvals"
+              parent="pr_custom_purchase.menu_purchase_requisition_main_others"
+              action="action_pr_budget_requisition_department_approvals"
+              sequence="29"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_pr_budget_requisition_approval"
+              name="Budget Requisitions"
+              parent="pr_custom_purchase.menu_purchase_requisition_main_others"
+              action="action_pr_budget_requisition_all"
+              sequence="30"
+              groups="base.group_user,pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_manager,pr_custom_purchase.managing_director,pr_custom_purchase.group_pr_approver,account.group_account_manager,account.group_account_user"/>
+</odoo>

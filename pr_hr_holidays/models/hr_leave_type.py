@@ -18,3 +18,34 @@ class HolidaysType(models.Model):
     ], string="Type")
 
     # endregion [Fields]
+
+    def _pr_sync_due_accrual_allocations(self, employees):
+        """Keep accrual balances current before dashboard/request computations."""
+        if self.env.context.get("pr_skip_due_accrual_sync"):
+            return
+
+        employees = employees.exists()
+        if not employees:
+            return
+
+        today = fields.Date.context_today(self)
+        allocations = self.env["hr.leave.allocation"].sudo().search([
+            ("employee_id", "in", employees.ids),
+            ("holiday_status_id", "in", self.ids),
+            ("state", "=", "validate"),
+            ("allocation_type", "=", "accrual"),
+            ("accrual_plan_id", "!=", False),
+            ("date_from", "<=", today),
+            "|",
+            ("date_to", "=", False),
+            ("date_to", ">=", today),
+            "|",
+            ("nextcall", "=", False),
+            ("nextcall", "<=", today),
+        ])
+        if allocations:
+            allocations.with_context(pr_skip_due_accrual_sync=True)._process_accrual_plans(today, log=False)
+
+    def get_allocation_data(self, employees, target_date=None):
+        self._pr_sync_due_accrual_allocations(employees)
+        return super().get_allocation_data(employees, target_date)

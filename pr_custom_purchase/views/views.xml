@@ -27,6 +27,7 @@
                 <field name="show_od_approved" invisible="1"/>
                 <field name="show_md_approved" invisible="1"/>
                 <field name="can_confirm_order" invisible="1"/>
+                <field name="approval_status" widget="badge" readonly="1"/>
             </field>
         </field>
     </record>
@@ -94,7 +95,7 @@
                         type="object"
                         string="Reset to Draft"
                         class="btn btn-secondary"
-                        invisible="state == 'draft'"
+                        invisible="state in ('draft', 'done')"
                         groups="pr_custom_purchase.procurement_admin,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director"/>
             </xpath>
         </field>
@@ -107,7 +108,7 @@
         <field name="arch" type="xml">
             <!-- Extend the statusbar to show 'pending' before 'purchase' -->
             <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,sent,pending,purchase</attribute>
+                <attribute name="statusbar_visible">draft,sent,pending,purchase,done,cancel</attribute>
             </xpath>
         </field>
     </record>
@@ -162,8 +163,20 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="priority">16</field>
         <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="budget_count" invisible="1"/>
+                <button class="oe_stat_button"
+                        name="action_view_related_budgets"
+                        type="object"
+                        icon="fa-money"
+                        invisible="budget_count == 0">
+                    <field name="budget_count" widget="statinfo" string="Budgets"/>
+                </button>
+            </xpath>
             <xpath expr="//field[@name='partner_ref']" position="after">
                 <field name="project_id"/>
+                <field name="budget_consumed_amount" readonly="1"/>
+                <field name="budget_remaining_amount" readonly="1"/>
             </xpath>
         </field>
     </record>
@@ -173,8 +186,16 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='amount_total']" position="replace">
-                <field name="display_total" string="Subtotal" widget="monetary"/>
+            <xpath expr="//tree/field[@name='state']" position="after">
+                <field name="approval_status" widget="badge" optional="show"
+                       decoration-success="approval_status == 'approved'"
+                       decoration-danger="approval_status == 'rejected'"
+                       decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
+                       decoration-muted="approval_status == 'not_submitted'"/>
+            </xpath>
+            <xpath expr="//tree/field[@name='amount_total']" position="after">
+                <field name="budget_consumed_amount" optional="hide"/>
+                <field name="budget_remaining_amount" optional="show"/>
             </xpath>
         </field>
     </record>
@@ -183,8 +204,16 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='amount_total']" position="replace">
-                <field name="grand_total" string="Total" widget="monetary"/>
+            <xpath expr="//tree/field[@name='state']" position="after">
+                <field name="approval_status" widget="badge" optional="show"
+                       decoration-success="approval_status == 'approved'"
+                       decoration-danger="approval_status == 'rejected'"
+                       decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
+                       decoration-muted="approval_status == 'not_submitted'"/>
+            </xpath>
+            <xpath expr="//tree/field[@name='amount_total']" position="after">
+                <field name="budget_consumed_amount" optional="hide"/>
+                <field name="budget_remaining_amount" optional="show"/>
             </xpath>
         </field>
     </record>
@@ -193,8 +222,12 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_tree"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree/field[@name='amount_total']" position="replace">
-                <field name="display_total" widget="monetary"/>
+            <xpath expr="//tree/field[@name='state']" position="after">
+                <field name="approval_status" widget="badge" optional="show"
+                       decoration-success="approval_status == 'approved'"
+                       decoration-danger="approval_status == 'rejected'"
+                       decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
+                       decoration-muted="approval_status == 'not_submitted'"/>
             </xpath>
         </field>
     </record>

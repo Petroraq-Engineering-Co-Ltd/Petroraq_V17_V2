@@ -558,7 +558,7 @@
                             <i class="fa fa-chevron-right"></i>
                             <span class="current">CAD Services</span>
                         </div>
-                        <h1>CAD Services<span class="dot">.</span></h1>
+                        <h1>CAD Services<span class="dot"></span></h1>
                         <p>Advanced CAD and BIM solutions for accurate design, coordination, and project execution.</p>
                     </div>
                 </section>
@@ -572,7 +572,7 @@
                         </div>
 
                         <div class="cad-desc">
-                            <p>PETRORAQ delivers comprehensive CAD services using advanced engineering and modeling tools including BIM, Tekla, Revit, Inventor, Advance Steel, SketchUp, CADWorx, and AutoCAD. Our team develops precise design models, detailed drawings, and coordinated deliverables that support fabrication, construction, and project execution across industrial and infrastructure projects.</p>
+                            <p style="text-align: justify;">PETRORAQ delivers comprehensive CAD services using advanced engineering and modeling tools including BIM, Tekla, Revit, Inventor, Advance Steel, SketchUp, CADWorx, and AutoCAD. Our team develops precise design models, detailed drawings, and coordinated deliverables that support fabrication, construction, and project execution across industrial and infrastructure projects.</p>
                         </div>
 
                         <h4 class="cad-subtitle">Core CAD Capabilities</h4>

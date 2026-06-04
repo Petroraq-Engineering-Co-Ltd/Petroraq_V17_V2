@@ -72,7 +72,7 @@
                 .petroraq-clients .clients-hero {
                 position: relative;
                 min-height: 320px;
-                background: url('/pr_website/static/images/hero-bg.png')
+                background: url('/pr_website/static/images/clients-bg.png')
                 right center/cover no-repeat;
                 overflow: hidden;
                 display: flex;
@@ -460,14 +460,15 @@
                 font-size: 26px;
                 }
                 .petroraq-clients .cta-text h3 {
-                color: #fff;
+                color: #DB9332;
                 font-size: 24px;
                 font-weight: 700;
                 margin-bottom: 8px;
                 }
                 .petroraq-clients .cta-text p {
-                color: #b8c5d6;
+                color: #000;
                 font-size: 15px;
+
                 }
                 .petroraq-clients .cta-buttons {
                 display: flex;
@@ -581,12 +582,12 @@
                     <div class="hero-overlay"></div>
                     <div class="hero-content animate-slide-up">
                         <h1>Our Clients
-                            <span class="dot">.</span>
+                            <span class="dot"></span>
                         </h1>
                         <p>Trusted by leading organizations across Saudi Arabia's industrial, infrastructure, and
                             development sectors.
                         </p>
-                        <div class="hero-accent"></div>
+
                     </div>
                 </section>
 
@@ -596,7 +597,7 @@
                         <div class="partnerships-grid">
                             <div class="partnership-text animate-slide-up">
                                 <h2>Partnerships Built on Trust</h2>
-                                <p>We are proud to collaborate with visionary organizations who share our commitment
+                                <p style="text-align: justify;">We are proud to collaborate with visionary organizations who share our commitment
                                     to excellence, safety, and sustainable development across the Kingdom.
                                 </p>
                             </div>
@@ -606,9 +607,9 @@
                                     <i class="fa fa-users"></i>
                                 </div>
                                 <div class="pc-content">
-                                    <h3>14+</h3>
+                                    <h3>16+</h3>
                                     <h4>Key Clients</h4>
-                                    <p>Across industrial, infrastructure, and development sectors.</p>
+                                    <p>Across Civil, industrial, infrastructure, and development sectors.</p>
                                 </div>
                             </div>
 
@@ -696,8 +697,26 @@
                                 <img src="/pr_website/static/images/red-sea-client.png"
                                      alt="Red Sea Global"/>
                             </div>
-                            <div class="org-card" style="border: none; background: transparent;"></div>
-                            <div class="org-card" style="border: none; background: transparent;"></div>
+                            <div class="org-card" >
+                                <img src="/pr_website/static/images/nbc_logo.png"
+                                     alt="Al Bawani"/>
+
+                            </div>
+                            <div class="org-card">
+                                <img src="/pr_website/static/images/asda_logo.png"
+                                     alt="Al Bawani"/>
+
+                            </div>
+                            <div class="org-card">
+                                <img src="/pr_website/static/images/tamimi_logo.png"
+                                     alt="Al Bawani"/>
+
+                            </div>
+                            <div class="org-card">
+                                <img src="/pr_website/static/images/novel_logo.png"
+                                     alt="Al Bawani"/>
+
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -712,7 +731,7 @@
                                     <i class="fa fa-wrench"></i>
                                 </div>
                                 <h4>Engineering Excellence</h4>
-                                <p>Advanced engineering solutions delivered with precision and technical
+                                <p style="text-align: justify;">Advanced engineering solutions delivered with precision and technical
                                     expertise.
                                 </p>
                             </div>
@@ -721,7 +740,7 @@
                                     <i class="fa fa-list-alt"></i>
                                 </div>
                                 <h4>Reliable Delivery</h4>
-                                <p>Proven track record of on-time delivery within scope, budget, and quality
+                                <p style="text-align: justify;">Proven track record of on-time delivery within scope, budget, and quality
                                     standards.
                                 </p>
                             </div>
@@ -730,7 +749,7 @@
                                     <i class="fa fa-shield"></i>
                                 </div>
                                 <h4>Quality &amp; Safety</h4>
-                                <p>Uncompromising commitment to quality, safety, and environmental responsibility.
+                                <p style="text-align: justify;">Uncompromising commitment to quality, safety, and environmental responsibility.
                                 </p>
                             </div>
                             <div class="why-card animate-scale-up delay-400">
@@ -738,7 +757,7 @@
                                     <i class="fa fa-users"></i>
                                 </div>
                                 <h4>Long-Term Partnership</h4>
-                                <p>Building lasting relationships grounded in trust, transparency, and shared
+                                <p style="text-align: justify;">Building lasting relationships grounded in trust, transparency, and shared
                                     success.
                                 </p>
                             </div>
@@ -756,7 +775,7 @@
                                 </div>
                                 <div class="cta-text">
                                     <h3>Building trusted partnerships for the future.</h3>
-                                    <p>Let's create value, build excellence, and shape a better tomorrow.</p>
+                                    <p style="color: var(--blue);">Let's create value, build excellence, and shape a better tomorrow.</p>
                                 </div>
                             </div>
                             <div class="cta-buttons">
@@ -764,7 +783,7 @@
                                     Contact Us
                                     <i class="fa fa-arrow-right"></i>
                                 </a>
-                                <a href="#" class="btn-cta-outline">
+                                <a href="/projects" class="btn-cta-primary">
                                     Explore Projects
                                     <i class="fa fa-arrow-right"></i>
                                 </a>

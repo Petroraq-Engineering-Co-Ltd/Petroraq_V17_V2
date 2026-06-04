@@ -123,4 +123,8 @@
               parent="pr_custom_purchase.menu_purchase_requisition"
               action="action_budget_increase_request"
               sequence="40"/>
+
+    <record id="menu_budget_increase_request" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
 </odoo>

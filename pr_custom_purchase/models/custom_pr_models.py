@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from dateutil.relativedelta import relativedelta
 
 
@@ -61,6 +61,18 @@ class CustomPR(models.Model):
         currency_field="currency_id",
     )
     pr_created = fields.Boolean(string="PR Created", default=False)
+    purchase_requisition_id = fields.Many2one(
+        "purchase.requisition",
+        string="Linked Purchase Requisition",
+        readonly=True,
+        copy=False,
+        index=True,
+    )
+    legacy_migrated = fields.Boolean(
+        string="Migrated to Purchase Requisition",
+        readonly=True,
+        copy=False,
+    )
     line_ids = fields.One2many('custom.pr.line', 'pr_id', string="PR Lines")
     expense_type = fields.Selection(
         [('opex', 'Opex'), ('capex', 'Capex')],
@@ -151,7 +163,7 @@ class CustomPR(models.Model):
         po_priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'done': 5, 'cancel': 6}
 
         for rec in self:
-            requisition = self.env['purchase.requisition'].sudo().search([('name', '=', rec.name)], limit=1)
+            requisition = rec.purchase_requisition_id or self.env['purchase.requisition'].sudo().search([('name', '=', rec.name)], limit=1)
             rec.linked_requisition_status = requisition.approval if requisition else 'missing'
 
             rfqs = self.env['purchase.order'].sudo().search([('pr_name', '=', rec.name)])
@@ -180,20 +192,48 @@ class CustomPR(models.Model):
         for rec in self:
             rec.budget_increase_request_count = Request.search_count([('custom_pr_id', '=', rec.id)])
 
-    @api.depends('line_ids.total_price', 'line_ids.cost_center_id', 'line_ids.cost_center_id.budget_left')
+    def _budget_usage_date(self):
+        self.ensure_one()
+        return fields.Date.to_date(self.date_request) or fields.Date.context_today(self)
+
+    def _amount_by_cost_center(self):
+        self.ensure_one()
+        amount_by_cost_center = {}
+        for line in self.line_ids:
+            if not line.cost_center_id:
+                continue
+            cc = line.cost_center_id.sudo()
+            amount_by_cost_center.setdefault(cc.id, {"cc": cc, "amount": 0.0})
+            amount_by_cost_center[cc.id]["amount"] += line.total_price
+        return amount_by_cost_center
+
+    def _get_selected_budget_remaining_by_cost_center(self):
+        self.ensure_one()
+        if not self.expense_bucket_id:
+            return {}
+        return self.expense_bucket_id.sudo()._get_remaining_by_cost_center()
+
+    def _get_selected_budget_requisition(self):
+        self.ensure_one()
+        if not self.expense_bucket_id or "pr.budget.requisition" not in self.env:
+            return False
+        return self.env["pr.budget.requisition"].sudo().search([
+            ("generated_budget_id", "=", self.expense_bucket_id.id),
+        ], order="revision_number desc, id desc", limit=1)
+
+    @api.depends(
+        'line_ids.total_price',
+        'line_ids.cost_center_id',
+        'expense_bucket_id',
+        'expense_bucket_id.budget_remaining_amount',
+    )
     def _compute_show_request_budget_increase_button(self):
         for rec in self:
-            amount_by_cost_center = {}
-            for line in rec.line_ids:
-                if not line.cost_center_id:
-                    continue
-                cc = line.cost_center_id
-                amount_by_cost_center.setdefault(cc.id, {"cc": cc, "amount": 0.0})
-                amount_by_cost_center[cc.id]["amount"] += line.total_price
-
+            remaining_by_cost_center = rec._get_selected_budget_remaining_by_cost_center()
             rec.show_request_budget_increase_button = any(
-                item['amount'] > item['cc'].budget_left for item in amount_by_cost_center.values()
-            )
+                item['amount'] > remaining_by_cost_center.get(item['cc'].id, 0.0)
+                for item in rec._amount_by_cost_center().values()
+            ) and bool(rec._get_selected_budget_requisition())
 
     def _required_date_from_priority(self, priority):
         today = fields.Date.context_today(self)
@@ -372,6 +412,7 @@ class CustomPR(models.Model):
             raise ValidationError(_("Please select a budget before getting products."))
         if self.expense_bucket_id.state not in ("validate", "done"):
             raise ValidationError(_("Only validated budgets can be used."))
+        self.expense_bucket_id._check_active_for_date(self._budget_usage_date())
 
         line_values = self._prepare_source_product_line_values()
         if not line_values:
@@ -397,6 +438,7 @@ class CustomPR(models.Model):
             raise ValidationError(
                 _("Only validated budgets can be used. Please submit and approve the selected budget first.")
             )
+        rec.expense_bucket_id._check_active_for_date(rec._budget_usage_date())
 
         # Enforce WO per-product mini-budget caps at submit time as a hard gate
         # (in addition to line-level constrains) so users cannot bypass via UI flow.
@@ -415,83 +457,176 @@ class CustomPR(models.Model):
             rec.wo_variance_requires_approval = wo_variance_requires_approval
 
         # Validate cost center budget per line (supports multiple cost centers in one PR)
-        amount_by_cost_center = {}
+        amount_by_cost_center = rec._amount_by_cost_center()
+        remaining_by_cost_center = rec._get_selected_budget_remaining_by_cost_center()
         for line in rec.line_ids:
             cost_center = line.cost_center_id.sudo()
             if not cost_center:
                 raise ValidationError(
                     f"Please select a cost center for line '{line.description.display_name}'."
                 )
-            amount_by_cost_center.setdefault(cost_center.id, {"cc": cost_center, "amount": 0.0})
-            amount_by_cost_center[cost_center.id]["amount"] += line.total_price
 
         for item in amount_by_cost_center.values():
             cost_center = item["cc"]
             required_amount = item["amount"]
-            if required_amount > cost_center.budget_left:
+            remaining = remaining_by_cost_center.get(cost_center.id, 0.0)
+            if required_amount > remaining:
                 raise ValidationError(
                     f"This cost center {cost_center.display_name}has low budget for this PR "
-                    f"Required budget is SAR. ({required_amount}) Remaining budget is SAR. ({cost_center.budget_left})."
+                    f"Required budget is SAR. ({required_amount}) Remaining budget is SAR. ({remaining})."
                 )
 
         # Validation: prevent 0 amount PR
         if rec.total_excl_vat == 0.00:
             raise ValidationError("Add Unit Price First.")
 
-        # Check if an old PR exists for this record name
-
-        # SIDISSUE1
-        existing_pr = self.env['purchase.requisition'].sudo().search([('name', '=', rec.name)], limit=1)
-        if existing_pr:
-            existing_pr.sudo().unlink()
-
-        # Create new Purchase Requisition
-        requester = rec.requested_user_id.sudo() if rec.requested_user_id else self.env.user.sudo()
-        supervisor_user = requester.supervisor_user_id if requester else False
-        supervisor_name = rec.supervisor or (supervisor_user.name if supervisor_user else False)
-        supervisor_partner_id = rec.supervisor_partner_id or (
-            supervisor_user.partner_id.id if supervisor_user and supervisor_user.partner_id else False)
-
-        requisition = self.env['purchase.requisition'].sudo().create({
-            'name': rec.name,
-            'date_request': rec.date_request,
-            'requested_by': rec.requested_by,
-            'department': rec.department,
-            'supervisor': supervisor_name,
-            'supervisor_partner_id': supervisor_partner_id,
-            'required_date': rec.required_date,
-            'priority': rec.priority,
-            'notes': rec.notes,
-            'comments': rec.comments,
-            'pr_type': 'cash' if rec.pr_type == 'cash' else 'pr',
-            'wo_variance_requires_approval': wo_variance_requires_approval,
-            'expense_bucket_id': rec.expense_bucket_id.id,
-            'expense_scope': rec.expense_bucket_id.scope,
-            'expense_type': rec.expense_type,
-        })
-
-        # Create Lines
-        for line in rec.line_ids:
-            self.env['purchase.requisition.line'].sudo().create({
-                'requisition_id': requisition.id,
-                'description': line.description.id,
-                'type': line.type,
-                'cost_center_id': line.cost_center_id.id,
-                'quantity': line.quantity,
-                'unit': line.unit.name,
-                'unit_price': line.unit_price,
-            })
+        requisition = rec._ensure_purchase_requisition_from_legacy(
+            skip_notifications=False,
+            wo_variance_requires_approval=wo_variance_requires_approval,
+        )
 
         rec.pr_created = True
 
+        return rec.action_open_purchase_requisition()
+
+    def _get_existing_purchase_requisition(self):
+        self.ensure_one()
+        requisition = self.purchase_requisition_id
+        if not requisition and self.name:
+            requisition = self.env["purchase.requisition"].sudo().search([("name", "=", self.name)], limit=1)
+        return requisition
+
+    def _prepare_purchase_requisition_vals(self, wo_variance_requires_approval=False):
+        self.ensure_one()
+        requester = self.requested_user_id.sudo() if self.requested_user_id else self.env.user.sudo()
+        supervisor_user = requester.supervisor_user_id if requester else False
+        supervisor_name = self.supervisor or (supervisor_user.name if supervisor_user else False)
+        supervisor_partner_id = self.supervisor_partner_id or (
+            supervisor_user.partner_id.id if supervisor_user and supervisor_user.partner_id else False
+        )
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': "Success",
-                'message': f"PR {requisition.name} has been created (old one replaced if existed).",
-                'sticky': False,
+            "name": self.name,
+            "date_request": fields.Date.to_date(self.date_request) or fields.Date.context_today(self),
+            "requested_user_id": requester.id if requester else False,
+            "requested_by": self.requested_by,
+            "department": self.department,
+            "supervisor": supervisor_name,
+            "supervisor_partner_id": str(supervisor_partner_id) if supervisor_partner_id else False,
+            "required_date": self.required_date,
+            "priority": self.priority,
+            "notes": self.notes,
+            "comments": self.comments,
+            "approval": self.approval or "pending",
+            "status": self._map_legacy_status(),
+            "pr_type": "cash" if self.pr_type == "cash" else "pr",
+            "wo_variance_requires_approval": wo_variance_requires_approval,
+            "expense_bucket_id": self.expense_bucket_id.id,
+            "expense_scope": self.expense_bucket_id.scope,
+            "expense_type": self.expense_type,
+            "legacy_custom_pr_id": self.id,
+        }
+
+    def _prepare_purchase_requisition_line_vals(self):
+        self.ensure_one()
+        line_vals = []
+        for line in self.line_ids:
+            line_vals.append({
+                "description": line.description.id,
+                "type": line.type,
+                "cost_center_id": line.cost_center_id.id,
+                "quantity": line.quantity,
+                "unit": line.unit.name if line.unit else False,
+                "unit_price": line.unit_price,
+            })
+        return line_vals
+
+    def _map_legacy_status(self):
+        self.ensure_one()
+        return {
+            "draft": "pr",
+            "pending": "pr",
+            "rfq_sent": "rfq",
+            "purchase": "po",
+            "cancel": "pr",
+        }.get(self.state or "draft", "pr")
+
+    def _link_purchase_requisition(self, requisition):
+        self.ensure_one()
+        if requisition:
+            self.sudo().write({
+                "purchase_requisition_id": requisition.id,
+                "legacy_migrated": True,
+                "pr_created": True,
+            })
+            if "legacy_custom_pr_id" in requisition._fields and not requisition.legacy_custom_pr_id:
+                requisition.sudo().legacy_custom_pr_id = self.id
+
+    def _ensure_purchase_requisition_from_legacy(self, skip_notifications=True, wo_variance_requires_approval=False):
+        self.ensure_one()
+        requisition = self._get_existing_purchase_requisition()
+        if requisition:
+            self._link_purchase_requisition(requisition)
+            if not requisition.line_ids and self.line_ids:
+                for line_vals in self._prepare_purchase_requisition_line_vals():
+                    line_vals["requisition_id"] = requisition.id
+                    self.env["purchase.requisition.line"].sudo().create(line_vals)
+            return requisition
+
+        requisition = self.env["purchase.requisition"].sudo().with_context(
+            skip_pr_notifications=skip_notifications
+        ).create(self._prepare_purchase_requisition_vals(wo_variance_requires_approval))
+        for line_vals in self._prepare_purchase_requisition_line_vals():
+            line_vals["requisition_id"] = requisition.id
+            self.env["purchase.requisition.line"].sudo().create(line_vals)
+        self._link_purchase_requisition(requisition)
+        requisition.message_post(
+            body=_("Created from legacy Custom PR %s.") % self.display_name,
+            message_type="notification",
+        )
+        return requisition
+
+    def action_migrate_to_purchase_requisition(self):
+        migrated = self.env["purchase.requisition"]
+        for rec in self:
+            migrated |= rec._ensure_purchase_requisition_from_legacy(skip_notifications=True)
+        if len(migrated) == 1:
+            requisition = migrated[0]
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Purchase Requisition"),
+                "res_model": "purchase.requisition",
+                "res_id": requisition.id,
+                "view_mode": "form",
+                "target": "current",
             }
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Legacy PR Migration"),
+                "message": _("%s legacy Custom PR records are now linked to Purchase Requisitions.") % len(migrated),
+                "sticky": False,
+            },
+        }
+
+    @api.model
+    def action_migrate_all_legacy_custom_prs(self):
+        legacy_prs = self.search([("purchase_requisition_id", "=", False)])
+        return legacy_prs.action_migrate_to_purchase_requisition()
+
+    def action_open_purchase_requisition(self):
+        self.ensure_one()
+        requisition = self._get_existing_purchase_requisition()
+        if not requisition:
+            raise UserError(_("No linked Purchase Requisition exists yet."))
+        self._link_purchase_requisition(requisition)
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Purchase Requisition"),
+            "res_model": "purchase.requisition",
+            "res_id": requisition.id,
+            "view_mode": "form",
+            "target": "current",
         }
 
 
@@ -516,6 +651,16 @@ class CustomPR(models.Model):
 
     def action_open_budget_requests(self):
         self.ensure_one()
+        requisition = self._get_selected_budget_requisition()
+        if requisition:
+            return {
+                'name': 'Budget Requisition',
+                'type': 'ir.actions.act_window',
+                'res_model': 'pr.budget.requisition',
+                'view_mode': 'form',
+                'res_id': requisition.id,
+                'target': 'current',
+            }
         return {
             'name': 'Budget Increase Requests',
             'type': 'ir.actions.act_window',
@@ -525,41 +670,48 @@ class CustomPR(models.Model):
             'context': {'default_custom_pr_id': self.id},
         }
 
+    def action_request_cash_pr_payment(self):
+        self.ensure_one()
+        if self.pr_type != "cash":
+            raise UserError(_("Payment requests are only for Cash PRs."))
+        requisition = self.env["purchase.requisition"].sudo().search([("name", "=", self.name)], limit=1)
+        if not requisition:
+            raise UserError(_("Create and approve the linked Cash PR before requesting payment."))
+        return requisition.with_user(self.env.user).action_request_cash_pr_payment()
+
     def action_request_budget_increase(self):
         self.ensure_one()
-        amount_by_cost_center = {}
-        for line in self.line_ids:
-            if not line.cost_center_id:
-                continue
-            cc = line.cost_center_id
-            amount_by_cost_center.setdefault(cc.id, {"cc": cc, "amount": 0.0})
-            amount_by_cost_center[cc.id]["amount"] += line.total_price
+        remaining_by_cost_center = self._get_selected_budget_remaining_by_cost_center()
 
         exceeded_cost_centers = [
-            item for item in amount_by_cost_center.values()
-            if item['amount'] > item['cc'].budget_left
+            item for item in self._amount_by_cost_center().values()
+            if item['amount'] > remaining_by_cost_center.get(item['cc'].id, 0.0)
         ]
 
         if not exceeded_cost_centers:
             raise ValidationError(
                 _("All cost center lines are within budget. Budget increase request is not required."))
 
-        request = self.env['budget.increase.request'].create({
-            'custom_pr_id': self.id,
-            'reason': f'Budget increase requested for PR {self.name}.',
-            'line_ids': [
-                (0, 0, {
-                    'cost_center_id': item['cc'].id,
-                    'requested_increase': max(item['amount'] - item['cc'].budget_left, 1.0),
-                })
-                for item in exceeded_cost_centers
-            ]
-        })
+        requisition = self._get_selected_budget_requisition()
+        if not requisition:
+            raise UserError(
+                _("Selected budget was not created from Budget Requisition, so it cannot be revised here.")
+            )
+
+        if requisition.state == "approved":
+            if not requisition._can_user_request_revision(self.env.user):
+                raise UserError(
+                    _("Budget is exceeded. Ask the budget requester, department manager, or procurement/admin "
+                      "to revise Budget Requisition %s.")
+                    % requisition.display_name
+                )
+            return requisition.with_user(self.env.user).action_request_revision()
+
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Budget Increase Request',
-            'res_model': 'budget.increase.request',
-            'res_id': request.id,
+            'name': 'Budget Revision',
+            'res_model': 'pr.budget.requisition',
+            'res_id': requisition.id,
             'view_mode': 'form',
             'target': 'current',
         }
@@ -576,6 +728,8 @@ class CustomPR(models.Model):
                 raise ValidationError(_('Expense bucket must match selected expense type.'))
             if rec.expense_bucket_id and rec.expense_bucket_id.state not in ("validate", "done"):
                 raise ValidationError(_('Selected budget must be validated before it can be used in PR.'))
+            if rec.expense_bucket_id:
+                rec.expense_bucket_id._check_active_for_date(rec._budget_usage_date())
 
 
 class CustomPRLine(models.Model):
@@ -918,17 +1072,33 @@ class PurchaseOrder(models.Model):
         for order in self:
             if order.pr_name:
                 pr = self.env['custom.pr'].sudo().search([('name', '=', order.pr_name)], limit=1)
-                if pr:
-                    all_pos = self.env['purchase.order'].sudo().search([('pr_name', '=', order.pr_name)])
-                    priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'cancel': 5}
-                    best_po = max(all_pos, key=lambda po: priority.get(po.state, 0))
+                requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
+                    [("name", "=", order.pr_name)], limit=1
+                )
+                all_pos = self.env['purchase.order'].sudo().search([('pr_name', '=', order.pr_name)])
+                if not all_pos:
+                    continue
+                priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'done': 5, 'cancel': 6}
+                best_po = max(all_pos, key=lambda po: priority.get(po.state, 0))
 
-                    # Update PR state
+                if requisition:
+                    status_mapping = {
+                        'draft': 'rfq',
+                        'sent': 'rfq',
+                        'pending': 'po',
+                        'purchase': 'po',
+                        'done': 'completed',
+                        'cancel': 'pr',
+                    }
+                    requisition.sudo().status = status_mapping.get(best_po.state, requisition.status)
+
+                if pr:
                     mapping = {
                         'draft': 'draft',
                         'sent': 'rfq_sent',
                         'pending': 'pending',
                         'purchase': 'purchase',
+                        'done': 'purchase',
                         'cancel': 'cancel',
                     }
                     pr.state = mapping.get(best_po.state, pr.state)
@@ -938,6 +1108,11 @@ class PurchaseOrder(models.Model):
         order = super().create(vals)
         # When PO is created, immediately set PR → pending
         if order.pr_name:
+            requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
+                [("name", "=", order.pr_name)], limit=1
+            )
+            if requisition:
+                requisition.sudo().status = "rfq"
             pr = self.env['custom.pr'].sudo().search([('name', '=', order.pr_name)], limit=1)
             if pr:
                 pr.state = 'pending'

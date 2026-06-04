@@ -277,7 +277,7 @@ class OrderInquiry(models.Model):
             )
             if user.email:
                 self.env['mail.mail'].sudo().create({
-                    'email_from': 'hr@petroraq.com',
+                    'email_from': 'noreply@petroraq.com',
                     'email_to': user.email,
                     'subject': summary,
                     'body_html': f"<p>Dear Approver,</p><p>{note}</p><p><a href='{record_url}'>Open Inquiry</a></p>",

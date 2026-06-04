@@ -1,6 +1,6 @@
 {
     "name": "PR Work Order",
-    "version": "17.0.1.0.7",
+    "version": "17.0.1.0.9",
     "category": "Projects",
     "summary": "Construction Work Orders integrated with Sales, Accounting, Inventory",
     "author": "Petroraq Engineering",
@@ -17,10 +17,12 @@
         "mail",
         "purchase",
         "pr_custom_purchase",
+        "report_xlsx",
     ],
     "data": [
         "security/groups.xml",
         "security/ir.model.access.csv",
+        "report/work_order_report.xml",
         "views/work_order_views.xml",
         "views/job_costing_report_views.xml",
 

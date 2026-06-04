@@ -54,7 +54,7 @@
                                 <span t-field="leave.request_date_to"/>
                             </td>
                             <td>
-                                <span t-field="leave.number_of_days"/>
+                                <span t-out="'%.2f' % (leave.number_of_days or 0.0)"/>
                             </td>
                             <td>
                                 <span t-field="leave.name"/>

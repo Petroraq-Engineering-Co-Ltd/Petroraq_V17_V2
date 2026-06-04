@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_product_template_reassign_selected_internal_references" model="ir.actions.server">
+        <field name="name">Reassign Selected Internal References</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_reassign_internal_references()</field>
+    </record>
+
+    <record id="action_product_template_reassign_all_internal_references" model="ir.actions.server">
+        <field name="name">Reassign ALL Product Internal References</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">action = model.action_reassign_all_internal_references()</field>
+    </record>
+
+    <record id="action_product_variant_reassign_selected_internal_references" model="ir.actions.server">
+        <field name="name">Reassign Selected Internal References</field>
+        <field name="model_id" ref="product.model_product_product"/>
+        <field name="binding_model_id" ref="product.model_product_product"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_reassign_internal_references()</field>
+    </record>
+
+    <record id="action_product_variant_reassign_all_internal_references" model="ir.actions.server">
+        <field name="name">Reassign ALL Product Internal References</field>
+        <field name="model_id" ref="product.model_product_product"/>
+        <field name="binding_model_id" ref="product.model_product_product"/>
+        <field name="binding_type">action</field>
+        <field name="state">code</field>
+        <field name="code">action = model.action_reassign_all_internal_references()</field>
+    </record>
+</odoo>

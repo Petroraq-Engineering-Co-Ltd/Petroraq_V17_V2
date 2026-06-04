@@ -19,11 +19,12 @@
 
             <xpath expr="//header" position="inside">
                 <field name="has_service_lines" invisible="1"/>
+                <field name="can_create_service_receipt_note" invisible="1"/>
                 <button name="action_create_service_receipt_note"
                         type="object"
                         string="Create SRN"
                         class="btn-primary"
-                        invisible="state not in ('purchase','done') or not has_service_lines"/>
+                        invisible="not can_create_service_receipt_note"/>
             </xpath>
 
             <xpath expr="//field[@name='order_line']/tree//field[@name='qty_received']" position="after">

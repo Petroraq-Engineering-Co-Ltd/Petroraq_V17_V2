@@ -45,16 +45,17 @@
         <field name="arch" type="xml">
             <form string="Service Receipt Note">
                 <header>
+                    <field name="has_done_quantity" invisible="1"/>
                     <button name="action_set_ready" type="object" string="Set Ready" class="btn-secondary"
                             invisible="state != 'draft'"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
                             groups="pr_custom_purchase.inventory_admin"
-                            invisible="state in ('done','cancel') or approval_state == 'approved'"/>
+                            invisible="state in ('done','cancel') or approval_state == 'approved' or not has_done_quantity"/>
                     <button name="action_open_reject_wizard" type="object" string="Reject" class="btn-secondary"
                             groups="pr_custom_purchase.inventory_admin"
                             invisible="state in ('done','cancel')"/>
                     <button name="action_validate" type="object" string="Validate" class="btn-primary"
-                            invisible="state in ('done','cancel')"/>
+                            invisible="state in ('done','cancel') or approval_state != 'approved'"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft" class="btn-secondary"
                             invisible="state in ('done','draft')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
@@ -94,7 +95,7 @@
 
                     <notebook>
                         <page string="Lines">
-                            <field name="line_ids" readonly="state in ('done','cancel')">
+                            <field name="line_ids" readonly="state in ('done','cancel') or approval_state == 'approved'">
                                 <tree editable="bottom">
                                     <field name="purchase_line_id" readonly="1"/>
                                     <field name="product_id" readonly="1"/>

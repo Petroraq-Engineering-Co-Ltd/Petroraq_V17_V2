@@ -3,7 +3,7 @@
     <data>
         <!-- Actions -->
         <record id="action_custom_pr_all" model="ir.actions.act_window">
-            <field name="name">All Purchase Requisitions</field>
+            <field name="name">Legacy Custom PRs</field>
             <field name="res_model">custom.pr</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -20,6 +20,14 @@
             <field name="view_mode">tree,form</field>
             <field name="domain">[('pr_type','=','cash')]</field>
             <field name="context">{'default_pr_type':'cash'}</field>
+        </record>
+        <record id="action_migrate_custom_pr_to_purchase_requisition" model="ir.actions.server">
+            <field name="name">Link/Create Purchase Requisition</field>
+            <field name="model_id" ref="model_custom_pr"/>
+            <field name="binding_model_id" ref="model_custom_pr"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_migrate_to_purchase_requisition()</field>
         </record>
         <!-- Menus -->
         <!-- <menuitem id="menu_custom_purchase_root"
@@ -53,6 +61,7 @@
                     <field name="pr_type"/>
                     <field name="requested_by"/>
                     <field name="date_request"/>
+                    <field name="purchase_requisition_id" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-success="state == 'purchase'"
                            decoration-danger="state == 'cancel'"
@@ -96,7 +105,7 @@
                     <header>
                         <button name="action_request_budget_increase"
                                 type="object"
-                                string="Request Budget Increase"
+                                string="Request Budget Revision"
                                 class="btn btn-secondary"
                                 invisible="not show_request_budget_increase_button"/>
 
@@ -105,11 +114,21 @@
                                 string="Get All Products"
                                 class="btn btn-secondary"
                                 invisible="not expense_bucket_id or state == 'purchase' or state == 'cancel' or approval == 'approved'"/>
+                        <button name="action_request_cash_pr_payment"
+                                type="object"
+                                string="Request Payment"
+                                class="btn btn-primary"
+                                invisible="pr_type != 'cash' or linked_requisition_status != 'approved'"/>
+                        <button name="action_open_purchase_requisition"
+                                type="object"
+                                string="Open Purchase Requisition"
+                                class="btn btn-secondary"
+                                invisible="linked_requisition_status == 'missing'"/>
                         <button name="action_create_pr"
                                 type="object"
-                                string="Create PR"
+                                string="Link/Create Purchase Requisition"
                                 class="btn btn-primary"
-                                invisible="approval == 'approved'"/>
+                                invisible="linked_requisition_status != 'missing' or approval == 'approved'"/>
                         <button name="action_reset_to_draft"
                                 type="object"
                                 string="Reset to Draft"
@@ -134,7 +153,7 @@
                             <button icon="fa-pencil-square-o" type="object" string="Budget Requests"
                                     class="oe_stat_button"
                                     name="action_open_budget_requests"
-                                    invisible="budget_increase_request_count == 0"
+                                    invisible="1"
                             >
                                 <field name="budget_increase_request_count" widget="statinfo" string="Budget Requests"/>
                             </button>
@@ -148,6 +167,8 @@
                                 <field name="linked_quotation_status" invisible="1"/>
                                 <field name="linked_po_status" invisible="1"/>
                                 <field name="show_request_budget_increase_button" invisible="1"/>
+                                <field name="purchase_requisition_id" invisible="1"/>
+                                <field name="legacy_migrated" invisible="1"/>
                                 <field name="pr_created" invisible='1'/>
                                 <field name="name" invisible='1'/>
                                 <field name="pr_type"
@@ -166,6 +187,7 @@
                                 <field name="expense_type"
                                        readonly="state == 'purchase' or state == 'cancel' or approval == 'approved'"/>
                                 <field name="expense_bucket_id"
+                                       domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('date_from', '&lt;=', context_today()), ('date_to', '&gt;=', context_today())]"
                                        readonly="state == 'purchase' or state == 'cancel' or approval == 'approved'"/>
                             </group>
                         </group>

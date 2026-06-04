@@ -2,6 +2,7 @@ import logging
 import base64
 import json
 import re
+from html import escape
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 
@@ -18,7 +19,104 @@ class CareersController(http.Controller):
 
     @http.route('/contact-us', type='http', auth='public', website=True, sitemap=True)
     def contact_us(self, **kwargs):
-        return request.render('pr_website.petroraq_contact_us')
+        return request.render('pr_website.petroraq_contact_us', {
+            'contact_success': kwargs.get('success'),
+            'contact_error': kwargs.get('error'),
+        })
+
+    def _validate_contact_payload(self, post):
+        length_rules = [
+            ('name', 2, 100, 'Please enter a valid full name.'),
+            ('subject', 2, 160, 'Please enter a valid subject.'),
+            ('message', 5, 5000, 'Please enter a valid message.'),
+        ]
+        for field_name, min_length, max_length, message in length_rules:
+            value = (post.get(field_name) or '').strip()
+            if not min_length <= len(value) <= max_length:
+                return message
+
+        email = (post.get('email') or '').strip()
+        if not re.fullmatch(r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', email):
+            return 'Please enter a valid email address.'
+
+        phone = (post.get('phone') or '').strip()
+        if phone and not re.fullmatch(r'^\+?[0-9][0-9\s().-]{7,19}$', phone):
+            return 'Please enter a valid phone number.'
+
+        company = (post.get('company') or '').strip()
+        if len(company) > 120:
+            return 'Company name is too long.'
+
+        return None
+
+    def _build_contact_email_body(self, values, lead):
+        rows = [
+            ('Name', values['name']),
+            ('Email', values['email']),
+            ('Phone', values.get('phone') or '-'),
+            ('Company', values.get('company') or '-'),
+            ('Subject', values['subject']),
+            ('CRM Lead', lead.display_name),
+        ]
+        row_html = ''.join(
+            '<tr><td style="padding:6px 12px;font-weight:600;">%s</td><td style="padding:6px 12px;">%s</td></tr>'
+            % (escape(label), escape(value))
+            for label, value in rows
+        )
+        return """
+            <p>A new contact form submission was received from the Petroraq website.</p>
+            <table style="border-collapse:collapse;">%s</table>
+            <p style="font-weight:600;margin-top:16px;">Message</p>
+            <p style="white-space:pre-wrap;">%s</p>
+        """ % (row_html, escape(values['message']))
+
+    @http.route('/website/mail/contact', type='http', auth='public', website=True, methods=['POST'], csrf=True)
+    def website_mail_contact(self, **post):
+        validation_error = self._validate_contact_payload(post)
+        if validation_error:
+            return request.redirect('/contact-us?error=%s' % quote_plus(validation_error))
+
+        values = {
+            'name': (post.get('name') or '').strip(),
+            'email': (post.get('email') or '').strip(),
+            'phone': (post.get('phone') or '').strip(),
+            'company': (post.get('company') or '').strip(),
+            'subject': (post.get('subject') or '').strip(),
+            'message': (post.get('message') or '').strip(),
+        }
+
+        Lead = request.env['crm.lead'].sudo()
+        lead_vals = {
+            'name': values['subject'],
+            'contact_name': values['name'],
+            'email_from': values['email'],
+            'phone': values['phone'] or False,
+            'partner_name': values['company'] or False,
+            'description': values['message'],
+            'company_id': request.website.company_id.id,
+        }
+        if 'type' in Lead._fields:
+            lead_vals['type'] = 'lead'
+        if 'website_id' in Lead._fields:
+            lead_vals['website_id'] = request.website.id
+        lead = Lead.create(lead_vals)
+
+        company = request.website.company_id
+        email_from = company.email or 'sales@petroraq.com'
+        mail = request.env['mail.mail'].sudo().create({
+            'subject': 'Website Contact: %s' % values['subject'],
+            'body_html': self._build_contact_email_body(values, lead),
+            'email_from': email_from,
+            'email_to': 'sales@petroraq.com',
+            'reply_to': values['email'],
+        })
+        try:
+            mail.send()
+        except Exception as exc:
+            _logger.exception('Failed to send website contact email for lead %s: %s', lead.id, exc)
+            lead.message_post(body='Website contact email notification could not be sent. Please check outgoing mail configuration.')
+
+        return request.redirect('/contact-us?success=1')
 
     @http.route('/about-us', type='http', auth='public', website=True, sitemap=True)
     def about_us(self, **kwargs):
@@ -75,9 +173,17 @@ class CareersController(http.Controller):
         if not job.exists() or not job.website_published:
             return request.not_found()
         degrees = request.env['hr.recruitment.degree'].sudo().search([], order='name')
+        countries = request.env['res.country'].sudo().search([], order='name')
+        skills = request.env['hr.skill'].sudo().search([], order='skill_type_id, name')
         error_message = kwargs.get('error')
         return request.render('pr_website.careers_job_detail',
-                              {'job': job, 'degrees': degrees, 'error_message': error_message})
+                              {
+                                  'job': job,
+                                  'degrees': degrees,
+                                  'countries': countries,
+                                  'skills': skills,
+                                  'error_message': error_message,
+                              })
 
     def _validate_application_payload(self, post):
         validators = [
@@ -108,6 +214,14 @@ class CareersController(http.Controller):
             return 'Please select a valid answer for relocation.'
         if (post.get('legally_required') or '') not in {'yes', 'no'}:
             return 'Please select a valid legal authorization option.'
+
+        nationality_id = (post.get('nationality_id') or '').strip()
+        if not nationality_id.isdigit() or not request.env['res.country'].sudo().browse(int(nationality_id)).exists():
+            return 'Please select a valid nationality.'
+
+        for skill_id in request.httprequest.form.getlist('skill_ids'):
+            if skill_id and not skill_id.isdigit():
+                return 'Please select valid skills.'
 
         return None
 
@@ -143,14 +257,33 @@ class CareersController(http.Controller):
             'notice_period': post.get('notice_period'),
             'legally_required': post.get('legally_required'),
             'salary_expected': post.get('salary_expected'),
+            'nationality_id': int(post['nationality_id']) if post.get('nationality_id') and post.get(
+                'nationality_id').isdigit() else False,
             'type_id': int(post['type_id']) if post.get('type_id') and post.get('type_id').isdigit() else False,
             'experience': int(post['experience']) if post.get('experience') and post.get(
                 'experience').isdigit() else False,
             'description': (
+                (post.get('description') or '').strip()
             ),
         }
 
         applicant = request.env['hr.applicant'].sudo().create(applicant_vals)
+        skill_ids = {
+            int(skill_id)
+            for skill_id in request.httprequest.form.getlist('skill_ids')
+            if skill_id and skill_id.isdigit()
+        }
+        skills = request.env['hr.skill'].sudo().browse(list(skill_ids)).exists()
+        for skill in skills:
+            skill_levels = skill.skill_type_id.skill_level_ids
+            skill_level = skill_levels.filtered('default_level')[:1] or skill_levels[:1]
+            if skill_level:
+                request.env['hr.applicant.skill'].sudo().create({
+                    'applicant_id': applicant.id,
+                    'skill_type_id': skill.skill_type_id.id,
+                    'skill_id': skill.id,
+                    'skill_level_id': skill_level.id,
+                })
 
         resume = post.get('resume')
         if resume and getattr(resume, 'filename', False):

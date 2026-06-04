@@ -108,7 +108,7 @@
     <menuitem
         id="hr_applicant_onboarding_root_menu"
         name="Onboarding"
-        web_icon="pr_hr_recruitment/static/src/img/onboarding.png"
+        web_icon="pr_hr_recruitment,static/src/img/onboarding.png"
         groups="hr_recruitment.group_hr_recruitment_user,hr_recruitment.group_hr_recruitment_manager"
         sequence="211"/>
 

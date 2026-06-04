@@ -29,6 +29,7 @@
         'views/res_partner.xml',
         'views/product_template.xml',
         'data/product_sequence.xml',
+        'data/product_internal_reference_actions.xml',
         'data/partner_sequence.xml',
         'wizards/pr_reject_record.xml',
     ],

@@ -12,5 +12,18 @@
             <field name="active">True</field>
             <field name="nextcall">2026-04-05 21:00:00</field>
         </record>
+        <record id="ir_cron_auto_management_attendance" model="ir.cron">
+            <field name="name">Auto Management Attendance</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_create_auto_management_attendance()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+            <field name="active">True</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=16, minute=0, second=0, microsecond=0)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
     </data>
 </odoo>

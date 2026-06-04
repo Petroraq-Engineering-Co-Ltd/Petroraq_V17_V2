@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cron_pr_sync_yearly_annual_leave_allocations" model="ir.cron">
+        <field name="name">PR HR Holidays: Carry Forward and Create Next Annual Leave Allocation</field>
+        <field name="model_id" ref="hr_holidays.model_hr_leave_allocation"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_pr_create_next_year_for_ending_annual_allocations()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

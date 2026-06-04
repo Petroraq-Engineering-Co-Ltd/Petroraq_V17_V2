@@ -15,13 +15,20 @@
         <field name="dpi">95</field>
     </record>
 
-    <record id="hr_payroll.action_report_payslip" model="ir.actions.report">
-        <field name="paperformat_id" ref="de_hr_workspace_payroll.paperformat_payslip_custom_header_footer"/>
-    </record>
+    <function model="ir.actions.report" name="_pr_configure_payslip_paperformat"/>
 
     <template id="report_payslip_use_invoice_header_footer" inherit_id="hr_payroll.report_payslip">
         <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">pr_tax_Invoice_report_custom.custom_invoice_bridge_layout</attribute>
+        </xpath>
+        <xpath expr="//span[@t-field='o.employee_id.contract_id.hours_per_week']" position="replace">
+            <span t-out="'%.2f' % (o.employee_id.contract_id.hours_per_week or 0.0)"/>
+        </xpath>
+        <xpath expr="//span[@t-field='worked_days.number_of_hours']" position="replace">
+            <span t-out="'%.2f' % (worked_days.number_of_hours or 0.0)"/>
+        </xpath>
+        <xpath expr="//span[@t-field='worked_days.number_of_days']" position="replace">
+            <span t-out="'%.2f' % (worked_days.number_of_days or 0.0)"/>
         </xpath>
     </template>
 </odoo>

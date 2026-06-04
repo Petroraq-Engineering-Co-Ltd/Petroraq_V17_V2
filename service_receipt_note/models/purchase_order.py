@@ -20,13 +20,17 @@ class PurchaseOrder(models.Model):
         string="Has Service Lines",
         compute="_compute_has_service_lines",
     )
+    can_create_service_receipt_note = fields.Boolean(
+        string="Can Create SRN",
+        compute="_compute_can_create_service_receipt_note",
+    )
 
     @api.depends("service_receipt_note_ids")
     def _compute_service_receipt_note_count(self):
         for order in self:
             order.service_receipt_note_count = len(order.service_receipt_note_ids)
 
-    @api.depends("order_line.product_id", "order_line.display_type")
+    @api.depends("order_line.product_id", "order_line.product_id.detailed_type", "order_line.display_type")
     def _compute_has_service_lines(self):
         for order in self:
             order.has_service_lines = any(
@@ -36,15 +40,43 @@ class PurchaseOrder(models.Model):
                 for line in order.order_line
             )
 
+    @api.depends(
+        "state",
+        "order_line.product_id",
+        "order_line.product_id.detailed_type",
+        "order_line.product_qty",
+        "order_line.display_type",
+        "service_receipt_note_ids.state",
+        "service_receipt_note_ids.line_ids.done_qty",
+        "service_receipt_note_ids.line_ids.purchase_line_id",
+    )
+    def _compute_can_create_service_receipt_note(self):
+        for order in self:
+            if order.state not in ("purchase", "done"):
+                order.can_create_service_receipt_note = False
+                continue
+
+            if order._get_open_service_receipt_notes():
+                order.can_create_service_receipt_note = False
+                continue
+
+            service_lines = order._get_service_lines_for_srn()
+            order.can_create_service_receipt_note = bool(
+                service_lines and order._prepare_srn_line_commands(service_lines)
+            )
+
     def action_create_service_receipt_note(self):
         self.ensure_one()
 
         if self.state not in ("purchase", "done"):
             raise UserError(_("Please confirm the Purchase Order first."))
 
-        service_lines = self.order_line.filtered(
-            lambda l: not l.display_type and l.product_id.detailed_type == "service"
-        )
+        open_srn = self._get_open_service_receipt_notes()[:1]
+        if open_srn:
+            self._sync_open_srn_with_remaining_service_lines(open_srn)
+            return self._get_service_receipt_note_action(open_srn)
+
+        service_lines = self._get_service_lines_for_srn()
         if not service_lines:
             raise UserError(_("This Purchase Order has no service product lines."))
 
@@ -53,12 +85,11 @@ class PurchaseOrder(models.Model):
         if not line_commands:
             raise UserError(_("All service quantities for this Purchase Order are already received."))
 
-        srn = self.env["service.receipt.note"].create({
-            "purchase_id": self.id,
-            "state": "ready",
-            "line_ids": line_commands,
-        })
+        srn = self._create_service_receipt_note(line_commands)
 
+        return self._get_service_receipt_note_action(srn)
+
+    def _get_service_receipt_note_action(self, srn):
         return {
             "type": "ir.actions.act_window",
             "name": _("Service Receipt Note"),
@@ -67,6 +98,44 @@ class PurchaseOrder(models.Model):
             "res_id": srn.id,
             "target": "current",
         }
+
+    def _get_open_service_receipt_notes(self):
+        self.ensure_one()
+        return self.service_receipt_note_ids.filtered(lambda r: r.state in ("draft", "ready"))
+
+    def _get_service_lines_for_srn(self):
+        self.ensure_one()
+        return self.order_line.filtered(
+            lambda l: not l.display_type
+            and l.product_id
+            and l.product_id.detailed_type == "service"
+        )
+
+    def _create_service_receipt_note(self, line_commands):
+        self.ensure_one()
+        return self.env["service.receipt.note"].create({
+            "purchase_id": self.id,
+            "state": "ready",
+            "line_ids": line_commands,
+        })
+
+    def _sync_open_srn_with_remaining_service_lines(self, srn):
+        self.ensure_one()
+        existing_purchase_line_ids = srn.line_ids.mapped("purchase_line_id").ids
+        missing_service_lines = self._get_service_lines_for_srn().filtered(
+            lambda line: line.id not in existing_purchase_line_ids
+        )
+        line_commands = self._prepare_srn_line_commands(missing_service_lines)
+        if line_commands:
+            srn.write({
+                "line_ids": line_commands,
+                "approval_state": "pending",
+                "rejection_reason": False,
+            })
+            srn.message_post(
+                body=_("Missing service lines from %s were added to this SRN. Approval was reset to pending.")
+                % self.display_name
+            )
 
     def action_view_service_receipt_notes(self):
         self.ensure_one()
@@ -107,19 +176,13 @@ class PurchaseOrder(models.Model):
         for order in self:
             if order.state not in ("purchase", "done"):
                 continue
-            if order.service_receipt_note_ids.filtered(lambda r: r.state in ("draft", "ready")):
+            if order._get_open_service_receipt_notes():
                 continue
 
-            service_lines = order.order_line.filtered(
-                lambda l: not l.display_type and l.product_id.detailed_type == "service"
-            )
+            service_lines = order._get_service_lines_for_srn()
             line_commands = order._prepare_srn_line_commands(service_lines)
             if line_commands:
-                self.env["service.receipt.note"].create({
-                    "purchase_id": order.id,
-                    "state": "ready",
-                    "line_ids": line_commands,
-                })
+                order._create_service_receipt_note(line_commands)
         return result
 
 

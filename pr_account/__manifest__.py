@@ -16,10 +16,10 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Accounting/Accounting',
-    'version': '17.0.1.0.4',
+    'version': '17.0.1.0.5',
     "license": "LGPL-3",
     # any module necessary for this one to work correctly
-    'depends': ['account_accountant', 'account_reports'],
+    'depends': ['account_accountant', 'account_reports', 'de_hr_workspace'],
 
     # always loaded
     'data': [
@@ -42,6 +42,7 @@
         'views/cash_payment.xml',
         'views/bank_receipt.xml',
         'views/bank_payment.xml',
+        'views/vendor_payment_approval_views.xml',
         # "views/account_payment_register_view.xml",
 
         # 'views/journal_voucher_view.xml',

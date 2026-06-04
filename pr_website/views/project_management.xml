@@ -246,11 +246,11 @@
                 }
                 .pr-pm-page .dev-grid {
                     display: grid;
-                    grid-template-columns: repeat(6, 1fr);
+                    grid-template-columns: repeat(4, 1fr);
                     gap: 20px;
                 }
                 .pr-pm-page .dev-grid.row2 {
-                    grid-template-columns: repeat(6, 1fr);
+                    grid-template-columns: repeat(4, 1fr);
                     margin-top: 25px;
                     border-top: 1px solid var(--border);
                     padding-top: 25px;
@@ -280,7 +280,7 @@
                 }
                 .pr-pm-page .dev-icon {
                     width: 55px; height: 55px;
-                    margin: 0 auto 15px;
+                    margin: 0 0 15px 0;
                     display: flex; align-items: center; justify-content: center;
                     border-radius: 50%;
                     background: rgba(6,38,75,0.05);
@@ -793,9 +793,9 @@
                             <span class="current">Project Management</span>
                         </div>
                         <h1>PROJECT MANAGEMENT</h1>
-                        <p>PETRORAQ has been at the forefront of project implementation for many prestigious assignments in the Kingdom and around the Globe. It's experienced core team has been in this field, providing comprehensive services for both inside battery limits and offsite facilities. PETRORAQ offers both Clients &amp; Contractors a complete Project Management 'initiative' through its professionally qualified &amp; highly experienced project management team.</p>
-                        <p>The team is specialized in meeting requirements and challenges of the project &amp; ensuring deliverables on time, within budget and up to Client expectations.</p>
-                        <p>PETRORAQ provides total project management and coordination services by combining two vital components of its organizational strength:</p>
+                        <p style="text-align: justify;">PETRORAQ has been at the forefront of project implementation for many prestigious assignments in the Kingdom and around the Globe. It's experienced core team has been in this field, providing comprehensive services for both inside battery limits and offsite facilities. PETRORAQ offers both Clients &amp; Contractors a complete Project Management initiative through its professionally qualified &amp; highly experienced project management team.</p>
+                        <p style="text-align: justify;">The team is specialized in meeting requirements and challenges of the project &amp; ensuring deliverables on time, within budget and up to Client expectations.</p>
+                        <p style="text-align: justify;">PETRORAQ provides total project management and coordination services by combining two vital components of its organizational strength.</p>
 
                         <div class="pm-strength-item">
                             <div class="pm-strength-icon"><i class="fa fa-users"></i></div>
@@ -822,18 +822,24 @@
                 <section class="dev-wrap scroll-fade">
                     <div class="dev-grid">
                         <div class="dev-item scroll-fade delay-1">
-                            <h4>Basis of<br/>Project Decision</h4>
-                            <div class="dev-icon"><i class="fa fa-bullseye"></i></div>
+                            <h4 style="text-align: left;">Basis of Project Decision</h4>
+                            <div class="dev-icon" style="text-align: left;">
+                                <i class="fa fa-bullseye"></i></div>
                             <ul>
                                 <li>Manufacturing Objective Criteria</li>
+                                <li>Market Evaluation</li>
                                 <li>Reliability philosophy</li>
                                 <li>Maintenance Philosophy</li>
                                 <li>Operating Philosophy</li>
                                 <li>Business Objectives</li>
+                                <li>Cost Effectiveness</li>
+                                <li>Functional and operational efficiency</li>
+                                <li>Environmental and site conditions</li>
+                                <li>Sustainability and energy efficiency</li>
                             </ul>
                         </div>
                         <div class="dev-item scroll-fade delay-2">
-                            <h4>Selection of<br/>Products</h4>
+                            <h4 style="text-align: left;">Selection of Products</h4>
                             <div class="dev-icon"><i class="fa fa-shopping-cart"></i></div>
                             <ul>
                                 <li>Market Strategy</li>
@@ -844,28 +850,28 @@
                                 <li>Expected Project Life Cycle</li>
                                 <li>Social Issues</li>
                                 <li>Basic Data Research and Development</li>
+                                <li>Risk Assessment</li>
+                                <li>Sustainability Considerations</li>
                             </ul>
                         </div>
                         <div class="dev-item scroll-fade delay-3">
-                            <h4>Selection of Technology<br/>and Process</h4>
+                            <h4 style="text-align: left;">Selection of Technology and Process</h4>
                             <div class="dev-icon"><i class="fa fa-cogs"></i></div>
                             <ul>
                                 <li>Project Scope</li>
                                 <li>Project Objectives</li>
+                                <li>Site Analysis</li>
                                 <li>Design Criteria</li>
-                                <li>Site Characteristics</li>
-                                <li>Demolition/Dismantling</li>
+                                <li>Demolition / Dismantling Works</li>
                                 <li>Discipline Scope of Work</li>
                                 <li>Project Schedule</li>
                                 <li>Value Engineering</li>
                                 <li>Process Simplification</li>
                                 <li>Design &amp; Material Alternatives</li>
-                                <li>Constructability Analysis</li>
-                                <li>Front End Definition</li>
                             </ul>
                         </div>
                         <div class="dev-item scroll-fade delay-4">
-                            <h4>Site<br/>Information</h4>
+                            <h4 style="text-align: left;">Site Information</h4>
                             <div class="dev-icon"><i class="fa fa-map-marker-alt"></i></div>
                             <ul>
                                 <li>Site Location</li>
@@ -874,10 +880,34 @@
                                 <li>Permit Requirements</li>
                                 <li>Utility Sources with Supply Conditions</li>
                                 <li>Fire Protection and Safety Considerations</li>
+                                <li>Easement During Execution</li>
+                                <li>Geological and Seismic Conditions</li>
+                                <li>zoning and land use regulations</li>
+                                <li>Electricity Supply and Load capacities</li>
                             </ul>
                         </div>
-                        <div class="dev-item scroll-fade delay-5">
-                            <h4>Mechanical</h4>
+
+                    </div>
+
+                    <div class="dev-grid row2">
+                        <div class="dev-item scroll-fade delay-1">
+                            <h4 style="text-align: left;">Electrical</h4>
+                            <div class="dev-icon"><i class="fa fa-bolt"></i></div>
+                            <ul>
+                                <li>Control Philosophy</li>
+                                <li>Analysis of Current Flow / Load Calculations</li>
+                                <li>Electrical Area Classifications</li>
+                                <li>Substation/Power Sources</li>
+                                <li>Electric Single Line Diagrams</li>
+                                <li>Electrical Specifications</li>
+                                <li>Low voltage (LV) and medium voltage (MV) systems </li>
+                                <li>Lighting systems and controls </li>
+                                <li>Industrial electrical works </li>
+                                <li>Cable laying and termination </li>
+                            </ul>
+                        </div>
+                        <div class="dev-item scroll-fade delay-2">
+                            <h4 style="text-align: left;">Mechanical</h4>
                             <div class="dev-icon"><i class="fa fa-tools"></i></div>
                             <ul>
                                 <li>Piping Diagrams</li>
@@ -890,44 +920,40 @@
                                 <li>Tie-in List</li>
                                 <li>Piping Specialty Items List</li>
                                 <li>Equipment Scope</li>
-                                <li>Equipment Status</li>
-                                <li>Equipment Location Drawings</li>
+                                <li>Mechanical Data Sheets</li>
                             </ul>
                         </div>
-                        <div class="dev-item scroll-fade delay-6">
-                            <h4>Civil/Structural &amp;<br/>Architectural</h4>
+                        <div class="dev-item scroll-fade delay-3">
+                            <h4 style="text-align: left;">Civil/Structural &amp; Architectural</h4>
                             <div class="dev-icon"><i class="fa fa-building"></i></div>
                             <ul>
+                                <li>Topographical Survey</li>
                                 <li>Civil/Structural Requirements</li>
                                 <li>Architectural Requirements</li>
+                                <li>Load Calculations</li>
                                 <li>Infrastructure</li>
+                                <li>Analysis of Water Supplies</li>
                                 <li>Water Treatment Requirements</li>
                                 <li>Loading/Unloading/Storage Requirements</li>
                                 <li>Transportation Requirements</li>
+                                <li>Foundation Design Requirements</li>
+                                <li>Building Finishes and Material Specifications</li>
                             </ul>
                         </div>
-                    </div>
-
-                    <div class="dev-grid row2">
-                        <div class="dev-item scroll-fade delay-1">
-                            <h4>Electrical</h4>
-                            <div class="dev-icon"><i class="fa fa-bolt"></i></div>
-                            <ul>
-                                <li>Control Philosophy</li>
-                                <li>Electrical Area Classifications</li>
-                                <li>Substation/Power Sources</li>
-                                <li>Electric Single Line Diagrams</li>
-                                <li>Electrical Specifications</li>
-                            </ul>
-                        </div>
-                        <div class="dev-item scroll-fade delay-2">
-                            <h4>Project Execution</h4>
+                        <div class="dev-item scroll-fade delay-4">
+                            <h4 style="text-align: left;">Project Execution</h4>
                             <div class="dev-icon"><i class="fa fa-clipboard-check"></i></div>
                             <ul>
+                                <li>Project Estimations</li>
                                 <li>Procurement Strategy</li>
-                                <li>Identity Long Lead/Critical Equipment &amp; Materials</li>
-                                <li>Procurement Procedures and Plans</li>
+                                <li>Identity Long Lead / Critical Equipment<br/>&amp; Materials</li>
+                                <li>Procurement, Procedures, Plans &amp;<br/> Client Approvals</li>
                                 <li>Procurement Responsibility Matrix</li>
+                                <li> Construction / Execution</li>
+                                <li> Deliveries</li>
+                                <li>Project Schedule and Milestones</li>
+                                <li>Resource Planning and Allocation</li>
+                                <li>Quality Control and Inspection Plan</li>
                             </ul>
                         </div>
                     </div>
@@ -943,6 +969,7 @@
                                 <li>CADD/Model Requirements</li>
                                 <li>Deliverables Defined</li>
                                 <li>Distribution Matrix</li>
+                                <li>Documents Submission Schedule</li>
                             </ul>
                         </div>
                     </div>
@@ -984,71 +1011,78 @@
                     <div class="fn-panel scroll-left">
                         <div class="fn-header">
                             <div class="fn-header-icon"><i class="fa fa-clipboard-list"></i></div>
-                            <h3>FUNCTION OF PROJECT MANAGEMENT<br/>BEFORE CONSTRUCTION STARTS</h3>
+                            <h3>FUNCTION OF PROJECT MANAGEMENT BEFORE CONSTRUCTION STARTS</h3>
                         </div>
                         <div class="fn-body">
                             <div class="fn-grid">
                                 <div class="fn-item">
-                                    <div class="fn-icon-wrap"><i class="fa fa-users"></i></div>
-                                    <h5>1. Programming</h5>
-                                    <ul>
-                                        <li>Functional Program</li>
-                                        <li>Architectural Program</li>
-                                    </ul>
+                                    <div class="fn-icon-wrap"><i class="fa fa-file-lines"></i></div>
+                                    <h5>Project Identification</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-file-alt"></i></div>
-                                    <h5>2. Evaluation of<br/>Project Documents</h5>
+                                    <h5>Feasibility Study</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-calculator"></i></div>
-                                    <h5>Cost Estimating</h5>
+                                    <h5>Setting Objectives</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-calendar-alt"></i></div>
-                                    <h5>Planning and<br/>Scheduling</h5>
+                                    <h5>Project Planning</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-shield-alt"></i></div>
-                                    <h5>Construction<br/>Permits</h5>
+                                    <h5>Resource Allocation</h5>
                                 </div>
                             </div>
 
-                            <div class="fn-grid last-row">
+<div class="fn-grid last-row">
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-truck-loading"></i></div>
-                                    <h5>Order of Owner's<br/>Provided Equipment</h5>
+                                    <h5>Budgeting &amp; Cost Estimation</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-star"></i></div>
-                                    <h5>Suggest the<br/>awarding System</h5>
+                                    <h5>Risk Assessment</h5>
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-user-friends"></i></div>
-                                    <h5>Contractor's<br/>Selection</h5>
-                                    <ul>
-                                        <li>Invitation to Bid</li>
-                                        <li>Instructions to Bidders</li>
-                                        <li>Conditions of the Contract</li>
-                                    </ul>
+                                    <h5>Stake Holder Analysis</h5>
                                 </div>
-                                <div class="fn-item" style="grid-column: span 2;">
+                                <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-file-signature"></i></div>
-                                    <ul style="text-align:left;">
-                                        <li>Contract Agreement</li>
-                                        <li>Pre-bid Conference</li>
-                                        <li>Bid Evaluation</li>
-                                        <li>Contract Award</li>
-                                    </ul>
+                                    <h5>Team Formation</h5>
+                                </div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-file-contract"></i></div>
+                                    <h5>Approval &amp; Authorization</h5>
                                 </div>
                             </div>
+                            <div class="fn-flow">
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-headset"></i></div>
+                                    <h5>Communication Planning </h5>
+                                </div>
+                                <div class="fn-flow-arrow"></div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-critical-role"></i></div>
+                                    <h5>Procurement Planning</h5>
+                                </div>
+                                <div class="fn-flow-arrow"></div>
+                                <div class="fn-item">
+                                    <div class="fn-icon-wrap"><i class="fa fa-arrow-up-right-dots"></i></div>
+                                    <h5>Project Start</h5>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
                     <div class="fn-panel scroll-right">
                         <div class="fn-header">
                             <div class="fn-header-icon"><i class="fa fa-hard-hat"></i></div>
-                            <h3>FUNCTION OF PROJECT MANAGEMENT<br/>AFTER CONSTRUCTION PHASE -</h3>
+                            <h3>FUNCTION OF PROJECT MANAGEMENT AFTER CONSTRUCTION PHASE </h3>
                         </div>
                         <div class="fn-body">
                             <div class="fn-grid">
@@ -1093,7 +1127,7 @@
                                 </div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-file-contract"></i></div>
-                                    <h5>Administrative<br/>and Change Order</h5>
+                                    <h5>Admin &amp; <br/> Change Order</h5>
                                 </div>
                             </div>
 
@@ -1102,12 +1136,12 @@
                                     <div class="fn-icon-wrap"><i class="fa fa-search"></i></div>
                                     <h5>Plan, Interpretation<br/>&amp; Corrections</h5>
                                 </div>
-                                <div class="fn-flow-arrow"><i class="fa fa-arrow-right"></i></div>
+                                <div class="fn-flow-arrow"></div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-award"></i></div>
                                     <h5>Final Inspection &amp;<br/>Acceptance of work</h5>
                                 </div>
-                                <div class="fn-flow-arrow"><i class="fa fa-arrow-right"></i></div>
+                                <div class="fn-flow-arrow"></div>
                                 <div class="fn-item">
                                     <div class="fn-icon-wrap"><i class="fa fa-handshake"></i></div>
                                     <h5>Project<br/>Handing over</h5>
@@ -1123,16 +1157,16 @@
                         <div class="cb-logo"><i class="fa fa-tint"></i></div>
                         <div>
                             <div class="brand-name">PETRORAQ</div>
-                            <div class="brand-sub">ENERGY SERVICES</div>
+                            <div class="brand-sub">ENGINEERING &amp; CONSTRUCTION</div>
                         </div>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-map-marker-alt"></i>
-                        <span>Al-Majd square, King Faisal (West) Road, Basra, Iraq</span>
+                        <span>Al-Majd square, King Faisal (West) Road, Al-Jubail, KSA</span>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-phone"></i>
-                        <span>+964 781 000 9131 / +964 771 529 7877</span>
+                        <span>+966 13 - 361 - 4446</span>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-envelope"></i>

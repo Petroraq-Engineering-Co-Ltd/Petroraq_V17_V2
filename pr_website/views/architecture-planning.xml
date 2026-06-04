@@ -584,7 +584,7 @@
                             <i class="fa fa-chevron-right"></i>
                             <span class="current">Architectural &amp; Planning</span>
                         </div>
-                        <h1>Architectural &amp;<br/>Planning<span class="dot">.</span></h1>
+                        <h1>Architectural &amp;<br/>Planning<span class="dot"></span></h1>
                         <div class="gold-line"></div>
                         <p>Creative designs. Smart planning. Functional spaces. Building environments that inspire and stand the test of time.</p>
                     </div>
@@ -593,9 +593,9 @@
                 <!-- ===== DESCRIPTION SECTION ===== -->
                 <section class="description-section scroll-fade">
                     <div class="description-text">
-                        <p>PETRORAQ Architectural discipline comprises qualified architects with extensive experience in community planning and site development, building planning and architecture, interior design and landscaping. They can transform client's intent into a truly aesthetic and trendy building giving particular importance for space utilization and functional efficiency. They have planned and designed a wide range of facilities and buildings such as villas, apartments, commercial, industrial, educational, health care facilities, hotels, leisure facilities, recreational centers and offices of all sizes.</p>
-                        <p>PETRORAQ core strength lies in providing comprehensive planning services including Site and Topographic surveying, Land use analysis, Master plan development, Conceptual design, Front end engineering and detailed designing of projects of all types and magnitude.</p>
-                        <p>Our architects take pride in their creative efforts, which have led to some of the landmark structures built in the region.</p>
+                        <p style="text-align: justify;">PETRORAQ Architectural discipline comprises qualified architects with extensive experience in community planning and site development, building planning and architecture, interior design and landscaping. They can transform client's intent into a truly aesthetic and trendy building giving particular importance for space utilization and functional efficiency. They have planned and designed a wide range of facilities and buildings such as villas, apartments, commercial, industrial, educational, health care facilities, hotels, leisure facilities, recreational centers and offices of all sizes.</p>
+                        <p style="text-align: justify;">PETRORAQ core strength lies in providing comprehensive planning services including Site and Topographic surveying, Land use analysis, Master plan development, Conceptual design, Front end engineering and detailed designing of projects of all types and magnitude.</p>
+                        <p style="text-align: justify;">Our architects take pride in their creative efforts, which have led to some of the landmark structures built in the region.</p>
                     </div>
                     <div class="description-image">
                         <img src="/pr_website/static/images/petroraq_architectural_concept_sketch_hd.png" alt="Architectural planning"/>
@@ -615,10 +615,13 @@
                             <div class="sc-title-line"></div>
                         </div>
                         <ul>
-                            <li><i class="fa fa-check-circle"></i>Regional and Community Development</li>
+                            <li><i class="fa fa-check-circle"></i>Regional and Community Development works</li>
                             <li><i class="fa fa-check-circle"></i>Highways and Roads network</li>
-                            <li><i class="fa fa-check-circle"></i>Recreational and Leisure Facilities</li>
                             <li><i class="fa fa-check-circle"></i>Site Development and Landscaping</li>
+                            <li><i class="fa fa-check-circle"></i>Utility corridor and infrastructure support works</li>
+                            <li><i class="fa fa-check-circle"></i>Recreational and leisure facility development</li>
+                            <li><i class="fa fa-check-circle"></i>Public area and open-space improvement works</li>
+                            <li><i class="fa fa-check-circle"></i>Landscaping and external finishing works</li>
                         </ul>
                         <div class="card-image">
                             <img src="/pr_website/static/images/petroraq_master_planning_aerial_hd.png" alt="Urban Planning"/>

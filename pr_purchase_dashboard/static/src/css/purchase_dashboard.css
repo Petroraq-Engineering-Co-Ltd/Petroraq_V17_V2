@@ -1,0 +1,889 @@
+.o_pr_purchase_dashboard {
+    --pr-blue: #06264b;
+    --pr-blue-light: #0a3d6e;
+    --pr-gold: #e9a23e;
+    --pr-gold-dark: #d8902f;
+    --pr-ink: #222;
+    --pr-muted: #657385;
+    --pr-border: #dce5ef;
+    --pr-soft: #f6f8fb;
+    background: #f4f7fb;
+    color: var(--pr-ink);
+    min-height: 100%;
+    padding: 18px;
+}
+
+.pr-purchase-loading {
+    align-items: center;
+    color: var(--pr-blue);
+    display: flex;
+    font-weight: 700;
+    gap: 10px;
+    justify-content: center;
+    min-height: 360px;
+}
+
+.pr-purchase-header {
+    align-items: center;
+    background: linear-gradient(135deg, var(--pr-blue) 0%, var(--pr-blue-light) 100%);
+    border-radius: 8px;
+    box-shadow: 0 10px 26px rgba(6, 38, 75, 0.18);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 20px 24px;
+}
+
+.pr-purchase-eyebrow {
+    color: var(--pr-gold);
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.pr-purchase-header h1 {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0;
+}
+
+.pr-purchase-header p {
+    color: rgba(255, 255, 255, .78);
+    margin: 6px 0 0;
+}
+
+.pr-purchase-refresh {
+    background: rgba(233, 162, 62, .16);
+    border: 1px solid rgba(233, 162, 62, .55);
+    color: #fff;
+    font-weight: 700;
+}
+
+.pr-purchase-refresh:hover {
+    background: var(--pr-gold);
+    color: #fff;
+}
+
+.pr-purchase-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    margin-bottom: 10px;
+}
+
+.pr-purchase-card {
+    background: #fff;
+    border: 1px solid var(--pr-border);
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(6, 38, 75, .1);
+    min-height: 170px;
+    overflow: hidden;
+    padding: 16px;
+    position: relative;
+}
+
+.pr-purchase-card:hover {
+    border-color: rgba(233, 162, 62, .65);
+    box-shadow: 0 12px 30px rgba(6, 38, 75, .15);
+}
+
+.pr-span-2 { grid-column: span 2; }
+.pr-span-3 { grid-column: span 3; }
+.pr-span-4 { grid-column: span 4; }
+.pr-span-5 { grid-column: span 5; }
+
+.pr-purchase-tall {
+    min-height: 345px;
+}
+
+.pr-purchase-card-title {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.pr-purchase-card-title h2 {
+    color: #303a49;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.pr-purchase-card-title i {
+    color: #344052;
+    font-size: 13px;
+}
+
+.pr-purchase-kpi-card {
+    cursor: pointer;
+}
+
+.pr-purchase-kpi-card span {
+    color: #929bab;
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.pr-purchase-kpi-card strong {
+    color: #283140;
+    display: block;
+    font-size: 27px;
+    font-weight: 850;
+    line-height: 1.1;
+    margin: 6px 0 10px;
+}
+
+.pr-purchase-kpi-divider {
+    background: var(--pr-border);
+    height: 1px;
+    margin: 12px 0;
+}
+
+.pr-purchase-sparkline {
+    bottom: 14px;
+    height: 58px;
+    position: absolute;
+    right: 14px;
+    width: 42%;
+}
+
+.pr-purchase-sparkline polyline {
+    fill: none;
+    stroke: #2f95ed;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 5;
+}
+
+.pr-purchase-line-chart {
+    min-height: 145px;
+}
+
+.pr-purchase-line-chart svg {
+    display: block;
+    height: 135px;
+    width: 100%;
+}
+
+.pr-purchase-line-chart line {
+    stroke: #e9edf3;
+    stroke-width: 1;
+}
+
+.pr-purchase-line-chart .area {
+    fill: url(#prPurchaseLineArea);
+}
+
+.pr-purchase-line-chart .line {
+    fill: none;
+    stroke: #303a49;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 3;
+}
+
+.pr-purchase-month-labels {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.pr-purchase-month-labels button {
+    background: transparent;
+    border: 0;
+    color: var(--pr-muted);
+    font-size: 11px;
+    min-width: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.pr-purchase-month-labels strong,
+.pr-purchase-month-labels em {
+    display: block;
+    font-style: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-month-labels em {
+    color: #303a49;
+    font-weight: 800;
+}
+
+.pr-purchase-insight-row {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    gap: 14px;
+    margin: 14px 0;
+}
+
+.pr-purchase-mini-donut {
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px #d8e2ec;
+    display: flex;
+    flex: 0 0 72px;
+    height: 72px;
+    justify-content: center;
+    position: relative;
+    width: 72px;
+}
+
+.pr-purchase-mini-donut::after {
+    background: #fff;
+    border-radius: 50%;
+    content: "";
+    inset: 9px;
+    position: absolute;
+}
+
+.pr-purchase-mini-donut span {
+    color: #303a49;
+    font-size: 18px;
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+}
+
+.pr-purchase-insight-row strong,
+.pr-purchase-insight-row span {
+    display: block;
+}
+
+.pr-purchase-insight-row strong {
+    color: #303a49;
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.pr-purchase-insight-row > div:last-child span {
+    color: var(--pr-muted);
+    font-size: 12px;
+}
+
+.pr-purchase-gauge {
+    --gauge-value: 0%;
+    --gauge-color: #2f95ed;
+    align-items: flex-end;
+    background: conic-gradient(from 270deg, var(--gauge-color) var(--gauge-value), #d9dde3 0 50%, transparent 0);
+    border-radius: 120px 120px 0 0;
+    cursor: pointer;
+    display: flex;
+    height: 82px;
+    justify-content: center;
+    margin: 28px auto 8px;
+    overflow: hidden;
+    position: relative;
+    width: 150px;
+}
+
+.pr-purchase-gauge::after {
+    background: #fff;
+    border-radius: 110px 110px 0 0;
+    bottom: 0;
+    content: "";
+    height: 58px;
+    left: 22px;
+    position: absolute;
+    right: 22px;
+}
+
+.pr-purchase-gauge-value {
+    align-items: center;
+    bottom: 10px;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    z-index: 1;
+}
+
+.pr-purchase-gauge-value strong {
+    color: #747d8b;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.pr-purchase-card-note {
+    color: var(--pr-muted);
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+    text-align: center;
+}
+
+.pr-purchase-category-rings {
+    height: 224px;
+    margin: 14px auto 10px;
+    position: relative;
+    width: 224px;
+}
+
+.pr-purchase-ring {
+    background: conic-gradient(var(--ring-color) var(--ring-value), #edf1f6 0);
+    border-radius: 50%;
+    inset: calc(var(--ring-index) * 13px);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px));
+    position: absolute;
+}
+
+.pr-purchase-category-center {
+    align-items: center;
+    background: #fff;
+    border-radius: 50%;
+    color: #303a49;
+    display: flex;
+    flex-direction: column;
+    inset: 72px;
+    justify-content: center;
+    position: absolute;
+}
+
+.pr-purchase-category-center strong {
+    font-size: 20px;
+}
+
+.pr-purchase-category-center span {
+    color: var(--pr-muted);
+    font-size: 18px;
+}
+
+.pr-purchase-legend-list,
+.pr-purchase-progress-list,
+.pr-purchase-volume-list,
+.pr-purchase-horizontal-bars,
+.pr-purchase-approval-list,
+.pr-purchase-watch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pr-purchase-legend-list button,
+.pr-purchase-progress-list button,
+.pr-purchase-volume-list button,
+.pr-purchase-horizontal-bars button,
+.pr-purchase-approval-list button,
+.pr-purchase-watch-list button,
+.pr-purchase-geo-chart button,
+.pr-purchase-vertical-bar,
+.pr-purchase-stage-chart button,
+.pr-purchase-budget-columns button,
+.pr-purchase-pipeline button {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    padding: 0;
+    text-align: left;
+}
+
+.pr-purchase-legend-list button {
+    align-items: center;
+    display: grid;
+    gap: 7px;
+    grid-template-columns: 10px 1fr auto;
+}
+
+.pr-purchase-legend-list i {
+    border-radius: 50%;
+    height: 10px;
+    width: 10px;
+}
+
+.pr-purchase-legend-list span {
+    color: #303a49;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-legend-list strong {
+    color: var(--pr-muted);
+    font-size: 12px;
+}
+
+.pr-purchase-bar-chart {
+    align-items: end;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    min-height: 175px;
+}
+
+.pr-purchase-vertical-bar {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    height: 175px;
+    justify-content: end;
+    min-width: 0;
+}
+
+.pr-purchase-vertical-track {
+    align-items: end;
+    background: #f0f3f7;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    height: 112px;
+    overflow: hidden;
+    width: 52%;
+}
+
+.pr-purchase-vertical-track span {
+    border-radius: 6px 6px 0 0;
+    display: block;
+    width: 100%;
+}
+
+.pr-purchase-vertical-bar strong,
+.pr-purchase-vertical-bar em {
+    font-size: 11px;
+    font-style: normal;
+    max-width: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-vertical-bar strong {
+    color: #303a49;
+    font-weight: 800;
+}
+
+.pr-purchase-vertical-bar em {
+    color: var(--pr-muted);
+}
+
+.pr-purchase-progress-list button {
+    display: block;
+}
+
+.pr-purchase-progress-list button > div {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.pr-purchase-progress-list span,
+.pr-purchase-progress-list strong {
+    font-size: 12px;
+}
+
+.pr-purchase-progress-list span {
+    color: #303a49;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-progress-list strong {
+    color: var(--pr-blue);
+}
+
+.pr-purchase-progress {
+    background: #edf1f6;
+    border-radius: 999px;
+    display: block;
+    height: 8px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.pr-purchase-progress span {
+    border-radius: 999px;
+    display: block;
+    height: 100%;
+}
+
+.pr-purchase-approval-list button {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr auto;
+}
+
+.pr-purchase-approval-list span {
+    align-items: center;
+    display: flex;
+    gap: 7px;
+    min-width: 0;
+}
+
+.pr-purchase-approval-list span i {
+    border-radius: 50%;
+    flex: 0 0 10px;
+    height: 10px;
+    width: 10px;
+}
+
+.pr-purchase-approval-list strong {
+    color: #303a49;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-approval-list em {
+    color: var(--pr-blue);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 850;
+}
+
+.pr-purchase-approval-list button > div {
+    background: #edf1f6;
+    border-radius: 999px;
+    grid-column: 1 / -1;
+    height: 8px;
+    overflow: hidden;
+}
+
+.pr-purchase-approval-list b {
+    border-radius: 999px;
+    display: block;
+    height: 100%;
+}
+
+.pr-purchase-geo-chart,
+.pr-purchase-stage-chart {
+    align-items: end;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    min-height: 230px;
+}
+
+.pr-purchase-geo-chart button,
+.pr-purchase-stage-chart button {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 220px;
+    justify-content: end;
+    min-width: 0;
+}
+
+.pr-purchase-geo-bar {
+    align-items: end;
+    background: #edf1f6;
+    border-radius: 999px;
+    display: flex;
+    height: 145px;
+    overflow: hidden;
+    width: 17px;
+}
+
+.pr-purchase-geo-bar span {
+    background: #4dd4d0;
+    border-radius: 999px;
+    display: block;
+    width: 100%;
+}
+
+.pr-purchase-stage-bars {
+    align-items: end;
+    display: flex;
+    height: 142px;
+}
+
+.pr-purchase-stage-bars span {
+    border-radius: 6px 6px 0 0;
+    display: block;
+    min-height: 4px;
+    width: 30px;
+}
+
+.pr-purchase-geo-chart strong,
+.pr-purchase-geo-chart em,
+.pr-purchase-stage-chart strong,
+.pr-purchase-stage-chart em {
+    font-size: 11px;
+    font-style: normal;
+    max-width: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-geo-chart strong {
+    color: #45cfe4;
+    font-weight: 850;
+}
+
+.pr-purchase-geo-chart em,
+.pr-purchase-stage-chart strong {
+    color: #303a49;
+}
+
+.pr-purchase-stage-chart em {
+    color: var(--pr-gold-dark);
+    font-weight: 850;
+}
+
+.pr-purchase-volume-list button {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.pr-purchase-volume-list span {
+    align-items: center;
+    display: flex;
+    gap: 7px;
+    min-width: 0;
+}
+
+.pr-purchase-volume-list span i {
+    background: var(--dot);
+    border-radius: 50%;
+    flex: 0 0 10px;
+    height: 10px;
+    width: 10px;
+}
+
+.pr-purchase-volume-list strong {
+    color: #303a49;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-volume-list em {
+    color: var(--pr-blue);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 850;
+}
+
+.pr-purchase-volume-wide {
+    gap: 10px;
+}
+
+.pr-purchase-horizontal-bars button {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 145px 1fr;
+}
+
+.pr-purchase-horizontal-bars button > span {
+    color: #657385;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-horizontal-bars div {
+    background: #edf1f6;
+    border-radius: 6px;
+    height: 28px;
+    overflow: hidden;
+    position: relative;
+}
+
+.pr-purchase-horizontal-bars i {
+    background: #4dd4d0;
+    border-radius: 6px;
+    bottom: 0;
+    display: block;
+    left: 0;
+    position: absolute;
+    top: 0;
+}
+
+.pr-purchase-horizontal-bars strong {
+    color: #172033;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 28px;
+    position: absolute;
+    right: 10px;
+}
+
+.pr-purchase-pipeline {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-height: 250px;
+}
+
+.pr-purchase-pipeline button {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    min-width: 0;
+}
+
+.pr-purchase-pipeline strong,
+.pr-purchase-pipeline em {
+    font-size: 12px;
+    font-style: normal;
+    max-width: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-pipeline strong {
+    color: #303a49;
+}
+
+.pr-purchase-pipeline em {
+    color: var(--pr-muted);
+}
+
+.pr-purchase-watch-list button {
+    background: #f7f9fc;
+    border: 1px solid #e5edf6;
+    border-radius: 8px;
+    display: grid;
+    gap: 4px;
+    grid-template-columns: 1fr auto;
+    padding: 10px 12px;
+}
+
+.pr-purchase-watch-list span {
+    color: #303a49;
+    font-size: 12px;
+    font-weight: 800;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pr-purchase-watch-list strong {
+    color: var(--pr-blue);
+    font-size: 18px;
+    font-weight: 850;
+}
+
+.pr-purchase-watch-list em {
+    color: var(--pr-muted);
+    font-size: 12px;
+    font-style: normal;
+    grid-column: 1 / -1;
+}
+
+.pr-purchase-budget-columns {
+    align-items: stretch;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pr-purchase-budget-columns button {
+    background: #f7f9fc;
+    border: 1px solid #e5edf6;
+    border-radius: 8px;
+    min-height: 70px;
+    padding: 10px;
+    text-align: center;
+}
+
+.pr-purchase-budget-columns strong {
+    color: var(--pr-blue);
+    display: block;
+    font-size: 20px;
+    font-weight: 850;
+}
+
+.pr-purchase-budget-columns span {
+    color: var(--pr-muted);
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 4px;
+}
+
+.pr-purchase-empty {
+    align-items: center;
+    border: 1px dashed var(--pr-border);
+    border-radius: 8px;
+    color: var(--pr-muted);
+    display: flex;
+    font-size: 13px;
+    justify-content: center;
+    min-height: 90px;
+    padding: 16px;
+    text-align: center;
+    width: 100%;
+}
+
+@media (max-width: 1400px) {
+    .pr-span-2,
+    .pr-span-3,
+    .pr-span-4 {
+        grid-column: span 6;
+    }
+
+    .pr-span-5 {
+        grid-column: span 12;
+    }
+}
+
+@media (max-width: 900px) {
+    .o_pr_purchase_dashboard {
+        padding: 12px;
+    }
+
+    .pr-purchase-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .pr-purchase-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pr-span-2,
+    .pr-span-3,
+    .pr-span-4,
+    .pr-span-5 {
+        grid-column: span 1;
+    }
+
+    .pr-purchase-month-labels {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pr-purchase-bar-chart,
+    .pr-purchase-geo-chart,
+    .pr-purchase-stage-chart {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pr-purchase-horizontal-bars button {
+        grid-template-columns: 1fr;
+    }
+
+    .pr-purchase-pipeline,
+    .pr-purchase-budget-columns {
+        grid-template-columns: 1fr;
+    }
+}

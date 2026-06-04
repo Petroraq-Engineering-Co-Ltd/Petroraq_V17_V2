@@ -62,7 +62,7 @@
                         height: 100vh;
                         min-height: 400px;
                         background: linear-gradient(90deg, rgba(6,38,75,0.75) 0%, rgba(6,38,75,0.4) 60%, rgba(6,38,75,0.15) 100%),
-                                    url('pr_website/static/images/hero-bg.png') center/cover no-repeat;
+                                    url('pr_website/static/images/main_page.png') center/cover no-repeat;
                         color: #fff;
                         overflow: hidden;
                     }
@@ -370,11 +370,14 @@
                         transition: all 0.3s ease;
                         border-radius: 12px;
                         background: rgba(255,255,255,0.6);
+                        cursor: pointer;
                     }
-                    .cert-item:hover {
+                    .cert-item:hover,
+                    .cert-item:focus-visible {
                         transform: translateY(-8px);
                         box-shadow: 0 15px 40px rgba(0,0,0,0.1);
                         background: #fff;
+                        outline: none;
                     }
                     .cert-item img {
                         height: 70px;
@@ -384,6 +387,78 @@
                     }
                     .cert-item:hover img {
                         transform: scale(1.1);
+                    }
+                    .cert-preview-modal {
+                        position: fixed;
+                        inset: 0;
+                        z-index: 1060;
+                        display: none;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 28px;
+                        background: rgba(2, 12, 26, 0.82);
+                    }
+                    .cert-preview-modal.is-open {
+                        display: flex;
+                    }
+                    .cert-preview-dialog {
+                        width: min(900px, 96vw);
+                        max-height: 92vh;
+                        background: #ffffff;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+                    }
+                    .cert-preview-head {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 16px;
+                        padding: 14px 18px;
+                        background: #06264B;
+                        color: #ffffff;
+                    }
+                    .cert-preview-title {
+                        margin: 0;
+                        font-size: 16px;
+                        font-weight: 800;
+                    }
+                    .cert-preview-tools {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    }
+                    .cert-preview-download,
+                    .cert-preview-close {
+                        border: 0;
+                        border-radius: 6px;
+                        padding: 8px 12px;
+                        font-size: 12px;
+                        font-weight: 800;
+                        text-transform: uppercase;
+                        text-decoration: none;
+                        cursor: pointer;
+                    }
+                    .cert-preview-download {
+                        background: #FDB514;
+                        color: #06264B;
+                    }
+                    .cert-preview-close {
+                        background: rgba(255,255,255,0.12);
+                        color: #ffffff;
+                    }
+                    .cert-preview-body {
+                        max-height: calc(92vh - 58px);
+                        overflow: auto;
+                        padding: 18px;
+                        background: #f8fafc;
+                    }
+                    .cert-preview-body img {
+                        display: block;
+                        width: 100%;
+                        height: auto;
+                        border-radius: 4px;
+                        box-shadow: 0 10px 30px rgba(6, 38, 75, 0.12);
                     }
 
                     /* Responsive */
@@ -403,6 +478,8 @@
                         .stats { padding: 40px 20px; }
                         .featured { padding: 0 20px; }
                         .certifications { padding: 60px 20px; }
+                        .cert-preview-modal { padding: 14px; }
+                        .cert-preview-head { align-items: flex-start; flex-direction: column; }
                     }
                     @media (max-width: 480px) {
                         .services, .stats, .projects-grid, .cert-grid { grid-template-columns: 1fr; }
@@ -412,9 +489,10 @@
 
                 <section class="hero">
                     <div class="hero-content">
-                        <h1>Engineering<span>.</span><br/>Procurement<span>.</span><br/>Construction<span>.</span></h1>
-                        <p>Delivering industrial and infrastructure projects with precision, safety, and excellence.</p>
-                        <button class="hero-btn">Explore Our Services
+                        <h1>Engineering<span></span><br/>Procurement<span></span><br/>Construction<span></span></h1>
+                        <p>Delivering comprehensive engineering, infrastructure, industrial, and project financing solutions with technical precision, safe execution, and lasting excellence.</p>
+                        <button class="hero-btn">
+                            <a href="/about-us">About Us</a>
                             <i class="fa fa-arrow-right"></i>
                         </button>
                     </div>
@@ -465,19 +543,19 @@
 
                 <section class="stats scroll-animate">
                     <div class="stat-item">
-                        <img src="pr_website/static/images/labors.png" alt="Skilled Professionals"/>
+                        <img src="pr_website/static/images/labors.png" alt="Professional Resources"/>
                         <h2>800+</h2>
-                        <p>Skilled Professionals</p>
+                        <p>Professional Resources</p>
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/building.png" alt="Projects Completed"/>
-                        <h2>25+</h2>
+                        <h2>35+</h2>
                         <p>Projects Completed</p>
                     </div>
                     <div class="stat-item">
-                        <img src="pr_website/static/images/globe.png" alt="Years of Experience"/>
-                        <h2>3+</h2>
-                        <p>Years of Experience</p>
+                        <img src="pr_website/static/images/globe.png" alt="Years of Excellence"/>
+                        <h2>7+</h2>
+                        <p>Years of Excellence</p>
                     </div>
                     <div class="stat-item">
                         <img src="pr_website/static/images/check_box.png" alt="Lost Time Injury"/>
@@ -500,15 +578,15 @@
                     </div>
                     <div class="projects-grid">
                         <div class="project-card scroll-animate-left delay-1">
-                            <img src="pr_website/static/images/basra.png" alt="Al Basrah Refinery Upgrade"/>
+                            <img src="pr_website/static/images/structure.png" alt="Structural Work at Qiddya – Riyadh"/>
                             <div class="project-body">
-                                <h4>Industrial Plant Upgrade – Jubail</h4>
-                                <p> Jubail, Saudi Arabia</p>
-                                <span>Industrial</span>
+                                <h4>Structural Work at Qiddya – Riyadh</h4>
+                                <p> Riyadh, Saudi Arabia</p>
+                                <span>Structural</span>
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-2">
-                            <img src="pr_website/static/images/missan.png" alt="South Gas Compression Project"/>
+                            <img src="pr_website/static/images/missan.png" alt="Commercial Building Fit-Out - Khobar"/>
                             <div class="project-body">
                                 <h4>Commercial Building Fit-Out – Khobar</h4>
                                 <p>Khobar, Saudi Arabia</p>
@@ -516,19 +594,19 @@
                             </div>
                         </div>
                         <div class="project-card scroll-animate delay-3">
-                            <img src="pr_website/static/images/dhiqar.png" alt="132kV Substation Construction"/>
+                            <img src="pr_website/static/images/swcc1.jpeg" alt="Admin Building Finishing Works - Jubail"/>
                             <div class="project-body">
-                                <h4>Substation &amp; Electrical Works – Jeddah</h4>
-                                <p>Jeddah, Saudi Arabia</p>
-                                <span>MEP Work</span>
+                                <h4>Admin Building Finishing Works <br/> Jubail</h4>
+                                <p>Jubail, Saudi Arabia</p>
+                                <span>Civil</span>
                             </div>
                         </div>
                         <div class="project-card scroll-animate-right delay-4">
-                            <img src="pr_website/static/images/najaf.png" alt="Water Treatment Plant"/>
+                            <img src="pr_website/static/images/weatherford.jpeg" alt="Weatherford's Interior Finishing - Dammam"/>
                             <div class="project-body">
-                                <h4>Water Treatment Facility – Dammam</h4>
+                                <h4>Weatherford's interior finishing<br/>Dammam</h4>
                                 <p>Dammam, Saudi Arabia</p>
-                                <span>Infrastructure</span>
+                                <span>Fit-Out</span>
                             </div>
                         </div>
                     </div>
@@ -537,20 +615,53 @@
                 <section class="certifications">
                     <h2 class="scroll-animate">Certifications &amp; Compliance</h2>
                     <div class="cert-grid">
-                        <div class="cert-item scroll-animate delay-1">
+                        <div class="cert-item scroll-animate delay-1"
+                             role="button"
+                             tabindex="0"
+                             data-no-preview="1"
+                             aria-label="View ISO 9001:2015 Quality Management Certificate"
+                             data-cert-src="/pr_website/static/images/9001.jpg"
+                             data-cert-title="ISO 9001:2015 Quality Management Certificate">
                             <img src="pr_website/static/images/iso-9001.png" alt="ISO 9001"/>
                             <p>9001:2015<br/>Quality Management</p>
                         </div>
-                        <div class="cert-item scroll-animate delay-2">
+                        <div class="cert-item scroll-animate delay-2"
+                             role="button"
+                             tabindex="0"
+                             data-no-preview="1"
+                             aria-label="View ISO 14001:2015 Environmental Management Certificate"
+                             data-cert-src="/pr_website/static/images/14001.jpg"
+                             data-cert-title="ISO 14001:2015 Environmental Management Certificate">
                             <img src="pr_website/static/images/iso-14100.png" alt="ISO 14001"/>
                             <p>14001:2015<br/>Environmental Management</p>
                         </div>
-                        <div class="cert-item scroll-animate delay-3">
+                        <div class="cert-item scroll-animate delay-3"
+                             role="button"
+                             tabindex="0"
+                             data-no-preview="1"
+                             aria-label="View ISO 45001:2018 Occupational Health and Safety Certificate"
+                             data-cert-src="/pr_website/static/images/45001.jpg"
+                             data-cert-title="ISO 45001:2018 Occupational Health and Safety Certificate">
                             <img src="pr_website/static/images/iso-45001.png" alt="ISO 45001"/>
                             <p>45001:2018<br/>Occupational Health &amp; Safety</p>
                         </div>
                     </div>
                 </section>
+
+                <div class="cert-preview-modal" id="certPreviewModal" aria-hidden="true">
+                    <div class="cert-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="certPreviewTitle">
+                        <div class="cert-preview-head">
+                            <h3 class="cert-preview-title" id="certPreviewTitle">Certificate Preview</h3>
+                            <div class="cert-preview-tools">
+                                <a class="cert-preview-download" id="certPreviewDownload" href="#" download="">Download</a>
+                                <button type="button" class="cert-preview-close" id="certPreviewClose">Close</button>
+                            </div>
+                        </div>
+                        <div class="cert-preview-body">
+                            <img id="certPreviewImage" src="" alt="Certificate preview"/>
+                        </div>
+                    </div>
+                </div>
 
                 <script type="text/javascript">
                     document.addEventListener('DOMContentLoaded', function() {
@@ -571,6 +682,68 @@
                         const animatedElements = document.querySelectorAll('.scroll-animate, .scroll-animate-left, .scroll-animate-right');
                         animatedElements.forEach(function(el) {
                             observer.observe(el);
+                        });
+
+                        const certModal = document.getElementById('certPreviewModal');
+                        const certImage = document.getElementById('certPreviewImage');
+                        const certTitle = document.getElementById('certPreviewTitle');
+                        const certDownload = document.getElementById('certPreviewDownload');
+                        const certClose = document.getElementById('certPreviewClose');
+                        const certCards = document.querySelectorAll('.cert-item[data-cert-src]');
+
+                        function closeCertificatePreview() {
+                            if (!certModal) {
+                                return;
+                            }
+                            certModal.classList.remove('is-open');
+                            certModal.setAttribute('aria-hidden', 'true');
+                            if (certImage) {
+                                certImage.setAttribute('src', '');
+                            }
+                        }
+
+                        function openCertificatePreview(card) {
+                            const src = card.getAttribute('data-cert-src');
+                            const title = card.getAttribute('data-cert-title') || 'Certificate Preview';
+                            if (!src || !certModal || !certImage || !certDownload || !certTitle) {
+                                window.open(src, '_blank');
+                                return;
+                            }
+                            certImage.setAttribute('src', src);
+                            certTitle.textContent = title;
+                            certDownload.setAttribute('href', src);
+                            certDownload.setAttribute('download', title.replace(/[^a-z0-9]+/gi, '-') + '.jpg');
+                            certModal.classList.add('is-open');
+                            certModal.setAttribute('aria-hidden', 'false');
+                        }
+
+                        certCards.forEach(function(card) {
+                            card.addEventListener('click', function() {
+                                openCertificatePreview(card);
+                            });
+                            card.addEventListener('keydown', function(event) {
+                                if (event.key !== 'Enter' &amp;&amp; event.key !== ' ') {
+                                    return;
+                                }
+                                event.preventDefault();
+                                openCertificatePreview(card);
+                            });
+                        });
+
+                        if (certClose) {
+                            certClose.addEventListener('click', closeCertificatePreview);
+                        }
+                        if (certModal) {
+                            certModal.addEventListener('click', function(event) {
+                                if (event.target === certModal) {
+                                    closeCertificatePreview();
+                                }
+                            });
+                        }
+                        document.addEventListener('keydown', function(event) {
+                            if (event.key === 'Escape') {
+                                closeCertificatePreview();
+                            }
                         });
                     });
                 </script>

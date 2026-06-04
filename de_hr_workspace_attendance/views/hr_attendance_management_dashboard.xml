@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_attendance_management_dashboard" model="ir.actions.client">
+        <field name="name">Attendance Dashboard</field>
+        <field name="tag">de_hr_workspace_attendance.attendance_management_dashboard</field>
+    </record>
+
+    <menuitem id="menu_attendance_management_dashboard"
+              name="Attendance Dashboard Center"
+              parent="de_hr_workspace.hr_approvals_menu_root"
+              action="action_attendance_management_dashboard"
+              sequence="4"
+              groups="de_hr_workspace.group_hr_employee_approvals,hr.group_hr_manager,hr_attendance.group_hr_attendance_manager,pr_hr_attendance.custom_group_hr_attendance_supervisor"/>
+</odoo>

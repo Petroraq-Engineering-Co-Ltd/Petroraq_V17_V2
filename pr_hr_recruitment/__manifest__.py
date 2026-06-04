@@ -16,17 +16,20 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Human Resources/Employees/Recruitment',
-    'version': '17.0.1.0.0',
+    'version': '17.0.1.0.2',
     # any module necessary for this one to work correctly
-    'depends': ['pr_hr_account', 'website_hr_recruitment', 'de_hr_workspace', 'mail'],
+    'depends': ['pr_hr_account', 'website_hr_recruitment', 'de_hr_workspace', 'mail', 'pr_tax_Invoice_report_custom'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'views/recruitment_dashboard_views.xml',
         'views/hr_job.xml',
         'views/website_hr_recruitment_detail.xml',
         'views/hr_job_approvals.xml',
         'views/hr_applicant_onboarding.xml',
+        'reports/applicant_offer_letter_report.xml',
+        'data/applicant_offer_letter_email.xml',
         'views/hr_applicant.xml',
         'views/hr_work_permit.xml',
         'views/hr_work_permit_approvals.xml',
@@ -35,5 +38,11 @@
     ],
     # only loaded in demonstration mode
     'demo': [],
-    # 'assets': {}
+    'assets': {
+        'web.assets_backend': [
+            'pr_hr_recruitment/static/src/js/recruitment_dashboard_action.js',
+            'pr_hr_recruitment/static/src/xml/recruitment_dashboard_templates.xml',
+            'pr_hr_recruitment/static/src/css/recruitment_dashboard.css',
+        ],
+    },
 }

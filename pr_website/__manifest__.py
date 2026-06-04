@@ -1,16 +1,19 @@
 {
     "name": "Petroraq Custom Website",
-    "version": "1.0",
+    "version": "1.1",
     "category": "Website",
     "summary": "Custom full website for Petroraq Engineering built in Odoo.",
-    "author": "Mudassir",
+    "author": "Mudassir Amin",
     "website": "https://petroraq.com",
     "license": "LGPL-3",
 
     # Required
     "depends": [
         "website",
+        "crm",
         "hr_recruitment",  # for careers page
+        "hr_recruitment_skills",
+        "pr_hr_recruitment_request",
     ],
 
     # Data files (XML Views)

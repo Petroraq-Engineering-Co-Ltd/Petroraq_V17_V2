@@ -21,4 +21,13 @@
         <field name="implementation">no_gap</field>
         <field name="company_id" eval="False"/>
     </record>
+
+    <record id="seq_purchase_requisition_payment_request" model="ir.sequence">
+        <field name="name">Purchase Requisition Payment Request</field>
+        <field name="code">purchase.requisition.payment.request</field>
+        <field name="prefix">PEC-PRPAY-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" eval="False"/>
+    </record>
 </odoo>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_vendor_payment_reject_reason_wizard" model="ir.ui.view">
+        <field name="name">account.vendor.payment.reject.reason.wizard.form</field>
+        <field name="model">account.vendor.payment.reject.reason.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Vendor Payment">
+                <group>
+                    <field name="payment_id" invisible="1"/>
+                    <field name="reason" placeholder="Write the rejection reason..." required="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Reject" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_account_payment_form_vendor_approval" model="ir.ui.view">
+        <field name="name">account.payment.form.vendor.approval</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_post']" position="before">
+                <field name="pr_requires_vendor_payment_approval" invisible="1"/>
+                <field name="pr_vendor_bill_count" invisible="1"/>
+                <field name="pr_can_current_user_approve_vendor_payment_accounts" invisible="1"/>
+                <field name="pr_can_current_user_final_approve_vendor_payment" invisible="1"/>
+                <field name="pr_can_current_user_reject_vendor_payment" invisible="1"/>
+                <button name="action_pr_vendor_payment_submit"
+                        string="Submit"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not pr_requires_vendor_payment_approval or state != 'draft' or pr_payment_approval_state != 'draft'"/>
+                <button name="action_pr_vendor_payment_submit"
+                        string="Resubmit"
+                        type="object"
+                        class="oe_highlight"
+                        invisible="not pr_requires_vendor_payment_approval or state != 'draft' or pr_payment_approval_state != 'reject'"/>
+                <button name="action_pr_vendor_payment_finance_approve"
+                        string="Approve"
+                        type="object"
+                        class="oe_highlight"
+                        groups="account.group_account_manager"
+                        invisible="not pr_can_current_user_approve_vendor_payment_accounts"/>
+                <button name="action_pr_vendor_payment_final_approve"
+                        string="Final Approve"
+                        type="object"
+                        class="oe_highlight"
+                        groups="pr_account.custom_group_accounting_manager"
+                        invisible="not pr_can_current_user_final_approve_vendor_payment"/>
+                <button name="action_pr_vendor_payment_reject"
+                        string="Reject"
+                        type="object"
+                        class="btn-danger"
+                        groups="account.group_account_manager,pr_account.custom_group_accounting_manager"
+                        invisible="not pr_can_current_user_reject_vendor_payment"/>
+            </xpath>
+            <xpath expr="//header/button[@name='action_post']" position="attributes">
+                <attribute name="invisible">state != 'draft' or pr_requires_vendor_payment_approval</attribute>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="before">
+                <field name="pr_payment_approval_state"
+                       widget="statusbar"
+                       statusbar_visible="draft,submit,finance_approve,reject,posted"
+                       invisible="not pr_requires_vendor_payment_approval"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="button_open_pr_vendor_bills"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-text-o"
+                        invisible="not pr_requires_vendor_payment_approval or pr_vendor_bill_count == 0">
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_text">
+                            <field name="pr_vendor_bill_count"/>
+                            <span> Vendor Bill</span>
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//group[@name='main_group']" position="after">
+                <group string="Vendor Payment Approval" invisible="not pr_requires_vendor_payment_approval">
+                    <group>
+                        <field name="pr_payment_approval_state" readonly="1"/>
+                        <field name="pr_vendor_payment_reject_reason"
+                               readonly="1"
+                               invisible="pr_payment_approval_state != 'reject'"/>
+                        <field name="pr_vendor_bill_ids" widget="many2many_tags" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="pr_vendor_payment_source_line_ids" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_vendor_payment_approval_tree" model="ir.ui.view">
+        <field name="name">account.vendor.payment.approval.tree</field>
+        <field name="model">account.payment</field>
+        <field name="arch" type="xml">
+            <tree string="Vendor Payments" create="false" default_order="date desc, name desc">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="ref" string="Memo"/>
+                <field name="journal_id"/>
+                <field name="amount" widget="monetary"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="pr_vendor_bill_count" string="Bills"/>
+                <field name="pr_payment_approval_state"
+                       widget="badge"
+                       decoration-info="pr_payment_approval_state == 'submit'"
+                       decoration-warning="pr_payment_approval_state == 'finance_approve'"
+                       decoration-success="pr_payment_approval_state == 'posted'"
+                       decoration-danger="pr_payment_approval_state in ('cancel', 'reject')"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'posted'"
+                       decoration-danger="state == 'cancel'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_vendor_payment_approvals" model="ir.actions.act_window">
+        <field name="name">Vendor Payments</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('pr_account.view_account_vendor_payment_approval_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_account_payment_form')})]"/>
+        <field name="domain">[('pr_is_current_vendor_payment_approver', '=', True)]</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No pending vendor payment approvals.
+            </p>
+        </field>
+    </record>
+
+    <record id="view_move_form_vendor_payment_pending_approval" model="ir.ui.view">
+        <field name="name">account.move.form.vendor.payment.pending.approval</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@id='account_invoice_payment_btn']" position="before">
+                <field name="pr_has_pending_vendor_payment_approval" invisible="1"/>
+                <field name="pr_pending_vendor_payment_approval_count" invisible="1"/>
+                <field name="pr_has_rejected_vendor_payment_approval" invisible="1"/>
+                <field name="pr_rejected_vendor_payment_approval_count" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning" role="alert"
+                     invisible="not pr_has_rejected_vendor_payment_approval or pr_has_pending_vendor_payment_approval">
+                    <strong>Vendor payment rejected.</strong>
+                    <span> Reason: </span>
+                    <field name="pr_last_vendor_payment_rejection_reason" readonly="1" nolabel="1" class="d-inline"/>
+                    <button name="action_pr_open_rejected_vendor_payment_approval"
+                            type="object"
+                            string="Open / Resubmit Payment"
+                            class="btn btn-link p-0 ms-2"/>
+                </div>
+            </xpath>
+            <xpath expr="//button[@id='account_invoice_payment_btn']" position="attributes">
+                <attribute name="invisible">state != 'posted' or payment_state not in ('not_paid', 'partial') or move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt') or pr_has_pending_vendor_payment_approval</attribute>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_pr_open_pending_vendor_payment_approval"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-clock-o"
+                        invisible="not pr_has_pending_vendor_payment_approval">
+                    <field name="pr_pending_vendor_payment_approval_count"
+                           widget="statinfo"
+                           string="Pending Payment"/>
+                </button>
+                <button name="action_pr_open_rejected_vendor_payment_approval"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-exclamation-triangle"
+                        invisible="not pr_has_rejected_vendor_payment_approval">
+                    <field name="pr_rejected_vendor_payment_approval_count"
+                           widget="statinfo"
+                           string="Rejected Payment"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <menuitem id="accounting_approvals_menu_root"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              name="Accounting"
+              sequence="20"
+              groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+
+    <menuitem id="menu_vendor_payment_approvals"
+              parent="accounting_approvals_menu_root"
+              name="Vendor Payments"
+              action="action_vendor_payment_approvals"
+              sequence="10"
+              groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+</odoo>

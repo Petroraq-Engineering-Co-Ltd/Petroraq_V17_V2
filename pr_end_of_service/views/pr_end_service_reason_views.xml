@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_pr_end_service_reason_tree" model="ir.ui.view">
+        <field name="name">pr.end.service.reason.tree</field>
+        <field name="model">pr.end.service.reason</field>
+        <field name="arch" type="xml">
+            <tree string="End of Service Reasons">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="deserved_after"/>
+                <field name="is_partial"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_end_service_reason_form" model="ir.ui.view">
+        <field name="name">pr.end.service.reason.form</field>
+        <field name="model">pr.end.service.reason</field>
+        <field name="arch" type="xml">
+            <form string="End of Service Reason">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="deserved_after"/>
+                            <field name="is_partial"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                            <field name="zero_message"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Benefit Rules">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="deserved_for_first"/>
+                                    <field name="deserved_month_for_year"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pr_end_service_reason" model="ir.actions.act_window">
+        <field name="name">End of Service Reasons</field>
+        <field name="res_model">pr.end.service.reason</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_pr_end_of_service_config_root"
+              name="End of Service"
+              parent="hr.menu_human_resources_configuration"
+              sequence="25"
+              groups="hr.group_hr_user"/>
+
+    <menuitem id="menu_pr_end_service_reason"
+              name="Reasons"
+              parent="menu_pr_end_of_service_config_root"
+              action="action_pr_end_service_reason"
+              sequence="10"
+              groups="hr.group_hr_user"/>
+</odoo>

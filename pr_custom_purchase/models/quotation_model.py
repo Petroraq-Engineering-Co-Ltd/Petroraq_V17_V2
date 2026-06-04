@@ -65,6 +65,20 @@ class PurchaseOrder(models.Model):
     pm_approved = fields.Boolean(string="Approved", default=False)
     od_approved = fields.Boolean(string="Approved", default=False)
     md_approved = fields.Boolean(string="Approved", default=False)
+    approval_status = fields.Selection(
+        [
+            ("not_submitted", "Not Submitted"),
+            ("pending_pe", "Pending Procurement Manager"),
+            ("pending_pm", "Pending Project Manager"),
+            ("pending_od", "Pending Operations Director"),
+            ("pending_md", "Pending Managing Director"),
+            ("approved", "Approved"),
+            ("rejected", "Rejected"),
+        ],
+        string="Approval",
+        compute="_compute_approval_status",
+        store=False,
+    )
     can_confirm_order = fields.Boolean(
         compute="_compute_can_confirm_order", store=False
     )
@@ -92,6 +106,23 @@ class PurchaseOrder(models.Model):
         string="Total",
         currency_field="currency_id",
         compute="_compute_display_total",
+        store=False,
+    )
+    budget_consumed_amount = fields.Monetary(
+        string="PO Budget Consumed",
+        currency_field="currency_id",
+        compute="_compute_po_budget_info",
+        store=False,
+    )
+    budget_remaining_amount = fields.Monetary(
+        string="Budget Remaining",
+        currency_field="currency_id",
+        compute="_compute_po_budget_info",
+        store=False,
+    )
+    budget_count = fields.Integer(
+        string="Budgets",
+        compute="_compute_po_budget_info",
         store=False,
     )
     vendor_ids = fields.Many2many("res.partner", string="All Vendors")
@@ -126,8 +157,12 @@ class PurchaseOrder(models.Model):
     def _compute_linked_statuses(self):
         po_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
         for rec in self:
-            pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
-            rec.linked_pr_state = pr.state if pr else "missing"
+            requisition = rec.requisition_id or (
+                self.env["purchase.requisition"].sudo().search([("name", "=", rec.pr_name)], limit=1)
+                if rec.pr_name else False
+            )
+            legacy_pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
+            rec.linked_pr_state = self._map_requisition_to_legacy_pr_state(requisition) if requisition else (legacy_pr.state if legacy_pr else "missing")
             linked_pos = self.env["purchase.order"].sudo().search([("origin", "=", rec.name)]) if rec.name else \
                 self.env["purchase.order"]
             rec.linked_po_state = max(linked_pos,
@@ -141,6 +176,88 @@ class PurchaseOrder(models.Model):
                 rec.linked_quotation_status = "po" if top_state in ("pending", "purchase", "done") else "quote"
             else:
                 rec.linked_quotation_status = "missing"
+
+    def _map_requisition_to_legacy_pr_state(self, requisition):
+        if not requisition:
+            return "missing"
+        if requisition.approval == "rejected":
+            return "cancel"
+        if requisition.status == "rfq":
+            return "rfq_sent"
+        if requisition.status in ("po", "payment", "completed"):
+            return "purchase"
+        return "pending"
+
+    @api.depends("order_line.price_subtotal", "order_line.analytic_distribution", "state")
+    def _compute_po_budget_info(self):
+        Budget = self.env["crossovered.budget"].sudo()
+        for order in self:
+            analytic_ids = set()
+            consumed = 0.0
+            for line in order.order_line:
+                distribution = line.analytic_distribution or {}
+                for analytic_key, percentage in distribution.items():
+                    try:
+                        percentage = float(percentage or 0.0)
+                    except (TypeError, ValueError):
+                        percentage = 0.0
+                    if not percentage:
+                        continue
+                    for key_part in str(analytic_key).split(","):
+                        if not key_part.strip().isdigit():
+                            continue
+                        analytic_ids.add(int(key_part))
+                        consumed += (line.price_subtotal or 0.0) * (percentage / 100.0)
+
+            usage_date = fields.Date.to_date(order.date_order or order.date_planned or fields.Date.context_today(order))
+            budgets = Budget.search([
+                ("state", "in", ["validate", "done"]),
+                ("date_from", "<=", usage_date),
+                ("date_to", ">=", usage_date),
+                ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
+            ]) if analytic_ids else Budget
+            remaining = 0.0
+            for budget in budgets:
+                budget_remaining = budget.budget_remaining_amount or 0.0
+                company_currency = budget.company_id.currency_id or self.env.company.currency_id
+                if company_currency and order.currency_id and company_currency != order.currency_id:
+                    budget_remaining = company_currency._convert(
+                        budget_remaining,
+                        order.currency_id,
+                        budget.company_id or order.company_id,
+                        order.date_order or fields.Date.context_today(order),
+                    )
+                remaining += budget_remaining
+            order.budget_consumed_amount = consumed
+            order.budget_remaining_amount = remaining
+            order.budget_count = len(budgets)
+
+    def action_view_related_budgets(self):
+        self.ensure_one()
+        analytic_ids = set()
+        for line in self.order_line:
+            for analytic_key in (line.analytic_distribution or {}):
+                for key_part in str(analytic_key).split(","):
+                    if key_part.strip().isdigit():
+                        analytic_ids.add(int(key_part))
+        usage_date = fields.Date.to_date(self.date_order or self.date_planned or fields.Date.context_today(self))
+        budgets = self.env["crossovered.budget"].sudo().search([
+            ("state", "in", ["validate", "done"]),
+            ("date_from", "<=", usage_date),
+            ("date_to", ">=", usage_date),
+            ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
+        ]) if analytic_ids else self.env["crossovered.budget"]
+        action = {
+            "type": "ir.actions.act_window",
+            "name": _("Related Budgets"),
+            "res_model": "crossovered.budget",
+            "view_mode": "tree,form",
+            "domain": [("id", "in", budgets.ids)],
+            "target": "current",
+        }
+        if len(budgets) == 1:
+            action.update({"view_mode": "form", "res_id": budgets.id})
+        return action
 
     def action_view_quotations(self):
         return self.action_view_rfq_quotations()
@@ -214,7 +331,17 @@ class PurchaseOrder(models.Model):
                 line_amounts.setdefault(int(cc_id), 0.0)
                 line_amounts[int(cc_id)] += share
 
-        if line_amounts:
+        if line_amounts and self.requisition_id:
+            amount_by_cost_center = {}
+            cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
+            cc_map = {cc.id: cc for cc in cost_centers}
+            for cc_id, amount in line_amounts.items():
+                cc = cc_map.get(cc_id)
+                if not cc:
+                    raise ValidationError(_("Invalid cost center found in RFQ analytic distribution."))
+                amount_by_cost_center[cc_id] = {"cc": cc, "amount": amount}
+            self.requisition_id._check_amounts_against_selected_budget(amount_by_cost_center, exception_cls=ValidationError)
+        elif line_amounts:
             cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
             cc_map = {cc.id: cc for cc in cost_centers}
             for cc_id, amount in line_amounts.items():
@@ -372,8 +499,15 @@ class PurchaseOrder(models.Model):
                     # receipts are generated by standard Odoo logic.
                 order.write({"state": "draft"})
                 super(PurchaseOrder, order).button_confirm()
+                order._lock_purchase_order_after_approval()
             else:
                 super(PurchaseOrder, order).button_confirm()
+
+    def _lock_purchase_order_after_approval(self):
+        for order in self:
+            if order.state == "purchase":
+                order.button_done()
+                order.message_post(body=_("Purchase Order locked automatically after final approval."))
 
     def _schedule_activity_for_group(self, group_xml_id, summary, note):
         group = self.env.ref(group_xml_id, raise_if_not_found=False)
@@ -388,7 +522,7 @@ class PurchaseOrder(models.Model):
             )
             if user.email:
                 self.env["mail.mail"].sudo().create({
-                    "email_from": "hr@petroraq.com",
+                    "email_from": "noreply@petroraq.com",
                     "email_to": user.email,
                     "subject": summary,
                     "body_html": f"<p>{note}</p>",
@@ -526,6 +660,59 @@ class PurchaseOrder(models.Model):
             self.button_confirm()
 
         return self._reload_action()
+
+    def _get_pending_approval_stage(self):
+        self.ensure_one()
+        if self.state != "pending":
+            return False
+
+        amount = self.subtotal
+        if amount <= 10000:
+            return False if self.pe_approved else "pe"
+        if amount <= 100000:
+            if not self.pe_approved:
+                return "pe"
+            return False if self.pm_approved else "pm"
+        if amount <= 500000:
+            if not self.pe_approved:
+                return "pe"
+            if not self.pm_approved:
+                return "pm"
+            return False if self.od_approved else "od"
+        if not self.pe_approved:
+            return "pe"
+        if not self.pm_approved:
+            return "pm"
+        if not self.od_approved:
+            return "od"
+        return False if self.md_approved else "md"
+
+    @api.depends(
+        "state",
+        "subtotal",
+        "pe_approved",
+        "pm_approved",
+        "od_approved",
+        "md_approved",
+        "rejection_reason",
+    )
+    def _compute_approval_status(self):
+        stage_to_status = {
+            "pe": "pending_pe",
+            "pm": "pending_pm",
+            "od": "pending_od",
+            "md": "pending_md",
+        }
+        for order in self:
+            if order.state == "cancel" and order.rejection_reason:
+                order.approval_status = "rejected"
+            elif order.state in ("purchase", "done"):
+                order.approval_status = "approved"
+            elif order.state != "pending":
+                order.approval_status = "not_submitted"
+            else:
+                pending_stage = order._get_pending_approval_stage()
+                order.approval_status = stage_to_status.get(pending_stage, "approved")
 
     # confirm order button visibility
     @api.depends(
@@ -667,9 +854,17 @@ class PurchaseOrder(models.Model):
             })
 
             if order.pr_name:
+                requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
+                    [("name", "=", order.pr_name)], limit=1
+                )
+                if requisition:
+                    requisition.sudo().write({"status": "pr", "approval": "pending"})
                 custom_pr = self.env["custom.pr"].sudo().search([("name", "=", order.pr_name)], limit=1)
                 if custom_pr:
-                    custom_pr.write({"state": "draft", "approval": "pending", "pr_created": False})
+                    vals = {"state": "draft", "approval": "pending", "pr_created": False}
+                    if requisition and not custom_pr.purchase_requisition_id:
+                        vals["purchase_requisition_id"] = requisition.id
+                    custom_pr.write(vals)
 
             if order.origin:
                 rfqs = self.env["purchase.order"].sudo().search([("name", "=", order.origin)])
@@ -774,7 +969,7 @@ class PurchaseOrder(models.Model):
 
                 if supervisor_partner.email:
                     mail_values = {
-                        "email_from": "hr@petroraq.com",
+                        "email_from": "noreply@petroraq.com",
                         "subject": _("Purchase Order %s Rejected") % order.name,
                         "body_html": _(
                             "<p>Hello %s,</p>"
@@ -990,7 +1185,7 @@ class PurchaseOrder(models.Model):
     @api.depends("state", "subtotal", "grand_total")
     def _compute_display_total(self):
         for order in self:
-            if order.state == "purchase":
+            if order.state in ("purchase", "done"):
                 order.display_total = order.grand_total
             else:
                 order.display_total = order.subtotal

@@ -59,6 +59,25 @@ class HrApprovalDashboardService(models.AbstractModel):
             return []
 
     @api.model
+    def _context_from_action(self, action):
+        context_str = action.context or "{}"
+        eval_context = {
+            "uid": self.env.uid,
+            "user": self.env.user,
+            "context": dict(self.env.context),
+        }
+        try:
+            context = safe_eval(context_str, eval_context)
+            return context if isinstance(context, dict) else {}
+        except Exception:
+            return {}
+
+    @api.model
+    def _domain_for_menu_action(self, menu, action):
+        domain = self._domain_from_action(action)
+        return self._override_domain_for_menu(menu, action, domain)
+
+    @api.model
     def _shortage_pending_domain(self):
         user = self.env.user
         role_domains = [
@@ -119,6 +138,30 @@ class HrApprovalDashboardService(models.AbstractModel):
         return [("state", "in", states)] if states else [("id", "=", False)]
 
     @api.model
+    def _budget_requisition_pending_domain(self):
+        user = self.env.user
+        role_domains = [
+            [
+                ("state", "=", "department_approval"),
+                ("department_manager_user_id", "=", self.env.uid),
+            ],
+        ]
+
+        if user.has_group("account.group_account_manager") or user.has_group("account.group_account_user"):
+            role_domains.append([("state", "=", "accounts_approval")])
+        if user.has_group("pr_custom_purchase.managing_director"):
+            role_domains.append([("state", "=", "md_approval")])
+        if (
+            user.has_group("pr_custom_purchase.procurement_admin")
+            or user.has_group("purchase.group_purchase_manager")
+        ):
+            role_domains.append([
+                ("state", "in", ["department_approval", "accounts_approval", "md_approval"]),
+            ])
+
+        return expression.OR(role_domains) if role_domains else [("id", "=", False)]
+
+    @api.model
     def _is_work_order_approval_menu(self, menu, action):
         work_order_menu = self.env.ref(
             "de_hr_workspace_sale.work_order_ops_approvals_view_menu",
@@ -142,6 +185,8 @@ class HrApprovalDashboardService(models.AbstractModel):
             return self._leave_request_pending_domain()
         if action.res_model == "hr.leave" or "leave" in menu_name:
             return self._leave_pending_domain()
+        if action.res_model == "pr.budget.requisition":
+            return self._budget_requisition_pending_domain()
         return domain
 
     @api.model
@@ -153,9 +198,7 @@ class HrApprovalDashboardService(models.AbstractModel):
                 return self.env["pr.work.order"].search_count(self._work_order_pending_domain())
             if action._name != "ir.actions.act_window" or not action.res_model:
                 return 0
-            domain = self._domain_from_action(action)
-            domain = self._override_domain_for_menu(menu, action, domain)
-            return self.env[action.res_model].search_count(domain)
+            return self.env[action.res_model].search_count(self._domain_for_menu_action(menu, action))
         except Exception:
             return 0
 
@@ -176,6 +219,8 @@ class HrApprovalDashboardService(models.AbstractModel):
             return "fa-users", "warning"
         if "purchase" in name:
             return "fa-shopping-cart", "primary"
+        if "budget" in name:
+            return "fa-pie-chart", "info"
         if "hr" in name:
             return "fa-id-badge", "info"
         return "fa-check-square-o", "primary"
@@ -187,12 +232,20 @@ class HrApprovalDashboardService(models.AbstractModel):
             action = menu.sudo().action
             count = self._count_for_action(menu, action)
             icon, tone = self._style_for_menu(menu.name)
-            tiles.append({
+            tile = {
                 "key": f"menu_{menu.id}",
                 "name": menu.name or _("Approval"),
                 "count": count,
                 "icon": icon,
                 "tone": tone,
                 "action_id": action.id,
-            })
+            }
+            if action._name == "ir.actions.act_window" and action.res_model:
+                tile.update({
+                    "res_model": action.res_model,
+                    "view_mode": action.view_mode or "list,form",
+                    "domain": self._domain_for_menu_action(menu, action),
+                    "context": self._context_from_action(action),
+                })
+            tiles.append(tile)
         return tiles

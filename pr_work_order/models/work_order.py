@@ -24,7 +24,7 @@ class PRWorkOrder(models.Model):
                 )
             if user.email:
                 self.env["mail.mail"].sudo().create({
-                    "email_from": "hr@petroraq.com",
+                    "email_from": "noreply@petroraq.com",
                     "email_to": user.email,
                     "subject": summary,
                     "body_html": body_html,
@@ -57,10 +57,13 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if not rec.expense_bucket_id:
                 continue
-            linked_pr_count = self.env["custom.pr"].sudo().search_count([
+            linked_custom_pr_count = self.env["custom.pr"].sudo().search_count([
                 ("expense_bucket_id", "=", rec.expense_bucket_id.id)
             ])
-            if linked_pr_count:
+            linked_requisition_count = self.env["purchase.requisition"].sudo().search_count([
+                ("expense_bucket_id", "=", rec.expense_bucket_id.id)
+            ])
+            if linked_custom_pr_count or linked_requisition_count:
                 raise UserError(
                     _(
                         "Cannot delete expense bucket %s because it is already linked to Purchase Requisitions."
@@ -867,19 +870,12 @@ class WorkOrderCostCenter(models.Model):
         store=False,
     )
 
+    @api.depends("analytic_account_id")
     def _compute_spent_amount(self):
-        AnalyticLine = self.env["account.analytic.line"]
+        analytics = self.mapped("analytic_account_id").sudo()
+        spent_by_analytic = analytics._get_po_budget_spent_map() if analytics else {}
         for rec in self:
-            if not rec.analytic_account_id:
-                rec.spent_amount = 0.0
-                continue
-
-            lines = AnalyticLine.search([
-                ("account_id", "=", rec.analytic_account_id.id),
-                ("move_line_id.move_id.state", "=", "posted"),
-            ])
-
-            rec.spent_amount = abs(sum(lines.mapped("amount")))
+            rec.spent_amount = spent_by_analytic.get(rec.analytic_account_id.id, 0.0) if rec.analytic_account_id else 0.0
 
     def _compute_remaining_amount(self):
         for rec in self:

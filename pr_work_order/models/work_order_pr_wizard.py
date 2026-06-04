@@ -37,7 +37,7 @@ class WorkOrderCreatePRWizard(models.TransientModel):
 
         source_lines = []
         if work_order.expense_bucket_id:
-            scratch_pr = self.env["custom.pr"].new({
+            scratch_pr = self.env["purchase.requisition"].new({
                 "expense_bucket_id": work_order.expense_bucket_id.id,
             })
             source_lines = scratch_pr._prepare_source_product_line_values()
@@ -53,7 +53,7 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                         "product_id": line["description"],
                         "cost_center_id": line["cost_center_id"],
                         "quantity": line["quantity"],
-                        "unit_id": line["unit"],
+                        "unit_id": self._get_source_line_uom(line).id,
                         "unit_price": line["unit_price"],
                     },
                 )
@@ -118,6 +118,19 @@ class WorkOrderCreatePRWizard(models.TransientModel):
             "target": "new",
         }
 
+    def _get_source_line_uom(self, source_line):
+        product = self.env["product.product"].browse(source_line["description"])
+        unit_value = source_line.get("unit")
+        if isinstance(unit_value, int):
+            unit = self.env["uom.uom"].browse(unit_value)
+            if unit.exists():
+                return unit
+        if unit_value:
+            unit = self.env["uom.uom"].search([("name", "=", unit_value)], limit=1)
+            if unit:
+                return unit
+        return product.uom_id
+
     def action_create_pr(self):
         self.ensure_one()
 
@@ -156,7 +169,8 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                         "description": product.id,
                         "cost_center_id": line.cost_center_id.id,
                         "quantity": line.quantity,
-                        "unit": line.unit_id.id,
+                        "type": "service" if product.detailed_type == "service" else "material",
+                        "unit": line.unit_id.name,
                         "unit_price": line.unit_price,
                     },
                 )
@@ -171,12 +185,13 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                     _("Missing expense bucket on Work Order. Please submit/approve the Work Order budget setup first.")
                 )
 
-        custom_pr = self.env["custom.pr"].create(
+        requisition = self.env["purchase.requisition"].create(
             {
-                "pr_type": "standard",
+                "pr_type": "pr",
                 "priority": self.priority,
                 "expense_type": work_order.expense_bucket_id.expense_type or "capex",
                 "expense_bucket_id": work_order.expense_bucket_id.id,
+                "expense_scope": work_order.expense_bucket_id.scope,
                 "notes": self.notes,
                 "line_ids": commands,
             }
@@ -185,8 +200,8 @@ class WorkOrderCreatePRWizard(models.TransientModel):
         return {
             "type": "ir.actions.act_window",
             "name": _("Purchase Requisition"),
-            "res_model": "custom.pr",
-            "res_id": custom_pr.id,
+            "res_model": "purchase.requisition",
+            "res_id": requisition.id,
             "view_mode": "form",
             "target": "current",
         }

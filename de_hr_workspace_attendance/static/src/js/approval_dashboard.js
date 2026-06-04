@@ -30,6 +30,25 @@ class ApprovalDashboard extends Component {
     }
 
     openTile(ev) {
+        const key = ev.currentTarget.dataset.tileKey || "";
+        const tile = this.state.tiles.find((item) => item.key === key);
+        if (tile && tile.res_model) {
+            const viewModes = (tile.view_mode || "list,form")
+                .split(",")
+                .map((mode) => mode.trim())
+                .filter(Boolean)
+                .map((mode) => (mode === "tree" ? "list" : mode));
+            this.action.doAction({
+                type: "ir.actions.act_window",
+                name: tile.name,
+                res_model: tile.res_model,
+                views: viewModes.map((mode) => [false, mode]),
+                domain: tile.domain || [],
+                context: tile.context || {},
+            });
+            return;
+        }
+
         const actionId = Number(ev.currentTarget.dataset.actionId || 0);
         if (actionId) {
             this.action.doAction(actionId);

@@ -2,7 +2,7 @@
 <odoo>
     <template id="service_design_engineering" name="Service - Design and Engineering">
         <t t-call="website.layout">
-            <t t-set="additional_title">Design and Engineering - PETRORAQ</t>
+            <t t-set="additional_title">Design &amp; Engineering - PETRORAQ</t>
 
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
             <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
@@ -645,9 +645,9 @@
                             <i class="fa fa-chevron-right"></i>
                             <a href="/services">Services</a>
                             <i class="fa fa-chevron-right"></i>
-                            <span class="current">Design and Engineering</span>
+                            <span class="current">Design &amp; Engineering</span>
                         </div>
-                        <h1>Design and<br/>Engineering<span class="dot">.</span></h1>
+                        <h1>Design &amp; Engineering<span class="dot"></span></h1>
                         <div class="gold-line"></div>
                         <p>Multi-disciplinary engineering, design and consultancy services delivering innovative, safe and cost-effective solutions across the industrial and infrastructure sectors.</p>
                     </div>
@@ -658,53 +658,47 @@
                     <div class="features-grid">
                         <div class="feature-card scroll-fade delay-1">
                             <div class="feat-icon"><i class="fa fa-pencil-ruler"></i></div>
-                            <p>PETRORAQ Engineering Co. Ltd. provides a comprehensive multi-disciplinary engineering, design and consultancy services. When required, PETRORAQ utilizes support from group companies and international affiliates to accomplish projects of any magnitude.</p>
+                            <p style="text-align: justify;">PETRORAQ Engineering Co. Ltd. provides a comprehensive multi-disciplinary engineering, design and consultancy services. When required, PETRORAQ utilizes support from group companies and international affiliates to accomplish projects of any magnitude.</p>
                         </div>
                         <div class="feature-card scroll-fade delay-2">
                             <div class="feat-icon"><i class="fa fa-shield-alt"></i></div>
-                            <p>During detailed engineering, strict adherence to Client and applicable industry standards, codes and procedures is maintained. Compliance with engineering works, detailed by project 'Scope of Work', together with reviews to determine constructability, Value Engineering, Plant Operability and Safety (HAZOP) are deemed paramount in the execution of the project.</p>
+                            <p style="text-align: justify;">During detailed engineering, strict adherence to Client and applicable industry standards, codes and procedures is maintained. Compliance with engineering works, detailed by project 'Scope of Work', together with reviews to determine constructability, Value Engineering, Plant Operability.</p>
                         </div>
                         <div class="feature-card scroll-fade delay-3">
                             <div class="feat-icon"><i class="fa fa-clipboard-check"></i></div>
-                            <p>PETRORAQ recognizes that quality assurance is an integral part of the design engineering process and that a commitment to quality is required from all employees. Quality assurance procedures and manuals have been developed to conform to those requirements defined.</p>
+                            <p style="text-align: justify;">PETRORAQ recognizes that quality assurance is an integral part of the design engineering process and that a commitment to quality is required from all employees. Quality assurance procedures and manuals have been developed to conform to those requirements defined.</p>
                         </div>
                         <div class="feature-card scroll-fade delay-4">
                             <div class="feat-icon"><i class="fa fa-desktop"></i></div>
-                            <p>PETRORAQ Computer Aided Design (CAD) facilities in conjunction with computer and communication networks, standard design methods and project quality design plan provide a uniform and coordinated engineering work process environment for a smooth execution of a project.</p>
+                            <p style="text-align: justify;">PETRORAQ Computer Aided Design (CAD) facilities in conjunction with computer and communication networks, standard design methods and project quality design plan provide a uniform and coordinated engineering work process environment for a smooth execution of a project.</p>
                         </div>
                     </div>
                 </section>
 
                 <!-- ===== ENGINEERING SERVICES LIST ===== -->
                 <section class="eng-services-section scroll-fade">
-                    <h2>Our Engineering &amp; Design Services</h2>
+                    <h2>Our Design &amp; Engineering Services</h2>
                     <div class="title-line"></div>
 
                     <div class="services-columns">
                         <!-- Column 1 -->
                         <ul>
                             <li><i class="fa fa-check-circle"></i>Feasibility Studies and Project Proposals</li>
-                            <li><i class="fa fa-check-circle"></i>As Built and Site Surveys</li>
+                            <li><i class="fa fa-check-circle"></i>Site Surveys</li>
                             <li><i class="fa fa-check-circle"></i>Value Engineering and Design Basis Confirmation</li>
                             <li><i class="fa fa-check-circle"></i>Environmental Impact Assessments</li>
                             <li><i class="fa fa-check-circle"></i>Environmental Engineering</li>
-                            <li><i class="fa fa-check-circle"></i>Detailed Engineering</li>
                             <li><i class="fa fa-check-circle"></i>Technical Specifications, data sheets</li>
-                            <li><i class="fa fa-check-circle"></i>Reports and Studies</li>
-                            <li><i class="fa fa-check-circle"></i>Procedures</li>
                         </ul>
 
                         <!-- Column 2 -->
                         <ul>
                             <li><i class="fa fa-check-circle"></i>Constructability Reviews</li>
                             <li><i class="fa fa-check-circle"></i>Value Engineering Studies</li>
-                            <li><i class="fa fa-check-circle"></i>Contract Documents for Bidding</li>
-                            <li><i class="fa fa-check-circle"></i>HAZOP Studies</li>
                             <li><i class="fa fa-check-circle"></i>3D Models and Walkthrough Presentations</li>
                             <li><i class="fa fa-check-circle"></i>Procurement</li>
                             <li><i class="fa fa-check-circle"></i>Vendor Liaison, Technical Review</li>
                             <li><i class="fa fa-check-circle"></i>Requisition, Bid Analysis</li>
-                            <li><i class="fa fa-check-circle"></i>Expediting</li>
                         </ul>
 
                         <!-- Column 3 -->
@@ -718,7 +712,7 @@
                         <!-- Right dark card -->
                         <div class="end-to-end-card">
                             <div class="ete-icon"><i class="fa fa-users-cog"></i></div>
-                            <p>End-to-end engineering solutions from concept to commissioning, delivered with precision, quality and integrity.</p>
+                            <p style="text-align: justify;">End-to-end engineering solutions from concept to commissioning, delivered with precision, quality and integrity.</p>
                         </div>
                     </div>
                 </section>
@@ -749,7 +743,6 @@
                             <li><i class="fa fa-check-circle"></i>Preparation of specifications for the definition phase</li>
                             <li><i class="fa fa-check-circle"></i>Requesting and obtaining drawings from the client's central drawing office</li>
                             <li><i class="fa fa-check-circle"></i>Development of deliverables required for the projects scope of work</li>
-                            <li><i class="fa fa-check-circle"></i>P &amp; ID and ILD mark-up</li>
                             <li><i class="fa fa-check-circle"></i>Development of project cost estimates and schedules for budget presentation</li>
                             <li><i class="fa fa-check-circle"></i>Mechanical layout of piping and equipment</li>
                             <li><i class="fa fa-check-circle"></i>Development of vendor non-material requirements (NMR's)</li>
@@ -764,20 +757,20 @@
                             <h3>Project Definition &amp; Execution Planning</h3>
                         </div>
                         <p class="desc">PETRORAQ will provide complete project specification that reflects all deliverables required from the detailed design, materials procurement, fabrication works and construction.</p>
-
+                            <img src="/pr_website/static/images/civil.jpg" alt="Engineering team"/>
                         <div class="exec-item">
                             <div class="ex-icon"><i class="fa fa-clipboard-check"></i></div>
-                            <p>We prepare a Value Engineering study and HAZOP review on the project specification to be included in the approval package.</p>
+                            <p style="text-align: justify;">We prepare a Value Engineering study and HAZOP review on the project specification to be included in the approval package.</p>
                         </div>
 
                         <div class="exec-item">
                             <div class="ex-icon"><i class="fa fa-calendar-alt"></i></div>
-                            <p>We also prepare project execution plan and detailed cost estimates and schedule for project approval and funding.</p>
+                            <p style="text-align: justify;">We also prepare project execution plan and detailed cost estimates and schedule for project approval and funding.</p>
                         </div>
 
                         <div class="exec-item">
                             <div class="ex-icon"><i class="fa fa-bullseye"></i></div>
-                            <p>Our goal is to ensure every project is well-defined, well-planned and set up for successful execution.</p>
+                            <p style="text-align: justify;">Our goal is to ensure every project is well-defined, well-planned and set up for successful execution.</p>
                         </div>
                     </div>
 

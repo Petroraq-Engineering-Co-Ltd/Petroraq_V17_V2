@@ -182,7 +182,7 @@ class HrAttendanceNotification(models.Model):
             Petroraq Engineering
         """
         message = {
-            "email_from": "hr@petroraq.com",
+            "email_from": "noreply@petroraq.com",
             "subject": f"{employee.code} - Attendance Notification Of {target_date}",
             "body_html": body_message,
             "email_to": employee.work_email,

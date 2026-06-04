@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pr_end_service_reason_hr_user,pr.end.service.reason.hr.user,model_pr_end_service_reason,hr.group_hr_user,1,1,1,1
+access_pr_end_service_reason_line_hr_user,pr.end.service.reason.line.hr.user,model_pr_end_service_reason_line,hr.group_hr_user,1,1,1,1
+access_pr_end_of_service_hr_user,pr.end.of.service.hr.user,model_pr_end_of_service,hr.group_hr_user,1,1,1,1
+access_pr_end_of_service_account_manager,pr.end.of.service.account.manager,model_pr_end_of_service,account.group_account_manager,1,1,0,0
+access_pr_end_of_service_custom_account_manager,pr.end.of.service.custom.account.manager,model_pr_end_of_service,pr_account.custom_group_accounting_manager,1,1,0,0

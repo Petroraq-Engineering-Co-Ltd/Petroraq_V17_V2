@@ -16,7 +16,7 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Human Resources/Time Off',
-    'version': '17.0.1.0.5',
+    'version': '17.0.1.0.7',
     # any module necessary for this one to work correctly
     'depends': ['pr_hr_contract', 'hr_holidays'],
 
@@ -31,6 +31,7 @@
         'views/hr_employee.xml',
         'data/data.xml',
         'data/ir_sequence.xml',
+        'data/annual_leave_cron.xml',
     ],
     # only loaded in demonstration mode
     'demo': [],

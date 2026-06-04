@@ -36,15 +36,82 @@
                        statusbar_visible="draft,pm_approval,accounts_approval,md_approval,approved,rejected"/>
             </xpath>
 
+            <xpath expr="//sheet/div[@class='oe_title']" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <field name="custom_pr_count" invisible="1"/>
+                    <field name="purchase_requisition_count" invisible="1"/>
+                    <field name="rfq_count" invisible="1"/>
+                    <field name="purchase_order_count" invisible="1"/>
+                    <button class="oe_stat_button"
+                            name="action_view_budget_custom_prs"
+                            type="object"
+                            icon="fa-file-text-o"
+                            invisible="custom_pr_count == 0">
+                        <field name="custom_pr_count" widget="statinfo" string="Custom PRs"/>
+                    </button>
+                    <button class="oe_stat_button"
+                            name="action_view_budget_purchase_requisitions"
+                            type="object"
+                            icon="fa-file-text"
+                            invisible="purchase_requisition_count == 0">
+                        <field name="purchase_requisition_count" widget="statinfo" string="PRs"/>
+                    </button>
+                    <button class="oe_stat_button"
+                            name="action_view_budget_rfqs"
+                            type="object"
+                            icon="fa-list-alt"
+                            invisible="rfq_count == 0">
+                        <field name="rfq_count" widget="statinfo" string="RFQs"/>
+                    </button>
+                    <button class="oe_stat_button"
+                            name="action_view_budget_purchase_orders"
+                            type="object"
+                            icon="fa-shopping-cart"
+                            invisible="purchase_order_count == 0">
+                        <field name="purchase_order_count" widget="statinfo" string="POs"/>
+                    </button>
+                </div>
+            </xpath>
+
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="budget_sequence" />
+                <field name="budget_period_months"/>
                 <field name="expense_type" required="1"/>
                 <field name="department_id"/>
                 <field name="department_manager_user_id" readonly="1"/>
+                <field name="budget_amount_total" readonly="1"/>
+                <field name="po_spent_amount" readonly="1"/>
+                <field name="budget_remaining_amount" readonly="1"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Purchase Orders" name="related_purchase_orders">
+                    <field name="budget_purchase_order_ids" nolabel="1" readonly="1">
+                        <tree create="0" delete="0">
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                            <field name="date_order"/>
+                            <field name="origin"/>
+                            <field name="pr_name"/>
+                            <field name="requisition_id"/>
+                            <field name="amount_total" sum="Total" widget="monetary"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state in ('purchase', 'done')"
+                                   decoration-warning="state == 'pending'"
+                                   decoration-danger="state == 'cancel'"/>
+                        </tree>
+                    </field>
+                </page>
             </xpath>
 
             <xpath expr="//button[@name='action_budget_validate']" position="attributes">
                 <attribute name="invisible">state != 'confirm' or approval_state != 'md_approval' or not can_md_approve</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='crossovered_budget_line']/tree/field[@name='planned_amount']" position="after">
+                <field name="po_spent_amount" readonly="1" sum="PO Spent"/>
+                <field name="budget_remaining_amount" readonly="1" sum="Budget Remaining"/>
             </xpath>
 
         </field>
@@ -59,6 +126,13 @@
                 <field name="expense_type" required="1"/>
                 <field name="department_id"/>
                 <field name="budget_sequence" />
+                <field name="budget_period_months" optional="hide"/>
+                <field name="budget_amount_total" optional="show"/>
+                <field name="po_spent_amount" optional="show"/>
+                <field name="budget_remaining_amount" optional="show"/>
+                <field name="purchase_requisition_count" optional="hide" string="PRs"/>
+                <field name="rfq_count" optional="hide" string="RFQs"/>
+                <field name="purchase_order_count" optional="show" string="POs"/>
             </xpath>
 
         </field>

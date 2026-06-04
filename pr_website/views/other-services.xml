@@ -287,6 +287,7 @@
                 .pr-other-page .service-image.construction {
                     border-radius: 12px;
                     height: 220px;
+                    margin-top:100px
                 }
                 .pr-other-page .service-image.construction:hover {
                     border-radius: 30px;
@@ -610,7 +611,7 @@
                             <i class="fa fa-chevron-right"></i>
                             <span class="current">Other Services</span>
                         </div>
-                        <h1>Other Services<span class="dot">.</span></h1>
+                        <h1>Other Services<span class="dot"></span></h1>
                         <div class="gold-line"></div>
                         <p>Comprehensive support services — from environmental engineering to construction management, quality control, survey, procurement, operations and turnaround solutions.</p>
                     </div>
@@ -636,8 +637,7 @@
                             <div class="service-text">
                                 <div class="pre-title">WE ALSO PROVIDE</div>
                                 <h3>Environmental<br/>Engineering</h3>
-                                <p>PETRORAQ has specialized expertise and capability in different aspects of environmental engineering and infrastructure. This expertise, gained in infrastructure and environmental engineering, has led to a strong knowledge and capability which has been employed in major schemes. This expertise is available to meet the ever increasing demand for an improved environment in the future.</p>
-                                <p>PETRORAQ's experience and capabilities have resulted in tailored treatment systems for waste water treatment and re-use in agricultural and landscape irrigation schemes in addition to development in air pollution control systems and Environmental Impact Studies.</p>
+                                <p style="text-align: justify;">PETRORAQ has specialized expertise and capability in different aspects of environmental engineering and infrastructure. This expertise, gained in infrastructure and environmental engineering, has led to a strong knowledge and capability which has been employed in major schemes. This expertise is available to meet the ever increasing demand for an improved environment in the future.</p>
                             </div>
 
                             <div class="service-image">
@@ -646,7 +646,7 @@
 
                             <div class="capabilities-wrap">
                                 <h4 class="capabilities-title env-title">The Environmental Engineering capabilities include the following:</h4>
-                                <ul class="cap-list single">
+                                <ul class="cap-list multi-col">
                                     <li><i class="fa fa-check-circle"></i>Studies and Environmental Impact Assessments</li>
                                     <li><i class="fa fa-check-circle"></i>Waste Water Collection, Treatment and Disposal</li>
                                     <li><i class="fa fa-check-circle"></i>Sludge Treatment and Treated Effluent Utilization</li>
@@ -669,11 +669,10 @@
 
                             <div class="service-text">
                                 <h3>Construction<br/>Management</h3>
-                                <p>PETRORAQ's Construction Management team comprises of professionally qualified engineers who have rich and varied experiences related to the execution of industrial and infrastructure projects. In addition, they have been trained in usage of latest management tools and techniques this includes all aspects of project management such as planning, monitoring, coordination, quality control, safety principles, preparation of budgeting and cost control, materials procurement, equipment selection, labor management and settlement of claims.</p>
-                                <p>Project Manager and team are selected considering the type and size of project and the background experiences needed. Our teams have carved a niche for timely execution of prestigious projects maintaining highest quality standards.</p>
+                                <p style="text-align: justify;">PETRORAQ's Construction Management team comprises of professionally qualified engineers who have rich and varied experiences related to the execution of industrial and infrastructure projects. In addition, they have been trained in usage of latest management tools and techniques this includes all aspects of project management such as planning, monitoring, coordination, quality control, safety principles, preparation of budgeting and cost control, materials procurement, equipment selection, labor management and settlement of claims.</p>
                             </div>
 
-                            <div class="service-image construction">
+                            <div class="service-image">
                                 <img src="/pr_website/static/images/other-services-card-2.png" alt="Construction supervisors"/>
                             </div>
 
@@ -701,8 +700,7 @@
                     <!-- ===== RIGHT NAVY PANEL (STICKY - PRESERVED) ===== -->
                     <aside class="os-right">
                         <div class="right-head">
-                            <div class="pre">WE ALSO PROVIDE</div>
-                            <h2>OTHER<br/>SERVICES</h2>
+                            <h2>We Also Provide</h2>
                         </div>
 
                         <div class="services-grid">
@@ -715,30 +713,32 @@
                                 <h5>Construction<br/>Management</h5>
                             </div>
                         </div>
-
-                        <div class="services-grid row2">
+                        <div class="services-grid row3">
                             <div class="srv-item">
-                                <div class="srv-ico plain"><i class="fa fa-clipboard-check"></i></div>
-                                <h5>Quality Assurance &amp; Quality Control</h5>
+                                <div class="srv-ico plain"><i class="fa fa-hand-holding-dollar"></i></div>
+                                <h5>Project<br/>Financing</h5>
                             </div>
                             <div class="srv-item">
                                 <div class="srv-ico plain"><i class="fa fa-map-marked-alt"></i></div>
                                 <h5>Survey Services</h5>
                             </div>
-                            <div class="srv-item">
-                                <div class="srv-ico plain"><i class="fa fa-file-signature"></i></div>
-                                <h5>Procurement Services</h5>
-                            </div>
                         </div>
-
                         <div class="services-grid row3">
                             <div class="srv-item">
                                 <div class="srv-ico plain"><i class="fa fa-cogs"></i></div>
                                 <h5>Operation &amp; Maintenance Services</h5>
                             </div>
                             <div class="srv-item">
-                                <div class="srv-ico plain"><i class="fa fa-wrench"></i></div>
-                                <h5>Shutdowns &amp; Turnarounds</h5>
+                                <div class="srv-ico plain"><i class="fa fa-building-columns"></i></div>
+                                <h5>Building<br/>Materials</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-clipboard-check"></i></div>
+                                <h5>Quality Assurance &amp; Quality Control</h5>
+                            </div>
+                            <div class="srv-item">
+                                <div class="srv-ico plain"><i class="fa fa-file-signature"></i></div>
+                                <h5>Procurement Services</h5>
                             </div>
                         </div>
                     </aside>
@@ -751,16 +751,16 @@
                         <div class="cb-logo"><i class="fa fa-tint"></i></div>
                         <div>
                             <div class="brand-name">PETRORAQ</div>
-                            <div class="brand-sub">ENERGY SERVICES</div>
+                            <div class="brand-sub">Engineering Co. Ltd.</div>
                         </div>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-map-marker-alt"></i>
-                        <span>Al-Majd square, King Faisal (West) Road, Basra, Iraq</span>
+                        <span>Al-Majd square, King Faisal (West) Road, Al-Jubail, KSA</span>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-phone"></i>
-                        <span>+964 781 000 9131 / +964 771 529 7877</span>
+                        <span>+966 13 - 361 - 4446</span>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-envelope"></i>

@@ -151,14 +151,29 @@ class PurchaseQuotation(models.Model):
         po_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
         for rec in self:
             rec.linked_rfq_state = rec.custom_rfq_id.state if rec.custom_rfq_id else "missing"
-            pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
-            rec.linked_pr_state = pr.state if pr else "missing"
+            requisition = rec.requisition_id or (
+                self.env["purchase.requisition"].sudo().search([("name", "=", rec.pr_name)], limit=1)
+                if rec.pr_name else False
+            )
+            legacy_pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
+            rec.linked_pr_state = self._map_requisition_to_legacy_pr_state(requisition) if requisition else (legacy_pr.state if legacy_pr else "missing")
 
             domain = [("pr_name", "=", rec.pr_name)] if rec.pr_name else []
             if rec.vendor_id:
                 domain.append(("partner_id", "=", rec.vendor_id.id))
             linked_pos = self.env["purchase.order"].sudo().search(domain) if domain else self.env["purchase.order"]
             rec.linked_po_state = max(linked_pos, key=lambda po: po_priority.get(po.state, 0)).state if linked_pos else "missing"
+
+    def _map_requisition_to_legacy_pr_state(self, requisition):
+        if not requisition:
+            return "missing"
+        if requisition.approval == "rejected":
+            return "cancel"
+        if requisition.status == "rfq":
+            return "rfq_sent"
+        if requisition.status in ("po", "payment", "completed"):
+            return "purchase"
+        return "pending"
 
     @api.depends("budget_type", "budget_code")
     def _compute_cost_center(self):

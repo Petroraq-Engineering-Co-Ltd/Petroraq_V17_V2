@@ -74,7 +74,7 @@
                 .petroraq-careers .careers-hero {
                 position: relative;
                 min-height: 450px;
-                background: url('/pr_website/static/images/hero-bg.png')
+                background: url('/pr_website/static/images/careers-bg.png')
                 center/cover no-repeat;
                 display: flex;
                 align-items: center;
@@ -408,6 +408,9 @@
                 grid-template-columns: repeat(3, 1fr);
                 gap: 30px;
                 }
+                .petroraq-careers .prq-hidden {
+                display: none !important;
+                }
                 .petroraq-careers .job-card {
                 background: linear-gradient(145deg, #fff, #f8fafc);
                 border: 2px solid #e8ecf2;
@@ -511,6 +514,59 @@
                 margin-bottom: 20px;
                 display: block;
                 animation: pulse 2s infinite;
+                }
+                .petroraq-careers .jobs-toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                flex-wrap: wrap;
+                margin-top: 32px;
+                }
+                .petroraq-careers .jobs-result-count {
+                color: #6b7a8f;
+                font-size: 14px;
+                font-weight: 600;
+                }
+                .petroraq-careers .jobs-pagination {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 10px;
+                flex-wrap: wrap;
+                }
+                .petroraq-careers .jobs-page-btn,
+                .petroraq-careers .jobs-load-more {
+                border: 2px solid #e8ecf2;
+                background: #fff;
+                color: var(--blue);
+                border-radius: 12px;
+                min-width: 44px;
+                min-height: 44px;
+                padding: 10px 16px;
+                font-size: 14px;
+                font-weight: 800;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+                }
+                .petroraq-careers .jobs-page-btn:hover,
+                .petroraq-careers .jobs-page-btn.active,
+                .petroraq-careers .jobs-load-more:hover {
+                background: linear-gradient(135deg, var(--gold), #e5b55b);
+                border-color: var(--gold);
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 14px 30px rgba(216,154,43,0.35);
+                }
+                .petroraq-careers .jobs-load-more[disabled] {
+                opacity: 0.45;
+                cursor: not-allowed;
+                transform: none;
+                box-shadow: none;
+                background: #fff;
+                color: #6b7a8f;
+                border-color: #e8ecf2;
                 }
 
                 /* ===== Hiring Process ===== */
@@ -746,14 +802,14 @@
                 font-size: 32px;
                 }
                 .petroraq-careers .cta-text h3 {
-                color: #fff;
+                color: #C46A1A;
                 font-size: 28px;
                 font-weight: 800;
                 margin-bottom: 12px;
                 line-height: 1.3;
                 }
                 .petroraq-careers .cta-text p {
-                color: #b8c5d6;
+                color: #000;
                 font-size: 16px;
                 margin: 0;
                 }
@@ -863,12 +919,13 @@
                 <!-- ===== Hero Section ===== -->
                 <section class="careers-hero animate-fade-in">
                     <div class="hero-overlay"></div>
-                    <div class="pr-container">
+                    <div class="">
                         <div class="hero-content animate-slide-up">
                             <h1>Build Your Career<br/>With PETRORAQ
-                                <span class="dot">.</span>
+                                <span class="dot"></span>
                             </h1>
-                            <p>Join a team delivering industrial and infrastructure excellence with safety, innovation,
+                            <p>
+                                Join a team delivering industrial and infrastructure excellence with safety, innovation,
                                 and growth.
                             </p>
                             <div class="hero-buttons">
@@ -891,7 +948,7 @@
                         <div class="why-top">
                             <div class="why-text animate-slide-up">
                                 <h2>Why Work With Us</h2>
-                                <p>At PETRORAQ, we empower our people to grow, innovate, and make an impact. We foster a
+                                <p style="text-align: justify; color: var(--blue);">At PETRORAQ, we empower our people to grow, innovate, and make an impact. We foster a
                                     culture of safety, collaboration, and excellence while delivering meaningful
                                     projects that shape communities and industries.
                                 </p>
@@ -899,23 +956,23 @@
                             <div class="stats-grid">
                                 <div class="benefit-card animate-scale-up delay-100">
                                     <i class="fa fa-users"></i>
-                                    <h3>250+</h3>
-                                    <p>Employees</p>
+                                    <h3>800+</h3>
+                                    <p>Professional Resources</p>
                                 </div>
                                 <div class="benefit-card animate-scale-up delay-200">
                                     <i class="fa fa-globe"></i>
-                                    <h3>12+</h3>
-                                    <p>Years Experience</p>
+                                    <h3>7+</h3>
+                                    <p>Years of Excellence</p>
                                 </div>
                                 <div class="benefit-card animate-scale-up delay-300">
                                     <i class="fa fa-building"></i>
-                                    <h3>150+</h3>
+                                    <h3>35+</h3>
                                     <p>Projects</p>
                                 </div>
                                 <div class="benefit-card animate-scale-up delay-400">
                                     <i class="fa fa-map-marker"></i>
-                                    <h3>5</h3>
-                                    <p>Countries</p>
+                                    <h3>KSA</h3>
+                                    <p>Across the Kingdom</p>
                                 </div>
                             </div>
                         </div>
@@ -944,7 +1001,7 @@
                             <div class="benefit-card animate-scale-up delay-500">
                                 <i class="fa fa-users"></i>
                                 <h4>Team Collaboration</h4>
-                                <p>Collaborative teams</p>
+                                <p style="text-align: center;">Team collaboration ensures safe, efficient, and timely civil project delivery.</p>
                             </div>
                             <div class="benefit-card animate-scale-up delay-600">
                                 <i class="fa fa-trophy"></i>
@@ -971,7 +1028,8 @@
                         <div class="jobs-grid">
                             <t t-if="jobs">
                                 <t t-foreach="jobs" t-as="job">
-                                    <div class="job-card prq-job-card animate-scale-up">
+                                    <div class="job-card prq-job-card animate-scale-up"
+                                         t-att-data-search="'%s %s %s %s' % (job.name or '', job.department_id.name if job.department_id else '', job.address_id.city if job.address_id and job.address_id.city else '', job.contract_type_id.name if job._fields.get('contract_type_id') and job.contract_type_id else '')">
                                         <h3 class="prq-job-title" t-esc="job.name"/>
                                         <div class="job-meta">
                                             <span class="prq-job-company">
@@ -1006,6 +1064,18 @@
                                     <p>Please check back soon or submit your CV for future opportunities!</p>
                                 </div>
                             </t>
+                        </div>
+                        <div class="no-jobs prq-no-results prq-hidden animate-slide-up">
+                            <i class="fa fa-search"></i>
+                            <h3>No matching jobs found</h3>
+                            <p>Try another title, department, or location.</p>
+                        </div>
+                        <div class="jobs-toolbar prq-jobs-toolbar prq-hidden">
+                            <div class="jobs-result-count prq-jobs-result-count"></div>
+                            <div class="jobs-pagination">
+                                <div class="prq-page-buttons"></div>
+                                <button class="jobs-load-more prq-load-more" type="button">Load More</button>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1065,26 +1135,86 @@
                         <h2 class="animate-slide-up">Life at PETRORAQ</h2>
                         <div class="life-grid">
                             <div class="life-card animate-scale-up delay-100">
-                                <img src="/pr_website/static/images/life-1.png"
-                                     alt="Empowered People"/>
+                                <img src="/pr_website/static/images/life1.webp" alt="Meeting With Chinese Delegation"/>
                                 <div class="life-content">
-                                    <h4>Empowered People</h4>
-                                    <p>We invest in our people, provide learning opportunities, and support career
-                                        growth.
+                                    <h4>Meeting With Chinese Delegation</h4>
+                                    <p style="text-align: justify;">Higher management's meeting with Chinese delegation, exploring the opportunities for
+                                        collaboration, growth and joint ventures.
                                     </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
-                                <img src="/pr_website/static/images/life-2.png"
-                                     alt="Meaningful Work"/>
+                                <img src="/pr_website/static/images/award1.webp" alt="Award From Pakistani Ambassador"/>
                                 <div class="life-content">
-                                    <h4>Meaningful Work</h4>
-                                    <p>Be part of impactful projects that drive progress and improve communities.</p>
+                                    <h4>Award From Pakistani Ambassador</h4>
+                                    <p style="text-align: justify;">Received award from H.E Mr. Ahmad Farooq (Ambassador of Pakistan to Saudi Arabia) during a business meetup organized by PEF.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/meet2.webp" alt="MD's Meeting with Clients"/>
+                                <div class="life-content">
+                                    <h4>MD's Meeting with Clients</h4>
+                                    <p>Managing Director Mr. Mustafa Abdul Rasheed is meeting with clients to discuss their needs and provide solutions.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/staff.png" alt="Head Office Staff Members"/>
+                                <div class="life-content">
+                                    <h4>Our Head Office Staff Members</h4>
+                                    <p style="text-align: justify;">A team of dedicated professionals working together to deliver exceptional results by collaboration, expertise, and commitment.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/meet1.webp" alt="Chinese Delegation in Petroraq"/>
+                                <div class="life-content">
+                                    <h4>Chinese Delegation in Petroraq</h4>
+                                    <p style="text-align: justify;">A Chinese delegation visited us to explore strategic business opportunities, potential avenues for collaboration and growth.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/ifftar1.webp" alt="Annual Ifftar Party &amp; Dinner 2026"/>
+                                <div class="life-content">
+                                    <h4>Annual Ifftar Party &amp; Dinner 2026</h4>
+                                    <p style="text-align: justify;">A gathering of employees, clients, and their families to celebrate the blessings of Ramadan and strengthen bonds of unity and gratitude.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/noor.jpeg" alt="Professional Working Environment"/>
+                                <div class="life-content">
+                                    <h4>Professional Working Environment</h4>
+                                    <p style="text-align: justify;">PETRORAQ provides a flexible work environment where professionals are encouraged to work independently or collaborate as strong team players.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/pef1.jpg" alt="PEF Business Meetup, Dammam"/>
+                                <div class="life-content">
+                                    <h4>PEF Business Meetup, Dammam</h4>
+                                    <p style="text-align: justify;">PETRORAQ’s team attended the PEF Business Meetup – Dammam Chapter and proudly represented our organization among leading professionals and business leaders.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/noor2.jpeg" alt="Delevering Petroraq's Vision at PEF"/>
+                                <div class="life-content">
+                                    <h4>Delevering Petroraq's Vision at PEF</h4>
+                                    <p style="text-align: justify;">PETRORAQ proudly represented the company’s vision at the PEF Business Meetup by highlighting our commitment to growth, innovation, and collaboration.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/itTeam1.jpeg" alt="Team Work Culture"/>
+                                <div class="life-content">
+                                    <h4>Team Work Culture</h4>
+                                    <p style="text-align: justify;">IT team works with a collaborative spirit, supporting each department through reliable systems, smart solutions, and continuous improvement.</p>
+                                </div>
+                            </div>
+                            <div class="life-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/khurram.png" alt="Project Manager Visiting Site"/>
+                                <div class="life-content">
+                                    <h4>Project Manager Visiting Site</h4>
+                                    <p style="text-align: justify;">Building tomorrow with precision, safety, and vision, where every blueprint becomes reality through dedication, leadership, and excellence on site.</p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-300">
-                                <img src="/pr_website/static/images/life-3.png"
-                                     alt="Strong Culture"/>
+                                <img src="/pr_website/static/images/life-3.png" alt="Strong Culture"/>
                                 <div class="life-content">
                                     <h4>Strong Culture</h4>
                                     <p>A collaborative, inclusive, and respectful environment where everyone belongs.
@@ -1105,7 +1235,7 @@
                                 </div>
                                 <div class="cta-text">
                                     <h3>Ready to Build the Future With Us?</h3>
-                                    <p>Join PETRORAQ and be part of a team delivering excellence every day.</p>
+                                    <p style="color: var(--blue);">Join PETRORAQ and be part of a team delivering excellence every day.</p>
                                 </div>
                             </div>
                             <a href="#openings" class="btn-cta animate-scale-up delay-100">
@@ -1120,79 +1250,182 @@
 
             <!-- Enhanced Job Search & Scroll Animation Script -->
             <script type="text/javascript">
+                <![CDATA[
                 document.addEventListener('DOMContentLoaded', function () {
-                // Scroll-triggered animations
-                const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -100px 0px'
-                };
+                    var pageSize = 8;
+                    var currentPage = 1;
+                    var searchInput = document.querySelector('.prq-job-search');
+                    var searchBtn = document.querySelector('.prq-search-btn');
+                    var jobCards = Array.prototype.slice.call(document.querySelectorAll('.prq-job-card'));
+                    var noResults = document.querySelector('.prq-no-results');
+                    var toolbar = document.querySelector('.prq-jobs-toolbar');
+                    var resultCount = document.querySelector('.prq-jobs-result-count');
+                    var pageButtons = document.querySelector('.prq-page-buttons');
+                    var loadMore = document.querySelector('.prq-load-more');
 
-                const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                entry.target.classList.add('animate-loaded');
-                }
-                });
-                }, observerOptions);
+                    if ('IntersectionObserver' in window) {
+                        var observer = new IntersectionObserver(function (entries) {
+                            entries.forEach(function (entry) {
+                                if (entry.isIntersecting) {
+                                    entry.target.classList.add('animate-loaded');
+                                }
+                            });
+                        }, {
+                            threshold: 0.1,
+                            rootMargin: '0px 0px -100px 0px'
+                        });
 
-                // Observe all sections
-                document.querySelectorAll('.careers-hero, .why-section, .openings-section, .process-section,
-                .life-section, .cta-section').forEach(section => {
-                observer.observe(section);
-                });
+                        document.querySelectorAll(
+                            '.careers-hero, .why-section, .openings-section, .process-section, .life-section, .cta-section'
+                        ).forEach(function (section) {
+                            observer.observe(section);
+                        });
+                    }
 
-                // Job search functionality
-                var searchInput = document.querySelector('.prq-job-search');
-                var searchBtn = document.querySelector('.prq-search-btn');
-                var jobCards = document.querySelectorAll('.prq-job-card');
+                    function getJobSearchText(card) {
+                        return String(
+                            card.getAttribute('data-search') ||
+                            card.textContent ||
+                            ''
+                        ).toLowerCase();
+                    }
 
-                function filterJobs(query) {
-                query = (query || '').toLowerCase();
-                jobCards.forEach(function (card) {
-                var title = (card.querySelector('.prq-job-title') || {}).textContent || '';
-                var company = (card.querySelector('.prq-job-company') || {}).textContent || '';
-                var meta = (card.querySelector('.job-meta') || {}).textContent || '';
-                var combined = (title + ' ' + company + ' ' + meta).toLowerCase();
-                card.style.display = combined.indexOf(query) !== -1 ? 'block' : 'none';
-                });
-                }
+                    function getFilteredCards() {
+                        var query = searchInput ? String(searchInput.value || '').toLowerCase().trim() : '';
 
-                if (searchInput) {
-                searchInput.addEventListener('input', function (e) {
-                filterJobs(e.target.value);
-                });
-                }
-                if (searchBtn) {
-                searchBtn.addEventListener('click', function () {
-                filterJobs(searchInput ? searchInput.value : '');
-                });
-                }
+                        if (!query) {
+                            return jobCards;
+                        }
 
-                // Smooth hover effects for cards
-                document.querySelectorAll('.stat-card, .benefit-card, .job-card, .life-card, .step').forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-15px) scale(1.02)';
-                });
-                card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-                });
-                });
+                        return jobCards.filter(function (card) {
+                            return getJobSearchText(card).indexOf(query) !== -1;
+                        });
+                    }
 
-                // Hero parallax effect
-                window.addEventListener('scroll', function() {
-                const scrolled = window.pageYOffset;
-                const hero = document.querySelector('.careers-hero');
-                if (hero) {
-                hero.style.transform = `translateY(${scrolled * 0.4}px)`;
-                }
-                });
+                    function renderPageButtons(totalPages) {
+                        if (!pageButtons) {
+                            return;
+                        }
 
-                // Staggered job card animation
-                const jobCardsList = document.querySelectorAll('.prq-job-card');
-                jobCardsList.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.15}s`;
+                        pageButtons.innerHTML = '';
+
+                        for (var page = 1; page <= totalPages; page += 1) {
+                            var button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'jobs-page-btn' + (page === currentPage ? ' active' : '');
+                            button.textContent = page;
+                            button.setAttribute('data-page', String(page));
+                            pageButtons.appendChild(button);
+                        }
+                    }
+
+                    function renderJobs() {
+                        if (!jobCards.length) {
+                            if (noResults) {
+                                noResults.classList.add('prq-hidden');
+                            }
+                            if (toolbar) {
+                                toolbar.classList.add('prq-hidden');
+                            }
+                            return;
+                        }
+
+                        var filteredCards = getFilteredCards();
+                        var total = filteredCards.length;
+                        var totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+                        if (currentPage > totalPages) {
+                            currentPage = totalPages;
+                        }
+
+                        var startIndex = (currentPage - 1) * pageSize;
+                        var endIndex = startIndex + pageSize;
+
+                        jobCards.forEach(function (card) {
+                            card.classList.add('prq-hidden');
+                        });
+
+                        filteredCards.slice(startIndex, endIndex).forEach(function (card, index) {
+                            card.classList.remove('prq-hidden');
+                            card.style.animationDelay = String(index * 0.08) + 's';
+                        });
+
+                        if (noResults) {
+                            noResults.classList.toggle('prq-hidden', total !== 0);
+                        }
+
+                        if (toolbar) {
+                            toolbar.classList.toggle('prq-hidden', total <= pageSize && currentPage === 1);
+                        }
+
+                        if (resultCount) {
+                            if (total) {
+                                resultCount.textContent = 'Showing ' + (startIndex + 1) + '-' + Math.min(endIndex, total) + ' of ' + total + ' job(s)';
+                            } else {
+                                resultCount.textContent = 'No jobs found';
+                            }
+                        }
+
+                        renderPageButtons(totalPages);
+
+                        if (loadMore) {
+                            loadMore.disabled = currentPage >= totalPages;
+                            loadMore.classList.toggle('prq-hidden', total <= pageSize);
+                        }
+                    }
+
+                    function resetToFirstPage() {
+                        currentPage = 1;
+                        renderJobs();
+                    }
+
+                    if (searchInput) {
+                        searchInput.addEventListener('input', resetToFirstPage);
+                    }
+
+                    if (searchBtn) {
+                        searchBtn.addEventListener('click', resetToFirstPage);
+                    }
+
+                    if (pageButtons) {
+                        pageButtons.addEventListener('click', function (event) {
+                            var button = event.target.closest('[data-page]');
+
+                            if (!button) {
+                                return;
+                            }
+
+                            currentPage = parseInt(button.getAttribute('data-page'), 10) || 1;
+                            renderJobs();
+                        });
+                    }
+
+                    if (loadMore) {
+                        loadMore.addEventListener('click', function () {
+                            currentPage += 1;
+                            renderJobs();
+                        });
+                    }
+
+                    document.querySelectorAll('.stat-card, .benefit-card, .job-card, .life-card, .step').forEach(function (card) {
+                        card.addEventListener('mouseenter', function () {
+                            this.style.transform = 'translateY(-15px) scale(1.02)';
+                        });
+                        card.addEventListener('mouseleave', function () {
+                            this.style.transform = 'translateY(0) scale(1)';
+                        });
+                    });
+
+                    window.addEventListener('scroll', function () {
+                        var hero = document.querySelector('.careers-hero');
+                        if (hero) {
+                            hero.style.transform = 'translateY(' + (window.pageYOffset * 0.4) + 'px)';
+                        }
+                    });
+
+                    renderJobs();
                 });
-                });
+                ]]>
             </script>
         </t>
     </template>
@@ -1265,7 +1498,7 @@
                 .job-detail-hero {
                 position: relative;
                 min-height: 400px;
-                background: url('/pr_website/static/src/img/hero-bg.png') center/cover no-repeat;
+                background: url('/pr_website/static/src/img/staff.png') center/cover no-repeat;
                 display: flex;
                 align-items: center;
                 overflow: hidden;
@@ -1596,6 +1829,22 @@
                 .form-control::placeholder {
                 color: rgba(255,255,255,0.5) !important;
                 }
+                .form-control:-webkit-autofill,
+                .form-control:-webkit-autofill:hover,
+                .form-control:-webkit-autofill:focus,
+                .form-control:-webkit-autofill:active {
+                -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.12) inset !important;
+                -webkit-text-fill-color: #ffffff !important;
+                caret-color: #ffffff;
+                transition: background-color 9999s ease-in-out 0s;
+                border-color: rgba(255,255,255,0.25) !important;
+                }
+                .form-control:-moz-autofill {
+                box-shadow: 0 0 0 1000px rgba(255,255,255,0.12) inset !important;
+                -moz-text-fill-color: #ffffff !important;
+                caret-color: #ffffff;
+                border-color: rgba(255,255,255,0.25) !important;
+                }
                 .form-control:focus, .form-select:focus {
                 outline: none;
                 border-color: var(--gold) !important;
@@ -1621,6 +1870,118 @@
                 border: 0;
                 }
 
+                .skill-picker {
+                width: 100%;
+                min-height: 70px;
+                padding: 12px 14px;
+                background: rgba(255,255,255,0.12);
+                border: 2px solid rgba(255,255,255,0.25);
+                border-radius: 16px;
+                transition: all 0.4s ease;
+                backdrop-filter: blur(20px);
+                box-sizing: border-box;
+                position: relative;
+                }
+                .skill-picker:focus-within,
+                .skill-picker.open {
+                border-color: var(--gold);
+                box-shadow: 0 0 0 4px rgba(216,154,43,0.3);
+                background: rgba(255,255,255,0.18);
+                }
+                .skill-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: center;
+                min-height: 38px;
+                }
+                .skill-tag {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 9px 12px;
+                background: rgba(216,154,43,0.95);
+                color: #fff;
+                border-radius: 999px;
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 1;
+                }
+                .skill-tag button {
+                width: 18px;
+                height: 18px;
+                border: 0;
+                border-radius: 50%;
+                background: rgba(10,37,64,0.35);
+                color: #fff;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                padding: 0;
+                font-size: 12px;
+                line-height: 1;
+                }
+                .skill-search {
+                flex: 1 1 220px;
+                min-width: 220px;
+                height: 38px;
+                border: 0;
+                outline: 0;
+                background: transparent;
+                color: #fff;
+                font-size: 15px;
+                font-family: inherit;
+                padding: 0 8px;
+                }
+                .skill-search::placeholder {
+                color: rgba(255,255,255,0.55);
+                }
+                .skill-options {
+                display: none;
+                position: static;
+                z-index: 30;
+                width: 100%;
+                margin-top: 12px;
+                max-height: 260px;
+                overflow-y: auto;
+                background: #10243c;
+                border: 2px solid rgba(216,154,43,0.45);
+                border-radius: 16px;
+                box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+                padding: 8px;
+                }
+                .skill-picker.open .skill-options {
+                display: block;
+                }
+                .skill-option {
+                width: 100%;
+                border: 0;
+                background: transparent;
+                color: #fff;
+                border-radius: 12px;
+                padding: 12px 14px;
+                text-align: left;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                font-family: inherit;
+                }
+                .skill-option:hover {
+                background: rgba(216,154,43,0.22);
+                }
+                .skill-option small {
+                color: rgba(255,255,255,0.58);
+                font-size: 12px;
+                white-space: nowrap;
+                }
+                .skill-option.is-hidden,
+                .skill-option.is-selected {
+                display: none;
+                }
+
                 .full-width {
                 grid-column: 1 / -1;
                 }
@@ -1638,6 +1999,33 @@
                 .file-upload:hover {
                 border-color: var(--gold);
                 background: rgba(255,255,255,0.15);
+                }
+                .file-upload .form-control[type="file"] {
+                background: rgba(255,255,255,0.12) !important;
+                color: #ffffff !important;
+                border-color: rgba(255,255,255,0.25);
+                }
+                .file-upload .form-control[type="file"]::file-selector-button {
+                border: 0;
+                border-radius: 10px;
+                background: rgba(255,255,255,0.92);
+                color: var(--blue);
+                padding: 10px 14px;
+                margin-right: 14px;
+                font-family: inherit;
+                font-weight: 600;
+                cursor: pointer;
+                }
+                .file-upload .form-control[type="file"]::-webkit-file-upload-button {
+                border: 0;
+                border-radius: 10px;
+                background: rgba(255,255,255,0.92);
+                color: var(--blue);
+                padding: 10px 14px;
+                margin-right: 14px;
+                font-family: inherit;
+                font-weight: 600;
+                cursor: pointer;
                 }
                 .file-icon {
                 width: 60px;
@@ -1932,6 +2320,15 @@
                                     <div class="location-suggestions" id="locationSuggestions"></div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="form-label required">Nationality</label>
+                                    <select class="form-select" name="nationality_id" required="required">
+                                        <option value="">Select nationality</option>
+                                        <t t-foreach="countries" t-as="country">
+                                            <option t-att-value="country.id" t-esc="country.name"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label class="form-label required">Total Experience (Years)</label>
                                     <input type="number" min="0" class="form-control" name="experience" placeholder="5"
                                            required="required"/>
@@ -1975,6 +2372,28 @@
                                         <option value="yes">Yes</option>
                                         <option value="no">No</option>
                                     </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label class="form-label">Skills</label>
+                                    <div class="skill-picker" id="skillPicker">
+                                        <div class="skill-tags" id="selectedSkillTags">
+                                            <input type="text" class="skill-search" id="skillSearch"
+                                                   placeholder="Search and add skills"/>
+                                        </div>
+                                        <div class="skill-options" id="skillOptions">
+                                            <t t-foreach="skills" t-as="skill">
+                                                <button type="button" class="skill-option"
+                                                        t-att-data-skill-id="skill.id"
+                                                        t-att-data-skill-name="skill.name"
+                                                        t-att-data-skill-type="skill.skill_type_id.name or ''">
+                                                    <span t-esc="skill.name"/>
+                                                    <small t-if="skill.skill_type_id" t-esc="skill.skill_type_id.name"/>
+                                                </button>
+                                            </t>
+                                        </div>
+                                        <div id="selectedSkillInputs"></div>
+                                    </div>
+                                    <small class="file-help">Add all relevant skills from the list.</small>
                                 </div>
                                 <div class="form-group full-width">
                                     <label class="form-label required">Upload Resume</label>
@@ -2104,6 +2523,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
+    function validateRequiredSelect(form, fieldName, message) {
+        if (!getFieldValue(form, fieldName)) {
+            showFormError(message);
+            focusField(form, fieldName);
+            return false;
+        }
+
+        return true;
+    }
+
     function validateApplicationForm(form) {
         // Same validation logic as backend
         var validators = [
@@ -2148,6 +2577,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!validateNumberRange(form, 'experience', 0, 60)) {
+            return false;
+        }
+
+        if (!validateRequiredSelect(
+            form,
+            'nationality_id',
+            'Please select a valid nationality.'
+        )) {
             return false;
         }
 
@@ -2241,6 +2678,156 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // =========================================================
+    // Skills tag picker
+    // =========================================================
+    (function initSkillPicker() {
+        var picker = document.getElementById('skillPicker');
+        var tagsContainer = document.getElementById('selectedSkillTags');
+        var searchInput = document.getElementById('skillSearch');
+        var optionsContainer = document.getElementById('skillOptions');
+        var hiddenInputs = document.getElementById('selectedSkillInputs');
+
+        if (!picker || !tagsContainer || !searchInput || !optionsContainer || !hiddenInputs) {
+            return;
+        }
+
+        var options = Array.prototype.slice.call(optionsContainer.querySelectorAll('.skill-option'));
+        var selectedSkills = {};
+        var selectedOrder = [];
+
+        function openPicker() {
+            picker.classList.add('open');
+            refreshOptions();
+        }
+
+        function closePicker() {
+            picker.classList.remove('open');
+        }
+
+        function refreshOptions() {
+            var query = String(searchInput.value || '').toLowerCase().trim();
+
+            options.forEach(function (option) {
+                var skillId = option.getAttribute('data-skill-id');
+                var skillName = String(option.getAttribute('data-skill-name') || '');
+                var skillType = String(option.getAttribute('data-skill-type') || '');
+                var haystack = (skillName + ' ' + skillType).toLowerCase();
+                var isSelected = Boolean(selectedSkills[skillId]);
+                var isMatch = !query || haystack.indexOf(query) !== -1;
+
+                option.classList.toggle('is-selected', isSelected);
+                option.classList.toggle('is-hidden', !isMatch);
+            });
+        }
+
+        function renderSelectedSkills() {
+            tagsContainer.querySelectorAll('.skill-tag').forEach(function (tag) {
+                tag.remove();
+            });
+            hiddenInputs.innerHTML = '';
+
+            selectedOrder.forEach(function (skillId) {
+                var skill = selectedSkills[skillId];
+
+                if (!skill) {
+                    return;
+                }
+
+                var tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                tag.textContent = skill.name;
+
+                var removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.setAttribute('aria-label', 'Remove ' + skill.name);
+                removeButton.setAttribute('data-remove-skill', skillId);
+                removeButton.innerHTML = '&times;';
+
+                tag.appendChild(removeButton);
+                tagsContainer.insertBefore(tag, searchInput);
+
+                var hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'skill_ids';
+                hiddenInput.value = skillId;
+                hiddenInputs.appendChild(hiddenInput);
+            });
+
+            refreshOptions();
+        }
+
+        function addSkill(option) {
+            var skillId = option.getAttribute('data-skill-id');
+
+            if (!skillId || selectedSkills[skillId]) {
+                return;
+            }
+
+            selectedSkills[skillId] = {
+                name: option.getAttribute('data-skill-name') || option.textContent.trim()
+            };
+            selectedOrder.push(skillId);
+            searchInput.value = '';
+            renderSelectedSkills();
+            searchInput.focus();
+        }
+
+        function removeSkill(skillId) {
+            delete selectedSkills[skillId];
+            selectedOrder = selectedOrder.filter(function (id) {
+                return id !== skillId;
+            });
+            renderSelectedSkills();
+            searchInput.focus();
+        }
+
+        picker.addEventListener('click', function () {
+            openPicker();
+            searchInput.focus();
+        });
+
+        searchInput.addEventListener('focus', openPicker);
+        searchInput.addEventListener('input', refreshOptions);
+        searchInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Backspace' && !searchInput.value && selectedOrder.length) {
+                removeSkill(selectedOrder[selectedOrder.length - 1]);
+            }
+
+            if (event.key === 'Escape') {
+                closePicker();
+            }
+        });
+
+        optionsContainer.addEventListener('click', function (event) {
+            var option = event.target.closest('.skill-option');
+
+            if (!option || option.classList.contains('is-selected')) {
+                return;
+            }
+
+            event.preventDefault();
+            addSkill(option);
+        });
+
+        tagsContainer.addEventListener('click', function (event) {
+            var removeButton = event.target.closest('[data-remove-skill]');
+
+            if (!removeButton) {
+                return;
+            }
+
+            event.preventDefault();
+            removeSkill(removeButton.getAttribute('data-remove-skill'));
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!picker.contains(event.target)) {
+                closePicker();
+            }
+        });
+    })();
 
     // =========================================================
     // Form submit validation
@@ -2742,10 +3329,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <i class="fa fa-briefcase"></i>
                                 View More Jobs
                             </a>
-                            <a href="mailto:careers@petroraq.com" class="secondary-btn animate-scale-up delay-400">
-                                <i class="fa fa-envelope"></i>
-                                Contact HR
-                            </a>
+                            <!--                            <a href="mailto:careers@petroraq.com" class="secondary-btn animate-scale-up delay-400">-->
+                            <!--                                <i class="fa fa-envelope"></i>-->
+                            <!--                                Contact HR-->
+                            <!--                            </a>-->
                         </div>
                     </div>
                 </div>

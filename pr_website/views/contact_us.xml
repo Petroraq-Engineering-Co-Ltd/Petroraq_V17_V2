@@ -73,9 +73,10 @@
                 .petroraq-contact .contact-hero {
                     position: relative;
                     min-height: 500px;
-                    background: url('/pr_website/static/images/hero-bg.png') center/cover no-repeat;
+                    background: url('/pr_website/static/images/contact.png') center/cover no-repeat;
                     display: flex;
                     align-items: center;
+                    text-align-left;
                     overflow: hidden;
                 }
                 .petroraq-contact .hero-overlay {
@@ -184,6 +185,27 @@
                     font-size: 16px;
                     line-height: 1.8;
                     margin-bottom: 40px;
+                }
+                .petroraq-contact .contact-alert {
+                    padding: 16px 18px;
+                    border-radius: 14px;
+                    margin-bottom: 24px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    line-height: 1.5;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .petroraq-contact .contact-alert.success {
+                    background: rgba(22, 163, 74, 0.1);
+                    color: #166534;
+                    border: 1px solid rgba(22, 163, 74, 0.25);
+                }
+                .petroraq-contact .contact-alert.error {
+                    background: rgba(220, 38, 38, 0.1);
+                    color: #991b1b;
+                    border: 1px solid rgba(220, 38, 38, 0.25);
                 }
 
                 /* ===== Form Styles ===== */
@@ -476,7 +498,7 @@
                     font-size: 32px;
                 }
                 .petroraq-contact .assistance-text h3 {
-                    color: #fff;
+                    color: #C46A1A;
                     font-size: 32px;
                     font-weight: 800;
                     margin-bottom: 10px;
@@ -588,13 +610,13 @@
                 <!-- ===== Hero Section ===== -->
                 <section class="contact-hero animate-fade-in">
                     <div class="hero-overlay"></div>
-                    <div class="pr-container">
+                    <div class="">
                         <div class="hero-content animate-slide-up">
-                            <h1>Let's Connect
-                                <span class="dot">.</span>
+                            <h1 >Let's Connect
+                                <span class="dot"></span>
                             </h1>
                             <p>Ready to start your next project? Our team is here to bring your vision to life with engineering excellence.</p>
-                            <div class="hero-line animate-scale-up delay-200"></div>
+
                         </div>
                     </div>
                 </section>
@@ -606,7 +628,15 @@
                             <!-- Send Message Form -->
                             <div class="contact-card form-card animate-slide-up delay-100">
                                 <h2>Send a Message</h2>
-                                <p class="card-subtitle">Share your project details and our experts will respond within 24 hours.</p>
+                                <p class="card-subtitle">Share your project details and our experts will respond within 24 working hours.</p>
+                                <div t-if="contact_success" class="contact-alert success">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span>Your message has been sent. Our sales team will contact you soon.</span>
+                                </div>
+                                <div t-if="contact_error" class="contact-alert error">
+                                    <i class="fa fa-exclamation-circle"></i>
+                                    <span t-esc="contact_error"/>
+                                </div>
 
                                 <form class="contact-form" action="/website/mail/contact" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -659,7 +689,7 @@
                             <!-- Contact Information -->
                             <div class="contact-card info-card animate-slide-up delay-200">
                                 <h2>Get In Touch</h2>
-                                <p class="card-subtitle">Multiple ways to connect with our team for project discussions and support.</p>
+                                <p class="card-subtitle">Multiple ways to connect with our team for project discussions, quotations and support.</p>
 
                                 <div class="info-list">
                                     <div class="info-item animate-scale-up delay-100">
@@ -668,7 +698,7 @@
                                         </div>
                                         <div class="info-text">
                                             <h4>Head Office</h4>
-                                            <p>Majd Square, King Faisal (West) Rd<br/>Al Jubail City, Kingdom of Saudi Arabia</p>
+                                            <p>Majd Square, King Faisal (West) Rd<br/>Al-Jubail, Kingdom of Saudi Arabia</p>
                                         </div>
                                     </div>
 
@@ -735,7 +765,7 @@
                                 </div>
                                 <div class="assistance-text">
                                     <h3>Immediate Assistance Available</h3>
-                                    <p>Our team responds to inquiries within 24 hours</p>
+                                    <p style="color: var(--blue);">Our team responds to inquiries within 24 working hours</p>
                                 </div>
                             </div>
                             <div class="assistance-buttons">

@@ -101,7 +101,7 @@ class HRWorkPermit(models.Model):
 
     def _send_notification(self):
         for rec in self:
-            hr_email = "hr@petroraq.com"
+            hr_email = "noreply@petroraq.com"
             mail = self.env["mail.mail"]
             try:
                 body_message = f"""
@@ -117,7 +117,7 @@ Petroraq Engineering
                 receivers_emails = [hr_email]
                 for receiver in receivers_emails:
                     message = {
-                        "email_from": "hr@petroraq.com",
+                        "email_from": "noreply@petroraq.com",
                         "subject": f"{rec.name} - Alert For Work Permit/Iqama Expiry",
                         "body_html": body_message,
                         "email_to": receiver,

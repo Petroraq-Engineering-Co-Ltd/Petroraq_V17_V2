@@ -1,0 +1,194 @@
+.o_hr_reminder_dashboard {
+    min-height: 100%;
+    background: #f5f6f8;
+}
+
+.o_hr_reminder_header {
+    background: #fff;
+    border: 1px solid #d8dce4;
+    border-radius: 6px;
+    padding: 14px 16px;
+}
+
+.o_hr_reminder_header h2 {
+    color: #573674;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.o_hr_reminder_tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.o_hr_reminder_tile {
+    display: flex;
+    min-height: 110px;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #cebce1;
+    border-radius: 6px;
+    background: #fff;
+    color: #263238;
+}
+
+.o_hr_reminder_clickable {
+    cursor: pointer;
+}
+
+.o_hr_reminder_clickable:hover {
+    border-color: #7a539e;
+    box-shadow: 0 3px 10px rgba(33, 37, 41, 0.08);
+}
+
+.o_hr_reminder_tile_icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: #eaedf3;
+    color: #573674;
+    font-size: 18px;
+    flex: 0 0 auto;
+}
+
+.o_hr_reminder_tile_body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.o_hr_reminder_tile_title {
+    font-size: 13px;
+    color: #5f6670;
+}
+
+.o_hr_reminder_tile_count {
+    font-size: 30px;
+    line-height: 1.15;
+    color: #573674;
+}
+
+.o_hr_reminder_tile_subtitle {
+    font-size: 12px;
+    color: #6f7782;
+    line-height: 1.25;
+}
+
+.o_hr_reminder_tile_danger .o_hr_reminder_tile_icon,
+.o_hr_reminder_badge_danger {
+    background: #fde8e8;
+    color: #b42318;
+}
+
+.o_hr_reminder_tile_warning .o_hr_reminder_tile_icon,
+.o_hr_reminder_badge_warning {
+    background: #fff3d8;
+    color: #8a5a00;
+}
+
+.o_hr_reminder_tile_critical .o_hr_reminder_tile_icon,
+.o_hr_reminder_badge_critical {
+    background: #ffe4cc;
+    color: #b54708;
+}
+
+.o_hr_reminder_tile_success .o_hr_reminder_tile_icon,
+.o_hr_reminder_badge_success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.o_hr_reminder_tile_info .o_hr_reminder_tile_icon,
+.o_hr_reminder_badge_info {
+    background: #e0f2fe;
+    color: #075985;
+}
+
+.o_hr_reminder_tile_primary .o_hr_reminder_tile_icon,
+.o_hr_reminder_badge_primary {
+    background: #ece7f3;
+    color: #573674;
+}
+
+.o_hr_reminder_tile_muted .o_hr_reminder_tile_icon,
+.o_hr_reminder_badge_muted {
+    background: #edf0f4;
+    color: #4b5563;
+}
+
+.o_hr_reminder_sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.o_hr_reminder_panel {
+    background: #fff;
+    border: 1px solid #d8dce4;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.o_hr_reminder_panel_wide {
+    grid-column: 1 / -1;
+}
+
+.o_hr_reminder_panel_header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e4e7ec;
+    background: #eaedf3;
+}
+
+.o_hr_reminder_panel_header h3 {
+    font-size: 15px;
+    margin: 0;
+    color: #573674;
+}
+
+.o_hr_reminder_panel_header span {
+    font-size: 12px;
+    color: #6f7782;
+}
+
+.o_hr_reminder_table {
+    margin-bottom: 0;
+}
+
+.o_hr_reminder_table th {
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.o_hr_reminder_row {
+    cursor: pointer;
+}
+
+.o_hr_reminder_row:hover {
+    background: #f8f5fb;
+}
+
+.o_hr_reminder_badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+@media (max-width: 992px) {
+    .o_hr_reminder_sections {
+        grid-template-columns: 1fr;
+    }
+}

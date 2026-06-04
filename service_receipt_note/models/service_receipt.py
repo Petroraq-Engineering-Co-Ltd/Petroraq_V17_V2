@@ -78,6 +78,10 @@ class ServiceReceiptNote(models.Model):
         tracking=True,
         copy=False,
     )
+    has_done_quantity = fields.Boolean(
+        string="Has Done Quantity",
+        compute="_compute_has_done_quantity",
+    )
     rejection_reason = fields.Text(string="Rejection Reason", readonly=True, copy=False)
     backorder_id = fields.Many2one(
         "service.receipt.note",
@@ -112,6 +116,24 @@ class ServiceReceiptNote(models.Model):
         for rec in self:
             rec.backorder_count = len(rec.backorder_ids)
 
+    @api.depends("line_ids.done_qty", "line_ids.uom_id")
+    def _compute_has_done_quantity(self):
+        for rec in self:
+            rec.has_done_quantity = any(
+                not float_is_zero(
+                    line.done_qty,
+                    precision_rounding=line.uom_id.rounding or 0.01,
+                )
+                for line in rec.line_ids
+            )
+
+    def _reset_approval_after_line_change(self):
+        receipts = self.filtered(
+            lambda rec: rec.approval_state in ("approved", "rejected") and rec.state not in ("done", "cancel")
+        )
+        if receipts:
+            receipts.write({"approval_state": "pending", "rejection_reason": False})
+
     @api.model_create_multi
     def create(self, vals_list):
         seq_model = self.env["ir.sequence"]
@@ -132,6 +154,7 @@ class ServiceReceiptNote(models.Model):
         if group and self.env.user not in group.users:
             raise UserError(_("Only Inventory Administration can approve SRN."))
         for rec in self.filtered(lambda r: r.state not in ("done", "cancel")):
+            rec._validate_lines()
             rec.write({"approval_state": "approved", "rejection_reason": False})
 
     def action_open_reject_wizard(self):
@@ -201,7 +224,7 @@ class ServiceReceiptNote(models.Model):
                     has_any_qty = True
 
             if not has_any_qty:
-                raise ValidationError(_("Please enter at least one non-zero Done Qty before validation."))
+                raise ValidationError(_("Please enter at least one non-zero Done Qty before approval or validation."))
 
     def _prepare_backorder_vals(self, remaining_lines):
         self.ensure_one()
@@ -353,6 +376,27 @@ class ServiceReceiptNoteLine(models.Model):
         store=True,
         readonly=True,
     )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        lines = super().create(vals_list)
+        lines._reset_receipt_approval_after_line_change()
+        return lines
+
+    def write(self, vals):
+        result = super().write(vals)
+        if {"purchase_line_id", "name", "done_qty"} & set(vals):
+            self._reset_receipt_approval_after_line_change()
+        return result
+
+    def unlink(self):
+        receipts = self.mapped("receipt_id")
+        result = super().unlink()
+        receipts._reset_approval_after_line_change()
+        return result
+
+    def _reset_receipt_approval_after_line_change(self):
+        self.mapped("receipt_id")._reset_approval_after_line_change()
 
     @api.constrains("purchase_line_id")
     def _check_service_product(self):
