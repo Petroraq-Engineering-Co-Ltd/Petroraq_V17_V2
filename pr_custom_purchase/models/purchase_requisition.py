@@ -181,7 +181,11 @@ class PurchaseRequisition(models.Model):
         compute="_compute_show_request_budget_increase_button", store=False
     )
     project_id = fields.Many2one("project.project", string="Project")
-    expense_bucket_id = fields.Many2one("crossovered.budget", string="Expense")
+    expense_bucket_id = fields.Many2one(
+        "crossovered.budget",
+        string="Expense",
+        domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('pr_under_revision', '=', False)]",
+    )
     allowed_cost_center_ids = fields.Many2many(
         "account.analytic.account",
         compute="_compute_allowed_cost_center_ids",

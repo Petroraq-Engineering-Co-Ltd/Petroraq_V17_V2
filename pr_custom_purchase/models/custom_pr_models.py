@@ -83,7 +83,7 @@ class CustomPR(models.Model):
         'crossovered.budget',
         string='Expense',
         required=True,
-        domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done'])]",
+        domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('pr_under_revision', '=', False)]",
     )
     allowed_cost_center_ids = fields.Many2many(
         "account.analytic.account",
