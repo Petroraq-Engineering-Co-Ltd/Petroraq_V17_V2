@@ -1,12 +1,13 @@
 {
     'name': 'Qiwa Contract OCR Processor',
-    'version': '17.0.1.0.2',
+    'version': '17.0.1.0.3',
     'depends': [
         'hr_recruitment',
         'pr_hr_recruitment',
         'pr_hr_recruitment_request',
         'pr_hr_contract',
         'pr_account',
+        'pr_employee_service_requests',
         'mail',
     ],
     'author': 'Mudassir Amin',
