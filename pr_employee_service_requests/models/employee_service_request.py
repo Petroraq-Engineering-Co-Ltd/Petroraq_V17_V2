@@ -111,6 +111,19 @@ class PrEmployeeServiceRequest(models.Model):
         tracking=True,
         domain="[('account_type', 'in', ['asset_cash', 'asset_current'])]",
     )
+    expense_bucket_id = fields.Many2one(
+        "crossovered.budget",
+        string="Budget",
+        tracking=True,
+        domain="[('state', 'in', ['validate', 'done'])]",
+        help="Approved backend budget to consume for this HR request.",
+    )
+    cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="Cost Center",
+        tracking=True,
+        help="Cost center that will receive the BPV/CPV analytic distribution.",
+    )
     expense_account_id = fields.Many2one(
         "account.account",
         string="Employee / Expense Account",
@@ -139,6 +152,22 @@ class PrEmployeeServiceRequest(models.Model):
         readonly=True,
         copy=False,
         tracking=True,
+    )
+    payment_request_id = fields.Many2one(
+        "pr.employee.payment.request",
+        string="Payment Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    payment_request_state = fields.Selection(
+        [
+            ("requested", "Requested"),
+            ("voucher_created", "Voucher Created"),
+            ("cancelled", "Cancelled"),
+        ],
+        string="Payment Request Status",
+        compute="_compute_payment_request_state",
     )
     payment_voucher_state = fields.Selection(
         [
@@ -210,6 +239,11 @@ class PrEmployeeServiceRequest(models.Model):
             voucher = rec.cash_payment_id or rec.bank_payment_id
             rec.payment_voucher_state = voucher.state if voucher else False
 
+    @api.depends("payment_request_id.state")
+    def _compute_payment_request_state(self):
+        for rec in self:
+            rec.payment_request_state = rec.payment_request_id.state if rec.payment_request_id else False
+
     @api.depends("travel_date", "return_date")
     def _compute_duration_days(self):
         for rec in self:
@@ -256,13 +290,17 @@ class PrEmployeeServiceRequest(models.Model):
             rec.can_reset_to_draft = rec.state == "rejected" and (is_owner or is_hr_manager or is_admin)
             rec.can_cancel = rec.state in ("draft", "hr_supervisor_approval") and is_owner
 
-    @api.onchange("employee_id", "payment_method")
+    @api.onchange("employee_id", "payment_method", "cost_center_id")
     def _onchange_employee_or_payment_method(self):
         for rec in self:
             if rec.employee_id:
                 rec.company_id = rec.employee_id.company_id or self.env.company
                 rec.passport_no = rec.employee_id.passport_id or rec.passport_no
                 rec.iqama_no = rec.employee_id.identification_id or rec.iqama_no
+                if not rec.cost_center_id:
+                    rec.cost_center_id = rec._get_default_hr_cost_center()
+                if rec.cost_center_id and not rec.expense_bucket_id:
+                    rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id)
                 employee_account = rec._get_employee_account()
                 if employee_account and not rec.expense_account_id:
                     rec.expense_account_id = employee_account
@@ -295,6 +333,15 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.iqama_no:
                 rec.iqama_no = rec.employee_id.identification_id or False
             updates = {}
+            if not rec.cost_center_id:
+                cost_center = rec._get_default_hr_cost_center()
+                if cost_center:
+                    updates["cost_center_id"] = cost_center.id
+            if not rec.expense_bucket_id:
+                cost_center = rec.cost_center_id or self.env["account.analytic.account"].browse(updates.get("cost_center_id"))
+                budget = rec._get_default_hr_budget(cost_center)
+                if budget:
+                    updates["expense_bucket_id"] = budget.id
             if not rec.expense_account_id:
                 employee_account = rec._get_employee_account()
                 if employee_account:
@@ -327,6 +374,23 @@ class PrEmployeeServiceRequest(models.Model):
             for rec in self:
                 if rec.state != "draft":
                     raise UserError(_("Submitted requests cannot be edited. Reject and reset to draft first."))
+        budget_fields = {"expense_bucket_id", "cost_center_id"}
+        if budget_fields.intersection(vals):
+            can_edit_budget = (
+                self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_supervisor")
+                or self.env.user.has_group("hr.group_hr_manager")
+                or self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_manager")
+                or self.env.user.has_group("pr_custom_purchase.managing_director")
+                or self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_md")
+                or self.env.user.has_group("base.group_system")
+            )
+            for rec in self:
+                if rec.state == "draft":
+                    continue
+                if rec.state in ("payment_approval", "paid", "issued", "rejected", "cancelled") or rec.payment_request_id:
+                    raise UserError(_("Budget and Cost Center cannot be changed after the payment request is created."))
+                if not can_edit_budget:
+                    raise UserError(_("Only HR/MD approvers can edit Budget and Cost Center after submission."))
         approval_fields = {"approved_amount", "payment_account_id", "expense_account_id", "visa_fee"}
         if approval_fields.intersection(vals):
             can_edit_approval = (
@@ -368,6 +432,10 @@ class PrEmployeeServiceRequest(models.Model):
                     raise UserError(_("Please enter travel and return dates."))
                 if rec.return_date < rec.travel_date:
                     raise UserError(_("Return Date cannot be before Travel Date."))
+            if not rec.expense_bucket_id:
+                raise UserError(_("Please select the approved Budget for this HR request."))
+            if not rec.cost_center_id:
+                raise UserError(_("Please select the Cost Center for this HR request."))
 
     def _check_before_md_approval(self):
         for rec in self:
@@ -376,18 +444,11 @@ class PrEmployeeServiceRequest(models.Model):
                 if rec.request_type == "exit_reentry":
                     raise UserError(_("Please enter the visa fee or approved payable amount before MD approval."))
                 raise UserError(_("Please enter an approved amount greater than zero before MD approval."))
-            if not rec.payment_account_id:
-                payment_account = rec._get_default_payment_account()
-                if payment_account:
-                    rec.payment_account_id = payment_account.id
-            if not rec.expense_account_id:
-                employee_account = rec._get_employee_account()
-                if employee_account:
-                    rec.expense_account_id = employee_account.id
-            if not rec.payment_account_id:
-                raise UserError(_("Please select the Pay From Account before MD approval."))
-            if not rec.expense_account_id:
-                raise UserError(_("Please select the Employee / Expense Account before MD approval."))
+            if not rec.expense_bucket_id:
+                raise UserError(_("Please select the approved Budget before MD approval."))
+            if not rec.cost_center_id:
+                raise UserError(_("Please select the Cost Center before MD approval."))
+            rec._check_selected_budget_or_raise(amount)
 
     def _notify_group(self, group_xml_ids, summary, note):
         users = self.env["res.users"]
@@ -485,7 +546,7 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.can_md_approve:
                 raise UserError(_("Only MD can approve this stage."))
             rec._check_before_md_approval()
-            voucher = rec._create_payment_voucher()
+            payment_request = rec._create_payment_request()
             rec.write({
                 "state": "payment_approval",
                 "approved_amount": rec._get_payment_amount(),
@@ -493,7 +554,8 @@ class PrEmployeeServiceRequest(models.Model):
                 "md_approved_date": fields.Datetime.now(),
             })
             rec.message_post(
-                body=_("MD approved this request and created payment voucher %s.") % voucher.display_name
+                body=_("MD approved this request and created payment request %s for Accounts.")
+                % payment_request.display_name
             )
 
     def action_issue(self):
@@ -551,6 +613,46 @@ class PrEmployeeServiceRequest(models.Model):
             "target": "current",
         }
 
+    def action_open_payment_request(self):
+        self.ensure_one()
+        if not self.payment_request_id:
+            raise UserError(_("No payment request has been created yet."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Payment Request"),
+            "res_model": "pr.employee.payment.request",
+            "view_mode": "form",
+            "res_id": self.payment_request_id.id,
+            "target": "current",
+        }
+
+    def _create_payment_request(self):
+        self.ensure_one()
+        if self.payment_request_id:
+            if self.payment_request_id.state == "cancelled":
+                self.payment_request_id.state = "requested"
+            return self.payment_request_id
+        if self.cash_payment_id or self.bank_payment_id:
+            raise UserError(_("A payment voucher already exists for this request."))
+        amount = self._get_payment_amount()
+        self._check_selected_budget_or_raise(amount)
+        payment_request = self.env["pr.employee.payment.request"].sudo().create({
+            "service_request_id": self.id,
+            "requested_user_id": self.requested_by_id.id or self.env.user.id,
+            "employee_id": self.employee_id.id,
+            "company_id": self.company_id.id,
+            "expense_bucket_id": self.expense_bucket_id.id,
+            "cost_center_id": self.cost_center_id.id,
+            "line_ids": [(0, 0, {
+                "description": self._get_payment_description(),
+                "amount": amount,
+                "expense_account_id": self.expense_account_id.id if self.expense_account_id else False,
+            })],
+        })
+        self.payment_request_id = payment_request.id
+        payment_request._notify_accounts()
+        return payment_request
+
     def _create_payment_voucher(self):
         self.ensure_one()
         existing_voucher = self.cash_payment_id or self.bank_payment_id
@@ -584,10 +686,12 @@ class PrEmployeeServiceRequest(models.Model):
             "employee_service_request_id": self.id,
         }
         if self.payment_method == "cash":
+            line_vals = {key: value for key, value in line_vals.items() if key in self.env["pr.account.cash.payment.line"]._fields}
             payment_vals["cash_payment_line_ids"] = [(0, 0, line_vals)]
             voucher = self.env["pr.account.cash.payment"].sudo().create(payment_vals)
             self.cash_payment_id = voucher.id
         else:
+            line_vals = {key: value for key, value in line_vals.items() if key in self.env["pr.account.bank.payment.line"]._fields}
             payment_vals["bank_payment_line_ids"] = [(0, 0, line_vals)]
             voucher = self.env["pr.account.bank.payment"].sudo().create(payment_vals)
             self.bank_payment_id = voucher.id
@@ -631,6 +735,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_employee_cost_center(self):
         self.ensure_one()
+        if self.cost_center_id:
+            return self.cost_center_id
         if "employee_cost_center_id" in self.employee_id._fields and self.employee_id.employee_cost_center_id:
             return self.employee_id.employee_cost_center_id
         return self.env["account.analytic.account"]
@@ -640,6 +746,8 @@ class PrEmployeeServiceRequest(models.Model):
         employee_cost_center = self._get_employee_cost_center()
         if not employee_cost_center:
             return False
+        if employee_cost_center == self.cost_center_id:
+            return {str(employee_cost_center.id): 100.0}
         analytic_distribution = {}
         for field_name in ("project_id", "section_id", "department_id"):
             account = getattr(employee_cost_center, field_name, False)
@@ -680,6 +788,60 @@ class PrEmployeeServiceRequest(models.Model):
 
         return self.env["account.account"].sudo().search([("account_type", "=", "asset_cash")], order="code", limit=1)
 
+    def _get_default_hr_cost_center(self):
+        self.ensure_one()
+        employee = self.employee_id
+        for field_name in (
+            "employee_cost_center_id",
+            "project_cost_center_id",
+            "section_cost_center_id",
+            "department_cost_center_id",
+        ):
+            if field_name in employee._fields:
+                cost_center = employee[field_name]
+                if cost_center:
+                    return cost_center
+        department = employee.department_id
+        if department and "department_cost_center_id" in department._fields and department.department_cost_center_id:
+            return department.department_cost_center_id
+        return self.env["account.analytic.account"]
+
+    def _get_default_hr_budget(self, cost_center=False):
+        self.ensure_one()
+        cost_center = cost_center or self.cost_center_id
+        if not cost_center:
+            return self.env["crossovered.budget"]
+        target_date = self.expense_date or self.travel_date or self.request_date or fields.Date.context_today(self)
+        return self.env["crossovered.budget"].sudo().search([
+            ("state", "in", ["validate", "done"]),
+            ("date_from", "<=", target_date),
+            ("date_to", ">=", target_date),
+            ("crossovered_budget_line.analytic_account_id", "=", cost_center.id),
+        ], order="date_from desc, id desc", limit=1)
+
+    def _check_selected_budget_or_raise(self, amount=False):
+        self.ensure_one()
+        if not self.expense_bucket_id:
+            raise UserError(_("Please select the approved Budget."))
+        if not self.cost_center_id:
+            raise UserError(_("Please select the Cost Center."))
+        self.expense_bucket_id._check_active_for_date(
+            self.expense_date or self.travel_date or self.request_date or fields.Date.context_today(self)
+        )
+        remaining_by_cost_center = self.expense_bucket_id._get_remaining_by_cost_center()
+        if self.cost_center_id.id not in remaining_by_cost_center:
+            raise UserError(
+                _("Cost Center %(cc)s is not included in Budget %(budget)s.")
+                % {"cc": self.cost_center_id.display_name, "budget": self.expense_bucket_id.display_name}
+            )
+        amount = amount if amount is not False else self._get_payment_amount()
+        remaining = remaining_by_cost_center.get(self.cost_center_id.id, 0.0)
+        if amount > remaining:
+            raise UserError(
+                _("Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: %(amount).2f")
+                % {"cc": self.cost_center_id.display_name, "remaining": remaining, "amount": amount}
+            )
+
 
 class PrEmployeeServiceRequestRejectWizard(models.TransientModel):
     _name = "pr.employee.service.request.reject.wizard"
@@ -694,6 +856,428 @@ class PrEmployeeServiceRequestRejectWizard(models.TransientModel):
         return {"type": "ir.actions.act_window_close"}
 
 
+class PrEmployeePaymentRequest(models.Model):
+    _name = "pr.employee.payment.request"
+    _description = "Employee Payment Request"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _order = "id desc"
+
+    name = fields.Char(string="Request Number", default="New", readonly=True, copy=False, tracking=True)
+    service_request_id = fields.Many2one(
+        "pr.employee.service.request",
+        string="Employee Service Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    iqama_line_id = fields.Many2one(
+        "hr.employee.iqama.line",
+        string="Iqama Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    insurance_line_id = fields.Many2one(
+        "hr.employee.medical.insurance.line",
+        string="Medical Insurance Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    requested_user_id = fields.Many2one(
+        "res.users",
+        string="Requested By",
+        default=lambda self: self.env.user,
+        readonly=True,
+        tracking=True,
+    )
+    request_date = fields.Date(
+        string="Request Date",
+        default=fields.Date.context_today,
+        readonly=True,
+        tracking=True,
+    )
+    employee_id = fields.Many2one("hr.employee", string="Employee", required=True, readonly=True, tracking=True)
+    department_id = fields.Many2one("hr.department", related="employee_id.department_id", store=True, readonly=True)
+    company_id = fields.Many2one(
+        "res.company",
+        string="Company",
+        default=lambda self: self.env.company,
+        required=True,
+        readonly=True,
+    )
+    currency_id = fields.Many2one("res.currency", related="company_id.currency_id", readonly=True)
+    expense_bucket_id = fields.Many2one(
+        "crossovered.budget",
+        string="Budget",
+        required=True,
+        readonly=True,
+        tracking=True,
+    )
+    cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="Cost Center",
+        required=True,
+        readonly=True,
+        tracking=True,
+    )
+    transfer_type = fields.Selection(
+        [("cash", "Cash"), ("bank", "Bank Transfer")],
+        string="Transfer Type",
+        tracking=True,
+        copy=False,
+    )
+    pay_from_account_id = fields.Many2one(
+        "account.account",
+        string="Pay From Account",
+        tracking=True,
+        copy=False,
+        help="Cash or bank account credited by the generated CPV/BPV.",
+    )
+    line_ids = fields.One2many(
+        "pr.employee.payment.request.line",
+        "payment_request_id",
+        string="Payment Lines",
+        copy=True,
+    )
+    total_amount = fields.Monetary(
+        string="Total Amount",
+        currency_field="currency_id",
+        compute="_compute_total_amount",
+        store=True,
+    )
+    state = fields.Selection(
+        [
+            ("requested", "Requested"),
+            ("voucher_created", "Voucher Created"),
+            ("cancelled", "Cancelled"),
+        ],
+        string="Status",
+        default="requested",
+        tracking=True,
+        copy=False,
+    )
+    cash_payment_id = fields.Many2one(
+        "pr.account.cash.payment",
+        string="CPV",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    bank_payment_id = fields.Many2one(
+        "pr.account.bank.payment",
+        string="BPV",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+
+    _sql_constraints = [
+        (
+            "pr_employee_payment_request_service_unique",
+            "unique(service_request_id)",
+            "A payment request already exists for this employee service request.",
+        ),
+        (
+            "pr_employee_payment_request_iqama_unique",
+            "unique(iqama_line_id)",
+            "A payment request already exists for this Iqama request.",
+        ),
+        (
+            "pr_employee_payment_request_insurance_unique",
+            "unique(insurance_line_id)",
+            "A payment request already exists for this medical insurance request.",
+        ),
+    ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("name", "New") == "New":
+                vals["name"] = self.env["ir.sequence"].next_by_code("pr.employee.payment.request") or "New"
+        records = super().create(vals_list)
+        for record in records:
+            if record.service_request_id:
+                record.service_request_id.payment_request_id = record.id
+            if record.iqama_line_id and "payment_request_id" in record.iqama_line_id._fields:
+                record.iqama_line_id.payment_request_id = record.id
+            if record.insurance_line_id and "payment_request_id" in record.insurance_line_id._fields:
+                record.insurance_line_id.payment_request_id = record.id
+        return records
+
+    @api.depends("line_ids.amount")
+    def _compute_total_amount(self):
+        for rec in self:
+            rec.total_amount = sum(rec.line_ids.mapped("amount"))
+
+    @api.onchange("transfer_type")
+    def _onchange_transfer_type(self):
+        for rec in self:
+            rec.pay_from_account_id = rec._get_default_payment_account(rec.transfer_type)
+
+    def _get_default_payment_account(self, transfer_type=False):
+        transfer_type = transfer_type or self.transfer_type or "bank"
+        codes = ["1001.02.00.07"] if transfer_type == "bank" else ["1001.01.00.01", "1001.01.00.02"]
+        account = self.env["account.account"].sudo().search([("code", "in", codes)], limit=1)
+        if account:
+            return account
+        code_prefix = "1001.02" if transfer_type == "bank" else "1001.01"
+        account = self.env["account.account"].sudo().search([("code", "=like", code_prefix + "%")], order="code", limit=1)
+        if account:
+            return account
+        return self.env["account.account"].sudo().search([("account_type", "=", "asset_cash")], order="code", limit=1)
+
+    def _check_account_user(self):
+        user = self.env.user
+        if not (
+            user.has_group("account.group_account_invoice")
+            or user.has_group("account.group_account_user")
+            or user.has_group("account.group_account_manager")
+            or user.has_group("pr_account.custom_group_accounting_manager")
+        ):
+            raise UserError(_("Only Accounts users can create payment vouchers."))
+
+    def _notify_accounts(self):
+        users = self.env["res.users"]
+        for xmlid in (
+            "account.group_account_invoice",
+            "account.group_account_user",
+            "account.group_account_manager",
+            "pr_account.custom_group_accounting_manager",
+        ):
+            group = self.env.ref(xmlid, raise_if_not_found=False)
+            if group:
+                users |= group.users
+        users = users.filtered(lambda user: user.active)
+        activity_type = self.env.ref("mail.mail_activity_data_todo", raise_if_not_found=False)
+        for rec in self:
+            for user in users:
+                if activity_type:
+                    rec.activity_schedule(
+                        activity_type_id=activity_type.id,
+                        user_id=user.id,
+                        summary=_("Employee Payment Request"),
+                        note=_("Please review payment request %s and create the CPV/BPV.") % rec.display_name,
+                    )
+
+    def _check_ready_for_voucher(self):
+        for rec in self:
+            if rec.state == "cancelled":
+                raise UserError(_("Cancelled payment requests cannot create vouchers."))
+            if rec.cash_payment_id or rec.bank_payment_id:
+                raise UserError(_("A payment voucher already exists for payment request %s.") % rec.name)
+            if rec.service_request_id and (rec.service_request_id.cash_payment_id or rec.service_request_id.bank_payment_id):
+                raise UserError(_("A payment voucher already exists for employee request %s.") % rec.service_request_id.name)
+            if not rec.transfer_type:
+                raise UserError(_("Please select Transfer Type: Cash or Bank Transfer."))
+            if not rec.pay_from_account_id:
+                raise UserError(_("Please select the Pay From Account."))
+            if not rec.expense_bucket_id:
+                raise UserError(_("Please select the approved Budget."))
+            if not rec.cost_center_id:
+                raise UserError(_("Please select the Cost Center."))
+            if not rec.line_ids:
+                raise UserError(_("This payment request has no lines."))
+            missing_accounts = rec.line_ids.filtered(lambda line: not line.expense_account_id)
+            if missing_accounts:
+                raise UserError(_("Please select an Expense Account on every payment request line."))
+            invalid_lines = rec.line_ids.filtered(lambda line: line.amount <= 0.0)
+            if invalid_lines:
+                raise UserError(_("Payment request lines must have a positive amount."))
+            rec._check_selected_budget_or_raise()
+
+    def _check_selected_budget_or_raise(self, amount=False):
+        for rec in self:
+            rec.expense_bucket_id._check_active_for_date(rec.request_date)
+            remaining_by_cost_center = rec.expense_bucket_id._get_remaining_by_cost_center()
+            if rec.cost_center_id.id not in remaining_by_cost_center:
+                raise UserError(
+                    _("Cost Center %(cc)s is not included in Budget %(budget)s.")
+                    % {"cc": rec.cost_center_id.display_name, "budget": rec.expense_bucket_id.display_name}
+                )
+            amount_to_check = amount if amount is not False else rec.total_amount
+            remaining = remaining_by_cost_center.get(rec.cost_center_id.id, 0.0)
+            if amount_to_check > remaining:
+                raise UserError(
+                    _("Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: %(amount).2f")
+                    % {
+                        "cc": rec.cost_center_id.display_name,
+                        "remaining": remaining,
+                        "amount": amount_to_check,
+                    }
+                )
+
+    def _get_employee_partner(self):
+        self.ensure_one()
+        employee = self.employee_id
+        if "work_contact_id" in employee._fields and employee.work_contact_id:
+            return employee.work_contact_id
+        if "address_home_id" in employee._fields and employee.address_home_id:
+            return employee.address_home_id
+        return self.env["res.partner"]
+
+    def _prepare_voucher_line_vals(self):
+        self.ensure_one()
+        line_vals = []
+        partner = self._get_employee_partner()
+        cost_center_is_project = getattr(self.cost_center_id, "analytic_plan_type", False) == "project"
+        cost_center_is_employee = getattr(self.cost_center_id, "analytic_plan_type", False) == "employee"
+        for line in self.line_ids:
+            amount = line.amount or 0.0
+            if amount <= 0.0:
+                continue
+            line_vals.append({
+                "account_id": line.expense_account_id.id,
+                "description": line.description or self.name,
+                "reference_number": self.name,
+                "partner_id": partner.id if partner else False,
+                "amount": amount,
+                "cs_project_id": self.cost_center_id.id if cost_center_is_project else False,
+                "cs_employee_id": self.cost_center_id.id if cost_center_is_employee else False,
+                "analytic_distribution": {str(self.cost_center_id.id): 100.0},
+            })
+        if not line_vals:
+            raise UserError(_("Payment request has no positive amount lines to create a voucher."))
+        return line_vals
+
+    def _filter_model_vals(self, model_name, vals):
+        model_fields = self.env[model_name]._fields
+        return {key: value for key, value in vals.items() if key in model_fields}
+
+    def action_create_payment_voucher(self):
+        self._check_account_user()
+        voucher = False
+        voucher_model = False
+        for rec in self:
+            rec._check_ready_for_voucher()
+            line_vals = rec._prepare_voucher_line_vals()
+            common_vals = {
+                "account_id": rec.pay_from_account_id.id,
+                "company_id": rec.company_id.id,
+                "description": _("Generated from Employee payment request %s") % rec.name,
+                "accounting_date": fields.Date.context_today(rec),
+                "employee_payment_request_id": rec.id,
+            }
+            if rec.service_request_id:
+                common_vals["employee_service_request_id"] = rec.service_request_id.id
+            if rec.iqama_line_id:
+                common_vals["iqama_line_id"] = rec.iqama_line_id.id
+            if rec.insurance_line_id:
+                common_vals["insurance_line_id"] = rec.insurance_line_id.id
+
+            if rec.transfer_type == "cash":
+                voucher_model = "pr.account.cash.payment"
+                voucher_vals = rec._filter_model_vals(voucher_model, common_vals)
+                line_model = "pr.account.cash.payment.line"
+                voucher = self.env[voucher_model].sudo().create({
+                    **voucher_vals,
+                    "cash_payment_line_ids": [
+                        (0, 0, rec._filter_model_vals(line_model, vals)) for vals in line_vals
+                    ],
+                })
+                rec.cash_payment_id = voucher.id
+                if rec.service_request_id:
+                    rec.service_request_id.cash_payment_id = voucher.id
+            else:
+                voucher_model = "pr.account.bank.payment"
+                voucher_vals = rec._filter_model_vals(voucher_model, common_vals)
+                line_model = "pr.account.bank.payment.line"
+                voucher = self.env[voucher_model].sudo().create({
+                    **voucher_vals,
+                    "bank_payment_line_ids": [
+                        (0, 0, rec._filter_model_vals(line_model, vals)) for vals in line_vals
+                    ],
+                })
+                rec.bank_payment_id = voucher.id
+                if rec.service_request_id:
+                    rec.service_request_id.bank_payment_id = voucher.id
+                if rec.iqama_line_id and "bank_payment_id" in rec.iqama_line_id._fields:
+                    rec.iqama_line_id.bank_payment_id = voucher.id
+                if rec.insurance_line_id and "bank_payment_id" in rec.insurance_line_id._fields:
+                    rec.insurance_line_id.bank_payment_id = voucher.id
+
+            rec.state = "voucher_created"
+            if rec.service_request_id:
+                rec.service_request_id.payment_reference = voucher.name
+            rec.message_post(
+                body=_("%s %s created in Draft.")
+                % ("CPV" if rec.transfer_type == "cash" else "BPV", voucher.name),
+                message_type="notification",
+            )
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Payment Voucher"),
+            "res_model": voucher_model,
+            "res_id": voucher.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
+    def action_open_payment_voucher(self):
+        self.ensure_one()
+        voucher = self.cash_payment_id or self.bank_payment_id
+        if not voucher:
+            raise UserError(_("No payment voucher has been created yet."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Payment Voucher"),
+            "res_model": voucher._name,
+            "res_id": voucher.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
+    def _mark_source_paid_from_voucher(self, voucher):
+        for rec in self:
+            if rec.service_request_id:
+                rec.service_request_id._mark_paid_from_voucher(voucher)
+            if rec.iqama_line_id:
+                vals = {"state": "issued"}
+                if voucher._name == "pr.account.bank.payment" and "bank_payment_id" in rec.iqama_line_id._fields:
+                    vals["bank_payment_id"] = voucher.id
+                rec.iqama_line_id.sudo().write(vals)
+            if rec.insurance_line_id:
+                vals = {"state": "issued"}
+                if voucher._name == "pr.account.bank.payment" and "bank_payment_id" in rec.insurance_line_id._fields:
+                    vals["bank_payment_id"] = voucher.id
+                rec.insurance_line_id.sudo().write(vals)
+
+    def action_cancel(self):
+        for rec in self:
+            if rec.cash_payment_id or rec.bank_payment_id:
+                raise UserError(_("Cannot cancel a request after a voucher has been created."))
+            rec.state = "cancelled"
+
+
+class PrEmployeePaymentRequestLine(models.Model):
+    _name = "pr.employee.payment.request.line"
+    _description = "Employee Payment Request Line"
+    _order = "id"
+
+    payment_request_id = fields.Many2one(
+        "pr.employee.payment.request",
+        required=True,
+        ondelete="cascade",
+    )
+    company_id = fields.Many2one(related="payment_request_id.company_id", store=True, readonly=True)
+    currency_id = fields.Many2one(related="payment_request_id.currency_id", readonly=True)
+    description = fields.Char(string="Description", required=True)
+    amount = fields.Monetary(string="Amount", currency_field="currency_id", readonly=True)
+    expense_account_id = fields.Many2one(
+        "account.account",
+        string="Expense Account",
+        domain="[('deprecated', '=', False)]",
+    )
+    remarks = fields.Char(string="Remarks")
+
+    @api.constrains("amount")
+    def _check_positive_amount(self):
+        for rec in self:
+            if rec.amount <= 0.0:
+                raise ValidationError(_("Payment request line amount must be greater than zero."))
+
+
 class AccountCashPayment(models.Model):
     _inherit = "pr.account.cash.payment"
 
@@ -704,11 +1288,43 @@ class AccountCashPayment(models.Model):
         copy=False,
         tracking=True,
     )
+    employee_payment_request_id = fields.Many2one(
+        "pr.employee.payment.request",
+        string="Employee Payment Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    iqama_line_id = fields.Many2one("hr.employee.iqama.line", string="Iqama", readonly=True, copy=False, tracking=True)
+    insurance_line_id = fields.Many2one(
+        "hr.employee.medical.insurance.line",
+        string="Insurance",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+
+    def _check_employee_payment_request_budget(self, line_field):
+        for voucher in self.filtered("employee_payment_request_id"):
+            if voucher.state != "draft":
+                continue
+            amount = sum(voucher[line_field].mapped("total_amount"))
+            voucher.employee_payment_request_id._check_selected_budget_or_raise(amount)
+
+    def action_submit(self):
+        self._check_employee_payment_request_budget("cash_payment_line_ids")
+        return super().action_submit()
 
     def action_post(self):
         res = super().action_post()
-        for rec in self.filtered("employee_service_request_id"):
+        for rec in self.filtered("employee_payment_request_id"):
+            rec.employee_payment_request_id._mark_source_paid_from_voucher(rec)
+        for rec in self.filtered(lambda voucher: voucher.employee_service_request_id and not voucher.employee_payment_request_id):
             rec.employee_service_request_id._mark_paid_from_voucher(rec)
+        for rec in self.filtered(lambda voucher: voucher.iqama_line_id and not voucher.employee_payment_request_id):
+            rec.iqama_line_id.sudo().state = "issued"
+        for rec in self.filtered(lambda voucher: voucher.insurance_line_id and not voucher.employee_payment_request_id):
+            rec.insurance_line_id.sudo().state = "issued"
         return res
 
 
@@ -722,12 +1338,182 @@ class AccountBankPayment(models.Model):
         copy=False,
         tracking=True,
     )
+    employee_payment_request_id = fields.Many2one(
+        "pr.employee.payment.request",
+        string="Employee Payment Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+
+    def _check_employee_payment_request_budget(self, line_field):
+        for voucher in self.filtered("employee_payment_request_id"):
+            if voucher.state != "draft":
+                continue
+            amount = sum(voucher[line_field].mapped("total_amount"))
+            voucher.employee_payment_request_id._check_selected_budget_or_raise(amount)
+
+    def action_submit(self):
+        self._check_employee_payment_request_budget("bank_payment_line_ids")
+        return super().action_submit()
 
     def action_post(self):
         res = super().action_post()
-        for rec in self.filtered("employee_service_request_id"):
+        for rec in self.filtered("employee_payment_request_id"):
+            rec.employee_payment_request_id._mark_source_paid_from_voucher(rec)
+        for rec in self.filtered(lambda voucher: voucher.employee_service_request_id and not voucher.employee_payment_request_id):
             rec.employee_service_request_id._mark_paid_from_voucher(rec)
         return res
+
+
+class HREmployeeIqamaLine(models.Model):
+    _inherit = "hr.employee.iqama.line"
+
+    payment_request_id = fields.Many2one(
+        "pr.employee.payment.request",
+        string="Payment Request",
+        readonly=True,
+        copy=False,
+    )
+
+
+class HREmployeeMedicalInsuranceLine(models.Model):
+    _inherit = "hr.employee.medical.insurance.line"
+
+    payment_request_id = fields.Many2one(
+        "pr.employee.payment.request",
+        string="Payment Request",
+        readonly=True,
+        copy=False,
+    )
+
+
+class HREmployeeIqamaLineAddWizard(models.Model):
+    _inherit = "hr.employee.iqama.line.add.wizard"
+
+    expense_bucket_id = fields.Many2one(
+        "crossovered.budget",
+        string="Budget",
+        required=True,
+        domain="[('state', 'in', ['validate', 'done'])]",
+    )
+    cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="Cost Center",
+        required=True,
+    )
+
+    @api.model
+    def default_get(self, fields_list):
+        values = super().default_get(fields_list)
+        employee = self.env["hr.employee"].browse(values.get("employee_id") or self.env.context.get("default_employee_id"))
+        cost_center = self._get_default_hr_cost_center(employee)
+        if cost_center and "cost_center_id" in fields_list:
+            values["cost_center_id"] = cost_center.id
+        if cost_center and "expense_bucket_id" in fields_list:
+            budget = self._get_default_hr_budget(cost_center, values.get("from_date"))
+            if budget:
+                values["expense_bucket_id"] = budget.id
+        return values
+
+    @api.onchange("employee_id", "from_date", "cost_center_id")
+    def _onchange_hr_budget_fields(self):
+        for rec in self:
+            if rec.employee_id and not rec.cost_center_id:
+                rec.cost_center_id = rec._get_default_hr_cost_center(rec.employee_id)
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
+
+    def _get_default_hr_cost_center(self, employee):
+        for field_name in (
+            "employee_cost_center_id",
+            "project_cost_center_id",
+            "section_cost_center_id",
+            "department_cost_center_id",
+        ):
+            if field_name in employee._fields:
+                cost_center = employee[field_name]
+                if cost_center:
+                    return cost_center
+        department = employee.department_id
+        if department and "department_cost_center_id" in department._fields and department.department_cost_center_id:
+            return department.department_cost_center_id
+        return self.env["account.analytic.account"]
+
+    def _get_default_hr_budget(self, cost_center, target_date=False):
+        if not cost_center:
+            return self.env["crossovered.budget"]
+        target_date = target_date or fields.Date.context_today(self)
+        return self.env["crossovered.budget"].sudo().search([
+            ("state", "in", ["validate", "done"]),
+            ("date_from", "<=", target_date),
+            ("date_to", ">=", target_date),
+            ("crossovered_budget_line.analytic_account_id", "=", cost_center.id),
+        ], order="date_from desc, id desc", limit=1)
+
+
+class HREmployeeMedicalInsuranceLineAddWizard(models.Model):
+    _inherit = "hr.employee.medical.insurance.line.add.wizard"
+
+    expense_bucket_id = fields.Many2one(
+        "crossovered.budget",
+        string="Budget",
+        required=True,
+        domain="[('state', 'in', ['validate', 'done'])]",
+    )
+    cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="Cost Center",
+        required=True,
+    )
+
+    @api.model
+    def default_get(self, fields_list):
+        values = super().default_get(fields_list)
+        employee = self.env["hr.employee"].browse(values.get("employee_id") or self.env.context.get("default_employee_id"))
+        cost_center = self._get_default_hr_cost_center(employee)
+        if cost_center and "cost_center_id" in fields_list:
+            values["cost_center_id"] = cost_center.id
+        if cost_center and "expense_bucket_id" in fields_list:
+            budget = self._get_default_hr_budget(cost_center, values.get("from_date"))
+            if budget:
+                values["expense_bucket_id"] = budget.id
+        return values
+
+    @api.onchange("employee_id", "from_date", "cost_center_id")
+    def _onchange_hr_budget_fields(self):
+        for rec in self:
+            if rec.employee_id and not rec.cost_center_id:
+                rec.cost_center_id = rec._get_default_hr_cost_center(rec.employee_id)
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
+
+    def _get_default_hr_cost_center(self, employee):
+        for field_name in (
+            "employee_cost_center_id",
+            "project_cost_center_id",
+            "section_cost_center_id",
+            "department_cost_center_id",
+        ):
+            if field_name in employee._fields:
+                cost_center = employee[field_name]
+                if cost_center:
+                    return cost_center
+        department = employee.department_id
+        if department and "department_cost_center_id" in department._fields and department.department_cost_center_id:
+            return department.department_cost_center_id
+        return self.env["account.analytic.account"]
+
+    def _get_default_hr_budget(self, cost_center, target_date=False):
+        if not cost_center:
+            return self.env["crossovered.budget"]
+        target_date = target_date or fields.Date.context_today(self)
+        return self.env["crossovered.budget"].sudo().search([
+            ("state", "in", ["validate", "done"]),
+            ("date_from", "<=", target_date),
+            ("date_to", ">=", target_date),
+            ("crossovered_budget_line.analytic_account_id", "=", cost_center.id),
+        ], order="date_from desc, id desc", limit=1)
 
 
 class HrWorkspaceDashboardService(models.AbstractModel):

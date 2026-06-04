@@ -9,9 +9,16 @@ with HR Supervisor, Employee Manager, HR Manager, MD, and accounting voucher flo
     "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",
     "category": "Human Resources",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.0.1",
     "license": "LGPL-3",
-    "depends": ["de_hr_workspace", "pr_account", "pr_hr_account", "pr_hr_recruitment_request", "pr_custom_purchase"],
+    "depends": [
+        "de_hr_workspace",
+        "pr_account",
+        "pr_hr",
+        "pr_hr_account",
+        "pr_hr_recruitment_request",
+        "pr_custom_purchase",
+    ],
     "data": [
         "security/ir.model.access.csv",
         "security/record_rules.xml",

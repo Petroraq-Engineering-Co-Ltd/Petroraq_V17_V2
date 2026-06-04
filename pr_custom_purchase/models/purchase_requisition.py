@@ -637,7 +637,7 @@ class PurchaseRequisition(models.Model):
 
         if not exceeded_cost_centers:
             raise ValidationError(
-                _("All cost center lines are within budget. Budget increase request is not required.")
+                _("All cost center lines are within budget. Budget revision is not required.")
             )
 
         requisition = self._get_selected_budget_requisition()

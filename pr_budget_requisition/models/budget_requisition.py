@@ -128,6 +128,11 @@ class PrBudgetRequisition(models.Model):
         readonly=True,
         copy=False,
     )
+    generated_budget_code = fields.Char(
+        string="Budget Code",
+        related="generated_budget_id.budget_sequence",
+        readonly=True,
+    )
     revision_of_id = fields.Many2one(
         "pr.budget.requisition",
         string="Revision Of",

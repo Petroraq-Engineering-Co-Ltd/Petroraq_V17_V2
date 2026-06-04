@@ -1039,7 +1039,7 @@ class SaleOrder(models.Model):
             cost_center = existing_by_section.get(section_name)
             if not cost_center:
                 analytic_vals = {
-                    "name": f"{self.name} - {section_name}",
+                    "name": work_order._format_section_cost_center_name(section_name),
                     "company_id": self.company_id.id,
                     "partner_id": self.partner_id.id,
                 }
