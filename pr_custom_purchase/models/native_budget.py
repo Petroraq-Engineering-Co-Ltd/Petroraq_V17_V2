@@ -45,6 +45,12 @@ class CrossoveredBudget(models.Model):
         default="draft",
         tracking=True,
     )
+    pr_under_revision = fields.Boolean(
+        string="Under Revision",
+        compute="_compute_pr_under_revision",
+        search="_search_pr_under_revision",
+        help="Enabled while the Budget Requisition linked to this budget is being revised.",
+    )
     can_pm_approve = fields.Boolean(compute="_compute_role_flags")
     can_accounts_approve = fields.Boolean(compute="_compute_role_flags")
     can_md_approve = fields.Boolean(compute="_compute_role_flags")
@@ -105,6 +111,34 @@ class CrossoveredBudget(models.Model):
                 display_name = rec.budget_sequence or rec.name or _("New Budget")
             result.append((rec.id, display_name))
         return result
+
+    @api.model
+    def _pr_budget_revision_lock_states(self):
+        return ("draft", "department_approval", "accounts_approval", "md_approval")
+
+    @api.model
+    def _get_pr_under_revision_budget_ids(self):
+        if "pr.budget.requisition" not in self.env:
+            return []
+        requisitions = self.env["pr.budget.requisition"].sudo().search([
+            ("generated_budget_id", "!=", False),
+            ("revision_number", ">", 0),
+            ("state", "in", self._pr_budget_revision_lock_states()),
+        ])
+        return requisitions.mapped("generated_budget_id").ids
+
+    def _compute_pr_under_revision(self):
+        locked_budget_ids = set(self._get_pr_under_revision_budget_ids())
+        for rec in self:
+            rec.pr_under_revision = rec.id in locked_budget_ids
+
+    @api.model
+    def _search_pr_under_revision(self, operator, value):
+        if operator not in ("=", "!="):
+            raise UserError(_("Unsupported search operator for Under Revision."))
+        locked_budget_ids = self._get_pr_under_revision_budget_ids()
+        search_true = (operator == "=" and bool(value)) or (operator == "!=" and not bool(value))
+        return [("id", "in" if search_true else "not in", locked_budget_ids)]
 
     @api.model
     def _split_yearly_budget_code(self, code):
@@ -227,6 +261,11 @@ class CrossoveredBudget(models.Model):
     def _check_active_for_date(self, target_date=False):
         self.ensure_one()
         target_date = fields.Date.to_date(target_date or fields.Date.context_today(self))
+        if self.pr_under_revision:
+            raise UserError(
+                _("Budget %(budget)s is under revision and cannot be used in Purchase Requisitions until the revision is approved or rejected.")
+                % {"budget": self.display_name}
+            )
         if not self._is_active_for_date(target_date):
             raise UserError(
                 _("Budget %(budget)s is not active on %(date)s. Create/select a new budget for this period.")
