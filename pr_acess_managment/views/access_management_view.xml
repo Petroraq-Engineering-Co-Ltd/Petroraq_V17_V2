@@ -59,6 +59,11 @@
                         </group>
                         <notebook>
                             <page string='Hide Menu'>
+                                <button name="action_sync_menu_items"
+                                        type="object"
+                                        string="Sync Menus"
+                                        class="btn-secondary mb-2"
+                                        icon="fa-refresh"/>
                                 <field name="self_module_menu_ids" widget="many2many_tags" invisible="1"/>
                                 <field name='hide_menu_ids' domain="[('menu_id','not in',self_module_menu_ids)]"/>
                                 <p role="alert"

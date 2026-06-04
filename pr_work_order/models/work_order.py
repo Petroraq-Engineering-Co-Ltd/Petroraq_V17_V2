@@ -342,6 +342,32 @@ class PRWorkOrder(models.Model):
         for rec in self:
             rec.expense_bucket_count = 1 if rec.expense_bucket_id else 0
 
+    def _format_section_cost_center_name(self, section_name):
+        self.ensure_one()
+        section_label = section_name or _("General")
+        return "%s - %s" % (self.name or _("Work Order"), section_label)
+
+    def _sync_section_cost_center_names(self):
+        for rec in self:
+            source_names = set()
+            if rec.sale_order_id and rec.sale_order_id.name:
+                source_names.add(rec.sale_order_id.name)
+            if "source_estimation_id" in rec._fields and rec.source_estimation_id and rec.source_estimation_id.name:
+                source_names.add(rec.source_estimation_id.name)
+
+            for line in rec.cost_center_ids.filtered(lambda cost_center: cost_center.analytic_account_id and cost_center.section_name):
+                expected_name = rec._format_section_cost_center_name(line.section_name)
+                analytic = line.analytic_account_id.sudo()
+                current_name = analytic.name or ""
+                previous_names = {
+                    "%s - %s" % (source_name, line.section_name)
+                    for source_name in source_names
+                }
+                if current_name == expected_name:
+                    continue
+                if not current_name or current_name in previous_names:
+                    analytic.write({"name": expected_name})
+
     def action_view_expense_bucket(self):
         self.ensure_one()
         if not self.expense_bucket_id:
@@ -554,6 +580,8 @@ class PRWorkOrder(models.Model):
             cost_centers = cost_center_lines.mapped("analytic_account_id").filtered(lambda a: a)
             if not cost_centers:
                 continue
+
+            rec._sync_section_cost_center_names()
 
             planned_by_analytic = {}
             for line in cost_center_lines:

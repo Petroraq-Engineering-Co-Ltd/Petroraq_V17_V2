@@ -596,7 +596,7 @@ class PetroraqEstimation(models.Model):
 
         for section_name in sections:
             analytic_vals = {
-                "name": f"{order.name} - {section_name}",
+                "name": work_order._format_section_cost_center_name(section_name),
                 "company_id": order.company_id.id,
                 "plan_id": analytic_plan.id,
                 "partner_id": order.partner_id.id,
@@ -737,7 +737,7 @@ class PetroraqEstimation(models.Model):
             cost_center = existing_by_section.get(section_name)
             if not cost_center:
                 analytic_vals = {
-                    "name": f"{order.name} - {section_name}",
+                    "name": work_order._format_section_cost_center_name(section_name),
                     "company_id": order.company_id.id,
                     "partner_id": order.partner_id.id,
                 }
