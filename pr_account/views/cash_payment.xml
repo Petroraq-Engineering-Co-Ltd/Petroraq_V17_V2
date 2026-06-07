@@ -168,8 +168,11 @@
                                 <div class="o_form_label_and_field">
                                     <label for="accounting_date" string="Date"/>
                                     <field name="accounting_date"
-                                           readonly="state != 'draft'"
-                                           class="oe_inline"/>
+                                           invisible="state != 'draft'"
+                                           class="oe_inline pr_date_amounts_date"/>
+                                    <field name="accounting_date_display"
+                                           invisible="state == 'draft'"
+                                           class="pr_date_amounts_date"/>
                                 </div>
 
                                 <!-- AMOUNT -->
@@ -178,8 +181,7 @@
                                     <field name="total_amount"
                                            style="color: blue;"
                                            widget="monetary"
-                                           options="{'currency_field': 'currency_id'}"
-                                           class="oe_inline"/>
+                                           options="{'currency_field': 'currency_id'}"/>
                                 </div>
 
                                 <!-- APPROVED -->
@@ -188,8 +190,7 @@
                                     <field name="approved_amount"
                                            style="color: green;"
                                            widget="monetary"
-                                           options="{'currency_field': 'currency_id'}"
-                                           class="oe_inline"/>
+                                           options="{'currency_field': 'currency_id'}"/>
                                 </div>
 
                                 <!-- REJECTED -->
@@ -198,8 +199,7 @@
                                     <field name="rejected_amount"
                                            style="color: red;"
                                            widget="monetary"
-                                           options="{'currency_field': 'currency_id'}"
-                                           class="oe_inline"/>
+                                           options="{'currency_field': 'currency_id'}"/>
                                 </div>
 
                             </div>
