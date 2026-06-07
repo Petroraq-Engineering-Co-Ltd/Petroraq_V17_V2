@@ -487,12 +487,56 @@ class SaleOrder(models.Model):
         compute="_compute_discount_breakdown",
         store=True,
     )
+    amount_to_invoice_untaxed = fields.Monetary(
+        string="Amount To Invoice",
+        currency_field="currency_id",
+        compute="_compute_amount_to_invoice_untaxed",
+        store=True,
+        compute_sudo=True,
+    )
     base_cost_total = fields.Monetary(
         string="Base Cost Total",
         currency_field="currency_id",
         compute="_compute_costing_totals",
         store=False,
     )
+
+    @api.depends(
+        "amount_untaxed",
+        "currency_id",
+        "invoice_ids.state",
+        "invoice_ids.payment_state",
+        "invoice_ids.date",
+        "invoice_ids.currency_id",
+        "invoice_ids.direction_sign",
+        "invoice_ids.line_ids.price_subtotal",
+        "invoice_ids.line_ids.display_type",
+        "invoice_ids.line_ids.sale_line_ids",
+    )
+    def _compute_amount_to_invoice_untaxed(self):
+        for order in self:
+            currency = order.currency_id or order.company_id.currency_id
+            invoiced_untaxed = 0.0
+            invoices = order.invoice_ids.filtered(
+                lambda move: move.state == "posted" or move.payment_state == "invoicing_legacy"
+            )
+
+            for invoice in invoices:
+                invoice_lines = invoice.line_ids.filtered(
+                    lambda line: (
+                        line.display_type not in ("line_note", "line_section")
+                        and order in line.sale_line_ids.order_id
+                    )
+                )
+                subtotal = sum(invoice_lines.mapped("price_subtotal"))
+                invoiced_untaxed += invoice.currency_id._convert(
+                    subtotal * -invoice.direction_sign,
+                    currency,
+                    invoice.company_id,
+                    invoice.date or fields.Date.context_today(order),
+                )
+
+            order.amount_to_invoice_untaxed = currency.round((order.amount_untaxed or 0.0) - invoiced_untaxed)
 
     @api.depends(
         "order_line.price_unit",
