@@ -7,6 +7,18 @@ class StockMove(models.Model):
     work_order_id = fields.Many2one("pr.work.order", string="Work Order")
     work_order_boq_line_id = fields.Many2one("pr.work.order.boq", string="WO BOQ Line")
 
+    def _get_work_order_material_usage_cost(self):
+        self.ensure_one()
+
+        if "stock_valuation_layer_ids" in self._fields:
+            cost = sum(self.stock_valuation_layer_ids.mapped("value"))
+            if cost:
+                return cost
+
+        qty = self.quantity if "quantity" in self._fields else self.product_uom_qty
+        qty = self.product_uom._compute_quantity(qty or 0.0, self.product_id.uom_id)
+        return (self.product_id.standard_price or 0.0) * qty
+
     def _action_done(self, *args, **kwargs):
         res = super()._action_done(*args, **kwargs)
 
@@ -17,9 +29,9 @@ class StockMove(models.Model):
             if not wo:
                 continue
 
-            cost = move.value
+            cost = move._get_work_order_material_usage_cost()
 
-            if not cost:
+            if not cost or not wo.analytic_account_id:
                 continue
 
             Analytic.create({
