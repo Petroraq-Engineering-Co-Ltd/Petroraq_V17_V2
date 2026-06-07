@@ -36,6 +36,14 @@
     align-items: center;
 }
 
+.o_petroraq_tax_totals {
+    padding: 4px 16px;
+}
+
+.o_petroraq_tax_totals .o_field_widget {
+    width: 100%;
+}
+
 .o_petroraq_total_label {
     font-weight: 600;
     color: var(--o-gray-700);
