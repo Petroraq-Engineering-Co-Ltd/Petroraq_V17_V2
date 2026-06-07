@@ -23,6 +23,7 @@
                 <field name="total_remaining_amount" sum="Remaining"/>
                 <field name="total_requested_amount" sum="Total"/>
                 <field name="generated_budget_id"/>
+                <field name="generated_budget_code" optional="show"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'approved'"
                        decoration-danger="state == 'rejected'"
@@ -100,6 +101,12 @@
                         <span>
                             This requisition is under budget revision. It keeps the same request and updates the budget after approval.
                         </span>
+                    </div>
+                    <div class="alert alert-success d-inline-block mb-3" role="alert" invisible="not generated_budget_code">
+                        <span class="text-muted">Budget Code</span>
+                        <h2 class="mb-0">
+                            <field name="generated_budget_code" readonly="1" nolabel="1"/>
+                        </h2>
                     </div>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_open_generated_budget" type="object"

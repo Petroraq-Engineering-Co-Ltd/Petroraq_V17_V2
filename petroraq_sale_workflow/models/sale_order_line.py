@@ -29,10 +29,14 @@ class SaleOrderLine(models.Model):
         currency_field="currency_id",
     )
 
+    use_manual_cost_price_unit = fields.Boolean(copy=True)
+    manual_cost_price_unit = fields.Float(copy=True, digits="Product Price")
     cost_price_unit = fields.Float(
         string="Unit Cost",
-        related="product_id.standard_price",
-        readonly=True,
+        compute="_compute_cost_price_unit",
+        inverse="_inverse_cost_price_unit",
+        store=True,
+        readonly=False,
         digits="Product Price",
     )
     net_unit_price = fields.Float(
@@ -54,6 +58,19 @@ class SaleOrderLine(models.Model):
             line.net_unit_price = net
             print(f"nnnnnnnnnnnnnnnnnnnnnn{net}")
 
+    @api.depends("product_id.standard_price", "manual_cost_price_unit", "use_manual_cost_price_unit")
+    def _compute_cost_price_unit(self):
+        for line in self:
+            if line.use_manual_cost_price_unit:
+                line.cost_price_unit = line.manual_cost_price_unit
+            else:
+                line.cost_price_unit = line.product_id.standard_price if line.product_id else 0.0
+
+    def _inverse_cost_price_unit(self):
+        for line in self:
+            line.manual_cost_price_unit = line.cost_price_unit
+            line.use_manual_cost_price_unit = True
+
     def _compute_sale_price_from_cost(self, cost):
         self.ensure_one()
         order = self.order_id
@@ -61,15 +78,35 @@ class SaleOrderLine(models.Model):
         b = order._costing_line_breakdown(base_unit=cost or 0.0, qty=1.0, currency=currency)
         return b["final_u"]
 
-    @api.onchange("product_id", "order_id.overhead_percent", "order_id.risk_percent", "order_id.profit_percent",
-                  "product_uom_qty")
-    def _onchange_set_sale_price_from_product_cost(self):
+    @api.onchange("product_id")
+    def _onchange_product_id_set_cost_price_unit(self):
+        for line in self:
+            if line.display_type or getattr(line, "is_downpayment", False) or not line.order_id:
+                continue
+            if not line.product_id:
+                line.use_manual_cost_price_unit = False
+                line.manual_cost_price_unit = 0.0
+                line.cost_price_unit = 0.0
+                continue
+
+            cost = line.product_id.standard_price or 0.0
+            line.use_manual_cost_price_unit = True
+            line.manual_cost_price_unit = cost
+            line.cost_price_unit = cost
+            line.price_unit = line._compute_sale_price_from_cost(cost)
+
+    @api.onchange("order_id.overhead_percent", "order_id.risk_percent", "order_id.profit_percent",
+                  "product_uom_qty", "cost_price_unit")
+    def _onchange_set_sale_price_from_cost(self):
         for line in self:
             if line.display_type or getattr(line, "is_downpayment", False) or not line.order_id:
                 continue
             if not line.product_id:
                 continue
-            line.price_unit = line._compute_sale_price_from_cost(line.product_id.standard_price)
+            cost = line.cost_price_unit or 0.0
+            line.use_manual_cost_price_unit = True
+            line.manual_cost_price_unit = cost
+            line.price_unit = line._compute_sale_price_from_cost(cost)
 
     def _sync_price_unit_from_product_cost(self):
         for line in self:
@@ -78,12 +115,27 @@ class SaleOrderLine(models.Model):
             if not line.product_id:
                 continue
 
-            sale_price = line._compute_sale_price_from_cost(line.product_id.standard_price)
+            cost = line.manual_cost_price_unit if line.use_manual_cost_price_unit else line.cost_price_unit
+            sale_price = line._compute_sale_price_from_cost(cost)
             if not self.env.context.get("skip_sync_price_unit") and line.price_unit != sale_price:
                 line.with_context(skip_sync_price_unit=True).price_unit = sale_price
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            cost = vals.pop("cost_price_unit", None)
+            if cost is None and "manual_cost_price_unit" in vals:
+                cost = vals["manual_cost_price_unit"]
+            if (
+                cost is None
+                and vals.get("product_id")
+                and not vals.get("use_manual_cost_price_unit")
+            ):
+                cost = self.env["product.product"].browse(vals["product_id"]).standard_price or 0.0
+            if cost is not None:
+                vals["manual_cost_price_unit"] = cost
+                vals["use_manual_cost_price_unit"] = True
+
         lines = super().create(vals_list)
         lines_to_sync = self.browse()
         for line, vals in zip(lines, vals_list):
@@ -96,9 +148,26 @@ class SaleOrderLine(models.Model):
         return lines
 
     def write(self, vals):
+        vals = dict(vals)
+        if "cost_price_unit" in vals:
+            vals["manual_cost_price_unit"] = vals.pop("cost_price_unit")
+            vals["use_manual_cost_price_unit"] = True
+        elif "manual_cost_price_unit" in vals:
+            vals["use_manual_cost_price_unit"] = True
+        elif vals.get("product_id") and not vals.get("use_manual_cost_price_unit"):
+            vals["manual_cost_price_unit"] = (
+                self.env["product.product"].browse(vals["product_id"]).standard_price or 0.0
+            )
+            vals["use_manual_cost_price_unit"] = True
+
         res = super().write(vals)
         # if product or costing inputs changed, resync
-        if set(vals).intersection({"product_id", "product_template_id"}):
+        if "price_unit" not in vals and set(vals).intersection({
+            "product_id",
+            "product_template_id",
+            "manual_cost_price_unit",
+            "use_manual_cost_price_unit",
+        }):
             self._sync_price_unit_from_product_cost()
         return res
 

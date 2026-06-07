@@ -73,7 +73,7 @@
                 .petroraq-contact .contact-hero {
                     position: relative;
                     min-height: 500px;
-                    background: url('/pr_website/static/images/contact.png') center/cover no-repeat;
+                    background: url('/pr_website/static/images/contact_bg.png') center/cover no-repeat;
                     display: flex;
                     align-items: center;
                     text-align-left;

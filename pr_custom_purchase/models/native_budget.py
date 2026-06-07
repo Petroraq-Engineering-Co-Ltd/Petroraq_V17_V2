@@ -1,5 +1,8 @@
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+
+
+BUDGET_SEQUENCE_START = 1001
 
 
 class CrossoveredBudget(models.Model):
@@ -41,6 +44,12 @@ class CrossoveredBudget(models.Model):
         string="Approval Stage",
         default="draft",
         tracking=True,
+    )
+    pr_under_revision = fields.Boolean(
+        string="Under Revision",
+        compute="_compute_pr_under_revision",
+        search="_search_pr_under_revision",
+        help="Enabled while the Budget Requisition linked to this budget is being revised.",
     )
     can_pm_approve = fields.Boolean(compute="_compute_role_flags")
     can_accounts_approve = fields.Boolean(compute="_compute_role_flags")
@@ -103,6 +112,101 @@ class CrossoveredBudget(models.Model):
             result.append((rec.id, display_name))
         return result
 
+    @api.model
+    def _pr_budget_revision_lock_states(self):
+        return ("draft", "department_approval", "accounts_approval", "md_approval")
+
+    @api.model
+    def _get_pr_under_revision_budget_ids(self):
+        if "pr.budget.requisition" not in self.env:
+            return []
+        requisitions = self.env["pr.budget.requisition"].sudo().search([
+            ("generated_budget_id", "!=", False),
+            ("revision_number", ">", 0),
+            ("state", "in", self._pr_budget_revision_lock_states()),
+        ])
+        return requisitions.mapped("generated_budget_id").ids
+
+    def _compute_pr_under_revision(self):
+        locked_budget_ids = set(self._get_pr_under_revision_budget_ids())
+        for rec in self:
+            rec.pr_under_revision = rec.id in locked_budget_ids
+
+    @api.model
+    def _search_pr_under_revision(self, operator, value):
+        if operator not in ("=", "!="):
+            raise UserError(_("Unsupported search operator for Under Revision."))
+        locked_budget_ids = self._get_pr_under_revision_budget_ids()
+        search_true = (operator == "=" and bool(value)) or (operator == "!=" and not bool(value))
+        return [("id", "in" if search_true else "not in", locked_budget_ids)]
+
+    @api.model
+    def _split_yearly_budget_code(self, code):
+        if not code or "-" not in code:
+            return False, False
+        year, number = code.split("-", 1)
+        if len(year) != 4 or not year.isdigit() or not number.isdigit():
+            return False, False
+        return int(year), int(number)
+
+    @api.model
+    def _format_yearly_budget_code(self, year, number):
+        return "%s-%04d" % (year, number)
+
+    @api.model
+    def _budget_code_year(self, value=False):
+        value = value or self.env.context.get("pr_budget_code_date") or fields.Date.context_today(self)
+        return fields.Date.to_date(value).year
+
+    @api.model
+    def _next_budget_number_by_year(self):
+        numbers_by_year = {}
+        budgets = self.with_context(active_test=False).sudo().search([("budget_sequence", "!=", False)])
+        for budget in budgets:
+            year, number = self._split_yearly_budget_code(budget.budget_sequence)
+            if year:
+                numbers_by_year[year] = max(numbers_by_year.get(year, BUDGET_SEQUENCE_START - 1), number)
+        return numbers_by_year
+
+    @api.constrains("budget_sequence")
+    def _check_budget_sequence(self):
+        if self.env.context.get("skip_budget_sequence_check"):
+            return
+        for rec in self:
+            if not rec.budget_sequence or rec.budget_sequence in ("/", _("New"), "New"):
+                raise ValidationError(_("Budget Code is required."))
+            duplicate = self.sudo().search([
+                ("budget_sequence", "=", rec.budget_sequence),
+                ("id", "!=", rec.id),
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(
+                    _("Budget Code %(code)s already exists on %(budget)s.")
+                    % {"code": rec.budget_sequence, "budget": duplicate.display_name}
+                )
+
+    @api.model
+    def action_resequence_budget_codes(self):
+        records = self.with_context(active_test=False).sudo().search([], order="date_from, create_date, id")
+        counters = {}
+        for rec in records:
+            code_date = rec.date_from or rec.create_date or fields.Date.context_today(self)
+            year = rec._budget_code_year(code_date)
+            counters[year] = counters.get(year, BUDGET_SEQUENCE_START - 1) + 1
+            rec.with_context(skip_budget_sequence_check=True).write({
+                "budget_sequence": rec._format_yearly_budget_code(year, counters[year]),
+            })
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Budget Codes Resequenced"),
+                "message": _("%s budgets were resequenced by budget year.") % len(records),
+                "type": "success",
+                "sticky": False,
+            },
+        }
+
     @api.depends_context("uid")
     def _compute_role_flags(self):
         user = self.env.user
@@ -157,6 +261,11 @@ class CrossoveredBudget(models.Model):
     def _check_active_for_date(self, target_date=False):
         self.ensure_one()
         target_date = fields.Date.to_date(target_date or fields.Date.context_today(self))
+        if self.pr_under_revision:
+            raise UserError(
+                _("Budget %(budget)s is under revision and cannot be used in Purchase Requisitions until the revision is approved or rejected.")
+                % {"budget": self.display_name}
+            )
         if not self._is_active_for_date(target_date):
             raise UserError(
                 _("Budget %(budget)s is not active on %(date)s. Create/select a new budget for this period.")
@@ -315,9 +424,13 @@ class CrossoveredBudget(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        numbers_by_year = self._next_budget_number_by_year()
         for vals in vals_list:
             if not vals.get("budget_sequence") or vals.get("budget_sequence") in ("/", _("New"), "New"):
-                vals["budget_sequence"] = self.env["ir.sequence"].next_by_code("crossovered.budget.custom") or _("New")
+                year = self._budget_code_year(vals.get("date_from"))
+                number = numbers_by_year.get(year, BUDGET_SEQUENCE_START - 1) + 1
+                numbers_by_year[year] = number
+                vals["budget_sequence"] = self._format_yearly_budget_code(year, number)
             if vals.get("department_id") and not vals.get("scope"):
                 vals["scope"] = "department"
         return super().create(vals_list)

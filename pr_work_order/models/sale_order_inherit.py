@@ -265,7 +265,7 @@ class SaleOrder(models.Model):
 
         for sec in sections:
             analytic_vals = {
-                "name": f"{order.name} - {sec.name}",
+                "name": work_order._format_section_cost_center_name(sec.name),
                 "company_id": order.company_id.id,
                 "plan_id": self.env.ref("pr_account.pr_account_analytic_plan_our_project").id,
                 "partner_id": order.partner_id.id,

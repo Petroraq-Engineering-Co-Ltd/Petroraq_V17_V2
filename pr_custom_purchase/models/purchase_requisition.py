@@ -181,7 +181,11 @@ class PurchaseRequisition(models.Model):
         compute="_compute_show_request_budget_increase_button", store=False
     )
     project_id = fields.Many2one("project.project", string="Project")
-    expense_bucket_id = fields.Many2one("crossovered.budget", string="Expense")
+    expense_bucket_id = fields.Many2one(
+        "crossovered.budget",
+        string="Expense",
+        domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('pr_under_revision', '=', False)]",
+    )
     allowed_cost_center_ids = fields.Many2many(
         "account.analytic.account",
         compute="_compute_allowed_cost_center_ids",
@@ -637,7 +641,7 @@ class PurchaseRequisition(models.Model):
 
         if not exceeded_cost_centers:
             raise ValidationError(
-                _("All cost center lines are within budget. Budget increase request is not required.")
+                _("All cost center lines are within budget. Budget revision is not required.")
             )
 
         requisition = self._get_selected_budget_requisition()

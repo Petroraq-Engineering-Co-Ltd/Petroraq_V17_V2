@@ -83,7 +83,7 @@ class CustomPR(models.Model):
         'crossovered.budget',
         string='Expense',
         required=True,
-        domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done'])]",
+        domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('pr_under_revision', '=', False)]",
     )
     allowed_cost_center_ids = fields.Many2many(
         "account.analytic.account",
@@ -690,7 +690,7 @@ class CustomPR(models.Model):
 
         if not exceeded_cost_centers:
             raise ValidationError(
-                _("All cost center lines are within budget. Budget increase request is not required."))
+                _("All cost center lines are within budget. Budget revision is not required."))
 
         requisition = self._get_selected_budget_requisition()
         if not requisition:

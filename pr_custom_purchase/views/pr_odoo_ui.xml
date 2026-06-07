@@ -139,7 +139,7 @@
                             <field name="expense_type"
                                    readonly="approval != 'pending' or status != 'pr'"/>
                             <field name="expense_bucket_id"
-                                   domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('date_from', '&lt;=', context_today()), ('date_to', '&gt;=', context_today())]"
+                                   domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('date_from', '&lt;=', context_today()), ('date_to', '&gt;=', context_today()), ('pr_under_revision', '=', False)]"
                                    readonly="approval != 'pending' or status != 'pr'"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                             <field name="expense_scope" readonly="1"/>

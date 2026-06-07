@@ -2,6 +2,7 @@ from datetime import date
 
 from odoo import api, fields, models, _, Command
 from odoo.tools import float_compare
+from odoo.tools.misc import format_date
 from odoo.exceptions import ValidationError
 
 
@@ -43,6 +44,7 @@ class AccountBankPayment(models.Model):
     )
     description = fields.Text(string="Description", required=False, tracking=True)
     accounting_date = fields.Date(string="Date", required=True, tracking=True, default=fields.Date.today)
+    accounting_date_display = fields.Char(string="Date", compute="_compute_accounting_date_display")
     state = fields.Selection([
         ("draft", "Draft"),
         ("submit", "Submitted"),
@@ -68,6 +70,11 @@ class AccountBankPayment(models.Model):
     check_process_state = fields.Boolean(compute="_compute_check_process_state")
 
     # endregion [Fields]
+    @api.depends("accounting_date")
+    def _compute_accounting_date_display(self):
+        for rec in self:
+            rec.accounting_date_display = format_date(rec.env, rec.accounting_date) if rec.accounting_date else ""
+
     @api.constrains("bank_payment_line_ids")
     def _check_positive_amount_line(self):
         for rec in self:

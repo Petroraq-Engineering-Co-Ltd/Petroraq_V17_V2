@@ -75,6 +75,25 @@ class access_management(models.Model):
     def action_show_rules(self):
         pass
 
+    def action_sync_menu_items(self):
+        result = self.env['menu.item'].sudo()._sync_from_ir_ui_menu()
+        try:
+            request.env.registry.clear_cache()
+        except Exception:
+            pass
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Menus Synced'),
+                'message': _(
+                    'Created: %(created)s, Updated: %(updated)s, Removed: %(removed)s, Total: %(total)s'
+                ) % result,
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     # def _get_self_module_info(self):
     #     access_menu_id = self.env.ref('pr_acess_managment.main_menu_pr_acess_managment')
     #     model_list = ['access.management', 'access.domain.ah', 'action.data', 'hide.field', 'hide.view.nodes',

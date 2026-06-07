@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount, html_escape
@@ -237,8 +235,9 @@ class SaleOrder(models.Model):
                     if estimation_line.section_type in ("labor", "equipment")
                     else estimation_line.quantity
                 ) or 0.0
+                unit_cost = estimation_line.unit_cost or 0.0
                 price_unit = self._costing_line_breakdown(
-                    base_unit=estimation_line.unit_cost or 0.0,
+                    base_unit=unit_cost,
                     qty=qty,
                     currency=currency,
                 )["final_u"]
@@ -247,6 +246,7 @@ class SaleOrder(models.Model):
                     "product_id": estimation_line.product_id.id,
                     "name": line_name,
                     "product_uom_qty": qty,
+                    "cost_price_unit": unit_cost,
                     "price_unit": price_unit,
                 }
                 commands.append((0, 0, line_vals))
@@ -487,56 +487,12 @@ class SaleOrder(models.Model):
         compute="_compute_discount_breakdown",
         store=True,
     )
-    amount_to_invoice_untaxed = fields.Monetary(
-        string="Amount To Invoice",
-        currency_field="currency_id",
-        compute="_compute_amount_to_invoice_untaxed",
-        store=True,
-        compute_sudo=True,
-    )
     base_cost_total = fields.Monetary(
         string="Base Cost Total",
         currency_field="currency_id",
         compute="_compute_costing_totals",
         store=False,
     )
-
-    @api.depends(
-        "amount_untaxed",
-        "currency_id",
-        "invoice_ids.state",
-        "invoice_ids.payment_state",
-        "invoice_ids.date",
-        "invoice_ids.currency_id",
-        "invoice_ids.direction_sign",
-        "invoice_ids.line_ids.price_subtotal",
-        "invoice_ids.line_ids.display_type",
-        "invoice_ids.line_ids.sale_line_ids",
-    )
-    def _compute_amount_to_invoice_untaxed(self):
-        for order in self:
-            currency = order.currency_id or order.company_id.currency_id
-            invoiced_untaxed = 0.0
-            invoices = order.invoice_ids.filtered(
-                lambda move: move.state == "posted" or move.payment_state == "invoicing_legacy"
-            )
-
-            for invoice in invoices:
-                invoice_lines = invoice.line_ids.filtered(
-                    lambda line: (
-                        line.display_type not in ("line_note", "line_section")
-                        and order in line.sale_line_ids.order_id
-                    )
-                )
-                subtotal = sum(invoice_lines.mapped("price_subtotal"))
-                invoiced_untaxed += invoice.currency_id._convert(
-                    subtotal * -invoice.direction_sign,
-                    currency,
-                    invoice.company_id,
-                    invoice.date or fields.Date.context_today(order),
-                )
-
-            order.amount_to_invoice_untaxed = currency.round((order.amount_untaxed or 0.0) - invoiced_untaxed)
 
     @api.depends(
         "order_line.price_unit",
@@ -825,43 +781,6 @@ class SaleOrder(models.Model):
                 "</div>"
             )
 
-    @api.depends_context("lang")
-    @api.depends("order_line.tax_id", "order_line.price_unit", "amount_total", "amount_untaxed", "currency_id")
-    def _compute_tax_totals(self):
-        super()._compute_tax_totals()
-        for order in self:
-            if not order.tax_totals:
-                continue
-
-            tax_totals = deepcopy(order.tax_totals)
-            untaxed_label = _("Untaxed Amount")
-            desired_label = _("Total Amount")
-            removal_labels = {_("Tax 15%"), "Tax 15%"}
-
-            for subtotal in tax_totals.get("subtotals", []):
-                if subtotal.get("name") == untaxed_label:
-                    subtotal["name"] = desired_label
-
-            groups_by_subtotal = tax_totals.get("groups_by_subtotal") or {}
-            for key, group_list in list(groups_by_subtotal.items()):
-                filtered_groups = [
-                    tax_group
-                    for tax_group in group_list
-                    if tax_group.get("tax_group_name") not in removal_labels
-                ]
-                groups_by_subtotal[key] = filtered_groups
-                if key == untaxed_label:
-                    groups_by_subtotal[desired_label] = filtered_groups
-
-            subtotals_order = tax_totals.get("subtotals_order")
-            if subtotals_order:
-                tax_totals["subtotals_order"] = [
-                    desired_label if name == untaxed_label else name
-                    for name in subtotals_order
-                ]
-
-            order.tax_totals = tax_totals
-
     @api.onchange("overhead_percent", "risk_percent", "profit_percent", "order_line.cost_price_unit",
                   "order_line.product_uom_qty")
     def _onchange_reprice_lines_from_cost(self):
@@ -869,7 +788,7 @@ class SaleOrder(models.Model):
             for line in order.order_line.filtered(
                     lambda l: not l.display_type and not l.is_downpayment and l.product_id):
                 b = order._costing_line_breakdown(
-                    base_unit=line.cost_price_unit or line.product_id.standard_price or 0.0,
+                    base_unit=line.cost_price_unit or 0.0,
                     qty=line.product_uom_qty or 0.0,
                     currency=order.currency_id or order.company_id.currency_id,
                 )
@@ -887,7 +806,7 @@ class SaleOrder(models.Model):
                 )
                 for line in lines:
                     b = order._costing_line_breakdown(
-                        base_unit=line.cost_price_unit or line.product_id.standard_price or 0.0,
+                        base_unit=line.cost_price_unit or 0.0,
                         qty=line.product_uom_qty or 0.0,
                         currency=currency,
                     )
@@ -1020,7 +939,7 @@ class SaleOrder(models.Model):
                 continue
             section_name = current_section or _("General")
             amounts.setdefault(section_name, 0.0)
-            amounts[section_name] += (line.cost_price_unit or line.product_id.standard_price or 0.0) * (
+            amounts[section_name] += (line.cost_price_unit or 0.0) * (
                 line.product_uom_qty or 0.0
             )
         return amounts
@@ -1039,7 +958,7 @@ class SaleOrder(models.Model):
             cost_center = existing_by_section.get(section_name)
             if not cost_center:
                 analytic_vals = {
-                    "name": f"{self.name} - {section_name}",
+                    "name": work_order._format_section_cost_center_name(section_name),
                     "company_id": self.company_id.id,
                     "partner_id": self.partner_id.id,
                 }
@@ -1109,7 +1028,7 @@ class SaleOrder(models.Model):
                 "product_id": line.product_id.id,
                 "uom_id": (line.product_uom or line.product_id.uom_id).id,
                 "qty": line.product_uom_qty or 0.0,
-                "unit_cost": line.cost_price_unit or line.product_id.standard_price or 0.0,
+                "unit_cost": line.cost_price_unit or 0.0,
                 "section_name": section_name,
                 "sale_order_line_id": line.id,
                 "estimation_line_id": False,
