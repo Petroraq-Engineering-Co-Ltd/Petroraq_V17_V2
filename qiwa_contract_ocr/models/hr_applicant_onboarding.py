@@ -716,6 +716,17 @@ class HrOnboardingComplianceRequest(models.Model):
     attachment_filename = fields.Char(string='File Name')
 
     requires_payment = fields.Boolean(string='Requires Payment', tracking=True)
+    expense_bucket_id = fields.Many2one(
+        'crossovered.budget',
+        string='Budget',
+        tracking=True,
+        domain="[('state', 'in', ['validate', 'done']), ('pr_under_revision', '=', False)]",
+    )
+    cost_center_id = fields.Many2one(
+        'account.analytic.account',
+        string='Cost Center',
+        tracking=True,
+    )
     payment_state = fields.Selection(
         [
             ('not_required', 'Not Required'),
@@ -734,10 +745,32 @@ class HrOnboardingComplianceRequest(models.Model):
         string='Payment Account',
         default=lambda self: self._default_bank_payment_account(),
         tracking=True,
+        help='Legacy field kept for older direct BPV compliance requests.',
     )
     payment_expense_account_id = fields.Many2one(
         'account.account',
         string='Expense Account',
+        tracking=True,
+        help='Legacy/default field. Accounts can set the final expense account on the payment request line.',
+    )
+    payment_request_id = fields.Many2one(
+        'pr.employee.payment.request',
+        string='Payment Request',
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    payment_request_state = fields.Selection(
+        related='payment_request_id.state',
+        string='Payment Request Status',
+        store=True,
+        readonly=True,
+    )
+    cash_payment_id = fields.Many2one(
+        'pr.account.cash.payment',
+        string='Cash Payment',
+        readonly=True,
+        copy=False,
         tracking=True,
     )
     bank_payment_id = fields.Many2one(
@@ -750,12 +783,22 @@ class HrOnboardingComplianceRequest(models.Model):
     paid_move_id = fields.Many2one(
         'account.move',
         string='Paid Journal Entry',
-        related='bank_payment_id.journal_entry_id',
+        compute='_compute_paid_move_id',
         store=True,
         readonly=True,
     )
     has_bank_payment = fields.Boolean(
         string='Has Bank Payment',
+        compute='_compute_payment_flags',
+        store=True,
+    )
+    has_payment_request = fields.Boolean(
+        string='Has Payment Request',
+        compute='_compute_payment_flags',
+        store=True,
+    )
+    has_payment_voucher = fields.Boolean(
+        string='Has Payment Voucher',
         compute='_compute_payment_flags',
         store=True,
     )
@@ -817,6 +860,10 @@ class HrOnboardingComplianceRequest(models.Model):
                 rec.profession = employee.job_id.name
                 if 'employee_account_id' in employee._fields and employee.employee_account_id:
                     rec.payment_expense_account_id = employee.employee_account_id
+                if not rec.cost_center_id:
+                    rec.cost_center_id = rec._get_default_hr_cost_center()
+                if rec.cost_center_id and not rec.expense_bucket_id:
+                    rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id)
 
     @api.onchange('request_type')
     def _onchange_request_type(self):
@@ -828,6 +875,15 @@ class HrOnboardingComplianceRequest(models.Model):
     def _onchange_requires_payment(self):
         for rec in self:
             rec.payment_state = 'draft' if rec.requires_payment else 'not_required'
+
+    @api.onchange('required_date', 'cost_center_id')
+    def _onchange_budget_inputs(self):
+        for rec in self:
+            if not rec.requires_payment or not rec.cost_center_id:
+                continue
+            if rec._budget_matches_cost_center(rec.expense_bucket_id, rec.cost_center_id):
+                continue
+            rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id)
 
     def _compute_approval_permissions(self):
         is_supervisor = self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_supervisor')
@@ -844,10 +900,22 @@ class HrOnboardingComplianceRequest(models.Model):
             or self.env.user.has_group('hr.group_hr_manager')
         )
 
-    @api.depends('bank_payment_id')
+    @api.depends('bank_payment_id', 'cash_payment_id', 'payment_request_id')
     def _compute_payment_flags(self):
         for rec in self:
             rec.has_bank_payment = bool(rec.bank_payment_id)
+            rec.has_payment_request = bool(rec.payment_request_id)
+            rec.has_payment_voucher = bool(rec.bank_payment_id or rec.cash_payment_id)
+
+    @api.depends('bank_payment_id.journal_entry_id', 'cash_payment_id.journal_entry_id')
+    def _compute_paid_move_id(self):
+        for rec in self:
+            voucher = rec.bank_payment_id or rec.cash_payment_id
+            rec.paid_move_id = (
+                voucher.journal_entry_id
+                if voucher and 'journal_entry_id' in voucher._fields
+                else False
+            )
 
     def action_submit(self):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_supervisor'):
@@ -1049,52 +1117,138 @@ class HrOnboardingComplianceRequest(models.Model):
         self.ensure_one()
         if not self.requires_payment:
             self.payment_state = 'not_required'
-            return
-        if self.bank_payment_id and self.bank_payment_id.state != 'cancel':
-            self.payment_state = 'paid' if self.bank_payment_id.state == 'posted' else 'pending'
-            return
+            return False
+        voucher = self.cash_payment_id or self.bank_payment_id
+        if voucher and voucher.state != 'cancel':
+            self.payment_state = 'paid' if voucher.state == 'posted' else 'pending'
+            return self.payment_request_id or voucher
+        if self.payment_request_id:
+            if self.payment_request_id.state == 'cancelled':
+                self.payment_request_id.state = 'requested'
+            self.payment_state = 'pending'
+            return self.payment_request_id
+        existing_request = self.env['pr.employee.payment.request'].sudo().search([
+            ('onboarding_compliance_request_id', '=', self.id),
+            ('state', '!=', 'cancelled'),
+        ], limit=1)
+        if existing_request:
+            self.write({
+                'payment_request_id': existing_request.id,
+                'payment_state': 'pending',
+            })
+            return existing_request
         if self.amount <= 0:
             raise UserError(_('Please set a positive amount before sending this request to Accounting.'))
 
-        payment_account = self.payment_account_id or self._default_bank_payment_account()
-        expense_account = self.payment_expense_account_id or self._get_default_payment_expense_account()
-        if not payment_account:
-            raise UserError(_('Please set the Payment Account before sending this request to Accounting.'))
-        if not expense_account:
-            raise UserError(_('Please set the Expense Account before sending this request to Accounting.'))
+        if not self.cost_center_id:
+            cost_center = self._get_default_hr_cost_center()
+            if cost_center:
+                self.cost_center_id = cost_center.id
+        if not self.expense_bucket_id and self.cost_center_id:
+            budget = self._get_default_hr_budget(self.cost_center_id)
+            if budget:
+                self.expense_bucket_id = budget.id
+
+        self._check_selected_budget_or_raise(self.amount)
 
         description = self._get_payment_description()
-        bank_payment = self.env['pr.account.bank.payment'].sudo().create({
-            'account_id': payment_account.id,
-            'description': description,
-            'accounting_date': fields.Date.context_today(self),
-            'bank_payment_line_ids': [(0, 0, {
-                'account_id': expense_account.id,
-                'cs_project_id': self._get_employee_project_cost_center_id(),
-                'partner_id': self._get_payment_partner_id(),
+        payment_request = self.env['pr.employee.payment.request'].sudo().create({
+            'onboarding_compliance_request_id': self.id,
+            'requested_user_id': self.requested_by_id.id or self.env.user.id,
+            'employee_id': self.employee_id.id,
+            'company_id': (self.employee_id.company_id or self.env.company).id,
+            'expense_bucket_id': self.expense_bucket_id.id,
+            'cost_center_id': self.cost_center_id.id,
+            'line_ids': [(0, 0, {
                 'description': description,
-                'reference_number': self.name,
                 'amount': self.amount,
-                'analytic_distribution': self._get_payment_analytic_distribution(),
+                'expense_account_id': self.payment_expense_account_id.id if self.payment_expense_account_id else False,
             })],
         })
-        bank_payment.onboarding_compliance_request_id = self.id
-        if self.work_permit_id and 'work_permit_id' in bank_payment._fields:
-            bank_payment.work_permit_id = self.work_permit_id.id
-            if 'bank_payment_id' in self.work_permit_id._fields:
-                self.work_permit_id.bank_payment_id = bank_payment.id
-            if 'payment_state' in self.work_permit_id._fields:
-                self.work_permit_id.payment_state = 'pending'
-            if self.work_permit_id.state not in ('approved', 'issued', 'reject'):
-                self.work_permit_id.state = 'approved'
 
-        # bank_payment.action_submit()
         self.write({
-            'bank_payment_id': bank_payment.id,
+            'payment_request_id': payment_request.id,
             'payment_state': 'pending',
-            'payment_account_id': payment_account.id,
-            'payment_expense_account_id': expense_account.id,
         })
+        if self.work_permit_id and 'payment_state' in self.work_permit_id._fields:
+            self.work_permit_id.payment_state = 'pending'
+        payment_request._notify_accounts()
+        return payment_request
+
+    def _check_selected_budget_or_raise(self, amount=False):
+        self.ensure_one()
+        if not self.expense_bucket_id:
+            raise UserError(_('Please select the approved Budget before approval.'))
+        if not self.cost_center_id:
+            raise UserError(_('Please select the Cost Center before approval.'))
+        self.expense_bucket_id._check_active_for_date(self._get_budget_check_date())
+        remaining_by_cost_center = self.expense_bucket_id._get_remaining_by_cost_center()
+        if self.cost_center_id.id not in remaining_by_cost_center:
+            raise UserError(
+                _('Cost Center %(cc)s is not included in Budget %(budget)s.')
+                % {'cc': self.cost_center_id.display_name, 'budget': self.expense_bucket_id.display_name}
+            )
+        amount = amount if amount is not False else self.amount
+        remaining = remaining_by_cost_center.get(self.cost_center_id.id, 0.0)
+        if amount > remaining:
+            raise UserError(
+                _('Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: %(amount).2f')
+                % {'cc': self.cost_center_id.display_name, 'remaining': remaining, 'amount': amount}
+            )
+
+    def _get_budget_check_date(self):
+        self.ensure_one()
+        return self.required_date or self.issue_date or fields.Date.context_today(self)
+
+    def _get_default_hr_cost_center(self):
+        self.ensure_one()
+        employee = self.employee_id
+        for field_name in (
+            'employee_cost_center_id',
+            'project_cost_center_id',
+            'section_cost_center_id',
+            'department_cost_center_id',
+        ):
+            if field_name in employee._fields:
+                cost_center = employee[field_name]
+                if cost_center:
+                    return cost_center
+        department = employee.department_id
+        if department and 'department_cost_center_id' in department._fields and department.department_cost_center_id:
+            return department.department_cost_center_id
+        return self.env['account.analytic.account']
+
+    def _get_default_hr_budget(self, cost_center=False):
+        self.ensure_one()
+        cost_center = cost_center or self.cost_center_id
+        if not cost_center:
+            return self.env['crossovered.budget']
+        budget_model = self.env['crossovered.budget'].sudo()
+        target_date = self._get_budget_check_date()
+        domain = [
+            ('state', 'in', ['validate', 'done']),
+            ('date_from', '<=', target_date),
+            ('date_to', '>=', target_date),
+            ('crossovered_budget_line.analytic_account_id', '=', cost_center.id),
+        ]
+        if 'pr_under_revision' in budget_model._fields:
+            domain.append(('pr_under_revision', '=', False))
+        return budget_model.search(domain, order='date_from desc, id desc', limit=1)
+
+    def _budget_matches_cost_center(self, budget, cost_center):
+        self.ensure_one()
+        if not budget or not cost_center:
+            return False
+        target_date = self._get_budget_check_date()
+        if budget.date_from and target_date < budget.date_from:
+            return False
+        if budget.date_to and target_date > budget.date_to:
+            return False
+        if 'pr_under_revision' in budget._fields and budget.pr_under_revision:
+            return False
+        return bool(budget.crossovered_budget_line.filtered(
+            lambda line: line.analytic_account_id == cost_center
+        ))
 
     def _get_payment_description(self):
         self.ensure_one()
@@ -1165,6 +1319,15 @@ class HrOnboardingComplianceRequest(models.Model):
     def action_open_medical_insurance(self):
         self.ensure_one()
         return self._open_linked_record(self.medical_insurance_id, _('Medical Insurance'))
+
+    def action_open_payment_request(self):
+        self.ensure_one()
+        return self._open_linked_record(self.payment_request_id, _('Payment Request'))
+
+    def action_open_payment_voucher(self):
+        self.ensure_one()
+        voucher = self.cash_payment_id or self.bank_payment_id
+        return self._open_linked_record(voucher, _('Payment Voucher'))
 
     def action_open_bank_payment(self):
         self.ensure_one()
@@ -1416,6 +1579,131 @@ class HREmployeeMedicalInsurance(models.Model):
 
     def action_approve(self):
         return self.action_approve_hr_manager()
+
+
+class PrEmployeePaymentRequest(models.Model):
+    _inherit = 'pr.employee.payment.request'
+
+    onboarding_compliance_request_id = fields.Many2one(
+        'hr.onboarding.compliance.request',
+        string='Onboarding Compliance Request',
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for record in records.filtered('onboarding_compliance_request_id'):
+            record.onboarding_compliance_request_id.sudo().write({
+                'payment_request_id': record.id,
+                'payment_state': 'pending',
+            })
+        return records
+
+    def _check_ready_for_voucher(self):
+        super()._check_ready_for_voucher()
+        for rec in self.filtered('onboarding_compliance_request_id'):
+            request = rec.onboarding_compliance_request_id
+            if request.cash_payment_id or request.bank_payment_id:
+                raise UserError(
+                    _('A payment voucher already exists for compliance request %s.') % request.display_name
+                )
+
+    def action_create_payment_voucher(self):
+        action = super().action_create_payment_voucher()
+        for rec in self.filtered('onboarding_compliance_request_id'):
+            request = rec.onboarding_compliance_request_id
+            voucher = rec.cash_payment_id or rec.bank_payment_id
+            if not voucher:
+                continue
+            vals = {
+                'payment_state': 'pending',
+                'payment_request_id': rec.id,
+            }
+            if voucher._name == 'pr.account.cash.payment':
+                vals['cash_payment_id'] = voucher.id
+            else:
+                vals['bank_payment_id'] = voucher.id
+            if 'onboarding_compliance_request_id' in voucher._fields:
+                voucher.sudo().onboarding_compliance_request_id = request.id
+            request.sudo().write(vals)
+            if request.work_permit_id and 'payment_state' in request.work_permit_id._fields:
+                request.work_permit_id.sudo().payment_state = 'pending'
+        return action
+
+    def _mark_source_paid_from_voucher(self, voucher):
+        super()._mark_source_paid_from_voucher(voucher)
+        for rec in self.filtered('onboarding_compliance_request_id'):
+            request = rec.onboarding_compliance_request_id
+            vals = {'payment_state': 'paid'}
+            if voucher._name == 'pr.account.cash.payment':
+                vals['cash_payment_id'] = voucher.id
+            else:
+                vals['bank_payment_id'] = voucher.id
+            request.sudo().write(vals)
+            if request.work_permit_id and 'payment_state' in request.work_permit_id._fields:
+                request.work_permit_id.sudo().payment_state = 'paid'
+            request.message_post(
+                body=_('Payment voucher %s was fully approved. Compliance request marked as paid.')
+                % voucher.display_name
+            )
+
+    def action_cancel(self):
+        compliance_requests = self.mapped('onboarding_compliance_request_id')
+        res = super().action_cancel()
+        for request in compliance_requests.filtered(lambda req: not req.cash_payment_id and not req.bank_payment_id):
+            request.sudo().payment_state = 'cancelled'
+        return res
+
+
+class AccountCashPayment(models.Model):
+    _inherit = 'pr.account.cash.payment'
+
+    onboarding_compliance_request_id = fields.Many2one(
+        'hr.onboarding.compliance.request',
+        string='Onboarding Compliance Request',
+        readonly=True,
+    )
+
+    def open_onboarding_compliance_request(self):
+        self.ensure_one()
+        if not self.onboarding_compliance_request_id:
+            return None
+        view = self.env.ref('qiwa_contract_ocr.view_hr_onboarding_compliance_request_form')
+        return {
+            'name': _('Onboarding Compliance Request'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hr.onboarding.compliance.request',
+            'views': [(view.id, 'form')],
+            'res_id': self.onboarding_compliance_request_id.id,
+            'target': 'current',
+        }
+
+    def action_post(self):
+        res = super().action_post()
+        for rec in self:
+            request = rec.onboarding_compliance_request_id
+            if request:
+                request.sudo().payment_state = 'paid'
+        return res
+
+    def action_draft(self):
+        res = super().action_draft()
+        for rec in self:
+            request = rec.onboarding_compliance_request_id
+            if request and request.requires_payment:
+                request.sudo().payment_state = 'pending'
+        return res
+
+    def action_cancel(self):
+        res = super().action_cancel()
+        for rec in self:
+            request = rec.onboarding_compliance_request_id
+            if request:
+                request.sudo().payment_state = 'cancelled'
+        return res
 
 
 class AccountBankPayment(models.Model):

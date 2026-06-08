@@ -15,10 +15,31 @@ class AccountAnalyticAccount(models.Model):
         [("opex", "Opex"), ("capex", "Capex")],
         string="Budget Type",
     )
-    budget_code = fields.Char(string="Budget Code")
+    budget_code = fields.Char(
+        string="Cost Center Code",
+        help="Legacy alias kept for older purchase/portal flows. It mirrors the official Cost Center Code.",
+    )
     budget_allowance = fields.Float(string="Budget Allowance")
     budget_spent = fields.Float(string="Budget Spent", compute="_compute_budget_metrics", store=False)
     budget_left = fields.Float(string="Budget Left", compute="_compute_budget_metrics", store=False)
+
+    def _sync_budget_code_alias(self):
+        if self.env.context.get("skip_budget_code_alias_sync"):
+            return
+        for rec in self.filtered(lambda account: account.code and account.budget_code != account.code):
+            rec.with_context(skip_budget_code_alias_sync=True).budget_code = rec.code
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_budget_code_alias()
+        return records
+
+    def write(self, vals):
+        result = super().write(vals)
+        if "code" in vals or "budget_code" in vals:
+            self._sync_budget_code_alias()
+        return result
 
     def _date_in_period(self, value, date_from=False, date_to=False):
         if not value:

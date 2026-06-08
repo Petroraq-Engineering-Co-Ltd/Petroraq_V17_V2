@@ -38,7 +38,7 @@
                         string="Get Products From Estimation"
                         class="btn-secondary"
                         invisible="not estimation_id or state != 'draft' or approval_state != 'draft'"
-                        groups="work_order.custom_group_work_order_user"/>
+                        groups="pr_work_order.custom_group_work_order_user"/>
                 />
 
                 <button
@@ -372,12 +372,12 @@
                             <field name="profit_grand_total" widget="monetary" readonly="1" nolabel="1" string=""/>
                         </div>
                     </div>
-                    <div class="o_petroraq_total_row o_petroraq_total_base">
-                        <span class="o_petroraq_total_label">Net Total:</span>
-                        <div class="o_petroraq_total_input"></div>
-                        <div class="o_petroraq_total_value">
-                            <field name="amount_untaxed" widget="monetary" readonly="1" nolabel="1" string=""/>
-                        </div>
+                    <div class="o_petroraq_tax_totals">
+                        <field name="tax_totals"
+                               widget="account-tax-totals-field"
+                               readonly="1"
+                               nolabel="1"
+                               colspan="2"/>
                     </div>
                     <div class="o_petroraq_total_row o_petroraq_total_base">
                         <span class="o_petroraq_total_label">Amount Invoiced:</span>
@@ -390,7 +390,7 @@
                         <span class="o_petroraq_total_label">Amount To Invoice:</span>
                         <div class="o_petroraq_total_input"></div>
                         <div class="o_petroraq_total_value">
-                            <field name="amount_to_invoice_untaxed" widget="monetary" readonly="1" nolabel="1" string=""/>
+                            <field name="amount_to_invoice" widget="monetary" readonly="1" nolabel="1" string=""/>
                         </div>
                     </div>
                     <!--                    <div class="o_petroraq_total_row o_petroraq_total_great">-->

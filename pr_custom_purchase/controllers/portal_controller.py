@@ -44,10 +44,18 @@ class PortalPR(http.Controller):
             pr_number_preview = "New"
 
 
-        cost_centers = request.env["account.analytic.account"].sudo().search([
+        locked_budgets = request.env["crossovered.budget"].sudo().search([
+            ("pr_under_revision", "=", True),
+        ])
+        locked_cost_center_ids = locked_budgets.crossovered_budget_line.mapped("analytic_account_id").ids
+        cost_center_domain = [
             ("budget_code", "!=", False),
             ("budget_type", "!=", False),
-        ])
+        ]
+        if locked_cost_center_ids:
+            cost_center_domain.append(("id", "not in", locked_cost_center_ids))
+
+        cost_centers = request.env["account.analytic.account"].sudo().search(cost_center_domain)
 
         values = {
             "page_name": "create_pr",
@@ -158,6 +166,21 @@ class PortalPR(http.Controller):
                     {
                         "success": False,
                         "message": "No cost center found for given budget type and code.",
+                    }
+                ),
+                headers=[("Content-Type", "application/json")],
+            )
+
+        locked_budget = request.env["crossovered.budget"].sudo().search([
+            ("pr_under_revision", "=", True),
+            ("crossovered_budget_line.analytic_account_id", "=", cost_center.id),
+        ], limit=1)
+        if locked_budget:
+            return request.make_response(
+                json.dumps(
+                    {
+                        "success": False,
+                        "message": f"Budget {locked_budget.display_name} is under revision and cannot be used until the revision is approved or rejected.",
                     }
                 ),
                 headers=[("Content-Type", "application/json")],

@@ -62,7 +62,7 @@
                         height: 100vh;
                         min-height: 400px;
                         background: linear-gradient(90deg, rgba(6,38,75,0.75) 0%, rgba(6,38,75,0.4) 60%, rgba(6,38,75,0.15) 100%),
-                                    url('pr_website/static/images/main_page.png') center/cover no-repeat;
+                                    url('pr_website/static/images/main_bg.png') center/cover no-repeat;
                         color: #fff;
                         overflow: hidden;
                     }
@@ -500,44 +500,54 @@
 
                 <section class="services">
                     <div class="service-card scroll-animate delay-1">
-                        <div class="icon">
+                        <div class="icon" data-no-preview="1">
+                            <img src="pr_website/static/images/design-eng-logo.png"/>
+                        </div>
+                        <h3>Design &amp; Engineering</h3>
+                        <p style="text-align: center;">Comprehensive multi-disciplinary engineering, design and consultancy services.</p>
+                        <a href="/services/civil-structural" class="arrow-link">
+                            <i class="fa fa-arrow-right arrow"></i>
+                        </a>
+                    </div>
+                    <div class="service-card scroll-animate delay-1">
+                        <div class="icon" data-no-preview="1">
                             <img src="pr_website/static/images/civil-icon-home.png"/>
                         </div>
                         <h3>Civil</h3>
-                        <p>Structural works, foundations, infrastructure and site development.</p>
-                        <i class="fa fa-arrow-right arrow"></i>
+                        <p style="text-align: center;">Structural works, foundations and site development.</p>
+                        <a href="/services/civil-structural" class="arrow-link">
+                            <i class="fa fa-arrow-right arrow"></i>
+                        </a>
                     </div>
                     <div class="service-card scroll-animate delay-2">
-                        <div class="icon">
+                        <div class="icon" data-no-preview="1">
                             <img src="pr_website/static/images/home-mechanical-icon.png"/>
                         </div>
                         <h3>Mechanical</h3>
-                        <p>Piping, equipment installation, fabrication and mechanical systems.</p>
+                        <p style="text-align: center;">Piping, equipment installation, fabrication and mechanical systems.</p>
+                        <a href="/services/mechanical-piping" class="arrow-link">
                         <i class="fa fa-arrow-right arrow"></i>
+                        </a>
                     </div>
                     <div class="service-card scroll-animate delay-3">
-                        <div class="icon">
+                        <div class="icon" data-no-preview="1">
                             <img src="pr_website/static/images/home-electrical-icon.png"/>
                         </div>
                         <h3>Electrical</h3>
-                        <p>Power systems, instrumentation, lighting, and electrical installations.</p>
+                        <p style="text-align: center;">Power systems, instrumentation, lighting, and electrical installations.</p>
+                        <a href="/services/electrical-telecommunication" class="arrow-link">
                         <i class="fa fa-arrow-right arrow"></i>
-                    </div>
-                    <div class="service-card scroll-animate delay-4">
-                        <div class="icon">
-                            <img src="pr_website/static/images/home-industrial-icon.png"/>
-                        </div>
-                        <h3>Industrial Projects</h3>
-                        <p>End-to-end solutions for industrial plants and process facilities.</p>
-                        <i class="fa fa-arrow-right arrow"></i>
+                        </a>
                     </div>
                     <div class="service-card scroll-animate delay-5">
-                        <div class="icon">
+                        <div class="icon" data-no-preview="1">
                             <img src="pr_website/static/images/project-home-icon.png"/>
                         </div>
                         <h3>Project Management</h3>
-                        <p>Planning, coordination, and control to deliver projects on time and on budget.</p>
+                        <p style="text-align: center;">Planning, coordination, and control to deliver projects on time and on budget.</p>
+                        <a href="/services/project-management" class="arrow-link">
                         <i class="fa fa-arrow-right arrow"></i>
+                        </a>
                     </div>
                 </section>
 

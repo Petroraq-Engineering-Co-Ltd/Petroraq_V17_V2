@@ -6,6 +6,8 @@ class ir_ui_menu(models.Model):
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None):
+        if self.env.context.get('buypass_access') or self.env.context.get('bypass_access'):
+            return super(ir_ui_menu, self).search(args, offset=offset, limit=limit, order=order)
         ids = super(ir_ui_menu, self).search(args, offset=0, limit=None, order=order)
         user = self.env.user
         # user.clear_caches()
@@ -29,7 +31,22 @@ class ir_ui_menu(models.Model):
         res = super(ir_ui_menu, self).create(vals_list)
         menu_item_obj = self.env['menu.item'].sudo()
         for record in res:
-            menu_item_obj.create({'name':record.display_name,'menu_id':record.id})
+            item = menu_item_obj.search([('menu_id', '=', record.id)], limit=1)
+            vals = {'name': menu_item_obj._get_menu_item_name(record), 'menu_id': record.id}
+            if item:
+                item.write(vals)
+            else:
+                menu_item_obj.create(vals)
+        return res
+
+    def write(self, vals):
+        res = super(ir_ui_menu, self).write(vals)
+        if {'name', 'parent_id', 'sequence', 'active'}.intersection(vals):
+            menu_item_obj = self.env['menu.item'].sudo()
+            for record in self:
+                item = menu_item_obj.search([('menu_id', '=', record.id)], limit=1)
+                if item:
+                    item.write({'name': menu_item_obj._get_menu_item_name(record)})
         return res
 
     def unlink(self):

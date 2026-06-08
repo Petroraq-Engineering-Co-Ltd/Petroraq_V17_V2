@@ -677,46 +677,24 @@
                                 <img src="/pr_website/static/images/tahakom-client.png"
                                      alt="TAHAKOM"/>
                             </div>
-
-                            <div class="org-card animate-scale-up delay-300">
-                                <img src="/pr_website/static/images/sepco-client.png"
-                                     alt="SEPCO III"/>
-                            </div>
-                            <div class="org-card animate-scale-up delay-400">
-                                <img src="/pr_website/static/images/sabic-client.png"
-                                     alt="SABIC"/>
-                            </div>
-
-                            <div class="org-card animate-scale-up delay-600">
-                                <img src="/pr_website/static/images/al-bawani-client.png"
-                                     alt="Al Bawani"/>
-                            </div>
-
-
-                            <div class="org-card animate-scale-up delay-200">
-                                <img src="/pr_website/static/images/red-sea-client.png"
-                                     alt="Red Sea Global"/>
-                            </div>
-                            <div class="org-card" >
-                                <img src="/pr_website/static/images/nbc_logo.png"
-                                     alt="Al Bawani"/>
-
-                            </div>
-                            <div class="org-card">
-                                <img src="/pr_website/static/images/asda_logo.png"
-                                     alt="Al Bawani"/>
-
-                            </div>
                             <div class="org-card">
                                 <img src="/pr_website/static/images/tamimi_logo.png"
                                      alt="Al Bawani"/>
 
                             </div>
-                            <div class="org-card">
-                                <img src="/pr_website/static/images/novel_logo.png"
-                                     alt="Al Bawani"/>
-
+                            <div class="org-card animate-scale-up delay-300">
+                                <img src="/pr_website/static/images/sepco-client.png"
+                                     alt="SEPCO III"/>
                             </div>
+                            <div class="org-card animate-scale-up delay-600">
+                                <img src="/pr_website/static/images/al-bawani-client.png"
+                                     alt="Al Bawani"/>
+                            </div>
+                            <div class="org-card animate-scale-up delay-200">
+                                <img src="/pr_website/static/images/red-sea-client.png"
+                                     alt="Red Sea Global"/>
+                            </div>
+
                         </div>
                     </div>
                 </section>

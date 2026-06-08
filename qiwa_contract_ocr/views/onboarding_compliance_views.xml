@@ -247,6 +247,8 @@
                 <field name="request_type"/>
                 <field name="employee_category"/>
                 <field name="state"/>
+                <field name="expense_bucket_id"/>
+                <field name="cost_center_id"/>
                 <filter name="pending_hr_manager" string="Pending HR Manager" domain="[('state', '=', 'hr_manager_approval')]"/>
                 <filter name="pending_md" string="Pending MD Approval" domain="[('state', '=', 'md_approval')]"/>
                 <filter name="pending_accounting" string="Pending Accounting" domain="[('payment_state', '=', 'pending')]"/>
@@ -258,6 +260,8 @@
                     <filter name="group_employee_category" string="Employee Type" domain="[]" context="{'group_by': 'employee_category'}"/>
                     <filter name="group_state" string="Status" domain="[]" context="{'group_by': 'state'}"/>
                     <filter name="group_payment_state" string="Payment Status" domain="[]" context="{'group_by': 'payment_state'}"/>
+                    <filter name="group_budget" string="Budget" domain="[]" context="{'group_by': 'expense_bucket_id'}"/>
+                    <filter name="group_cost_center" string="Cost Center" domain="[]" context="{'group_by': 'cost_center_id'}"/>
                     <filter name="group_employee" string="Employee" domain="[]" context="{'group_by': 'employee_id'}"/>
                 </group>
             </search>
@@ -276,6 +280,9 @@
                 <field name="required_date"/>
                 <field name="expiry_date"/>
                 <field name="amount"/>
+                <field name="expense_bucket_id" optional="show"/>
+                <field name="cost_center_id" optional="show"/>
+                <field name="payment_request_id" optional="hide"/>
                 <field name="payment_state" widget="badge"
                        decoration-muted="payment_state == 'not_required'"
                        decoration-info="payment_state == 'draft'"
@@ -301,6 +308,8 @@
                     <field name="is_onboarding_manager" invisible="1"/>
                     <field name="is_onboarding_md" invisible="1"/>
                     <field name="has_bank_payment" invisible="1"/>
+                    <field name="has_payment_request" invisible="1"/>
+                    <field name="has_payment_voucher" invisible="1"/>
                     <button name="action_submit" string="Submit"
                             type="object" class="btn-primary"
                             groups="pr_hr_recruitment_request.group_onboarding_supervisor"
@@ -313,10 +322,10 @@
                             type="object" class="btn-primary"
                             groups="pr_hr_recruitment_request.group_onboarding_md"
                             invisible="state != 'md_approval'"/>
-                    <button name="action_send_to_accounting" string="Send to Accounting"
+                    <button name="action_send_to_accounting" string="Create Payment Request"
                             type="object" class="btn-primary"
                             groups="pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_md"
-                            invisible="state not in ('approved', 'done') or not requires_payment or payment_state in ('pending', 'paid')"/>
+                            invisible="state not in ('approved', 'done') or not requires_payment or payment_state in ('pending', 'paid') or has_payment_voucher"/>
                     <button name="action_reject" string="Reject"
                             type="object" class="btn-secondary"
                             groups="pr_hr_recruitment_request.group_onboarding_manager,hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_md"
@@ -356,13 +365,20 @@
                                 type="object"
                                 string="Insurance"
                                 invisible="not medical_insurance_id"/>
-                        <button name="action_open_bank_payment"
+                        <button name="action_open_payment_request"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                type="object"
+                                string="Payment Request"
+                                groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
+                                invisible="not payment_request_id"/>
+                        <button name="action_open_payment_voucher"
                                 class="oe_stat_button"
                                 icon="fa-money"
                                 type="object"
-                                string="Bank Payment"
+                                string="Payment Voucher"
                                 groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
-                                invisible="not has_bank_payment"/>
+                                invisible="not has_payment_voucher"/>
                     </div>
                     <div class="oe_title">
                         <label for="name"/>
@@ -390,19 +406,24 @@
                             <field name="attachment_filename" invisible="1"/>
                         </group>
                         <group string="Accounting">
-                            <field name="requires_payment" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_bank_payment"/>
+                            <field name="requires_payment" readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_payment_request or has_payment_voucher"/>
                             <field name="payment_state" readonly="1"/>
-                            <field name="payment_account_id"
-                                   readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_bank_payment"
+                            <field name="cost_center_id"
+                                   readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_payment_request or has_payment_voucher"
                                    invisible="not requires_payment"
-                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
-                            <field name="payment_expense_account_id"
-                                   readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_bank_payment"
+                            <field name="expense_bucket_id"
+                                   readonly="state not in ('draft', 'hr_manager_approval', 'md_approval') or has_payment_request or has_payment_voucher"
                                    invisible="not requires_payment"
-                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"
+                                   domain="[('state', 'in', ['validate', 'done']), ('pr_under_revision', '=', False), ('crossovered_budget_line.analytic_account_id', '=', cost_center_id)]"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
-                            <field name="bank_payment_id" readonly="1" invisible="not has_bank_payment"
+                            <field name="payment_request_id" readonly="1" invisible="not payment_request_id"
+                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                            <field name="payment_request_state" readonly="1" invisible="not payment_request_id"
+                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                            <field name="cash_payment_id" readonly="1" invisible="not cash_payment_id"
+                                   groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                            <field name="bank_payment_id" readonly="1" invisible="not bank_payment_id"
                                    groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
                             <field name="paid_move_id" readonly="1"
                                    groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
@@ -450,6 +471,10 @@
                                 <field name="work_permit_id" readonly="1"/>
                                 <field name="iqama_id" readonly="1"/>
                                 <field name="medical_insurance_id" readonly="1"/>
+                                <field name="payment_request_id" readonly="1"
+                                       groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
+                                <field name="cash_payment_id" readonly="1"
+                                       groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
                                 <field name="bank_payment_id" readonly="1"
                                        groups="account.group_account_invoice,account.group_account_manager,hr.group_hr_manager"/>
                                 <field name="paid_move_id" readonly="1"
@@ -694,6 +719,57 @@
                         type="object"
                         string="Compliance Request"
                         invisible="not onboarding_compliance_request_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pr_account_cash_payment_form_onboarding_compliance" model="ir.ui.view">
+        <field name="name">pr.account.cash.payment.form.onboarding.compliance</field>
+        <field name="model">pr.account.cash.payment</field>
+        <field name="inherit_id" ref="pr_account.pr_account_cash_payment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <field name="onboarding_compliance_request_id" invisible="1"/>
+                <button name="open_onboarding_compliance_request"
+                        class="oe_stat_button"
+                        icon="fa-check-square-o"
+                        type="object"
+                        string="Compliance Request"
+                        invisible="not onboarding_compliance_request_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pr_employee_payment_request_form_onboarding_compliance" model="ir.ui.view">
+        <field name="name">pr.employee.payment.request.form.onboarding.compliance</field>
+        <field name="model">pr.employee.payment.request</field>
+        <field name="inherit_id" ref="pr_employee_service_requests.view_pr_employee_payment_request_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='service_request_id']" position="after">
+                <field name="onboarding_compliance_request_id" readonly="1"
+                       invisible="not onboarding_compliance_request_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pr_employee_payment_request_tree_onboarding_compliance" model="ir.ui.view">
+        <field name="name">pr.employee.payment.request.tree.onboarding.compliance</field>
+        <field name="model">pr.employee.payment.request</field>
+        <field name="inherit_id" ref="pr_employee_service_requests.view_pr_employee_payment_request_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='employee_id']" position="after">
+                <field name="onboarding_compliance_request_id" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_pr_employee_payment_request_search_onboarding_compliance" model="ir.ui.view">
+        <field name="name">pr.employee.payment.request.search.onboarding.compliance</field>
+        <field name="model">pr.employee.payment.request</field>
+        <field name="inherit_id" ref="pr_employee_service_requests.view_pr_employee_payment_request_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='employee_id']" position="after">
+                <field name="onboarding_compliance_request_id"/>
             </xpath>
         </field>
     </record>

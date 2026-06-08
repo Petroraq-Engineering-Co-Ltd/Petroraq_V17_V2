@@ -83,8 +83,52 @@
 }
 
 .o_date_amounts_row {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(130px, 1fr));
+    gap: 16px 28px;
+    align-items: start;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
+    width: 100%;
+}
+
+.o_date_amounts_row .o_form_label_and_field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    margin-right: 0;
+}
+
+.o_date_amounts_row .o_form_label_and_field label {
+    display: block;
+    margin-bottom: 0;
+    color: #6b7280;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.o_date_amounts_row .o_form_label_and_field .o_field_widget {
+    min-width: 0;
+    width: 100% !important;
+}
+
+.o_date_amounts_row .pr_date_amounts_date {
+    display: inline-block !important;
+    color: #111827;
+    white-space: nowrap;
+}
+
+@media (max-width: 1400px) {
+    .o_date_amounts_row {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .o_date_amounts_row {
+        grid-template-columns: 1fr;
+    }
 }
 
 

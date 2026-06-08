@@ -8,5 +8,13 @@
             <field name="padding">5</field>
             <field name="company_id" eval="False"/>
         </record>
+
+        <record id="seq_pr_employee_payment_request" model="ir.sequence">
+            <field name="name">Employee Payment Request</field>
+            <field name="code">pr.employee.payment.request</field>
+            <field name="prefix">EPR-%(year)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
     </data>
 </odoo>
