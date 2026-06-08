@@ -6,6 +6,101 @@ from odoo.tools.float_utils import float_compare
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
+    sale_state = fields.Selection(related="sale_id.state", string="Sale Order Status", readonly=True)
+    delivery_note_po_number = fields.Char(related="sale_id.po_number", string="PO Name", readonly=True)
+    delivery_note_po_date = fields.Date(related="sale_id.po_date", string="PO Date", readonly=True)
+    delivery_note_ship_to_partner_id = fields.Many2one("res.partner", string="Ship To")
+    delivery_note_ship_to_address = fields.Text(string="Ship To Address")
+    delivery_note_contact_person_name = fields.Char(string="Contact Person Name")
+    delivery_note_contact_person_phone = fields.Char(string="Contact Person Contact")
+
+    def _pr_format_partner_address(self, partner):
+        if not partner:
+            return ""
+
+        partner = partner.sudo()
+        lines = []
+        if partner.name:
+            lines.append(partner.name)
+
+        address = partner._display_address(without_company=True) or ""
+        lines.extend(line for line in address.splitlines() if line)
+
+        phone = partner.phone or partner.mobile
+        if phone:
+            lines.append(phone)
+
+        return "\n".join(lines)
+
+    def _pr_get_default_delivery_contact(self):
+        self.ensure_one()
+        sale = self.sale_id
+        if not sale:
+            return "", ""
+
+        name = sale.inquiry_contact_person if "inquiry_contact_person" in sale._fields else ""
+        phone = sale.inquiry_contact_person_phone if "inquiry_contact_person_phone" in sale._fields else ""
+        if name or phone:
+            return name or "", phone or ""
+
+        inquiry = sale.order_inquiry_id if "order_inquiry_id" in sale._fields else False
+        contact = inquiry.contact_partner_id if inquiry and inquiry.contact_partner_id else False
+        if contact:
+            return contact.name or "", contact.phone or contact.mobile or ""
+
+        partner = sale.partner_id
+        return partner.name or "", partner.phone or partner.mobile or ""
+
+    def _pr_set_delivery_note_defaults(self):
+        for picking in self:
+            if picking.picking_type_code != "outgoing":
+                continue
+
+            vals = {}
+            partner = picking.delivery_note_ship_to_partner_id or picking.partner_id
+            if partner and not picking.delivery_note_ship_to_partner_id:
+                vals["delivery_note_ship_to_partner_id"] = partner.id
+            if partner and not picking.delivery_note_ship_to_address:
+                vals["delivery_note_ship_to_address"] = picking._pr_format_partner_address(partner)
+
+            contact_name, contact_phone = picking._pr_get_default_delivery_contact()
+            if contact_name and not picking.delivery_note_contact_person_name:
+                vals["delivery_note_contact_person_name"] = contact_name
+            if contact_phone and not picking.delivery_note_contact_person_phone:
+                vals["delivery_note_contact_person_phone"] = contact_phone
+
+            if vals:
+                picking.write(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        pickings = super().create(vals_list)
+        pickings._pr_set_delivery_note_defaults()
+        return pickings
+
+    @api.onchange("partner_id", "sale_id")
+    def _onchange_delivery_note_sale_defaults(self):
+        for picking in self:
+            partner = picking.delivery_note_ship_to_partner_id or picking.partner_id
+            if partner and not picking.delivery_note_ship_to_partner_id:
+                picking.delivery_note_ship_to_partner_id = partner
+            if partner and not picking.delivery_note_ship_to_address:
+                picking.delivery_note_ship_to_address = picking._pr_format_partner_address(partner)
+
+            contact_name, contact_phone = picking._pr_get_default_delivery_contact()
+            if contact_name and not picking.delivery_note_contact_person_name:
+                picking.delivery_note_contact_person_name = contact_name
+            if contact_phone and not picking.delivery_note_contact_person_phone:
+                picking.delivery_note_contact_person_phone = contact_phone
+
+    @api.onchange("delivery_note_ship_to_partner_id")
+    def _onchange_delivery_note_ship_to_partner_id(self):
+        for picking in self:
+            if picking.delivery_note_ship_to_partner_id:
+                picking.delivery_note_ship_to_address = picking._pr_format_partner_address(
+                    picking.delivery_note_ship_to_partner_id
+                )
+
     def button_validate(self):
         for picking in self:
             if picking.picking_type_code != "outgoing":

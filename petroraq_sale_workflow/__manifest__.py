@@ -11,6 +11,7 @@
         "mail",
         "account",
         "stock",
+        "pr_custom_purchase",
         "pr_work_order",
         "report_xlsx",
         "base_revision",

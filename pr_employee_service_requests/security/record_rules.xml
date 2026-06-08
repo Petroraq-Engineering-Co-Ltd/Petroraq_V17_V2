@@ -41,10 +41,12 @@
             <field name="name">Employee Service Request: Accounts can see payment requests</field>
             <field name="model_id" ref="model_pr_employee_service_request"/>
             <field name="groups" eval="[
+                (4, ref('account.group_account_invoice')),
+                (4, ref('account.group_account_user')),
                 (4, ref('account.group_account_manager')),
                 (4, ref('pr_account.custom_group_accounting_manager'))
             ]"/>
-            <field name="domain_force">[('state', 'in', ['payment_approval', 'paid', 'issued'])]</field>
+            <field name="domain_force">[('state', 'in', ['accounts_approval', 'finance_approval', 'payment_approval', 'paid', 'issued'])]</field>
         </record>
 
         <record id="rule_pr_employee_payment_request_own" model="ir.rule">

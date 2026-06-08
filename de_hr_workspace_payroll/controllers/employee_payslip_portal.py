@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from collections import OrderedDict
+from email.utils import encode_rfc2231
 from operator import itemgetter
 from markupsafe import Markup
 
@@ -108,8 +109,13 @@ class EmployeePayslipPortal(CustomerPortal):
             res_ids=payslip_id.ids,
         )
         filename = '%s.pdf' % (payslip_id.number or payslip_id.name or 'payslip')
+        disposition = (
+            content_disposition(filename)
+            if kw.get("download")
+            else "inline; filename*=%s" % encode_rfc2231(filename, "utf-8")
+        )
         return request.make_response(content, [
             ('Content-Type', 'application/pdf'),
             ('Content-Length', str(len(content))),
-            ('Content-Disposition', content_disposition(filename)),
+            ('Content-Disposition', disposition),
         ])

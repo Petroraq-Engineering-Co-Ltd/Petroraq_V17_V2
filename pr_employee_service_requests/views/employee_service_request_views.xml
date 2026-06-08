@@ -19,7 +19,7 @@
                 <field name="payment_request_state" optional="show"/>
                 <field name="payment_voucher_state" optional="show"/>
                 <field name="state" widget="badge"
-                       decoration-warning="state in ('draft', 'hr_supervisor_approval', 'employee_manager_approval', 'hr_manager_approval', 'md_approval')"
+                       decoration-warning="state in ('draft', 'hr_supervisor_approval', 'employee_manager_approval', 'hr_manager_approval', 'accounts_approval', 'md_approval', 'finance_approval')"
                        decoration-info="state == 'payment_approval'"
                        decoration-success="state in ('issued', 'paid')"
                        decoration-danger="state in ('rejected', 'cancelled')"/>
@@ -49,9 +49,11 @@
                 <filter name="work_permit_renewal" string="Work Permit Renewals" domain="[('request_type', '=', 'work_permit_renewal')]"/>
                 <separator/>
                 <filter name="hr_supervisor_approval" string="HR Supervisor" domain="[('state', '=', 'hr_supervisor_approval')]"/>
-                <filter name="employee_manager_approval" string="Employee Manager" domain="[('state', '=', 'employee_manager_approval')]"/>
+                <filter name="employee_manager_approval" string="Dept. Manager" domain="[('state', '=', 'employee_manager_approval')]"/>
                 <filter name="hr_manager_approval" string="HR Manager" domain="[('state', '=', 'hr_manager_approval')]"/>
+                <filter name="accounts_approval" string="Accounts Approval" domain="[('state', '=', 'accounts_approval')]"/>
                 <filter name="md_approval" string="MD Approval" domain="[('state', '=', 'md_approval')]"/>
+                <filter name="finance_approval" string="Finance Approval" domain="[('state', '=', 'finance_approval')]"/>
                 <filter name="payment_approval" string="Voucher Approval" domain="[('state', '=', 'payment_approval')]"/>
                 <filter name="issued" string="Issued" domain="[('state', '=', 'issued')]"/>
                 <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
@@ -74,7 +76,9 @@
                     <field name="can_hr_supervisor_approve" invisible="1"/>
                     <field name="can_employee_manager_approve" invisible="1"/>
                     <field name="can_hr_manager_approve" invisible="1"/>
+                    <field name="can_accounts_approve" invisible="1"/>
                     <field name="can_md_approve" invisible="1"/>
+                    <field name="can_finance_approve" invisible="1"/>
                     <field name="can_issue" invisible="1"/>
                     <field name="can_reject" invisible="1"/>
                     <field name="can_reset_to_draft" invisible="1"/>
@@ -83,12 +87,16 @@
                             class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_hr_supervisor_approve" type="object" string="HR Supervisor Approve"
                             class="btn-primary" invisible="not can_hr_supervisor_approve"/>
-                    <button name="action_employee_manager_approve" type="object" string="Manager Approve"
+                    <button name="action_employee_manager_approve" type="object" string="Dept. Manager Approve"
                             class="btn-primary" invisible="not can_employee_manager_approve"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary" invisible="not can_hr_manager_approve"/>
+                    <button name="action_accounts_approve" type="object" string="Accounts Approve"
+                            class="btn-primary" invisible="not can_accounts_approve"/>
                     <button name="action_md_approve" type="object" string="MD Approve"
                             class="btn-primary" invisible="not can_md_approve"/>
+                    <button name="action_finance_approve" type="object" string="Finance Approve"
+                            class="btn-primary" invisible="not can_finance_approve"/>
                     <button name="action_issue" type="object" string="Issue"
                             class="btn-primary" invisible="not can_issue"/>
                     <button name="action_reject" type="object" string="Reject"
@@ -98,7 +106,7 @@
                     <button name="action_cancel" type="object" string="Cancel"
                             class="btn-secondary" invisible="not can_cancel"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,hr_supervisor_approval,employee_manager_approval,hr_manager_approval,md_approval,payment_approval,paid,issued"/>
+                           statusbar_visible="draft,hr_supervisor_approval,employee_manager_approval,hr_manager_approval,accounts_approval,md_approval,finance_approval,payment_approval,paid,issued"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
@@ -231,13 +239,17 @@
                                     <field name="hr_supervisor_approved_by_id" readonly="1"/>
                                     <field name="employee_manager_approved_by_id" readonly="1"/>
                                     <field name="hr_manager_approved_by_id" readonly="1"/>
+                                    <field name="accounts_approved_by_id" readonly="1"/>
                                     <field name="md_approved_by_id" readonly="1"/>
+                                    <field name="finance_approved_by_id" readonly="1"/>
                                 </group>
                                 <group>
                                     <field name="hr_supervisor_approved_date" readonly="1"/>
                                     <field name="employee_manager_approved_date" readonly="1"/>
                                     <field name="hr_manager_approved_date" readonly="1"/>
+                                    <field name="accounts_approved_date" readonly="1"/>
                                     <field name="md_approved_date" readonly="1"/>
+                                    <field name="finance_approved_date" readonly="1"/>
                                 </group>
                             </group>
                         </page>
@@ -471,7 +483,7 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'reimbursement'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'reimbursement'), ('reimbursement_type', '=', 'ticket'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
         <field name="context">{'default_request_type': 'reimbursement'}</field>
     </record>
 
@@ -539,7 +551,7 @@
     </record>
 
     <record id="action_pr_employee_manager_approvals" model="ir.actions.act_window">
-        <field name="name">Employee Manager Approvals</field>
+        <field name="name">Dept. Manager Approvals</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
@@ -556,6 +568,24 @@
         <field name="context">{'search_default_md_approval': 1}</field>
     </record>
 
+    <record id="action_pr_employee_accounts_approvals" model="ir.actions.act_window">
+        <field name="name">Employee Request Accounts Approvals</field>
+        <field name="res_model">pr.employee.service.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
+        <field name="domain">[('state', '=', 'accounts_approval')]</field>
+        <field name="context">{'search_default_accounts_approval': 1}</field>
+    </record>
+
+    <record id="action_pr_employee_finance_approvals" model="ir.actions.act_window">
+        <field name="name">Employee Request Finance Approvals</field>
+        <field name="res_model">pr.employee.service.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
+        <field name="domain">[('state', '=', 'finance_approval')]</field>
+        <field name="context">{'search_default_finance_approval': 1}</field>
+    </record>
+
     <record id="action_pr_employee_payment_tracking" model="ir.actions.act_window">
         <field name="name">Employee Payment Requests</field>
         <field name="res_model">pr.employee.payment.request</field>
@@ -565,7 +595,17 @@
     </record>
 
     <record id="de_hr_workspace.menu_my_workspace" model="ir.ui.menu">
-        <field name="groups_id" eval="[(4, ref('de_hr_workspace.group_hr_employee_workspace'))]"/>
+        <field name="groups_id" eval="[
+            (4, ref('base.group_user')),
+            (4, ref('de_hr_workspace.group_hr_employee_workspace'))
+        ]"/>
+    </record>
+
+    <record id="de_hr_workspace.menu_my_ws_employee" model="ir.ui.menu">
+        <field name="groups_id" eval="[
+            (4, ref('base.group_user')),
+            (4, ref('de_hr_workspace.group_hr_employee_workspace'))
+        ]"/>
     </record>
 
     <record id="de_hr_workspace.menu_my_employee_approvals" model="ir.ui.menu">
@@ -575,6 +615,8 @@
             (4, ref('pr_hr_recruitment_request.group_onboarding_supervisor')),
             (4, ref('pr_hr_recruitment_request.group_onboarding_manager')),
             (4, ref('pr_hr_recruitment_request.group_onboarding_md')),
+            (4, ref('account.group_account_invoice')),
+            (4, ref('account.group_account_user')),
             (4, ref('account.group_account_manager')),
             (4, ref('pr_account.custom_group_accounting_manager'))
         ]"/>
@@ -595,14 +637,14 @@
               parent="de_hr_workspace.menu_my_ws_employee"
               action="action_pr_employee_reimbursement_my"
               sequence="30"
-              groups="de_hr_workspace.group_hr_employee_workspace"/>
+              groups="base.group_user,de_hr_workspace.group_hr_employee_workspace"/>
 
     <menuitem id="menu_pr_employee_exit_reentry_my"
               name="Exit/Re-entry Requests"
               parent="de_hr_workspace.menu_my_ws_employee"
               action="action_pr_employee_exit_reentry_my"
               sequence="31"
-              groups="de_hr_workspace.group_hr_employee_workspace"/>
+              groups="base.group_user,de_hr_workspace.group_hr_employee_workspace"/>
 
     <menuitem id="menu_pr_employee_iqama_new_my"
               name="New Iqama Requests"
@@ -703,7 +745,7 @@
               groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
 
     <menuitem id="menu_pr_employee_manager_approvals"
-              name="Employee Manager Approvals"
+              name="Dept. Manager Approvals"
               parent="de_hr_workspace.menu_my_employee_approvals"
               action="action_pr_employee_manager_approvals"
               sequence="44"
@@ -720,6 +762,20 @@
               name="Employee Accounting"
               parent="de_hr_workspace.menu_my_employee_approvals"
               sequence="46"
+              groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+
+    <menuitem id="menu_pr_employee_accounts_approvals"
+              name="Employee Request Accounts Approvals"
+              parent="menu_pr_employee_accounting_approvals"
+              action="action_pr_employee_accounts_approvals"
+              sequence="5"
+              groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+
+    <menuitem id="menu_pr_employee_finance_approvals"
+              name="Employee Request Finance Approvals"
+              parent="menu_pr_employee_accounting_approvals"
+              action="action_pr_employee_finance_approvals"
+              sequence="6"
               groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
 
     <menuitem id="menu_pr_employee_payment_tracking"
