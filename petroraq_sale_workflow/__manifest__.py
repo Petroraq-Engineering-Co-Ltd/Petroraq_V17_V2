@@ -1,7 +1,7 @@
 {
     "name": "Petroraq: Sales Workflow",
     "summary": "Inquiry → Quotation → Manager Approval → MD Approval → Send to Client",
-    "version": "17.0.1.0.9",
+    "version": "17.0.1.0.10",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "website": "https://petroraq.com",
     "category": "Sales",
@@ -11,6 +11,7 @@
         "mail",
         "account",
         "stock",
+        "pr_custom_purchase",
         "pr_work_order",
         "report_xlsx",
         "base_revision",
