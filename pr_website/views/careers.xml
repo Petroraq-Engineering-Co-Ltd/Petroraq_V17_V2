@@ -1774,6 +1774,73 @@
                 color: #475467;
                 max-width: 900px;
                 }
+                .job-description p {
+                margin: 0 0 16px 0;
+                }
+                .job-description p:last-child {
+                margin-bottom: 0;
+                }
+                .job-description ul,
+                .job-description ol {
+                margin: 0 0 18px 28px;
+                padding-left: 24px;
+                list-style-position: outside;
+                }
+                .job-description ul {
+                list-style-type: disc !important;
+                }
+                .job-description ul ul {
+                list-style-type: circle !important;
+                margin-top: 8px;
+                }
+                .job-description ol {
+                list-style-type: decimal !important;
+                }
+                .job-description li {
+                display: list-item;
+                margin: 0 0 8px 0;
+                padding-left: 4px;
+                }
+                .job-description li::marker {
+                color: var(--gold);
+                font-weight: 700;
+                }
+                .job-description h1,
+                .job-description h2,
+                .job-description h3,
+                .job-description h4,
+                .job-description h5,
+                .job-description h6 {
+                color: var(--blue);
+                margin: 24px 0 12px 0;
+                font-weight: 800;
+                line-height: 1.35;
+                }
+                .job-description strong,
+                .job-description b {
+                color: var(--blue);
+                font-weight: 700;
+                }
+                .job-description table {
+                width: 100%;
+                margin: 18px 0;
+                border-collapse: collapse;
+                }
+                .job-description table th,
+                .job-description table td {
+                border: 1px solid #e8ecf2;
+                padding: 10px 12px;
+                vertical-align: top;
+                }
+                .job-description table th {
+                background: #f8fafc;
+                color: var(--blue);
+                font-weight: 700;
+                }
+                .job-description img {
+                max-width: 100%;
+                height: auto;
+                }
 
                 /* ===== Apply Section - FIXED COLORS ===== */
                 .apply-section {

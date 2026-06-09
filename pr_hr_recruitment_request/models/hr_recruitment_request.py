@@ -14,7 +14,7 @@ class HrRecruitmentRequest(models.Model):
                                       default=lambda self: self.env.user)
     employee_id = fields.Many2one(
         "hr.employee",
-        string="Requester Employee",
+        string="Requester Manager",
         tracking=True,
         help="Employee who required this request",
     )
@@ -48,7 +48,7 @@ class HrRecruitmentRequest(models.Model):
     )
 
     job_salary = fields.Float(
-        "Job Salary",
+        "Gross Salary",
     )
 
     experience_years = fields.Integer(
