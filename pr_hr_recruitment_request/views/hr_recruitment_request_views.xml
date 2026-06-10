@@ -14,16 +14,13 @@
     </record>
 
     <!-- Menus -->
+
+
     <menuitem id="menu_hr_recruitment_request_root"
               name="Recruitment Requests"
               parent="hr_recruitment.menu_hr_recruitment_root"
-              sequence="40"/>
-
-    <menuitem id="menu_hr_recruitment_request"
-              name="Requests"
-              parent="menu_hr_recruitment_request_root"
               action="action_hr_recruitment_request"
-              sequence="10"/>
+              sequence="40"/>
 
     <!-- Tree view -->
     <record id="view_hr_recruitment_request_tree" model="ir.ui.view">
@@ -102,9 +99,9 @@
                             type="object" class="btn-secondary"
                             invisible="(state == 'hr_approval' and not is_hr_supervisor_approver) or (state == 'hrm_approval' and not is_hrm_approver) or (state == 'md_approval' and not is_md_approver) or state not in ('hr_approval','hrm_approval','md_approval')"/>
 
-                    <button name="action_set_done" string="Mark Done"
-                            type="object" class="btn-success"
-                            invisible="state != 'approved'"/>
+<!--                    <button name="action_set_done" string="Mark Done"-->
+<!--                            type="object" class="btn-success"-->
+<!--                            invisible="state != 'approved'"/>-->
 
                     <button name="action_cancel" string="Cancel"
                             type="object" class="btn-secondary"
@@ -116,7 +113,7 @@
 
                     <field name="state"
                            widget="statusbar"
-                           statusbar_visible="draft,hr_approval,hrm_approval,md_approval,approved,rejected,done,cancelled"/>
+                           statusbar_visible="draft,hr_approval,hrm_approval,md_approval,approved,rejected,cancelled"/>
                 </header>
 
                 <sheet>
