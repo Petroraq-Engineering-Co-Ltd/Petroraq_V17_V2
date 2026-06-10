@@ -416,9 +416,9 @@
                             <a href="/contact-us"
                                t-att-class="'active' if request.httprequest.path.startswith('/contact') else ''">Contact Us</a>
 
-                            <t t-if="not request.session.uid">
+                            <t t-if="not request.session.uid and not request.httprequest.path == '/web/login'">
                                 <div class="mobile-auth-buttons">
-                                    <a href="/web/login" class="signin-btn" t-translation="Sign In">
+                                    <a href="/web/login" class="signin-btn" t-translation="Sign In" target="_blank">
                                         <i class="fa fa-sign-in-alt"></i>
                                         Sign In
                                     </a>
@@ -445,9 +445,9 @@
                         </div>
 
                         <!-- Auth Buttons Container -->
-                        <t t-if="not request.session.uid">
+                        <t t-if="not request.session.uid and not request.httprequest.path == '/web/login'">
                             <div class="auth-buttons">
-                                <a href="/web/login" class="signin-btn" t-translation="Sign In">
+                                <a href="/web/login" class="signin-btn" t-translation="Sign In" target="_blank">
                                     <i class="fa fa-sign-in-alt"></i>
                                     Sign In
                                 </a>
