@@ -688,6 +688,48 @@
               sequence="37"
               groups="de_hr_workspace.group_hr_employee_workspace"/>
 
+    <menuitem id="menu_pr_employee_iqama_new_my"
+              name="New Iqama Requests"
+              parent="de_hr_workspace.menu_my_ws_employee"
+              action="action_pr_employee_iqama_new_my"
+              sequence="32"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
+    <menuitem id="menu_pr_employee_iqama_renewal_my"
+              name="Iqama Renewal Requests"
+              parent="de_hr_workspace.menu_my_ws_employee"
+              action="action_pr_employee_iqama_renewal_my"
+              sequence="33"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
+    <menuitem id="menu_pr_employee_medical_insurance_new_my"
+              name="New Medical Insurance Requests"
+              parent="de_hr_workspace.menu_my_ws_employee"
+              action="action_pr_employee_medical_insurance_new_my"
+              sequence="34"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
+    <menuitem id="menu_pr_employee_medical_insurance_my"
+              name="Medical Insurance Renewal Requests"
+              parent="de_hr_workspace.menu_my_ws_employee"
+              action="action_pr_employee_medical_insurance_my"
+              sequence="35"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
+    <menuitem id="menu_pr_employee_work_permit_new_my"
+              name="New Work Permit Requests"
+              parent="de_hr_workspace.menu_my_ws_employee"
+              action="action_pr_employee_work_permit_new_my"
+              sequence="36"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
+    <menuitem id="menu_pr_employee_work_permit_my"
+              name="Work Permit Renewal Requests"
+              parent="de_hr_workspace.menu_my_ws_employee"
+              action="action_pr_employee_work_permit_my"
+              sequence="37"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
     <menuitem id="menu_pr_employee_reimbursement_hr_approvals"
               name="Reimbursement Requests"
               parent="de_hr_workspace.hr_approvals_menu_root"
