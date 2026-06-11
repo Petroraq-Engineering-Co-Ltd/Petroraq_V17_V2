@@ -86,6 +86,16 @@ class HrPayslip(models.Model):
             return ""
         return value.strftime("%d-%B-%Y")
 
+    def _pr_format_payslip_joining_date(self, value):
+        if not value:
+            return ""
+        date_value = fields.Date.to_date(value)
+        return "%s %s %s" % (
+            date_value.day,
+            date_value.strftime("%B").lower(),
+            date_value.year,
+        )
+
     def _pr_get_payslip_report_values(self):
         """Return the compact company payslip values used by the PDF and portal."""
         self.ensure_one()
@@ -178,6 +188,7 @@ class HrPayslip(models.Model):
             "contract": contract,
             "salary_period": salary_period,
             "payslip_period": payslip_period,
+            "joining_date": payslip._pr_format_payslip_joining_date(contract.joining_date if contract else False),
             "employee_no": employee_no,
             "bank_account": bank_account,
             "cost_center": cost_center or (employee.department_id.display_name if employee.department_id else ""),

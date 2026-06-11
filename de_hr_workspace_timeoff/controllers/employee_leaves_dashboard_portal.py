@@ -75,6 +75,7 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
         pending = []
         taken_leaves = {}
         if current_employee_id:
+            LeaveSummary = request.env["hr.leave"].sudo()
             leave_type_ids = request.env["hr.leave.type"].sudo().search(
                 ["|", ("company_id", "=", request.env.company.id), ("company_id", "=", False)])
             if leave_type_ids:
@@ -111,12 +112,17 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
                         taken_leaves[leave_type.name] = 0
                     # endregion [Leaves]
                     if allocation_days > 0:
+                        available_days = round(max(allocation_days - leave_days, 0), 2)
                         summary.append({
+                            "sort_key": LeaveSummary._de_leave_dashboard_sort_key(leave_type),
                             "leave_name": leave_type.name,
                             "allocation_days": allocation_days,
                             "leave_days": leave_days,
+                            "available_days": available_days,
+                            "remaining_days": leave_days,
                             "requires_allocation": leave_type.requires_allocation if leave_type.leave_type != "sick_leave" else "yes",
                         })
+                summary.sort(key=lambda item: item.get("sort_key", (99, 999, "", 0)))
 
             leaves_history = request.env["hr.leave"].sudo().search([
                 ('employee_id', '=', current_employee_id.id)

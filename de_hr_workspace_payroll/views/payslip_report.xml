@@ -164,7 +164,7 @@
                             </td>
                             <td class="o_label">Date of Joining</td>
                             <td>
-                                <span t-if="contract and contract.joining_date" t-field="contract.joining_date"/>
+                                <span t-esc="report_values.get('joining_date') or ''"/>
                             </td>
                         </tr>
                         <tr>

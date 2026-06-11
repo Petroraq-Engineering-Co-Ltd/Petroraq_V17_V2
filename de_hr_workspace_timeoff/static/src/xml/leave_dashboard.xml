@@ -325,6 +325,51 @@
                 font-weight: 600;
             }
 
+            .de-cld-leave-balance-title {
+                color: #0a2540;
+                font-size: 1.02rem;
+                font-weight: 800;
+                line-height: 1.25;
+                min-height: 2.4em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-leave-balance-total {
+                color: #0a2540;
+                font-size: 1.35rem;
+                font-weight: 800;
+                margin-top: 6px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-leave-balance-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+                margin-top: 22px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-leave-balance-label {
+                color: #0a2540;
+                font-size: 0.88rem;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+
+            .de-cld-leave-balance-number {
+                color: #0a2540;
+                font-size: 1.18rem;
+                font-weight: 800;
+                line-height: 1.1;
+            }
+
             /* -------- CONTENT CARDS -------- */
             .de-cld-card {
                 position: relative;
@@ -575,33 +620,27 @@
         <t t-foreach="state.summary" t-as="leave_type" t-key="leave_type.leave_name">
             <div class="col-xl-3 col-md-6 col-sm-6">
                 <div class="de-cld-summary-card">
-                    <div class="de-cld-summary-icon">
-                        <i class="fa fa-calendar-check-o"/>
-                    </div>
-
-                    <div class="de-cld-summary-label">
+                    <div class="de-cld-leave-balance-title">
                         <t t-esc="leave_type.leave_name"/>
                     </div>
-
-                    <div class="de-cld-summary-value">
-                        <t t-if="leave_type.requires_allocation === 'yes'">
-                            <t t-esc="leave_type.leave_days"/>
-                            <span class="de-cld-divider">/</span>
-                            <span class="de-cld-max">
-                                <t t-esc="leave_type.allocation_days"/>
-                            </span>
-
-                            <div class="mt-1" style="font-size: 0.96rem">
-                                Remaining:
-                                <strong>
-                                        <t t-esc="(leave_type.allocation_days - leave_type.leave_days).toFixed(2)"/>
-                                </strong>
+                    <div class="de-cld-leave-balance-total">
+                        Total:
+                        <t t-esc="formatLeaveDay(leave_type.allocation_days)"/>
+                    </div>
+                    <div class="de-cld-leave-balance-grid">
+                        <div>
+                            <div class="de-cld-leave-balance-label">Consumed:</div>
+                            <div class="de-cld-leave-balance-number">
+                                <t t-esc="formatLeaveDay(remainingDays(leave_type))"/>
                             </div>
-                        </t>
+                        </div>
+                        <div>
+                            <div class="de-cld-leave-balance-label">Available:</div>
+                            <div class="de-cld-leave-balance-number">
+                                <t t-esc="formatLeaveDay(availableDays(leave_type))"/>
+                            </div>
+                        </div>
 
-                        <t t-else="">
-                            <t t-esc="leave_type.leave_days"/>
-                        </t>
                     </div>
                 </div>
             </div>

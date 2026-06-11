@@ -101,7 +101,21 @@ export class AttendanceManagementDashboard extends Component {
     }
 
     formatHours(value) {
-        return `${this.formatNumber(value, 1)}h`;
+        return this.formatDuration(value);
+    }
+
+    formatDuration(value) {
+        const totalMinutes = Math.round(Number(value || 0) * 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const parts = [];
+        if (hours) {
+            parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+        }
+        if (minutes || !parts.length) {
+            parts.push(`${minutes} min${minutes === 1 ? "" : "s"}`);
+        }
+        return parts.join(" ");
     }
 
     formatDuration(value) {
@@ -163,7 +177,7 @@ export class AttendanceManagementDashboard extends Component {
                 key: "coverage",
                 label: "Attendance Coverage",
                 value: this.formatPercent(summary.coverage || 0),
-                sub: `${this.formatNumber(summary.with_punch || 0)} of ${this.formatNumber(summary.scheduled || 0)} scheduled`,
+                sub: `${this.formatNumber(summary.with_punch || 0)} of ${this.formatNumber(summary.scheduled || 0)} Employee`,
                 icon: "fa-check-circle",
                 tone: "success",
             },
