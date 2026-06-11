@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_breadcrumbs_delivery_vendor_invoice" inherit_id="portal.portal_breadcrumbs" priority="35">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'delivery'" t-attf-class="breadcrumb-item #{'active ' if not picking else ''}">
+                <a t-if="picking" href="/my/deliveries">Deliveries</a>
+                <t t-else="">Deliveries</t>
+            </li>
+            <li t-if="page_name == 'delivery' and picking" class="breadcrumb-item active">
+                <t t-out="picking.name"/>
+            </li>
+            <li t-if="page_name == 'vendor_invoice'" class="breadcrumb-item active">
+                Vendor Invoices
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_vendor_customer" inherit_id="portal.portal_my_home" customize_show="True" priority="35">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-if="request.env.user.partner_id.commercial_partner_id.customer_rank">
+                <t t-set="portal_client_category_enable" t-value="True"/>
+            </t>
+            <t t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank">
+                <t t-set="portal_vendor_category_enable" t-value="True"/>
+            </t>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <t t-if="request.env.user.partner_id.commercial_partner_id.customer_rank">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/sale/static/description/icon.png'"/>
+                    <t t-set="title">Quotations</t>
+                    <t t-set="url" t-value="'/my/quotes'"/>
+                    <t t-set="text">View your quotations</t>
+                    <t t-set="placeholder_count" t-value="'quotation_count'"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/sale/static/description/icon.png'"/>
+                    <t t-set="title">Sale Orders</t>
+                    <t t-set="url" t-value="'/my/orders'"/>
+                    <t t-set="text">View your confirmed sale orders</t>
+                    <t t-set="placeholder_count" t-value="'order_count'"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
+                    <t t-set="title">Invoices &amp; Bills</t>
+                    <t t-set="url" t-value="'/my/invoices'"/>
+                    <t t-set="text">View your invoices and payments</t>
+                    <t t-set="placeholder_count" t-value="'invoice_count'"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/stock/static/description/icon.png'"/>
+                    <t t-set="title">Deliveries</t>
+                    <t t-set="url" t-value="'/my/deliveries'"/>
+                    <t t-set="text">View your delivery orders</t>
+                    <t t-set="placeholder_count" t-value="'delivery_count'"/>
+                </t>
+            </t>
+        </div>
+        <div id="portal_vendor_category" position="inside">
+            <t t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
+                    <t t-set="title">RFQs</t>
+                    <t t-set="url" t-value="'/my/rfq'"/>
+                    <t t-set="text">View requests for quotation</t>
+                    <t t-set="placeholder_count" t-value="'rfq_count'"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
+                    <t t-set="title">Purchase Orders</t>
+                    <t t-set="url" t-value="'/my/purchase'"/>
+                    <t t-set="text">View purchase orders issued to you</t>
+                    <t t-set="placeholder_count" t-value="'purchase_count'"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
+                    <t t-set="title">Bills</t>
+                    <t t-set="url" t-value="'/my/invoices?filterby=bills'"/>
+                    <t t-set="text">View vendor bills</t>
+                    <t t-set="placeholder_count" t-value="'bill_count'"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
+                    <t t-set="title">Uploaded Invoices</t>
+                    <t t-set="url" t-value="'/vendor/invoices'"/>
+                    <t t-set="text">Track invoices you submitted to us</t>
+                    <t t-set="placeholder_count" t-value="'vendor_invoice_count'"/>
+                </t>
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
+                    <t t-set="title">Upload Invoice</t>
+                    <t t-set="url" t-value="'/vendor/invoice/upload'"/>
+                    <t t-set="text">Submit an invoice against a purchase order</t>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_deliveries" name="My Deliveries">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Deliveries</t>
+            </t>
+            <div t-if="not deliveries" class="alert alert-warning" role="alert">
+                There are currently no deliveries for your account.
+            </div>
+            <t t-if="deliveries" t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <th>Delivery</th>
+                        <th>Source</th>
+                        <th class="text-end">Scheduled Date</th>
+                        <th class="text-end">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="deliveries" t-as="delivery">
+                        <td>
+                            <a t-att-href="'/my/deliveries/%s' % delivery.id">
+                                <t t-out="delivery.name"/>
+                            </a>
+                        </td>
+                        <td>
+                            <t t-out="delivery.origin or delivery.sale_id.name or ''"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="delivery.scheduled_date"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="delivery.state"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_delivery_page" name="Delivery Details">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Delivery Details</t>
+            </t>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h3 class="mb-1">
+                        <t t-out="picking.name"/>
+                    </h3>
+                    <div class="text-muted">
+                        <t t-out="picking.origin or picking.sale_id.name or ''"/>
+                    </div>
+                </div>
+                <a class="btn btn-secondary" t-att-href="'/my/deliveries/%s/download' % picking.id">
+                    <i class="fa fa-download me-1"/>
+                    Download
+                </a>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Delivery Address</strong>
+                    <div t-if="picking.delivery_note_ship_to_address" style="white-space: pre-line;" t-esc="picking.delivery_note_ship_to_address"/>
+                    <div t-elif="picking.partner_id" t-field="picking.partner_id" t-options="{'widget': 'contact', 'fields': ['address', 'name'], 'no_marker': True}"/>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div>
+                        <strong>Scheduled Date:</strong>
+                        <span t-field="picking.scheduled_date"/>
+                    </div>
+                    <div>
+                        <strong>Status:</strong>
+                        <span t-field="picking.state"/>
+                    </div>
+                </div>
+            </div>
+
+            <t t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Description</th>
+                        <th class="text-end">Demand</th>
+                        <th class="text-end">Done</th>
+                        <th>UoM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="picking.move_ids_without_package" t-as="move">
+                        <td>
+                            <t t-out="move_index + 1"/>
+                        </td>
+                        <td>
+                            <t t-out="move.product_id.display_name"/>
+                        </td>
+                        <td>
+                            <t t-out="move.description_picking or move.name"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="move.product_uom_qty"/>
+                        </td>
+                        <td class="text-end">
+                            <t t-out="move.quantity if 'quantity' in move._fields else move.quantity_done"/>
+                        </td>
+                        <td>
+                            <span t-field="move.product_uom"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_vendor_invoices" name="Vendor Portal Invoices">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Uploaded Invoices</t>
+            </t>
+            <div class="d-flex justify-content-end mb-3">
+                <a href="/vendor/invoice/upload" class="btn btn-primary">
+                    <i class="fa fa-upload me-1"/>
+                    Upload Invoice
+                </a>
+            </div>
+            <div t-if="not invoices" class="alert alert-warning" role="alert">
+                You have not uploaded any invoices yet.
+            </div>
+            <t t-if="invoices" t-call="portal.portal_table">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Purchase Order</th>
+                        <th>Invoice Number</th>
+                        <th class="text-end">Invoice Date</th>
+                        <th class="text-end">Amount</th>
+                        <th class="text-end">Status</th>
+                        <th class="text-end">File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="invoices" t-as="invoice">
+                        <td>
+                            <t t-out="invoice.name"/>
+                        </td>
+                        <td>
+                            <a t-if="invoice.po_id" t-att-href="'/my/purchase/%s' % invoice.po_id.id">
+                                <t t-out="invoice.po_id.name"/>
+                            </a>
+                        </td>
+                        <td>
+                            <t t-out="invoice.vendor_invoice_number"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="invoice.invoice_date"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-field="invoice.amount_total"/>
+                        </td>
+                        <td class="text-end">
+                            <span t-attf-class="badge rounded-pill #{state_classes.get(invoice.state, 'text-bg-secondary')}">
+                                <t t-out="state_labels.get(invoice.state)"/>
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a t-if="invoice.has_attachment" t-att-href="'/vendor/invoices/%s/download' % invoice.id" class="btn btn-sm btn-secondary">
+                                <i class="fa fa-download"/>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_vendor_invoice_upload" name="Upload Vendor Invoice">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Upload Invoice</t>
+            </t>
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-xl-7">
+                    <div t-if="error_message" class="alert alert-danger" role="alert">
+                        <t t-foreach="error_message" t-as="message">
+                            <div t-out="message"/>
+                        </t>
+                    </div>
+                    <form action="/vendor/invoice/upload" method="post" enctype="multipart/form-data" class="o_portal_form">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="mb-3">
+                            <label class="form-label" for="po_id">Purchase Order</label>
+                            <select id="po_id" name="po_id" class="form-select" required="required">
+                                <option value="">Select a purchase order</option>
+                                <t t-foreach="purchase_orders" t-as="po">
+                                    <option t-att-value="po.id" t-att-selected="po.id == selected_po_id">
+                                        <t t-out="po.name"/>
+                                        <t t-if="po.partner_ref"> - <t t-out="po.partner_ref"/></t>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="vendor_invoice_number">Invoice Number</label>
+                                <input id="vendor_invoice_number" name="vendor_invoice_number" type="text" class="form-control" required="required" t-att-value="form_data.get('vendor_invoice_number')"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="invoice_date">Invoice Date</label>
+                                <input id="invoice_date" name="invoice_date" type="date" class="form-control" required="required" t-att-value="form_data.get('invoice_date')"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="amount_total">Invoice Amount</label>
+                                <input id="amount_total" name="amount_total" type="number" step="0.01" min="0" class="form-control" required="required" t-att-value="form_data.get('amount_total')"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="invoice_file">Invoice Document</label>
+                                <input id="invoice_file" name="invoice_file" type="file" class="form-control" required="required"/>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="notes">Notes</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="4"><t t-out="form_data.get('notes')"/></textarea>
+                        </div>
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="/vendor/invoices" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-upload me-1"/>
+                                Submit Invoice
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

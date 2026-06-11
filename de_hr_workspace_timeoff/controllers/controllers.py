@@ -7,14 +7,15 @@ from datetime import datetime
 from werkzeug.exceptions import NotFound
 import base64
 
+from odoo.addons.de_hr_workspace.controllers.portal_employee import require_current_employee
+
 
 class LeaveRequestTemplate(http.Controller):
 
     @http.route('/leave_request', auth='user', type='http')
     def display_leave_request_form(self, **kw):
 
-        current_user = request.env.user
-        current_employee_id = request.env["hr.employee"].sudo().search([("user_id", "=", current_user.id)], limit=1)
+        current_employee_id = require_current_employee()
         email = current_employee_id.work_email
         return http.request.render('de_hr_workspace_timeoff.leave_request_template', {
             "current_employee_id": current_employee_id,
@@ -26,7 +27,8 @@ class LeaveRequestTemplate(http.Controller):
 
     @http.route('/leave_request/create', type='http', auth="user")
     def leave_created(self, **kw):
-        employee_id = int(kw.get('employee_id'))
+        current_employee_id = require_current_employee()
+        employee_id = current_employee_id.id
         leave_type_id = int(kw.get('leave_type_id'))
         str_date_from = kw.get('date_from')
         str_date_to = kw.get('date_to')

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pr_portal_vendor_invoice_tree" model="ir.ui.view">
+        <field name="name">pr.portal.vendor.invoice.tree</field>
+        <field name="model">pr.portal.vendor.invoice</field>
+        <field name="arch" type="xml">
+            <tree string="Vendor Portal Invoices" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="po_id"/>
+                <field name="vendor_invoice_number"/>
+                <field name="invoice_date"/>
+                <field name="amount_total"/>
+                <field name="state" widget="badge"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_portal_vendor_invoice_form" model="ir.ui.view">
+        <field name="name">pr.portal.vendor.invoice.form</field>
+        <field name="model">pr.portal.vendor.invoice</field>
+        <field name="arch" type="xml">
+            <form string="Vendor Portal Invoice">
+                <header>
+                    <button name="action_set_review" type="object" string="Mark Under Review" class="btn-secondary" invisible="state != 'submitted'"/>
+                    <button name="action_approve" type="object" string="Approve" class="btn-primary" invisible="state not in ['submitted', 'review']"/>
+                    <button name="action_reject" type="object" string="Reject" class="btn-secondary" invisible="state == 'rejected'"/>
+                    <button name="action_download_attachment" type="object" string="Download Invoice" class="btn-secondary" invisible="not has_attachment"/>
+                    <field name="state" widget="statusbar" statusbar_visible="submitted,review,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="po_id"/>
+                            <field name="vendor_invoice_number"/>
+                            <field name="invoice_date"/>
+                        </group>
+                        <group>
+                            <field name="amount_total"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="portal_user_id"/>
+                            <field name="attachment_id" readonly="1"/>
+                            <field name="has_attachment" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Vendor Notes">
+                            <field name="notes" placeholder="Notes submitted by the vendor."/>
+                        </page>
+                        <page string="Internal Notes">
+                            <field name="internal_notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pr_portal_vendor_invoice_search" model="ir.ui.view">
+        <field name="name">pr.portal.vendor.invoice.search</field>
+        <field name="model">pr.portal.vendor.invoice</field>
+        <field name="arch" type="xml">
+            <search string="Vendor Portal Invoices">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="po_id"/>
+                <field name="vendor_invoice_number"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="review" string="Under Review" domain="[('state', '=', 'review')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_vendor" string="Vendor" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_po" string="Purchase Order" context="{'group_by': 'po_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pr_portal_vendor_invoice" model="ir.actions.act_window">
+        <field name="name">Vendor Portal Invoices</field>
+        <field name="res_model">pr.portal.vendor.invoice</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_portal_vendor_invoice_search"/>
+        <field name="context">{'search_default_submitted': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No vendor invoices submitted from the portal yet.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_pr_portal_vendor_invoice"
+              name="Vendor Portal Invoices"
+              parent="purchase.menu_procurement_management"
+              action="action_pr_portal_vendor_invoice"
+              sequence="90"/>
+</odoo>

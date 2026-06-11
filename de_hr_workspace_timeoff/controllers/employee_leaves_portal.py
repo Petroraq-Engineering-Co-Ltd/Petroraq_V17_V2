@@ -8,6 +8,10 @@ from odoo import conf, http, _
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.de_hr_workspace.controllers.portal_employee import (
+    employee_portal_count,
+    require_current_employee,
+)
 from odoo.tools import groupby as groupbyelem
 
 from odoo.osv.expression import OR, AND
@@ -18,12 +22,10 @@ class EmployeeLeavePortal(CustomerPortal):
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         if 'my_leave_count' in counters:
-            leave_c = request.env['hr.leave'].search_count([("employee_id.user_id", "=", request.env.user.id)])
-            if leave_c == 0:
-                leave_count = 1
-            else:
-                leave_count = leave_c
-            values['my_leave_count'] = leave_count
+            values['my_leave_count'] = employee_portal_count(
+                'hr.leave',
+                self._prepare_my_leaves_domain(),
+            )
         return values
 
     def _prepare_my_leaves_domain(self):
@@ -37,6 +39,7 @@ class EmployeeLeavePortal(CustomerPortal):
 
     @http.route(['/my/leaves', '/my/leaves/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_leaves(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
+        require_current_employee()
         values = self._prepare_portal_layout_values()
         Leave = request.env['hr.leave'].sudo()
         domain = self._prepare_my_leaves_domain()

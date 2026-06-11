@@ -5,6 +5,10 @@ from datetime import timedelta
 from odoo import fields, http, _
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.de_hr_workspace.controllers.portal_employee import (
+    employee_portal_count,
+    require_current_employee,
+)
 
 
 class EmployeeAttendancePortal(CustomerPortal):
@@ -12,7 +16,11 @@ class EmployeeAttendancePortal(CustomerPortal):
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         if 'my_attendance_count' in counters:
-            values['my_attendance_count'] = request.env['hr.attendance'].search_count([("employee_id.user_id", "=", request.env.user.id)])
+            values['my_attendance_count'] = employee_portal_count(
+                'hr.attendance',
+                self._prepare_my_attendance_domain(),
+                minimum=0,
+            )
         return values
 
     def _prepare_my_attendance_domain(self):
@@ -34,6 +42,7 @@ class EmployeeAttendancePortal(CustomerPortal):
 
     @http.route(['/my/attendances', '/my/attendances/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_attendances(self, page=1, date_begin=None, date_end=None, sortby=None, filterby=None, **kw):
+        require_current_employee()
         values = self._prepare_portal_layout_values()
         Attendance = request.env['hr.attendance'].sudo()
         domain = self._prepare_my_attendance_domain()

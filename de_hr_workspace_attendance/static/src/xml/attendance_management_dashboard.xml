@@ -69,7 +69,7 @@
                                     <div class="pr-att-mgmt-trend-stack">
                                         <i class="present" t-att-style="trendStackStyle(day, 'present')"/>
                                         <i class="checked_in" t-att-style="trendStackStyle(day, 'checked_in')"/>
-                                        <i class="late" t-att-style="trendStackStyle(day, 'late')"/>
+                                        <i class="shortage" t-att-style="trendStackStyle(day, 'shortage')"/>
                                         <i class="missing" t-att-style="trendStackStyle(day, 'missing_checkout')"/>
                                         <i class="leave" t-att-style="trendStackStyle(day, 'on_leave')"/>
                                         <i class="absent" t-att-style="trendStackStyle(day, 'absent')"/>
@@ -83,7 +83,7 @@
                         <div class="pr-att-mgmt-legend">
                             <span><i class="present"/>Present</span>
                             <span><i class="checked_in"/>Checked In</span>
-                            <span><i class="late"/>Late</span>
+                            <span><i class="shortage"/>Shortage</span>
                             <span><i class="missing"/>Missing Checkout</span>
                             <span><i class="leave"/>Leave</span>
                             <span><i class="absent"/>Absent</span>
@@ -114,7 +114,7 @@
                     <article class="pr-att-mgmt-panel pr-span-4">
                         <div class="pr-att-mgmt-panel-title">
                             <h2>Department Exposure</h2>
-                            <span>Absent, late, leave</span>
+                            <span>Absent, shortage, leave</span>
                         </div>
                         <div class="pr-att-mgmt-departments">
                             <t t-foreach="data.department_breakdown || []" t-as="department" t-key="department.name">
@@ -127,14 +127,14 @@
                                         <i class="present" t-att-style="departmentBarStyle(department, 'present')"/>
                                         <i class="checked_in" t-att-style="departmentBarStyle(department, 'checked_in')"/>
                                         <i class="leave" t-att-style="departmentBarStyle(department, 'on_leave')"/>
-                                        <i class="late" t-att-style="departmentBarStyle(department, 'late')"/>
-                                        <i class="late" t-att-style="departmentBarStyle(department, 'early_exit')"/>
+                                        <i class="shortage" t-att-style="departmentBarStyle(department, 'shortage')"/>
                                         <i class="missing" t-att-style="departmentBarStyle(department, 'missing_checkout')"/>
                                         <i class="absent" t-att-style="departmentBarStyle(department, 'absent')"/>
                                     </div>
                                     <div class="pr-att-mgmt-department-meta">
                                         <span t-esc="formatNumber(department.present || 0) + ' normal'"/>
                                         <span t-esc="formatNumber(department.checked_in || 0) + ' checked in'"/>
+                                        <span t-esc="formatNumber(department.shortage || 0) + ' shortage'"/>
                                         <span t-esc="formatNumber(department.absent || 0) + ' absent'"/>
                                         <span t-esc="formatNumber(department.on_leave || 0) + ' leave'"/>
                                     </div>
@@ -213,11 +213,8 @@
                                                 <span>Checked in </span>
                                                 <span t-esc="row.check_in"/>
                                             </t>
-                                            <t t-elif="row.status == 'late'">
-                                                <span t-esc="formatNumber(row.late_minutes || 0) + ' min late'"/>
-                                            </t>
-                                            <t t-elif="row.status == 'early_exit'">
-                                                <span t-esc="formatNumber(row.early_minutes || 0) + ' min early'"/>
+                                            <t t-elif="row.status == 'shortage'">
+                                                <span t-esc="(row.shortage_label || formatDuration(row.shortage_hours || 0)) + ' shortage'"/>
                                             </t>
                                             <t t-else="">
                                                 <span t-esc="formatHours(row.worked_hours || 0)"/>

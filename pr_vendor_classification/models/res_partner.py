@@ -40,6 +40,11 @@ class ResPartner(models.Model):
         PurchaseLine = self.env["purchase.order.line"].sudo()
         for partner in self:
             commercial_partner = partner.commercial_partner_id
+            if not isinstance(commercial_partner.id, int):
+                partner.pr_supplied_product_count = 0
+                partner.pr_purchase_line_count = 0
+                continue
+
             vendor_domain = [("partner_id", "child_of", commercial_partner.id)]
             purchase_line_domain = [
                 ("order_id.partner_id", "child_of", commercial_partner.id),

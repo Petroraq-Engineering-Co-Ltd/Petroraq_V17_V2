@@ -9,11 +9,12 @@
     'company': 'Petroraq',
 
     'website': "https://webmail.petroraq.com/",
-    'depends': ['base', 'sale_management', 'purchase', 'stock'],
+    'depends': ['base', 'sale_management', 'purchase', 'stock', 'account', 'pr_base'],
     'data': [
         'views/sale_order_views.xml',
         'views/purchase_order_views.xml',
         'views/stock_picking_views.xml',
+        'views/account_move_views.xml',
         'views/sale_order_templates.xml',
         'views/stock_picking_templates.xml',
         'views/purchase_order_templates.xml',

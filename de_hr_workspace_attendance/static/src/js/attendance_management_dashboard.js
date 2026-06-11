@@ -104,6 +104,20 @@ export class AttendanceManagementDashboard extends Component {
         return `${this.formatNumber(value, 1)}h`;
     }
 
+    formatDuration(value) {
+        const totalMinutes = Math.round(Number(value || 0) * 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const parts = [];
+        if (hours) {
+            parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+        }
+        if (minutes || !parts.length) {
+            parts.push(`${minutes} min${minutes === 1 ? "" : "s"}`);
+        }
+        return parts.join(" ");
+    }
+
     formatPercent(value) {
         return `${Math.round(Number(value || 0))}%`;
     }
@@ -165,7 +179,7 @@ export class AttendanceManagementDashboard extends Component {
                 key: "exceptions",
                 label: "Exceptions",
                 value: this.formatNumber(summary.issues || 0),
-                sub: `${this.formatNumber(summary.late || 0)} late, ${this.formatNumber(summary.missing_checkout || 0)} missing checkout`,
+                sub: `${this.formatNumber(summary.shortage || 0)} shortage, ${this.formatNumber(summary.missing_checkout || 0)} missing checkout`,
                 icon: "fa-exclamation-triangle",
                 tone: "warning",
             },

@@ -7,7 +7,7 @@
         <field name="page_width">210</field>
         <field name="orientation">Portrait</field>
         <field name="margin_top">48</field>
-        <field name="margin_bottom">28</field>
+        <field name="margin_bottom">20</field>
         <field name="margin_left">0</field>
         <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
@@ -42,15 +42,10 @@
     </template>
 
     <template id="petroraq_payslip_footer_layout">
+
         <div class="footer" style="margin:0 !important; padding:0 !important;">
             <div style="margin:0 10mm 2px 10mm; padding:4px 0 2px 0; border-bottom:1px solid #305081; text-align:center; color:#000; font-size:13px; font-weight:600;">
                 This is a computer generated salary slip and does not require signature or stamp.
-            </div>
-            <div name="pager" class="list-inline no-margin text-center" style="color:rgba(18,49,96,0.91);">
-                Page:
-                <span class="page"/>
-                /
-                <span class="topage"/>
             </div>
             <img src="/pr_custom_purchase/static/src/img/img.png"
                  style="display:block; width:110%; max-width:none !important; margin:0 0 0 -5% !important; padding:0 !important;"/>
@@ -70,13 +65,14 @@
                         .o_petroraq_payslip {
                         color: #000;
                         font-family: 'DroidArabicNaskh', sans-serif;
-                        font-size: 12px;
-                        padding: 0 11mm !important;
+                        font-size: 14px;
+                        line-height: 1.35;
+                        padding: 0 8mm 8mm 8mm !important;
                         }
                         .o_petroraq_payslip .o_payslip_title {
-                        margin: 0 0 12px 0;
+                        margin: 0 0 14px 0;
                         text-align: center;
-                        font-size: 20px;
+                        font-size: 24px;
                         font-weight: 700;
                         }
                         .o_petroraq_payslip table {
@@ -94,7 +90,7 @@
                         .o_petroraq_payslip .o_summary_table td,
                         .o_petroraq_payslip .o_balance_table td {
                         border: 1px solid #000;
-                        padding: 5px 7px;
+                        padding: 7px 9px;
                         vertical-align: middle;
                         }
                         .o_petroraq_payslip .o_label,
@@ -116,7 +112,7 @@
                         .o_petroraq_payslip .o_inner_lines td {
                         border: 0;
                         border-bottom: 1px solid #d4d4d4;
-                        padding: 5px 6px;
+                        padding: 7px 8px;
                         }
                         .o_petroraq_payslip .o_inner_lines tr:last-child td {
                         border-bottom: 0;
@@ -126,7 +122,7 @@
                         font-weight: 700;
                         }
                         .o_petroraq_payslip .o_net_row td {
-                        font-size: 13px;
+                        font-size: 16px;
                         font-weight: 700;
                         }
                         .o_petroraq_payslip .o_balance_table {
@@ -134,13 +130,15 @@
                         }
                     </style>
 
-                    <h2 class="o_payslip_title">Salary Slip</h2>
+                    <h2 class="o_payslip_title">Salary Slip
+                        <span t-esc="report_values.get('salary_period') or ''"/>
+                    </h2>
 
                     <table class="o_info_table">
                         <tr>
-                            <td class="o_label">Month and Year</td>
+                            <td class="o_label">Employee ID</td>
                             <td>
-                                <span t-esc="report_values.get('salary_period') or ''"/>
+                                <span t-esc="report_values.get('employee_no') or ''"/>
                             </td>
                             <td class="o_label">Employee Name</td>
                             <td>
@@ -148,25 +146,17 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="o_label">Employee No.</td>
+                            <td class="o_label">Department</td>
                             <td>
-                                <span t-esc="report_values.get('employee_no') or ''"/>
+                                <span t-esc="employee.department_id.name or ''"/>
                             </td>
+
                             <td class="o_label">Bank Account No.</td>
                             <td>
                                 <span t-esc="report_values.get('bank_account') or ''"/>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="o_label">Cost Center</td>
-                            <td>
-                                <span t-esc="report_values.get('cost_center') or ''"/>
-                            </td>
-                            <td class="o_label">Department</td>
-                            <td>
-                                <span t-esc="employee.department_id.name or ''"/>
-                            </td>
-                        </tr>
+
                         <tr>
                             <td class="o_label">Job Position</td>
                             <td>
@@ -184,9 +174,7 @@
                             </td>
                             <td class="o_label">Period</td>
                             <td>
-                                <span t-field="o.date_from"/>
-                                <span>-</span>
-                                <span t-field="o.date_to"/>
+                                <span t-esc="report_values.get('payslip_period') or ''"/>
                             </td>
                         </tr>
                     </table>
@@ -273,10 +261,10 @@
 
                     <table class="o_balance_table">
                         <tr>
-                            <td class="o_label">Absence Days</td>
-                            <td>
-                                <span t-esc="'%g' % (report_values.get('absence_days') or 0.0)"/>
-                            </td>
+                            <!--                            <td class="o_label">Absence Days</td>-->
+                            <!--                            <td>-->
+                            <!--                                <span t-esc="'%g' % (report_values.get('absence_days') or 0.0)"/>-->
+                            <!--                            </td>-->
                             <td class="o_label">Prepared By</td>
                             <td>HR Department</td>
                         </tr>
