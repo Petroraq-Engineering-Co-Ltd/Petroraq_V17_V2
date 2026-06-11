@@ -170,9 +170,16 @@ class HrAttendance(models.Model):
         return fields.Date.context_today(self.with_context(tz=timezone))
 
     @api.model
-    def cron_create_auto_management_attendance(self, target_date=False):
+    def _get_auto_attendance_employees(self, company):
+        return self.env["hr.employee"].sudo().search([
+            ("active", "=", True),
+            ("company_id", "=", company.id),
+            ("compute_attendance", "=", False),
+        ])
+
+    @api.model
+    def cron_create_auto_management_attendance_check_in(self, target_date=False):
         Attendance = self.env["hr.attendance"].sudo()
-        Employee = self.env["hr.employee"].sudo()
         companies = self.env["res.company"].sudo().search([])
         created_attendances = Attendance.browse()
 
@@ -181,24 +188,51 @@ class HrAttendance(models.Model):
                 fields.Date.to_date(target_date)
                 if target_date else self._get_auto_attendance_target_date(company)
             )
-            employees = Employee.search([
-                ("active", "=", True),
-                ("company_id", "=", company.id),
-                ("compute_attendance", "=", False),
-            ])
-            for employee in employees:
+            for employee in self._get_auto_attendance_employees(company):
                 day_start_utc, day_end_utc, _timezone = self._get_auto_attendance_day_bounds(employee, attendance_date)
                 if self._has_attendance_on_day(employee, day_start_utc, day_end_utc):
                     continue
                 if not self._is_auto_attendance_working_day(employee, attendance_date, day_start_utc, day_end_utc):
                     continue
 
-                check_in, check_out = self._get_auto_attendance_datetimes(employee, attendance_date)
+                check_in, _check_out = self._get_auto_attendance_datetimes(employee, attendance_date)
                 created_attendances |= Attendance.create({
                     "employee_id": employee.id,
                     "check_in": fields.Datetime.to_string(check_in),
-                    "check_out": fields.Datetime.to_string(check_out),
                     "auto_generated_attendance": True,
                 })
 
         return created_attendances
+
+    @api.model
+    def cron_checkout_auto_management_attendance(self, target_date=False):
+        Attendance = self.env["hr.attendance"].sudo()
+        companies = self.env["res.company"].sudo().search([])
+        updated_attendances = Attendance.browse()
+
+        for company in companies:
+            attendance_date = (
+                fields.Date.to_date(target_date)
+                if target_date else self._get_auto_attendance_target_date(company)
+            )
+            for employee in self._get_auto_attendance_employees(company):
+                day_start_utc, day_end_utc, _timezone = self._get_auto_attendance_day_bounds(employee, attendance_date)
+                _check_in, check_out = self._get_auto_attendance_datetimes(employee, attendance_date)
+                attendance = Attendance.search([
+                    ("employee_id", "=", employee.id),
+                    ("auto_generated_attendance", "=", True),
+                    ("check_out", "=", False),
+                    ("check_in", ">=", fields.Datetime.to_string(day_start_utc)),
+                    ("check_in", "<", fields.Datetime.to_string(day_end_utc)),
+                ], order="check_in desc, id desc", limit=1)
+                if not attendance:
+                    continue
+
+                attendance.write({"check_out": fields.Datetime.to_string(check_out)})
+                updated_attendances |= attendance
+
+        return updated_attendances
+
+    @api.model
+    def cron_create_auto_management_attendance(self, target_date=False):
+        return self.cron_create_auto_management_attendance_check_in(target_date=target_date)

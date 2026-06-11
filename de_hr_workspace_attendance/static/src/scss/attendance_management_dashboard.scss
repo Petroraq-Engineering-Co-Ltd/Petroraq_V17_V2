@@ -304,7 +304,7 @@
 
 .present { background: var(--pr-green); }
 .checked_in { background: #0ea5e9; }
-.late { background: var(--pr-amber); }
+.shortage { background: var(--pr-amber); }
 .missing { background: #b42318; }
 .leave { background: var(--pr-blue); }
 .absent { background: var(--pr-red); }
@@ -570,8 +570,7 @@
 
 .pr-status-present { background: var(--pr-green); }
 .pr-status-checked_in { background: #0ea5e9; }
-.pr-status-late { background: var(--pr-amber); }
-.pr-status-early_exit { background: #bf6b17; }
+.pr-status-shortage { background: var(--pr-amber); }
 .pr-status-missing_checkout { background: #b42318; }
 .pr-status-absent { background: var(--pr-red); }
 .pr-status-on_leave { background: var(--pr-blue); }

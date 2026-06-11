@@ -86,6 +86,9 @@
                                    context="{'default_section_type':'material'}">
                                 <tree editable="bottom">
                                     <field name="section_type" column_invisible="1"/>
+                                    <field name="product_internal_reference"
+                                           string="Product Code"
+                                           optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
                                     <field name="quantity"/>
@@ -103,6 +106,9 @@
                                    context="{'default_section_type':'labor'}">
                                 <tree editable="bottom">
                                     <field name="section_type" column_invisible="1"/>
+                                    <field name="product_internal_reference"
+                                           string="Product Code"
+                                           optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
                                     <field name="resource_count"/>
@@ -123,6 +129,9 @@
                                    context="{'default_section_type':'equipment'}">
                                 <tree editable="bottom">
                                     <field name="section_type" column_invisible="1"/>
+                                    <field name="product_internal_reference"
+                                           string="Product Code"
+                                           optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
                                     <field name="resource_count"/>
@@ -143,6 +152,9 @@
                                    context="{'default_section_type':'subcontract'}">
                                 <tree editable="bottom">
                                     <field name="section_type" column_invisible="1"/>
+                                    <field name="product_internal_reference"
+                                           string="Product Code"
+                                           optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
                                     <field name="quantity"/>

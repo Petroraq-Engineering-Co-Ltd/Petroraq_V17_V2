@@ -8,6 +8,7 @@ from odoo import conf, http, _
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.de_hr_workspace.controllers.portal_employee import require_current_employee
 from odoo.tools import groupby as groupbyelem
 
 from odoo.osv.expression import OR, AND
@@ -30,8 +31,13 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
             'date_to': {'label': _('Oldest'), 'order': 'date_from asc'},
         }
 
+    def _check_leave_request_manager(self, leave_request):
+        if leave_request.employee_manager_id.user_id != request.env.user:
+            raise MissingError(_("This leave request does not exist or you do not have access to it."))
+
     @http.route(['/my/leave_requests_approval', '/my/leave_requests_approval/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_leave_requests_approval(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
+        require_current_employee()
         values = self._prepare_portal_layout_values()
         LeaveRequestApproval = request.env['pr.hr.leave.request'].sudo()
         domain = self._prepare_my_leave_request_approval_domain()
@@ -74,6 +80,7 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
     @http.route(['/my/leave_requests_approval/<model("pr.hr.leave.request"):leave_request_id>'], type='http', auth="user", website=True)
     def portal_my_leave_request_approval_info(self, leave_request_id, **kw):
         leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+        self._check_leave_request_manager(leave_request_obj)
         values = {"leave_request_id": leave_request_obj}
         return request.render("de_hr_workspace_timeoff.employee_leave_request_approval_info_portal", values)
 
@@ -81,6 +88,7 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
                 auth="user", website=True)
     def portal_my_leave_request_approved(self, leave_request_id, **kw):
         leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+        self._check_leave_request_manager(leave_request_obj)
         leave_request_obj.sudo().action_manager_approve()
         return request.redirect('/my/leave_requests_approval')
 
@@ -88,6 +96,7 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
                 auth="user", website=True)
     def portal_my_leave_request_rejected(self, leave_request_id, **kw):
         leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+        self._check_leave_request_manager(leave_request_obj)
         leave_request_obj.sudo().state = 'reject'
         leave_request_obj.sudo().approval_state = 'reject'
         return request.redirect('/my/leave_requests_approval')

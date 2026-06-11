@@ -161,48 +161,25 @@
                                    options="{'no_create':True, 'no_create_edit':True, 'no_quick_create':True}"
                                    readonly="state != 'draft'" invisible="1"/>
 
-                            <label for="accounting_date" string=""/>
-                            <div class="o_row o_date_amounts_row">
-
-                                <!-- DATE -->
-                                <div class="o_form_label_and_field">
-                                    <label for="accounting_date" string="Date"/>
-                                    <field name="accounting_date"
-                                           invisible="state != 'draft'"
-                                           class="oe_inline pr_date_amounts_date"/>
-                                    <field name="accounting_date_display"
-                                           invisible="state == 'draft'"
-                                           class="pr_date_amounts_date"/>
-                                </div>
-
-                                <!-- AMOUNT -->
-                                <div class="o_form_label_and_field">
-                                    <label for="total_amount" string="Amount"/>
+                            <group col="2">
+                                <group>
+                                    <field name="accounting_date" readonly="state != 'draft'"/>
                                     <field name="total_amount"
                                            style="color: blue;"
                                            widget="monetary"
                                            options="{'currency_field': 'currency_id'}"/>
-                                </div>
-
-                                <!-- APPROVED -->
-                                <div class="o_form_label_and_field">
-                                    <label for="approved_amount" string="Approved Amount"/>
+                                </group>
+                                <group>
                                     <field name="approved_amount"
                                            style="color: green;"
                                            widget="monetary"
                                            options="{'currency_field': 'currency_id'}"/>
-                                </div>
-
-                                <!-- REJECTED -->
-                                <div class="o_form_label_and_field">
-                                    <label for="rejected_amount" string="Rejected Amount"/>
                                     <field name="rejected_amount"
                                            style="color: red;"
                                            widget="monetary"
                                            options="{'currency_field': 'currency_id'}"/>
-                                </div>
-
-                            </div>
+                                </group>
+                            </group>
                         </group>
                     </group>
                     <div>

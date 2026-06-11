@@ -1,0 +1,15 @@
+.o_portal_wrap,
+.o_portal {
+    .table,
+    .o_portal_table {
+        tbody td a:not(.btn) {
+            color: #0b3d66 !important;
+            text-decoration-color: rgba(11, 61, 102, 0.35);
+        }
+
+        tbody td a:not(.btn):hover {
+            color: #e09a28 !important;
+            text-decoration-color: currentColor;
+        }
+    }
+}

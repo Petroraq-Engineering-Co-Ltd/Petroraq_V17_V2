@@ -1462,6 +1462,13 @@ class PurchaseRequisitionLine(models.Model):
         ondelete="restrict",
         context={'display_default_code': False},
     )
+    product_internal_reference = fields.Many2one(
+        "product.internal.reference.lookup",
+        string="Product Code",
+        compute="_compute_product_internal_reference",
+        inverse="_inverse_product_internal_reference",
+        readonly=False,
+    )
     expense_account_id = fields.Many2one(
         "account.account",
         string="Expense Account",
@@ -1477,6 +1484,24 @@ class PurchaseRequisitionLine(models.Model):
         "account.analytic.account", string="Cost Center", required=True,
         domain="[('id', 'in', requisition_id.allowed_cost_center_ids)]",
     )
+
+    @api.depends("description")
+    def _compute_product_internal_reference(self):
+        ProductRef = self.env["product.internal.reference.lookup"]
+        for line in self:
+            line.product_internal_reference = ProductRef.browse(line.description.id) if line.description else False
+
+    def _inverse_product_internal_reference(self):
+        for line in self:
+            line.description = line.product_internal_reference.product_id
+
+    @api.onchange("product_internal_reference")
+    def _onchange_product_internal_reference(self):
+        for line in self:
+            line.description = line.product_internal_reference.product_id
+            line._onchange_description()
+            if not line.description:
+                line.product_internal_reference = False
 
     @api.onchange("description")
     def _onchange_description(self):

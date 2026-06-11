@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_pr_reject_record_wizard,pr_reject_record_wizard,model_pr_reject_record_wizard,base.group_user,1,1,1,1
+access_product_internal_reference_lookup,product_internal_reference_lookup,model_product_internal_reference_lookup,base.group_user,1,0,0,0
 

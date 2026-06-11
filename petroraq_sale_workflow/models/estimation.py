@@ -972,6 +972,13 @@ class PetroraqEstimationLine(models.Model):
     )
 
     product_id = fields.Many2one("product.product", string="Product")
+    product_internal_reference = fields.Many2one(
+        "product.internal.reference.lookup",
+        string="Product Code",
+        compute="_compute_product_internal_reference",
+        inverse="_inverse_product_internal_reference",
+        readonly=False,
+    )
     name = fields.Char(string="Description")
 
     # For Labor/Equipment the business wants:
@@ -1032,6 +1039,25 @@ class PetroraqEstimationLine(models.Model):
     def _compute_currency_id(self):
         for line in self:
             line.currency_id = line.estimation_id.currency_id if line.estimation_id else False
+
+    @api.depends("product_id")
+    def _compute_product_internal_reference(self):
+        ProductRef = self.env["product.internal.reference.lookup"]
+        for line in self:
+            line.product_internal_reference = ProductRef.browse(line.product_id.id) if line.product_id else False
+
+    def _inverse_product_internal_reference(self):
+        for line in self:
+            line.product_id = line.product_internal_reference.product_id
+
+    @api.onchange("product_internal_reference")
+    def _onchange_product_internal_reference(self):
+        for line in self:
+            line.product_id = line.product_internal_reference.product_id
+            if line.product_id:
+                line._onchange_product_id()
+            else:
+                line.product_internal_reference = False
 
     @api.onchange("product_id")
     def _onchange_product_id(self):

@@ -18,14 +18,15 @@
                             <field name="show_shortage_button" invisible="1"/>
                             <field name="minute_rate"/>
                             <div style="width: 300px !important;">
-                                <button name="action_open_shortage_request" string="SHORTAGE REQUEST" type="object" class="btn-info" style="width: 100% !important;"/>
+                                <button name="action_open_shortage_request" string="SHORTAGE REQUEST" type="object"
+                                        class="btn-info" style="width: 100% !important;"/>
                             </div>
                         </group>
                     </group>
                 </sheet>
-<!--                <div class="oe_chatter">-->
-<!--                    <field name="message_ids"/>-->
-<!--                </div>-->
+                <!--                <div class="oe_chatter">-->
+                <!--                    <field name="message_ids"/>-->
+                <!--                </div>-->
             </form>
         </field>
     </record>
@@ -34,7 +35,8 @@
         <field name="name">hr.attendance.tree.workspace</field>
         <field name="model">hr.attendance</field>
         <field name="arch" type="xml">
-            <tree string="Employee attendances" decoration-success="color == 10" decoration-danger="color == 1" sample="1" duplicate="false" default_order="check_in desc">
+            <tree string="Employee attendances" decoration-success="color == 10" decoration-danger="color == 1"
+                  sample="1" duplicate="false" default_order="check_in desc">
                 <field name="employee_id" widget="many2one_avatar_user"/>
                 <field name="check_in"/>
                 <field name="check_out" options="{}"/>
@@ -69,12 +71,15 @@
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'tree', 'view_id': ref('hr_attendance_workspace_tree_view')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('hr_attendance_workspace_form_view')})]"/>
-        <field name="domain">['|', ('employee_id.user_id', '=', uid), ('employee_id.parent_id.user_id', '=', uid)]</field>
-        <field name="context">{'create': False, 'edit': False, 'search_default_today_attendances': 1, 'search_default_group_by_day': 1}</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'create': False, 'edit': False, 'search_default_today_attendances': 1,
+            'search_default_group_by_day': 1}
+        </field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">
                 No attendance records to display
-            </p><p>
+            </p>
+            <p>
                 The attendance records of your employees will be displayed here.
             </p>
         </field>
@@ -87,6 +92,7 @@
               groups="de_hr_workspace.group_hr_employee_workspace"/>
 
     <menuitem id="menu_my_attendance_attendance"
-              name="My Attendance" parent="menu_my_attendance" action="action_my_attendance" sequence="10" groups="de_hr_workspace.group_hr_employee_workspace"/>
+              name="My Attendance" parent="menu_my_attendance" action="action_my_attendance" sequence="10"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
 
 </odoo>

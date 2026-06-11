@@ -20,7 +20,7 @@
     'version': '17.0.0.0.2',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'contacts', 'product'],
+    'depends': ['base', 'contacts', 'product', 'l10n_sa_edi','hr'],
 
     # always loaded
     'data': [
@@ -28,9 +28,11 @@
         'views/menus.xml',
         'views/res_partner.xml',
         'views/product_template.xml',
+        'views/hr_employee.xml',
         'data/product_sequence.xml',
         'data/product_internal_reference_actions.xml',
         'data/partner_sequence.xml',
+        'data/partner_resequence_server_action.xml',
         'wizards/pr_reject_record.xml',
     ],
     # only loaded in demonstration mode

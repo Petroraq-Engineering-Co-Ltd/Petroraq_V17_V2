@@ -100,7 +100,9 @@
 
         <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]" position="attributes">
             <attribute name="class">page o_petroraq_delivery_note</attribute>
-            <attribute name="style">font-family:'DroidArabicNaskh', sans-serif; position:relative; min-height:214mm; padding:0 10mm 58mm 10mm !important;</attribute>
+            <attribute name="style">font-family:'DroidArabicNaskh', sans-serif; position:relative; min-height:214mm;
+                padding:0 10mm 22mm 10mm !important;
+            </attribute>
         </xpath>
 
         <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]" position="inside">
@@ -164,7 +166,7 @@
                 }
                 .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:nth-child(3),
                 .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(3) {
-                width: 56%;
+                width: 58%;
                 white-space: normal !important;
                 word-break: normal;
                 overflow-wrap: break-word;
@@ -175,7 +177,9 @@
                 white-space: normal !important;
                 }
                 .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:nth-child(4),
-                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(4),
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(4) {
+                width: 10%;
+                }
                 .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:nth-child(5),
                 .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(5) {
                 width: 12%;
@@ -186,19 +190,17 @@
                 white-space: nowrap;
                 }
                 .o_petroraq_delivery_note .o_delivery_bottom_block {
-                position: absolute;
-                left: 10mm;
-                right: 10mm;
-                bottom: 0;
+                margin-top: 10mm;
                 font-family: 'DroidArabicNaskh', sans-serif;
                 color: #000;
+                page-break-inside: avoid;
                 }
                 .o_petroraq_delivery_note .o_delivery_signoff {
                 width: 100%;
-                margin: 6px 0 0 0;
+                margin: 9mm 0 0 0;
                 border: 0 !important;
                 border-collapse: separate;
-                border-spacing: 8px 0;
+                border-spacing: 14px 0;
                 font-size: 10px;
                 }
                 .o_petroraq_delivery_note .o_delivery_signoff td {
@@ -207,12 +209,13 @@
                 border: 0 !important;
                 }
                 .o_petroraq_delivery_note .o_delivery_signoff .o_sign_label {
-                margin-bottom: 14px;
+                margin-top: 6px;
                 font-weight: 700;
+                text-align: center;
                 }
                 .o_petroraq_delivery_note .o_delivery_signoff .o_sign_line {
                 border-bottom: 1px solid #000;
-                height: 12px;
+                height: 18px;
                 }
                 .o_petroraq_delivery_note .o_delivery_received_note {
                 margin: 0;
@@ -316,8 +319,8 @@
                 <colgroup>
                     <col style="width:6%;"/>
                     <col style="width:14%;"/>
-                    <col style="width:56%;"/>
-                    <col style="width:12%;"/>
+                    <col style="width:58%;"/>
+                    <col style="width:10%;"/>
                     <col style="width:12%;"/>
                 </colgroup>
 
@@ -333,11 +336,12 @@
                             <strong>Product Name</strong>
                         </th>
                         <th class="text-center">
-                            <strong>Ordered</strong>
+                            <strong>UoM</strong>
                         </th>
                         <th class="text-center">
                             <strong>Delivered</strong>
                         </th>
+
                     </tr>
                 </thead>
 
@@ -363,10 +367,7 @@
                                 <span t-esc="move.description_picking"/>
                             </p>
                         </td>
-
                         <td class="text-center">
-                            <t t-set="ordered_qty" t-value="move.product_uom_qty or 0.0"/>
-                            <span t-esc="'%g' % ordered_qty"/>
                             <span t-field="move.product_uom"/>
                         </td>
 
@@ -374,43 +375,44 @@
                             <t t-set="delivered_qty"
                                t-value="move.quantity if 'quantity' in move._fields else move.quantity_done"/>
                             <span t-esc="'%g' % (delivered_qty or 0.0)"/>
-                            <span t-field="move.product_uom"/>
                         </td>
+
+
                     </tr>
                 </tbody>
             </table>
-        </xpath>
-
-        <xpath expr="//table[@name='stock_move_line_table']" position="replace"/>
-
-        <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]" position="inside">
             <div class="o_delivery_bottom_block">
                 <div class="o_delivery_received_note">
                     <div class="o_note_ar">جميع البنود والكميات المذكورة أعلاه تم استلامها بحالة جيدة</div>
-                    <div>The above mentioned items and quantities have been verified and received in good condition.</div>
+                    <div>The above mentioned items and quantities have been verified and received in good condition.
+                    </div>
                 </div>
                 <table class="table table-borderless o_delivery_signoff">
                     <tr>
                         <td>
+                            <div class="o_sign_line"></div>
                             <div class="o_sign_label">Received By</div>
-                            <div class="o_sign_line"></div>
                         </td>
                         <td>
+                            <div class="o_sign_line"></div>
                             <div class="o_sign_label">Signature</div>
-                            <div class="o_sign_line"></div>
                         </td>
                         <td>
+                            <div class="o_sign_line"></div>
                             <div class="o_sign_label">Stamp</div>
-                            <div class="o_sign_line"></div>
                         </td>
                         <td>
-                            <div class="o_sign_label">Date</div>
                             <div class="o_sign_line"></div>
+                            <div class="o_sign_label">Date</div>
                         </td>
                     </tr>
                 </table>
             </div>
         </xpath>
+
+        <xpath expr="//table[@name='stock_move_line_table']" position="replace"/>
+        <xpath expr="//table[@name='stock_backorder_table']/.." position="replace"/>
+        <xpath expr="//div[@name='signature']" position="replace"/>
 
     </template>
 </odoo>

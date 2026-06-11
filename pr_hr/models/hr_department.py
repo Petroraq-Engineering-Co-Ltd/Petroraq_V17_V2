@@ -7,6 +7,7 @@ class HrDepartment(models.Model):
     """
     # region [Initial]
     _inherit = 'hr.department'
+    _rec_name = 'name'
     # endregion [Initial]
 
     # region [Fields]

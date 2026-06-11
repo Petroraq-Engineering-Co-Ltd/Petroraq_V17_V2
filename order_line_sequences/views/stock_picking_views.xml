@@ -10,6 +10,10 @@
             <xpath expr="//field[@name='move_ids_without_package']//tree//field[@name='product_id']"
                    position="before">
                 <field name="sequence_number"/>
+                <field name="product_internal_reference"
+                       string="Product Code"
+                       readonly="(state != 'draft' and not additional) or move_lines_count &gt; 0"
+                       optional="show"/>
             </xpath>
         </field>
     </record>

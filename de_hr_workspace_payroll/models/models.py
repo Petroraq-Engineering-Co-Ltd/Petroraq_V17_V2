@@ -36,6 +36,56 @@ class HrPayslip(models.Model):
             "code": code,
         })
 
+    def _pr_payslip_report_pair_base(self, name):
+        name = (name or "").strip()
+        name_upper = name.upper()
+        for suffix in (" DEDUCTION", " DED"):
+            if name_upper.endswith(suffix):
+                name = name[:-len(suffix)].strip()
+                break
+        return name.casefold()
+
+    def _pr_net_payslip_offset_pairs(self, payments, deductions):
+        payments = [dict(payment) for payment in payments]
+        deductions = [dict(deduction) for deduction in deductions]
+
+        for payment in payments:
+            if self._pr_payslip_amount_is_zero(payment.get("amount")):
+                continue
+
+            payment_base = self._pr_payslip_report_pair_base(payment.get("name"))
+            for deduction in deductions:
+                if self._pr_payslip_amount_is_zero(deduction.get("amount")):
+                    continue
+                if payment_base != self._pr_payslip_report_pair_base(deduction.get("name")):
+                    continue
+
+                payment_amount = payment.get("amount") or 0.0
+                deduction_amount = deduction.get("amount") or 0.0
+                offset_amount = min(payment_amount, deduction_amount)
+                payment["amount"] = payment_amount - offset_amount
+                deduction["amount"] = deduction_amount - offset_amount
+
+                if self._pr_payslip_amount_is_zero(payment.get("amount")):
+                    break
+
+        payments = [
+            payment
+            for payment in payments
+            if not self._pr_payslip_amount_is_zero(payment.get("amount"))
+        ]
+        deductions = [
+            deduction
+            for deduction in deductions
+            if not self._pr_payslip_amount_is_zero(deduction.get("amount"))
+        ]
+        return payments, deductions
+
+    def _pr_format_payslip_report_date(self, value):
+        if not value:
+            return ""
+        return value.strftime("%d-%B-%Y")
+
     def _pr_get_payslip_report_values(self):
         """Return the compact company payslip values used by the PDF and portal."""
         self.ensure_one()
@@ -84,6 +134,7 @@ class HrPayslip(models.Model):
             else:
                 self._pr_add_payslip_summary_line(payments, name, amount, code)
 
+        payments, deductions = payslip._pr_net_payslip_offset_pairs(payments, deductions)
         payment_total = sum(item["amount"] for item in payments)
         deduction_total = sum(item["amount"] for item in deductions)
         net_amount = (
@@ -97,6 +148,12 @@ class HrPayslip(models.Model):
             salary_period = payslip.date_to.strftime("%B %Y")
         elif payslip.date_from:
             salary_period = payslip.date_from.strftime("%B %Y")
+
+        period_parts = [
+            payslip._pr_format_payslip_report_date(payslip.date_from),
+            payslip._pr_format_payslip_report_date(payslip.date_to),
+        ]
+        payslip_period = " to ".join(part for part in period_parts if part)
 
         cost_center = ""
         for field_name in (
@@ -120,6 +177,7 @@ class HrPayslip(models.Model):
             "employee": employee,
             "contract": contract,
             "salary_period": salary_period,
+            "payslip_period": payslip_period,
             "employee_no": employee_no,
             "bank_account": bank_account,
             "cost_center": cost_center or (employee.department_id.display_name if employee.department_id else ""),
@@ -145,16 +203,15 @@ class HrPayslip(models.Model):
                 rec.line_ids_filtered = False
 
     def action_print_payslip(self):
-        if self.env.user.has_group("hr_payroll.group_hr_payroll_user"):
-            return super().action_print_payslip()
-
-        self.ensure_one()
-        if self.employee_id.user_id != self.env.user:
+        if not self.env.user.has_group("hr_payroll.group_hr_payroll_user") and any(
+            payslip.employee_id.user_id != self.env.user for payslip in self
+        ):
             raise AccessError(_("You can only print your own payslips."))
 
+        self.env["ir.actions.report"]._pr_configure_payslip_paperformat()
         return {
             "name": _("Payslip"),
             "type": "ir.actions.act_url",
-            "url": "/my/payslips/%s/download" % self.id,
+            "url": "/print/payslips/inline?list_ids=%s" % ",".join(str(payslip.id) for payslip in self),
             "target": "new",
         }

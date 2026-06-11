@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time
+
+import pytz
 
 from odoo import api, fields, models, SUPERUSER_ID
 from odoo.tools import date_utils
@@ -57,6 +59,95 @@ class HrAttendance(models.Model):
             self._sync_overtime_for_approval()
         return result
 
+    def _get_shortage_calendar(self):
+        self.ensure_one()
+        return (
+            self.employee_id.resource_calendar_id
+            or self.employee_id.contract_id.resource_calendar_id
+            or self.employee_id.company_id.resource_calendar_id
+            or self.env.company.resource_calendar_id
+        )
+
+    def _get_shortage_timezone_name(self):
+        calendar = self._get_shortage_calendar()
+        return (
+            calendar.tz
+            or self.employee_id.user_id.tz
+            or self.env.user.tz
+            or "Asia/Riyadh"
+        )
+
+    def _get_shortage_local_date(self):
+        self.ensure_one()
+        timezone = pytz.timezone(self._get_shortage_timezone_name())
+        check_in = fields.Datetime.to_datetime(self.check_in)
+        return pytz.UTC.localize(check_in).astimezone(timezone).date()
+
+    def _get_shortage_day_bounds(self, target_date):
+        self.ensure_one()
+        timezone = pytz.timezone(self._get_shortage_timezone_name())
+        day_start = timezone.localize(datetime.combine(target_date, time.min))
+        day_end = day_start + relativedelta(days=1)
+        return (
+            day_start.astimezone(pytz.UTC).replace(tzinfo=None),
+            day_end.astimezone(pytz.UTC).replace(tzinfo=None),
+        )
+
+    def _get_planned_hours_for_shortage_date(self, target_date):
+        self.ensure_one()
+        calendar = self._get_shortage_calendar()
+        if not calendar:
+            return 0.0
+
+        weekday = str(target_date.weekday())
+        attendance_lines = calendar.attendance_ids.filtered(
+            lambda attendance:
+                attendance.dayofweek == weekday
+                and (not attendance.date_from or attendance.date_from <= target_date)
+                and (not attendance.date_to or attendance.date_to >= target_date)
+        )
+        if not attendance_lines:
+            return 0.0
+
+        start_hour = min(attendance_lines.mapped("hour_from"))
+        end_hour = max(attendance_lines.mapped("hour_to"))
+        return max(end_hour - start_hour, 0.0)
+
+    def _get_shortage_day_attendances(self, target_date):
+        self.ensure_one()
+        day_start_utc, day_end_utc = self._get_shortage_day_bounds(target_date)
+        return self.search([
+            ("employee_id", "=", self.employee_id.id),
+            ("check_in", "<", fields.Datetime.to_string(day_end_utc)),
+            "|",
+            ("check_out", "=", False),
+            ("check_out", ">", fields.Datetime.to_string(day_start_utc)),
+        ], order="check_in")
+
+    def _get_attendance_span_hours_for_shortage_date(self, target_date):
+        self.ensure_one()
+        attendances = self._get_shortage_day_attendances(target_date)
+        if not attendances or attendances.filtered(lambda attendance: not attendance.check_out):
+            return 0.0
+
+        day_start_utc, day_end_utc = self._get_shortage_day_bounds(target_date)
+        earliest_check_in = min(attendances.mapped("check_in"))
+        latest_check_out = max(attendances.mapped("check_out"))
+        start_utc = max(fields.Datetime.to_datetime(earliest_check_in), day_start_utc)
+        stop_utc = min(fields.Datetime.to_datetime(latest_check_out), day_end_utc)
+        return max((stop_utc - start_utc).total_seconds() / 3600.0, 0.0)
+
+    def _format_shortage_time(self, shortage_hours):
+        total_minutes = int(round((shortage_hours or 0.0) * 60.0))
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        parts = []
+        if hours:
+            parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+        if minutes or not parts:
+            parts.append(f"{minutes} min{'s' if minutes != 1 else ''}")
+        return " ".join(parts)
+
     @api.depends("employee_id", 'check_in', 'check_out', "worked_hours", "employee_id.resource_calendar_id")
     def _compute_shortage_time_text(self):
         for rec in self:
@@ -65,54 +156,14 @@ class HrAttendance(models.Model):
             if not rec.check_in or not rec.check_out:
                 continue
 
-            today_date = fields.Date.today()
-            pl_sign_in = rec.check_in.replace(hour=8, minute=0, second=0)
-            pl_sign_out = rec.check_in.replace(hour=17, minute=0, second=0)
-
-            late_in_minutes = 0
-            early_check_out_minutes = 0
-            check_in = rec.check_in + timedelta(hours=3)
-            check_out = rec.check_out + timedelta(hours=3)
-            if pl_sign_in + timedelta(hours=1) >= check_in >= pl_sign_in - timedelta(hours=1):
-                late_in = 0
-                late_in_minutes = 0
-                pl_sign_out_custom = check_in + (pl_sign_out - pl_sign_in)
-                if check_out < pl_sign_out_custom:
-                    early_check_out = pl_sign_out_custom - check_out
-                    early_check_out_minutes = early_check_out.total_seconds() / 60
-
-            elif check_in > pl_sign_in + timedelta(hours=1):
-                late_in = check_in - (pl_sign_in + timedelta(hours=1))
-                late_in_minutes = late_in.total_seconds() / 60
-
-                # Early Checkout
-                pl_sign_out_custom = pl_sign_out + timedelta(hours=1)
-                if check_out < pl_sign_out_custom:
-                    early_check_out = pl_sign_out_custom - check_out
-                    early_check_out_minutes = early_check_out.total_seconds() / 60
-
-            elif check_in < pl_sign_in - timedelta(hours=1):
-                late_in = 0
-                late_in_minutes = 0
-                pl_sign_out_custom = pl_sign_out - timedelta(hours=1)
-                if check_out < pl_sign_out_custom:
-                    early_check_out = pl_sign_out_custom - check_out
-                    early_check_out_minutes = early_check_out / 60
-
-            if isinstance(late_in_minutes, timedelta):
-                late_in_minutes = late_in_minutes.total_seconds() / 60 / 60
-            if isinstance(early_check_out_minutes, timedelta):
-                early_check_out_minutes = early_check_out_minutes.total_seconds() / 60
-            all_shortage_minutes = late_in_minutes + early_check_out_minutes
-            if all_shortage_minutes > 0:
-                total_hours = all_shortage_minutes // 60
-                total_minutes = all_shortage_minutes % 60
-                rec.shortage_time = f"{round(total_hours, 2)} Hours And {round(total_minutes, 2)} Minutes"
-                # if rec.check_in < (fields.Date.today() + relativedelta(days=1)):
-                if rec.check_in.date() == today_date or today_date == (rec.check_in.date() + relativedelta(days=1)):
-                    rec.show_shortage_button = True
-                else:
-                    rec.show_shortage_button = False
+            shortage_date = rec._get_shortage_local_date()
+            planned_hours = rec._get_planned_hours_for_shortage_date(shortage_date)
+            attendance_span_hours = rec._get_attendance_span_hours_for_shortage_date(shortage_date)
+            shortage_hours = max((planned_hours or 0.0) - (attendance_span_hours or 0.0), 0.0)
+            if shortage_hours > 0:
+                rec.shortage_time = rec._format_shortage_time(shortage_hours)
+                today_date = fields.Date.context_today(rec.with_context(tz=rec._get_shortage_timezone_name()))
+                rec.show_shortage_button = shortage_date == today_date or today_date == (shortage_date + relativedelta(days=1))
 
     @api.depends("employee_id", "check_in", "employee_id.contract_id", "employee_id.resource_calendar_id", "employee_id.resource_calendar_id.hours_per_day")
     def _compute_minute_rate_text(self):

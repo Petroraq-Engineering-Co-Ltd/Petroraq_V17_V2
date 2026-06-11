@@ -1,4 +1,6 @@
-from odoo import _, api, models
+import re
+
+from odoo import _, api, fields, models, tools
 from odoo.exceptions import ValidationError
 
 
@@ -6,8 +8,101 @@ PRODUCT_INTERNAL_REFERENCE_SEQUENCE = "product.internal.reference"
 SKIP_INTERNAL_REFERENCE_UNIQUE_CHECK = "skip_product_internal_reference_unique_check"
 
 
+class ProductInternalReferenceLookup(models.Model):
+    _name = "product.internal.reference.lookup"
+    _description = "Product Internal Reference Lookup"
+    _auto = False
+    _order = "default_code, id"
+    _rec_name = "default_code"
+
+    product_id = fields.Many2one("product.product", string="Product", readonly=True)
+    default_code = fields.Char(string="Internal Reference", readonly=True)
+    active = fields.Boolean(readonly=True)
+    sale_ok = fields.Boolean(readonly=True)
+    purchase_ok = fields.Boolean(readonly=True)
+    detailed_type = fields.Char(readonly=True)
+    company_id = fields.Many2one("res.company", readonly=True)
+
+    def init(self):
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        self.env.cr.execute("""
+            CREATE OR REPLACE VIEW product_internal_reference_lookup AS (
+                SELECT
+                    pp.id AS id,
+                    pp.id AS product_id,
+                    pp.default_code AS default_code,
+                    pt.active AS active,
+                    pt.sale_ok AS sale_ok,
+                    pt.purchase_ok AS purchase_ok,
+                    pt.detailed_type AS detailed_type,
+                    pt.company_id AS company_id
+                FROM product_product pp
+                JOIN product_template pt ON pt.id = pp.product_tmpl_id
+            )
+        """)
+
+    @api.depends("default_code", "product_id")
+    def _compute_display_name(self):
+        for ref in self:
+            ref.display_name = ref.default_code or ref.product_id.display_name or str(ref.id)
+
+    @api.model
+    def _name_search(self, name="", args=None, operator="ilike", limit=100, order=None):
+        args = list(args or [])
+        if name:
+            args = ["|", ("default_code", operator, name), ("product_id.name", operator, name)] + args
+        return self._search(args, limit=limit, order=order)
+
+
 class ProductProduct(models.Model):
     _inherit = "product.product"
+
+    def _clean_product_display_name(self, value):
+        value = re.sub(r"<[^>]+>", " ", value or "")
+        value = re.sub(r"^\s*\[[^\]]+\]\s*", "", value)
+        return " ".join(value.split())
+
+    def _get_display_name_without_internal_reference(self):
+        self.ensure_one()
+        code = self.default_code or ""
+        candidates = [
+            self.name,
+            self.description_sale,
+            self.description_purchase,
+            self.description,
+            self.product_tmpl_id.name,
+        ]
+        for candidate in candidates:
+            name = self._clean_product_display_name(candidate)
+            if name and name != code and name.lower() != "unnamed":
+                variant = self.product_template_attribute_value_ids._get_combination_name()
+                return variant and "%s (%s)" % (name, variant) or name
+        return self.name or code or False
+
+    @api.depends("name", "default_code", "product_tmpl_id", "description", "description_sale", "description_purchase")
+    @api.depends_context(
+        "display_default_code",
+        "seller_id",
+        "company_id",
+        "partner_id",
+        "use_partner_name",
+        "show_product_internal_reference",
+        "show_product_internal_reference_only",
+        "show_product_name_only",
+    )
+    def _compute_display_name(self):
+        if self.env.context.get("show_product_name_only"):
+            for product in self:
+                product.display_name = product._get_display_name_without_internal_reference()
+            return
+        if self.env.context.get("show_product_internal_reference"):
+            return super()._compute_display_name()
+        if self.env.context.get("show_product_internal_reference_only"):
+            for product in self:
+                product.display_name = product.default_code or product.name or False
+            return
+        for product in self:
+            product.display_name = product._get_display_name_without_internal_reference()
 
     def _default_code_exists(self, code, exclude_product_ids=None):
         domain = [("default_code", "=", code)]
@@ -130,6 +225,46 @@ class ProductProduct(models.Model):
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
+
+    def _clean_product_display_name(self, value):
+        value = re.sub(r"<[^>]+>", " ", value or "")
+        value = re.sub(r"^\s*\[[^\]]+\]\s*", "", value)
+        return " ".join(value.split())
+
+    def _get_display_name_without_internal_reference(self):
+        self.ensure_one()
+        code = self.default_code or ""
+        candidates = [
+            self.name,
+            self.description_sale,
+            self.description_purchase,
+            self.description,
+        ]
+        for candidate in candidates:
+            name = self._clean_product_display_name(candidate)
+            if name and name != code and name.lower() != "unnamed":
+                return name
+        return self.name or code or False
+
+    @api.depends("name", "default_code", "description", "description_sale", "description_purchase")
+    @api.depends_context(
+        "show_product_internal_reference",
+        "show_product_internal_reference_only",
+        "show_product_name_only",
+    )
+    def _compute_display_name(self):
+        if self.env.context.get("show_product_name_only"):
+            for template in self:
+                template.display_name = template._get_display_name_without_internal_reference()
+            return
+        if self.env.context.get("show_product_internal_reference"):
+            return super()._compute_display_name()
+        if self.env.context.get("show_product_internal_reference_only"):
+            for template in self:
+                template.display_name = template.default_code or template.name or False
+            return
+        for template in self:
+            template.display_name = template._get_display_name_without_internal_reference()
 
     @api.model_create_multi
     def create(self, vals_list):
