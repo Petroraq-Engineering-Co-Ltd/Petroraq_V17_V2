@@ -101,7 +101,7 @@ export class AttendanceManagementDashboard extends Component {
     }
 
     formatHours(value) {
-        return `${this.formatNumber(value, 1)}h`;
+        return this.formatDuration(value);
     }
 
     formatDuration(value) {
@@ -163,7 +163,7 @@ export class AttendanceManagementDashboard extends Component {
                 key: "coverage",
                 label: "Attendance Coverage",
                 value: this.formatPercent(summary.coverage || 0),
-                sub: `${this.formatNumber(summary.with_punch || 0)} of ${this.formatNumber(summary.scheduled || 0)} scheduled`,
+                sub: `${this.formatNumber(summary.with_punch || 0)} of ${this.formatNumber(summary.scheduled || 0)} Employee`,
                 icon: "fa-check-circle",
                 tone: "success",
             },

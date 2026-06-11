@@ -5,6 +5,23 @@ class HrLeave(models.Model):
     _inherit = 'hr.leave'
 
     @api.model
+    def _de_leave_dashboard_sort_key(self, leave_type):
+        name = (leave_type.name or "").strip().lower()
+        leave_type_code = leave_type.leave_type or ""
+        priority = 50
+        if leave_type_code == "annual_leave" or "annual" in name:
+            priority = 0
+        elif "marriage" in name or "marrige" in name or "marrigge" in name:
+            priority = 1
+        elif "emergency" in name:
+            priority = 2
+        elif "hajj" in name or "haj" in name:
+            priority = 3
+        elif leave_type_code == "sick_leave" or "sick" in name:
+            priority = 4
+        return (priority, leave_type.sequence or 100, name, leave_type.id)
+
+    @api.model
     def get_dashboard_data(self):
         today = fields.Date.today()
         current_user = self.env.user
@@ -37,19 +54,17 @@ class HrLeave(models.Model):
                     else:
                         leave_days = 0
                     # endregion [Leaves]
+                    available_days = round(max((allocation_days or 0) - (leave_days or 0), 0), 2)
                     summary.append({
+                        "sort_key": self._de_leave_dashboard_sort_key(leave_type),
                         "leave_name": leave_type.name,
                         "allocation_days": allocation_days,
                         "leave_days": leave_days,
+                        "available_days": available_days,
+                        "remaining_days": leave_days,
                         "requires_allocation": leave_type.requires_allocation if leave_type.leave_type !="sick_leave" else "yes",
                     })
-
-                    # summary = {
-                    #     'annual': self.search_count([('holiday_status_id.name', '=', 'Annual Leave')]),
-                    #     'sick': self.search_count([('holiday_status_id.name', '=', 'Sick Leave')]),
-                    #     'other': self.search_count([('holiday_status_id.name', '=', 'Other Leave')]),
-                    #     'pending': self.search_count([('state', '=', 'confirm')]),
-                    # }
+                summary.sort(key=lambda item: item.get("sort_key", (99, 999, "", 0)))
 
             upcoming_leaves = self.env["hr.leave"].sudo().search([
                 ('state', '=', 'validate'),

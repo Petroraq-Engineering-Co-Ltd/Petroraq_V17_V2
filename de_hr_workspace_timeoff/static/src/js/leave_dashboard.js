@@ -79,6 +79,28 @@ class CustomLeaveDashboard extends Component {
         });
     }
 
+    formatLeaveDay(value) {
+        const number = Number(value || 0);
+        if (Number.isInteger(number)) {
+            return `${number}`;
+        }
+        return number.toFixed(2).replace(/\.?0+$/, "");
+    }
+
+    availableDays(leaveType) {
+        if (leaveType.available_days !== undefined && leaveType.available_days !== null) {
+            return leaveType.available_days;
+        }
+        return Math.max(Number(leaveType.allocation_days || 0) - Number(leaveType.leave_days || 0), 0);
+    }
+
+    remainingDays(leaveType) {
+        if (leaveType.remaining_days !== undefined && leaveType.remaining_days !== null) {
+            return leaveType.remaining_days;
+        }
+        return Number(leaveType.leave_days || 0);
+    }
+
 //    renderChart(data) {
 //        const ctx = this.el.querySelector("#leaveChart");
 //        console.log(ctx, "ctx")
