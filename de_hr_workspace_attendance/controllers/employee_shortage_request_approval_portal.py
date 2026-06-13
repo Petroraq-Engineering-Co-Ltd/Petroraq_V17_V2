@@ -8,6 +8,7 @@ from odoo import conf, http, _
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.de_hr_workspace.controllers.portal_employee import require_current_employee
 from odoo.tools import groupby as groupbyelem
 
 from odoo.osv.expression import OR, AND
@@ -30,8 +31,13 @@ class EmployeeShortageRequestsApprovalPortal(CustomerPortal):
             'check_out': {'label': _('Oldest'), 'order': 'date asc'},
         }
 
+    def _check_shortage_request_manager(self, shortage_request):
+        if shortage_request.employee_manager_id.user_id != request.env.user:
+            raise MissingError(_("This shortage request does not exist or you do not have access to it."))
+
     @http.route(['/my/shortage_requests_approval', '/my/shortage_requests_approval/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_shortage_requests_approval(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
+        require_current_employee()
         values = self._prepare_portal_layout_values()
         ShortageRequestApproval = request.env['pr.hr.shortage.request'].sudo()
         domain = self._prepare_my_shortage_request_approval_domain()
@@ -74,13 +80,18 @@ class EmployeeShortageRequestsApprovalPortal(CustomerPortal):
     @http.route(['/my/shortage_requests_approval/<model("pr.hr.shortage.request"):shortage_request_id>'], type='http', auth="user", website=True)
     def portal_my_shortage_request_approval_info(self, shortage_request_id, **kw):
         shortage_request_obj = request.env["pr.hr.shortage.request"].sudo().browse(int(shortage_request_id))
-        values = {"shortage_request_id": shortage_request_obj}
+        self._check_shortage_request_manager(shortage_request_obj)
+        values = {
+            "shortage_request_id": shortage_request_obj,
+            "page_name": "shortage_request_approval",
+        }
         return request.render("de_hr_workspace_attendance.employee_shortage_request_approval_info_portal", values)
 
     @http.route(['/my/shortage_requests_approved/<model("pr.hr.shortage.request"):shortage_request_id>'], type='http',
                 auth="user", website=True)
     def portal_my_shortage_request_approved(self, shortage_request_id, **kw):
         shortage_request_obj = request.env["pr.hr.shortage.request"].sudo().browse(int(shortage_request_id))
+        self._check_shortage_request_manager(shortage_request_obj)
         shortage_request_obj.sudo().action_manager_approve()
         return request.redirect('/my/shortage_requests_approval')
 
@@ -88,6 +99,7 @@ class EmployeeShortageRequestsApprovalPortal(CustomerPortal):
                 auth="user", website=True)
     def portal_my_shortage_request_rejected(self, shortage_request_id, **kw):
         shortage_request_obj = request.env["pr.hr.shortage.request"].sudo().browse(int(shortage_request_id))
+        self._check_shortage_request_manager(shortage_request_obj)
         shortage_request_obj.sudo().state = 'reject'
         shortage_request_obj.sudo().approval_state = 'reject'
         return request.redirect('/my/shortage_requests_approval')

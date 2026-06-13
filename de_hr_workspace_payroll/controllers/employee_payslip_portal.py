@@ -1,6 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from collections import OrderedDict
+from email.utils import encode_rfc2231
 from operator import itemgetter
 from markupsafe import Markup
 
@@ -8,6 +9,10 @@ from odoo import conf, http, _
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import content_disposition, request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.de_hr_workspace.controllers.portal_employee import (
+    employee_portal_count,
+    require_current_employee,
+)
 from odoo.tools import groupby as groupbyelem
 
 from odoo.osv.expression import OR, AND
@@ -18,12 +23,10 @@ class EmployeePayslipPortal(CustomerPortal):
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         if 'my_payslip_count' in counters:
-            my_payslip_c = request.env['hr.payslip'].search_count([("employee_id.user_id", "=", request.env.user.id)])
-            if my_payslip_c == 0:
-                my_payslip_count = 1
-            else:
-                my_payslip_count = my_payslip_c
-            values['my_payslip_count'] = my_payslip_count
+            values['my_payslip_count'] = employee_portal_count(
+                'hr.payslip',
+                self._prepare_my_payslip_domain(),
+            )
         return values
 
     def _prepare_my_payslip_domain(self):
@@ -49,6 +52,7 @@ class EmployeePayslipPortal(CustomerPortal):
 
     @http.route(['/my/payslips', '/my/payslips/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_payslips(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
+        require_current_employee()
         values = self._prepare_portal_layout_values()
         Payslip = request.env['hr.payslip'].sudo()
         domain = self._prepare_my_payslip_domain()
@@ -108,8 +112,13 @@ class EmployeePayslipPortal(CustomerPortal):
             res_ids=payslip_id.ids,
         )
         filename = '%s.pdf' % (payslip_id.number or payslip_id.name or 'payslip')
+        disposition = (
+            content_disposition(filename)
+            if kw.get("download")
+            else "inline; filename*=%s" % encode_rfc2231(filename, "utf-8")
+        )
         return request.make_response(content, [
             ('Content-Type', 'application/pdf'),
             ('Content-Length', str(len(content))),
-            ('Content-Disposition', content_disposition(filename)),
+            ('Content-Disposition', disposition),
         ])

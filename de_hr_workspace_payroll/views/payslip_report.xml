@@ -3,32 +3,274 @@
     <record id="paperformat_payslip_custom_header_footer" model="report.paperformat">
         <field name="name">Petroraq Payslip Report</field>
         <field name="format">custom</field>
-        <field name="page_height">370</field>
-        <field name="page_width">250</field>
+        <field name="page_height">297</field>
+        <field name="page_width">210</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">55</field>
-        <field name="margin_bottom">37</field>
+        <field name="margin_top">48</field>
+        <field name="margin_bottom">20</field>
         <field name="margin_left">0</field>
         <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">55</field>
+        <field name="header_spacing">48</field>
         <field name="dpi">95</field>
     </record>
 
     <function model="ir.actions.report" name="_pr_configure_payslip_paperformat"/>
 
+    <template id="petroraq_payslip_bridge_layout">
+        <t t-if="not o and doc">
+            <t t-set="o" t-value="doc"/>
+        </t>
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="o.company_id.sudo()"/>
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company"/>
+        </t>
+        <t t-call="de_hr_workspace_payroll.petroraq_payslip_header_layout"/>
+        <div class="article">
+            <t t-raw="0"/>
+        </div>
+        <t t-call="de_hr_workspace_payroll.petroraq_payslip_footer_layout"/>
+    </template>
+
+    <template id="petroraq_payslip_header_layout">
+        <div class="header">
+            <img src="/pr_custom_purchase/static/src/img/petroraq_header_new.png"
+                 style="display:block; width:105%; max-width:none !important; margin:0 0 0 -15px !important; padding:0 !important;"/>
+        </div>
+    </template>
+
+    <template id="petroraq_payslip_footer_layout">
+
+        <div class="footer" style="margin:0 !important; padding:0 !important;">
+            <div style="margin:0 10mm 2px 10mm; padding:4px 0 2px 0; border-bottom:1px solid #305081; text-align:center; color:#000; font-size:13px; font-weight:600;">
+                This is a computer generated salary slip and does not require signature or stamp.
+            </div>
+            <img src="/pr_custom_purchase/static/src/img/img.png"
+                 style="display:block; width:110%; max-width:none !important; margin:0 0 0 -5% !important; padding:0 !important;"/>
+        </div>
+    </template>
+
     <template id="report_payslip_use_invoice_header_footer" inherit_id="hr_payroll.report_payslip">
-        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
-            <attribute name="t-call">pr_tax_Invoice_report_custom.custom_invoice_bridge_layout</attribute>
-        </xpath>
-        <xpath expr="//span[@t-field='o.employee_id.contract_id.hours_per_week']" position="replace">
-            <span t-out="'%.2f' % (o.employee_id.contract_id.hours_per_week or 0.0)"/>
-        </xpath>
-        <xpath expr="//span[@t-field='worked_days.number_of_hours']" position="replace">
-            <span t-out="'%.2f' % (worked_days.number_of_hours or 0.0)"/>
-        </xpath>
-        <xpath expr="//span[@t-field='worked_days.number_of_days']" position="replace">
-            <span t-out="'%.2f' % (worked_days.number_of_days or 0.0)"/>
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-call="de_hr_workspace_payroll.petroraq_payslip_bridge_layout">
+                <t t-set="report_values" t-value="o._pr_get_payslip_report_values()"/>
+                <t t-set="employee" t-value="report_values.get('employee')"/>
+                <t t-set="contract" t-value="report_values.get('contract')"/>
+                <t t-set="currency_symbol" t-value="report_values.get('currency_symbol')"/>
+
+                <div class="page o_petroraq_payslip">
+                    <style>
+                        .o_petroraq_payslip {
+                        color: #000;
+                        font-family: 'DroidArabicNaskh', sans-serif;
+                        font-size: 14px;
+                        line-height: 1.35;
+                        padding: 0 8mm 8mm 8mm !important;
+                        }
+                        .o_petroraq_payslip .o_payslip_title {
+                        margin: 0 0 14px 0;
+                        text-align: center;
+                        font-size: 24px;
+                        font-weight: 700;
+                        }
+                        .o_petroraq_payslip table {
+                        border-collapse: collapse;
+                        }
+                        .o_petroraq_payslip .o_info_table,
+                        .o_petroraq_payslip .o_summary_table,
+                        .o_petroraq_payslip .o_balance_table {
+                        width: 100%;
+                        border: 1px solid #000;
+                        table-layout: fixed;
+                        }
+                        .o_petroraq_payslip .o_info_table td,
+                        .o_petroraq_payslip .o_summary_table th,
+                        .o_petroraq_payslip .o_summary_table td,
+                        .o_petroraq_payslip .o_balance_table td {
+                        border: 1px solid #000;
+                        padding: 7px 9px;
+                        vertical-align: middle;
+                        }
+                        .o_petroraq_payslip .o_label,
+                        .o_petroraq_payslip .o_summary_table th {
+                        background-color: #dbdbd9;
+                        font-weight: 700;
+                        }
+                        .o_petroraq_payslip .o_info_table .o_label {
+                        width: 20%;
+                        }
+                        .o_petroraq_payslip .o_amount {
+                        text-align: right;
+                        white-space: nowrap;
+                        }
+                        .o_petroraq_payslip .o_inner_lines {
+                        width: 100%;
+                        border: 0;
+                        }
+                        .o_petroraq_payslip .o_inner_lines td {
+                        border: 0;
+                        border-bottom: 1px solid #d4d4d4;
+                        padding: 7px 8px;
+                        }
+                        .o_petroraq_payslip .o_inner_lines tr:last-child td {
+                        border-bottom: 0;
+                        }
+                        .o_petroraq_payslip .o_totals_row td {
+                        background-color: #f2f2f2;
+                        font-weight: 700;
+                        }
+                        .o_petroraq_payslip .o_net_row td {
+                        font-size: 16px;
+                        font-weight: 700;
+                        }
+                        .o_petroraq_payslip .o_balance_table {
+                        margin-top: 12px;
+                        }
+                    </style>
+
+                    <h2 class="o_payslip_title">Salary Slip
+                        <span t-esc="report_values.get('salary_period') or ''"/>
+                    </h2>
+
+                    <table class="o_info_table">
+                        <tr>
+                            <td class="o_label">Employee ID</td>
+                            <td>
+                                <span t-esc="report_values.get('employee_no') or ''"/>
+                            </td>
+                            <td class="o_label">Employee Name</td>
+                            <td>
+                                <span t-esc="employee.name or ''"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="o_label">Department</td>
+                            <td>
+                                <span t-esc="employee.department_id.name or ''"/>
+                            </td>
+
+                            <td class="o_label">Bank Account No.</td>
+                            <td>
+                                <span t-esc="report_values.get('bank_account') or ''"/>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="o_label">Job Position</td>
+                            <td>
+                                <span t-esc="employee.job_id.name or ''"/>
+                            </td>
+                            <td class="o_label">Date of Joining</td>
+                            <td>
+                                <span t-esc="report_values.get('joining_date') or ''"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="o_label">Reference</td>
+                            <td>
+                                <span t-esc="o.number or o.name or ''"/>
+                            </td>
+                            <td class="o_label">Period</td>
+                            <td>
+                                <span t-esc="report_values.get('payslip_period') or ''"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="o_summary_table">
+                        <colgroup>
+                            <col style="width: 38%;"/>
+                            <col style="width: 12%;"/>
+                            <col style="width: 38%;"/>
+                            <col style="width: 12%;"/>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Payments</th>
+                                <th class="o_amount">Amount</th>
+                                <th>Deductions</th>
+                                <th class="o_amount">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="2" style="padding:0;">
+                                    <table class="o_inner_lines">
+                                        <tr t-foreach="report_values.get('payments')" t-as="payment">
+                                            <td>
+                                                <span t-esc="payment.get('name')"/>
+                                            </td>
+                                            <td class="o_amount">
+                                                <span t-esc="'{:,.2f}'.format(payment.get('amount') or 0.0)"/>
+                                                <span t-if="currency_symbol" t-esc="currency_symbol"/>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="not report_values.get('payments')">
+                                            <td>Payments</td>
+                                            <td class="o_amount">
+                                                <span>0.00</span>
+                                                <span t-if="currency_symbol" t-esc="currency_symbol"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td colspan="2" style="padding:0;">
+                                    <table class="o_inner_lines">
+                                        <tr t-foreach="report_values.get('deductions')" t-as="deduction">
+                                            <td>
+                                                <span t-esc="deduction.get('name')"/>
+                                            </td>
+                                            <td class="o_amount">
+                                                <span t-esc="'{:,.2f}'.format(deduction.get('amount') or 0.0)"/>
+                                                <span t-if="currency_symbol" t-esc="currency_symbol"/>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="not report_values.get('deductions')">
+                                            <td>Deductions</td>
+                                            <td class="o_amount">
+                                                <span>0.00</span>
+                                                <span t-if="currency_symbol" t-esc="currency_symbol"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr class="o_totals_row">
+                                <td>Gross Payments</td>
+                                <td class="o_amount">
+                                    <span t-esc="'{:,.2f}'.format(report_values.get('payment_total') or 0.0)"/>
+                                    <span t-if="currency_symbol" t-esc="currency_symbol"/>
+                                </td>
+                                <td>Gross Deductions</td>
+                                <td class="o_amount">
+                                    <span t-esc="'{:,.2f}'.format(report_values.get('deduction_total') or 0.0)"/>
+                                    <span t-if="currency_symbol" t-esc="currency_symbol"/>
+                                </td>
+                            </tr>
+                            <tr class="o_net_row">
+                                <td colspan="2"></td>
+                                <td>Net Pay</td>
+                                <td class="o_amount">
+                                    <span t-esc="'{:,.2f}'.format(report_values.get('net_amount') or 0.0)"/>
+                                    <span t-if="currency_symbol" t-esc="currency_symbol"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="o_balance_table">
+                        <tr>
+                            <!--                            <td class="o_label">Absence Days</td>-->
+                            <!--                            <td>-->
+                            <!--                                <span t-esc="'%g' % (report_values.get('absence_days') or 0.0)"/>-->
+                            <!--                            </td>-->
+                            <td class="o_label">Prepared By</td>
+                            <td>HR Department</td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
         </xpath>
     </template>
 </odoo>

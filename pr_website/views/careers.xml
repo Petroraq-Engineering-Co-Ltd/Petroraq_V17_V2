@@ -948,7 +948,8 @@
                         <div class="why-top">
                             <div class="why-text animate-slide-up">
                                 <h2>Why Work With Us</h2>
-                                <p style="text-align: justify; color: var(--blue);">At PETRORAQ, we empower our people to grow, innovate, and make an impact. We foster a
+                                <p style="text-align: justify; color: var(--blue);">At PETRORAQ, we empower our people
+                                    to grow, innovate, and make an impact. We foster a
                                     culture of safety, collaboration, and excellence while delivering meaningful
                                     projects that shape communities and industries.
                                 </p>
@@ -1001,7 +1002,9 @@
                             <div class="benefit-card animate-scale-up delay-500">
                                 <i class="fa fa-users"></i>
                                 <h4>Team Collaboration</h4>
-                                <p style="text-align: center;">Team collaboration ensures safe, efficient, and timely civil project delivery.</p>
+                                <p style="text-align: center;">Team collaboration ensures safe, efficient, and timely
+                                    civil project delivery.
+                                </p>
                             </div>
                             <div class="benefit-card animate-scale-up delay-600">
                                 <i class="fa fa-trophy"></i>
@@ -1138,7 +1141,8 @@
                                 <img src="/pr_website/static/images/life1.webp" alt="Meeting With Chinese Delegation"/>
                                 <div class="life-content">
                                     <h4>Meeting With Chinese Delegation</h4>
-                                    <p style="text-align: justify;">Higher management's meeting with Chinese delegation, exploring the opportunities for
+                                    <p style="text-align: justify;">Higher management's meeting with Chinese delegation,
+                                        exploring the opportunities for
                                         collaboration, growth and joint ventures.
                                     </p>
                                 </div>
@@ -1147,70 +1151,98 @@
                                 <img src="/pr_website/static/images/award1.webp" alt="Award From Pakistani Ambassador"/>
                                 <div class="life-content">
                                     <h4>Award From Pakistani Ambassador</h4>
-                                    <p style="text-align: justify;">Received award from H.E Mr. Ahmad Farooq (Ambassador of Pakistan to Saudi Arabia) during a business meetup organized by PEF.</p>
+                                    <p style="text-align: justify;">Received award from H.E Mr. Ahmad Farooq (Ambassador
+                                        of Pakistan to Saudi Arabia) during a business meetup organized by PEF.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
                                 <img src="/pr_website/static/images/meet2.webp" alt="MD's Meeting with Clients"/>
                                 <div class="life-content">
                                     <h4>MD's Meeting with Clients</h4>
-                                    <p>Managing Director Mr. Mustafa Abdul Rasheed is meeting with clients to discuss their needs and provide solutions.</p>
+                                    <p>Managing Director Mr. Mustafa Abdul Rasheed is meeting with clients to discuss
+                                        their needs and provide solutions.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
                                 <img src="/pr_website/static/images/staff.png" alt="Head Office Staff Members"/>
                                 <div class="life-content">
                                     <h4>Our Head Office Staff Members</h4>
-                                    <p style="text-align: justify;">A team of dedicated professionals working together to deliver exceptional results by collaboration, expertise, and commitment.</p>
+                                    <p style="text-align: justify;">A team of dedicated professionals working together
+                                        to deliver exceptional results by collaboration, expertise, and commitment.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
                                 <img src="/pr_website/static/images/meet1.webp" alt="Chinese Delegation in Petroraq"/>
                                 <div class="life-content">
                                     <h4>Chinese Delegation in Petroraq</h4>
-                                    <p style="text-align: justify;">A Chinese delegation visited us to explore strategic business opportunities, potential avenues for collaboration and growth.</p>
+                                    <p style="text-align: justify;">A Chinese delegation visited us to explore strategic
+                                        business opportunities, potential avenues for collaboration and growth.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
-                                <img src="/pr_website/static/images/ifftar1.webp" alt="Annual Ifftar Party &amp; Dinner 2026"/>
+                                <img src="/pr_website/static/images/ifftar1.webp"
+                                     alt="Annual Ifftar Party &amp; Dinner 2026"/>
                                 <div class="life-content">
                                     <h4>Annual Ifftar Party &amp; Dinner 2026</h4>
-                                    <p style="text-align: justify;">A gathering of employees, clients, and their families to celebrate the blessings of Ramadan and strengthen bonds of unity and gratitude.</p>
+                                    <p style="text-align: justify;">A gathering of employees, clients, and their
+                                        families to celebrate the blessings of Ramadan and strengthen bonds of unity and
+                                        gratitude.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
                                 <img src="/pr_website/static/images/noor.jpeg" alt="Professional Working Environment"/>
                                 <div class="life-content">
                                     <h4>Professional Working Environment</h4>
-                                    <p style="text-align: justify;">PETRORAQ provides a flexible work environment where professionals are encouraged to work independently or collaborate as strong team players.</p>
+                                    <p style="text-align: justify;">PETRORAQ provides a flexible work environment where
+                                        professionals are encouraged to work independently or collaborate as strong team
+                                        players.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
                                 <img src="/pr_website/static/images/pef1.jpg" alt="PEF Business Meetup, Dammam"/>
                                 <div class="life-content">
                                     <h4>PEF Business Meetup, Dammam</h4>
-                                    <p style="text-align: justify;">PETRORAQ’s team attended the PEF Business Meetup – Dammam Chapter and proudly represented our organization among leading professionals and business leaders.</p>
+                                    <p style="text-align: justify;">PETRORAQ’s team attended the PEF Business Meetup –
+                                        Dammam Chapter and proudly represented our organization among leading
+                                        professionals and business leaders.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
-                                <img src="/pr_website/static/images/noor2.jpeg" alt="Delevering Petroraq's Vision at PEF"/>
+                                <img src="/pr_website/static/images/noor2.jpeg"
+                                     alt="Delevering Petroraq's Vision at PEF"/>
                                 <div class="life-content">
                                     <h4>Delevering Petroraq's Vision at PEF</h4>
-                                    <p style="text-align: justify;">PETRORAQ proudly represented the company’s vision at the PEF Business Meetup by highlighting our commitment to growth, innovation, and collaboration.</p>
+                                    <p style="text-align: justify;">PETRORAQ proudly represented the company’s vision at
+                                        the PEF Business Meetup by highlighting our commitment to growth, innovation,
+                                        and collaboration.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
                                 <img src="/pr_website/static/images/itTeam1.jpeg" alt="Team Work Culture"/>
                                 <div class="life-content">
                                     <h4>Team Work Culture</h4>
-                                    <p style="text-align: justify;">IT team works with a collaborative spirit, supporting each department through reliable systems, smart solutions, and continuous improvement.</p>
+                                    <p style="text-align: justify;">IT team works with a collaborative spirit,
+                                        supporting each department through reliable systems, smart solutions, and
+                                        continuous improvement.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-200">
                                 <img src="/pr_website/static/images/khurram.png" alt="Project Manager Visiting Site"/>
                                 <div class="life-content">
                                     <h4>Project Manager Visiting Site</h4>
-                                    <p style="text-align: justify;">Building tomorrow with precision, safety, and vision, where every blueprint becomes reality through dedication, leadership, and excellence on site.</p>
+                                    <p style="text-align: justify;">Building tomorrow with precision, safety, and
+                                        vision, where every blueprint becomes reality through dedication, leadership,
+                                        and excellence on site.
+                                    </p>
                                 </div>
                             </div>
                             <div class="life-card animate-scale-up delay-300">
@@ -1235,7 +1267,9 @@
                                 </div>
                                 <div class="cta-text">
                                     <h3>Ready to Build the Future With Us?</h3>
-                                    <p style="color: var(--blue);">Join PETRORAQ and be part of a team delivering excellence every day.</p>
+                                    <p style="color: var(--blue);">Join PETRORAQ and be part of a team delivering
+                                        excellence every day.
+                                    </p>
                                 </div>
                             </div>
                             <a href="#openings" class="btn-cta animate-scale-up delay-100">
@@ -1740,6 +1774,73 @@
                 color: #475467;
                 max-width: 900px;
                 }
+                .job-description p {
+                margin: 0 0 16px 0;
+                }
+                .job-description p:last-child {
+                margin-bottom: 0;
+                }
+                .job-description ul,
+                .job-description ol {
+                margin: 0 0 18px 28px;
+                padding-left: 24px;
+                list-style-position: outside;
+                }
+                .job-description ul {
+                list-style-type: disc !important;
+                }
+                .job-description ul ul {
+                list-style-type: circle !important;
+                margin-top: 8px;
+                }
+                .job-description ol {
+                list-style-type: decimal !important;
+                }
+                .job-description li {
+                display: list-item;
+                margin: 0 0 8px 0;
+                padding-left: 4px;
+                }
+                .job-description li::marker {
+                color: var(--gold);
+                font-weight: 700;
+                }
+                .job-description h1,
+                .job-description h2,
+                .job-description h3,
+                .job-description h4,
+                .job-description h5,
+                .job-description h6 {
+                color: var(--blue);
+                margin: 24px 0 12px 0;
+                font-weight: 800;
+                line-height: 1.35;
+                }
+                .job-description strong,
+                .job-description b {
+                color: var(--blue);
+                font-weight: 700;
+                }
+                .job-description table {
+                width: 100%;
+                margin: 18px 0;
+                border-collapse: collapse;
+                }
+                .job-description table th,
+                .job-description table td {
+                border: 1px solid #e8ecf2;
+                padding: 10px 12px;
+                vertical-align: top;
+                }
+                .job-description table th {
+                background: #f8fafc;
+                color: var(--blue);
+                font-weight: 700;
+                }
+                .job-description img {
+                max-width: 100%;
+                height: auto;
+                }
 
                 /* ===== Apply Section - FIXED COLORS ===== */
                 .apply-section {
@@ -2242,18 +2343,18 @@
                                         <p>Employment Type</p>
                                     </div>
                                 </div>
-                                <div class="info-card animate-scale-up delay-200">
-                                    <div class="info-icon">
-                                        <i class="fa fa-users"></i>
-                                    </div>
-                                    <div class="info-content">
-                                        <h4>
-                                            <t t-if="job.no_of_recruitment" t-esc="job.no_of_recruitment"/>
-                                            <t t-else="">Open</t>
-                                        </h4>
-                                        <p>Open Positions</p>
-                                    </div>
-                                </div>
+                                <!--                                <div class="info-card animate-scale-up delay-200">-->
+                                <!--                                    <div class="info-icon">-->
+                                <!--                                        <i class="fa fa-users"></i>-->
+                                <!--                                    </div>-->
+                                <!--                                    <div class="info-content">-->
+                                <!--                                        <h4>-->
+                                <!--                                            <t t-if="job.no_of_recruitment" t-esc="job.no_of_recruitment"/>-->
+                                <!--                                            <t t-else="">Open</t>-->
+                                <!--                                        </h4>-->
+                                <!--                                        <p>Open Positions</p>-->
+                                <!--                                    </div>-->
+                                <!--                                </div>-->
                                 <div class="info-card animate-scale-up delay-300">
                                     <div class="info-icon">
                                         <i class="fa fa-map-marker"></i>
@@ -2300,23 +2401,23 @@
 
                                 <div class="form-group">
                                     <label class="form-label required">Full Name</label>
-                                    <input class="form-control" name="partner_name" placeholder="Enter your full name"
+                                    <input class="form-control" name="partner_name" placeholder=""
                                            required="required"/>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">Email Address</label>
                                     <input class="form-control" type="email" name="email_from"
-                                           placeholder="your@email.com" required="required"/>
+                                           placeholder="" required="required"/>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">Phone Number</label>
-                                    <input class="form-control" name="partner_phone" placeholder="+966 5X XXX XXXX"
+                                    <input class="form-control" name="partner_phone" placeholder=""
                                            required="required"/>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">Current Location</label>
                                     <input class="form-control" name="partner_location" id="locationInput"
-                                           placeholder="City, Country" required="required"/>
+                                           placeholder="" required="required"/>
                                     <div class="location-suggestions" id="locationSuggestions"></div>
                                 </div>
                                 <div class="form-group">
@@ -2330,7 +2431,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">Total Experience (Years)</label>
-                                    <input type="number" min="0" class="form-control" name="experience" placeholder="5"
+                                    <input type="number" min="0" class="form-control" name="experience" placeholder=""
                                            required="required"/>
                                 </div>
                                 <div class="form-group">
@@ -2344,57 +2445,57 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">Expected Salary</label>
-                                    <input type="number" class="form-control" name="salary_expected" placeholder="12000"
+                                    <input type="number" class="form-control" name="salary_expected" placeholder=""
                                            required="required"/>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">Notice Period (Days)</label>
                                     <input type="number" min="0" class="form-control" name="notice_period"
-                                           placeholder="30" required="required"/>
+                                           placeholder="" required="required"/>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label required">LinkedIn Profile</label>
                                     <input class="form-control" name="linkedin_profile"
-                                           placeholder="https://linkedin.com/in/yourprofile" required="required"/>
+                                           placeholder="" required="required"/>
                                 </div>
+                                <!--                                <div class="form-group">-->
+                                <!--                                    <label class="form-label required">Will you relocate?</label>-->
+                                <!--                                    <select class="form-select" name="will_relocate" required="required">-->
+                                <!--                                        <option value="">Select</option>-->
+                                <!--                                        <option value="yes">Yes</option>-->
+                                <!--                                        <option value="no">No</option>-->
+                                <!--                                    </select>-->
+                                <!--                                </div>-->
                                 <div class="form-group">
-                                    <label class="form-label required">Will you relocate?</label>
-                                    <select class="form-select" name="will_relocate" required="required">
-                                        <option value="">Select</option>
-                                        <option value="yes">Yes</option>
-                                        <option value="no">No</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label required">Authorized to work in KSA?</label>
+                                    <label class="form-label required">Do You have a Iqama/National ID?</label>
                                     <select class="form-select" name="legally_required" required="required">
                                         <option value="">Select</option>
                                         <option value="yes">Yes</option>
                                         <option value="no">No</option>
                                     </select>
                                 </div>
-                                <div class="form-group full-width">
-                                    <label class="form-label">Skills</label>
-                                    <div class="skill-picker" id="skillPicker">
-                                        <div class="skill-tags" id="selectedSkillTags">
-                                            <input type="text" class="skill-search" id="skillSearch"
-                                                   placeholder="Search and add skills"/>
-                                        </div>
-                                        <div class="skill-options" id="skillOptions">
-                                            <t t-foreach="skills" t-as="skill">
-                                                <button type="button" class="skill-option"
-                                                        t-att-data-skill-id="skill.id"
-                                                        t-att-data-skill-name="skill.name"
-                                                        t-att-data-skill-type="skill.skill_type_id.name or ''">
-                                                    <span t-esc="skill.name"/>
-                                                    <small t-if="skill.skill_type_id" t-esc="skill.skill_type_id.name"/>
-                                                </button>
-                                            </t>
-                                        </div>
-                                        <div id="selectedSkillInputs"></div>
-                                    </div>
-                                    <small class="file-help">Add all relevant skills from the list.</small>
-                                </div>
+                                <!--                                <div class="form-group full-width">-->
+                                <!--                                    <label class="form-label">Skills</label>-->
+                                <!--                                    <div class="skill-picker" id="skillPicker">-->
+                                <!--                                        <div class="skill-tags" id="selectedSkillTags">-->
+                                <!--                                            <input type="text" class="skill-search" id="skillSearch"-->
+                                <!--                                                   placeholder="Search and add skills"/>-->
+                                <!--                                        </div>-->
+                                <!--                                        <div class="skill-options" id="skillOptions">-->
+                                <!--                                            <t t-foreach="skills" t-as="skill">-->
+                                <!--                                                <button type="button" class="skill-option"-->
+                                <!--                                                        t-att-data-skill-id="skill.id"-->
+                                <!--                                                        t-att-data-skill-name="skill.name"-->
+                                <!--                                                        t-att-data-skill-type="skill.skill_type_id.name or ''">-->
+                                <!--                                                    <span t-esc="skill.name"/>-->
+                                <!--                                                    <small t-if="skill.skill_type_id" t-esc="skill.skill_type_id.name"/>-->
+                                <!--                                                </button>-->
+                                <!--                                            </t>-->
+                                <!--                                        </div>-->
+                                <!--                                        <div id="selectedSkillInputs"></div>-->
+                                <!--                                    </div>-->
+                                <!--                                    <small class="file-help">Add all relevant skills from the list.</small>-->
+                                <!--                                </div>-->
                                 <div class="form-group full-width">
                                     <label class="form-label required">Upload Resume</label>
                                     <div class="file-upload">
@@ -2596,13 +2697,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
 
-        if (!validateYesNo(
-            form,
-            'will_relocate',
-            'Please select a valid answer for relocation.'
-        )) {
-            return false;
-        }
+<!--        if (!validateYesNo(-->
+<!--            form,-->
+<!--            'will_relocate',-->
+<!--            'Please select a valid answer for relocation.'-->
+<!--        )) {-->
+<!--            return false;-->
+<!--        }-->
 
         if (!validateYesNo(
             form,

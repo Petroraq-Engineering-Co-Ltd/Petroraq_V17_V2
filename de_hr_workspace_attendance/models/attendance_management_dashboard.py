@@ -25,17 +25,11 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             "tone": "info",
             "rank": 35,
         },
-        "late": {
-            "label": "Late",
+        "shortage": {
+            "label": "Shortage",
             "color": "#d88716",
             "tone": "warning",
             "rank": 20,
-        },
-        "early_exit": {
-            "label": "Early Exit",
-            "color": "#bf6b17",
-            "tone": "warning",
-            "rank": 25,
         },
         "missing_checkout": {
             "label": "Missing Checkout",
@@ -221,7 +215,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
 
         start_hour = min(attendances.mapped("hour_from"))
         end_hour = max(attendances.mapped("hour_to"))
-        planned_hours = sum(max(line.hour_to - line.hour_from, 0.0) for line in attendances)
+        planned_hours = max(end_hour - start_hour, 0.0)
         return {
             "working_day": True,
             "start_hour": start_hour,
@@ -268,6 +262,29 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
     def _format_dt_time(self, value, timezone):
         local_value = self._to_local(value, timezone)
         return local_value.strftime("%H:%M") if local_value else "-"
+
+    @api.model
+    def _get_attendance_span_hours(self, attendances, day_start_utc, day_end_utc):
+        if not attendances or attendances.filtered(lambda attendance: not attendance.check_out):
+            return 0.0
+
+        earliest_check_in = min(attendances.mapped("check_in"))
+        latest_check_out = max(attendances.mapped("check_out"))
+        start_utc = max(fields.Datetime.to_datetime(earliest_check_in), day_start_utc)
+        stop_utc = min(fields.Datetime.to_datetime(latest_check_out), day_end_utc)
+        return max((stop_utc - start_utc).total_seconds() / 3600.0, 0.0)
+
+    @api.model
+    def _format_duration(self, hours_value):
+        total_minutes = int(round((hours_value or 0.0) * 60.0))
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        parts = []
+        if hours:
+            parts.append(_("%s hour%s") % (hours, "" if hours == 1 else "s"))
+        if minutes or not parts:
+            parts.append(_("%s min%s") % (minutes, "" if minutes == 1 else "s"))
+        return " ".join(parts)
 
     @api.model
     def _is_calendar_blocked(self, employee, calendar, day_start_utc, day_end_utc):
@@ -361,18 +378,11 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
         checked_out_attendances = attendances.filtered("check_out")
         latest_check_out = max(checked_out_attendances.mapped("check_out")) if checked_out_attendances else False
         worked_hours = sum(attendances.mapped("worked_hours")) if attendances else 0.0
+        attendance_span_hours = self._get_attendance_span_hours(attendances, day_start_utc, day_end_utc)
 
-        late_minutes = 0.0
-        early_minutes = 0.0
-        if schedule["working_day"] and earliest_check_in:
-            check_in_local = self._to_local(earliest_check_in, timezone)
-            grace_start = schedule["start_dt"] + timedelta(minutes=60)
-            if check_in_local > grace_start:
-                late_minutes = round((check_in_local - grace_start).total_seconds() / 60.0, 2)
-        if schedule["working_day"] and latest_check_out:
-            check_out_local = self._to_local(latest_check_out, timezone)
-            if check_out_local < schedule["end_dt"]:
-                early_minutes = round((schedule["end_dt"] - check_out_local).total_seconds() / 60.0, 2)
+        shortage_hours = 0.0
+        if schedule["working_day"] and attendances and not attendances.filtered(lambda attendance: not attendance.check_out):
+            shortage_hours = round(max((schedule["planned_hours"] or 0.0) - attendance_span_hours, 0.0), 2)
 
         open_attendances = attendances.filtered(lambda attendance: not attendance.check_out)
         dashboard_today = datetime.now(timezone).date()
@@ -386,10 +396,8 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             status = "checked_in"
         elif open_attendances:
             status = "missing_checkout"
-        elif attendances and late_minutes:
-            status = "late"
-        elif attendances and early_minutes:
-            status = "early_exit"
+        elif attendances and shortage_hours:
+            status = "shortage"
         elif attendances:
             status = "present"
         elif leaves:
@@ -427,10 +435,12 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             "check_in": self._format_dt_time(earliest_check_in, timezone),
             "check_out": self._format_dt_time(latest_check_out, timezone),
             "worked_hours": round(worked_hours, 2),
+            "attendance_span_hours": round(attendance_span_hours, 2),
             "planned_hours": round(schedule["planned_hours"], 2),
             "schedule": schedule["label"],
-            "late_minutes": late_minutes,
-            "early_minutes": early_minutes,
+            "shortage_hours": shortage_hours,
+            "shortage_minutes": round(shortage_hours * 60.0, 2),
+            "shortage_label": self._format_duration(shortage_hours),
             "leave": ", ".join(leave_names),
             "attendance_ids": attendances.ids,
             "leave_ids": leaves.ids,
@@ -443,17 +453,16 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
         for row in rows:
             counts[row["status"]] += 1
 
-        with_punch = sum(counts[key] for key in ["present", "checked_in", "late", "early_exit", "missing_checkout"])
+        with_punch = sum(counts[key] for key in ["present", "checked_in", "shortage", "missing_checkout"])
         scheduled = max(len(rows) - counts["off_day"], 0)
-        issue_count = counts["absent"] + counts["late"] + counts["early_exit"] + counts["missing_checkout"]
+        issue_count = counts["absent"] + counts["shortage"] + counts["missing_checkout"]
         return {
             "total": len(rows),
             "scheduled": scheduled,
             "with_punch": with_punch,
             "present": counts["present"],
             "checked_in": counts["checked_in"],
-            "late": counts["late"],
-            "early_exit": counts["early_exit"],
+            "shortage": counts["shortage"],
             "missing_checkout": counts["missing_checkout"],
             "absent": counts["absent"],
             "on_leave": counts["on_leave"],
@@ -469,7 +478,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
         counts = defaultdict(int)
         for row in rows:
             counts[row["status"]] += 1
-        order = ["present", "checked_in", "late", "early_exit", "missing_checkout", "absent", "on_leave", "off_day"]
+        order = ["present", "checked_in", "shortage", "missing_checkout", "absent", "on_leave", "off_day"]
         return [
             {
                 "key": key,
@@ -497,14 +506,13 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
                 "present": summary["present"],
                 "checked_in": summary["checked_in"],
                 "absent": summary["absent"],
-                "late": summary["late"],
-                "early_exit": summary["early_exit"],
+                "shortage": summary["shortage"],
                 "on_leave": summary["on_leave"],
                 "missing_checkout": summary["missing_checkout"],
                 "coverage": summary["coverage"],
             })
 
-        departments.sort(key=lambda item: (-(item["absent"] + item["late"] + item["missing_checkout"]), item["name"]))
+        departments.sort(key=lambda item: (-(item["absent"] + item["shortage"] + item["missing_checkout"]), item["name"]))
         return departments
 
     @api.model
@@ -528,7 +536,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             "checked_in": summary["checked_in"],
             "absent": summary["absent"],
             "on_leave": summary["on_leave"],
-            "late": summary["late"] + summary["early_exit"],
+            "shortage": summary["shortage"],
             "missing_checkout": summary["missing_checkout"],
             "coverage": summary["coverage"],
             "total": summary["total"],

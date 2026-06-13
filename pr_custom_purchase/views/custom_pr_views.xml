@@ -198,6 +198,9 @@
                                        readonly="state == 'purchase' or state == 'cancel' or approval == 'approved'">
                                     <tree editable="bottom">
                                         <!-- <field name="description"/> -->
+                                        <field name="product_internal_reference"
+                                               string="Product Code"
+                                               optional="show"/>
                                         <field name="description" context="{'display_default_code': False}"/>
                                         <field name="cost_center_id" domain="[('id', 'in', parent.allowed_cost_center_ids)]"/>
                                         <field name="type" readonly="1"/>

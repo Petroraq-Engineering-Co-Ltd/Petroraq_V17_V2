@@ -9,6 +9,34 @@ class StockMove(models.Model):
     sequence_number = fields.Integer(string='#',
                                      compute='_compute_sequence_number',
                                      help='Line Numbers', default=False)
+    product_internal_reference = fields.Many2one(
+        'product.internal.reference.lookup',
+        string='Product Code',
+        compute='_compute_product_internal_reference',
+        inverse='_inverse_product_internal_reference',
+        readonly=False,
+    )
+
+    @api.depends('product_id')
+    def _compute_product_internal_reference(self):
+        ProductRef = self.env['product.internal.reference.lookup']
+        for line in self:
+            line.product_internal_reference = ProductRef.browse(line.product_id.id) if line.product_id else False
+
+    def _inverse_product_internal_reference(self):
+        for line in self:
+            line.product_id = line.product_internal_reference.product_id
+
+    @api.onchange('product_internal_reference')
+    def _onchange_product_internal_reference(self):
+        result = {}
+        for line in self:
+            line.product_id = line.product_internal_reference.product_id
+            line._onchange_product_id()
+            warning = line._onchange_suggest_packaging()
+            if warning:
+                result = warning
+        return result
 
     @api.depends('picking_id')
     def _compute_sequence_number(self):

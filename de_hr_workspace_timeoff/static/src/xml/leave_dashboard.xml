@@ -325,6 +325,51 @@
                 font-weight: 600;
             }
 
+            .de-cld-leave-balance-title {
+                color: #0a2540;
+                font-size: 1.02rem;
+                font-weight: 800;
+                line-height: 1.25;
+                min-height: 2.4em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-leave-balance-total {
+                color: #0a2540;
+                font-size: 1.35rem;
+                font-weight: 800;
+                margin-top: 6px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-leave-balance-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+                margin-top: 22px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .de-cld-leave-balance-label {
+                color: #0a2540;
+                font-size: 0.88rem;
+                font-weight: 700;
+                margin-bottom: 5px;
+            }
+
+            .de-cld-leave-balance-number {
+                color: #0a2540;
+                font-size: 1.18rem;
+                font-weight: 800;
+                line-height: 1.1;
+            }
+
             /* -------- CONTENT CARDS -------- */
             .de-cld-card {
                 position: relative;
@@ -564,52 +609,59 @@
                         <!-- SUMMARY CARDS -->
                         <div class="de-cld-section-header">
                             <h3 class="de-cld-section-title">
-                                <i class="fa fa-pie-chart"/> Leave Balances
+                                <i class="fa fa-pie-chart"/>
+                                Leave Balances
                             </h3>
                             <div class="de-cld-section-underline"/>
                         </div>
 
                         <div class="row g-3 mb-4">
-                            <t t-if="state.summary and state.summary.length">
-                                <t t-foreach="state.summary" t-as="leave_type" t-key="leave_type.leave_name">
-                                    <div class="col-xl-3 col-md-6 col-sm-6">
-                                        <div class="de-cld-summary-card">
-                                            <div class="de-cld-summary-icon">
-                                                <i class="fa fa-calendar-check-o"/>
-                                            </div>
-                                            <div class="de-cld-summary-label">
-                                                <t t-esc="leave_type.leave_name"/>
-                                            </div>
-                                            <div class="de-cld-summary-value">
-                                                <t t-if="leave_type.requires_allocation === 'yes'">
-                                                    <t t-esc="leave_type.leave_days"/>
-                                                    <span class="de-cld-divider">/</span>
-                                                    <span class="de-cld-max">
-                                                        <t t-esc="leave_type.allocation_days"/>
-                                                    </span>
-                                                </t>
-                                                <t t-else="">
-                                                    <t t-esc="leave_type.leave_days"/>
-                                                </t>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </t>
-                            </t>
-                            <t t-else="">
-                                <div class="col-12">
-                                    <div class="de-cld-empty">
-                                        <i class="fa fa-inbox"/>
-                                        <div><strong>No leave types configured</strong></div>
-                                    </div>
-                                </div>
-                            </t>
+    <t t-if="state.summary and state.summary.length">
+        <t t-foreach="state.summary" t-as="leave_type" t-key="leave_type.leave_name">
+            <div class="col-xl-3 col-md-6 col-sm-6">
+                <div class="de-cld-summary-card">
+                    <div class="de-cld-leave-balance-title">
+                        <t t-esc="leave_type.leave_name"/>
+                    </div>
+                    <div class="de-cld-leave-balance-total">
+                        Total:
+                        <t t-esc="formatLeaveDay(leave_type.allocation_days)"/>
+                    </div>
+                    <div class="de-cld-leave-balance-grid">
+                        <div>
+                            <div class="de-cld-leave-balance-label">Consumed:</div>
+                            <div class="de-cld-leave-balance-number">
+                                <t t-esc="formatLeaveDay(remainingDays(leave_type))"/>
+                            </div>
                         </div>
+                        <div>
+                            <div class="de-cld-leave-balance-label">Available:</div>
+                            <div class="de-cld-leave-balance-number">
+                                <t t-esc="formatLeaveDay(availableDays(leave_type))"/>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+
+                            <t t-else="">
+        <div class="col-12">
+            <div class="de-cld-empty">
+                <i class="fa fa-inbox"/>
+                <div><strong>No leave types configured</strong></div>
+            </div>
+        </div>
+    </t>
+</div>
 
                         <!-- CHART + PENDING LEAVES -->
                         <div class="de-cld-section-header">
                             <h3 class="de-cld-section-title">
-                                <i class="fa fa-bar-chart"/> Analytics &amp; Requests
+                                <i class="fa fa-bar-chart"/>
+                                Analytics &amp; Requests
                             </h3>
                             <div class="de-cld-section-underline"/>
                         </div>
@@ -618,7 +670,8 @@
                             <div class="col-lg-6">
                                 <div class="de-cld-card">
                                     <div class="de-cld-card-title">
-                                        <i class="fa fa-line-chart"/> Taken Leaves
+                                        <i class="fa fa-line-chart"/>
+                                        Taken Leaves
                                     </div>
                                     <div class="de-cld-chart-wrap">
                                         <canvas t-ref="leaveChart" id="leaveChart" height="200"/>
@@ -629,7 +682,8 @@
                             <div class="col-lg-6">
                                 <div class="de-cld-card">
                                     <div class="de-cld-card-title">
-                                        <i class="fa fa-hourglass-half"/> Pending Leaves
+                                        <i class="fa fa-hourglass-half"/>
+                                        Pending Leaves
                                     </div>
                                     <t t-if="state.pendingApprovals and state.pendingApprovals.length">
                                         <div class="table-responsive">
@@ -674,14 +728,16 @@
                         <!-- LEAVE HISTORY -->
                         <div class="de-cld-section-header">
                             <h3 class="de-cld-section-title">
-                                <i class="fa fa-history"/> Leave History
+                                <i class="fa fa-history"/>
+                                Leave History
                             </h3>
                             <div class="de-cld-section-underline"/>
                         </div>
 
                         <div class="de-cld-card mb-4">
                             <div class="de-cld-card-title">
-                                <i class="fa fa-archive"/> Past Leave Records
+                                <i class="fa fa-archive"/>
+                                Past Leave Records
                             </div>
                             <t t-if="state.LeavesHistory and state.LeavesHistory.length">
                                 <div class="table-responsive">

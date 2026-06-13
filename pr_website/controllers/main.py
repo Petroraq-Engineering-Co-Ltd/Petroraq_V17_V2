@@ -210,8 +210,8 @@ class CareersController(http.Controller):
             if num < min_v or num > max_v:
                 return f'{field_name.replace("_", " ").title()} must be between {min_v} and {max_v}.'
 
-        if (post.get('will_relocate') or '') not in {'yes', 'no'}:
-            return 'Please select a valid answer for relocation.'
+        # if (post.get('will_relocate') or '') not in {'yes', 'no'}:
+        #     return 'Please select a valid answer for relocation.'
         if (post.get('legally_required') or '') not in {'yes', 'no'}:
             return 'Please select a valid legal authorization option.'
 
@@ -219,9 +219,9 @@ class CareersController(http.Controller):
         if not nationality_id.isdigit() or not request.env['res.country'].sudo().browse(int(nationality_id)).exists():
             return 'Please select a valid nationality.'
 
-        for skill_id in request.httprequest.form.getlist('skill_ids'):
-            if skill_id and not skill_id.isdigit():
-                return 'Please select valid skills.'
+        # for skill_id in request.httprequest.form.getlist('skill_ids'):
+        #     if skill_id and not skill_id.isdigit():
+        #         return 'Please select valid skills.'
 
         return None
 

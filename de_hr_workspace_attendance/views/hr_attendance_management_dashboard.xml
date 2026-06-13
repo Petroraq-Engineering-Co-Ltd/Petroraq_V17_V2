@@ -5,6 +5,17 @@
         <field name="tag">de_hr_workspace_attendance.attendance_management_dashboard</field>
     </record>
 
+    <record id="hr_attendance.menu_hr_attendance_root" model="ir.ui.menu">
+        <field name="action" eval="'ir.actions.client,%d' % ref('de_hr_workspace_attendance.action_attendance_management_dashboard')"/>
+    </record>
+
+    <menuitem id="menu_hr_attendance_root_dashboard"
+              name="Dashboard"
+              parent="hr_attendance.menu_hr_attendance_root"
+              action="action_attendance_management_dashboard"
+              sequence="1"
+              groups="de_hr_workspace.group_hr_employee_approvals,hr.group_hr_manager,hr_attendance.group_hr_attendance_manager,pr_hr_attendance.custom_group_hr_attendance_supervisor"/>
+
     <menuitem id="menu_attendance_management_dashboard"
               name="Attendance Dashboard Center"
               parent="de_hr_workspace.hr_approvals_menu_root"

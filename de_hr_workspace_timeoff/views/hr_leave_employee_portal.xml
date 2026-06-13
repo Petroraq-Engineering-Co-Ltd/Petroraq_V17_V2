@@ -3,10 +3,11 @@
     <template id="portal_employee_leaves" name="Employee Leaves" customize_show="True"
               inherit_id="portal.portal_my_home">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-            <t t-set="portal_service_category_enable" t-value="True"/>
+            <t t-set="portal_employee_user" t-value="request.env['hr.employee'].sudo().search_count([('user_id', '=', request.env.user.id), ('active', '=', True)])"/>
+            <t t-if="portal_employee_user" t-set="portal_service_category_enable" t-value="True"/>
         </xpath>
         <div id="portal_service_category" position="inside">
-            <t t-call="portal.portal_docs_entry">
+            <t t-if="portal_employee_user" t-call="portal.portal_docs_entry">
                 <t t-set="icon" t-value="'/de_hr_workspace_timeoff/static/src/img/leaves_portal.png'"/>
                 <t t-set="title">Leaves</t>
                 <t t-set="url" t-value="'/my/leaves'"/>

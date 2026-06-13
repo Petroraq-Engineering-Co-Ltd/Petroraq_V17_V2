@@ -1,14 +1,418 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="stock_delievery_note_extend" inherit_id="stock.report_delivery_document">se
 
-        <xpath expr="//div[@class='page']" position="before">
+    <record id="paperformat_petroraq_delivery_note" model="report.paperformat">
+        <field name="name">Petroraq Delivery Note</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">297</field>
+        <field name="page_width">210</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">48</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">48</field>
+        <field name="dpi">95</field>
+    </record>
 
-            <h2>
-                Delivery Note:
-            </h2>
+    <record id="stock.action_report_delivery" model="ir.actions.report">
+        <field name="paperformat_id" ref="petroraq_sale_workflow.paperformat_petroraq_delivery_note"/>
+    </record>
 
+    <record id="view_picking_form_delivery_note_details" model="ir.ui.view">
+        <field name="name">stock.picking.form.delivery.note.details</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id'][1]" position="after">
+                <field name="picking_type_code" invisible="1"/>
+                <field name="sale_state" invisible="1"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Delivery Note"
+                      invisible="picking_type_code != 'outgoing' or sale_state not in ('sale', 'done')">
+                    <group>
+                        <group string="Sale PO">
+                            <field name="delivery_note_po_number" string="PO Name"/>
+                            <field name="delivery_note_po_date" string="PO Date"/>
+                        </group>
+                        <group string="Contact Person">
+                            <field name="delivery_note_contact_person_name"/>
+                            <field name="delivery_note_contact_person_phone"/>
+                        </group>
+                    </group>
+                    <group string="Ship To">
+                        <field name="delivery_note_ship_to_partner_id"
+                               domain="['|', ('id', '=', partner_id), ('parent_id', '=', partner_id)]"
+                               options="{'no_create_edit': True}"/>
+                        <field name="delivery_note_ship_to_address"
+                               placeholder="Select a default address above or write the delivery address manually."/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <template id="petroraq_delivery_note_bridge_layout">
+        <t t-if="not o and doc">
+            <t t-set="o" t-value="doc"/>
+        </t>
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="o.company_id.sudo()"/>
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company"/>
+        </t>
+        <t t-call="petroraq_sale_workflow.petroraq_delivery_note_header_layout"/>
+        <div class="article">
+            <t t-raw="0"/>
+        </div>
+        <t t-call="petroraq_sale_workflow.petroraq_delivery_note_footer_layout"/>
+    </template>
+
+    <template id="petroraq_delivery_note_header_layout">
+        <div class="header">
+            <img src="/pr_custom_purchase/static/src/img/petroraq_header_new.png"
+                 style="display:block; width:105%; max-width:none !important; margin:0 0 0 -15px !important; padding:0 !important;"/>
+        </div>
+    </template>
+
+    <template id="petroraq_delivery_note_footer_layout">
+        <div class="footer" style="margin:0 !important; padding:0 !important;">
+            <div name="pager" class="list-inline no-margin text-center" style="color:rgba(18,49,96,0.91);">
+                Page:
+                <span class="page"/>
+                /
+                <span class="topage"/>
+            </div>
+            <img src="/pr_custom_purchase/static/src/img/img.png"
+                 style="display:block; width:110%; max-width:none !important; margin:0 0 0 -5% !important; padding:0 !important;"/>
+        </div>
+    </template>
+
+    <template id="stock_delievery_note_extend" inherit_id="stock.report_delivery_document">
+
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="t-call">petroraq_sale_workflow.petroraq_delivery_note_bridge_layout</attribute>
         </xpath>
+
+        <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]" position="attributes">
+            <attribute name="class">page o_petroraq_delivery_note</attribute>
+            <attribute name="style">font-family:'DroidArabicNaskh', sans-serif; position:relative; min-height:214mm;
+                padding:0 10mm 22mm 10mm !important;
+            </attribute>
+        </xpath>
+
+        <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]" position="inside">
+            <style>
+                .o_petroraq_delivery_note {
+                color: #000;
+                font-size: 14px;
+                }
+                .o_petroraq_delivery_note .o_delivery_title {
+                margin: 0 0 14px 0;
+                text-align: center;
+                font-size: 24px;
+                font-weight: 700;
+                }
+                .o_petroraq_delivery_note .o_delivery_info_table {
+                width: 100%;
+                margin: 0 0 14px 0;
+                border: 1px solid #000;
+                border-collapse: collapse;
+                font-size: 13px;
+                }
+                .o_petroraq_delivery_note .o_delivery_info_table td {
+                padding: 5px 8px;
+                border: 1px solid #000;
+                vertical-align: middle;
+                }
+                .o_petroraq_delivery_note .o_delivery_info_table .o_label {
+                width: 18%;
+                background-color: #dbdbd9;
+                font-weight: 700;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) {
+                width: 100%;
+                border: 1px solid #000 !important;
+                border-collapse: collapse !important;
+                table-layout: fixed !important;
+                font-size: 13px !important;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th,
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td {
+                border: 1px solid #000 !important;
+                padding: 5px 6px !important;
+                vertical-align: top !important;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) thead th {
+                background-color: #dbdbd9 !important;
+                text-align: center !important;
+                font-weight: 700 !important;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:first-child,
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:first-child {
+                width: 6%;
+                text-align: center;
+                word-break: break-word;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:nth-child(2),
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(2) {
+                width: 14%;
+                text-align: center;
+                word-break: break-word;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:nth-child(3),
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(3) {
+                width: 58%;
+                white-space: normal !important;
+                word-break: normal;
+                overflow-wrap: break-word;
+                line-height: 1.35;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(3) span,
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(3) p {
+                white-space: normal !important;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:nth-child(4),
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(4) {
+                width: 10%;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) th:nth-child(5),
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(5) {
+                width: 12%;
+                }
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(4),
+                .o_petroraq_delivery_note table.table:not(.o_delivery_signoff) td:nth-child(5) {
+                text-align: center;
+                white-space: nowrap;
+                }
+                .o_petroraq_delivery_note .o_delivery_bottom_block {
+                margin-top: 10mm;
+                font-family: 'DroidArabicNaskh', sans-serif;
+                color: #000;
+                page-break-inside: avoid;
+                }
+                .o_petroraq_delivery_note .o_delivery_signoff {
+                width: 100%;
+                margin: 9mm 0 0 0;
+                border: 0 !important;
+                border-collapse: separate;
+                border-spacing: 14px 0;
+                font-size: 10px;
+                }
+                .o_petroraq_delivery_note .o_delivery_signoff td {
+                width: 25%;
+                padding: 0;
+                border: 0 !important;
+                }
+                .o_petroraq_delivery_note .o_delivery_signoff .o_sign_label {
+                margin-top: 6px;
+                font-weight: 700;
+                text-align: center;
+                }
+                .o_petroraq_delivery_note .o_delivery_signoff .o_sign_line {
+                border-bottom: 1px solid #000;
+                height: 18px;
+                }
+                .o_petroraq_delivery_note .o_delivery_received_note {
+                margin: 0;
+                border: 1px solid #b3a11a;
+                background: #f1f1f1;
+                color: #000;
+                padding: 4px 6px;
+                font-size: 11px;
+                font-style: italic;
+                line-height: 1.25;
+                }
+                .o_petroraq_delivery_note .o_delivery_received_note .o_note_ar {
+                direction: rtl;
+                text-align: right;
+                font-style: normal;
+                font-weight: 700;
+                }
+            </style>
+        </xpath>
+
+        <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]/h2" position="replace">
+            <h2 class="o_delivery_title">
+                Delivery Note #
+                <span t-field="o.name"/>
+            </h2>
+        </xpath>
+
+        <xpath expr="//div[@name='div_origin']/.." position="replace">
+            <t t-set="customer_partner" t-value="o.partner_id.commercial_partner_id or o.partner_id"/>
+            <t t-set="delivery_contact" t-value="o._pr_get_default_delivery_contact()"/>
+            <t t-set="contact_person_name" t-value="o.delivery_note_contact_person_name or delivery_contact[0]"/>
+            <t t-set="contact_person_phone" t-value="o.delivery_note_contact_person_phone or delivery_contact[1]"/>
+            <table class="o_delivery_info_table">
+                <tr t-if="customer_partner">
+                    <td class="o_label">Customer</td>
+                    <td colspan="3">
+                        <span t-esc="customer_partner.name or ''"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="o_label">Ship To</td>
+                    <td colspan="3">
+                        <t t-if="o.delivery_note_ship_to_address">
+                            <div style="white-space: pre-line;" t-esc="o.delivery_note_ship_to_address"/>
+                        </t>
+                        <t t-elif="o.delivery_note_ship_to_partner_id">
+                            <div t-field="o.delivery_note_ship_to_partner_id"
+                                 t-options='{"widget": "contact", "fields": ["address", "phone"], "no_marker": True, "phone_icons": False}'/>
+                        </t>
+                        <t t-else="">
+                            <div t-field="o.partner_id"
+                                 t-options='{"widget": "contact", "fields": ["address", "phone"], "no_marker": True, "phone_icons": False}'/>
+                        </t>
+                    </td>
+                </tr>
+                <tr t-if="contact_person_name or contact_person_phone">
+                    <td class="o_label">Contact Person</td>
+                    <td>
+                        <span t-esc="contact_person_name or ''"/>
+                    </td>
+                    <td class="o_label">Contact</td>
+                    <td>
+                        <span t-esc="contact_person_phone or ''"/>
+                    </td>
+                </tr>
+                <tr t-if="o.delivery_note_po_number or o.delivery_note_po_date">
+                    <td class="o_label">PO Name</td>
+                    <td>
+                        <span t-esc="o.delivery_note_po_number or ''"/>
+                    </td>
+                    <td class="o_label">PO Date</td>
+                    <td>
+                        <span t-if="o.delivery_note_po_date" t-field="o.delivery_note_po_date"/>
+                    </td>
+                </tr>
+                <!--                <tr t-if="customer_partner and customer_partner.vat">-->
+                <!--                    <td class="o_label">VAT No.</td>-->
+                <!--                    <td colspan="3">-->
+                <!--                        <span t-esc="customer_partner.vat"/>-->
+                <!--                    </td>-->
+                <!--                </tr>-->
+                <tr>
+                    <td class="o_label">Sales Order NO.</td>
+                    <td>
+                        <span t-if="o.origin" t-field="o.origin"/>
+                    </td>
+                    <td class="o_label">Shipping Date</td>
+                    <td>
+                        <span t-if="o.state == 'done'" t-field="o.date_done"/>
+                        <span t-else="" t-field="o.scheduled_date"/>
+                    </td>
+                </tr>
+            </table>
+        </xpath>
+
+        <xpath expr="//table[@name='stock_move_table']" position="replace">
+            <t t-set="delivery_moves"
+               t-value="o.move_ids_without_package if 'move_ids_without_package' in o._fields else o.move_lines"/>
+            <t t-set="lines" t-value="delivery_moves.filtered(lambda m: m.product_uom_qty)"/>
+            <table class="table table-sm o_delivery_products_table" t-if="lines">
+                <colgroup>
+                    <col style="width:6%;"/>
+                    <col style="width:14%;"/>
+                    <col style="width:58%;"/>
+                    <col style="width:10%;"/>
+                    <col style="width:12%;"/>
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th class="text-center">
+                            <strong>S/N</strong>
+                        </th>
+                        <th class="text-center">
+                            <strong>Product Code</strong>
+                        </th>
+                        <th>
+                            <strong>Product Name</strong>
+                        </th>
+                        <th class="text-center">
+                            <strong>UoM</strong>
+                        </th>
+                        <th class="text-center">
+                            <strong>Delivered</strong>
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <t t-set="sr_no" t-value="0"/>
+
+                    <tr t-foreach="lines" t-as="move">
+                        <t t-set="sr_no" t-value="sr_no + 1"/>
+
+                        <td class="text-center">
+                            <span t-esc="sr_no"/>
+                        </td>
+
+                        <td class="text-center">
+                            <span t-esc="move.product_id.default_code or ''"/>
+                        </td>
+
+                        <td>
+                            <span t-esc="move.product_id.name or ''"/>
+
+                            <p t-if="move.description_picking and move.description_picking not in (move.product_id.name, move.product_id.display_name)"
+                               style="margin:3px 0 0 0;">
+                                <span t-esc="move.description_picking"/>
+                            </p>
+                        </td>
+                        <td class="text-center">
+                            <span t-field="move.product_uom"/>
+                        </td>
+
+                        <td class="text-center">
+                            <t t-set="delivered_qty"
+                               t-value="move.quantity if 'quantity' in move._fields else move.quantity_done"/>
+                            <span t-esc="'%g' % (delivered_qty or 0.0)"/>
+                        </td>
+
+
+                    </tr>
+                </tbody>
+            </table>
+            <div class="o_delivery_bottom_block">
+                <div class="o_delivery_received_note">
+                    <div class="o_note_ar">جميع البنود والكميات المذكورة أعلاه تم استلامها بحالة جيدة</div>
+                    <div>The above mentioned items and quantities have been verified and received in good condition.
+                    </div>
+                </div>
+                <table class="table table-borderless o_delivery_signoff">
+                    <tr>
+                        <td>
+                            <div class="o_sign_line"></div>
+                            <div class="o_sign_label">Received By</div>
+                        </td>
+                        <td>
+                            <div class="o_sign_line"></div>
+                            <div class="o_sign_label">Signature</div>
+                        </td>
+                        <td>
+                            <div class="o_sign_line"></div>
+                            <div class="o_sign_label">Stamp</div>
+                        </td>
+                        <td>
+                            <div class="o_sign_line"></div>
+                            <div class="o_sign_label">Date</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </xpath>
+
+        <xpath expr="//table[@name='stock_move_line_table']" position="replace"/>
+        <xpath expr="//table[@name='stock_backorder_table']/.." position="replace"/>
+        <xpath expr="//div[@name='signature']" position="replace"/>
 
     </template>
 </odoo>

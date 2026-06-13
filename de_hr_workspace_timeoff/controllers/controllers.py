@@ -7,14 +7,15 @@ from datetime import datetime
 from werkzeug.exceptions import NotFound
 import base64
 
+from odoo.addons.de_hr_workspace.controllers.portal_employee import require_current_employee
+
 
 class LeaveRequestTemplate(http.Controller):
 
     @http.route('/leave_request', auth='user', type='http')
     def display_leave_request_form(self, **kw):
 
-        current_user = request.env.user
-        current_employee_id = request.env["hr.employee"].sudo().search([("user_id", "=", current_user.id)], limit=1)
+        current_employee_id = require_current_employee()
         email = current_employee_id.work_email
         return http.request.render('de_hr_workspace_timeoff.leave_request_template', {
             "current_employee_id": current_employee_id,
@@ -26,7 +27,8 @@ class LeaveRequestTemplate(http.Controller):
 
     @http.route('/leave_request/create', type='http', auth="user")
     def leave_created(self, **kw):
-        employee_id = int(kw.get('employee_id'))
+        current_employee_id = require_current_employee()
+        employee_id = current_employee_id.id
         leave_type_id = int(kw.get('leave_type_id'))
         str_date_from = kw.get('date_from')
         str_date_to = kw.get('date_to')
@@ -97,6 +99,7 @@ class LeaveRequestTemplate(http.Controller):
             [("user_id", "=", current_user.id), ("active", "=", True)], limit=1)
         summary = []
         if current_employee_id:
+            LeaveDashboard = request.env["hr.leave"].sudo()
             leave_type_ids = request.env["hr.leave.type"].sudo().search(
                 ["|", ("company_id", "=", request.env.company.id), ("company_id", "=", False)])
             if leave_type_ids:
@@ -128,19 +131,17 @@ class LeaveRequestTemplate(http.Controller):
                     # endregion [Leaves]
                     # if allocation_days > 0 or leave_days > 0:
                     if allocation_days > 0:
+                        available_days = round(max(allocation_days - leave_days, 0), 2)
                         summary.append({
+                            "sort_key": LeaveDashboard._de_leave_dashboard_sort_key(leave_type),
                             "leave_name": leave_type.name,
                             "allocation_days": allocation_days,
                             "leave_days": leave_days,
+                            "available_days": available_days,
+                            "remaining_days": leave_days,
                             "requires_allocation": leave_type.requires_allocation if leave_type.leave_type != "sick_leave" else "yes",
                         })
-
-                    # summary = {
-                    #     'annual': self.search_count([('holiday_status_id.name', '=', 'Annual Leave')]),
-                    #     'sick': self.search_count([('holiday_status_id.name', '=', 'Sick Leave')]),
-                    #     'other': self.search_count([('holiday_status_id.name', '=', 'Other Leave')]),
-                    #     'pending': self.search_count([('state', '=', 'confirm')]),
-                    # }
+                summary.sort(key=lambda item: item.get("sort_key", (99, 999, "", 0)))
 
             leaves_history = request.env["hr.leave"].sudo().search([
                 ('employee_id', '=', current_employee_id.id)

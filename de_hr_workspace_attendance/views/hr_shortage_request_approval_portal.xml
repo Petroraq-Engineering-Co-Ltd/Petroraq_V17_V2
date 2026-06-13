@@ -4,10 +4,11 @@
               customize_show="True"
               inherit_id="portal.portal_my_home">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-            <t t-set="portal_service_category_enable" t-value="True"/>
+            <t t-set="portal_employee_user" t-value="request.env['hr.employee'].sudo().search_count([('user_id', '=', request.env.user.id), ('active', '=', True)])"/>
+            <t t-if="portal_employee_user" t-set="portal_service_category_enable" t-value="True"/>
         </xpath>
         <div id="portal_service_category" position="inside">
-            <t t-call="portal.portal_docs_entry">
+            <t t-if="portal_employee_user" t-call="portal.portal_docs_entry">
                 <t t-set="icon" t-value="'/de_hr_workspace_attendance/static/src/img/shortage_request_approval.png'"/>
                 <t t-set="title">Shortage Requests Approvals</t>
                 <t t-set="url" t-value="'/my/shortage_requests_approval'"/>
@@ -83,7 +84,8 @@
 
     <template id="employee_shortage_request_approval_info_portal" inherit_id="portal.portal_sidebar">
         <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
-            <section class="w-100 px-4 py-5" style="background-color: #9de2ff; border-radius: .5rem .5rem 0 0;">
+            <section t-if="request.httprequest.path.startswith('/my/shortage_requests_approval/')"
+                     class="w-100 px-4 py-5" style="background-color: #9de2ff; border-radius: .5rem .5rem 0 0;">
                 <div class="row d-flex justify-content-center">
                     <div class="col col-md-9 col-lg-9 col-xl-9">
                         <div class="card" style="border-radius: 15px;">
@@ -162,7 +164,7 @@
                     </div>
                 </div>
             </section>
-            <div class="container py-5">
+            <div t-if="request.httprequest.path.startswith('/my/shortage_requests_approval/')" class="container py-5">
                 <h1>Chatter feature</h1>
                 <t t-call="portal.message_thread">
                     <t t-set="object" t-value="shortage_request_id"/>

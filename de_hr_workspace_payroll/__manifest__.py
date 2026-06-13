@@ -9,11 +9,11 @@
     """,
     'author': 'Dynexcel',
     'website': 'https://www.dynexcel.com',
-    'version': '0.1',
+    'version': '0.2',
     'category': 'Human Resources',
 
     # any module necessary for this one to work correctly
-    'depends': ['de_hr_workspace','pr_hr_payroll','pr_tax_Invoice_report_custom'],
+    'depends': ['de_hr_workspace','pr_hr_payroll','pr_tax_Invoice_report_custom','pr_custom_purchase'],
 
     # always loaded
     'data': [

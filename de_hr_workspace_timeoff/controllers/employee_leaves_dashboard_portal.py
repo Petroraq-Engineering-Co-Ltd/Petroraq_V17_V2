@@ -8,6 +8,10 @@ from odoo import conf, http, _, fields
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from odoo.addons.de_hr_workspace.controllers.portal_employee import (
+    get_current_employee,
+    require_current_employee,
+)
 from odoo.tools import groupby as groupbyelem
 
 from odoo.osv.expression import OR, AND
@@ -18,7 +22,7 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         if 'my_leave_dashboard_count' in counters:
-            values['my_leave_dashboard_count'] = 1
+            values['my_leave_dashboard_count'] = 1 if get_current_employee() else 0
         return values
 
     def _prepare_my_leaves_dashboard_domain(self):
@@ -31,9 +35,10 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
 
     @http.route(['/my/leaves_dashboard', '/my/leaves_dashboard/page/<int:page>'], type='http', auth="user", website=True)
     def portal_my_leaves_dashboard(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
+        require_current_employee()
         values = self._prepare_portal_layout_values()
         LeaveDashboard = request.env['hr.leave'].sudo()
-        domain = self._prepare_my_leaves_domain()
+        domain = self._prepare_my_leaves_dashboard_domain()
 
         searchbar_sortings = self._prepare_my_leaves_dashboard_searchbar_sortings()
         # if not sortby:
@@ -70,6 +75,7 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
         pending = []
         taken_leaves = {}
         if current_employee_id:
+            LeaveSummary = request.env["hr.leave"].sudo()
             leave_type_ids = request.env["hr.leave.type"].sudo().search(
                 ["|", ("company_id", "=", request.env.company.id), ("company_id", "=", False)])
             if leave_type_ids:
@@ -106,12 +112,17 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
                         taken_leaves[leave_type.name] = 0
                     # endregion [Leaves]
                     if allocation_days > 0:
+                        available_days = round(max(allocation_days - leave_days, 0), 2)
                         summary.append({
+                            "sort_key": LeaveSummary._de_leave_dashboard_sort_key(leave_type),
                             "leave_name": leave_type.name,
                             "allocation_days": allocation_days,
                             "leave_days": leave_days,
+                            "available_days": available_days,
+                            "remaining_days": leave_days,
                             "requires_allocation": leave_type.requires_allocation if leave_type.leave_type != "sick_leave" else "yes",
                         })
+                summary.sort(key=lambda item: item.get("sort_key", (99, 999, "", 0)))
 
             leaves_history = request.env["hr.leave"].sudo().search([
                 ('employee_id', '=', current_employee_id.id)

@@ -749,6 +749,13 @@ class CustomPRLine(models.Model):
         ondelete="restrict",
         context={'display_default_code': False},
     )
+    product_internal_reference = fields.Many2one(
+        "product.internal.reference.lookup",
+        string="Product Code",
+        compute="_compute_product_internal_reference",
+        inverse="_inverse_product_internal_reference",
+        readonly=False,
+    )
     cost_center_id = fields.Many2one(
         'account.analytic.account',
         string='Cost Center',
@@ -771,6 +778,25 @@ class CustomPRLine(models.Model):
             allowed = bucket.crossovered_budget_line.mapped("analytic_account_id")
             if rec.cost_center_id and bucket and rec.cost_center_id not in allowed:
                 raise ValidationError(_('Selected cost center must belong to the selected expense bucket.'))
+
+    @api.depends("description")
+    def _compute_product_internal_reference(self):
+        ProductRef = self.env["product.internal.reference.lookup"]
+        for line in self:
+            line.product_internal_reference = ProductRef.browse(line.description.id) if line.description else False
+
+    def _inverse_product_internal_reference(self):
+        for line in self:
+            line.description = line.product_internal_reference.product_id
+
+    @api.onchange("product_internal_reference")
+    def _onchange_product_internal_reference(self):
+        for line in self:
+            line.description = line.product_internal_reference.product_id
+            line._onchange_description()
+            line._onchange_product_set_price()
+            if not line.description:
+                line.product_internal_reference = False
 
     type = fields.Selection(
         [

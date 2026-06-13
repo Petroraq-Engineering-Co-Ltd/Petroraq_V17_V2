@@ -16,6 +16,7 @@
         "stock",
         "mail",
         "purchase",
+        "pr_base",
         "pr_custom_purchase",
         "report_xlsx",
     ],

@@ -6,16 +6,22 @@
         <field name="name">pr.base.res.partner.view.form.inherit</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">50</field>
         <field name="arch" type="xml">
             <xpath expr="//span[@name='address_name']" position="before">
                 <field name="partner_code"/>
             </xpath>
-            <!--            <xpath expr="//field[@name='vat']" position="attributes">-->
-            <!--                <attribute name="required">is_company</attribute>-->
-            <!--            </xpath>-->
-            <!--            <xpath expr="//field[@name='company_registry']" position="attributes">-->
-            <!--                <attribute name="required">is_company</attribute>-->
-            <!--            </xpath>-->
+            <xpath expr="//field[@name='vat']" position="attributes">
+                <attribute name="required">is_company and not parent_id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='l10n_sa_additional_identification_scheme']" position="attributes">
+                <attribute name="invisible">False</attribute>
+                <attribute name="required">is_company and not parent_id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='l10n_sa_additional_identification_number']" position="attributes">
+                <attribute name="invisible">False</attribute>
+                <attribute name="required">is_company and not parent_id</attribute>
+            </xpath>
 
 
             <xpath expr="//span[@name='address_name']" position="before">

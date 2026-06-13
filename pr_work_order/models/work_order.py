@@ -810,6 +810,13 @@ class WorkOrderBOQ(models.Model):
     name = fields.Char("Description", required=True)
 
     product_id = fields.Many2one("product.product", string="Product")
+    product_internal_reference = fields.Many2one(
+        "product.internal.reference.lookup",
+        string="Product Code",
+        compute="_compute_product_internal_reference",
+        inverse="_inverse_product_internal_reference",
+        readonly=False,
+    )
     uom_id = fields.Many2one("uom.uom", string="Unit")
     qty = fields.Float("Qty")
 
@@ -836,6 +843,27 @@ class WorkOrderBOQ(models.Model):
     def _compute_total(self):
         for rec in self:
             rec.total = (rec.qty or 0.0) * (rec.unit_cost or 0.0)
+
+    @api.depends("product_id")
+    def _compute_product_internal_reference(self):
+        ProductRef = self.env["product.internal.reference.lookup"]
+        for line in self:
+            line.product_internal_reference = ProductRef.browse(line.product_id.id) if line.product_id else False
+
+    def _inverse_product_internal_reference(self):
+        for line in self:
+            line.product_id = line.product_internal_reference.product_id
+
+    @api.onchange("product_internal_reference")
+    def _onchange_product_internal_reference(self):
+        for line in self:
+            line.product_id = line.product_internal_reference.product_id
+            if line.product_id:
+                line.name = line.product_id.display_name
+                line.uom_id = line.product_id.uom_id
+                line.unit_cost = line.product_id.standard_price
+            else:
+                line.product_internal_reference = False
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -22,33 +22,71 @@
 
 .o_petroraq_totals {
     margin-top: 12px;
+    margin-left: auto;
     padding-top: 8px;
     border-top: 1px solid var(--o-gray-200);
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: 100%;
+    max-width: 620px;
 }
 
 .o_petroraq_total_row {
     display: grid;
-    grid-template-columns: 220px 160px 1fr;
-    column-gap: 32px;
+    grid-template-columns: minmax(190px, 1fr) 110px minmax(150px, auto);
+    column-gap: 16px;
     align-items: center;
 }
 
 .o_petroraq_tax_totals {
-    padding: 4px 16px;
+    padding: 4px 0;
+    width: 100%;
 }
 
 .o_petroraq_tax_totals .o_field_widget {
     width: 100%;
 }
 
+.o_petroraq_tax_totals table,
+.o_petroraq_tax_totals tbody {
+    display: block;
+    width: 100%;
+}
+
+.o_petroraq_tax_totals tr {
+    display: grid;
+    grid-template-columns: minmax(190px, 1fr) 110px minmax(150px, auto);
+    column-gap: 16px;
+    align-items: center;
+}
+
+.o_petroraq_tax_totals td.o_td_label {
+    grid-column: 1 / 3;
+    padding: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.o_petroraq_tax_totals td.o_list_monetary,
+.o_petroraq_tax_totals td.o_tax_group {
+    grid-column: 3;
+    padding: 0;
+    min-width: 150px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.o_petroraq_tax_totals .o_tax_total_label {
+    font-weight: 600;
+    color: var(--o-gray-700);
+}
+
 .o_petroraq_total_label {
     font-weight: 600;
     color: var(--o-gray-700);
-    padding-left: 16px;
     white-space: nowrap;
+    text-align: right;
 }
 
 .o_petroraq_total_input {
@@ -68,8 +106,7 @@
     color: var(--o-brand-900);
     white-space: nowrap;
     text-align: right;
-    min-width: 180px;
-    padding-right: 16px;
+    min-width: 150px;
 }
 
 .o_petroraq_total_row.o_petroraq_total_grand .o_petroraq_total_label,
