@@ -118,7 +118,7 @@ class PrBudgetRequisition(models.Model):
         compute="_compute_budget_totals",
     )
     total_remaining_amount = fields.Monetary(
-        string="Budget Remaining",
+        string="Remaining Amount",
         currency_field="currency_id",
         compute="_compute_budget_totals",
     )

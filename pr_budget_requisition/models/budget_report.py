@@ -138,6 +138,9 @@ class PrBudgetReportWizard(models.TransientModel):
                 po_spent += line_spent
                 po_ids.add(order.id)
 
+        pr_reservation = self._get_pr_reservation_breakdown(analytic, date_from, date_to)
+        po_spent += pr_reservation["amount"]
+
         voucher_sources = [
             ("pr.account.cash.payment.line", "cash_payment_id", cash_ids, "cash"),
             ("pr.account.bank.payment.line", "bank_payment_id", bank_ids, "bank"),
@@ -176,9 +179,53 @@ class PrBudgetReportWizard(models.TransientModel):
             "po_spent": po_spent,
             "cash_spent": cash_spent,
             "bank_spent": bank_spent,
-            "po_count": len(po_ids),
+            "po_count": len(po_ids) + pr_reservation["count"],
             "cash_voucher_count": len(cash_ids),
             "bank_voucher_count": len(bank_ids),
+        }
+
+    def _get_pr_reservation_breakdown(self, analytic, date_from, date_to, include_documents=False):
+        self.ensure_one()
+        amount = 0.0
+        requisition_ids = set()
+        documents = []
+
+        PurchaseRequisition = self.env["purchase.requisition"].sudo()
+        requisitions = PurchaseRequisition.search([
+            ("approval", "=", "approved"),
+            ("expense_bucket_id", "!=", False),
+            ("line_ids.cost_center_id", "=", analytic.id),
+        ])
+        for requisition in requisitions:
+            requisition_date = requisition.date_request or requisition.create_date
+            if not self._date_in_period(requisition_date, date_from, date_to):
+                continue
+
+            item = requisition._current_budget_reservation_by_cost_center().get(analytic.id)
+            reserved_amount = item["amount"] if item else 0.0
+            if not reserved_amount:
+                continue
+
+            amount += reserved_amount
+            requisition_ids.add(requisition.id)
+            if include_documents:
+                documents.append({
+                    "source": _("Purchase Requisition"),
+                    "document": requisition.name or "",
+                    "date": fields.Date.to_date(requisition_date),
+                    "state": self._selection_label(requisition, "approval"),
+                    "partner": requisition.vendor_id.display_name or "",
+                    "description": _("Approved PR Reservation"),
+                    "amount": reserved_amount,
+                    "cost_center": analytic.display_name or "",
+                    "budget": requisition.expense_bucket_id.display_name or "",
+                    "requisition": requisition.display_name or "",
+                })
+
+        return {
+            "amount": amount,
+            "count": len(requisition_ids),
+            "documents": documents,
         }
 
     def _refresh_report_lines(self):
@@ -380,6 +427,15 @@ class PrBudgetReportWizard(models.TransientModel):
                 "requisition": report_line.source_requisition_id.display_name or "",
             })
 
+        documents.extend(
+            self._get_pr_reservation_breakdown(
+                analytic,
+                report_line.date_from,
+                report_line.date_to,
+                include_documents=True,
+            )["documents"]
+        )
+
         voucher_sources = [
             ("pr.account.cash.payment.line", "cash_payment_id", _("Cash Payment Voucher")),
             ("pr.account.bank.payment.line", "bank_payment_id", _("Bank Payment Voucher")),
@@ -535,11 +591,11 @@ class PrBudgetReportLine(models.TransientModel):
     planned_amount = fields.Monetary(string="Budget Created", currency_field="currency_id", readonly=True)
     requested_amount = fields.Monetary(string="Requested Amount", currency_field="currency_id", readonly=True)
     spent_amount = fields.Monetary(string="Total Spent", currency_field="currency_id", readonly=True)
-    po_spent_amount = fields.Monetary(string="PO Spend", currency_field="currency_id", readonly=True)
+    po_spent_amount = fields.Monetary(string="PR/PO Spend", currency_field="currency_id", readonly=True)
     cash_spent_amount = fields.Monetary(string="CPV Spend", currency_field="currency_id", readonly=True)
     bank_spent_amount = fields.Monetary(string="BPV Spend", currency_field="currency_id", readonly=True)
     remaining_amount = fields.Monetary(string="Budget Remaining", currency_field="currency_id", readonly=True)
     utilization_rate = fields.Float(string="Utilization %", readonly=True)
-    po_count = fields.Integer(string="PO Count", readonly=True)
+    po_count = fields.Integer(string="PR/PO Count", readonly=True)
     cash_voucher_count = fields.Integer(string="CPV Count", readonly=True)
     bank_voucher_count = fields.Integer(string="BPV Count", readonly=True)

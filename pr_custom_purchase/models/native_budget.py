@@ -67,7 +67,7 @@ class CrossoveredBudget(models.Model):
         help="Amount consumed by purchase orders and submitted/approved payment vouchers through cost-center analytic distribution.",
     )
     budget_remaining_amount = fields.Monetary(
-        string="Budget Remaining",
+        string="Remaining Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_metrics",
     )
@@ -527,7 +527,7 @@ class CrossoveredBudgetLines(models.Model):
         help="Amount consumed by purchase orders and submitted/approved payment vouchers for this cost center.",
     )
     budget_remaining_amount = fields.Monetary(
-        string="Budget Remaining",
+        string="Remaining Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_line_metrics",
     )

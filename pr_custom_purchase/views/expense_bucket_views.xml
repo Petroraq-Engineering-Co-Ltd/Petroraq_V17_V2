@@ -119,7 +119,7 @@
             </xpath>
 
             <xpath expr="//field[@name='crossovered_budget_line']/tree/field[@name='planned_amount']" position="after">
-                <field name="po_spent_amount" readonly="1" sum="PO Spent"/>
+                <field name="po_spent_amount" readonly="1" sum="PR/PO Spent"/>
                 <field name="budget_remaining_amount" readonly="1" sum="Budget Remaining"/>
             </xpath>
 

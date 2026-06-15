@@ -94,10 +94,10 @@ class AccountAnalyticAccount(models.Model):
     def _get_po_budget_spent_map(self, date_from=False, date_to=False):
         """Return committed/spent budget by analytic account.
 
-        Purchase Orders consume budget through PO lines. Cash PR vouchers
-        consume budget through CPV/BPV lines once submitted into accounting
-        approval. When a date range is supplied, only documents inside that
-        budget period consume that budget.
+        Approved PR lines reserve budget immediately. Purchase Orders and
+        submitted CPV/BPV lines replace that reservation as the downstream
+        commitment/spend document. When a date range is supplied, only
+        documents inside that budget period consume that budget.
         """
         analytic_ids = set(self.ids)
         spent_by_analytic = {analytic_id: 0.0 for analytic_id in analytic_ids}
@@ -169,6 +169,21 @@ class AccountAnalyticAccount(models.Model):
                 if not self._date_in_period(voucher_date, date_from, date_to):
                     continue
                 add_distributed_amount(line.analytic_distribution or {}, line.amount or 0.0)
+
+        PurchaseRequisition = self.env["purchase.requisition"].sudo()
+        requisitions = PurchaseRequisition.search([
+            ("approval", "=", "approved"),
+            ("expense_bucket_id", "!=", False),
+            ("line_ids.cost_center_id", "in", list(analytic_ids)),
+        ])
+        for requisition in requisitions:
+            requisition_date = requisition.date_request or requisition.create_date
+            if not self._date_in_period(requisition_date, date_from, date_to):
+                continue
+            for item in requisition._current_budget_reservation_by_cost_center().values():
+                analytic_id = item["cc"].id
+                if analytic_id in spent_by_analytic:
+                    spent_by_analytic[analytic_id] += item["amount"]
 
         return spent_by_analytic
 
