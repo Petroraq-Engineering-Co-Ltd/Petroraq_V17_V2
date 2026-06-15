@@ -135,21 +135,37 @@ def _clean_text(value):
     return str(value or "").strip()
 
 
-def _get_invoice_group_description(line, line_count):
+def _get_line_reference(line):
     move = line.move_id
-    base_description = (
-        _clean_text(move.ref)
-        or _clean_text(line.ref)
-        or _clean_text(move.invoice_origin)
-        or _clean_text(move.partner_id.display_name)
-        or _clean_text(move.name)
-        or _clean_text(line.name)
+    if move.move_type in INVOICE_MOVE_TYPES:
+        candidates = (
+            getattr(move, "invoice_origin", False),
+            line.ref,
+            move.ref,
+            getattr(move, "payment_reference", False),
+            move.name,
+        )
+    else:
+        candidates = (
+            line.ref,
+            move.ref,
+            getattr(move, "invoice_origin", False),
+            getattr(move, "payment_reference", False),
+            move.name,
+        )
+    return next((value for value in (_clean_text(candidate) for candidate in candidates) if value), " ")
+
+
+def _get_line_description(line):
+    move = line.move_id
+    candidates = (
+        line.name,
+        getattr(move, "invoice_origin", False),
+        move.ref,
+        getattr(move, "payment_reference", False),
+        move.name,
     )
-    if line_count > 1:
-        if base_description and base_description != _clean_text(move.name):
-            return f"{base_description}"
-        return f"Merged invoice lines ({line_count})"
-    return _clean_text(line.name) or base_description
+    return next((value for value in (_clean_text(candidate) for candidate in candidates) if value), " ")
 
 
 def get_ledger_report_line_groups(move_lines, merge_invoice_lines=False):
@@ -163,8 +179,8 @@ def get_ledger_report_line_groups(move_lines, merge_invoice_lines=False):
         return [{
             "transaction_ref": line.move_id.name,
             "date": line.date,
-            "description": line.name,
-            "reference": line.ref,
+            "description": _get_line_description(line),
+            "reference": _get_line_reference(line),
             "journal": line.journal_id.name,
             "debit": line.debit,
             "credit": line.credit,
@@ -196,8 +212,8 @@ def get_ledger_report_line_groups(move_lines, merge_invoice_lines=False):
         report_lines.append({
             "transaction_ref": first_line.move_id.name,
             "date": first_line.date,
-            "description": _get_invoice_group_description(first_line, group["line_count"]),
-            "reference": first_line.ref,
+            "description": _get_line_description(first_line),
+            "reference": _get_line_reference(first_line),
             "journal": first_line.journal_id.name,
             "debit": group["debit"],
             "credit": group["credit"],
