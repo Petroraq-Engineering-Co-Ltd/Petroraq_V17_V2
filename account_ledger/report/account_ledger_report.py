@@ -6,7 +6,7 @@ from odoo import api, models
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 import logging
 
-from .ledger_partner_utils import as_date, get_ledger_move_lines, get_opening_balance
+from .ledger_partner_utils import as_date, get_ledger_move_lines, get_ledger_report_line_groups, get_opening_balance
 
 _logger = logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ class AccountLedgerReport(models.AbstractModel):
         date_start = data['form']['date_start']
         date_end = data['form']['date_end']
         company = data['form']['company']
+        merge_invoice_lines = data['form'].get('merge_invoice_lines')
         analytic_ids = []
         str_analytic_ids = []
         # -- Analytic Fields -- #
@@ -129,19 +130,19 @@ class AccountLedgerReport(models.AbstractModel):
             'balance': '{:,.2f}'.format(initial_balance)
         })
 
-        for item in JournalItems:
-            balance = initial_balance + (item.debit - item.credit)
-            t_debit += item.debit
-            t_credit += item.credit
+        for item in get_ledger_report_line_groups(JournalItems, merge_invoice_lines):
+            balance = initial_balance + (item["debit"] - item["credit"])
+            t_debit += item["debit"]
+            t_credit += item["credit"]
             docs.append({
-                'transaction_ref': item.move_id.name,
-                'date': item.date,
-                'description': item.name,
-                'reference': item.ref,
-                'journal': item.journal_id.name,
+                'transaction_ref': item["transaction_ref"],
+                'date': item["date"],
+                'description': item["description"],
+                'reference': item["reference"],
+                'journal': item["journal"],
                 'initial_balance': '{:,.2f}'.format(initial_balance),
-                'debit': '{:,.2f}'.format(item.debit),
-                'credit': '{:,.2f}'.format(item.credit),
+                'debit': '{:,.2f}'.format(item["debit"]),
+                'credit': '{:,.2f}'.format(item["credit"]),
                 'balance': '{:,.2f}'.format(balance)
             })
             initial_balance = balance

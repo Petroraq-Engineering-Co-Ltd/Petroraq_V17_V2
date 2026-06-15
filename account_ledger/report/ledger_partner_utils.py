@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import OrderedDict
 from datetime import datetime, date
 
 from odoo.osv import expression
@@ -7,6 +8,14 @@ from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 
 PARTNER_LEDGER_ACCOUNT_TYPES = ("asset_receivable", "liability_payable")
+INVOICE_MOVE_TYPES = (
+    "out_invoice",
+    "out_refund",
+    "in_invoice",
+    "in_refund",
+    "out_receipt",
+    "in_receipt",
+)
 
 
 def as_date(value):
@@ -120,3 +129,77 @@ def get_opening_balance(env, company_id, account_ids, date_start, analytic_ids=N
     )
     result = env["account.move.line"].read_group(domain, ["balance:sum"], [])
     return result[0].get("balance", 0.0) if result else 0.0
+
+
+def _clean_text(value):
+    return str(value or "").strip()
+
+
+def _get_invoice_group_description(line, line_count):
+    move = line.move_id
+    base_description = (
+        _clean_text(move.ref)
+        or _clean_text(line.ref)
+        or _clean_text(move.invoice_origin)
+        or _clean_text(move.partner_id.display_name)
+        or _clean_text(move.name)
+        or _clean_text(line.name)
+    )
+    if line_count > 1:
+        if base_description and base_description != _clean_text(move.name):
+            return f"{base_description} (Merged {line_count} lines)"
+        return f"Merged invoice lines ({line_count})"
+    return _clean_text(line.name) or base_description
+
+
+def get_ledger_report_line_groups(move_lines, merge_invoice_lines=False):
+    """Return report rows, optionally collapsing invoice product lines.
+
+    Journal entries remain untouched. Invoice/refund/receipt move lines are
+    grouped by invoice and account so a revenue ledger can show one line per
+    invoice while preserving account-level debit, credit, and running balance.
+    """
+    if not merge_invoice_lines:
+        return [{
+            "transaction_ref": line.move_id.name,
+            "date": line.date,
+            "description": line.name,
+            "reference": line.ref,
+            "journal": line.journal_id.name,
+            "debit": line.debit,
+            "credit": line.credit,
+        } for line in move_lines]
+
+    grouped_lines = OrderedDict()
+    for line in move_lines:
+        move = line.move_id
+        if move.move_type in INVOICE_MOVE_TYPES:
+            group_key = ("invoice", move.id, line.account_id.id)
+        else:
+            group_key = ("line", line.id)
+
+        if group_key not in grouped_lines:
+            grouped_lines[group_key] = {
+                "first_line": line,
+                "debit": 0.0,
+                "credit": 0.0,
+                "line_count": 0,
+            }
+
+        grouped_lines[group_key]["debit"] += line.debit
+        grouped_lines[group_key]["credit"] += line.credit
+        grouped_lines[group_key]["line_count"] += 1
+
+    report_lines = []
+    for group in grouped_lines.values():
+        first_line = group["first_line"]
+        report_lines.append({
+            "transaction_ref": first_line.move_id.name,
+            "date": first_line.date,
+            "description": _get_invoice_group_description(first_line, group["line_count"]),
+            "reference": first_line.ref,
+            "journal": first_line.journal_id.name,
+            "debit": group["debit"],
+            "credit": group["credit"],
+        })
+    return report_lines

@@ -48,6 +48,10 @@ class AccountLedger(models.TransientModel):
     account_id_domain = fields.Char(compute="_compute_account_id_domain")
     account_ids = fields.Many2many('account.account', required=True, string="Accounts")
     account_name = fields.Char(string='Account Name', related="account_id.name")
+    merge_invoice_lines = fields.Boolean(
+        string="Merge Invoice Lines",
+        help="Show one ledger line per invoice and account by summing invoice journal items.",
+    )
     company_id = fields.Many2one('res.company', required=True, string="Company", default=lambda self: self.env.company)
     department_id = fields.Many2one('account.analytic.account', string="Department",
                                     domain="[('analytic_plan_type', '=', 'department')]")
@@ -297,6 +301,7 @@ class AccountLedger(models.TransientModel):
                 'project': self.project_id.id if self.project_id else False,
                 'employee': self.employee_id.id if self.employee_id else False,
                 'asset': self.asset_id.id if self.asset_id else False,
+                'merge_invoice_lines': self.merge_invoice_lines,
             },
         }
         return self.env.ref('account_ledger.acc_leg_report').report_action(self, data=data)
@@ -323,6 +328,7 @@ class AccountLedger(models.TransientModel):
                 'project': self.project_id.id if self.project_id else False,
                 'employee': self.employee_id.id if self.employee_id else False,
                 'asset': self.asset_id.id if self.asset_id else False,
+                'merge_invoice_lines': self.merge_invoice_lines,
             },
         }
 
