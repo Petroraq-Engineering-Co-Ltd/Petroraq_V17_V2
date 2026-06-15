@@ -21,8 +21,8 @@
                         <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(-1)" title="Previous day">
                             <i class="fa fa-chevron-left"/>
                         </button>
-                        <input type="date" class="form-control" t-att-value="state.selectedDate" t-on-change="onDateChange"/>
-                        <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(1)" title="Next day">
+                        <input type="date" class="form-control" t-att-value="state.selectedDate" t-att-max="getLocalDateString()" t-on-change="onDateChange"/>
+                        <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(1)" t-att-disabled="isNextDayDisabled()" title="Next day">
                             <i class="fa fa-chevron-right"/>
                         </button>
                         <button type="button" class="btn pr-att-mgmt-soft-btn" t-on-click="setToday">

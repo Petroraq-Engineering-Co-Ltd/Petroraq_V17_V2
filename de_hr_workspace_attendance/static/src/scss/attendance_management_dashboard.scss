@@ -108,6 +108,13 @@
   color: var(--pr-navy);
 }
 
+.pr-att-mgmt-icon-btn:disabled {
+  color: #9aa4b2;
+  background: #f5f7fa;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
 .pr-att-mgmt-soft-btn {
   background: #fff;
   color: var(--pr-navy);
