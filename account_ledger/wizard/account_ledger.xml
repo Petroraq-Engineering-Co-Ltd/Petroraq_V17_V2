@@ -122,6 +122,7 @@
                         <field name="account_ids" widget="many2many_tags" invisible="1" force_save="1"/>
                         <field name="date_start"/>
                         <field name="date_end"/>
+                        <field name="merge_invoice_lines"/>
                     </group>
                     <group>
                         <field name="company_id"
