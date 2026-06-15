@@ -182,6 +182,7 @@ class HrPayslip(models.Model):
 
         absence_days = payslip.no_absence if "no_absence" in payslip._fields else 0.0
         employee_no = (employee.code if "code" in employee._fields else False) or employee.identification_id or ""
+        currency = payslip._pr_get_payslip_currency()
 
         return {
             "employee": employee,
@@ -198,7 +199,8 @@ class HrPayslip(models.Model):
             "deduction_total": deduction_total,
             "net_amount": net_amount or 0.0,
             "absence_days": absence_days or 0.0,
-            "currency_symbol": payslip._pr_get_payslip_currency().symbol or "",
+            "currency": currency,
+            "currency_symbol": currency.symbol or "",
         }
 
     @api.depends("line_ids", "line_ids.total")
