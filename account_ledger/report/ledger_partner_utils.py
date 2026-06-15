@@ -147,7 +147,7 @@ def _get_invoice_group_description(line, line_count):
     )
     if line_count > 1:
         if base_description and base_description != _clean_text(move.name):
-            return f"{base_description} (Merged {line_count} lines)"
+            return f"{base_description}"
         return f"Merged invoice lines ({line_count})"
     return _clean_text(line.name) or base_description
 
