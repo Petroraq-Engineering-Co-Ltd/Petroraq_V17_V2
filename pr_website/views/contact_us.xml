@@ -8,6 +8,9 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
             <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap"
                   rel="stylesheet"/>
+            <script t-if="contact_recaptcha_public_key"
+                    t-att-src="'https://www.recaptcha.net/recaptcha/api.js?render=%s' % contact_recaptcha_public_key">
+            </script>
 
             <style>
                 .petroraq-contact * {
@@ -249,6 +252,14 @@
                     resize: vertical;
                     min-height: 160px;
                     padding-top: 22px;
+                }
+                .petroraq-contact .pr-contact-trap {
+                    position: absolute !important;
+                    left: -10000px !important;
+                    top: auto !important;
+                    width: 1px !important;
+                    height: 1px !important;
+                    overflow: hidden !important;
                 }
                 .petroraq-contact .input-group input::placeholder,
                 .petroraq-contact .input-group textarea::placeholder {
@@ -638,39 +649,46 @@
                                     <span t-esc="contact_error"/>
                                 </div>
 
-                                <form class="contact-form" action="/website/mail/contact" method="post">
+                                <form class="contact-form" action="/website/mail/contact" method="post"
+                                      t-att-data-recaptcha-site-key="contact_recaptcha_public_key or False"
+                                      t-att-data-recaptcha-action="contact_recaptcha_action">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="recaptcha_token_response"/>
+                                    <div class="pr-contact-trap" aria-hidden="true">
+                                        <label>Website</label>
+                                        <input type="text" name="website" tabindex="-1" autocomplete="off"/>
+                                    </div>
 
                                     <div class="form-row">
                                         <div class="input-group">
                                             <i class="fa fa-user"></i>
-                                            <input type="text" name="name" placeholder="Full Name *" required="required"/>
+                                            <input type="text" name="name" placeholder="Full Name *" minlength="2" maxlength="100" required="required"/>
                                         </div>
                                         <div class="input-group">
                                             <i class="fa fa-envelope"></i>
-                                            <input type="email" name="email" placeholder="Email Address *" required="required"/>
+                                            <input type="email" name="email" placeholder="Email Address *" maxlength="160" required="required"/>
                                         </div>
                                     </div>
 
                                     <div class="form-row">
                                         <div class="input-group">
                                             <i class="fa fa-phone"></i>
-                                            <input type="tel" name="phone" placeholder="Phone Number"/>
+                                            <input type="tel" name="phone" placeholder="Phone Number" maxlength="24" pattern="^\+?[0-9][0-9\s().-]{7,19}$"/>
                                         </div>
                                         <div class="input-group">
                                             <i class="fa fa-building"></i>
-                                            <input type="text" name="company" placeholder="Company Name"/>
+                                            <input type="text" name="company" placeholder="Company Name" maxlength="120"/>
                                         </div>
                                     </div>
 
                                     <div class="input-group full">
                                         <i class="fa fa-file-text"></i>
-                                        <input type="text" name="subject" placeholder="Subject *" required="required"/>
+                                        <input type="text" name="subject" placeholder="Subject *" minlength="2" maxlength="160" required="required"/>
                                     </div>
 
                                     <div class="input-group full">
                                         <i class="fa fa-comment"></i>
-                                        <textarea name="message" placeholder="Tell us about your project..." required="required"></textarea>
+                                        <textarea name="message" placeholder="Tell us about your project..." minlength="5" maxlength="5000" required="required"></textarea>
                                     </div>
 
                                     <div class="form-footer">
@@ -806,11 +824,52 @@
                     // Form submission feedback
                     const form = document.querySelector('.contact-form');
                     if (form) {
-                        form.addEventListener('submit', function() {
+                        form.addEventListener('submit', function(event) {
                             const btn = this.querySelector('.btn-send');
+                            const siteKey = this.dataset.recaptchaSiteKey;
+                            const action = this.dataset.recaptchaAction || 'pr_website_contact';
+                            const tokenInput = this.querySelector('input[name="recaptcha_token_response"]');
+                            const setSendingState = () => {
+                                if (btn) {
+                                    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+                                    btn.disabled = true;
+                                }
+                            };
+
+                            if (this.dataset.recaptchaSubmitting === '1') {
+                                setSendingState();
+                                return;
+                            }
+
+                            if (siteKey) {
+                                event.preventDefault();
+                                setSendingState();
+
+                                if (!window.grecaptcha || !tokenInput) {
+                                    if (btn) {
+                                        btn.innerHTML = '<i class="fa fa-paper-plane"></i> Send Message';
+                                        btn.disabled = false;
+                                    }
+                                    return;
+                                }
+
+                                window.grecaptcha.ready(() => {
+                                    window.grecaptcha.execute(siteKey, {action: action}).then((token) => {
+                                        tokenInput.value = token;
+                                        this.dataset.recaptchaSubmitting = '1';
+                                        this.submit();
+                                    }).catch(() => {
+                                        if (btn) {
+                                            btn.innerHTML = '<i class="fa fa-paper-plane"></i> Send Message';
+                                            btn.disabled = false;
+                                        }
+                                    });
+                                });
+                                return;
+                            }
+
                             if (btn) {
-                                btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
-                                btn.disabled = true;
+                                setSendingState();
                             }
                         });
                     }

@@ -10,6 +10,7 @@
     # Required
     "depends": [
         "website",
+        "google_recaptcha",
         "crm",
         "hr_recruitment",  # for careers page
         "hr_recruitment_skills",

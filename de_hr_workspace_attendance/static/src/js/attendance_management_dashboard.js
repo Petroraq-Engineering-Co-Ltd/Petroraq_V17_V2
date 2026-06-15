@@ -175,7 +175,7 @@ export class AttendanceManagementDashboard extends Component {
         return [
             {
                 key: "coverage",
-                label: "Attendance Coverage",
+                label: "Overall Attendance",
                 value: this.formatPercent(summary.coverage || 0),
                 sub: `${this.formatNumber(summary.with_punch || 0)} of ${this.formatNumber(summary.scheduled || 0)} Employee`,
                 icon: "fa-check-circle",

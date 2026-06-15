@@ -2,17 +2,24 @@ import logging
 import base64
 import json
 import re
+import time
 from html import escape
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 
 from odoo import http
+from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
 
 class CareersController(http.Controller):
+    CONTACT_RATE_LIMIT = 8
+    CONTACT_RATE_WINDOW = 10 * 60
+    CONTACT_RECAPTCHA_ACTION = 'pr_website_contact'
+    _contact_attempts_by_ip = {}
+
     @http.route('/', type='http', auth='public', website=True, sitemap=True)
     def homepage(self, **kwargs):
         return request.render('pr_website.petroraq_homepage_custom')
@@ -22,7 +29,55 @@ class CareersController(http.Controller):
         return request.render('pr_website.petroraq_contact_us', {
             'contact_success': kwargs.get('success'),
             'contact_error': kwargs.get('error'),
+            'contact_recaptcha_action': self.CONTACT_RECAPTCHA_ACTION,
+            'contact_recaptcha_public_key': self._get_contact_recaptcha_public_key(),
         })
+
+    def _get_contact_recaptcha_public_key(self):
+        return request.env['ir.config_parameter'].sudo().get_param('recaptcha_public_key')
+
+    def _get_contact_client_ip(self):
+        access_route = getattr(request.httprequest, 'access_route', None)
+        if access_route:
+            return access_route[0]
+        return request.httprequest.remote_addr or 'unknown'
+
+    def _validate_contact_rate_limit(self):
+        now = time.time()
+        client_ip = self._get_contact_client_ip()
+        attempts = [
+            attempt_time
+            for attempt_time in self._contact_attempts_by_ip.get(client_ip, [])
+            if now - attempt_time < self.CONTACT_RATE_WINDOW
+        ]
+        if len(attempts) >= self.CONTACT_RATE_LIMIT:
+            self._contact_attempts_by_ip[client_ip] = attempts
+            return 'Too many contact form attempts. Please try again later.'
+        attempts.append(now)
+        self._contact_attempts_by_ip[client_ip] = attempts
+        return None
+
+    def _validate_contact_antibot(self, post):
+        if (post.get('website') or '').strip():
+            return 'Your message could not be submitted. Please try again.'
+
+        return None
+
+    def _validate_contact_recaptcha(self):
+        try:
+            is_valid = request.env['ir.http']._verify_request_recaptcha_token(
+                self.CONTACT_RECAPTCHA_ACTION
+            )
+        except (UserError, ValidationError) as exc:
+            return str(exc)
+        except Exception as exc:
+            _logger.exception('Website contact reCAPTCHA verification failed: %s', exc)
+            return 'Security verification failed. Please retry.'
+
+        if not is_valid:
+            return 'Security verification failed. Please retry.'
+
+        return None
 
     def _validate_contact_payload(self, post):
         length_rules = [
@@ -72,7 +127,12 @@ class CareersController(http.Controller):
 
     @http.route('/website/mail/contact', type='http', auth='public', website=True, methods=['POST'], csrf=True)
     def website_mail_contact(self, **post):
-        validation_error = self._validate_contact_payload(post)
+        validation_error = (
+            self._validate_contact_rate_limit()
+            or self._validate_contact_antibot(post)
+            or self._validate_contact_recaptcha()
+            or self._validate_contact_payload(post)
+        )
         if validation_error:
             return request.redirect('/contact-us?error=%s' % quote_plus(validation_error))
 

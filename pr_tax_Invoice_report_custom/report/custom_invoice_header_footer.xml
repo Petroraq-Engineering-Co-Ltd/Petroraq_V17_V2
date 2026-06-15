@@ -37,7 +37,7 @@
     <!--Template footer-->
     <template id="custom_invoice_footer_layout">
 
-        <div class="footer" style="border-top:1px solid #305081">
+        <div class="footer">
             <div style="border-bottom:1px solid #305081 !important;">
                 <table class="table table-borderless" style="line-height:0.5;font-family: 'DroidArabicNaskh';">
                     <tr>

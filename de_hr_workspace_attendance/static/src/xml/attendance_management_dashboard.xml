@@ -14,8 +14,8 @@
 
                 <header class="pr-att-mgmt-toolbar">
                     <div>
-                        <span class="pr-att-mgmt-eyebrow">Management Attendance</span>
-                        <h1>Attendance Dashboard</h1>
+<!--                        <span class="pr-att-mgmt-eyebrow">Management Attendance</span>-->
+                        <h1>Employee's Attendance Dashboard</h1>
                         <p t-esc="data.display_date"/>
                     </div>
                     <div class="pr-att-mgmt-filters">
@@ -60,7 +60,7 @@
                 <section class="pr-att-mgmt-grid">
                     <article class="pr-att-mgmt-panel pr-span-5">
                         <div class="pr-att-mgmt-panel-title">
-                            <h2>Daily Attendance Trend</h2>
+                            <h2>Daily Attendance Chart</h2>
                             <span>Last 7 days</span>
                         </div>
                         <div class="pr-att-mgmt-trend">
@@ -92,7 +92,7 @@
 
                     <article class="pr-att-mgmt-panel pr-span-3">
                         <div class="pr-att-mgmt-panel-title">
-                            <h2>Status Mix</h2>
+                            <h2>Employee Status</h2>
                             <span t-esc="formatNumber(summary.total || 0) + ' employees'"/>
                         </div>
                         <div class="pr-att-mgmt-status-list">
@@ -113,7 +113,7 @@
 
                     <article class="pr-att-mgmt-panel pr-span-4">
                         <div class="pr-att-mgmt-panel-title">
-                            <h2>Department Exposure</h2>
+                            <h2>Department Wise Status</h2>
                             <span>Absent, shortage, leave</span>
                         </div>
                         <div class="pr-att-mgmt-departments">
@@ -148,7 +148,7 @@
                 <section class="pr-att-mgmt-panel pr-att-mgmt-pipe-panel">
                     <div class="pr-att-mgmt-panel-title pr-att-mgmt-pipe-title">
                         <div>
-                            <h2>Employee Daily Pipeline</h2>
+                            <h2>Employee Daily Attendance Data</h2>
                             <span>Attendance, absences, leaves, and missing checkouts by hour</span>
                         </div>
                         <strong t-esc="data.company"/>
