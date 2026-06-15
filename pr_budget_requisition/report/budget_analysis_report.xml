@@ -135,7 +135,7 @@
                                 <tr>
                                     <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Created Budget</th>
                                     <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Requested</th>
-                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">PO Spend</th>
+                                    <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">PR/PO Spend</th>
                                     <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">CPV Spend</th>
                                     <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">BPV Spend</th>
                                     <th style="background:#173b76; color:#ffffff; border:1px solid #000; padding:4px;">Total Spent</th>

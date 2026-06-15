@@ -48,12 +48,12 @@
                 <field name="planned_amount" sum="Budget Created"/>
                 <field name="requested_amount" sum="Requested"/>
                 <field name="spent_amount" sum="Spent"/>
-                <field name="po_spent_amount" sum="PO Spend"/>
+                <field name="po_spent_amount" sum="PR/PO Spend"/>
                 <field name="cash_spent_amount" sum="CPV Spend"/>
                 <field name="bank_spent_amount" sum="BPV Spend"/>
                 <field name="remaining_amount" sum="Remaining"/>
                 <field name="utilization_rate" avg="Avg Utilization"/>
-                <field name="po_count" sum="PO Count"/>
+                <field name="po_count" sum="PR/PO Count"/>
                 <field name="cash_voucher_count" sum="CPV Count"/>
                 <field name="bank_voucher_count" sum="BPV Count"/>
                 <field name="budget_state" widget="badge"

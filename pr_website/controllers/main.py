@@ -251,9 +251,6 @@ class CareersController(http.Controller):
             ('email_from', r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', 'Please enter a valid email address.'),
             ('partner_phone', r'^\+?[0-9][0-9\s().-]{7,19}$', 'Please enter a valid phone number.'),
             ('partner_location', r"^[A-Za-z0-9][A-Za-z0-9,\s'\.-]{1,99}$", 'Please enter a valid location.'),
-            (
-                'linkedin_profile', r'^(https?://)?([a-z]{2,3}\.)?linkedin\.com/.*$',
-                'Please enter a valid LinkedIn URL.'),
         ]
 
         for field_name, pattern, message in validators:
@@ -273,7 +270,16 @@ class CareersController(http.Controller):
         # if (post.get('will_relocate') or '') not in {'yes', 'no'}:
         #     return 'Please select a valid answer for relocation.'
         if (post.get('legally_required') or '') not in {'yes', 'no'}:
-            return 'Please select a valid legal authorization option.'
+            return 'Please select whether you have National ID / Iqama.'
+
+        has_national_id_iqama = post.get('legally_required') == 'yes'
+        national_id_iqama = (post.get('national_id_iqama') or '').strip() if has_national_id_iqama else ''
+        if has_national_id_iqama and not re.fullmatch(r'\d{10}', national_id_iqama):
+            return 'National ID / Iqama Number must be exactly 10 digits.'
+
+        linkedin_profile = (post.get('linkedin_profile') or '').strip()
+        if linkedin_profile and not re.fullmatch(r'^(https?://)?([a-z]{2,3}\.)?linkedin\.com/.*$', linkedin_profile):
+            return 'Please enter a valid LinkedIn URL.'
 
         nationality_id = (post.get('nationality_id') or '').strip()
         if not nationality_id.isdigit() or not request.env['res.country'].sudo().browse(int(nationality_id)).exists():
@@ -304,6 +310,9 @@ class CareersController(http.Controller):
             return request.redirect(
                 f'/job/{job_id}?error={quote_plus("Duplicate application detected: you have already applied to this job with the same email and phone number.")}')
 
+        has_national_id_iqama = post.get('legally_required') == 'yes'
+        national_id_iqama = (post.get('national_id_iqama') or '').strip() if has_national_id_iqama else ''
+
         applicant_vals = {
             'name': post.get('name') or post.get('partner_name') or 'Website Candidate',
             'partner_name': (post.get('partner_name') or '').strip(),
@@ -316,6 +325,7 @@ class CareersController(http.Controller):
             'will_relocate': post.get('will_relocate'),
             'notice_period': post.get('notice_period'),
             'legally_required': post.get('legally_required'),
+            'national_id_iqama': national_id_iqama,
             'salary_expected': post.get('salary_expected'),
             'nationality_id': int(post['nationality_id']) if post.get('nationality_id') and post.get(
                 'nationality_id').isdigit() else False,

@@ -1802,7 +1802,7 @@
                 padding-left: 4px;
                 }
                 .job-description li::marker {
-                color: var(--gold);
+                color: #000;
                 font-weight: 700;
                 }
                 .job-description h1,
@@ -2454,10 +2454,24 @@
                                            placeholder="" required="required"/>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label required">LinkedIn Profile</label>
-                                    <input class="form-control" name="linkedin_profile"
-                                           placeholder="" required="required"/>
+                                    <label class="form-label">LinkedIn Profile</label>
+                                    <input class="form-control" name="linkedin_profile" placeholder=""/>
                                 </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Do you have National ID / Iqama?</label>
+                                    <select class="form-select" name="legally_required" id="nationalIdIqamaSelect"
+                                            required="required">
+                                        <option value="">Select</option>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="nationalIdIqamaGroup" style="display: none;">
+                                    <label class="form-label required">National ID / Iqama Number</label>
+                                    <input class="form-control" name="national_id_iqama" id="nationalIdIqamaInput"
+                                           inputmode="numeric" maxlength="10" pattern="[0-9]{10}" placeholder=""/>
+                                </div>
+
                                 <!--                                <div class="form-group">-->
                                 <!--                                    <label class="form-label required">Will you relocate?</label>-->
                                 <!--                                    <select class="form-select" name="will_relocate" required="required">-->
@@ -2466,14 +2480,6 @@
                                 <!--                                        <option value="no">No</option>-->
                                 <!--                                    </select>-->
                                 <!--                                </div>-->
-                                <div class="form-group">
-                                    <label class="form-label required">Do You have a Iqama/National ID?</label>
-                                    <select class="form-select" name="legally_required" required="required">
-                                        <option value="">Select</option>
-                                        <option value="yes">Yes</option>
-                                        <option value="no">No</option>
-                                    </select>
-                                </div>
                                 <!--                                <div class="form-group full-width">-->
                                 <!--                                    <label class="form-label">Skills</label>-->
                                 <!--                                    <div class="skill-picker" id="skillPicker">-->
@@ -2656,11 +2662,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 field: 'partner_location',
                 pattern: /^[A-Za-z0-9][A-Za-z0-9,\s'.-]{1,99}$/,
                 message: 'Please enter a valid location.'
-            },
-            {
-                field: 'linkedin_profile',
-                pattern: /^(https?:\/\/)?([a-z]{2,3}\.)?linkedin\.com\/.*$/i,
-                message: 'Please enter a valid LinkedIn URL.'
             }
         ];
 
@@ -2708,8 +2709,29 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!validateYesNo(
             form,
             'legally_required',
-            'Please select a valid legal authorization option.'
+            'Please select whether you have National ID / Iqama.'
         )) {
+            return false;
+        }
+
+        if (getFieldValue(form, 'legally_required') === 'yes') {
+            if (!validateRegex(
+                form,
+                'national_id_iqama',
+                /^[0-9]{10}$/,
+                'National ID / Iqama Number must be exactly 10 digits.'
+            )) {
+                return false;
+            }
+        }
+
+        var linkedinProfile = getFieldValue(form, 'linkedin_profile');
+        if (
+            linkedinProfile
+            && !/^(https?:\/\/)?([a-z]{2,3}\.)?linkedin\.com\/.*$/i.test(linkedinProfile)
+        ) {
+            showFormError('Please enter a valid LinkedIn URL.');
+            focusField(form, 'linkedin_profile');
             return false;
         }
 
@@ -2935,6 +2957,30 @@ document.addEventListener('DOMContentLoaded', function () {
     // =========================================================
     var form = document.getElementById('jobApplicationForm');
     var submitBtn = document.getElementById('submitBtn');
+
+    if (form) {
+        var nationalIdIqamaSelect = form.querySelector('[name="legally_required"]');
+        var nationalIdIqamaGroup = document.getElementById('nationalIdIqamaGroup');
+        var nationalIdIqamaInput = form.querySelector('[name="national_id_iqama"]');
+
+        function updateNationalIdIqamaField() {
+            var hasNationalIdIqama = nationalIdIqamaSelect && nationalIdIqamaSelect.value === 'yes';
+            if (nationalIdIqamaGroup) {
+                nationalIdIqamaGroup.style.display = hasNationalIdIqama ? '' : 'none';
+            }
+            if (nationalIdIqamaInput) {
+                nationalIdIqamaInput.required = hasNationalIdIqama;
+                if (!hasNationalIdIqama) {
+                    nationalIdIqamaInput.value = '';
+                }
+            }
+        }
+
+        if (nationalIdIqamaSelect) {
+            nationalIdIqamaSelect.addEventListener('change', updateNationalIdIqamaField);
+            updateNationalIdIqamaField();
+        }
+    }
 
     if (form && submitBtn) {
         form.addEventListener('submit', function (e) {
