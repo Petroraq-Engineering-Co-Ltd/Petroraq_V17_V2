@@ -13,8 +13,7 @@
                 <t t-set="summary" t-value="data.summary || {}"/>
 
                 <header class="pr-att-mgmt-toolbar">
-                    <div>
-<!--                        <span class="pr-att-mgmt-eyebrow">Management Attendance</span>-->
+                    <div class="pr-att-mgmt-heading">
                         <h1>Employee's Attendance Dashboard</h1>
                         <p t-esc="data.display_date"/>
                     </div>
@@ -29,10 +28,12 @@
                         <button type="button" class="btn pr-att-mgmt-soft-btn" t-on-click="setToday">
                             Today
                         </button>
-                        <select class="form-select" t-att-value="state.departmentId" t-on-change="onDepartmentChange">
-                            <option value="0">All Departments</option>
+                        <select class="form-select" t-on-change="onDepartmentChange">
+                            <option value="0" t-att-selected="isDepartmentSelected(0)">All Departments</option>
                             <t t-foreach="data.departments || []" t-as="department" t-key="department.id">
-                                <option t-att-value="department.id" t-esc="department.name"/>
+                                <option t-att-value="department.id"
+                                        t-att-selected="isDepartmentSelected(department.id)"
+                                        t-esc="department.name"/>
                             </t>
                         </select>
                         <button type="button" class="btn pr-att-mgmt-refresh" t-on-click="loadDashboardData">

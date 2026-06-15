@@ -43,6 +43,10 @@ export class AttendanceManagementDashboard extends Component {
         await this.loadDashboardData();
     }
 
+    isDepartmentSelected(departmentId) {
+        return Number(this.state.departmentId || 0) === Number(departmentId || 0);
+    }
+
     async moveDay(delta) {
         const base = this.state.selectedDate ? new Date(`${this.state.selectedDate}T00:00:00`) : new Date();
         base.setDate(base.getDate() + delta);

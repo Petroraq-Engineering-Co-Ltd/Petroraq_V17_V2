@@ -28,11 +28,15 @@
 }
 
 .pr-att-mgmt-toolbar {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  align-items: flex-end;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
   margin-bottom: 16px;
+}
+
+.pr-att-mgmt-heading {
+  text-align: center;
+  width: 100%;
 }
 
 .pr-att-mgmt-eyebrow {
@@ -63,14 +67,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
 }
 
 .pr-att-mgmt-filters .form-control,
 .pr-att-mgmt-filters .form-select {
   height: 36px;
-  min-width: 155px;
+  width: 170px;
+  min-width: 170px;
   border-radius: 6px;
   border-color: var(--pr-border);
   font-weight: 600;
@@ -79,7 +85,8 @@
 }
 
 .pr-att-mgmt-filters .form-select {
-  min-width: 210px;
+  width: 260px;
+  min-width: 260px;
 }
 
 .pr-att-mgmt-icon-btn,
@@ -630,13 +637,20 @@
     padding: 12px;
   }
 
-  .pr-att-mgmt-toolbar {
-    align-items: stretch;
-    flex-direction: column;
+  .pr-att-mgmt-toolbar h1 {
+    font-size: 24px;
   }
 
   .pr-att-mgmt-filters {
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pr-att-mgmt-filters .form-control,
+  .pr-att-mgmt-filters .form-select {
+    flex: 1 1 220px;
+    width: auto;
+    min-width: 0;
   }
 
   .pr-att-mgmt-kpis {
