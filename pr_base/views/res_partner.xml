@@ -16,11 +16,11 @@
             </xpath>
             <xpath expr="//field[@name='l10n_sa_additional_identification_scheme']" position="attributes">
                 <attribute name="invisible">False</attribute>
-                <attribute name="required">is_company and not parent_id</attribute>
+                <attribute name="required">False</attribute>
             </xpath>
             <xpath expr="//field[@name='l10n_sa_additional_identification_number']" position="attributes">
                 <attribute name="invisible">False</attribute>
-                <attribute name="required">is_company and not parent_id</attribute>
+                <attribute name="required">False</attribute>
             </xpath>
 
 

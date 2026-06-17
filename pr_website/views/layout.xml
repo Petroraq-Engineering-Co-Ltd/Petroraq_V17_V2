@@ -568,7 +568,8 @@
                         }
 
                         .navbar {
-                            flex-direction: row-reverse;
+                            direction: rtl;
+                            flex-direction: row;
                         }
 
                         .navbar-logo,
@@ -579,11 +580,11 @@
 
                         .navbar-links {
                             direction: rtl;
-                            flex-direction: row-reverse;
+                            flex-direction: row;
                         }
 
                         .auth-buttons {
-                            flex-direction: row-reverse;
+                            flex-direction: row;
                         }
 
                         .auth-buttons .js_language_selector .dropdown-menu {
@@ -689,6 +690,28 @@
                             text-align: right;
                         }
 
+                        #wrap .services,
+                        #wrap .services .service-card,
+                        #wrap .services .service-card h3,
+                        #wrap .services .service-card p,
+                        #wrap .services .service-card .arrow-link,
+                        #wrap .stats,
+                        #wrap .stats .stat-item,
+                        #wrap .stats .stat-item h2,
+                        #wrap .stats .stat-item p,
+                        #wrap .certifications,
+                        #wrap .certifications h2,
+                        #wrap .cert-grid,
+                        #wrap .cert-grid .cert-item,
+                        #wrap .cert-grid .cert-item p {
+                            text-align: center !important;
+                        }
+
+                        #wrap .services .service-card .arrow-link {
+                            display: inline-flex;
+                            justify-content: center;
+                        }
+
                         .footer-container {
                             direction: rtl;
                         }
@@ -764,7 +787,8 @@
 
                         @media (max-width: 992px) {
                             .navbar {
-                                flex-direction: row-reverse;
+                                direction: rtl;
+                                flex-direction: row;
                             }
 
                             .navbar-toggle {
