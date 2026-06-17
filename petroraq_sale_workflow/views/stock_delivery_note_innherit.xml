@@ -80,7 +80,7 @@
     </template>
 
     <template id="petroraq_delivery_note_footer_layout">
-        <div class="footer" style="width:116% !important; margin:0 0 0 -6% !important; padding:0 !important; overflow:visible !important; background:#21398e;">
+        <div class="footer" style="width:111% !important; margin:0 0 0 -5% !important; padding:0 !important; overflow:visible !important; background:#21398e;">
             <div name="pager" class="list-inline no-margin text-center" style="box-sizing:border-box; padding-left:6%; padding-right:10%; color:rgba(18,49,96,0.91); background:#fff; line-height:1.2;">
                 Page:
                 <span class="page"/>

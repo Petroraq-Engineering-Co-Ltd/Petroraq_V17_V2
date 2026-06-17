@@ -43,11 +43,11 @@
 
     <template id="petroraq_payslip_footer_layout">
 
-        <div class="footer" style="width:116% !important; margin:0 0 0 -6% !important; padding:0 !important; overflow:visible !important; background:#21398e;">
+        <div class="footer" style="width:111% !important; margin:0 0 0 -5% !important; padding:0 !important; overflow:visible !important; background:#21398e;">
             <div style="width:100%; box-sizing:border-box; margin:0 0 2px 0; border-bottom:1px solid #305081; padding:4px 0 2px 6%; text-align:left; color:#000; background:#fff; font-size:15px; font-weight:700; line-height:1.2;">
                 This is a computer generated salary slip and does not require signature or stamp.
             </div>
-            <div style="width:100%; margin:0 0 -2px 0 !important; padding:0 !important; background:#21398e; line-height:0; font-size:0;">
+            <div style="width:100%; padding:0 !important; background:#21398e; line-height:0; font-size:0;">
                 <img src="/pr_custom_purchase/static/src/img/img.png"
                      style="display:block; width:100%; max-width:none !important; margin:0 !important; padding:0 !important;"/>
             </div>
