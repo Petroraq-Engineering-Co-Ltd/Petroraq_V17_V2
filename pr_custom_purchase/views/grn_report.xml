@@ -81,7 +81,7 @@
                             </td>
                             <td style="text-align:center; width:34%; ">
                                 <span style="margin:0;">
-                                    <t t-esc="docs[0].date_request or ''"/>
+                                    <span t-field="docs[0].date_request" t-options="{'widget': 'date'}"/>
                                 </span>
                             </td>
                             <td style="text-align:right; width:33%;">
@@ -94,7 +94,7 @@
                             </td>
                             <td style="text-align:center; width:34%; ">
                                 <span style="margin:0;">
-                                    <t t-esc="docs[0].date_planned or ''"/>
+                                    <span t-field="docs[0].date_planned" t-options="{'widget': 'date'}"/>
                                 </span>
                             </td>
                             <td style="text-align:right; width:33%;">

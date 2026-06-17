@@ -14,7 +14,7 @@ class HrJob(models.Model):
 
     # region [Fields]
 
-    job_salary = fields.Float(string="Salary")
+    job_salary = fields.Float(string="Gross Salary")
     experience_years = fields.Float(string="Years Of Experience")
     job_state = fields.Selection([
         ("initialize", "Initialized"),

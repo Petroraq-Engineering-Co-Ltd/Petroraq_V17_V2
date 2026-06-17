@@ -1,6 +1,7 @@
 from datetime import datetime
 from datetime import date
 from odoo.tools.misc import formatLang
+from odoo.tools import format_date
 from collections import defaultdict
 from contextlib import ExitStack, contextmanager
 
@@ -71,7 +72,7 @@ class AccountMove(models.Model):
         if not input_date or not isinstance(input_date, date):
             return ''
 
-        date_string = input_date.strftime('%Y-%m-%d')
+        date_string = format_date(self.env, input_date)
         numerals_map = str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')
         return date_string.translate(numerals_map)
 

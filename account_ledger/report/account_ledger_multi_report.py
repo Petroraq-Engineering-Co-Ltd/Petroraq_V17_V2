@@ -4,15 +4,17 @@ from datetime import datetime
 
 from odoo import api, models
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from .ledger_partner_utils import format_report_date
 
 
 class AccountLedgerMultiReport(models.AbstractModel):
     _name = "report.account_ledger.account_ledger_multi_rep"
 
     def _get_valuation_dates(self, start_date, end_date):
-        date_start = datetime.strptime(start_date, DATE_FORMAT).date()
-        date_end = datetime.strptime(end_date, DATE_FORMAT).date()
-        return f"{date_start} To {date_end}"
+        return "%s To %s" % (
+            format_report_date(self.env, start_date),
+            format_report_date(self.env, end_date),
+        )
 
     def _build_account_docs(self, account_id, data, analytic_ids, str_analytic_ids):
         date_start = data["form"]["date_start"]
@@ -126,7 +128,7 @@ class AccountLedgerMultiReport(models.AbstractModel):
             docs.append(
                 {
                     "transaction_ref": item.move_id.name,
-                    "date": item.date,
+                    "date": format_report_date(self.env, item.date),
                     "description": item.name,
                     "reference": item.ref,
                     "journal": item.journal_id.name,
@@ -141,7 +143,7 @@ class AccountLedgerMultiReport(models.AbstractModel):
             docs.append(
                 {
                     "transaction_ref": " ",
-                    "date": date_start,
+                    "date": format_report_date(self.env, date_start),
                     "description": "No matching entries",
                     "reference": " ",
                     "journal": " ",
@@ -195,7 +197,7 @@ class AccountLedgerMultiReport(models.AbstractModel):
                 analytic_ids.append(int(data["form"][key]))
                 str_analytic_ids.append(str(data["form"][key]))
 
-        report_date = datetime.today().strftime("%b-%d-%Y")
+        report_date = format_report_date(self.env, datetime.today())
         company_name = self.env["res.company"].browse(company).name
         account_names = ", ".join(self.env["account.account"].browse(account_ids).mapped("name"))
 

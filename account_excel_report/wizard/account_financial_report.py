@@ -13,10 +13,16 @@ from . import xls_format
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 class AccountingReport(models.TransientModel):
     _inherit = "accounting.report"
     _description = 'Report Financial'
+
+    def _format_report_date(self, value):
+        if not value:
+            return ''
+        return format_date(self.env, fields.Date.to_date(value))
 
     def _compute_account_balance(self, accounts):
         """ compute the balance, debit and credit for the provided accounts
@@ -253,7 +259,7 @@ class AccountingReport(models.TransientModel):
             sheet.write(row_start, col_start, 'Date from: ', header_tstyle_c)
             col_start += 1
             sheet.col(col_start).width = 256 * 20
-            sheet.write(row_start, col_start, str(data.get('form').get('date_from')),other_tstyle_c)
+            sheet.write(row_start, col_start, data.get('form').get('date_from_display') or self._format_report_date(data.get('form').get('date_from')),other_tstyle_c)
         row_start += 1
         col_start = 0
         if display_account == 'all':
@@ -266,7 +272,7 @@ class AccountingReport(models.TransientModel):
             sheet.write(row_start, col_start, 'Date to: ', header_tstyle_c)
             col_start += 1
             sheet.col(col_start).width = 256 * 20
-            sheet.write(row_start, col_start, str(data.get('form').get('date_to')),other_tstyle_c)
+            sheet.write(row_start, col_start, data.get('form').get('date_to_display') or self._format_report_date(data.get('form').get('date_to')),other_tstyle_c)
         if self.debit_credit:
             col_start = 0
             row_start += 2

@@ -1,5 +1,6 @@
 from datetime import date
 from odoo.tools.misc import formatLang
+from odoo.tools import format_date
 
 
 
@@ -29,7 +30,7 @@ class PurchaseOrder(models.Model):
     def _compute_date_order_custom(self):
         for order in self:
             if order.date_order:
-                order.date_order_custom = order.date_order.date().strftime("%d %B %Y")
+                order.date_order_custom = format_date(order.env, order.date_order.date())
             else:
                 order.date_order_custom = False
 
@@ -59,7 +60,7 @@ class PurchaseOrder(models.Model):
         if not input_date or not isinstance(input_date, date):
             return ''
 
-        date_string = input_date.strftime('%Y-%m-%d')
+        date_string = format_date(self.env, input_date)
         numerals_map = str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')
         return date_string.translate(numerals_map)
 
@@ -115,7 +116,6 @@ class PurchaseOrder(models.Model):
             if len(hexadecimal) == 1:
                 hexadecimal = "0" + hexadecimal
             return tag + hexadecimal + hex_string
-
 
 
 

@@ -6,7 +6,12 @@ from odoo import api, models
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 import logging
 
-from .ledger_partner_utils import as_date, get_ledger_move_lines, get_ledger_report_line_groups, get_opening_balance
+from .ledger_partner_utils import (
+    format_report_date,
+    get_ledger_move_lines,
+    get_ledger_report_line_groups,
+    get_opening_balance,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -15,10 +20,10 @@ class AccountLedgerReport(models.AbstractModel):
     _name = 'report.account_ledger.account_ledger_rep'
 
     def _get_valuation_dates(self, start_date, end_date):
-        date_start = as_date(start_date)
-        date_end = as_date(end_date)
-        valuation_date = str(date_start) + ' To ' + str(date_end)
-        return valuation_date
+        return "%s To %s" % (
+            format_report_date(self.env, start_date),
+            format_report_date(self.env, end_date),
+        )
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -73,7 +78,7 @@ class AccountLedgerReport(models.AbstractModel):
             str_analytic_ids.append(str(asset))
 
         today = datetime.today()
-        report_date = today.strftime("%b-%d-%Y")
+        report_date = format_report_date(self.env, today)
         # user_type_receivable_id = self.env['ir.model.data'].xmlid_to_res_id('account.data_account_type_receivable')
         if not account:
             return {
@@ -120,7 +125,7 @@ class AccountLedgerReport(models.AbstractModel):
 
         docs.append({
             'transaction_ref': 'Opening',
-            'date': date_start,
+            'date': format_report_date(self.env, date_start),
             'description': 'Opening Balance',
             'reference': ' ',
             'journal': ' ',
@@ -136,7 +141,7 @@ class AccountLedgerReport(models.AbstractModel):
             t_credit += item["credit"]
             docs.append({
                 'transaction_ref': item["transaction_ref"],
-                'date': item["date"],
+                'date': format_report_date(self.env, item["date"]),
                 'description': item["description"],
                 'reference': item["reference"],
                 'journal': item["journal"],

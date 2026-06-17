@@ -21,6 +21,7 @@
 ###############################################################################
 import pytz
 from odoo import api, fields, models
+from odoo.tools import format_date
 
 
 class HrLeave(models.Model):
@@ -137,6 +138,11 @@ class HrLeave(models.Model):
                              employee_datetime.date() < holiday.get(
                                  'date_to')]
                                  # 'date_to').date()]
+        for holiday in upcoming_holidays:
+            holiday['date_from_display'] = (
+                format_date(self.env, fields.Date.to_date(holiday.get('date_from')))
+                if holiday.get('date_from') else ''
+            )
         return upcoming_holidays
 
     @api.model

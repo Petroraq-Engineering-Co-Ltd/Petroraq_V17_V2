@@ -34,7 +34,7 @@
                 <t t-if="upcoming_holidays.length>0">
                     <t t-foreach="upcoming_holidays" t-as="holiday" t-key="holiday.id">
                         <div class="de-status-line"><t t-esc="holiday.name"/></div>
-                        <div class="de-status-date">(<t t-esc="holiday.date_from"/>)</div>
+                        <div class="de-status-date">(<t t-esc="holiday.date_from_display || holiday.date_from"/>)</div>
                     </t>
                 </t>
                 <t t-else="">

@@ -2,6 +2,7 @@ from datetime import timedelta
 import logging
 
 from odoo import _, api, fields, models
+from odoo.tools import format_date
 
 
 _logger = logging.getLogger(__name__)
@@ -223,6 +224,10 @@ class HRComplianceExpiryReminderLog(models.Model):
         return fields.Date.to_string(value) if value else False
 
     @api.model
+    def _format_display_date(self, value):
+        return format_date(self.env, fields.Date.to_date(value)) if value else False
+
+    @api.model
     def _count_expiry_documents(self, from_date=False, to_date=False, before=False):
         return len(self._get_expiry_records(from_date=from_date, to_date=to_date, before=before, limit=False))
 
@@ -270,7 +275,7 @@ class HRComplianceExpiryReminderLog(models.Model):
                 'document': spec['label'],
                 'employee': self._get_record_employee_name(record),
                 'record_name': record.display_name,
-                'expiry_date': self._date_to_string(expiry_date),
+                'expiry_date': self._format_display_date(expiry_date),
                 'days_left': days_left,
                 'status': _('Expired') if days_left < 0 else _('%s day(s)') % days_left,
                 'tone': 'danger' if days_left < 0 else ('critical' if days_left <= 10 else 'warning'),
@@ -291,7 +296,7 @@ class HRComplianceExpiryReminderLog(models.Model):
             'task': task.checklist_item,
             'employee': task.employee_id.name or task.applicant_onboarding_id.display_name,
             'assigned_to': task.assigned_user_id.name or '',
-            'due_date': self._date_to_string(task.due_date),
+            'due_date': self._format_display_date(task.due_date),
             'state': dict(task._fields['task_state'].selection).get(task.task_state, task.task_state),
             'tone': 'danger' if task.task_state == 'overdue' else ('warning' if task.task_state == 'in_progress' else 'info'),
         } for task in tasks]
@@ -329,7 +334,7 @@ class HRComplianceExpiryReminderLog(models.Model):
                 'summary': activity.summary,
                 'record_name': activity.res_name,
                 'assigned_to': activity.user_id.name,
-                'deadline': self._date_to_string(activity.date_deadline),
+                'deadline': self._format_display_date(activity.date_deadline),
                 'tone': 'danger' if activity.date_deadline and activity.date_deadline < fields.Date.context_today(self) else 'warning',
             })
         return rows

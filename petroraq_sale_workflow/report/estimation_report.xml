@@ -64,7 +64,7 @@
                             <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Customer</td>
                             <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.partner_id.display_name or ''"/></td>
                             <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Date</td>
-                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.date and doc.date.strftime('%d-%m-%Y') or ''"/></td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-field="doc.date" t-options="{'widget': 'date'}"/></td>
                         </tr>
                         <tr>
                             <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Quotation</td>

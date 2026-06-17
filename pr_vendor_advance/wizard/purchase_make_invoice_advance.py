@@ -1,10 +1,10 @@
 
-import time
 from datetime import datetime
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 from odoo.fields import Command
+from odoo.tools import format_date
 
 
 class PurchaseOrderAdvancePayment(models.TransientModel):
@@ -102,7 +102,7 @@ class PurchaseOrderAdvancePayment(models.TransientModel):
             ).mapped("analytic_distribution")
 
         po_values = {
-            'name': _('Advance: %s / %s') % (time.strftime('%m-%Y-%d'), order.name),
+            'name': _('Advance: %s / %s') % (format_date(self.env, fields.Date.context_today(self)), order.name),
             'price_unit': amount,
             'product_uom_qty': 0.0,
             'product_qty': 0.0,

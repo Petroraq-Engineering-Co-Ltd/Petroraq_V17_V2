@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_date
 import logging
 import random
 import string
@@ -287,12 +288,7 @@ class HrApplicant(models.Model):
 
     def _format_offer_letter_date(self, date_value):
         date_value = fields.Date.to_date(date_value)
-        day = date_value.day
-        if 10 <= day % 100 <= 20:
-            suffix = 'th'
-        else:
-            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-        return date_value.strftime(f"{day}{suffix} %B %Y")
+        return format_date(self.env, date_value)
 
     @staticmethod
     def _format_offer_letter_amount(amount, currency_name='SAR'):

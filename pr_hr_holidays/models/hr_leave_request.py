@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.tools import date_utils
+from odoo.tools import date_utils, format_date
 from odoo.osv import expression
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError, UserError
@@ -268,7 +268,7 @@ class HrLeaveRequest(models.Model):
                 continue  # ✅ Multi-day OK
 
             if non_working_dates:
-                formatted_dates = ", ".join(date.strftime("%d/%m/%Y") for date in non_working_dates)
+                formatted_dates = ", ".join(format_date(rec.env, date) for date in non_working_dates)
                 raise ValidationError(_(
                     "Cannot request leave on non-working date(s) (weekend/public holiday): %(dates)s"
                 ) % {"dates": formatted_dates})
@@ -322,7 +322,7 @@ class HrLeaveRequest(models.Model):
 
             # Only show warning for single-day weekend requests
             if total_days == 1 and weekend_dates:
-                formatted_dates = ", ".join(date.strftime("%d/%m/%Y") for date in weekend_dates)
+                formatted_dates = ", ".join(format_date(rec.env, date) for date in weekend_dates)
                 return {
                     "warning": {
                         "title": _("Weekend Date Selected"),

@@ -13,7 +13,7 @@
                     <div class="row mt32">
                         <div class="col-3">
                             <strong>Start Date:</strong>
-                            <p t-esc="data['date_from']"/>
+                            <p t-esc="data.get('date_from_display') or data['date_from']"/>
                         </div>
                         <div class="col-3">
                             <strong>Period Length (days)</strong>

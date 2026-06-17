@@ -2,6 +2,7 @@
 
 from odoo import _, models, fields, api
 from odoo.exceptions import AccessError
+from odoo.tools import format_date
 
 
 class HrPayslip(models.Model):
@@ -84,17 +85,13 @@ class HrPayslip(models.Model):
     def _pr_format_payslip_report_date(self, value):
         if not value:
             return ""
-        return value.strftime("%d-%B-%Y")
+        return format_date(self.env, value)
 
     def _pr_format_payslip_joining_date(self, value):
         if not value:
             return ""
         date_value = fields.Date.to_date(value)
-        return "%s %s %s" % (
-            date_value.day,
-            date_value.strftime("%B").lower(),
-            date_value.year,
-        )
+        return format_date(self.env, date_value)
 
     def _pr_get_payslip_report_values(self):
         """Return the compact company payslip values used by the PDF and portal."""

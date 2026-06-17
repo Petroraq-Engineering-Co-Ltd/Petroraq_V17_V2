@@ -1,6 +1,7 @@
 from odoo import http
 from odoo.http import request
-from datetime import datetime
+from datetime import date, datetime
+from odoo.tools import format_date
 import logging
 import json
 
@@ -284,7 +285,7 @@ class PortalPR(http.Controller):
         if supervisor_user and supervisor_user.email:
             recipient_emails.add(supervisor_user.email)
 
-        current_date = datetime.today().strftime("%Y-%m-%d")
+        current_date = format_date(request.env, date.today())
 
         if recipient_emails:
             line_rows = ""

@@ -48,8 +48,8 @@
                             <p t-if="data['sortby'] == 'sort_journal_partner'">Journal and Partner</p>
                         </div>
                         <div class="col-4">
-                            <t t-if="data['date_from']"><strong>Date from :</strong> <span t-esc="data['date_from']"/><br/></t>
-                            <t t-if="data['date_to']"><strong>Date to :</strong> <span t-esc="data['date_to']"/></t>
+                            <t t-if="data['date_from']"><strong>Date from :</strong> <span t-esc="data.get('date_from_display') or data['date_from']"/><br/></t>
+                            <t t-if="data['date_to']"><strong>Date to :</strong> <span t-esc="data.get('date_to_display') or data['date_to']"/></t>
                         </div>
                     </div>
 

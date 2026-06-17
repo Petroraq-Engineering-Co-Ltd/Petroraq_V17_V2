@@ -52,7 +52,7 @@
                             <tr>
                                 <td style="padding:2px;">Invoice Date</td>
                                 <td style="padding:2px;">
-                                    <t t-esc="docs[0].date_order or ''"/>
+                                    <span t-field="docs[0].date_order" t-options="{'widget': 'date'}"/>
                                 </td>
                             </tr>
                             <tr>
@@ -157,7 +157,7 @@
                             <tr>
                                 <td style="padding:2px;">PO Date</td>
                                 <td style="padding:2px;">
-                                    <t t-esc="docs[0].date_planned or ''"/>
+                                    <span t-field="docs[0].date_planned" t-options="{'widget': 'date'}"/>
                                 </td>
                             </tr>
                             <tr>

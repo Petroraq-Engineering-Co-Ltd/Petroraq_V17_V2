@@ -2,6 +2,7 @@ from datetime import datetime
 
 from odoo import models
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from .ledger_partner_utils import format_report_date
 
 
 class AccountLedgerMultiXlsxReport(models.AbstractModel):
@@ -104,7 +105,7 @@ class AccountLedgerMultiXlsxReport(models.AbstractModel):
             docs.append(
                 {
                     "transaction_ref": item.move_id.name,
-                    "date": item.date,
+                    "date": format_report_date(self.env, item.date),
                     "initial_balance": "{:,.2f}".format(initial_balance),
                     "description": item.name,
                     "reference": item.ref,
@@ -119,7 +120,7 @@ class AccountLedgerMultiXlsxReport(models.AbstractModel):
             docs.append(
                 {
                     "transaction_ref": " ",
-                    "date": f"{str(date_start)}",
+                    "date": format_report_date(self.env, date_start),
                     "initial_balance": "{:,.2f}".format(initial_balance),
                     "description": "No matching entries",
                     "reference": " ",
@@ -133,7 +134,7 @@ class AccountLedgerMultiXlsxReport(models.AbstractModel):
         docs.append(
             {
                 "transaction_ref": " ",
-                "date": f"{str(datetime.now().date())}",
+                "date": format_report_date(self.env, datetime.now()),
                 "initial_balance": " ",
                 "description": "Totals",
                 "reference": " ",
@@ -198,7 +199,6 @@ class AccountLedgerMultiXlsxReport(models.AbstractModel):
         )
         money_format = workbook.add_format({"num_format": "#,##0.00", "border": 1})
         text_format = workbook.add_format({"border": 1})
-        date_format = workbook.add_format({"num_format": "yyyy-mm-dd", "border": 1})
 
         accounts_summary = []
         account_docs = {}
@@ -247,7 +247,7 @@ class AccountLedgerMultiXlsxReport(models.AbstractModel):
                 0,
                 row + 2,
                 6,
-                f"Period: {wizard_id.date_start.strftime('%d-%b-%Y')} to {wizard_id.date_end.strftime('%d-%b-%Y')}",
+                f"Period: {format_report_date(self.env, wizard_id.date_start)} to {format_report_date(self.env, wizard_id.date_end)}",
                 title_format,
             )
 
@@ -259,7 +259,7 @@ class AccountLedgerMultiXlsxReport(models.AbstractModel):
                 is_total = entry["description"] == "Totals"
                 row_format = header_format if is_total else text_format
                 money_row_format = header_format if is_total else money_format
-                date_row_format = header_format if is_total else date_format
+                date_row_format = header_format if is_total else text_format
                 worksheet.write(data_row, 0, entry["transaction_ref"], row_format)
                 worksheet.write(data_row, 1, entry["date"], date_row_format)
                 worksheet.write(data_row, 2, entry["reference"], row_format)

@@ -13,10 +13,16 @@ from . import xls_format
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 
 class AccountBalanceReport(models.TransientModel):
     _inherit = 'account.balance.report'
+
+    def _format_report_date(self, value):
+        if not value:
+            return ''
+        return format_date(self.env, fields.Date.to_date(value))
 
     def _get_accounts(self, accounts, display_account):
         """ compute the balance, debit and credit for the provided accounts
@@ -172,7 +178,7 @@ class AccountBalanceReport(models.TransientModel):
             col_start += 1
             sheet.write(row_start, col_start, _('Date from'), other_tstyle_b)
             col_start += 1
-            sheet.write(row_start, col_start, str(data['form'].get('date_from')),other_tstyle_c)
+            sheet.write(row_start, col_start, data['form'].get('date_from_display') or self._format_report_date(data['form'].get('date_from')),other_tstyle_c)
         col_start += 1
         sheet.write_merge(row_start, row_start, col_start, col_start  + 1, _('Target Moves:'), other_tstyle_b)
         row_start += 1
@@ -188,7 +194,7 @@ class AccountBalanceReport(models.TransientModel):
             col_start += 1
             sheet.write(row_start, col_start, _('Date to'), other_tstyle_b)
             col_start += 1
-            sheet.write(row_start, col_start, str(data['form'].get('date_to')),other_tstyle_c)
+            sheet.write(row_start, col_start, data['form'].get('date_to_display') or self._format_report_date(data['form'].get('date_to')),other_tstyle_c)
         col_start += 1
         if data['form']['target_move'] == 'all':
             sheet.write_merge(row_start, row_start, col_start, col_start + 1, _('All Entries'),other_tstyle_c)

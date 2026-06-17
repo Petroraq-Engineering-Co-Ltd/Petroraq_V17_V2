@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from markupsafe import escape
@@ -117,8 +118,8 @@ class VatSummaryWizard(models.TransientModel):
 
             else:
                 # Custom date range
-                start = rec.date_start.strftime('%d-%b-%Y')
-                end = rec.date_end.strftime('%d-%b-%Y')
+                start = format_date(rec.env, rec.date_start)
+                end = format_date(rec.env, rec.date_end)
                 rec.summary_title = f"SUMMARY OF {start} TO {end}"
 
     # -------------------------------------------------------------------------
@@ -247,7 +248,7 @@ class VatSummaryWizard(models.TransientModel):
 
     def _prepare_detail_line_vals(self, line, amount, vat_amount=0.0):
         return {
-            "date": line.date or "",
+            "date": format_date(self.env, line.date) if line.date else "",
             "entry": line.move_id.name or line.move_name or "",
             "reference": line.move_id.ref or "",
             "account": f"{line.account_id.code or ''} {line.account_id.name or ''}".strip(),
@@ -429,8 +430,7 @@ class VatSummaryWizard(models.TransientModel):
                 <th colspan="5" 
                     style="background-color:#29608f;color:white;padding:10px;
                            border:2px solid #000;font-size:18px;text-align:center;">
-                    VAT Report {self.date_start.strftime('%d-%m-%Y')
-        } to {self.date_end.strftime('%d-%m-%Y')}
+                    VAT Report {format_date(self.env, self.date_start)} to {format_date(self.env, self.date_end)}
                 </th>
             </tr>
 

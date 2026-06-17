@@ -12,9 +12,15 @@ from . import xls_format
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 class AccountingReportPartnerLedger(models.TransientModel):
     _inherit = "account.report.partner.ledger"
+
+    def _format_report_date(self, value):
+        if not value:
+            return ''
+        return format_date(self.env, fields.Date.to_date(value))
 
     def _lines(self, data, partner):
         full_account = []
@@ -37,12 +43,8 @@ class AccountingReportPartnerLedger(models.TransientModel):
         res = self.env.cr.dictfetchall()
         res = self._filter_analytic_data(res)
         sum = 0.0
-        lang_code = self.env.context.get('lang') or 'en_US'
-        lang = self.env['res.lang']
-        lang_id = lang._lang_get(lang_code)
-        date_format = lang_id.date_format
         for r in res:
-            r['date'] = r['date']
+            r['date'] = self._format_report_date(r.get('date'))
             r['displayed_name'] = '-'.join(
                 r[field_name] for field_name in ('move_name', 'ref', 'name')
                 if r[field_name] not in (None, '', '/')
@@ -211,7 +213,7 @@ class AccountingReportPartnerLedger(models.TransientModel):
                 sheet.write_merge(row_start, row_start, col_start, col_start + 1, _('Date From:'), header_tstyle_c)
                 col_start += 2
                 sheet.col(col_start).width = 256 * 20
-                sheet.write_merge(row_start, row_start, col_start, col_start + 1, data['form']['date_from'], other_tstyle_c)
+                sheet.write_merge(row_start, row_start, col_start, col_start + 1, data['form'].get('date_from_display') or self._format_report_date(data['form']['date_from']), other_tstyle_c)
                 col_start += 2
             sheet.col(col_start).width = 256 * 20
             sheet.write_merge(row_start, row_start, col_start, col_start + 1, _('Target Moves:'), header_tstyle_c)
@@ -225,7 +227,7 @@ class AccountingReportPartnerLedger(models.TransientModel):
                 sheet.write_merge(row_start, row_start, col_start, col_start + 1, _('Date To:'),header_tstyle_c)
                 col_start += 2
                 sheet.col(col_start).width = 256 * 20
-                sheet.write_merge(row_start, row_start, col_start, col_start + 1, data['form']['date_to'],other_tstyle_c)
+                sheet.write_merge(row_start, row_start, col_start, col_start + 1, data['form'].get('date_to_display') or self._format_report_date(data['form']['date_to']),other_tstyle_c)
                 col_start += 2
             if data['form']['target_move'] == 'all':
                 sheet.col(col_start).width = 256 * 20
@@ -281,7 +283,7 @@ class AccountingReportPartnerLedger(models.TransientModel):
                 row_start += 1
                 col_start = 0
                 sheet.col(col_start).width = 256 * 20
-                sheet.write(row_start, col_start, str(line.get('date')),other_tstyle)
+                sheet.write(row_start, col_start, line.get('date'),other_tstyle)
                 col_start += 1
                 sheet.col(col_start).width = 256 * 20
                 sheet.write(row_start, col_start, line.get('code'),other_tstyle)

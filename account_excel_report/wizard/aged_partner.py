@@ -13,7 +13,7 @@ import base64
 from . import xls_format
 
 import time
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT, format_date
 from odoo import api, models, fields,_
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero
@@ -280,6 +280,7 @@ class AccountAgedTrialBalance(models.TransientModel):
         date_from = data['form'].get('date_from', time.strftime('%Y-%m-%d'))
         date_string = datetime.strptime(str(date_from), '%Y-%m-%d')
         date_string = date_string.strftime('%Y-%m-%d')
+        date_string_display = format_date(self.env, fields.Date.to_date(date_from))
         target_move = data['form'].get('target_move', 'all')
         partner_ids = data['form']['partner_ids']
         if self.result_selection == 'customer':
@@ -370,7 +371,7 @@ class AccountAgedTrialBalance(models.TransientModel):
         sheet.write(row_start, col_start, 'Period Length (days): ', header_tstyle_c)
         col_start =2
         row_start +=1
-        sheet.write(row_start, col_start, date_string,other_tstyle_c)
+        sheet.write(row_start, col_start, date_string_display,other_tstyle_c)
         col_start +=2
         sheet.write(row_start, col_start, period_length,other_tstyle_c)
         row_start +=2

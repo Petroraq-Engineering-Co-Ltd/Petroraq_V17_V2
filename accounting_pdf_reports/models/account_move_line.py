@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, http
 from odoo.http import request
+from odoo.tools import format_date
 import io
 import xlsxwriter
 import base64
@@ -33,9 +34,6 @@ class AccountMoveLine(models.Model):
         currency_format = workbook.add_format({
             'num_format': '#,##0.00'
         })
-        date_format = workbook.add_format({
-            'num_format': 'dd/mm/yyyy'
-        })
         
         # Write headers
         headers = [
@@ -57,7 +55,7 @@ class AccountMoveLine(models.Model):
         # Write grouped data
         row = 1
         for entry in grouped_data:
-            worksheet.write(row, 0, entry['date'], date_format)
+            worksheet.write(row, 0, format_date(self.env, entry['date']) if entry['date'] else '')
             worksheet.write(row, 1, entry['journal_entry'])
             worksheet.write(row, 2, entry['reference'])
             worksheet.write(row, 3, entry['partner'])

@@ -13,10 +13,16 @@ from . import xls_format
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 
 class AccountGeneralLedgerReport(models.TransientModel):
     _inherit = 'account.report.general.ledger'
+
+    def _format_report_date(self, value):
+        if not value:
+            return ''
+        return format_date(self.env, fields.Date.to_date(value))
 
     def _get_account_move_entry(self, accounts, init_balance, sortby, display_account):
         """
@@ -280,7 +286,7 @@ class AccountGeneralLedgerReport(models.TransientModel):
             col_start += 2
             sheet.write_merge(row_start, row_start, col_start, col_start + 1, _('Date From: '), header_tstyle_c)
             col_start += 2
-            sheet.write_merge(row_start, row_start, col_start, col_start + 1, str(data['form']['date_from']),other_tstyle_c)
+            sheet.write_merge(row_start, row_start, col_start, col_start + 1, data['form'].get('date_from_display') or self._format_report_date(data['form']['date_from']),other_tstyle_c)
         row_start += 1
         col_start = 0
         if data['form']['sortby'] == 'sort_date':
@@ -291,7 +297,7 @@ class AccountGeneralLedgerReport(models.TransientModel):
             col_start += 2
             sheet.write_merge(row_start, row_start, col_start, col_start + 1, _('Date To: '), header_tstyle_c)
             col_start += 2
-            sheet.write_merge(row_start, row_start, col_start, col_start + 1, str(data['form']['date_to']),other_tstyle_c)
+            sheet.write_merge(row_start, row_start, col_start, col_start + 1, data['form'].get('date_to_display') or self._format_report_date(data['form']['date_to']),other_tstyle_c)
 
         col_start = 0
         row_start += 2
@@ -335,7 +341,7 @@ class AccountGeneralLedgerReport(models.TransientModel):
             for move in acc.get('move_lines'):
                 row_start += 1
                 col_start = 0
-                sheet.write(row_start, col_start, str(move.get('ldate')))
+                sheet.write(row_start, col_start, self._format_report_date(move.get('ldate')))
                 col_start += 1
                 sheet.write(row_start, col_start, move.get('lcode'))
                 col_start += 1
