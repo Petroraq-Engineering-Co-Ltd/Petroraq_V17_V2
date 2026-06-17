@@ -20,12 +20,12 @@ class ResPartner(models.Model):
     def _pr_context_requires_partner_identifiers(self):
         return self.env.context.get("res_partner_search_mode") in {"customer", "supplier"}
 
-    def _pr_requires_partner_identifiers(self):
+    def _pr_requires_partner_vat(self):
         self.ensure_one()
         return bool(
             self.active
             and not self.parent_id
-            and (self.is_company or self.customer_rank > 0 or self.supplier_rank > 0)
+            and self.is_company
         )
 
     def _pr_find_duplicate_partner_identifier(self, field_name, normalized_value):
@@ -36,29 +36,20 @@ class ResPartner(models.Model):
         candidates = self.search([
             ("id", "!=", self.id),
             ("active", "=", True),
-            ("parent_id", "=", False),
             (field_name, "!=", False),
         ])
         return candidates.filtered(
-            lambda partner: partner._pr_requires_partner_identifiers()
-            and partner._pr_normalize_partner_identifier(partner[field_name]) == normalized_value
+            lambda partner: partner._pr_normalize_partner_identifier(partner[field_name]) == normalized_value
         )[:1]
 
     def _pr_check_partner_identifier_rules(self, force_required=False):
         for partner in self:
-            requires_identifiers = force_required or partner._pr_requires_partner_identifiers()
+            requires_vat = partner._pr_requires_partner_vat()
             vat = partner._pr_normalize_partner_identifier(partner.vat)
-            sa_identification_number = partner._pr_normalize_partner_identifier(
-                partner.l10n_sa_additional_identification_number
-            )
 
-            if requires_identifiers and not vat:
-                raise ValidationError(_("VAT / Tax ID is required for customers and vendors."))
-            if requires_identifiers and partner.l10n_sa_additional_identification_scheme != "CRN":
-                raise ValidationError(_("Identification Scheme must be Commercial Registration Number for customers and vendors."))
-            if requires_identifiers and not sa_identification_number:
-                raise ValidationError(_("Identification Number (SA) is required for customers and vendors."))
-            if not requires_identifiers:
+            if requires_vat and not vat:
+                raise ValidationError(_("VAT / Tax ID is required for companies."))
+            if not partner.active or not vat:
                 continue
 
             duplicate_vat_partner = partner._pr_find_duplicate_partner_identifier("vat", vat)
@@ -70,23 +61,11 @@ class ResPartner(models.Model):
                     "partner": duplicate_vat_partner.display_name,
                 })
 
-            duplicate_cr_partner = partner._pr_find_duplicate_partner_identifier(
-                "l10n_sa_additional_identification_number",
-                sa_identification_number,
-            )
-            if duplicate_cr_partner:
-                raise ValidationError(_(
-                    "Identification Number (SA) '%(cr)s' is already used by '%(partner)s'."
-                ) % {
-                    "cr": partner.l10n_sa_additional_identification_number,
-                    "partner": duplicate_cr_partner.display_name,
-                })
-
     def name_create(self, name):
         if self._pr_context_requires_partner_identifiers():
             raise ValidationError(_(
                 "Quick create is disabled for customers and vendors. "
-                "Use Create and Edit, then fill VAT / Tax ID and Identification Number (SA)."
+                "Use Create and Edit, then fill VAT / Tax ID for companies."
             ))
         return super().name_create(name)
 
