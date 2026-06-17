@@ -52,7 +52,7 @@
                                 <span t-esc="shortage_request.employee_id.name"/>
                             </td>
                             <td>
-                                <span t-esc="shortage_request.date"/>
+                                <span t-field="shortage_request.date" t-options="{'widget': 'date'}"/>
                             </td>
                             <td>
                                 <span t-field="shortage_request.check_in"/>
@@ -107,7 +107,7 @@
                                             <div style="width: 10% !important;">
                                                 <p class="small text-muted mb-1">Date</p>
                                                 <p class="mb-0">
-                                                    <span t-esc="shortage_request_id.date"/>
+                                                    <span t-field="shortage_request_id.date" t-options="{'widget': 'date'}"/>
                                                 </p>
                                             </div>
                                             <div class="px-3" style="width: 25% !important;">

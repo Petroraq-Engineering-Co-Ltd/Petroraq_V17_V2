@@ -12,9 +12,15 @@ from . import xls_format
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 class AccountingJournalReport(models.TransientModel):
     _inherit = "account.print.journal"
+
+    def _format_report_date(self, value):
+        if not value:
+            return ''
+        return format_date(self.env, fields.Date.to_date(value))
 
     def lines(self, target_move, journal_ids, sort_selection, data):
         if isinstance(journal_ids, int):
@@ -269,7 +275,7 @@ class AccountingJournalReport(models.TransientModel):
                 sheet.write(row_start, col_start, line.move_id.name+'&lt;&gt;'+'/' and line.move_id.name or ('*'+str(line.move_id.id)),other_tstyle)
                 col_start += 1
                 sheet.col(col_start).width = 256 * 20
-                sheet.write(row_start, col_start, str(line.date),other_tstyle)
+                sheet.write(row_start, col_start, self._format_report_date(line.date),other_tstyle)
                 col_start += 1
                 sheet.col(col_start).width = 256 * 20
                 sheet.write(row_start, col_start, line.account_id.code,other_tstyle)

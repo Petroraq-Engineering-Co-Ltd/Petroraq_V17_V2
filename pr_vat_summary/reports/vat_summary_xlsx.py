@@ -1,5 +1,6 @@
 # pr_vat_summary/reports/vat_summary_xlsx.py
 from odoo import models
+from odoo.tools import format_date
 
 
 class VatSummaryXlsx(models.AbstractModel):
@@ -164,7 +165,7 @@ class VatSummaryXlsx(models.AbstractModel):
         )
         sheet.merge_range(
             2, 0, 2, 6,
-            f"Period: {wizard.date_start.strftime('%d-%b-%Y')} to {wizard.date_end.strftime('%d-%b-%Y')}",
+            f"Period: {format_date(self.env, wizard.date_start)} to {format_date(self.env, wizard.date_end)}",
             report_header_fmt
         )
 

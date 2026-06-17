@@ -9,6 +9,15 @@ WORK_PERMIT_REQUEST_TYPES = ("work_permit_new", "work_permit_renewal")
 HR_COMPLIANCE_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES + WORK_PERMIT_REQUEST_TYPES
 SERVICE_PERIOD_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES
 TICKET_REIMBURSEMENT_TYPE = "ticket"
+ACCOUNTING_GROUP_XML_IDS = (
+    "base.group_system",
+    "account.group_account_invoice",
+    "account.group_account_user",
+    "account.group_account_manager",
+    "pr_account.custom_group_accounting_manager",
+    "pr_account.custom_group_account_supervisor",
+)
+ACCOUNTING_EPR_RULE_BYPASS_MODES = ("read", "write")
 
 
 class PrEmployeeServiceRequest(models.Model):
@@ -319,12 +328,7 @@ class PrEmployeeServiceRequest(models.Model):
             user.has_group("pr_custom_purchase.managing_director")
             or user.has_group("pr_hr_recruitment_request.group_onboarding_md")
         )
-        is_accounts = (
-            user.has_group("account.group_account_invoice")
-            or user.has_group("account.group_account_user")
-            or user.has_group("account.group_account_manager")
-            or user.has_group("pr_account.custom_group_accounting_manager")
-        )
+        is_accounts = any(user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
         is_finance = (
             user.has_group("pr_account.custom_group_accounting_manager")
             or user.has_group("account.group_account_manager")
@@ -522,10 +526,7 @@ class PrEmployeeServiceRequest(models.Model):
                 or self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_manager")
                 or self.env.user.has_group("pr_custom_purchase.managing_director")
                 or self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_md")
-                or self.env.user.has_group("account.group_account_invoice")
-                or self.env.user.has_group("account.group_account_user")
-                or self.env.user.has_group("account.group_account_manager")
-                or self.env.user.has_group("pr_account.custom_group_accounting_manager")
+                or any(self.env.user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
                 or self.env.user.has_group("base.group_system")
             )
             for rec in self:
@@ -543,10 +544,7 @@ class PrEmployeeServiceRequest(models.Model):
                 or self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_manager")
                 or self.env.user.has_group("pr_custom_purchase.managing_director")
                 or self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_md")
-                or self.env.user.has_group("account.group_account_invoice")
-                or self.env.user.has_group("account.group_account_user")
-                or self.env.user.has_group("account.group_account_manager")
-                or self.env.user.has_group("pr_account.custom_group_accounting_manager")
+                or any(self.env.user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
                 or self.env.user.has_group("base.group_system")
             )
             for rec in self:
@@ -710,6 +708,15 @@ class PrEmployeeServiceRequest(models.Model):
                     % (rec._get_type_label(), rec.display_name),
                 )
                 rec.message_post(body=_("Request submitted for Department Manager approval."))
+            elif rec._is_ticket_reimbursement() or rec.request_type == "exit_reentry":
+                vals["state"] = "hr_manager_approval"
+                rec.write(vals)
+                rec._notify_group(
+                    ["hr.group_hr_manager", "pr_hr_recruitment_request.group_onboarding_manager"],
+                    _("Employee Request Approval Needed"),
+                    _("%s <b>%s</b> is waiting for HR Manager approval.") % (rec._get_type_label(), rec.display_name),
+                )
+                rec.message_post(body=_("Request submitted for HR Manager approval."))
             else:
                 vals["state"] = "hr_supervisor_approval"
                 rec.write(vals)
@@ -748,85 +755,76 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             if not rec.can_employee_manager_approve:
                 raise UserError(_("Only the employee's manager can approve this stage."))
-            next_state = "accounts_approval" if rec._is_department_manager_flow() else "hr_manager_approval"
+            if rec._is_department_manager_flow():
+                payment_request = rec._create_payment_request()
+                rec.write({
+                    "state": "payment_approval",
+                    "employee_manager_approved_by_id": self.env.user.id,
+                    "employee_manager_approved_date": fields.Datetime.now(),
+                })
+                rec.message_post(
+                    body=_("Department Manager approved this request and created payment request %s for Accounts.")
+                    % payment_request.display_name
+                )
+                continue
             rec.write({
-                "state": next_state,
+                "state": "hr_manager_approval",
                 "employee_manager_approved_by_id": self.env.user.id,
                 "employee_manager_approved_date": fields.Datetime.now(),
             })
-            if next_state == "accounts_approval":
-                rec._notify_group(
-                    [
-                        "account.group_account_invoice",
-                        "account.group_account_user",
-                        "account.group_account_manager",
-                        "pr_account.custom_group_accounting_manager",
-                    ],
-                    _("Employee Request Accounts Approval Needed"),
-                    _("%s <b>%s</b> is waiting for Accounts approval.") % (rec._get_type_label(), rec.display_name),
-                )
-            else:
-                rec._notify_group(
-                    ["hr.group_hr_manager", "pr_hr_recruitment_request.group_onboarding_manager"],
-                    _("Employee Request Approval Needed"),
-                    _("%s <b>%s</b> is waiting for HR Manager approval.") % (rec._get_type_label(), rec.display_name),
-                )
+            rec._notify_group(
+                ["hr.group_hr_manager", "pr_hr_recruitment_request.group_onboarding_manager"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for HR Manager approval.") % (rec._get_type_label(), rec.display_name),
+            )
             rec.message_post(body=_("Employee Manager approved this request."))
 
     def action_hr_manager_approve(self):
         for rec in self:
             if not rec.can_hr_manager_approve:
                 raise UserError(_("Only HR Manager can approve this stage."))
-            next_state = "accounts_approval" if rec.request_type in ("exit_reentry", "reimbursement") else "md_approval"
             rec.write({
-                "state": next_state,
+                "state": "md_approval",
                 "approved_amount": rec._get_payment_amount(),
                 "hr_manager_approved_by_id": self.env.user.id,
                 "hr_manager_approved_date": fields.Datetime.now(),
             })
-            if next_state == "accounts_approval":
-                rec._notify_group(
-                    [
-                        "account.group_account_invoice",
-                        "account.group_account_user",
-                        "account.group_account_manager",
-                        "pr_account.custom_group_accounting_manager",
-                    ],
-                    _("Employee Request Accounts Approval Needed"),
-                    _("%s <b>%s</b> is waiting for Accounts approval.") % (rec._get_type_label(), rec.display_name),
-                )
-            else:
-                rec._notify_group(
-                    ["pr_custom_purchase.managing_director", "pr_hr_recruitment_request.group_onboarding_md"],
-                    _("Employee Request Approval Needed"),
-                    _("%s <b>%s</b> is waiting for MD approval.") % (rec._get_type_label(), rec.display_name),
-                )
+            rec._notify_group(
+                ["pr_custom_purchase.managing_director", "pr_hr_recruitment_request.group_onboarding_md"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for MD approval.") % (rec._get_type_label(), rec.display_name),
+            )
             rec.message_post(body=_("HR Manager approved this request."))
 
     def action_accounts_approve(self):
         for rec in self:
             if not rec.can_accounts_approve:
                 raise UserError(_("Only Accounts can approve this stage."))
-            rec._check_before_accounts_approval()
-            next_state = "finance_approval" if rec._is_ticket_reimbursement() else "md_approval"
+            if rec._is_department_manager_flow():
+                payment_request = rec._create_payment_request()
+                rec.write({
+                    "state": "payment_approval",
+                    "approved_amount": rec._get_payment_amount(),
+                    "accounts_approved_by_id": self.env.user.id,
+                    "accounts_approved_date": fields.Datetime.now(),
+                })
+                rec.message_post(
+                    body=_("Accounts approved this request and created payment request %s.")
+                    % payment_request.display_name
+                )
+                continue
+            rec._check_before_md_approval()
             rec.write({
-                "state": next_state,
+                "state": "md_approval",
                 "approved_amount": rec._get_payment_amount(),
                 "accounts_approved_by_id": self.env.user.id,
                 "accounts_approved_date": fields.Datetime.now(),
             })
-            if next_state == "finance_approval":
-                rec._notify_group(
-                    ["pr_account.custom_group_accounting_manager", "account.group_account_manager"],
-                    _("Employee Request Finance Approval Needed"),
-                    _("%s <b>%s</b> is waiting for Finance approval.") % (rec._get_type_label(), rec.display_name),
-                )
-            else:
-                rec._notify_group(
-                    ["pr_custom_purchase.managing_director", "pr_hr_recruitment_request.group_onboarding_md"],
-                    _("Employee Request Approval Needed"),
-                    _("%s <b>%s</b> is waiting for MD approval.") % (rec._get_type_label(), rec.display_name),
-                )
+            rec._notify_group(
+                ["pr_custom_purchase.managing_director", "pr_hr_recruitment_request.group_onboarding_md"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for MD approval.") % (rec._get_type_label(), rec.display_name),
+            )
             rec.message_post(body=_("Accounts approved this request."))
 
     def action_md_approve(self):
@@ -1496,6 +1494,19 @@ class PrEmployeePaymentRequest(models.Model):
         ),
     ]
 
+    def _is_accounting_epr_user(self):
+        return any(self.env.user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
+
+    def _apply_ir_rules(self, query, mode="read"):
+        if mode in ACCOUNTING_EPR_RULE_BYPASS_MODES and self._is_accounting_epr_user():
+            return
+        return super()._apply_ir_rules(query, mode=mode)
+
+    def check_access_rule(self, operation):
+        if operation in ACCOUNTING_EPR_RULE_BYPASS_MODES and self._is_accounting_epr_user():
+            return True
+        return super().check_access_rule(operation)
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -1535,22 +1546,12 @@ class PrEmployeePaymentRequest(models.Model):
 
     def _check_account_user(self):
         user = self.env.user
-        if not (
-            user.has_group("account.group_account_invoice")
-            or user.has_group("account.group_account_user")
-            or user.has_group("account.group_account_manager")
-            or user.has_group("pr_account.custom_group_accounting_manager")
-        ):
+        if not any(user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS):
             raise UserError(_("Only Accounts users can create payment vouchers."))
 
     def _notify_accounts(self):
         users = self.env["res.users"]
-        for xmlid in (
-            "account.group_account_invoice",
-            "account.group_account_user",
-            "account.group_account_manager",
-            "pr_account.custom_group_accounting_manager",
-        ):
+        for xmlid in ACCOUNTING_GROUP_XML_IDS:
             group = self.env.ref(xmlid, raise_if_not_found=False)
             if group:
                 users |= group.users
@@ -1776,6 +1777,19 @@ class PrEmployeePaymentRequestLine(models.Model):
         domain="[('deprecated', '=', False)]",
     )
     remarks = fields.Char(string="Remarks")
+
+    def _is_accounting_epr_user(self):
+        return any(self.env.user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
+
+    def _apply_ir_rules(self, query, mode="read"):
+        if mode in ACCOUNTING_EPR_RULE_BYPASS_MODES and self._is_accounting_epr_user():
+            return
+        return super()._apply_ir_rules(query, mode=mode)
+
+    def check_access_rule(self, operation):
+        if operation in ACCOUNTING_EPR_RULE_BYPASS_MODES and self._is_accounting_epr_user():
+            return True
+        return super().check_access_rule(operation)
 
     @api.constrains("amount")
     def _check_positive_amount(self):

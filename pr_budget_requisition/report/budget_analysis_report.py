@@ -1,6 +1,7 @@
 import re
 
 from odoo import models
+from odoo.tools import format_date
 
 
 class PrBudgetAnalysisPdfReport(models.AbstractModel):
@@ -219,7 +220,12 @@ class PrBudgetAnalysisXlsxReport(models.AbstractModel):
             sheet.write(row, 3, line.cost_center_id.display_name or "", formats["text"])
             sheet.write(row, 4, wizard._selection_label(line, "expense_type") if line.expense_type else "", formats["text"])
             sheet.write(row, 5, wizard._selection_label(line, "scope") if line.scope else "", formats["text"])
-            sheet.write(row, 6, "%s to %s" % (line.date_from, line.date_to), formats["text"])
+            sheet.write(
+                row,
+                6,
+                "%s to %s" % (format_date(self.env, line.date_from), format_date(self.env, line.date_to)),
+                formats["text"],
+            )
             sheet.write(row, 7, wizard._selection_label(line, "budget_state") if line.budget_state else "", formats["text"])
             self._write_amount(sheet, row, 8, line.planned_amount, formats)
             self._write_amount(sheet, row, 9, line.requested_amount, formats)

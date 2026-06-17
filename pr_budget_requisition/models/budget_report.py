@@ -1,11 +1,17 @@
 from collections import OrderedDict
 
 from odoo import _, api, fields, models
+from odoo.tools import format_date
 
 
 class PrBudgetReportWizard(models.TransientModel):
     _name = "pr.budget.report.wizard"
     _description = "Budget Analysis Report Wizard"
+
+    def _format_report_date(self, value):
+        if not value:
+            return ""
+        return format_date(self.env, fields.Date.to_date(value))
 
     company_id = fields.Many2one(
         "res.company",
@@ -212,7 +218,7 @@ class PrBudgetReportWizard(models.TransientModel):
                 documents.append({
                     "source": _("Purchase Requisition"),
                     "document": requisition.name or "",
-                    "date": fields.Date.to_date(requisition_date),
+                    "date": self._format_report_date(requisition_date),
                     "state": self._selection_label(requisition, "approval"),
                     "partner": requisition.vendor_id.display_name or "",
                     "description": _("Approved PR Reservation"),
@@ -344,14 +350,14 @@ class PrBudgetReportWizard(models.TransientModel):
         self.ensure_one()
         return {
             "company": self.company_id.display_name or "",
-            "date_from": self.date_from,
-            "date_to": self.date_to,
+            "date_from": self._format_report_date(self.date_from),
+            "date_to": self._format_report_date(self.date_to),
             "budget_state": self._selection_label(self, "budget_state"),
             "scope": self._selection_label(self, "scope") if self.scope else _("All"),
             "expense_type": self._selection_label(self, "expense_type") if self.expense_type else _("All"),
             "departments": ", ".join(self.department_ids.mapped("display_name")) if self.department_ids else _("All"),
             "currency": self.currency_id.name or "",
-            "generated_on": fields.Date.context_today(self),
+            "generated_on": self._format_report_date(fields.Date.context_today(self)),
         }
 
     def _get_report_summary(self):
@@ -417,7 +423,7 @@ class PrBudgetReportWizard(models.TransientModel):
             documents.append({
                 "source": _("Purchase Order"),
                 "document": order.name or "",
-                "date": fields.Date.to_date(order_date),
+                "date": self._format_report_date(order_date),
                 "state": self._selection_label(order, "state"),
                 "partner": order.partner_id.display_name or "",
                 "description": po_line.product_id.display_name or po_line.name or "",
@@ -467,7 +473,7 @@ class PrBudgetReportWizard(models.TransientModel):
                 documents.append({
                     "source": source_label,
                     "document": parent.name or "",
-                    "date": fields.Date.to_date(voucher_date),
+                    "date": self._format_report_date(voucher_date),
                     "state": self._selection_label(parent, "state") if "state" in parent._fields else "",
                     "partner": voucher_line.partner_id.display_name or (parent_partner.display_name if parent_partner else ""),
                     "description": voucher_line.description or voucher_line.account_id.display_name or "",
@@ -497,8 +503,8 @@ class PrBudgetReportWizard(models.TransientModel):
                 "period_label": self._selection_label(line, "budget_period_months") if line.budget_period_months else "",
                 "budget_state_label": self._selection_label(line, "budget_state") if line.budget_state else "",
                 "approval_state_label": self._selection_label(line, "approval_state") if line.approval_state else "",
-                "date_from": line.date_from,
-                "date_to": line.date_to,
+                "date_from": self._format_report_date(line.date_from),
+                "date_to": self._format_report_date(line.date_to),
                 "lines": self.env["pr.budget.report.line"],
                 "items": line.source_requisition_id.line_ids if line.source_requisition_id else self.env["pr.budget.requisition.line"],
                 "planned_amount": 0.0,

@@ -74,9 +74,9 @@
                         </tr>
                         <tr>
                             <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Planned Start</td>
-                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.date_start and doc.date_start.strftime('%d-%m-%Y') or ''"/></td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-field="doc.date_start" t-options="{'widget': 'date'}"/></td>
                             <td style="background:#f2f6fa; font-weight:bold; border:1px solid #cccccc; padding:5px;">Planned End</td>
-                            <td style="border:1px solid #cccccc; padding:5px;"><span t-esc="doc.date_end and doc.date_end.strftime('%d-%m-%Y') or ''"/></td>
+                            <td style="border:1px solid #cccccc; padding:5px;"><span t-field="doc.date_end" t-options="{'widget': 'date'}"/></td>
                         </tr>
                     </table>
 

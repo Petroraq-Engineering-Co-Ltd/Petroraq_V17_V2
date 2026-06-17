@@ -4,7 +4,7 @@ from collections import OrderedDict
 from datetime import datetime, date
 
 from odoo.osv import expression
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, format_date
 
 
 PARTNER_LEDGER_ACCOUNT_TYPES = ("asset_receivable", "liability_payable")
@@ -20,9 +20,18 @@ INVOICE_MOVE_TYPES = (
 
 def as_date(value):
     """Return a Python date for wizard/report date values."""
+    if isinstance(value, datetime):
+        return value.date()
     if isinstance(value, date):
         return value
     return datetime.strptime(str(value), DATE_FORMAT).date()
+
+
+def format_report_date(env, value, empty=" "):
+    """Format report dates with the active Odoo language date format."""
+    if not value or str(value).strip() == "":
+        return empty
+    return format_date(env, as_date(value))
 
 
 def get_mapped_partner_ids(env, account_ids, company_id):

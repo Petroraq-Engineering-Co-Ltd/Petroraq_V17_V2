@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import time
-from odoo import api, models, _
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 
 class ReportPartnerLedger(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_partnerledger'
     _description = 'Partner Ledger Report'
+
+    def _format_report_date(self, value):
+        if not value:
+            return ''
+        return format_date(self.env, fields.Date.to_date(value))
 
     def _lines(self, data, partner):
         full_account = []
@@ -29,12 +35,8 @@ class ReportPartnerLedger(models.AbstractModel):
         self.env.cr.execute(query, tuple(params))
         res = self.env.cr.dictfetchall()
         sum = 0.0
-        lang_code = self.env.context.get('lang') or 'en_US'
-        lang = self.env['res.lang']
-        lang_id = lang._lang_get(lang_code)
-        date_format = lang_id.date_format
         for r in res:
-            r['date'] = r['date']
+            r['date'] = self._format_report_date(r.get('date'))
             r['displayed_name'] = '-'.join(
                 r[field_name] for field_name in ('move_name', 'ref', 'name')
                 if r[field_name] not in (None, '', '/')

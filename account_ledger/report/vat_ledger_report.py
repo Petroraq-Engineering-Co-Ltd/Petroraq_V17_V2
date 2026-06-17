@@ -5,6 +5,7 @@ from datetime import datetime
 from odoo import api, models
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 import logging
+from .ledger_partner_utils import format_report_date
 
 _logger = logging.getLogger(__name__)
 
@@ -13,10 +14,10 @@ class AccountLedgerReport(models.AbstractModel):
     _name = 'report.account_ledger.vat_ledger_rep'
 
     def _get_valuation_dates(self, start_date, end_date):
-        date_start = datetime.strptime(start_date, DATE_FORMAT).date()
-        date_end = datetime.strptime(end_date, DATE_FORMAT).date()
-        valuation_date = str(date_start) + ' To ' + str(date_end)
-        return valuation_date
+        return "%s To %s" % (
+            format_report_date(self.env, start_date),
+            format_report_date(self.env, end_date),
+        )
 
     @api.model
     def _get_report_values(self, docids, data=None):
@@ -72,7 +73,7 @@ class AccountLedgerReport(models.AbstractModel):
             str_analytic_ids.append(str(asset))
 
         today = datetime.today()
-        report_date = today.strftime("%b-%d-%Y")
+        report_date = format_report_date(self.env, today)
         # user_type_receivable_id = self.env['ir.model.data'].xmlid_to_res_id('account.data_account_type_receivable')
         ji_domain = [
             ('company_id', '=', company),
@@ -193,7 +194,7 @@ class AccountLedgerReport(models.AbstractModel):
             t_credit += item.credit
             docs.append({
                 'transaction_ref': item.move_id.name,
-                'date': item.date,
+                'date': format_report_date(self.env, item.date),
                 'description': item.name,
                 'reference': item.ref,
                 'journal': item.journal_id.name,

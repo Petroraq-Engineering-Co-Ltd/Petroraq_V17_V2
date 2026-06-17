@@ -29,7 +29,7 @@
                     <t t-esc="holiday.name"/>
                 </div>
                 <div>
-                    (<t t-esc="holiday.date_from"/>)
+                    (<t t-esc="holiday.date_from_display || holiday.date_from"/>)
                 </div>
             </t>
         </div>

@@ -1802,7 +1802,7 @@
                 padding-left: 4px;
                 }
                 .job-description li::marker {
-                color: #000;
+                color: #475467;
                 font-weight: 700;
                 }
                 .job-description h1,

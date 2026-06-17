@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, models, fields
+from odoo.tools import format_date
 from datetime import datetime, date
 import json
 
@@ -340,12 +341,15 @@ class AccountLedger(models.TransientModel):
             "wizard_id": self.id
         })
         account_names = ", ".join(self.account_ids.mapped("name"))
-        date_range = f"{self.date_start} → {self.date_end}"
+        formatted_date_range = "%s to %s" % (
+            format_date(self.env, self.date_start),
+            format_date(self.env, self.date_end),
+        )
 
         result.write({
             "header_company": self.company_id.name,
             "header_account": account_names,
-            "header_date_range": date_range,
+            "header_date_range": formatted_date_range,
         })
 
         for line in docs:

@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import time
-from odoo import api, models, _
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 
 class ReportGeneralLedger(models.AbstractModel):
     _name = 'report.accounting_pdf_reports.report_general_ledger'
     _description = 'General Ledger Report'
+
+    def _format_report_date(self, value):
+        if not value:
+            return ''
+        return format_date(self.env, fields.Date.to_date(value))
 
     def _get_account_move_entry(self, accounts, analytic_account_ids,
                                 partner_ids, init_balance,
@@ -70,6 +76,7 @@ class ReportGeneralLedger(models.AbstractModel):
             params = (tuple(accounts.ids),) + tuple(init_where_params)
             cr.execute(sql, params)
             for row in cr.dictfetchall():
+                row['ldate'] = self._format_report_date(row.get('ldate'))
                 move_lines[row.pop('account_id')].append(row)
 
         sql_sort = 'l.date, l.move_id'
@@ -111,6 +118,7 @@ class ReportGeneralLedger(models.AbstractModel):
         cr.execute(sql, params)
 
         for row in cr.dictfetchall():
+            row['ldate'] = self._format_report_date(row.get('ldate'))
             balance = 0
             for line in move_lines.get(row['account_id']):
                 balance += line['debit'] - line['credit']

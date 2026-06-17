@@ -46,7 +46,7 @@
                         <h2>Leave Analytics Summary</h2>
                         <p>
                             <strong>Period:</strong>
-                            <span t-esc="wizard.date_from"/> - <span t-esc="wizard.date_to"/>
+                            <span t-field="wizard.date_from" t-options="{'widget': 'date'}"/> - <span t-field="wizard.date_to" t-options="{'widget': 'date'}"/>
                         </p>
                         <table class="table table-sm table-bordered">
                             <thead>

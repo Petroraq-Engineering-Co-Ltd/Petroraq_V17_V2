@@ -4,6 +4,7 @@ import time
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 
 
 class AccountAgedTrialBalance(models.TransientModel):
@@ -14,6 +15,11 @@ class AccountAgedTrialBalance(models.TransientModel):
     period_length = fields.Integer(string='Period Length (days)', required=True, default=30)
     journal_ids = fields.Many2many('account.journal', string='Journals', required=False, domain="[('company_id', '=', company_id)]")
     date_from = fields.Date(default=lambda *a: time.strftime('%Y-%m-%d'))
+
+    def _format_report_date(self, value):
+        if not value:
+            return False
+        return format_date(self.env, fields.Date.to_date(value))
 
     def _get_report_data(self, data):
         res = {}
@@ -35,6 +41,7 @@ class AccountAgedTrialBalance(models.TransientModel):
             }
             start = stop - relativedelta(days=1)
         data['form'].update(res)
+        data['form']['date_from_display'] = self._format_report_date(data['form'].get('date_from'))
         return data
 
     def _print_report(self, data):

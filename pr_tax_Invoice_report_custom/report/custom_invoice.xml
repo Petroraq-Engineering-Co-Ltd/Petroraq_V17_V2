@@ -242,7 +242,7 @@
                             <tr>
                                 <td style="text-align:left;">Invoice Date:</td>
                                 <td style="text-align:left">
-                                    <span t-esc="o.invoice_date"/>
+                                    <span t-field="o.invoice_date" t-options="{'widget': 'date'}"/>
                                 </td>
                                 <td style="text-align:right">
                                     <span t-esc="o.convert_to_eastern_arabic_numerals(o.invoice_date)"/>

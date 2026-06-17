@@ -1,4 +1,5 @@
 from odoo import models, _
+from odoo.tools import format_date
 from datetime import datetime
 
 
@@ -155,8 +156,8 @@ class AccountReportXlsxCustom(models.AbstractModel):
         date_to = options['date']['date_to']
 
         period_str = "Period {} - {}".format(
-            datetime.strptime(date_from, '%Y-%m-%d').strftime('%d/%m/%Y'),
-            datetime.strptime(date_to, '%Y-%m-%d').strftime('%d/%m/%Y'),
+            format_date(self.env, datetime.strptime(date_from, '%Y-%m-%d').date()),
+            format_date(self.env, datetime.strptime(date_to, '%Y-%m-%d').date()),
         )
 
         # Row 0: Company + VAT

@@ -12,7 +12,7 @@ from odoo.addons.de_hr_workspace.controllers.portal_employee import (
     get_current_employee,
     require_current_employee,
 )
-from odoo.tools import groupby as groupbyelem
+from odoo.tools import format_date, groupby as groupbyelem
 
 from odoo.osv.expression import OR, AND
 
@@ -139,8 +139,8 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
             all_leaves = [{
                 'employee': l.employee_id.name,
                 'leave_type': l.holiday_status_id.name,
-                'from': l.request_date_from.strftime('%d/%m/%Y'),
-                'to': l.request_date_to.strftime('%d/%m/%Y'),
+                'from': format_date(request.env, l.request_date_from),
+                'to': format_date(request.env, l.request_date_to),
                 'days': l.number_of_days_display,
                 'status': status_labels.get(l.state, l.state),
             } for l in leaves_history]
@@ -148,8 +148,8 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
             pending = [{
                 'employee': current_employee_id.name,
                 'leave_type': l.leave_type_id.name,
-                'from': l.date_from.strftime('%d/%m/%Y'),
-                'to': l.date_to.strftime('%d/%m/%Y'),
+                'from': format_date(request.env, l.date_from),
+                'to': format_date(request.env, l.date_to),
                 'days': (l.date_to - l.date_from).days + 1,
                 'status': l.state,
             } for l in request.env["pr.hr.leave.request"].sudo().search([("employee_id", "=", current_employee_id.id),

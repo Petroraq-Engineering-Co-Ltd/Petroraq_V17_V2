@@ -5,6 +5,7 @@ from contextlib import ExitStack, contextmanager
 
 from odoo import models, fields, api, Command
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 import qrcode
 import base64
 from odoo import models, fields, api
@@ -103,7 +104,7 @@ class AccountMove(models.Model):
         if not input_date or not isinstance(input_date, date):
             return ''
 
-        date_string = input_date.strftime('%Y-%m-%d')
+        date_string = format_date(self.env, input_date)
         numerals_map = str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')
         return date_string.translate(numerals_map)
 

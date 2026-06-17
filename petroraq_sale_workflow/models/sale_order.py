@@ -1,6 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import format_amount, html_escape
+from odoo.tools import format_amount, format_date, html_escape
 from odoo.tools.float_utils import float_round, float_compare
 
 
@@ -1298,6 +1298,12 @@ class SaleOrder(models.Model):
             return ""
         numerals_map = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
         return str(value).translate(numerals_map)
+
+    @api.model
+    def format_sale_report_date(self, value):
+        if not value:
+            return ""
+        return format_date(self.env, fields.Date.to_date(value))
 
 
 class WorkOrderBOQ(models.Model):

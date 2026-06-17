@@ -4,7 +4,7 @@ import { Component, onWillStart, useState } from "@odoo/owl";
 export class TimeOffEmpCard extends Component {}
 TimeOffEmpCard.template = 'de_hr_workspace_leave_management.TimeOffEmpCard';
 TimeOffEmpCard.props = ['name', 'id', 'department_id', 'job_position',
-'children', 'image_1920', 'work_email', 'work_phone', 'company', 'resource_calendar_id', 'employee_code', 'joining_date'];
+'children', 'image_1920', 'work_email', 'work_phone', 'company', 'resource_calendar_id', 'employee_code', 'joining_date', 'joining_date_display'];
 //Exports a class TimeOffEmpOrgChart that extends the Component class.
 //It is a custom component used for managing an employee organization
 //chart in the context of time off and holidays.

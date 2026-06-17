@@ -31,7 +31,7 @@
                     <tr>
                         <th>Date Requested</th>
                         <td>
-                            <t t-esc="pr.date_request"/>
+                            <span t-field="pr.date_request" t-options="{'widget': 'date'}"/>
                         </td>
                     </tr>
                     <tr>

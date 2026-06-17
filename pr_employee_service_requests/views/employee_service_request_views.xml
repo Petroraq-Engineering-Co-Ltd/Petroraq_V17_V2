@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_pr_employee_service_request_tree" model="ir.ui.view">
         <field name="name">pr.employee.service.request.tree</field>
@@ -332,7 +332,7 @@
                             type="object"
                             string="Create Payment Voucher"
                             class="btn-primary"
-                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"
+                            groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"
                             invisible="state != 'requested'"/>
                     <button name="action_open_payment_voucher"
                             type="object"
@@ -343,7 +343,7 @@
                             type="object"
                             string="Cancel"
                             class="btn-secondary"
-                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"
+                            groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"
                             invisible="state != 'requested'"/>
                     <field name="state" widget="statusbar" statusbar_visible="requested,voucher_created,cancelled"/>
                 </header>
@@ -376,11 +376,11 @@
                             <field name="cost_center_id" readonly="1"/>
                             <field name="transfer_type"
                                    readonly="state != 'requested'"
-                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                                   groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
                             <field name="pay_from_account_id"
                                    readonly="state != 'requested'"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
-                                   groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                                   groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
                             <field name="total_amount" readonly="1"/>
                         </group>
                     </group>
@@ -394,7 +394,7 @@
                                     <field name="amount" readonly="1" sum="Total"/>
                                     <field name="expense_account_id"
                                            options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
-                                           groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                                           groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
                                     <field name="remarks"/>
                                 </tree>
                             </field>
@@ -413,6 +413,15 @@
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
         <field name="domain">[('request_type', '=', 'reimbursement')]</field>
         <field name="context">{'default_request_type': 'reimbursement', 'search_default_my_requests': 1}</field>
+    </record>
+
+    <record id="action_pr_employee_reimbursement_accounting" model="ir.actions.act_window">
+        <field name="name">Employee Reimbursements</field>
+        <field name="res_model">pr.employee.service.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
+        <field name="domain">[('request_type', '=', 'reimbursement')]</field>
+        <field name="context">{'default_request_type': 'reimbursement'}</field>
     </record>
 
     <record id="action_pr_employee_exit_reentry_my" model="ir.actions.act_window">
@@ -591,6 +600,7 @@
         <field name="res_model">pr.employee.payment.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_payment_request_search"/>
+        <field name="domain">[]</field>
         <field name="context">{'search_default_requested': 1}</field>
     </record>
 
@@ -618,7 +628,9 @@
             (4, ref('account.group_account_invoice')),
             (4, ref('account.group_account_user')),
             (4, ref('account.group_account_manager')),
-            (4, ref('pr_account.custom_group_accounting_manager'))
+            (4, ref('pr_account.custom_group_accounting_manager')),
+            (4, ref('pr_account.custom_group_account_supervisor')),
+            (4, ref('base.group_system'))
         ]"/>
     </record>
 
@@ -762,35 +774,42 @@
               name="Employee Accounting"
               parent="de_hr_workspace.menu_my_employee_approvals"
               sequence="46"
-              groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+              groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
     <menuitem id="menu_pr_employee_accounts_approvals"
               name="Employee Request Accounts Approvals"
               parent="menu_pr_employee_accounting_approvals"
               action="action_pr_employee_accounts_approvals"
               sequence="5"
-              groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+              groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
     <menuitem id="menu_pr_employee_finance_approvals"
               name="Employee Request Finance Approvals"
               parent="menu_pr_employee_accounting_approvals"
               action="action_pr_employee_finance_approvals"
               sequence="6"
-              groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+              groups="base.group_system,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
     <menuitem id="menu_pr_employee_payment_tracking"
               name="Employee Payment Requests"
               parent="menu_pr_employee_accounting_approvals"
               action="action_pr_employee_payment_tracking"
               sequence="10"
-              groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+              groups="base.group_system,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
+
+    <menuitem id="menu_pr_employee_reimbursement_accounting"
+              name="Employee Reimbursements"
+              parent="pr_account.payment_receipt_vouchers_main_menu"
+              action="action_pr_employee_reimbursement_accounting"
+              sequence="1"
+              groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
     <menuitem id="menu_pr_employee_payment_requests_financial"
               name="Employee Payment Requests"
               parent="pr_account.payment_receipt_vouchers_main_menu"
               action="action_pr_employee_payment_tracking"
               sequence="2"
-              groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+              groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
     <record id="view_cash_payment_form_employee_service_request" model="ir.ui.view">
         <field name="name">pr.account.cash.payment.form.employee.service.request</field>
