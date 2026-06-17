@@ -222,7 +222,7 @@ class HrAttendanceSheet(models.Model):
 
     def _mark_late_checkins_as_absent(self):
         """Mark attendance sheet lines as absent when check-in is after 09:01."""
-        cutoff = 9 + (1 / 60)
+        cutoff = 9 + (0 / 60)
         for sheet in self:
             for line in sheet.line_ids:
                 if line.status in ("leave", "weekend"):
