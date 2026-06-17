@@ -144,7 +144,7 @@
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                             <field name="expense_scope" readonly="1"/>
                             <field name="status" invisible="1"/>
-                            <field name="rfq_sent_count" readonly="1"/>
+                            <field name="rfq_sent_count" readonly="1" invisible="rfq_sent_count == 0"/>
                             <field name="requested_user_id" invisible="1"/>
                         </group>
                         <group>
