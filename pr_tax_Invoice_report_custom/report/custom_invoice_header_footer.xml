@@ -38,32 +38,29 @@
     <template id="custom_invoice_footer_layout">
 
         <div class="footer">
-            <div style="border-bottom:1px solid #305081 !important;">
-                <table class="table table-borderless" style="line-height:0.5;font-family: 'DroidArabicNaskh';">
-                    <tr>
-                        <td width="50%" style="text-align:left;font-size: 18px !important;">
-                            <p>This is computer generated document, no signature and stamp required</p>
-                        </td>
-                        <td width="50%" style="text-align:right;font-size: 18px !important;">
-                            <p>هذه وثيقة تم إنشاؤها بواسطة الكمبيوتر، ولا تتطلب توقيعًا أو ختمًا</p>
-                        </td>
-                    </tr>
-                </table>
+            <table class="table table-borderless" style="line-height:0.5;font-family: 'DroidArabicNaskh';">
+                <tr>
+                    <td width="50%" style="text-align:left;font-size: 16px !important; font-weight: bold;">
+                        <p>This is computer generated document, no signature and stamp required</p>
+                    </td>
+                    <td width="50%" style="text-align:right;font-size: 16px !important;font-weight: bold;">
+                        <p>هذه وثيقة تم إنشاؤها بواسطة الكمبيوتر، ولا تتطلب توقيعًا أو ختمًا</p>
+                    </td>
+                </tr>
+            </table>
+
+
+            <div name="pager" class="list-inline no-margin text-center"
+                 style="color:rgba(18,49,96,0.91);border-top:1px solid #305081 !important;width:105%;margin-left:-15px !important;">
+                Page:
+                <span class="page"/>
+                /
+                <span class="topage"/>
             </div>
 
+            <img src='/pr_tax_Invoice_report_custom/static/src/img/img.png'
+                 style="width:105%;margin:0px -10px -15px -14px ! important"/>
 
-            <div style="border-top:1px solid #305081 !important;">
-                <div name="pager" class="list-inline no-margin text-center" style="color:rgba(18,49,96,0.91);">
-                    Page:
-                    <span class="page"/>
-                    /
-                    <span class="topage"/>
-                </div>
-
-                <img src='/pr_tax_Invoice_report_custom/static/src/img/img.png'
-                     style="width:105%;margin:0px -10px -15px -14px ! important"/>
-
-            </div>
         </div>
     </template>
 </odoo>

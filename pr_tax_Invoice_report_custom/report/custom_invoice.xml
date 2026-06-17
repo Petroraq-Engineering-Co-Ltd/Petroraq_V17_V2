@@ -153,6 +153,20 @@
                             border: 0 !important;
                             padding: 0 !important;
                             }
+                            .o_pr_invoice_totals_table,
+                            .o_pr_invoice_words_table {
+                            margin: 0 !important;
+                            border-collapse: collapse !important;
+                            border-spacing: 0 !important;
+                            }
+                            .o_pr_invoice_totals_table {
+                            border-top: 0 !important;
+                            }
+                            .o_pr_invoice_totals_table tr:first-child > td,
+                            .o_pr_invoice_words_table,
+                            .o_pr_invoice_words_table tr:first-child > td {
+                            border-top: 0 !important;
+                            }
                             .o_pr_invoice_qr_block {
                             width: 100%;
                             border: 0 none transparent !important;
@@ -677,8 +691,8 @@
                             <tr style="page-break-inside:avoid !important;">
                                 <td class="o_pr_invoice_summary_cell"
                                     style="border:0 !important;padding:0 !important;page-break-inside:avoid !important;">
-                        <table class="table table-border"
-                               style="border:1px solid #000000;margin-top:0;font-family: 'DroidArabicNaskh';font-size: 17px !important;">
+                        <table class="table table-border o_pr_invoice_totals_table"
+                               style="border:1px solid #000000;border-top:0 !important;margin:0 !important;border-collapse:collapse;border-spacing:0;font-family: 'DroidArabicNaskh';font-size: 17px !important;">
                             <tr t-if="is_dp_deduct">
                                 <td width="35%" style="border:1px solid #000000;">
                                     Total (Excluding Vat)
@@ -832,8 +846,8 @@
                         </table>
                         <t t-set="total_word" t-value="o.amount_to_text(fixed_payable)"/>
                         <t t-set="total_words" t-value="o.amount_to_world(fixed_payable)"/>
-                        <table class="table table-border"
-                               style="border:1px solid #000000;margin-top:0;font-family: 'Noto Sans Arabic';font-size: 17px !important;">
+                        <table class="table table-border o_pr_invoice_words_table"
+                               style="border:1px solid #000000;border-top:0 !important;margin:0 !important;border-collapse:collapse;border-spacing:0;font-family: 'Noto Sans Arabic';font-size: 17px !important;">
                             <tr>
                                 <td style="border-left:1px solid black;border-right: none;text-align:left;">
                                     <span t-esc="total_word"/>
