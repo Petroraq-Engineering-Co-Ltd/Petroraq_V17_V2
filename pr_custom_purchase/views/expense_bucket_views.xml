@@ -91,6 +91,7 @@
                 <field name="budget_amount_total" readonly="1"/>
                 <field name="po_spent_amount" readonly="1"/>
                 <field name="budget_remaining_amount" readonly="1"/>
+                <field name="expensed_amount" readonly="1"/>
             </xpath>
 
             <xpath expr="//notebook" position="inside">
@@ -118,9 +119,21 @@
                 <attribute name="invisible">state != 'confirm' or approval_state != 'md_approval' or not can_md_approve</attribute>
             </xpath>
 
+            <xpath expr="//field[@name='crossovered_budget_line']/tree/field[@name='planned_amount']" position="attributes">
+                <attribute name="string">Total Amount</attribute>
+                <attribute name="sum">Total Amount</attribute>
+            </xpath>
+
             <xpath expr="//field[@name='crossovered_budget_line']/tree/field[@name='planned_amount']" position="after">
-                <field name="po_spent_amount" readonly="1" sum="PR/PO Spent"/>
-                <field name="budget_remaining_amount" readonly="1" sum="Budget Remaining"/>
+                <field name="po_spent_amount" readonly="1" string="Spent Amount" sum="Spent Amount"/>
+                <field name="budget_remaining_amount" readonly="1" string="Remaining Amount" sum="Remaining Amount"/>
+            </xpath>
+
+            <xpath expr="//field[@name='crossovered_budget_line']/tree/field[@name='practical_amount']" position="attributes">
+                <attribute name="string">Expensed Amount</attribute>
+                <attribute name="sum">Expensed Amount</attribute>
+                <attribute name="column_invisible">0</attribute>
+                <attribute name="optional">show</attribute>
             </xpath>
 
         </field>
@@ -139,6 +152,7 @@
                 <field name="budget_amount_total" optional="show"/>
                 <field name="po_spent_amount" optional="show"/>
                 <field name="budget_remaining_amount" optional="show"/>
+                <field name="expensed_amount" optional="show"/>
                 <field name="purchase_requisition_count" optional="hide" string="PRs"/>
                 <field name="rfq_count" optional="hide" string="RFQs"/>
                 <field name="purchase_order_count" optional="show" string="POs"/>

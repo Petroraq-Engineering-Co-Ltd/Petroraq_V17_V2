@@ -104,7 +104,7 @@ class PrBudgetReportWizard(models.TransientModel):
                 total += (amount or 0.0) * (percentage / 100.0)
         return total
 
-    def _get_spend_breakdown(self, analytic, date_from, date_to):
+    def _get_spend_breakdown(self, analytic, date_from, date_to, budget):
         self.ensure_one()
         po_spent = 0.0
         cash_spent = 0.0
@@ -116,6 +116,7 @@ class PrBudgetReportWizard(models.TransientModel):
         PurchaseOrderLine = self.env["purchase.order.line"].sudo()
         po_lines = PurchaseOrderLine.search([
             ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ("order_id.requisition_id.expense_bucket_id", "=", budget.id),
             ("analytic_distribution", "!=", False),
         ])
         for line in po_lines:
@@ -144,7 +145,12 @@ class PrBudgetReportWizard(models.TransientModel):
                 po_spent += line_spent
                 po_ids.add(order.id)
 
-        pr_reservation = self._get_pr_reservation_breakdown(analytic, date_from, date_to)
+        pr_reservation = self._get_pr_reservation_breakdown(
+            analytic,
+            date_from,
+            date_to,
+            budget,
+        )
         po_spent += pr_reservation["amount"]
 
         voucher_sources = [
@@ -156,6 +162,7 @@ class PrBudgetReportWizard(models.TransientModel):
                 continue
             voucher_lines = self.env[model_name].sudo().search([
                 ("%s.state" % parent_field, "in", ["submit", "finance_approve", "posted"]),
+                ("%s.purchase_requisition_id.expense_bucket_id" % parent_field, "=", budget.id),
                 ("analytic_distribution", "!=", False),
             ])
             for line in voucher_lines:
@@ -190,7 +197,14 @@ class PrBudgetReportWizard(models.TransientModel):
             "bank_voucher_count": len(bank_ids),
         }
 
-    def _get_pr_reservation_breakdown(self, analytic, date_from, date_to, include_documents=False):
+    def _get_pr_reservation_breakdown(
+        self,
+        analytic,
+        date_from,
+        date_to,
+        budget,
+        include_documents=False,
+    ):
         self.ensure_one()
         amount = 0.0
         requisition_ids = set()
@@ -199,7 +213,7 @@ class PrBudgetReportWizard(models.TransientModel):
         PurchaseRequisition = self.env["purchase.requisition"].sudo()
         requisitions = PurchaseRequisition.search([
             ("approval", "=", "approved"),
-            ("expense_bucket_id", "!=", False),
+            ("expense_bucket_id", "=", budget.id),
             ("line_ids.cost_center_id", "=", analytic.id),
         ])
         for requisition in requisitions:
@@ -262,7 +276,12 @@ class PrBudgetReportWizard(models.TransientModel):
                     continue
 
                 analytic = budget_line.analytic_account_id.sudo()
-                breakdown = self._get_spend_breakdown(analytic, line_date_from, line_date_to)
+                breakdown = self._get_spend_breakdown(
+                    analytic,
+                    line_date_from,
+                    line_date_to,
+                    budget,
+                )
                 spent_amount = (
                     breakdown["po_spent"]
                     + breakdown["cash_spent"]
@@ -398,6 +417,7 @@ class PrBudgetReportWizard(models.TransientModel):
         PurchaseOrderLine = self.env["purchase.order.line"].sudo()
         po_lines = PurchaseOrderLine.search([
             ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ("order_id.requisition_id.expense_bucket_id", "=", report_line.budget_id.id),
             ("analytic_distribution", "!=", False),
         ])
         for po_line in po_lines:
@@ -438,6 +458,7 @@ class PrBudgetReportWizard(models.TransientModel):
                 analytic,
                 report_line.date_from,
                 report_line.date_to,
+                report_line.budget_id,
                 include_documents=True,
             )["documents"]
         )
@@ -451,6 +472,11 @@ class PrBudgetReportWizard(models.TransientModel):
                 continue
             voucher_lines = self.env[model_name].sudo().search([
                 ("%s.state" % parent_field, "in", ["submit", "finance_approve", "posted"]),
+                (
+                    "%s.purchase_requisition_id.expense_bucket_id" % parent_field,
+                    "=",
+                    report_line.budget_id.id,
+                ),
                 ("analytic_distribution", "!=", False),
             ])
             for voucher_line in voucher_lines:

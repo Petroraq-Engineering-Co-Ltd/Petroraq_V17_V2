@@ -157,14 +157,22 @@
 
                             <label for="accounting_date" string=""/>
 
-                            <div class="o_row o_date_amounts_row" style="display:flex; gap:45px;">
+                            <div class="o_row o_date_amounts_row"
+                                 style="grid-template-columns: repeat(2, minmax(180px, 1fr)); width:100%; column-gap:24px;">
 
                                 <!-- DATE -->
                                 <div class="o_form_label_and_field">
                                     <label for="accounting_date" string="Date"/>
                                     <field name="accounting_date"
                                            readonly="state != 'draft'"
-                                           class="oe_inline"/>
+                                           invisible="state != 'draft'"
+                                           class="oe_inline"
+                                           style="min-width:110px;"/>
+                                    <field name="accounting_date_display"
+                                           invisible="state == 'draft'"
+                                           readonly="1"
+                                           class="oe_inline"
+                                           style="min-width:110px;"/>
                                 </div>
 
                                 <!-- AMOUNT -->

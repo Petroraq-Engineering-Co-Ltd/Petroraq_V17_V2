@@ -44,6 +44,16 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     custom_qr_image = fields.Binary("QR Code", compute='_generate_qr_code')
+    po_number = fields.Char(
+        string="PO Number",
+        compute="_compute_sale_order_po_details",
+        store=True,
+    )
+    po_date = fields.Date(
+        string="PO Date",
+        compute="_compute_sale_order_po_details",
+        store=True,
+    )
     untaxed_before_downpayment = fields.Monetary(
         string="Untaxed Before Downpayment",
         currency_field="currency_id",
@@ -58,6 +68,21 @@ class AccountMove(models.Model):
         string="Retention (%)",
         compute="_compute_retention_percent",
     )
+
+    @api.depends(
+        "invoice_line_ids.sale_line_ids.order_id.po_number",
+        "invoice_line_ids.sale_line_ids.order_id.po_date",
+    )
+    def _compute_sale_order_po_details(self):
+        for move in self:
+            sale_orders = move.invoice_line_ids.sale_line_ids.order_id.sorted("id")
+            po_numbers = []
+            for order in sale_orders:
+                if order.po_number and order.po_number not in po_numbers:
+                    po_numbers.append(order.po_number)
+            po_dates = [po_date for po_date in sale_orders.mapped("po_date") if po_date]
+            move.po_number = ", ".join(po_numbers) if po_numbers else False
+            move.po_date = min(po_dates) if po_dates else False
 
     @api.depends("invoice_line_ids.price_subtotal", "invoice_line_ids.is_downpayment")
     def _compute_untaxed_before_downpayment(self):

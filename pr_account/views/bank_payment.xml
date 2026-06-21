@@ -163,15 +163,15 @@
                                    options="{'no_create':True, 'no_create_edit':True, 'no_quick_create':True}"
                                    readonly="state != 'draft'" invisible="1"/>
 
-                            <group col="2">
-                                <group>
-                                    <field name="accounting_date" readonly="state != 'draft'"/>
+                            <group col="4" style="width: 70%;">
+                                <group col="2">
+                                    <field name="accounting_date" readonly="state != 'draft'" style="min-width: 110px;"/>
                                     <field name="total_amount"
                                            style="color: blue;"
                                            widget="monetary"
                                            options="{'currency_field': 'currency_id'}"/>
                                 </group>
-                                <group>
+                                <group col="2">
                                     <field name="approved_amount"
                                            style="color: green;"
                                            widget="monetary"

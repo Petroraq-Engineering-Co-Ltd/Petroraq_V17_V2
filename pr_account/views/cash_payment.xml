@@ -161,15 +161,16 @@
                                    options="{'no_create':True, 'no_create_edit':True, 'no_quick_create':True}"
                                    readonly="state != 'draft'" invisible="1"/>
 
-                            <group col="2">
-                                <group>
-                                    <field name="accounting_date" readonly="state != 'draft'"/>
+                            <group col="4" style="width: 70%;">
+                                <group col="1">
+                                    <field name="accounting_date" readonly="state != 'draft'"
+                                           style="min-width: 110px;"/>
                                     <field name="total_amount"
                                            style="color: blue;"
                                            widget="monetary"
                                            options="{'currency_field': 'currency_id'}"/>
                                 </group>
-                                <group>
+                                <group col="3">
                                     <field name="approved_amount"
                                            style="color: green;"
                                            widget="monetary"
@@ -259,7 +260,7 @@
                                     groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
                                     invisible="state != 'submit'"
                             />
-                            <field name="reject_reason" decoration-danger="1" />
+                            <field name="reject_reason" decoration-danger="1"/>
 
                             <field name="parent_state" column_invisible="True"/>
                         </tree>
