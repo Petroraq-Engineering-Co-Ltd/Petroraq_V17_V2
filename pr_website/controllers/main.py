@@ -8,7 +8,6 @@ from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 
 from odoo import http
-from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -17,7 +16,7 @@ _logger = logging.getLogger(__name__)
 class CareersController(http.Controller):
     CONTACT_RATE_LIMIT = 8
     CONTACT_RATE_WINDOW = 10 * 60
-    CONTACT_RECAPTCHA_ACTION = 'pr_website_contact'
+    CONTACT_CAPTCHA_TTL = 10 * 60
     _contact_attempts_by_ip = {}
 
     @http.route('/', type='http', auth='public', website=True, sitemap=True)
@@ -26,15 +25,18 @@ class CareersController(http.Controller):
 
     @http.route('/contact-us', type='http', auth='public', website=True, sitemap=True)
     def contact_us(self, **kwargs):
+        captcha = self._generate_contact_captcha()
         return request.render('pr_website.petroraq_contact_us', {
             'contact_success': kwargs.get('success'),
             'contact_error': kwargs.get('error'),
-            'contact_recaptcha_action': self.CONTACT_RECAPTCHA_ACTION,
-            'contact_recaptcha_public_key': self._get_contact_recaptcha_public_key(),
+            'contact_captcha_question': captcha['question'],
+            'contact_captcha_nonce': captcha['nonce'],
         })
 
-    def _get_contact_recaptcha_public_key(self):
-        return request.env['ir.config_parameter'].sudo().get_param('recaptcha_public_key')
+    def _generate_contact_captcha(self):
+        return request.env['pr.website.captcha.challenge'].sudo().create_contact_challenge(
+            ttl_seconds=self.CONTACT_CAPTCHA_TTL,
+        )
 
     def _get_contact_client_ip(self):
         access_route = getattr(request.httprequest, 'access_route', None)
@@ -63,20 +65,17 @@ class CareersController(http.Controller):
 
         return None
 
-    def _validate_contact_recaptcha(self):
-        try:
-            is_valid = request.env['ir.http']._verify_request_recaptcha_token(
-                self.CONTACT_RECAPTCHA_ACTION
-            )
-        except (UserError, ValidationError) as exc:
-            return str(exc)
-        except Exception as exc:
-            _logger.exception('Website contact reCAPTCHA verification failed: %s', exc)
-            return 'Security verification failed. Please retry.'
-
-        if not is_valid:
-            return 'Security verification failed. Please retry.'
-
+    def _validate_contact_captcha(self, post):
+        nonce = (post.get('contact_captcha_nonce') or '').strip()
+        answer = (post.get('contact_captcha_answer') or '').strip()
+        result = request.env['pr.website.captcha.challenge'].sudo().consume_contact_challenge(
+            nonce,
+            answer,
+        )
+        if result in ('missing', 'expired'):
+            return 'The security question expired. Please answer the new question.'
+        if result != 'valid':
+            return 'Incorrect security answer. Please try the new question.'
         return None
 
     def _validate_contact_payload(self, post):
@@ -130,7 +129,7 @@ class CareersController(http.Controller):
         validation_error = (
             self._validate_contact_rate_limit()
             or self._validate_contact_antibot(post)
-            or self._validate_contact_recaptcha()
+            or self._validate_contact_captcha(post)
             or self._validate_contact_payload(post)
         )
         if validation_error:
