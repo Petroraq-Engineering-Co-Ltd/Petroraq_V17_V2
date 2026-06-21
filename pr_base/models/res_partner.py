@@ -21,6 +21,12 @@ class ResPartner(models.Model):
         return self.env.context.get("res_partner_search_mode") in {"customer", "supplier"}
 
     def _pr_requires_partner_vat(self):
+        """
+        VAT is required only for main company records.
+
+        Child contacts should not be forced to have VAT because Odoo usually
+        uses the commercial partner/company VAT through commercial_partner_id.
+        """
         self.ensure_one()
         return bool(
             self.active
@@ -29,6 +35,12 @@ class ResPartner(models.Model):
         )
 
     def _pr_find_duplicate_partner_identifier(self, field_name, normalized_value):
+        """
+        Duplicate VAT/code check should only compare against main company partners.
+
+        This avoids blocking child contacts that may have the same VAT as their
+        parent company.
+        """
         self.ensure_one()
         if not normalized_value:
             return self.env["res.partner"]
@@ -36,19 +48,28 @@ class ResPartner(models.Model):
         candidates = self.search([
             ("id", "!=", self.id),
             ("active", "=", True),
+            ("parent_id", "=", False),
+            ("is_company", "=", True),
             (field_name, "!=", False),
         ])
+
         return candidates.filtered(
             lambda partner: partner._pr_normalize_partner_identifier(partner[field_name]) == normalized_value
         )[:1]
 
     def _pr_check_partner_identifier_rules(self, force_required=False):
         for partner in self:
+            # Completely ignore child contacts.
+            # VAT uniqueness/requirement should only apply to the main customer/vendor company.
+            if partner.parent_id:
+                continue
+
             requires_vat = partner._pr_requires_partner_vat()
             vat = partner._pr_normalize_partner_identifier(partner.vat)
 
             if requires_vat and not vat:
                 raise ValidationError(_("VAT / Tax ID is required for companies."))
+
             if not partner.active or not vat:
                 continue
 
@@ -97,7 +118,10 @@ class ResPartner(models.Model):
 
     def _pr_partner_code_sort_key(self):
         self.ensure_one()
-        return (self.create_date or fields.Datetime.to_datetime("1970-01-01 00:00:00"), self.id)
+        return (
+            self.create_date or fields.Datetime.to_datetime("1970-01-01 00:00:00"),
+            self.id,
+        )
 
     def _pr_update_partner_code_sequence_next(self, sequence_code, next_number):
         sequence = self.env["ir.sequence"].sudo().search([
@@ -112,6 +136,7 @@ class ResPartner(models.Model):
             raise AccessError(_("Only Settings users can resequence customer/vendor codes."))
 
         Partner = self.env["res.partner"].sudo().with_context(pr_skip_partner_identifier_check=True)
+
         eligible_partners = Partner.search([
             ("active", "=", True),
             ("parent_id", "=", False),
@@ -119,12 +144,18 @@ class ResPartner(models.Model):
             ("customer_rank", ">", 0),
             ("supplier_rank", ">", 0),
         ])
-        customer_partners = eligible_partners.filtered(lambda partner: partner.customer_rank > 0).sorted(
+
+        customer_partners = eligible_partners.filtered(
+            lambda partner: partner.customer_rank > 0
+        ).sorted(
             lambda partner: partner._pr_partner_code_sort_key()
         )
+
         vendor_partners = (eligible_partners - customer_partners).filtered(
             lambda partner: partner.supplier_rank > 0
-        ).sorted(lambda partner: partner._pr_partner_code_sort_key())
+        ).sorted(
+            lambda partner: partner._pr_partner_code_sort_key()
+        )
 
         next_customer_code = 1001
         for partner in customer_partners:
@@ -171,19 +202,27 @@ class ResPartner(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         partners = super().create(vals_list)
+
         partners._assign_missing_partner_codes()
-        partners._pr_check_partner_identifier_rules(
-            force_required=self._pr_context_requires_partner_identifiers()
-        )
+
+        if not self.env.context.get("pr_skip_partner_identifier_check"):
+            partners._pr_check_partner_identifier_rules(
+                force_required=self._pr_context_requires_partner_identifiers()
+            )
+
         return partners
 
     def write(self, vals):
         res = super().write(vals)
+
         if {'customer_rank', 'supplier_rank', 'partner_code'} & set(vals):
             self._assign_missing_partner_codes()
+
         if self.env.context.get("pr_skip_partner_identifier_check"):
             return res
+
         self._pr_check_partner_identifier_rules(
             force_required=self._pr_context_requires_partner_identifiers()
         )
+
         return res

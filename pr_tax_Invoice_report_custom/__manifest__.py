@@ -4,7 +4,7 @@
     'author': "Petroraq",
     'website': "http://www.petroraq.com",
     'category': 'Uncategorized',
-    'version': '0.7',
+    'version': '0.9',
 
     # any module necessary for this one to work correctly
     'depends': ['l10n_sa', 'pr_base','petroraq_sale_workflow','petro_retention'],
