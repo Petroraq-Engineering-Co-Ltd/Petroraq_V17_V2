@@ -1,4 +1,4 @@
-f# Translation of Odoo Server.
+# Translation of Odoo Server.
 # This file contains the translation of the following modules:
 # 	* pr_website
 #
