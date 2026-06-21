@@ -38,7 +38,7 @@
     <template id="custom_invoice_footer_layout">
 
         <div class="footer">
-            <table class="table table-borderless" style="line-height:0.5;font-family: 'DroidArabicNaskh';">
+            <table class="table table-borderless" style="line-height:0.5;font-family: 'DroidArabicNaskh'; margin-bottom: -15px !important;">
                 <tr>
                     <td width="50%" style="text-align:left;font-size: 16px !important; font-weight: bold;">
                         <p>This is computer generated document, no signature and stamp required</p>

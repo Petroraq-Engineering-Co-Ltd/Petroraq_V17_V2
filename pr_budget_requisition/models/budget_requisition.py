@@ -220,10 +220,38 @@ class PrBudgetRequisition(models.Model):
         "period_date_from",
         "period_date_to",
         "expense_type",
+        "generated_budget_id",
+        "generated_budget_id.crossovered_budget_line.planned_amount",
+        "generated_budget_id.crossovered_budget_line.analytic_account_id",
     )
     def _compute_budget_totals(self):
         for rec in self:
             cost_centers = rec.line_ids.mapped("cost_center_id")
+            budget = rec.generated_budget_id.sudo()
+            if budget and cost_centers:
+                budget_lines = budget.crossovered_budget_line.filtered(
+                    lambda line: line.analytic_account_id in cost_centers
+                )
+                planned_by_cost_center = {}
+                for budget_line in budget_lines:
+                    analytic_id = budget_line.analytic_account_id.id
+                    planned_by_cost_center[analytic_id] = (
+                        planned_by_cost_center.get(analytic_id, 0.0)
+                        + (budget_line.planned_amount or 0.0)
+                    )
+                spent_by_cost_center = cost_centers.sudo()._get_po_budget_spent_map(
+                    date_from=rec.period_date_from,
+                    date_to=rec.period_date_to,
+                    budget=budget,
+                )
+                rec.total_budget_amount = sum(planned_by_cost_center.values())
+                rec.total_spent_amount = sum(
+                    spent_by_cost_center.get(analytic_id, 0.0)
+                    for analytic_id in planned_by_cost_center
+                )
+                rec.total_remaining_amount = rec.total_budget_amount - rec.total_spent_amount
+                continue
+
             metrics = cost_centers.sudo()._get_budget_metrics_map(
                 date_from=rec.period_date_from,
                 date_to=rec.period_date_to,
@@ -278,11 +306,46 @@ class PrBudgetRequisition(models.Model):
             )
         )
 
+    @api.model
+    def _next_requisition_name(self, sequence_date=False):
+        sequence = self.env["ir.sequence"].sudo().search([
+            ("code", "=", "pr.budget.requisition"),
+            ("company_id", "=", False),
+        ], limit=1)
+        if not sequence:
+            return "New"
+
+        # Lock and synchronize the sequence with every suffix already used.
+        # This also repairs databases where yearly date ranges were enabled.
+        self.env.cr.execute(
+            "SELECT id FROM ir_sequence WHERE id = %s FOR UPDATE",
+            [sequence.id],
+        )
+        used_numbers = []
+        for name in self.with_context(active_test=False).sudo().search([]).mapped("name"):
+            suffix = (name or "").rsplit("-", 1)[-1]
+            if suffix.isdigit():
+                used_numbers.append(int(suffix))
+        range_next_numbers = sequence.date_range_ids.mapped("number_next_actual")
+        required_next = max(
+            [max(used_numbers, default=0) + 1, sequence.number_next_actual]
+            + range_next_numbers
+        )
+
+        if sequence.use_date_range:
+            sequence.write({"use_date_range": False})
+            sequence.invalidate_recordset(["number_next_actual"])
+        if sequence.number_next_actual < required_next:
+            sequence.number_next_actual = required_next
+
+        sequence_date = fields.Date.to_date(sequence_date) if sequence_date else fields.Date.context_today(self)
+        return sequence.with_context(ir_sequence_date=sequence_date).next_by_id() or "New"
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get("name", "New") == "New":
-                vals["name"] = self.env["ir.sequence"].next_by_code("pr.budget.requisition") or "New"
+                vals["name"] = self._next_requisition_name(vals.get("period_date_from"))
             period_date_from = vals.get("period_date_from") or self._default_period_date_from()
             period_months = vals.get("budget_period_months") or "6"
             vals["period_date_to"] = self._get_period_date_to(period_date_from, period_months)
@@ -348,15 +411,30 @@ class PrBudgetRequisition(models.Model):
             )
         return planned_by_cost_center
 
+    def _get_spend_scope_budget(self):
+        """Return the backend budget whose consumption belongs to this request."""
+        self.ensure_one()
+        if self.generated_budget_id:
+            return self.generated_budget_id.sudo()
+        if self.revision_of_id:
+            return self._get_revision_backend_budget()
+        return self.env["crossovered.budget"]
+
     def _check_requested_amounts_not_below_spent(self):
         self.ensure_one()
         planned_by_cost_center = self._planned_amounts_by_cost_center()
         if not planned_by_cost_center:
             return
         analytics = self.env["account.analytic.account"].sudo().browse(list(planned_by_cost_center))
-        spent_by_analytic = analytics._get_po_budget_spent_map(
-            date_from=self.period_date_from,
-            date_to=self.period_date_to,
+        budget = self._get_spend_scope_budget()
+        spent_by_analytic = (
+            analytics._get_po_budget_spent_map(
+                date_from=self.period_date_from,
+                date_to=self.period_date_to,
+                budget=budget,
+            )
+            if budget
+            else {analytic.id: 0.0 for analytic in analytics}
         )
         precision = self.currency_id.rounding or 0.01
         for analytic in analytics:
@@ -608,6 +686,7 @@ class PrBudgetRequisition(models.Model):
         spent_by_analytic = analytics._get_po_budget_spent_map(
             date_from=self.period_date_from,
             date_to=self.period_date_to,
+            budget=budget,
         )
         precision = self.currency_id.rounding or 0.01
         for analytic in analytics:
@@ -771,6 +850,9 @@ class PrBudgetRequisitionLine(models.Model):
         "requisition_id.period_date_from",
         "requisition_id.period_date_to",
         "requisition_id.expense_type",
+        "requisition_id.generated_budget_id",
+        "requisition_id.generated_budget_id.crossovered_budget_line.planned_amount",
+        "requisition_id.generated_budget_id.crossovered_budget_line.analytic_account_id",
     )
     def _compute_period_budget_metrics(self):
         for line in self:
@@ -778,6 +860,21 @@ class PrBudgetRequisitionLine(models.Model):
                 line.current_budget = 0.0
                 line.budget_spent = 0.0
                 line.budget_left = 0.0
+                continue
+            budget = line.requisition_id.generated_budget_id.sudo()
+            if budget:
+                budget_lines = budget.crossovered_budget_line.filtered(
+                    lambda budget_line: budget_line.analytic_account_id == line.cost_center_id
+                )
+                allowance = sum(budget_lines.mapped("planned_amount"))
+                spent = line.cost_center_id.sudo()._get_po_budget_spent_map(
+                    date_from=line.requisition_id.period_date_from,
+                    date_to=line.requisition_id.period_date_to,
+                    budget=budget,
+                ).get(line.cost_center_id.id, 0.0)
+                line.current_budget = allowance
+                line.budget_spent = spent
+                line.budget_left = allowance - spent
                 continue
             metrics = line.cost_center_id.sudo()._get_budget_metrics_map(
                 date_from=line.requisition_id.period_date_from,

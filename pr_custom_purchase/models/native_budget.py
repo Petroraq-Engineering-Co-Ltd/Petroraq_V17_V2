@@ -56,7 +56,7 @@ class CrossoveredBudget(models.Model):
     can_md_approve = fields.Boolean(compute="_compute_role_flags")
     currency_id = fields.Many2one("res.currency", related="company_id.currency_id", readonly=True)
     budget_amount_total = fields.Monetary(
-        string="Budget Amount",
+        string="Total Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_metrics",
     )
@@ -64,12 +64,18 @@ class CrossoveredBudget(models.Model):
         string="Spent Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_metrics",
-        help="Amount consumed by purchase orders and submitted/approved payment vouchers through cost-center analytic distribution.",
+        help="Amount consumed by PRs, purchase orders, and submitted/approved payment vouchers linked to this exact budget.",
     )
     budget_remaining_amount = fields.Monetary(
         string="Remaining Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_metrics",
+    )
+    expensed_amount = fields.Monetary(
+        string="Expensed Amount",
+        currency_field="currency_id",
+        compute="_compute_po_budget_metrics",
+        help="Actual posted analytic/accounting items represented by the budget lines' practical amount.",
     )
     custom_pr_ids = fields.Many2many(
         "custom.pr",
@@ -159,14 +165,14 @@ class CrossoveredBudget(models.Model):
         return fields.Date.to_date(value).year
 
     @api.model
-    def _next_budget_number_by_year(self):
-        numbers_by_year = {}
+    def _last_budget_number(self):
+        last_number = BUDGET_SEQUENCE_START - 1
         budgets = self.with_context(active_test=False).sudo().search([("budget_sequence", "!=", False)])
         for budget in budgets:
-            year, number = self._split_yearly_budget_code(budget.budget_sequence)
-            if year:
-                numbers_by_year[year] = max(numbers_by_year.get(year, BUDGET_SEQUENCE_START - 1), number)
-        return numbers_by_year
+            _year, number = self._split_yearly_budget_code(budget.budget_sequence)
+            if number:
+                last_number = max(last_number, number)
+        return last_number
 
     @api.constrains("budget_sequence")
     def _check_budget_sequence(self):
@@ -188,20 +194,20 @@ class CrossoveredBudget(models.Model):
     @api.model
     def action_resequence_budget_codes(self):
         records = self.with_context(active_test=False).sudo().search([], order="date_from, create_date, id")
-        counters = {}
+        counter = BUDGET_SEQUENCE_START - 1
         for rec in records:
             code_date = rec.date_from or rec.create_date or fields.Date.context_today(self)
             year = rec._budget_code_year(code_date)
-            counters[year] = counters.get(year, BUDGET_SEQUENCE_START - 1) + 1
+            counter += 1
             rec.with_context(skip_budget_sequence_check=True).write({
-                "budget_sequence": rec._format_yearly_budget_code(year, counters[year]),
+                "budget_sequence": rec._format_yearly_budget_code(year, counter),
             })
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
                 "title": _("Budget Codes Resequenced"),
-                "message": _("%s budgets were resequenced by budget year.") % len(records),
+                "message": _("%s budgets were resequenced continuously across all years.") % len(records),
                 "type": "success",
                 "sticky": False,
             },
@@ -231,13 +237,18 @@ class CrossoveredBudget(models.Model):
         "crossovered_budget_line.analytic_account_id",
         "crossovered_budget_line.date_from",
         "crossovered_budget_line.date_to",
+        "crossovered_budget_line.practical_amount",
     )
     def _compute_po_budget_metrics(self):
         analytics = self.mapped("crossovered_budget_line.analytic_account_id").sudo()
         for rec in self:
             rec_analytics = rec.crossovered_budget_line.mapped("analytic_account_id").sudo()
             spent_by_analytic = (
-                rec_analytics._get_po_budget_spent_map(date_from=rec.date_from, date_to=rec.date_to)
+                rec_analytics._get_po_budget_spent_map(
+                    date_from=rec.date_from,
+                    date_to=rec.date_to,
+                    budget=rec,
+                )
                 if rec_analytics
                 else {}
             )
@@ -248,6 +259,7 @@ class CrossoveredBudget(models.Model):
             rec.budget_amount_total = budget_amount
             rec.po_spent_amount = spent_amount
             rec.budget_remaining_amount = budget_amount - spent_amount
+            rec.expensed_amount = sum(rec.crossovered_budget_line.mapped("practical_amount"))
 
     def _is_active_for_date(self, target_date=False):
         self.ensure_one()
@@ -285,7 +297,11 @@ class CrossoveredBudget(models.Model):
 
         analytics = lines.mapped("analytic_account_id").sudo()
         spent_by_analytic = (
-            analytics._get_po_budget_spent_map(date_from=self.date_from, date_to=self.date_to)
+            analytics._get_po_budget_spent_map(
+                date_from=self.date_from,
+                date_to=self.date_to,
+                budget=self,
+            )
             if analytics
             else {}
         )
@@ -309,33 +325,6 @@ class CrossoveredBudget(models.Model):
         if "RFQ" in name:
             return False
         return order.state in ("pending", "purchase", "done")
-
-    def _get_orders_by_budget_analytics(self):
-        self.ensure_one()
-        analytic_ids = set(self.crossovered_budget_line.mapped("analytic_account_id").ids)
-        orders = self.env["purchase.order"].sudo()
-        if not analytic_ids:
-            return orders
-
-        candidate_orders = self.env["purchase.order"].sudo().search([
-            ("order_line.analytic_distribution", "!=", False),
-        ])
-        for order in candidate_orders:
-            order_date = order.date_order or order.date_approve or order.create_date
-            if not self.env["account.analytic.account"]._date_in_period(order_date, self.date_from, self.date_to):
-                continue
-            for line in order.order_line:
-                distribution = line.analytic_distribution or {}
-                distribution_ids = {
-                    int(key_part)
-                    for key in distribution
-                    for key_part in str(key).split(",")
-                    if str(key_part).strip().isdigit()
-                }
-                if analytic_ids.intersection(distribution_ids):
-                    orders |= order
-                    break
-        return orders
 
     @api.depends(
         "crossovered_budget_line.analytic_account_id",
@@ -370,8 +359,6 @@ class CrossoveredBudget(models.Model):
                     ("pr_name", "in", list(pr_names)),
                     ("origin", "in", list(pr_names)),
                 ])
-            orders |= rec._get_orders_by_budget_analytics()
-
             rfqs = orders.filtered(rec._budget_order_is_rfq)
             purchase_orders = orders.filtered(rec._budget_order_is_po)
 
@@ -424,13 +411,24 @@ class CrossoveredBudget(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        numbers_by_year = self._next_budget_number_by_year()
+        needs_code = any(
+            not vals.get("budget_sequence")
+            or vals.get("budget_sequence") in ("/", _("New"), "New")
+            for vals in vals_list
+        )
+        if needs_code:
+            # Keep the global suffix unique even when users create budgets at
+            # the same time in different years.
+            self.env.cr.execute(
+                "SELECT pg_advisory_xact_lock(hashtext(%s))",
+                ["pr.crossovered.budget.global.code"],
+            )
+        next_number = self._last_budget_number() if needs_code else False
         for vals in vals_list:
             if not vals.get("budget_sequence") or vals.get("budget_sequence") in ("/", _("New"), "New"):
                 year = self._budget_code_year(vals.get("date_from"))
-                number = numbers_by_year.get(year, BUDGET_SEQUENCE_START - 1) + 1
-                numbers_by_year[year] = number
-                vals["budget_sequence"] = self._format_yearly_budget_code(year, number)
+                next_number += 1
+                vals["budget_sequence"] = self._format_yearly_budget_code(year, next_number)
             if vals.get("department_id") and not vals.get("scope"):
                 vals["scope"] = "department"
         return super().create(vals_list)
@@ -524,7 +522,7 @@ class CrossoveredBudgetLines(models.Model):
         string="Spent Amount",
         currency_field="currency_id",
         compute="_compute_po_budget_line_metrics",
-        help="Amount consumed by purchase orders and submitted/approved payment vouchers for this cost center.",
+        help="Amount consumed by PRs, purchase orders, and submitted/approved payment vouchers linked to this exact budget.",
     )
     budget_remaining_amount = fields.Monetary(
         string="Remaining Amount",
@@ -532,15 +530,16 @@ class CrossoveredBudgetLines(models.Model):
         compute="_compute_po_budget_line_metrics",
     )
 
-    @api.depends("planned_amount", "analytic_account_id", "date_from", "date_to")
+    @api.depends("planned_amount", "analytic_account_id", "date_from", "date_to", "crossovered_budget_id")
     def _compute_po_budget_line_metrics(self):
         for line in self:
             spent = (
                 line.analytic_account_id.sudo()._get_po_budget_spent_map(
                     date_from=line.date_from,
                     date_to=line.date_to,
+                    budget=line.crossovered_budget_id,
                 ).get(line.analytic_account_id.id, 0.0)
-                if line.analytic_account_id
+                if line.analytic_account_id and line.crossovered_budget_id
                 else 0.0
             )
             line.po_spent_amount = spent

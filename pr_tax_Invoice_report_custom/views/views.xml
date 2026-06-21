@@ -12,6 +12,12 @@
                 <field name="amount_tax" invisible="1" force_save="1"/>
                 <field name="custom_qr_image" widget="image" style="width:100px;height:100px;" invisible="1"/>
             </field>
+            <field name="invoice_origin" position="after">
+                <field name="po_number" readonly="1"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <field name="po_date" readonly="1"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"/>
+            </field>
         </field>
     </record>
 </odoo>
