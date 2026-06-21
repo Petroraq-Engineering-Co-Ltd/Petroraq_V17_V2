@@ -99,9 +99,9 @@ class HrAttendanceSheet(models.Model):
         for att_sheet in self:
             for line in att_sheet.line_ids:
                 has_actual_attendance = (
-                    line.ac_sign_in is not False
-                    and line.ac_sign_out is not False
-                    and line.ac_sign_out > line.ac_sign_in
+                        line.ac_sign_in is not False
+                        and line.ac_sign_out is not False
+                        and line.ac_sign_out > line.ac_sign_in
                 )
                 if has_actual_attendance:
                     if line.pl_sign_in != 0:
@@ -210,7 +210,9 @@ class HrAttendanceSheet(models.Model):
         for sheet in self:
             timezone_name = sheet.employee_id.tz or self.env.user.tz or "UTC"
             tz = pytz.timezone(timezone_name)
-            allows_overtime = sheet._employee_allows_overtime() if hasattr(sheet, "_employee_allows_overtime") else bool(sheet.employee_id.add_overtime)
+            allows_overtime = sheet._employee_allows_overtime() if hasattr(sheet,
+                                                                           "_employee_allows_overtime") else bool(
+                sheet.employee_id.add_overtime)
             for line in sheet.line_ids:
                 if not allows_overtime or line.overtime <= 0:
                     line.overtime_approval_state = "not_required"
@@ -221,8 +223,8 @@ class HrAttendanceSheet(models.Model):
                     line.overtime_approval_state = "pending"
 
     def _mark_late_checkins_as_absent(self):
-        """Mark attendance sheet lines as absent when check-in is after 09:01."""
-        cutoff = 9 + (1 / 60)
+        """Mark attendance sheet lines as absent when check-in is after 09:00."""
+        cutoff = 9 + (0 / 1)
         for sheet in self:
             for line in sheet.line_ids:
                 if line.status in ("leave", "weekend"):
@@ -272,7 +274,8 @@ class HrAttendanceSheet(models.Model):
                 'code': 'OVT',
                 'work_entry_type_id': overtime_work_entry[0].id,
                 'sequence': 30,
-                'number_of_days': approved_hours / (self.employee_id.contract_id.resource_calendar_id.hours_per_day or 8.0),
+                'number_of_days': approved_hours / (
+                            self.employee_id.contract_id.resource_calendar_id.hours_per_day or 8.0),
                 'number_of_hours': approved_hours,
                 'amount': approved_amount,
             }]
@@ -316,7 +319,8 @@ class HrAttendanceSheet(models.Model):
         for sheet in self:
             employee_id = sheet.employee_id
             if not employee_id.attendance_email_enabled:
-                _logger.info("Skipping attendance email for %s because attendance_email_enabled is disabled.", employee_id.name)
+                _logger.info("Skipping attendance email for %s because attendance_email_enabled is disabled.",
+                             employee_id.name)
                 sheet.write({'state': 'done'})
                 continue
             employee_email = employee_id.work_email
@@ -325,7 +329,8 @@ class HrAttendanceSheet(models.Model):
             total_minutes = minutes % 60
             no_absence = sheet.no_absence
             if not employee_email:
-                _logger.warning("Skipping attendance email for %s because work email is not configured.", employee_id.name)
+                _logger.warning("Skipping attendance email for %s because work email is not configured.",
+                                employee_id.name)
                 sheet.write({'state': 'done'})
                 continue
             if minutes > 0 or no_absence > 0:
@@ -399,8 +404,8 @@ class AttendanceSheetLine(models.Model):
             return gross_amount
 
         exclude_transport_from_deduction = (
-            "exclude_transportation_from_attendance_gross" in self.employee_id._fields
-            and self.employee_id.exclude_transportation_from_attendance_gross
+                "exclude_transportation_from_attendance_gross" in self.employee_id._fields
+                and self.employee_id.exclude_transportation_from_attendance_gross
         )
         if not exclude_transport_from_deduction:
             return gross_amount

@@ -188,9 +188,26 @@ class PurchaseOrder(models.Model):
             return "purchase"
         return "pending"
 
-    @api.depends("order_line.price_subtotal", "order_line.analytic_distribution", "state")
+    def _get_linked_budgets(self, analytic_ids, usage_date):
+        """Prefer the budget explicitly selected on the source PR."""
+        self.ensure_one()
+        selected_budget = self.requisition_id.expense_bucket_id.sudo()
+        if selected_budget:
+            return selected_budget
+        return self.env["crossovered.budget"].sudo().search([
+            ("state", "in", ["validate", "done"]),
+            ("date_from", "<=", usage_date),
+            ("date_to", ">=", usage_date),
+            ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
+        ]) if analytic_ids else self.env["crossovered.budget"]
+
+    @api.depends(
+        "order_line.price_subtotal",
+        "order_line.analytic_distribution",
+        "state",
+        "requisition_id.expense_bucket_id",
+    )
     def _compute_po_budget_info(self):
-        Budget = self.env["crossovered.budget"].sudo()
         for order in self:
             analytic_ids = set()
             consumed = 0.0
@@ -210,12 +227,7 @@ class PurchaseOrder(models.Model):
                         consumed += (line.price_subtotal or 0.0) * (percentage / 100.0)
 
             usage_date = fields.Date.to_date(order.date_order or order.date_planned or fields.Date.context_today(order))
-            budgets = Budget.search([
-                ("state", "in", ["validate", "done"]),
-                ("date_from", "<=", usage_date),
-                ("date_to", ">=", usage_date),
-                ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
-            ]) if analytic_ids else Budget
+            budgets = order._get_linked_budgets(analytic_ids, usage_date)
             remaining = 0.0
             for budget in budgets:
                 budget_remaining = budget.budget_remaining_amount or 0.0
@@ -241,12 +253,7 @@ class PurchaseOrder(models.Model):
                     if key_part.strip().isdigit():
                         analytic_ids.add(int(key_part))
         usage_date = fields.Date.to_date(self.date_order or self.date_planned or fields.Date.context_today(self))
-        budgets = self.env["crossovered.budget"].sudo().search([
-            ("state", "in", ["validate", "done"]),
-            ("date_from", "<=", usage_date),
-            ("date_to", ">=", usage_date),
-            ("crossovered_budget_line.analytic_account_id", "in", list(analytic_ids)),
-        ]) if analytic_ids else self.env["crossovered.budget"]
+        budgets = self._get_linked_budgets(analytic_ids, usage_date)
         action = {
             "type": "ir.actions.act_window",
             "name": _("Related Budgets"),

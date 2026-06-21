@@ -1,0 +1,4842 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_website
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-11 13:49+0000\n"
+"PO-Revision-Date: 2026-06-11 13:49+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "+966 13 361 4446"
+msgstr "+966 13 361 4446"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "14001:2015<br/>Environmental Management"
+msgstr "14001:2015 الإدارة البيئية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "16+"
+msgstr "16+"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "17+"
+msgstr "17+"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "3-5 Days Response"
+msgstr "استجابة خلال 5-3 أيام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "35+"
+msgstr "35+"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "3D piping model"
+msgstr "نموذج أنابيب ثلاثي الأبعاد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
+msgid "404"
+msgstr "404"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "45001:2018<br/>Occupational Health &amp; Safety"
+msgstr "45001:2018 الصحة والسلامة المهنية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "800+"
+msgstr "800+"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "9001:2015<br/>Quality Management"
+msgstr "9001:2015 إدارة الجودة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "99%"
+msgstr "99%"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid ""
+"<i class=\"fa fa-arrow-left\"/>\n"
+"                                Back to Jobs"
+msgstr "العودة إلى الوظائف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
+msgid ""
+"<i class=\"fa fa-briefcase\"/>\n"
+"                                View Careers"
+msgstr "عرض الوظائف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_thank_you
+msgid ""
+"<i class=\"fa fa-briefcase\"/>\n"
+"                                View More Jobs"
+msgstr "عرض المزيد من الوظائف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"<i class=\"fa fa-check-circle\"/>\n"
+"                                    <span>Your message has been sent. Our sales team will contact you soon.</span>"
+msgstr "تم إرسال رسالتك. سيتواصل معك فريق المبيعات قريبًا."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>115kV &amp; 132 kV Substation with Scada "
+"and Communication Systems between Substations"
+msgstr "محطات فرعية بجهد 115 ك.ف و132 ك.ف مع أنظمة (سكادا) وأنظمة الاتصال بين المحطات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>3D Models and Walkthrough Presentations"
+msgstr "نماذج ثلاثية الأبعاد وعروض محاكاة افتراضية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Assessment of Labor and Equipment "
+"requirements"
+msgstr "تقييم متطلبات العمالة والمعدات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Assistance during construction and "
+"commissioning"
+msgstr "المساندة أثناء التنفيذ والتشغيل التجريبي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Assistance during construction, pre-"
+"commissioning and commissioning"
+msgstr "المساندة أثناء التنفيذ وما قبل التشغيل والتشغيل التجريبي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Assistance with technical review of "
+"material and equipment specifications"
+msgstr "المساندة في المراجعة الفنية لمواصفات المواد والمعدات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Audio Visual Systems"
+msgstr "أنظمة الصوت والصورة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Bridges, Tunnels and Retaining Walls"
+msgstr "الجسور والأنفاق والجدران الاستنادية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Building and equipment foundations"
+msgstr "أساسات المباني والمعدات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Cable &amp; Conduit Schedules and "
+"Interconnection Diagrams"
+msgstr "جداول الكابلات والمواسير ومخططات التوصيل البيني."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Carry out site visits and inspections to "
+"gather technical data"
+msgstr "تنفيذ زيارات ومعاينات ميدانية لجمع البيانات الفنية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Cathodic Protection Systems"
+msgstr "أنظمة الحماية الكاثودية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Change Order and Claims Evaluation"
+msgstr "تقييم أوامر التغيير والمطالبات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Commercial Centers"
+msgstr "المراكز التجارية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Constructability Reviews"
+msgstr "مراجعات قابلية التنفيذ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Construction and Fabrication Drawings "
+"Scrutiny and Approval"
+msgstr "مراجعة واعتماد رسومات التنفيذ والتصنيع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Contaminated Land Assessment and "
+"Improvement"
+msgstr "تقييم وتحسين الأراضي الملوثة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Contract Documents – Preparation, Bid "
+"Invitation, Evaluation, Negotiation"
+msgstr "إعداد مستندات العقود وطرح المناقصات والتقييم والتفاوض."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Cost Control"
+msgstr "ضبط التكاليف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Define project objectives"
+msgstr "تحديد أهداف المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Detailed installation packages"
+msgstr "حزم تركيب تفصيلية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Develop SLD, Metering &amp; Protection "
+"Diagrams"
+msgstr "إعداد المخططات الأحادية ومخططات القياس والحماية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Development of deliverables required for "
+"the projects scope of work"
+msgstr "تطوير المخرجات المطلوبة لنطاق عمل المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Development of plant I/O take off aided by "
+"existing plant experience"
+msgstr "إعداد بيانات مداخل ومخارج المصنع بالاستفادة من خبرات التشغيل القائمة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Development of project cost estimates and "
+"schedules for budget presentation"
+msgstr "إعداد تقديرات تكلفة المشروع والجداول الزمنية لعرض الميزانية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Development of vendor non-material "
+"requirements (NMR's)"
+msgstr "إعداد متطلبات الموردين غير المادية(NMR) ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Earthwork and Cut-Fill Optimization"
+msgstr "الأعمال الترابية وتحسين القطع والردم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Educational Facilities"
+msgstr "المرافق التعليمية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Electrical Substations"
+msgstr "المحطات الكهربائية الفرعية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Elementary diagrams and Installation "
+"Details"
+msgstr "المخططات الأساسية وتفاصيل التركيب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Environmental Engineering"
+msgstr "الهندسة البيئية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Environmental Impact Assessments"
+msgstr "تقييمات الأثر البيئي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>External Utilities"
+msgstr "المرافق الخارجية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Feasibility Studies and Project Proposals"
+msgstr "دراسات الجدوى ومقترحات المشاريع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Fiber Optic Trunking, Access and Backbone "
+"Systems"
+msgstr "أنظمة الألياف البصرية الرئيسية وأنظمة الوصول والبنية الأساسية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Fire Alarm Systems both Conventional and "
+"Intelligent Types and Building Management System"
+msgstr "أنظمة إنذار الحريق التقليدية والذكية وأنظمة إدارة المباني."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>General application of existing site "
+"conventions to the current project"
+msgstr "تطبيق معايير الموقع القائمة على المشروع الحالي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Governmental Facilities"
+msgstr "المرافق الحكومية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Grading and Drainage Plans"
+msgstr "مخططات التسوية وتصريف المياه."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Highways and Roads network"
+msgstr "شبكات الطرق والطرق السريعة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Hospitals and Laboratories"
+msgstr "المستشفيات والمختبرات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Identification of deviations and waivers "
+"inherent in the proposal client design"
+msgstr "تحديد الانحرافات والاستثناءات ضمن تصميم العميل المقترح."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Industrial Buildings"
+msgstr "المباني الصناعية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Inspection, Testing and Commissioning"
+msgstr "الفحص والاختبار والتشغيل التجريبي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Irrigation and Water Conveyance Systems"
+msgstr "أنظمة الري ونقل المياه."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Landscaping &amp; Interior Design"
+msgstr "تنسيق المواقع والتصميم الداخلي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Landscaping and external finishing works"
+msgstr "تنسيق المواقع وأعمال التشطيبات الخارجية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Leakage Detection Systems"
+msgstr "أنظمة كشف التسرب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>MTO's"
+msgstr "حصر المواد (MTO)."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Man-hour and Project Cost Estimation, "
+"Scheduling and Management Control"
+msgstr "تقدير ساعات العمل وتكاليف المشروع والجدولة والرقابة الإدارية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Market Survey Material Selection, Testing "
+"and Acceptance"
+msgstr "مسح السوق واختيار المواد واختبارها واعتمادها."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Measurements, Billing and Passing for "
+"Payment"
+msgstr "القياسات والفوترة وتمرير الدفعات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Mechanical layout of piping and equipment"
+msgstr "المخطط الميكانيكي للأنابيب والمعدات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Monitoring and Reporting"
+msgstr "المتابعة وإعداد التقارير."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Multi-storied Parking Lots"
+msgstr "مواقف سيارات متعددة الطوابق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Non Material Requirements (NMR) and Spares "
+"Parts"
+msgstr "المتطلبات الغير مادية وقطع الغيار."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Office Buildings"
+msgstr "المباني المكتبية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Outside Plant Primary &amp; Secondary "
+"Networks"
+msgstr "الشبكات الخارجية الرئيسية والثانوية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Paging Systems"
+msgstr "أنظمة النداء."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Parking Areas and Access Roads"
+msgstr "مناطق المواقف وطرق الوصول."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Planning, Scheduling and Monitoring "
+"progress"
+msgstr "التخطيط والجدولة ومتابعة التقدم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Potable Water Treatment"
+msgstr "معالجة مياه الشرب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Power, Lighting, Emergency, UPS Systems, "
+"Distribution and Grounding Layouts"
+msgstr "مخططات أنظمة الطاقة والإنارة والطوارئ وأنظمة. (UPS) والتوزيع والتأريض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Pre-cast Concrete Structures"
+msgstr "الهياكل الخرسانية مسبقة الصب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Pre-stressed concrete Structures"
+msgstr "الهياكل الخرسانية مسبقة الإجهاد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Premises Distribution Systems (PDS) "
+"(Structured cabling)"
+msgstr "  أنظمة توزيع المباني والكابلات الهيكلية (بي دي إس)"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Preparation of specifications for the "
+"definition phase"
+msgstr "إعداد المواصفات لمرحلة التعريف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Prepare As-Built Drawings and other records"
+msgstr "إعداد رسومات حسب المنفذ والسجلات الأخرى."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Procurement"
+msgstr "المشتريات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Procurement assistance, Bid Evaluations "
+"&amp; Vendor Data Review"
+msgstr "دعم المشتريات وتقييم العروض ومراجعة بيانات الموردين."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Project study/development"
+msgstr "دراسة وتطوير المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Public area and open-space improvement "
+"works"
+msgstr "أعمال تحسين المناطق العامة والمساحات المفتوحة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Pumping, Storage Facilities and "
+"Distribution Networks"
+msgstr "مرافق الضخ والتخزين وشبكات التوزيع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Quality Control and Assurance"
+msgstr "ضبط الجودة وضمانها."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Recreational and leisure facility "
+"development"
+msgstr "تطوير مرافق الترفيه والاستجمام."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Regional and Community Development works"
+msgstr "أعمال التطوير الإقليمي والمجتمعي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Reinforced Concrete Structures"
+msgstr "الهياكل الخرسانية المسلحة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Requesting and obtaining drawings from the "
+"client's central drawing office"
+msgstr "طلب واستلام الرسومات من مكتب الرسومات المركزي لدى العميل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Requisition, Bid Analysis"
+msgstr "طلبات الشراء وتحليل العروض."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Roads and Highways"
+msgstr "الطرق والطرق السريعة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Site Development and Infrastructure"
+msgstr "تطوير الموقع والبنية التحتية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Site Development and Landscaping"
+msgstr "تطوير الموقع وتنسيق المواقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Site Planning and Layouts"
+msgstr "تخطيط الموقع والمخططات العامة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Site Surveys"
+msgstr "المسوحات الميدانية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Sludge Treatment and Treated Effluent "
+"Utilization"
+msgstr "معالجة الحمأة والاستفادة من المياه المعالجة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Specifications and Data Sheets for "
+"Equipment and Material"
+msgstr "المواصفات وأوراق البيانات للمعدات والمواد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Sports and Recreational Facilities"
+msgstr "المرافق الرياضية والترفيهية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Steel Structures"
+msgstr "الهياكل الفولاذية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Street Lighting"
+msgstr "إنارة الشوارع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Studies Performed Using Electrical "
+"Transient Analyzer Program (ETAP) Power Station (Windows Version)"
+msgstr "دراسات باستخدام برنامج (إي تاب) لتحليل العابر الكهربائي لمحطات الطاقة (إصدار ويندوز)."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Studies and Environmental Impact "
+"Assessments"
+msgstr "الدراسات وتقييمات الأثر البيئي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-check-circle\"/>System Design for LAN/WAN (Wired and "
+"Wireless)"
+msgstr "تصميم الأنظمة السلكية واللاسلكية (LAN/WAN)."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Systems Rehabilitation"
+msgstr "إعادة تأهيل الأنظمة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Technical Specifications, data sheets"
+msgstr "المواصفات الفنية وأوراق البيانات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Technical bid preparations / procedures in "
+"accordance with standard procedures"
+msgstr "إعداد العروض الفنية والإجراءات وفق الإجراءات القياسية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Technical support to construction, SAT's "
+"and As-Built"
+msgstr "الدعم الفني للتنفيذ واختبارات القبول بالموقع ورسومات حسب المنفذ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Telephoning/PBX Network"
+msgstr "شبكات الهاتف و Pbx."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "<i class=\"fa fa-check-circle\"/>Treatment and Collection"
+msgstr "المعالجة والتجميع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "<i class=\"fa fa-check-circle\"/>Use of State-of-art Technology"
+msgstr "استخدام أحدث التقنيات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "<i class=\"fa fa-check-circle\"/>Utility Corridors and Service Routing"
+msgstr "ممرات الخدمات ومسارات المرافق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Utility corridor and infrastructure support"
+" works"
+msgstr "ممرات الخدمات وأعمال دعم البنية التحتية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Value Engineering Studies"
+msgstr "دراسات هندسة القيمة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Value Engineering and Design Basis "
+"Confirmation"
+msgstr "هندسة القيمة وتأكيد أسس التصميم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "<i class=\"fa fa-check-circle\"/>Vendor Liaison, Technical Review"
+msgstr "التواصل مع الموردين والمراجعة الفنية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "<i class=\"fa fa-check-circle\"/>Villas and Apartments"
+msgstr "الفلل والشقق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-check-circle\"/>Waste Water Collection, Treatment and "
+"Disposal"
+msgstr "تجميع ومعالجة وتصريف مياه الصرف الصحي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">Architectural &amp; Planning</span>"
+msgstr "التصميم المعماري والتخطيط."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">CAD Services</span>"
+msgstr "خدمات CAD."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">Civil &amp; Structural</span>"
+msgstr "الأعمال المدنية والإنشائية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">Design &amp; Engineering</span>"
+msgstr "التصميم والهندسة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">Electrical &amp; Telecommunication</span>"
+msgstr "الكهرباء والاتصالات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">Mechanical &amp; Piping</span>"
+msgstr "الميكانيكا والأنابيب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">Other Services</span>"
+msgstr "خدمات أخرى."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"<i class=\"fa fa-chevron-right\"/>\n"
+"                            <span class=\"current\">Project Management</span>"
+msgstr "إدارة المشاريع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>As-built drawings"
+msgstr "رسومات حسب المنفذ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"<i class=\"fa fa-circle\"/>Assistance during construction and commissioning"
+msgstr "المساندة أثناء التنفيذ والتشغيل التجريبي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>BIM modeling"
+msgstr "نمذجةBIM. "
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Bottom plate layout"
+msgstr "مخطط ألواح القاع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>COBie and Uniclass parameters"
+msgstr " معايير COBie و Uniclass ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Cable routing and hookup drawings"
+msgstr "رسومات مسارات الكابلات والتوصيل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Clash detection report"
+msgstr "تقرير كشف التعارضات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Construction simulation (4D)"
+msgstr "محاكاة التنفيذ رباعية الأبعاد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Design basis and standard drawings"
+msgstr "أسس التصميم والرسومات القياسية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Digital mockup"
+msgstr "نموذج رقمي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Drawings"
+msgstr "الرسومات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Equipment GA and detailed drawings"
+msgstr "رسومات المعدات العامة والتفصيلية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Equipment layouts"
+msgstr "مخططات المعدات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>FEA analysis"
+msgstr "تحليل العناصر المحدودة FEA."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Fatigue and dynamic analysis"
+msgstr "تحليل الإجهاد الديناميكي والتعب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Fire fighting systems"
+msgstr "أنظمة مكافحة الحريق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Foundation drawings and layout plans"
+msgstr "رسومات الأساسات ومخططات التوزيع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>HAZOP studies"
+msgstr "دراسات HAZOP."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>IFC model"
+msgstr "نموذج IFC ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Insulation systems"
+msgstr "أنظمة العزل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Isometric drawings"
+msgstr "رسومات أيزومترية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Line lists according to P&amp;ID"
+msgstr "قوائم الخطوط حسب P&ID ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Material lists"
+msgstr "قوائم المواد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Mechanical data sheets of equipment"
+msgstr "أوراق البيانات الميكانيكية للمعدات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Mechanical systems"
+msgstr "الأنظمة الميكانيكية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Name plate details"
+msgstr "تفاصيل لوحة البيانات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Native BIM model"
+msgstr "نموذج BIM أصلي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Navisworks model"
+msgstr "نموذج Navisworks."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Orientation plan"
+msgstr "مخطط التوجيه."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>P&amp;ID, system numbering and drawing systems"
+msgstr "مخططات (بي & أي دي) وترقيم الأنظمة وأنظمة الرسومات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Piping 3D modeling"
+msgstr "نمذجة الأنابيب ثلاثية الأبعاد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Piping GA and isometric drawings"
+msgstr "رسومات الأنابيب العامة والأيزومترية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Piping isdy plans"
+msgstr "مخططات دراسة الأنابيب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Piping layouts"
+msgstr "مخططات الأنابيب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Piping material specifications (PMS)"
+msgstr "مواصفات مواد الأنابيب (PMS)."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"<i class=\"fa fa-circle\"/>Piping schematics, support details and tie-"
+"in/calculations"
+msgstr "مخططات الأنابيب وتفاصيل الدعامات والربط والحسابات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Pre-fab/top and detailed GA/ISO, DCMs and MTOs"
+msgstr "رسومات ما قبل التصنيع والرسومات العامة/الأيزومترية التفصيلية و MTO و DCM ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Prefabrication spools and pipe rack design"
+msgstr "تصميم سبولات التصنيع المسبق وحوامل الأنابيب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"<i class=\"fa fa-circle\"/>Preliminary piping layouts including nozzle "
+"orientation"
+msgstr "مخططات أنابيب أولية تشمل توجيه الفوهات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"<i class=\"fa fa-circle\"/>Procurement assistance, bid evaluations and "
+"vendor data review"
+msgstr "دعم المشتريات وتقييم العروض ومراجعة بيانات الموردين."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>ROOF and detailed views"
+msgstr "السقف والمناظير التفصيلية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Roof (periphery) head/skirt details"
+msgstr "تفاصيل رأس/تنورة محيط السقف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Roof nozzle details"
+msgstr "تفاصيل فوهات السقف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Roof plate and roof nozzle layout"
+msgstr "مخطط ألواح السقف وفوهات السقف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Roof plate layout"
+msgstr "مخطط ألواح السقف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Schedules of quantities"
+msgstr "جداول الكميات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Shell development layout"
+msgstr "مخطط تطوير الغلاف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Shell jacket plate marking plan"
+msgstr "مخطط تعليم ألواح غلاف الخزان."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Shell nozzle details"
+msgstr "تفاصيل فوهات الغلاف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Spigot (stability)"
+msgstr "حلقة التثبيت (الثبات)."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Structural modeling and fabrication drawings"
+msgstr "النمذجة الإنشائية ورسومات التصنيع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Technical delivery conditions"
+msgstr "شروط التسليم الفنية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "<i class=\"fa fa-circle\"/>Visualization"
+msgstr "العرض المرئي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>WRC calculation"
+msgstr "حسابات WRC."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "<i class=\"fa fa-circle\"/>Water supply, plumbing and drainage systems"
+msgstr "أنظمة إمداد المياه والسباكة والصرف."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"<i class=\"fa fa-envelope\"/>\n"
+"                                    Email Us"
+msgstr "راسلنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid ""
+"<i class=\"fa fa-envelope\"/>\n"
+"                            info@petroraq.com"
+msgstr "info@petroraq.com"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid ""
+"<i class=\"fa fa-file-text-o\"/>\n"
+"                                Job Description"
+msgstr "الوصف الوظيفي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid ""
+"<i class=\"fa fa-globe\"/>\n"
+"                            www.petroraq.com"
+msgstr "www.petroraq.com"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_thank_you
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
+msgid ""
+"<i class=\"fa fa-home\"/>\n"
+"                                Back to Home"
+msgstr "العودة إلى الرئيسية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"<i class=\"fa fa-lock\"/>\n"
+"                                            100% Secure"
+msgstr "آمن %100"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<i class=\"fa fa-map-marker\"/>\n"
+"                                        Dammam, Saudi Arabia"
+msgstr "الدمام، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<i class=\"fa fa-map-marker\"/>\n"
+"                                        Jubail, Saudi Arabia"
+msgstr "الجبيل، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<i class=\"fa fa-map-marker\"/>\n"
+"                                        Khobar, Saudi Arabia"
+msgstr "الخبر، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<i class=\"fa fa-map-marker\"/>\n"
+"                                        NEOM, Saudi Arabia"
+msgstr "نيوم، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<i class=\"fa fa-map-marker\"/>\n"
+"                                        Qiddiya, Saudi Arabia"
+msgstr "القدية، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<i class=\"fa fa-map-marker\"/>\n"
+"                                        Riyadh, Saudi Arabia"
+msgstr "الرياض، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<i class=\"fa fa-map-marker\"/>\n"
+"                                        Yanbu, Saudi Arabia"
+msgstr "ينبع، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"<i class=\"fa fa-map-marker-alt\"/>\n"
+"                                    Open in Google Maps"
+msgstr "فتح في خرائط Google."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid ""
+"<i class=\"fa fa-map-marker-alt\"/>\n"
+"                            Majd Square, King Faisal (West) Rd,<br/>Al-Jubail, KSA."
+msgstr "ساحة المجد، طريق الملك فيصل (غرب)، الجبيل، المملكة العربية السعودية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"<i class=\"fa fa-map-marker-alt\"/>\n"
+"                        <span>Al-Majd square, King Faisal (West) Road, Al-Jubail, KSA</span>"
+msgstr "ساحة المجد، طريق الملك فيصل (غرب)، الجبيل، المملكة العربية السعودية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"<i class=\"fa fa-paper-plane\"/>\n"
+"                                            Send Message"
+msgstr "إرسال الرسالة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"<i class=\"fa fa-phone\"/>\n"
+"                                    Call Now"
+msgstr "اتصل الآن."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"<i class=\"fa fa-phone\"/>\n"
+"                        <span>+966 13 - 361 - 4446</span>"
+msgstr "+966 13 - 361 - 4446"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid ""
+"<i class=\"fa fa-phone-alt\"/>\n"
+"                            +966-13-361-4446"
+msgstr "(+966) 13-361-4446"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid ""
+"<i class=\"fa fa-rocket\"/>\n"
+"                                    Submit Application"
+msgstr "إرسال الطلب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"<i class=\"fa fa-sign-in-alt\"/>\n"
+"                                        Sign In"
+msgstr "تسجيل الدخول."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"<i class=\"fa fa-sign-in-alt\"/>\n"
+"                                    Sign In"
+msgstr "تسجيل الدخول."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"<i class=\"fa fa-sign-out-alt\"/>\n"
+"                                        Log Out"
+msgstr "تسجيل الخروج."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"<i class=\"fa fa-sign-out-alt\"/>\n"
+"                                    Log Out"
+msgstr "تسجيل الخروج."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"<i class=\"fa fa-th-large\"/>\n"
+"                                            Portal"
+msgstr "البوابة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"<i class=\"fa fa-th-large\"/>\n"
+"                                        Portal"
+msgstr "البوابة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"<i class=\"fa fa-user\"/>\n"
+"                                            My Account"
+msgstr "حسابي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "<option value=\"\">Select nationality</option>"
+msgstr "اختر الجنسية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "<option value=\"\">Select qualification</option>"
+msgstr "اختر المؤهل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid ""
+"<select class=\"form-select\" name=\"legally_required\" required=\"required\">\n"
+"                                        <option value=\"\">Select</option>\n"
+"                                        <option value=\"yes\">Yes</option>\n"
+"                                        <option value=\"no\">No</option>\n"
+"                                    </select>"
+msgstr "<select class=\"form-select\" name=\"legally_required\" required=\"required\">\n                                        <option value=\"\">اختر</option>\n                                        <option value=\"yes\">نعم</option>\n                                        <option value=\"no\">لا</option>\n                                    </select>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "<small class=\"file-help\">PDF, DOC, DOCX (Max 5MB)</small>"
+msgstr "PDF، DOC، DOCX (MB الحد الأقصى 5)"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"cat\">\n"
+"                                            <i class=\"fa fa-folder-o\"/>\n"
+"                                            Buildings\n"
+"                                        </span>\n"
+"                                        <span class=\"badge-done\">Completed</span>"
+msgstr "<span class=\"cat\">\n                                            <i class=\"fa fa-folder-o\"/>\n                                            المباني\n                                        </span>\n                                        <span class=\"badge-done\">مكتمل</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"cat\">\n"
+"                                            <i class=\"fa fa-folder-o\"/>\n"
+"                                            Civil\n"
+"                                        </span>\n"
+"                                        <span class=\"badge-done\">Completed</span>"
+msgstr "<span class=\"cat\">\n                                            <i class=\"fa fa-folder-o\"/>\n                                            مدني\n                                        </span>\n                                        <span class=\"badge-done\">مكتمل</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"cat\">\n"
+"                                            <i class=\"fa fa-folder-o\"/>\n"
+"                                            Fit-Out\n"
+"                                        </span>\n"
+"                                        <span class=\"badge-done\">Completed</span>"
+msgstr "<span class=\"cat\">\n                                            <i class=\"fa fa-folder-o\"/>\n                                            تشطيبات\n                                        </span>\n                                        <span class=\"badge-done\">مكتمل</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"cat\">\n"
+"                                            <i class=\"fa fa-folder-o\"/>\n"
+"                                            Infrastructure\n"
+"                                        </span>\n"
+"                                        <span class=\"badge-done\">Completed</span>"
+msgstr "<span class=\"cat\">\n                                            <i class=\"fa fa-folder-o\"/>\n                                            البنية التحتية\n                                        </span>\n                                        <span class=\"badge-done\">مكتمل</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"cat\">\n"
+"                                            <i class=\"fa fa-folder-o\"/>\n"
+"                                            MEP Works\n"
+"                                        </span>\n"
+"                                        <span class=\"badge-done\">Completed</span>"
+msgstr "<span class=\"cat\">\n                                            <i class=\"fa fa-folder-o\"/>\n                                            أعمال MEP\n                                        </span>\n                                        <span class=\"badge-done\">مكتمل</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"cat\">\n"
+"                                            <i class=\"fa fa-folder-o\"/>\n"
+"                                            Modular Facilities\n"
+"                                        </span>\n"
+"                                        <span class=\"badge-done\">Completed</span>"
+msgstr "<span class=\"cat\">\n                                            <i class=\"fa fa-folder-o\"/>\n                                            مرافق مسبقة التجهيز\n                                        </span>\n                                        <span class=\"badge-done\">مكتمل</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"cat\">\n"
+"                                            <i class=\"fa fa-folder-o\"/>\n"
+"                                            Structural\n"
+"                                        </span>\n"
+"                                        <span class=\"badge-done\">Completed</span>"
+msgstr "<span class=\"cat\">\n                                            <i class=\"fa fa-folder-o\"/>\n                                            إنشائي\n                                        </span>\n                                        <span class=\"badge-done\">مكتمل</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span class=\"pr-hero-eyebrow animate-slide-up\">\n"
+"                                        <i class=\"fa fa-briefcase\"/>\n"
+"                                        Portfolio &amp; Showcase\n"
+"                                    </span>"
+msgstr "الأعمال والمعرض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
+msgid ""
+"<span class=\"prq-404-float prq-404-float1 animate-spin-slow\">✦</span>\n"
+"                <span class=\"prq-404-float prq-404-float2 animate-spin-slow\">✧</span>\n"
+"                <span class=\"prq-404-float prq-404-float3 animate-spin-slow\">✦</span>"
+msgstr "<span class=\"prq-404-float prq-404-float1 animate-spin-slow\">✦</span>\n                <span class=\"prq-404-float prq-404-float2 animate-spin-slow\">✧</span>\n                <span class=\"prq-404-float prq-404-float3 animate-spin-slow\">✦</span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"<span>\n"
+"                                            <i class=\"fa fa-check-circle\"/>\n"
+"                                            17+ Delivered\n"
+"                                        </span>\n"
+"                                        <span>\n"
+"                                            <i class=\"fa fa-map-marker\"/>\n"
+"                                            Across KSA\n"
+"                                        </span>\n"
+"                                        <span>\n"
+"                                            <i class=\"fa fa-shield\"/>\n"
+"                                            Quality Assured\n"
+"                                        </span>"
+msgstr "<span>\n                                            <i class=\"fa fa-check-circle\"/>\n                                            17+ مشروعًا منجزًا\n                                        </span>\n                                        <span>\n                                            <i class=\"fa fa-map-marker\"/>\n                                            في أنحاء المملكة\n                                        </span>\n                                        <span>\n                                            <i class=\"fa fa-shield\"/>\n                                            جودة مضمونة\n                                        </span>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "<span>Buildings</span>"
+msgstr "المباني"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "<span>Civil</span>"
+msgstr "المدنية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "<span>Fit-Out</span>"
+msgstr "تشطيبات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "<span>Structural</span>"
+msgstr "إنشائي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_thank_you
+msgid ""
+"<strong>Thank you for applying to PETRORAQ!</strong>\n"
+"                            <br/>\n"
+"                            <br/>\n"
+"                            Your application has been successfully received and our team will review it within\n"
+"                            <strong>3–5 business days</strong>. You will receive next-step communication if\n"
+"                            your profile matches the role requirements."
+msgstr "شكرًا لتقديمك إلى بيتروراق! تم استلام طلبك بنجاح، وسيقوم فريقنا بمراجعته خلال 3-5 أيام عمل. سيتم التواصل معك بالخطوات التالية إذا كان ملفك مناسبًا لمتطلبات الوظيفة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"A Chinese delegation visited us to explore strategic\n"
+"                                        business opportunities, potential avenues for collaboration and growth."
+msgstr "زارنا وفد صيني لاستكشاف فرص الأعمال الاستراتيجية وآفاق التعاون والنمو."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"A collaborative, inclusive, and respectful environment where everyone "
+"belongs."
+msgstr "بيئة تعاونية وشاملة ومحترمة يشعر فيها الجميع بالانتماء."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"A gathering of employees, clients, and their\n"
+"                                        families to celebrate the blessings of Ramadan and strengthen bonds of unity and\n"
+"                                        gratitude."
+msgstr "لقاء جمع الموظفين والعملاء وعائلاتهم للاحتفاء ببركات رمضان وتعزيز روابط الوحدة والامتنان."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "A strong commitment to health, safety, and environment."
+msgstr "التزام قوي بالصحة والسلامة والبيئة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"A team of dedicated professionals working together\n"
+"                                        to deliver exceptional results by collaboration, expertise, and commitment."
+msgstr "فريق من المتخصصين المتفانين يعملون معًا لتحقيق نتائج متميزة من خلال التعاون والخبرة والالتزام."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "A team of qualified professionals with extensive industry experience."
+msgstr "فريق من المتخصصين المؤهلين ذوي خبرة واسعة في القطاع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "ARCHITECTURAL"
+msgstr "العٍمارة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "About"
+msgstr "من نحن"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"About PETRORAQ\n"
+"                                    <span class=\"dot\"/>"
+msgstr "عن بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "About Us"
+msgstr "من نحن"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Accurate Modeling"
+msgstr "نمذجة دقيقة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Accurate design and advanced tools for reliable solutions."
+msgstr "تصميم دقيق وأدوات متقدمة لحلول موثوقة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Accurate designs that ensure efficiency."
+msgstr "تصاميم دقيقة تضمن الكفاءة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Across Civil, industrial, infrastructure, and development sectors."
+msgstr "في قطاعات الأعمال المدنية والصناعية والبنية التحتية والتطوير."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Across the Kingdom"
+msgstr "في أنحاء المملكة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Adherence to international codes and industry best practices."
+msgstr "الالتزام بالمعايير الدولية وأفضل ممارسات القطاع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Adhering to international standards and best practices."
+msgstr "الالتزام بالمعايير الدولية وأفضل الممارسات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Admin &amp; <br/> Change Order"
+msgstr "الإدارة وأوامر التغيير."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Admin Block Finising Works <br/> Jubail"
+msgstr "أعمال تشطيبات المبنى الإداري - الجبيل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Admin Building Finishing Works - Jubail"
+msgstr "أعمال تشطيبات المبنى الإداري - الجبيل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Admin Building Finishing Works <br/> Jubail"
+msgstr "أعمال تشطيبات المبنى الإداري - الجبيل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Admin Building Finising Works"
+msgstr "أعمال تشطيبات المبنى الإداري."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid ""
+"Advanced CAD and BIM solutions for accurate design, coordination, and "
+"project execution."
+msgstr "حلول متقدمة للتصميم الدقيق والتنسيق وتنفيذ المشاريع CAD و BIM."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Advanced engineering solutions delivered with precision and technical\n"
+"                                    expertise."
+msgstr "حلول هندسية متقدمة تُنفذ بدقة وخبرة فنية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Affordability/Feasibility"
+msgstr "الجدوى والتكلفة المناسبة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Al Bawani"
+msgstr "البواني."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Analysis of Current Flow / Load Calculations"
+msgstr "تحليل تدفق التيار وحسابات الأحمال."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Analysis of Water Supplies"
+msgstr "تحليل إمدادات المياه."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Annual Ifftar Party & Dinner 2026"
+msgstr "حفل الإفطار والعشاء السنوي 2026"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Annual Ifftar Party &amp; Dinner 2026"
+msgstr "حفل الإفطار والعشاء السنوي 2026"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Application"
+msgstr "الطلب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_thank_you
+msgid "Application Submitted"
+msgstr "تم إرسال الطلب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_thank_you
+msgid "Application Submitted - PETRORAQ"
+msgstr "تم إرسال الطلب - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Apply Now\n"
+"                                            <i class=\"fa fa-arrow-right\"/>"
+msgstr "قدّم الآن"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Approval &amp; Authorization"
+msgstr "الاعتماد والتفويض."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Architectural &amp;<br/>Planning<span class=\"dot\"/>"
+msgstr "التصميم المعماري والتخطيط."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Architectural Requirements"
+msgstr "المتطلبات المعمارية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Architectural and Planning - PETRORAQ"
+msgstr "التصميم المعماري والتخطيط - بيتروراق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Architectural planning"
+msgstr "التخطيط المعماري."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Architecture &amp; Planning"
+msgstr "العمارة والتخطيط."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"At PETRORAQ, we empower our people\n"
+"                                    to grow, innovate, and make an impact. We foster a\n"
+"                                    culture of safety, collaboration, and excellence while delivering meaningful\n"
+"                                    projects that shape communities and industries."
+msgstr "في بيتروراق نمكّن كوادرنا من النمو والابتكار وصناعة أثر حقيقي. نعزز ثقافة السلامة والتعاون والتميز أثناء تنفيذ مشاريع مؤثرة تشكل المجتمعات والقطاعات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Attractive salary packages and performance-based incentives."
+msgstr "حزم رواتب جاذبة وحوافز مبنية على الأداء."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Award From Pakistani Ambassador"
+msgstr "جائزة من السفير الباكستاني."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "BIM Deliverables"
+msgstr "مخرجات BIM."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "BIM Model"
+msgstr "نموذج BIM."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "BIM model on screen"
+msgstr "نموذج BIM على الشاشة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Basic Data Research and Development"
+msgstr "بحث وتطوير البيانات الأساسية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Basis of Project Decision"
+msgstr "أساس قرار المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Budgeting &amp; Cost Estimation"
+msgstr "إعداد الميزانية وتقدير التكلفة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Build Your Career<br/>With PETRORAQ\n"
+"                                <span class=\"dot\"/>"
+msgstr "ابنِ مسارك المهني مع بيتروراق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Building Finishes and Material Specifications"
+msgstr "تشطيبات المباني ومواصفات المواد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Building for today and tomorrow"
+msgstr "نبني للحاضر والمستقبل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Building lasting relationships grounded in trust, transparency, and shared\n"
+"                                    success."
+msgstr "نبني علاقات مستدامة قائمة على الثقة والشفافية والنجاح المشترك."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Building tomorrow with precision, safety, and\n"
+"                                        vision, where every blueprint becomes reality through dedication, leadership,\n"
+"                                        and excellence on site."
+msgstr "نبني الغد بدقة وسلامة ورؤية، حيث تتحول كل مخططات التصميم إلى واقع بفضل التفاني والقيادة والتميز في الموقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Building trusted partnerships for the future."
+msgstr "نبني شراكات موثوقة للمستقبل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Building<br/>Materials"
+msgstr "مواد البناء."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Buildings"
+msgstr "المباني."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Built with responsibility. Delivered with excellence."
+msgstr "نُنجز بمسؤولية ونُسلّم بتميز."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Business Hours"
+msgstr "ساعات العمل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Business Objectives"
+msgstr "أهداف الأعمال."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "CAD Services"
+msgstr "خدمات CAD."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "CAD Services - PETRORAQ"
+msgstr "خدمات CAD-بيتروراق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "CAD Services<span class=\"dot\"/>"
+msgstr "خدمات CAD"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "CAD designer working on 3D model"
+msgstr "مصمم (كاد) يعمل على نموذج ثلاثي الأبعاد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "CADD/Model Requirements"
+msgstr "متطلبات النموذج / CADD"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Cable laying and termination"
+msgstr "تمديد الكابلات وإنهاؤها"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Capabilities"
+msgstr "القدرات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Capacities"
+msgstr "السعات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Careers"
+msgstr "الوظائف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Careers - PETRORAQ"
+msgstr "الوظائف - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Certificate Preview"
+msgstr "معاينة الشهادة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Certificate preview"
+msgstr "معاينة الشهادة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Certifications &amp; Compliance"
+msgstr "الشهادات والامتثال"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Certifications &amp; Standards"
+msgstr "الشهادات والمعايير"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Chinese Delegation in Petroraq"
+msgstr "وفد صيني في بيتروراق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Civil"
+msgstr "المدنية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Civil &amp; Structural"
+msgstr "الأعمال المدنية والإنشائية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Civil &amp; Structural - PETRORAQ"
+msgstr "الأعمال المدنية والإنشائية - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Civil &amp;<br/>Structural<span class=\"dot\"/>"
+msgstr "الأعمال المدنية والإنشائية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Civil/Structural &amp; Architectural"
+msgstr "مدني/إنشائي ومعماري"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Civil/Structural Requirements"
+msgstr "المتطلبات المدنية/الإنشائية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Civil:"
+msgstr ":مدنية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Clash Detection"
+msgstr "كشف التعارضات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Client Satisfaction"
+msgstr "رضا العملاء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Client-Focused Approach"
+msgstr "نهج يركز على العميل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Clients"
+msgstr "العملاء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Collaboration"
+msgstr "التعاون"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Commercial Building Fit-Out - Khobar"
+msgstr "أعمال تشطيبات مبنى تجاري - الخبر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Commercial Building Fit-Out <br/> Khobar"
+msgstr "أعمال تشطيبات مبنى تجاري - الخبر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Commercial Building Fit-Out – Khobar"
+msgstr "أعمال تشطيبات مبنى تجاري - الخبر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Communication Planning"
+msgstr "تخطيط الاتصال"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Company Name"
+msgstr "اسم الشركة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Competitive Compensation"
+msgstr "تعويضات تنافسية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Completed Projects"
+msgstr "المشاريع المنجزة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Compliant with international codes and regulations."
+msgstr "متوافق مع الأكواد واللوائح الدولية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid ""
+"Comprehensive multi-disciplinary engineering, design and consultancy "
+"services."
+msgstr "خدمات هندسية وتصميمية واستشارية متكاملة متعددة التخصصات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"Comprehensive support services — from environmental engineering to "
+"construction management, quality control, survey, procurement, operations "
+"and turnaround solutions."
+msgstr "خدمات دعم شاملة، من الهندسة البيئية إلى إدارة الإنشاءات وضبط الجودة والمسح والمشتريات والتشغيل وحلول الإيقاف والصيانة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Construction"
+msgstr "الإنشاءات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Construction / Execution"
+msgstr "الإنشاء/التنفيذ"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Construction supervisors"
+msgstr "مشرفو الإنشاء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Construction<br/>Management"
+msgstr "إدارة الإنشاءات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "Consulting &amp; Early Development Support"
+msgstr "الاستشارات ودعم التطوير المبكر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Contact Us"
+msgstr "اتصل بنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Contact Us\n"
+"                                    <i class=\"fa fa-arrow-right\"/>"
+msgstr "اتصل بنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Contact Us\n"
+"                                <i class=\"fa fa-arrow-right\"/>"
+msgstr "اتصل بنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Contact Us - PETRORAQ"
+msgstr "اتصل بنا - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Contact us"
+msgstr "اتصل بنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Continuous learning opportunities and career growth pathways."
+msgstr "فرص تعلم مستمرة ومسارات نمو مهني."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Control Philosophy"
+msgstr "فلسفة التحكم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Core CAD Capabilities"
+msgstr " قدرات (كاد) الأساسية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Core Values"
+msgstr "قيمنا الأساسية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Cost Effective"
+msgstr "فعال من حيث التكلفة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Cost Effectiveness"
+msgstr "كفاءة التكلفة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Cost<br/>Control"
+msgstr "ضبط التكاليف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Creative &amp; Innovative Designs"
+msgstr "تصاميم إبداعية ومبتكرة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"Creative designs. Smart planning. Functional spaces. Building environments "
+"that inspire and stand the test of time."
+msgstr "تصاميم إبداعية، تخطيط ذكي، ومساحات عملية. نبني بيئات ملهمة تصمد مع الزمن."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Current Location"
+msgstr "الموقع الحالي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Current Openings"
+msgstr "الوظائف المتاحة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Dammam, Saudi Arabia"
+msgstr "الدمام، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Delevering Petroraq's Vision at PEF"
+msgstr "نقل رؤية بيتروراق في PEF. "
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Deliverables"
+msgstr "المخرجات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Deliverables Defined"
+msgstr "تحديد المخرجات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Deliveries"
+msgstr "التسليمات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Delivering complex, large-scale projects with proven expertise."
+msgstr "تنفيذ مشاريع معقدة وكبيرة الحجم بخبرة مثبتة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid ""
+"Delivering comprehensive engineering, infrastructure, industrial, and "
+"project financing solutions with technical precision, safe execution, and "
+"lasting excellence."
+msgstr "نقدم حلولًا شاملة في الهندسة والبنية التحتية والصناعة وتمويل المشاريع بدقة فنية وتنفيذ آمن وتميز مستدام."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"Delivering end-to-end project management and turnkey solutions for industrial\n"
+"                                            and infrastructure sectors, with expertise in planning, resource management,\n"
+"                                            risk mitigation, and quality execution from concept to completion."
+msgstr "نقدم حلول إدارة مشاريع متكاملة وحلول تسليم مفتاح للقطاعات الصناعية والبنية التحتية، بخبرة في التخطيط وإدارة الموارد وتقليل المخاطر وتنفيذ الجودة من الفكرة حتى الإنجاز."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Delivering excellence across industrial, infrastructure,\n"
+"                                        commercial, and engineering projects throughout Saudi Arabia."
+msgstr "نقدم التميز في المشاريع الصناعية والبنية التحتية والتجارية والهندسية في أنحاء المملكة العربية السعودية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid ""
+"Delivering safe, sustainable and cost-effective civil and structural "
+"engineering solutions built on innovation, precision and experience."
+msgstr "نقدم حلولًا مدنية وإنشائية آمنة ومستدامة وفعالة من حيث التكلفة مبنية على الابتكار والدقة والخبرة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Demolition / Dismantling Works"
+msgstr "أعمال الهدم والتفكيك."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Design &amp; Engineering"
+msgstr "التصميم والهندسة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "Design &amp; Engineering - PETRORAQ"
+msgstr "التصميم والهندسة - بيتروراق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "Design &amp; Engineering<span class=\"dot\"/>"
+msgstr "التصميم والهندسة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Design &amp; Material Alternatives"
+msgstr "بدائل التصميم والمواد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Design Capabilities"
+msgstr "قدرات التصميم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "Design Capabilities:"
+msgstr "قدرات التصميم:"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Design Criteria"
+msgstr "معايير التصميم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Design, supply, and installation of modular residential camp for\n"
+"                                                workforce housing."
+msgstr "تصميم وتوريد وتركيب مخيم سكني مسبق التجهيز لسكن القوى العاملة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Designed with safety as our top priority."
+msgstr "مصمم مع جعل السلامة أولوية قصوى."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Digital Project Support"
+msgstr "دعم المشاريع الرقمي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Digital models and data that support the entire lifecycle."
+msgstr "نماذج وبيانات رقمية تدعم دورة الحياة الكاملة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Diriyah Gate Development Authority"
+msgstr "هيئة تطوير بوابة الدرعية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Discipline Scope of Work"
+msgstr "نطاق عمل التخصص."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Distribution Matrix"
+msgstr "مصفوفة التوزيع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Diverse Projects"
+msgstr "مشاريع متنوعة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Do You have a Iqama/National ID?"
+msgstr "هل لديك إقامة/هوية وطنية؟"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Documents Submission Schedule"
+msgstr "جدول تقديم المستندات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Download"
+msgstr "تحميل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"During detailed engineering, strict adherence to Client and applicable "
+"industry standards, codes and procedures is maintained. Compliance with "
+"engineering works, detailed by project 'Scope of Work', together with "
+"reviews to determine constructability, Value Engineering, Plant Operability."
+msgstr "خلال الهندسة التفصيلية يتم الالتزام الصارم بمعايير العميل والمعايير والأكواد والإجراءات المعمول بها في القطاع. كما يتم ضمان توافق الأعمال الهندسية مع نطاق عمل المشروع، إلى جانب المراجعات اللازمة لقابلية التنفيذ وهندسة القيمة وقابلية تشغيل المنشأة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "ELECTRICAL"
+msgstr "الكهرباء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "ENGINEERING &amp; CONSTRUCTION"
+msgstr "الهندسة والإنشاءات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Early clash identification to minimize rework and delays."
+msgstr "تحديد التعارضات مبكرًا لتقليل إعادة العمل والتأخير."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Earthwork, Infrastructure &amp; Asphalt works"
+msgstr "الأعمال الترابية والبنية التحتية والأسفلت."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Earthworks, infrastructure works, grading and compaction, road base "
+"preparation, asphalt paving, and related civil works required for site "
+"development."
+msgstr "الأعمال الترابية وأعمال البنية التحتية والتسوية والدمك وتجهيز طبقات الطرق والسفلتة والأعمال المدنية ذات الصلة المطلوبة لتطوير الموقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Easement During Execution"
+msgstr "تسهيلات أثناء التنفيذ."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Efficient Delivery"
+msgstr "تسليم فعال."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Efficient planning and execution to meet project timelines."
+msgstr "تخطيط وتنفيذ فعالان للالتزام بجداول المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Electric Single Line Diagrams"
+msgstr "المخططات الكهربائية الأحادية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Electrical"
+msgstr "الكهرباء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Electrical &amp; Telecommunication"
+msgstr "الكهرباء والاتصالات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "Electrical &amp; Telecommunication - PETRORAQ"
+msgstr "الكهرباء والاتصالات - بيتروراق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "Electrical &amp;<br/>Telecommunication<span class=\"dot\"/>"
+msgstr "الكهرباء والاتصالات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Electrical Area Classifications"
+msgstr "تصنيفات المناطق الكهربائية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Electrical Specifications"
+msgstr "المواصفات الكهربائية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "Electrical control room"
+msgstr "غرفة التحكم الكهربائية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Electricity Supply and Load capacities"
+msgstr "إمدادات الكهرباء وسعات الأحمال"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Email Address"
+msgstr "عنوان البريد الإلكتروني"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Email Address *"
+msgstr "عنوان البريد الإلكتروني *"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Embracing new ideas to solve complex challenges"
+msgstr "نتبنى الأفكار الجديدة لحل التحديات المعقدة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Employment Type"
+msgstr "نوع التوظيف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"End-to-end engineering solutions from concept to commissioning, delivered "
+"with precision, quality and integrity."
+msgstr "حلول هندسية متكاملة من الفكرة إلى التشغيل التجريبي، تُنفذ بدقة وجودة ونزاهة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Engineering Co. Ltd."
+msgstr "شركة الهندسة المحدودة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Engineering Excellence"
+msgstr "تميز هندسي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Engineering Precision"
+msgstr "دقة هندسية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"Engineering excellence meets construction mastery. We deliver comprehensive EPC\n"
+"                                    solutions across Saudi Arabia with unmatched quality and innovation."
+msgstr "يلتقي التميز الهندسي بإتقان الإنشاءات. نقدم حلول (إي بي سي) شاملة في أنحاء المملكة العربية السعودية بجودة وابتكار لا مثيل لهما."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"Engineering solutions that drive efficiency, safety and performance. Built "
+"to last. Designed to perform."
+msgstr "حلول هندسية تعزز الكفاءة والسلامة والأداء. مبنية لتدوم ومصممة لتؤدي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Engineering specialists who expertly support the project team."
+msgstr "متخصصون هندسيون يدعمون فريق المشروع بخبرة عالية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "Engineering team"
+msgstr "الفريق الهندسي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Engineering<span/><br/>Procurement<span/><br/>Construction<span/>"
+msgstr "الهندسة<span/><br/>المشتريات<span/><br/>الإنشاءات<span/>"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Engineers on site"
+msgstr "مهندسون في الموقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Environmental Assessment"
+msgstr "التقييم البيئي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Environmental Management"
+msgstr "الإدارة البيئية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Environmental and site conditions"
+msgstr "الظروف البيئية وظروف الموقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Environmental<br/>Engineering"
+msgstr "الهندسة البيئية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Environmentally responsible engineering practices."
+msgstr "ممارسات هندسية مسؤولة بيئيًا."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Equipment Scope"
+msgstr "نطاق المعدات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Excellence"
+msgstr "التميز"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Expected Project Life Cycle"
+msgstr "دورة حياة المشروع المتوقعة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Expected Salary"
+msgstr "الراتب المتوقع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Expediting"
+msgstr "التعجيل والمتابعة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Experienced Architects"
+msgstr "معماريون ذوو خبرة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Explore Projects\n"
+"                                    <i class=\"fa fa-arrow-right\"/>"
+msgstr "استكشف المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "FUNCTION OF PROJECT MANAGEMENT AFTER CONSTRUCTION PHASE"
+msgstr "دور إدارة المشاريع بعد مرحلة الإنشاء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "FUNCTION OF PROJECT MANAGEMENT BEFORE CONSTRUCTION STARTS"
+msgstr "دور إدارة المشاريع قبل بدء الإنشاء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Feasibility Study"
+msgstr "دراسة الجدوى"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Featured Completed Projects"
+msgstr "مشاريع منجزة مميزة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Featured Projects"
+msgstr "مشاريع مميزة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Field<br/>Supervision"
+msgstr "الإشراف الميداني"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Final Inspection &amp;<br/>Acceptance of work"
+msgstr "الفحص النهائي وقبول الأعمال"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Fire Protection and Safety Considerations"
+msgstr "اعتبارات الحماية من الحريق والسلامة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Fit-out"
+msgstr "تشطيبات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Foundation Design Requirements"
+msgstr "متطلبات تصميم الأساسات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Full Name"
+msgstr "الاسم الكامل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Full Name *"
+msgstr "الاسم الكامل *"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Full-time"
+msgstr "دوام كامل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Functional and operational efficiency"
+msgstr "الكفاءة الوظيفية والتشغيلية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Future Expansion Considerations"
+msgstr "اعتبارات التوسع المستقبلي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "General"
+msgstr "عام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Geological and Seismic Conditions"
+msgstr "الظروف الجيولوجية والزلزالية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Get In Touch"
+msgstr "تواصل معنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"Get In Touch\n"
+"                                        <i class=\"fa fa-arrow-right\"/>"
+msgstr "تواصل معنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Global Standards"
+msgstr "معايير عالمية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Have a project in mind?"
+msgstr "هل لديك مشروع في ذهنك؟"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Head Office"
+msgstr "المكتب الرئيسي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Head Office Staff Members"
+msgstr "موظفو المكتب الرئيسي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Health &amp; Safety Standards"
+msgstr "معايير الصحة والسلامة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Higher management's meeting with Chinese delegation,\n"
+"                                        exploring the opportunities for\n"
+"                                        collaboration, growth and joint ventures."
+msgstr ".اجتماع الإدارة العليا مع الوفد الصيني لاستكشاف فرص التعاون والنمو والمشاريع المشتركة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Highest Qualification"
+msgstr "أعلى مؤهل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Highway aerial"
+msgstr "منظر جوي لطريق سريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Home"
+msgstr "الرئيسية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Honesty and transparency in every decision and action"
+msgstr "الصدق والشفافية في كل قرار وتصرف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "ISO 14001"
+msgstr "أيزو 14001"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "ISO 45001"
+msgstr "أيزو 45001"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "ISO 9001"
+msgstr "أيزو 9001"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"IT team works with a collaborative spirit,\n"
+"                                        supporting each department through reliable systems, smart solutions, and\n"
+"                                        continuous improvement."
+msgstr "يعمل فريق تقنية المعلومات بروح تعاونية، ويدعم كل إدارة من خلال أنظمة موثوقة وحلول ذكية وتحسين مستمر."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Identity Long Lead / Critical Equipment<br/>&amp; Materials"
+msgstr "تحديد المعدات والمواد الحرجة وطويلة التوريد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Immediate Assistance Available"
+msgstr "مساعدة فورية متاحة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"In the Project Development phase, the following are the typical issues that "
+"will be addressed:"
+msgstr "في مرحلة تطوير المشروع، يتم عادةً تناول المحاور التالية:"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Industrial &amp; Infrastructure Expertise"
+msgstr "خبرة صناعية وبنية تحتية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Industrial &amp;<br/>Mega\n"
+"                                        Projects"
+msgstr "المشاريع الصناعية والضخمة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Industrial electrical works"
+msgstr "أعمال كهربائية صناعية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Industrial piping facility"
+msgstr "منشأة أنابيب صناعية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Industry"
+msgstr "الصناعة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Infrastructure"
+msgstr "البنية التحتية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Infrastructure Development Package <br/> NEOM"
+msgstr "حزمة تطوير البنية التحتية - نيوم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Innovation"
+msgstr "الابتكار"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Instagram"
+msgstr "إنستاقرام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Integrated Coordination"
+msgstr "تنسيق متكامل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"Integrated solutions. Reliable systems.<br/>Connected for a smarter "
+"tomorrow."
+msgstr "حلول متكاملة. أنظمة موثوقة. اتصال من أجل غد أكثر ذكاءً."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Integrity"
+msgstr "النزاهة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Interior fit-out, ceiling and partition works"
+msgstr "أعمال التشطيبات الداخلية والأسقف والقواطع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Interior fit-out, ceiling and partition works, flooring and wall finishes, "
+"glass works, wall and ceiling painting, plumbing works, and final finishing "
+"works required to complete the space professionally."
+msgstr "أعمال التشطيبات الداخلية والأسقف والقواطع وتشطيبات الأرضيات والجدران وأعمال الزجاج ودهان الجدران والأسقف والسباكة والتشطيبات النهائية المطلوبة لإنجاز المساحة باحترافية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Interview"
+msgstr "المقابلة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Job Details - PETRORAQ"
+msgstr "تفاصيل الوظيفة - بيترواوق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"Join Our Team\n"
+"                                        <i class=\"fa fa-users\"/>"
+msgstr "انضم إلى فريقنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Join PETRORAQ and be part of a team delivering\n"
+"                                        excellence every day."
+msgstr "أنضم الى بيتروراق وكن جزءًا من فريق يحقق التميز كل يوم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Join a team delivering industrial and infrastructure excellence with safety, innovation,\n"
+"                                and growth."
+msgstr "انضم إلى فريق يقدم التميز في الصناعة والبنية التحتية عبر السلامة والابتكار والنمو."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Join our team and build the future with PETRORAQ"
+msgstr "انضم إلى فريقنا وابنِ المستقبل مع بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Jubail, Saudi Arabia"
+msgstr "الجبيل، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "KSA"
+msgstr "المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Key Clients"
+msgstr "عملاء رئيسيون"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Khobar, Saudi Arabia"
+msgstr "الخبر، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Let our architectural experts turn your vision into reality."
+msgstr "دع خبراءنا المعماريين يحولون رؤيتك إلى واقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"Let's Connect\n"
+"                                <span class=\"dot\"/>"
+msgstr "لنتواصل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Let's build your next project."
+msgstr "لنبنِ مشروعك القادم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Let's create value, build excellence, and shape a better tomorrow."
+msgstr "لنصنع القيمة ونبني التميز ونشكل غدًا أفضل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Let’s Build Your Vision with Confidence"
+msgstr "لنبنِ رؤيتك بثقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Life at PETRORAQ"
+msgstr "الحياة في بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Life at PETRORAQ\n"
+"                                    <i class=\"fa fa-arrow-right\"/>"
+msgstr "الحياة في بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Lighting systems and controls"
+msgstr "أنظمة الإنارة والتحكم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Line List"
+msgstr "قائمة الخطوط"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Line Plan"
+msgstr "مخطط الخطوط"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "LinkedIn"
+msgstr "لينكدن"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "LinkedIn Profile"
+msgstr "ملف لينكدن"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Load Calculations"
+msgstr "حسابات الأحمال"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Load More"
+msgstr "تحميل المزيد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Loading/Unloading/Storage Requirements"
+msgstr "متطلبات التحميل والتفريغ والتخزين"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Long-Term Partnership"
+msgstr "شراكة طويلة الأمد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Long-term relationships built on performance and integrity."
+msgstr "علاقات طويلة الأمد مبنية على الأداء والنزاهة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Lost Time Injury"
+msgstr "إصابات الوقت الضائع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Lost Time Injury (LTI)"
+msgstr "إصابات الوقت الضائع LTI."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Low voltage (LV) and medium voltage (MV) systems"
+msgstr "أنظمة الجهد المنخفض (إل في) والجهد المتوسط (إم في)"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "MD's Meeting with Clients"
+msgstr "اجتماع المدير العام مع العملاء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "MEP"
+msgstr "MEP"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "MEP Works"
+msgstr "أعمال MEP."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Main Line"
+msgstr "الخط الرئيسي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Maintenance Philosophy"
+msgstr "فلسفة الصيانة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Majd Square, King Faisal (West) Rd<br/>Al Jubail City, KSA"
+msgstr "ساحة المجد، طريق الملك فيصل (غرب)، مدينة الجبيل، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"Majd Square, King Faisal (West) Rd<br/>Al-Jubail, Kingdom of Saudi Arabia"
+msgstr "ساحة المجد، طريق الملك فيصل (غرب)، الجبيل، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Managing Director Mr. Mustafa Abdul Rasheed is meeting with clients to discuss\n"
+"                                        their needs and provide solutions."
+msgstr "يجتمع المدير العام الأستاذ مصطفى عبد الرشيد مع العملاء لمناقشة احتياجاتهم وتقديم الحلول."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Manufacturing Objective Criteria"
+msgstr "معايير أهداف التصنيع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Market Evaluation"
+msgstr "تقييم السوق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Market Strategy"
+msgstr "استراتيجية السوق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Mechanical"
+msgstr "الميكانيكا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Mechanical &amp; Piping"
+msgstr "الميكانيكا والأنابيب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Mechanical &amp; Piping - PETRORAQ"
+msgstr "الميكانيكا والأنابيب - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Mechanical &amp; Piping Works – Yanbu"
+msgstr "أعمال الميكانيكا والأنابيب - ينبع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Mechanical &amp; Piping Works<br/>Yanbu"
+msgstr "أعمال الميكانيكا والأنابيب - ينبع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Mechanical &amp;<br/>Piping<span class=\"dot\"/>"
+msgstr "الميكانيكا والأنابيب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Mechanical Data Sheets"
+msgstr "أوراق البيانات الميكانيكية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Mechanical Equipment List"
+msgstr "قائمة المعدات الميكانيكية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Mechanical and piping installation for industrial facility\n"
+"                                                improvements."
+msgstr "تركيب الأعمال الميكانيكية والأنابيب لتحسين منشأة صناعية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Meeting With Chinese Delegation"
+msgstr "اجتماع مع وفد صيني"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Modern Architecture"
+msgstr "عمارة حديثة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Modular Camp"
+msgstr "مخيم مسبق التجهيز"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Modular Facilities"
+msgstr "مرافق مسبقة التجهيز"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Modular Residential Camp – Riyadh"
+msgstr "مخيم سكني مسبق التجهيز - الرياض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Modular Residential Camp<br/>Riyadh"
+msgstr "مخيم سكني مسبق التجهيز - الرياض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"Multi-disciplinary engineering, design and consultancy services delivering "
+"innovative, safe and cost-effective solutions across the industrial and "
+"infrastructure sectors."
+msgstr "خدمات هندسية وتصميمية واستشارية متعددة التخصصات تقدم حلولًا مبتكرة وآمنة وفعالة من حيث التكلفة في القطاعات الصناعية والبنية التحتية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"Multiple ways to connect with our team for project discussions, quotations "
+"and support."
+msgstr "طرق متعددة للتواصل مع فريقنا لمناقشة المشاريع وطلبات التسعير والدعم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "My Account"
+msgstr "حسابي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "NEOM"
+msgstr "نيوم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Nationality"
+msgstr "الجنسية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "No matching jobs found"
+msgstr "لم يتم العثور على وظائف مطابقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "No open positions at the moment"
+msgstr "لا توجد وظائف شاغرة حاليًا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Notice Period (Days)"
+msgstr "فترة الإشعار (بالأيام)"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "OTHER SERVICES"
+msgstr "خدمات أخرى"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Offer"
+msgstr "العرض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "On schedule. On budget. Every time."
+msgstr "في الموعد وضمن الميزانية في كل مرة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "On-Time Delivery"
+msgstr "التسليم في الوقت المحدد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Onboarding"
+msgstr "الانضمام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Operating Philosophy"
+msgstr "فلسفة التشغيل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Operation &amp; Maintenance Services"
+msgstr "خدمات التشغيل والصيانة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Optimized solutions that deliver maximum value."
+msgstr "حلول محسنة تحقق أعلى قيمة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Optimized workflows for on-time and on-budget results."
+msgstr "سير عمل محسّن لتحقيق النتائج في الوقت المحدد وضمن الميزانية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Organizations We Work With"
+msgstr "الجهات التي نعمل معها"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Other Services"
+msgstr "خدمات أخرى"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Other Services - PETRORAQ"
+msgstr "خدمات أخرى - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Other Services<span class=\"dot\"/>"
+msgstr "خدمات أخرى"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Our CAD and BIM specialists are ready to support your next project."
+msgstr "متخصصو (كاد) و (بيم) لدينا جاهزون لدعم مشروعك القادم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Our Clients\n"
+"                            <span class=\"dot\"/>"
+msgstr "عملاؤنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Our Clients - PETRORAQ"
+msgstr "عملاؤنا - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Our Completed<br/>Projects\n"
+"                                        <span class=\"dot\"/>"
+msgstr "مشاريعنا المنجزة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "Our Design &amp; Engineering Services"
+msgstr "خدمات التصميم والهندسة لدينا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Our Expertise"
+msgstr "خبراتنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Our Head Office Staff Members"
+msgstr "موظفو مكتبنا الرئيسي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Our Hiring Process"
+msgstr "آلية التوظيف لدينا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Our Mission"
+msgstr "رسالتنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Our Purpose"
+msgstr "هدفنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Our Vision"
+msgstr "رؤيتنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"Our architects take pride in their creative efforts, which have led to some "
+"of the landmark structures built in the region."
+msgstr "يفخر معماريونا بجهودهم الإبداعية التي أسهمت في إنشاء بعض المعالم البارزة في المنطقة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid ""
+"Our civil &amp; structural engineering experts are ready to bring your "
+"vision to life."
+msgstr "خبراؤنا في الهندسة المدنية والإنشائية جاهزون لتحويل رؤيتك إلى واقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"Our commitment to safety, quality, and innovation enables us to deliver enduring\n"
+"                                        infrastructure solutions that meet today’s needs and support tomorrow’s growth."
+msgstr "يمكّننا التزامنا بالسلامة والجودة والابتكار من تقديم حلول بنية تحتية مستدامة تلبي احتياجات اليوم وتدعم نمو الغد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"Our electrical &amp; telecommunication experts are ready to power and "
+"connect your vision."
+msgstr "خبراؤنا في الكهرباء والاتصالات جاهزون لتشغيل رؤيتك وربطها."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"Our engineering experts are ready to help turn your vision into reality."
+msgstr "خبراؤنا الهندسيون جاهزون لمساعدتك في تحويل رؤيتك إلى واقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"Our expertise spans design and engineering, civil, MEP, telecommunications,\n"
+"                                        fitout works, building materials, BIM and project finance services, ensuring\n"
+"                                        seamless project execution from concept to completion."
+msgstr "تمتد خبراتنا إلى التصميم والهندسة والأعمال المدنية و(إم إي بي) والاتصالات والتشطيبات ومواد البناء و(بي آي ام) وخدمات تمويل المشاريع، بما يضمن تنفيذًا سلسًا من الفكرة إلى الإنجاز."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"Our goal is to ensure every project is well-defined, well-planned and set up"
+" for successful execution."
+msgstr "هدفنا هو ضمان أن يكون كل مشروع محددًا ومخططًا جيدًا ومهيأً للتنفيذ الناجح."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"Our mechanical &amp; piping experts are ready to design smart, efficient and"
+" reliable solutions for your project."
+msgstr "خبراؤنا في الميكانيكا والأنابيب جاهزون لتصميم حلول ذكية وفعالة وموثوقة لمشروعك."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Our team responds to inquiries within 24 working hours"
+msgstr "يرد فريقنا على الاستفسارات خلال 24 ساعة عمل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Our team reviews your qualifications and experience."
+msgstr "يراجع فريقنا مؤهلاتك وخبراتك."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"Our telecommunication systems are designed in accordance with Client's "
+"Standards and Specifications, applicable national/international standards "
+"and backed-up by our own extensive experience in the field, incorporating "
+"best practices."
+msgstr "تُصمم أنظمة الاتصالات لدينا وفق معايير ومواصفات العميل والمعايير الوطنية والدولية المعمول بها، مدعومة بخبرتنا الواسعة في المجال وبأفضل الممارسات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"Owner Approval Requirements &amp; Engineering/Construction Plan &amp; "
+"Approach"
+msgstr "متطلبات اعتماد المالك وخطة ونهج الهندسة/الإنشاء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "PEF Business Meetup, Dammam"
+msgstr "لقاء أعمال(بي إي إف) ، الدمام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "PETRORAQ"
+msgstr "بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"PETRORAQ Architectural discipline comprises qualified architects with "
+"extensive experience in community planning and site development, building "
+"planning and architecture, interior design and landscaping. They can "
+"transform client's intent into a truly aesthetic and trendy building giving "
+"particular importance for space utilization and functional efficiency. They "
+"have planned and designed a wide range of facilities and buildings such as "
+"villas, apartments, commercial, industrial, educational, health care "
+"facilities, hotels, leisure facilities, recreational centers and offices of "
+"all sizes."
+msgstr "يضم تخصص العمارة في بيتروراق معماريين مؤهلين ذوي خبرة واسعة في تخطيط المجتمعات وتطوير المواقع وتخطيط المباني والعمارة والتصميم الداخلي وتنسيق المواقع. ويمكنهم تحويل رؤية العميل إلى مبنى جمالي وعصري مع التركيز على استغلال المساحات والكفاءة الوظيفية. وقد خططوا وصمموا مجموعة واسعة من المرافق والمباني مثل الفلل والشقق والمرافق التجارية والصناعية والتعليمية والصحية والفنادق ومرافق الترفيه والمراكز الترفيهية والمكاتب بمختلف الأحجام."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"PETRORAQ Computer Aided Design (CAD) facilities in conjunction with computer"
+" and communication networks, standard design methods and project quality "
+"design plan provide a uniform and coordinated engineering work process "
+"environment for a smooth execution of a project."
+msgstr "توفر مرافق التصميم بمساعدة الحاسوب (كاد) في بيتروراق، بالتكامل مع شبكات الحاسب والاتصالات وطرق التصميم القياسية وخطة جودة تصميم المشروع، بيئة عمل هندسية موحدة ومنسقة لتنفيذ المشروع بسلاسة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "PETRORAQ Engineering &amp; Construction"
+msgstr "بيتروراق للهندسة والإنشاءات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"PETRORAQ Engineering Co. Ltd. provides a comprehensive multi-disciplinary "
+"engineering, design and consultancy services. When required, PETRORAQ "
+"utilizes support from group companies and international affiliates to "
+"accomplish projects of any magnitude."
+msgstr "تقدم شركة بيتروراق انجنيرنج المحدودة. خدمات هندسية وتصميمية واستشارية شاملة متعددة التخصصات. وعند الحاجة تستعين بيتروراق بدعم شركات المجموعة والشركاء الدوليين لإنجاز المشاريع مهما كان حجمها."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "PETRORAQ Logo"
+msgstr "شعار بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid ""
+"PETRORAQ core strength lies in providing comprehensive planning services "
+"including Site and Topographic surveying, Land use analysis, Master plan "
+"development, Conceptual design, Front end engineering and detailed designing"
+" of projects of all types and magnitude."
+msgstr "تكمن قوة بيتروراق الأساسية في تقديم خدمات تخطيط شاملة تشمل المسح الميداني والطبوغرافي وتحليل استخدام الأراضي وتطوير المخططات الرئيسية والتصميم المفاهيمي والهندسة الأولية والتصميم التفصيلي للمشاريع بمختلف أنواعها وأحجامها."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid ""
+"PETRORAQ delivers comprehensive CAD services using advanced engineering and "
+"modeling tools including BIM, Tekla, Revit, Inventor, Advance Steel, "
+"SketchUp, CADWorx, and AutoCAD. Our team develops precise design models, "
+"detailed drawings, and coordinated deliverables that support fabrication, "
+"construction, and project execution across industrial and infrastructure "
+"projects."
+msgstr "تقدم بيتروراق خدمات (كاد) شاملة باستخدام أدوات هندسية ونمذجة متقدمة تشمل (بي آي إم) (تيكلا) (ريفيت) (إينفينتور) و(أدفانس ستيل) (سكيتشاب) (كاد ووركس) (أوتوكاد). يطور فريقنا نماذج تصميم دقيقة ورسومات تفصيلية ومخرجات منسقة تدعم التصنيع والإنشاء وتنفيذ المشاريع الصناعية ومشاريع البنية التحتية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"PETRORAQ develops piping engineering drawings using advanced CAD-based tools"
+" for fast, accurate and coordinated design. Our detailed 3D walk-through "
+"models are converted at an early stage to identify clashes, minimize rework "
+"and support timely project execution. The models are real-time and tie-in-"
+"ny, enabling major equipment data input verification."
+msgstr "تطور بيتروراق رسومات هندسة الأنابيب باستخدام أدوات (كاد) متقدمة لتحقيق تصميم سريع ودقيق ومنسق. ويتم تحويل نماذج التجول ثلاثية الأبعاد التفصيلية في مرحلة مبكرة لتحديد التعارضات وتقليل إعادة العمل ودعم تنفيذ المشروع في الوقت المحدد. كما تتيح النماذج التحقق من بيانات المعدات الرئيسية بصورة فعالة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "PETRORAQ engineer on site"
+msgstr "مهندس بيتروراق في الموقع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"PETRORAQ has been at the forefront of project implementation for many "
+"prestigious assignments in the Kingdom and around the Globe. It's "
+"experienced core team has been in this field, providing comprehensive "
+"services for both inside battery limits and offsite facilities. PETRORAQ "
+"offers both Clients &amp; Contractors a complete Project Management "
+"initiative through its professionally qualified &amp; highly experienced "
+"project management team."
+msgstr "كانت بيتروراق في مقدمة تنفيذ العديد من المشاريع المرموقة داخل المملكة وحول العالم. ويتمتع فريقها الأساسي بخبرة واسعة في هذا المجال، حيث يقدم خدمات شاملة داخل حدود المنشأة وخارجها. وتوفر بيتروراق للعملاء والمقاولين مبادرة متكاملة لإدارة المشاريع عبر فريق إدارة مشاريع مؤهل وذي خبرة عالية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid ""
+"PETRORAQ has contributed its civil engineering expertise to the design of "
+"reinforced concrete and steel structures using the latest design software "
+"and advanced engineering practices. Similarly, we have provided innovative "
+"solutions for the repair, strengthening, and rehabilitation of existing "
+"structures to improve their safety, durability, and performance. Our designs"
+" are cost-effective, reliable, and safe, developed by adopting modern "
+"methods for structural analysis and design in accordance with international "
+"standards. Through practical engineering judgment and technical excellence, "
+"we ensure that every structure meets project requirements while maintaining "
+"quality, efficiency, and long-term stability."
+msgstr "أسهمت بيتروراق بخبرتها في الهندسة المدنية في تصميم الهياكل الخرسانية المسلحة والفولاذية باستخدام أحدث برامج التصميم والممارسات الهندسية المتقدمة. كما قدمنا حلولًا مبتكرة لإصلاح وتقوية وتأهيل الهياكل القائمة لتحسين السلامة والمتانة والأداء. وتتميز تصاميمنا بأنها فعالة من حيث التكلفة وموثوقة وآمنة، ويتم تطويرها باستخدام أساليب حديثة في التحليل والتصميم الإنشائي وفق المعايير الدولية. ومن خلال الحكم الهندسي العملي والتميز الفني نضمن أن يفي كل هيكل بمتطلبات المشروع مع الحفاظ على الجودة والكفاءة والاستقرار طويل الأمد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"PETRORAQ has specialized expertise and capability in different aspects of "
+"environmental engineering and infrastructure. This expertise, gained in "
+"infrastructure and environmental engineering, has led to a strong knowledge "
+"and capability which has been employed in major schemes. This expertise is "
+"available to meet the ever increasing demand for an improved environment in "
+"the future."
+msgstr "تمتلك بيتروراق خبرة وقدرات متخصصة في مختلف جوانب الهندسة البيئية والبنية التحتية. وقد نتج عن هذه الخبرة معرفة وقدرة قوية تم توظيفها في مشاريع كبرى، وهي متاحة لتلبية الطلب المتزايد على بيئة أفضل في المستقبل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"PETRORAQ has the capability to design a wide range of state of the art "
+"telecommunications systems based on Client's requirements. Our engineers "
+"possess many years of directly relevant experience across the "
+"telecommunications field. We can also provide construction supervision and "
+"project management services."
+msgstr "تمتلك بيتروراق القدرة على تصميم مجموعة واسعة من أنظمة الاتصالات الحديثة وفق متطلبات العميل. ويتمتع مهندسونا بسنوات طويلة من الخبرة المباشرة في مجال الاتصالات، كما يمكننا تقديم خدمات الإشراف على التنفيذ وإدارة المشاريع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"PETRORAQ is a leading multidisciplinary engineering, procurement, construction,\n"
+"                                        and project management company in Jubail since 2022 delivering turnkey solutions\n"
+"                                        across diverse sectors in the Kingdom of Saudi Arabia."
+msgstr "بيتروراق شركة رائدة متعددة التخصصات في الهندسة والمشتريات والإنشاء وإدارة المشاريع في الجبيل منذ 2022، تقدم حلول تسليم مفتاح عبر قطاعات متعددة في المملكة العربية السعودية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"PETRORAQ proudly represented the company’s vision at\n"
+"                                        the PEF Business Meetup by highlighting our commitment to growth, innovation,\n"
+"                                        and collaboration."
+msgstr "مثلت بيتروراق رؤيتها بكل فخر في لقاء أعمال (بي إي إف) من خلال إبراز التزامنا بالنمو والابتكار والتعاون."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid ""
+"PETRORAQ provides BIM modeling services in Revit to support design "
+"coordination, visualization, and digital project delivery. Our BIM workflows"
+" improve collaboration, reduce clashes, and provide intelligent models that "
+"strengthen planning, execution, and lifecycle data management."
+msgstr "تقدم بيتروراق خدمات نمذجة (بي آي إم) باستخدام (ريفيت) لدعم تنسيق التصميم والعرض المرئي والتسليم الرقمي للمشاريع. وتحسن إجراءات (بي آي إم) لدينا التعاون وتقلل التعارضات وتوفر نماذج ذكية تعزز التخطيط والتنفيذ وإدارة بيانات دورة الحياة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"PETRORAQ provides a flexible work environment where\n"
+"                                        professionals are encouraged to work independently or collaborate as strong team\n"
+"                                        players."
+msgstr "توفر بيتروراق بيئة عمل مرنة تشجع المهنيين على العمل باستقلالية أو التعاون كأعضاء فاعلين في الفريق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"PETRORAQ provides consulting services by providing relevant engineering "
+"resources to clients to form a part of their project team. We also provide "
+"assistance during the critical identification phase covering feasibility and"
+" preliminary engineering analysis to develop the basis for design."
+msgstr "تقدم بيتروراق خدمات استشارية من خلال توفير موارد هندسية مناسبة للعملاء لتكون جزءًا من فريق المشروع. كما نقدم المساندة خلال مرحلة التعريف الحرجة التي تشمل الجدوى والتحليل الهندسي الأولي لتطوير أسس التصميم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"PETRORAQ provides design and analysis of pressure vessels including columns,"
+" horizontal and vertical pressure vessels, and reactors in accordance with "
+"ASME Boiler &amp; Pressure Vessel Code, Section VIII, Div. 1 &amp; Div. 2. "
+"The division also prepares fabrication drawings, data sheets and detailed "
+"layouts to support fabrication, installation and operation."
+msgstr "تقدم بيتروراق تصميم وتحليل أوعية الضغط بما في ذلك الأعمدة والأوعية الأفقية والرأسية والمفاعلات وفق كود (إيه إس إم إي) للغلايات وأوعية الضغط، القسم (في آي آي آي)، الجزء الأول والجزء الثاني. كما يقوم القسم بإعداد رسومات التصنيع وأوراق البيانات والمخططات التفصيلية لدعم التصنيع والتركيب والتشغيل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid ""
+"PETRORAQ provides structural design solutions focused on constructability, safety, and ease of installation. Its engineers have the capability to design a wide range of reinforced concrete and steel structures, including pre-cast and pre-stressed concrete construction. The team has also developed expertise in the repair and rehabilitation of structures using advanced construction chemicals, as well as the analysis and design of blast-proof and earthquake-resistant structures. Alternate design methods are used to verify the adequacy, reliability, and efficiency of the designs.\n"
+"\n"
+"                    PETRORAQ ensures durable, cost-effective, and technically sound structural solutions. Our approach supports smooth site execution while maintaining quality and safety."
+msgstr "تقدم بيتروراق حلول تصميم إنشائي تركز على قابلية التنفيذ والسلامة وسهولة التركيب. ويمتلك مهندسوها القدرة على تصميم مجموعة واسعة من الهياكل الخرسانية المسلحة والفولاذية، بما في ذلك الخرسانة مسبقة الصب ومسبقة الإجهاد. كما طور الفريق خبرة في إصلاح وتأهيل الهياكل باستخدام كيماويات إنشاء متقدمة، إضافة إلى تحليل وتصميم الهياكل المقاومة للانفجارات والزلازل. وتُستخدم طرق تصميم بديلة للتحقق من كفاية التصاميم وموثوقيتها وكفاءتها. تضمن بيتروراق حلولًا إنشائية متينة وفعالة من حيث التكلفة وسليمة فنيًا، ويدعم نهجنا التنفيذ السلس في الموقع مع الحفاظ على الجودة والسلامة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"PETRORAQ provides total project management and coordination services by "
+"combining two vital components of its organizational strength."
+msgstr "تقدم بيتروراق خدمات إدارة وتنسيق مشاريع متكاملة من خلال الجمع بين عنصرين حيويين من قوتها التنظيمية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"PETRORAQ recognizes that quality assurance is an integral part of the design"
+" engineering process and that a commitment to quality is required from all "
+"employees. Quality assurance procedures and manuals have been developed to "
+"conform to those requirements defined."
+msgstr "تدرك بيتروراق أن ضمان الجودة جزء أساسي من عملية التصميم الهندسي، وأن الالتزام بالجودة مطلوب من جميع الموظفين. وقد تم تطوير إجراءات وأدلة ضمان الجودة بما يتوافق مع المتطلبات المحددة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"PETRORAQ will provide complete project specification that reflects all "
+"deliverables required from the detailed design, materials procurement, "
+"fabrication works and construction."
+msgstr "ستوفر بيتروراق مواصفات مشروع كاملة تعكس جميع المخرجات المطلوبة من التصميم التفصيلي وشراء المواد وأعمال التصنيع والإنشاء."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid ""
+"PETRORAQ's Construction Management team comprises of professionally "
+"qualified engineers who have rich and varied experiences related to the "
+"execution of industrial and infrastructure projects. In addition, they have "
+"been trained in usage of latest management tools and techniques this "
+"includes all aspects of project management such as planning, monitoring, "
+"coordination, quality control, safety principles, preparation of budgeting "
+"and cost control, materials procurement, equipment selection, labor "
+"management and settlement of claims."
+msgstr "يتكون فريق إدارة الإنشاءات في بيتروراق من مهندسين مؤهلين مهنيًا يمتلكون خبرات غنية ومتنوعة في تنفيذ المشاريع الصناعية ومشاريع البنية التحتية. كما تم تدريبهم على استخدام أحدث أدوات وتقنيات الإدارة، بما يشمل جميع جوانب إدارة المشاريع مثل التخطيط والمتابعة والتنسيق وضبط الجودة ومبادئ السلامة وإعداد الميزانيات وضبط التكاليف وشراء المواد واختيار المعدات وإدارة العمالة وتسوية المطالبات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"PETRORAQ's Mechanical Division comprises qualified engineers experienced in "
+"the design of mechanical equipment, tanks, vessels, plant piping and related"
+" systems for power and industrial facilities. The team is also experienced "
+"in FEED, engineering for brownfield and revamp initiatives, delivering "
+"practical, efficient and cost-effective solutions that support safe and "
+"reliable operations."
+msgstr "يضم القسم الميكانيكي في بيتروراق مهندسين مؤهلين ذوي خبرة في تصميم المعدات الميكانيكية والخزانات والأوعية وأنابيب المصانع والأنظمة ذات الصلة لمنشآت الطاقة والمنشآت الصناعية. كما يمتلك الفريق خبرة في الهندسة الأولية (إف إي إي دي) وهندسة مشاريع التطوير والتحديث، مقدمًا حلولًا عملية وفعالة من حيث التكلفة تدعم التشغيل الآمن والموثوق."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"PETRORAQ’s team attended the PEF Business Meetup –\n"
+"                                        Dammam Chapter and proudly represented our organization among leading\n"
+"                                        professionals and business leaders."
+msgstr "حضر فريق بيتروراق لقاء أعمال (بي إي إف) - فرع الدمام، ومثل منظمتنا بكل فخر بين نخبة من المهنيين وقادة الأعمال."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "PLANNING"
+msgstr "التخطيط"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "PROJECT DEVELOPMENT"
+msgstr "تطوير المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "PROJECT MANAGEMENT"
+msgstr "إدارة المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
+msgid "Page Not Found"
+msgstr "الصفحة غير موجودة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Partner with PETRORAQ for reliable solutions and lasting results."
+msgstr "تعاون مع بيتروراق لحلول موثوقة ونتائج مستدامة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"Partner with PETRORAQ for your next engineering and construction project"
+msgstr "تعاون مع بيتروراق في مشروعك الهندسي والإنشائي القادم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Partnerships Built on Trust"
+msgstr "شراكات مبنية على الثقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Payment /<br/>Invoicing"
+msgstr "الدفع/الفوترة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Performance Recognition"
+msgstr "تقدير الأداء"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Permit Requirements"
+msgstr "متطلبات التصاريح"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Piping"
+msgstr "الأنابيب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Piping Diagrams"
+msgstr "مخططات الأنابيب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Piping Specialty Items List"
+msgstr "قائمة عناصر الأنابيب الخاصة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Piping System Equipment Lists"
+msgstr "قوائم معدات نظام الأنابيب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Piping Works"
+msgstr "أعمال الأنابيب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Piping, equipment installation, fabrication and mechanical systems."
+msgstr "الأنابيب وتركيب المعدات والتصنيع والأنظمة الميكانيكية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Plan, Interpretation<br/>&amp; Corrections"
+msgstr "الخطة والتفسير والتصحيحات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid ""
+"Planning, coordination, and control to deliver projects on time and on "
+"budget."
+msgstr "التخطيط والتنسيق والرقابة لتسليم المشاريع في الوقت المحدد وضمن الميزانية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Please check back soon or submit your CV for future opportunities!"
+msgstr "يرجى العودة قريبًا أو إرسال سيرتك الذاتية للفرص المستقبلية!"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Portal"
+msgstr "البوابة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid ""
+"Power systems, instrumentation, lighting, and electrical installations."
+msgstr "أنظمة الطاقة والأجهزة والإنارة والتركيبات الكهربائية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Precise and high-quality models for reliable project execution."
+msgstr "نماذج دقيقة وعالية الجودة لتنفيذ موثوق للمشاريع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Precision Engineering"
+msgstr "هندسة دقيقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Premium fit-out works for office spaces with high-quality finishes."
+msgstr "أعمال تشطيبات فاخرة للمكاتب بجودة عالية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Pressure vessels at plant"
+msgstr "أوعية ضغط في المصنع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Privacy Policy"
+msgstr "سياسة الخصوصية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Process Simplification"
+msgstr "تبسيط العمليات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Procurement"
+msgstr "المشتريات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Procurement Planning"
+msgstr "تخطيط المشتريات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Procurement Responsibility Matrix"
+msgstr "مصفوفة مسؤوليات المشتريات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Procurement Services"
+msgstr "خدمات المشتريات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Procurement Strategy"
+msgstr "استراتيجية المشتريات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Procurement, Procedures, Plans &amp;<br/> Client Approvals"
+msgstr "المشتريات والإجراءات والخطط واعتمادات العميل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Professional Development"
+msgstr "التطوير المهني"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Professional Resources"
+msgstr "موارد مهنية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Professional Working Environment"
+msgstr "بيئة عمل مهنية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Accounting Requirements"
+msgstr "متطلبات محاسبة المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Project Categories"
+msgstr "فئات المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Control"
+msgstr "التحكم بالمشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Control Requirements"
+msgstr "متطلبات التحكم بالمشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid "Project Definition &amp; Execution Planning"
+msgstr "تعريف المشروع وتخطيط التنفيذ"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Estimations"
+msgstr "تقديرات المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Execution"
+msgstr "تنفيذ المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Execution Plan"
+msgstr "خطة تنفيذ المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Identification"
+msgstr "تحديد المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Project Management"
+msgstr "إدارة المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Project Management &amp; Financing"
+msgstr "إدارة وتمويل المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Management - PETRORAQ"
+msgstr "إدارة المشاريع - بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Project Manager Visiting Site"
+msgstr "مدير المشروع يزور الموقع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Objectives"
+msgstr "أهداف المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Planning"
+msgstr "تخطيط المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Schedule"
+msgstr "جدول المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Schedule and Milestones"
+msgstr "جدول المشروع والمعالم الرئيسية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Scope"
+msgstr "نطاق المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Start"
+msgstr "بداية المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project Strategy"
+msgstr "استراتيجية المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Project<br/>Handing over"
+msgstr "تسليم المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Project<br/>Support Services"
+msgstr "خدمات دعم المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Projects"
+msgstr "المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Projects Across Region"
+msgstr "مشاريع في أنحاء المنطقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Projects Completed"
+msgstr "المشاريع المنجزة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Projects Delivered with Confidence"
+msgstr "مشاريع تُسلّم بثقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Protecting people is our priority"
+msgstr "حماية الناس هي أولويتنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Proven experience across diverse sectors."
+msgstr "خبرة مثبتة في قطاعات متنوعة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Proven track record of on-time delivery within scope, budget, and quality\n"
+"                                    standards."
+msgstr "سجل مثبت في التسليم في الوقت المحدد وضمن النطاق والميزانية ومعايير الجودة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Provision of temporary site offices and camp facilities for project\n"
+"                                                operations."
+msgstr "توفير مكاتب موقع مؤقتة ومرافق مخيم لدعم عمليات المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Qiddiya"
+msgstr "القدية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Quality &amp; Compliance"
+msgstr "الجودة والامتثال"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Quality &amp; Safety"
+msgstr "الجودة والسلامة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Quality &amp; Safety Focus"
+msgstr "التركيز على الجودة والسلامة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Quality Assurance &amp; Quality Control"
+msgstr "ضمان الجودة وضبط الجودة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Quality Control &amp;<br/>Inspection"
+msgstr "ضبط الجودة والتفتيش"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Quality Control and Inspection Plan"
+msgstr "خطة ضبط الجودة والتفتيش"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Quality Management Excellence"
+msgstr "تميز إدارة الجودة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Quick Links"
+msgstr "روابط سريعة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "ROSHN"
+msgstr "روشن"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Ready to Apply?"
+msgstr "هل أنت مستعد للتقديم؟"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Ready to Build the Future With Us?"
+msgstr "هل أنت مستعد لبناء المستقبل معنا؟"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"Ready to start your next project? Our team is here to bring your vision to "
+"life with engineering excellence."
+msgstr "هل أنت مستعد لبدء مشروعك القادم؟ فريقنا هنا لتحويل رؤيتك إلى واقع بتميز هندسي."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Received award from H.E Mr. Ahmad Farooq (Ambassador\n"
+"                                        of Pakistan to Saudi Arabia) during a business meetup organized by PEF."
+msgstr "تسلمنا جائزة من سعادة السيد أحمد فاروق (سفير باكستان لدى المملكة العربية السعودية) خلال لقاء أعمال نظمته (بي إي إف)."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Record<br/>Keeping"
+msgstr "حفظ السجلات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Red Sea Global"
+msgstr "البحر الأحمر الدولية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Reliability philosophy"
+msgstr "فلسفة الاعتمادية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Reliable Delivery"
+msgstr "تسليم موثوق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Reliable Performance"
+msgstr "أداء موثوق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Remote"
+msgstr "عن بُعد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Removal of existing finishes, AC duct maintenance, ceiling and porcelain "
+"tile installation, painting, electrical works, and office furniture "
+"provision."
+msgstr "إزالة التشطيبات القائمة وصيانة مجاري التكييف وتركيب الأسقف وبلاط البورسلان والدهان والأعمال الكهربائية وتوريد أثاث المكاتب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Request Proposal\n"
+"                                <i class=\"fa fa-arrow-right\"/>"
+msgstr "طلب عرض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Request a Quote"
+msgstr "طلب عرض سعر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"Request a Quote\n"
+"                            <i class=\"fa fa-arrow-right\"/>"
+msgstr "طلب عرض سعر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid ""
+"Request a Quote\n"
+"                        <i class=\"fa fa-arrow-right\"/>"
+msgstr "طلب عرض سعر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Resource Allocation"
+msgstr "تخصيص الموارد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Resource Planning and Allocation"
+msgstr "تخطيط وتخصيص الموارد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Review"
+msgstr "المراجعة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Review Time"
+msgstr "وقت المراجعة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Risk Analysis"
+msgstr "تحليل المخاطر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Risk Assessment"
+msgstr "تقييم المخاطر"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Riyadh, Saudi Arabia"
+msgstr "الرياض، المملكة العربية السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"Roads, utilities, and site development works supporting NEOM\n"
+"                                                infrastructure."
+msgstr "أعمال الطرق والمرافق وتطوير الموقع الداعمة للبنية التحتية في نيوم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Royal Commission for Al-Ula"
+msgstr "الهيئة الملكية لمحافظة العلا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "SEPCO III"
+msgstr "سيبكو III"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_thank_you
+msgid "SUCCESS!"
+msgstr "تم بنجاح!"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Safety First"
+msgstr "السلامة أولًا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Safety-First Culture"
+msgstr "ثقافة تضع السلامة أولًا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Saudi Aramco"
+msgstr "أرامكو السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Saudi Downtown Company"
+msgstr "شركة داون تاون السعودية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Schedule &amp;<br/>Time Control"
+msgstr "الجدولة والتحكم بالوقت"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Scroll to top"
+msgstr "التمرير إلى الأعلى"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+msgid "Seamless coordination across disciplines and stakeholders."
+msgstr ">تنسيق سلس بين التخصصات وأصحاب المصلحة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Search"
+msgstr "بحث"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Search jobs by title, department, or location..."
+msgstr "ابحث عن الوظائف حسب المسمى أو القسم أو الموقع..."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Selection of Products"
+msgstr "اختيار المنتجات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Selection of Technology and Process"
+msgstr "اختيار التقنية والعملية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Send a Message"
+msgstr "إرسال رسالة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+#: model_terms:ir.ui.view,arch_db:pr_website.service_cad_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Services"
+msgstr "الخدمات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid ""
+"Services\n"
+"                                    <i class=\"fa fa-chevron-down dropdown-arrow\"/>"
+msgstr "الخدمات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Setting Objectives"
+msgstr "تحديد الأهداف"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid ""
+"Share your project details and our experts will respond within 24 working "
+"hours."
+msgstr "شارك تفاصيل مشروعك وسيرد خبراؤنا خلال 24 ساعة عمل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Shop<br/>Drawings"
+msgstr "رسومات الورشة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Shortlisted candidates will be invited for interviews."
+msgstr "سيتم دعوة المرشحين المختارين للمقابلات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"Shutdown/Turn Around Requirements &amp; Pre-commissioning Turnover Sequence "
+"Requirements"
+msgstr "متطلبات الإيقاف والصيانة ومتطلبات تسلسل تسليم ما قبل التشغيل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Site Analysis"
+msgstr "تحليل الموقع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Site Information"
+msgstr "معلومات الموقع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Site Location"
+msgstr "موقع المشروع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Site Offices"
+msgstr "مكاتب الموقع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Site Offices &amp; Camp Facilities<br/>Qiddiya"
+msgstr "مكاتب الموقع ومرافق المخيم - القدية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Social Issues"
+msgstr "القضايا الاجتماعية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Solutions built to last with reliability and efficiency."
+msgstr "حلول مصممة لتدوم باعتمادية وكفاءة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Specifications"
+msgstr "المواصفات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Stake Holder Analysis"
+msgstr "تحليل أصحاب المصلحة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Standards Compliance"
+msgstr "الامتثال للمعايير"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Startup Requirements &amp; Training Requirements"
+msgstr "متطلبات بدء التشغيل ومتطلبات التدريب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Steel structure"
+msgstr "هيكل فولاذي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Striving for the highest standards in all we do"
+msgstr "نسعى إلى أعلى المعايير في كل ما نقوم به"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Strong Culture"
+msgstr "ثقافة قوية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Structural Work at Qiddiya – Riyadh"
+msgstr "أعمال إنشائية في القدية - الرياض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Structural Work at Qiddiya<br/>Riyadh"
+msgstr "أعمال إنشائية في القدية - الرياض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Structural Work at Qiddya – Riyadh"
+msgstr "أعمال إنشائية في القدية - الرياض"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Structural works, foundations and site development."
+msgstr "أعمال إنشائية وأساسات وتطوير مواقع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Structural:"
+msgstr "إنشائي:"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Structutal Work"
+msgstr "أعمال إنشائية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Subject *"
+msgstr "الموضوع*"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Submit Your CV\n"
+"                                <i class=\"fa fa-arrow-right\"/>"
+msgstr "أرسل سيرتك الذاتية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Submit your application and CV online."
+msgstr "قدّم طلبك وسيرتك الذاتية عبر الإنترنت."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Substation/Power Sources"
+msgstr "المحطات الفرعية/مصادر الطاقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Successful candidates receive an offer."
+msgstr "يتلقى المرشحون الناجحون عرضًا."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Successfully delivered across Saudi Arabia."
+msgstr "تم تنفيذها بنجاح في أنحاء المملكة العربية السعودية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Sun-Thu: 8:00 AM - 5:00 PM<br/>Fri-Sat: Closed"
+msgstr "الأحد - الخميس: 8:00 صباحًا - 5:00 مساءًالجمعة - السبت: مغلق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Survey Services"
+msgstr "خدمات المسح"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Surveys and Soil Tests"
+msgstr "المسوحات واختبارات التربة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Sustainability"
+msgstr "الاستدامة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Sustainability Considerations"
+msgstr "اعتبارات الاستدامة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Sustainability and energy efficiency"
+msgstr "الاستدامة وكفاءة الطاقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
+msgid "Sustainable Solutions"
+msgstr "حلول مستدامة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "TAHAKOM"
+msgstr "تحكم"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "TELECOMMUNICATION"
+msgstr "الاتصالات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"Target oriented dynamic personnel with exceptional technical, commercial, "
+"financial and contract administration expertise forming the project team."
+msgstr "كوادر ديناميكية موجهة نحو الأهداف تتمتع بخبرة فنية وتجارية ومالية وإدارية تعاقدية متميزة تشكل فريق المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Team Collaboration"
+msgstr "تعاون الفريق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Team Formation"
+msgstr "تشكيل الفريق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Team Work Culture"
+msgstr "ثقافة العمل الجماعي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"Team collaboration ensures safe, efficient, and timely\n"
+"                                    civil project delivery."
+msgstr "يضمن تعاون الفريق تسليم المشاريع المدنية بأمان وكفاءة وفي الوقت المحدد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Teamwork drives our greatest achievements"
+msgstr "العمل الجماعي يقود أعظم إنجازاتنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid "Telecommunication server rack"
+msgstr "خزانة خوادم الاتصالات"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid ""
+"Tell us about your project and our team will get back to you within 24 "
+"hours."
+msgstr "أخبرنا عن مشروعك وسيتواصل معك فريقنا خلال 24 ساعة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Tell us about your project..."
+msgstr "أخبرنا عن مشروعك..."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Terms of Use"
+msgstr "شروط الاستخدام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "The Environmental Engineering capabilities include the following:"
+msgstr "تشمل قدرات الهندسة البيئية ما يلي:"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
+msgid ""
+"The electrical division is equipped with qualified engineers experienced in "
+"all types of lighting and power distribution systems. They have experience "
+"and skills in system design, relay selection and coordination."
+msgstr "يضم القسم الكهربائي مهندسين مؤهلين ذوي خبرة في جميع أنواع أنظمة الإنارة وتوزيع الطاقة. ولديهم خبرة ومهارات في تصميم الأنظمة واختيار المرحلات وتنسيقها."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
+msgid ""
+"The page you're looking for has launched into orbit. Don't worry, we'll get "
+"you back on course!"
+msgstr "يبدو أن الصفحة التي تبحث عنها خرجت عن المسار. لا تقلق، سنعيدك إلى الطريق الصحيح!"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"The project scope includes mechanical and piping installation works, "
+"equipment connections, system modifications, testing and inspection, and "
+"related support works required for industrial facility improvements."
+msgstr "يشمل نطاق المشروع أعمال تركيب الميكانيكا والأنابيب وربط المعدات وتعديلات الأنظمة والاختبار والتفتيش وأعمال الدعم ذات الصلة المطلوبة لتحسين المنشأة الصناعية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"The project scope includes premium office fit-out works, covering high-"
+"quality interior finishes, ceiling and partition works, flooring and wall "
+"finishes, glass and decorative works, wall and ceiling painting, and final "
+"finishing works required to deliver a professional office space."
+msgstr "يشمل نطاق المشروع أعمال تشطيبات مكتبية فاخرة تغطي التشطيبات الداخلية عالية الجودة وأعمال الأسقف والقواطع وتشطيبات الأرضيات والجدران وأعمال الزجاج والديكور ودهان الجدران والأسقف والتشطيبات النهائية المطلوبة لتسليم مساحة مكتبية احترافية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"The project scope includes road development, utility infrastructure, site "
+"preparation, grading, earthworks, compaction, asphalt paving, and related "
+"civil works required to support NEOM infrastructure development."
+msgstr "يشمل نطاق المشروع تطوير الطرق والبنية التحتية للمرافق وتجهيز الموقع والتسوية والأعمال الترابية والدمك والسفلتة والأعمال المدنية ذات الصلة لدعم تطوير البنية التحتية في نيوم."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"The project scope includes the design, supply, and installation of a modular"
+" residential camp, covering workforce accommodation units, essential "
+"utilities, internal finishing, and final preparation for ready-to-use "
+"housing facilities."
+msgstr "يشمل نطاق المشروع تصميم وتوريد وتركيب مخيم سكني مسبق التجهيز، بما في ذلك وحدات سكن العمال والمرافق الأساسية والتشطيبات الداخلية والتجهيز النهائي لمرافق سكن جاهزة للاستخدام."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"The project scope includes the provision of temporary site offices and camp "
+"facilities, covering setup, basic utilities, operational support areas, "
+"accommodation readiness, and final preparation required to support project "
+"operations."
+msgstr "يشمل نطاق المشروع توفير مكاتب موقع مؤقتة ومرافق مخيم، بما في ذلك الإعداد والمرافق الأساسية ومناطق الدعم التشغيلي وجاهزية السكن والتجهيز النهائي اللازم لدعم عمليات المشروع."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid ""
+"The team is specialized in meeting requirements and challenges of the "
+"project &amp; ensuring deliverables on time, within budget and up to Client "
+"expectations."
+msgstr "يتخصص الفريق في تلبية متطلبات وتحديات المشروع وضمان تسليم المخرجات في الوقت المحدد وضمن الميزانية وبما يحقق توقعات العميل."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Tie-in List"
+msgstr "قائمة الربط"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Timely, structured and optimized workflows and coordination."
+msgstr "سير عمل وتنسيق منظم ومحسن وفي الوقت المناسب."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid ""
+"To deliver exceptional EPC, Project Management and innovative project\n"
+"                                            financing solutions, contributing to the growth and development of the\n"
+"                                            Kingdom's infrastructure. We strive for excellence in every project,\n"
+"                                            building long-term relationships with our clients."
+msgstr "تقديم حلول (إي بي سي) وإدارة مشاريع وتمويل مشاريع مبتكرة واستثنائية، بما يسهم في نمو وتطوير البنية التحتية في المملكة. نسعى إلى التميز في كل مشروع وبناء علاقات طويلة الأمد مع عملائنا."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_layout
+msgid "Toggle menu"
+msgstr "تبديل القائمة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Topographical Survey"
+msgstr "مسح طبوغرافي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Total Experience (Years)"
+msgstr "إجمالي الخبرة (بالسنوات)"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Transforming ideas into functional, aesthetic and sustainable spaces."
+msgstr "تحويل الأفكار إلى مساحات عملية وجمالية ومستدامة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Transportation Requirements"
+msgstr "متطلبات النقل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Trusted by leading organizations across Saudi Arabia's industrial, infrastructure, and\n"
+"                            development sectors."
+msgstr "موثوقون لدى جهات رائدة في قطاعات الصناعة والبنية التحتية والتطوير في المملكة العربية السعودية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Trusted<br/>Partnerships"
+msgstr "شراكات موثوقة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Try another title, department, or location."
+msgstr "جرّب مسمى أو قسمًا أو موقعًا آخر."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"Uncompromising commitment to quality, safety, and environmental "
+"responsibility."
+msgstr "التزام لا مساومة فيه بالجودة والسلامة والمسؤولية البيئية."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Understanding client needs and delivering tailored solutions."
+msgstr "فهم احتياجات العملاء وتقديم حلول مخصصة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Upload Resume"
+msgstr "رفع السيرة الذاتية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Urban Planning"
+msgstr "التخطيط الحضري"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Utility Flow Diagrams"
+msgstr "مخططات تدفق المرافق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Utility Sources with Supply Conditions"
+msgstr "مصادر المرافق وشروط الإمداد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Value Engineering"
+msgstr "هندسة القيمة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "Vessels"
+msgstr "الأوعية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid ""
+"View All Projects\n"
+"                            <i class=\"fa fa-arrow-right\"/>"
+msgstr "عرض جميع المشاريع"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "View ISO 14001:2015 Environmental Management Certificate"
+msgstr "عرض شهادة أيزو 14001:2015 للإدارة البيئية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "View ISO 45001:2018 Occupational Health and Safety Certificate"
+msgstr "عرض شهادة أيزو 45001:2018 للصحة والسلامة المهنية"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "View ISO 9001:2015 Quality Management Certificate"
+msgstr "عرض شهادة أيزو 9001:2015 لإدارة الجودة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid ""
+"View Open Positions\n"
+"                                    <i class=\"fa fa-arrow-right\"/>"
+msgstr "عرض الوظائف المتاحة"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "WE ALSO PROVIDE"
+msgstr "كما نقدم أيضًا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Water Treatment Requirements"
+msgstr "متطلبات معالجة المياه"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "Water treatment facility"
+msgstr "منشأة معالجة المياه"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+msgid "We Also Provide"
+msgstr "كما نقدم أيضًا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"We also prepare project execution plan and detailed cost estimates and "
+"schedule for project approval and funding."
+msgstr "كما نعد خطة تنفيذ المشروع وتقديرات التكلفة التفصيلية والجدول الزمني لاعتماد المشروع وتمويله."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid ""
+"We are proud to collaborate with visionary organizations who share our commitment\n"
+"                                    to excellence, safety, and sustainable development across the Kingdom."
+msgstr "نفخر بالتعاون مع جهات ذات رؤية تشاركنا التزامنا بالتميز والسلامة والتنمية المستدامة في أنحاء المملكة."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"We can assist the Client in the following project identification areas:"
+msgstr "يمكننا مساعدة العميل في مجالات تحديد المشروع التالية:"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid ""
+"We deliver world-class engineering, procurement, and construction solutions that build a\n"
+"                            stronger tomorrow."
+msgstr "نقدم حلولًا عالمية المستوى في الهندسة والمشتريات والإنشاءات تبني غدًا أقوى."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
+msgid ""
+"We prepare a Value Engineering study and HAZOP review on the project "
+"specification to be included in the approval package."
+msgstr "نعد دراسة هندسة القيمة ومراجعة (هازوب) لمواصفات المشروع لإدراجها ضمن حزمة الاعتماد."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_mechanical_piping
+msgid "We prioritize safety in every design, process and decision."
+msgstr "نضع السلامة في مقدمة كل تصميم وعملية وقرار."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "We recognize achievements and celebrate our people."
+msgstr "نقدر الإنجازات ونحتفي بموظفينا."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Weatherford Dammam office interior finishing"
+msgstr "تشطيبات داخلية لمكتب (ويذرفورد) في الدمام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Weatherford office interior finishing"
+msgstr "تشطيبات داخلية لمكتب (ويذرفورد)"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Weatherford's Interior Finishing - Dammam"
+msgstr "تشطيبات داخلية لمكتب (ويذرفورد) - الدمام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Weatherford's interior finishing<br/>Dammam"
+msgstr "تشطيبات داخلية لمكتب (ويذرفورد) - الدمام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid "Weatherford's office interior finishing - Dammam"
+msgstr "تشطيبات داخلية لمكتب (ويذرفورد) - الدمام"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Welcome to the team! Let's build the future together."
+msgstr "مرحبًا بك في الفريق! لنبنِ المستقبل معًا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Whatsapp"
+msgstr "واتساب"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+msgid "Who We Are?"
+msgstr "من نحن؟"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
+msgid "Why Choose PETRORAQ"
+msgstr "لماذا تختار بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_our_clients
+msgid "Why Leading Clients Choose PETRORAQ"
+msgstr "لماذا يختار كبار العملاء بيتروراق"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Why Work With Us"
+msgstr "لماذا تعمل معنا"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.projects_page_template
+msgid ""
+"With a strong commitment to quality, safety, and innovation,\n"
+"                                we have successfully delivered a wide range of projects that\n"
+"                                drive progress and create long-term value for our clients and communities."
+msgstr "بالتزام قوي بالجودة والسلامة والابتكار، نجحنا في تنفيذ مجموعة واسعة من المشاريع التي تدفع عجلة التقدم وتخلق قيمة طويلة الأمد لعملائنا ومجتمعاتنا."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "Work Location"
+msgstr "موقع العمل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+msgid "Work on challenging industrial and infrastructure projects."
+msgstr "اعمل على مشاريع صناعية وبنية تحتية مليئة بالتحديات."
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "Work<br/>Coordination"
+msgstr "تنسيق العمل"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_jobs
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_about_us
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_homepage_custom
+msgid "Years of Excellence"
+msgstr "سنوات من التميز"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "info@petroraq.com"
+msgstr "info@petroraq.com"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "www.petroraq.com"
+msgstr "www.petroraq.com"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
+msgid "zoning and land use regulations"
+msgstr "أنظمة تقسيم المناطق واستخدام الأراضي"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "© 2026 PETRORAQ Engineering &amp; Construction. All Rights Reserved."
+msgstr "بيتروراق 2026 للهندسة والإنشاءات. جميع الحقوق محفوظة @"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
+msgid "• Remote"
+msgstr "• عن بُعد"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
+msgid "🚀 Let's navigate back to safety"
+msgstr "🚀 لنعد إلى المسار الآمن"

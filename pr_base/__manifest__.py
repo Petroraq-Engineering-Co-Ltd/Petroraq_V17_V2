@@ -17,7 +17,7 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'dashboard',
-    'version': '17.0.0.0.2',
+    'version': '17.0.0.0.4',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'contacts', 'product', 'l10n_sa_edi','hr'],

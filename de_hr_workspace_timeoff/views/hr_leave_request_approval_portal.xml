@@ -114,13 +114,13 @@
                                                 <div class="px-3" style="width: 25% !important;">
                                                     <p class="small text-muted mb-1">From</p>
                                                     <p class="mb-0">
-                                                        <span t-esc="leave_request_id.date_from"/>
+                                                        <span t-field="leave_request_id.date_from" t-options="{'widget': 'date'}"/>
                                                     </p>
                                                 </div>
                                                 <div style="width: 20% !important;">
                                                     <p class="small text-muted mb-1">To</p>
                                                     <p class="mb-0">
-                                                        <span t-esc="leave_request_id.date_to"/>
+                                                        <span t-field="leave_request_id.date_to" t-options="{'widget': 'date'}"/>
                                                     </p>
                                                 </div>
                                                 <div style="width: 20% !important;">
@@ -131,7 +131,7 @@
                                                 </div>
                                             </div>
                                             <div class="d-flex pt-1">
-                                                <table style="width: 100%;">
+                                                <table t-if="leave_request_id.state == 'draft'" style="width: 100%;">
                                                     <tr>
                                                         <td style="width: 50%;text-align: right;">
                                                             <button class="btn-info" icon="fa-check-circle"
@@ -151,6 +151,17 @@
                                                         </td>
                                                     </tr>
                                                 </table>
+                                                <div t-if="leave_request_id.state == 'reject' and leave_request_id.can_reset_rejection"
+                                                     class="w-100 text-center">
+                                                    <p class="text-danger mb-3">
+                                                        <strong>Rejected:</strong>
+                                                        <span t-esc="leave_request_id.reject_reason"/>
+                                                    </p>
+                                                    <a t-attf-href="/my/leave_requests_reset_rejection/#{leave_request_id.id}"
+                                                       class="btn btn-warning">
+                                                        Reset Rejection and Decide Again
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -62,10 +62,10 @@
                     <tr>
                         <td style="text-align:left;">Order Date:</td>
                         <td style="text-align:left;">
-                            <span t-esc="doc.date_order and doc.date_order.date() or ''"/>
+                            <span t-esc="doc.format_sale_report_date(doc.date_order)"/>
                         </td>
                         <td style="text-align:right;">
-                            <span t-esc="doc.date_order and doc.convert_phone_to_eastern_arabic_numerals(doc.date_order.date().strftime('%Y-%m-%d')) or ''"/>
+                            <span t-esc="doc.convert_phone_to_eastern_arabic_numerals(doc.format_sale_report_date(doc.date_order))"/>
                         </td>
                         <td style="text-align:right;">: تاريخ الطلب</td>
                     </tr>

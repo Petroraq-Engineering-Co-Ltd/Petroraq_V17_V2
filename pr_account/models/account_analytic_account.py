@@ -88,24 +88,31 @@ class AccountAnalyticAccount(models.Model):
         return fields.Date.to_date(value).year
 
     @api.model
-    def _next_cost_center_number_by_year(self):
-        numbers_by_year = {}
+    def _last_cost_center_number(self):
+        last_number = CODE_SEQUENCE_START - 1
         accounts = self.with_context(active_test=False).sudo().search([("code", "!=", False)])
         for account in accounts:
-            year, number = self._split_yearly_cost_center_code(account.code)
-            if year:
-                numbers_by_year[year] = max(numbers_by_year.get(year, CODE_SEQUENCE_START - 1), number)
-        return numbers_by_year
+            _year, number = self._split_yearly_cost_center_code(account.code)
+            if number:
+                last_number = max(last_number, number)
+        return last_number
 
     @api.model_create_multi
     def create(self, vals_list):
-        numbers_by_year = self._next_cost_center_number_by_year()
+        needs_code = any(not vals.get("code") for vals in vals_list)
+        if needs_code:
+            # Serialize number allocation so simultaneous creations cannot
+            # receive the same global numeric suffix.
+            self.env.cr.execute(
+                "SELECT pg_advisory_xact_lock(hashtext(%s))",
+                ["pr.account.analytic.global.cost.center.code"],
+            )
+        next_number = self._last_cost_center_number() if needs_code else False
         for vals in vals_list:
             if not vals.get("code"):
                 year = self._cost_center_code_year()
-                number = numbers_by_year.get(year, CODE_SEQUENCE_START - 1) + 1
-                numbers_by_year[year] = number
-                vals["code"] = self._format_yearly_cost_center_code(year, number)
+                next_number += 1
+                vals["code"] = self._format_yearly_cost_center_code(year, next_number)
 
         records = super().create(vals_list)
         projects = records.filtered(lambda rec: rec.analytic_plan_type == "project" and rec.project_code != rec.code)
@@ -124,12 +131,12 @@ class AccountAnalyticAccount(models.Model):
     @api.model
     def action_resequence_cost_center_codes(self):
         records = self.with_context(active_test=False).sudo().search([], order="create_date, id")
-        counters = {}
+        counter = CODE_SEQUENCE_START - 1
         for rec in records:
             code_date = rec.create_date or fields.Date.context_today(self)
             year = rec._cost_center_code_year(code_date)
-            counters[year] = counters.get(year, CODE_SEQUENCE_START - 1) + 1
-            code = rec._format_yearly_cost_center_code(year, counters[year])
+            counter += 1
+            code = rec._format_yearly_cost_center_code(year, counter)
             vals = {"code": code}
             if rec.analytic_plan_type == "project":
                 vals["project_code"] = code
@@ -139,7 +146,7 @@ class AccountAnalyticAccount(models.Model):
             "tag": "display_notification",
             "params": {
                 "title": _("Cost Center Codes Resequenced"),
-                "message": _("%s cost centers were resequenced by creation year.") % len(records),
+                "message": _("%s cost centers were resequenced continuously across all years.") % len(records),
                 "type": "success",
                 "sticky": False,
             },

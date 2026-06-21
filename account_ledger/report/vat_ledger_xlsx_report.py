@@ -7,6 +7,7 @@ import xlsxwriter
 from odoo import models, api
 from datetime import datetime
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from .ledger_partner_utils import format_report_date
 
 
 class VatLedgerXlsxReport(models.AbstractModel):
@@ -69,13 +70,12 @@ class VatLedgerXlsxReport(models.AbstractModel):
 
         money_format = workbook.add_format({'num_format': '#,##0.00', 'border': 1})
         text_format = workbook.add_format({'border': 1})
-        date_format = workbook.add_format({'num_format': 'yyyy-mm-dd', 'border': 1})
 
         # === First 4 Rows (Title, Info, etc.) ===
         worksheet.merge_range('A1:G1', 'Petroraq Engineering & Construction - VAT Number 311428741500003', title_format)
         worksheet.merge_range('A2:G2', f'{data_in_dictionary["account"]}', title_format)
         worksheet.merge_range('A3:G3',
-                              f'Period: {wizard_id.date_start.strftime("%d-%b-%Y")} to {wizard_id.date_end.strftime("%d-%b-%Y")}',
+                              f'Period: {format_report_date(self.env, wizard_id.date_start)} to {format_report_date(self.env, wizard_id.date_end)}',
                               title_format)
         # worksheet.merge_range('A4:I4', '', info_format)  # Optional empty/info row
 
@@ -92,7 +92,7 @@ class VatLedgerXlsxReport(models.AbstractModel):
                             text_format if entry["description"] != "Totals" else header_format)
             worksheet.write(row, 1, entry['reference'],
                             text_format if entry["description"] != "Totals" else header_format)
-            worksheet.write(row, 2, entry['date'], date_format if entry["description"] != "Totals" else header_format)
+            worksheet.write(row, 2, entry['date'], text_format if entry["description"] != "Totals" else header_format)
             worksheet.write(row, 3, entry['description'],
                             text_format if entry["description"] != "Totals" else header_format)
             worksheet.write_number(row, 4, float(
@@ -180,7 +180,7 @@ class VatLedgerXlsxReport(models.AbstractModel):
             account_name += f"\nAsset: {asset_id_obj.name}"
 
         today = datetime.today()
-        report_date = today.strftime("%b-%d-%Y")
+        report_date = format_report_date(self.env, today)
         ji_domain = [
             ('company_id', '=', company),
             ('date', '>=', datetime.strptime(str(date_start), DATE_FORMAT).date()),
@@ -299,7 +299,7 @@ class VatLedgerXlsxReport(models.AbstractModel):
             t_credit += item.credit
             docs.append({
                 'transaction_ref': item.move_id.name,
-                'date': item.date,
+                'date': format_report_date(self.env, item.date),
                 'description': item.name,
                 'reference': item.ref,
                 'journal': item.journal_id.name,

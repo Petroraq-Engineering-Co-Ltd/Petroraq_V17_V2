@@ -98,6 +98,34 @@
                         gap: 15px;
                         flex-shrink: 0;
                     }
+                    .auth-buttons .o_header_language_selector,
+                    .mobile-auth-buttons .o_header_language_selector {
+                        list-style: none;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .auth-buttons .js_language_selector .dropdown-toggle,
+                    .mobile-auth-buttons .js_language_selector .dropdown-toggle {
+                        color: #fff;
+                        font-size: 14px;
+                        font-weight: 500;
+                        padding: 8px 16px;
+                        border-radius: 25px;
+                        background: rgba(255,255,255,0.1);
+                        border: 2px solid rgba(255,255,255,0.2) !important;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                    }
+                    .auth-buttons .js_language_selector .dropdown-toggle:hover,
+                    .mobile-auth-buttons .js_language_selector .dropdown-toggle:hover {
+                        background: rgba(255,255,255,0.2);
+                        color: #fff;
+                    }
+                    .auth-buttons .js_language_selector .dropdown-menu {
+                        right: 0;
+                        left: auto;
+                    }
                     .mobile-auth-buttons {
                         display: none;
                     }
@@ -367,6 +395,10 @@
                             flex-direction: column;
                             gap: 10px;
                         }
+                        .mobile-auth-buttons .js_language_selector,
+                        .mobile-auth-buttons .js_language_selector .dropdown-toggle {
+                            width: 100%;
+                        }
                     }
                 </style>
             </xpath>
@@ -418,6 +450,11 @@
 
                             <t t-if="not request.session.uid and not request.httprequest.path == '/web/login'">
                                 <div class="mobile-auth-buttons">
+                                    <t t-call="website.placeholder_header_language_selector">
+                                        <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                        <t t-set="_btn_class" t-valuef="pr-language-btn w-100 justify-content-between"/>
+                                        <t t-set="_dropdown_menu_class" t-valuef="w-100"/>
+                                    </t>
                                     <a href="/web/login" class="signin-btn" t-translation="Sign In" target="_blank">
                                         <i class="fa fa-sign-in-alt"></i>
                                         Sign In
@@ -426,6 +463,11 @@
                             </t>
                             <t t-if="request.session.uid">
                                 <div class="mobile-auth-buttons">
+                                    <t t-call="website.placeholder_header_language_selector">
+                                        <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                        <t t-set="_btn_class" t-valuef="pr-language-btn w-100 justify-content-between"/>
+                                        <t t-set="_dropdown_menu_class" t-valuef="w-100"/>
+                                    </t>
                                     <t t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('base.group_user')">
                                         <a href="/my" class="signin-btn" title="Portal">
                                             <i class="fa fa-th-large"></i>
@@ -447,6 +489,11 @@
                         <!-- Auth Buttons Container -->
                         <t t-if="not request.session.uid and not request.httprequest.path == '/web/login'">
                             <div class="auth-buttons">
+                                <t t-call="website.placeholder_header_language_selector">
+                                    <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                    <t t-set="_btn_class" t-valuef="pr-language-btn"/>
+                                    <t t-set="_dropdown_menu_class" t-valuef="dropdown-menu-end"/>
+                                </t>
                                 <a href="/web/login" class="signin-btn" t-translation="Sign In" target="_blank">
                                     <i class="fa fa-sign-in-alt"></i>
                                     Sign In
@@ -455,6 +502,11 @@
                         </t>
                         <t t-if="request.session.uid">
                             <div class="auth-buttons">
+                                <t t-call="website.placeholder_header_language_selector">
+                                    <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                    <t t-set="_btn_class" t-valuef="pr-language-btn"/>
+                                    <t t-set="_dropdown_menu_class" t-valuef="dropdown-menu-end"/>
+                                </t>
                                 <t t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('base.group_user')">
                                     <a href="/my" class="signin-btn" title="Portal">
                                         <i class="fa fa-th-large"></i>
@@ -481,6 +533,297 @@
             </xpath>
 
             <xpath expr="//body" position="inside">
+                <t t-if="(request.env.lang or '').startswith('ar')">
+                    <style id="pr_website_rtl_overrides">
+                        html,
+                        body,
+                        #wrap {
+                            direction: rtl !important;
+                            text-align: right !important;
+                        }
+
+                        body,
+                        #wrap,
+                        .navbar,
+                        footer {
+                            unicode-bidi: plaintext;
+                        }
+
+                        #wrap p,
+                        #wrap h1,
+                        #wrap h2,
+                        #wrap h3,
+                        #wrap h4,
+                        #wrap h5,
+                        #wrap h6,
+                        #wrap li,
+                        #wrap label,
+                        #wrap input,
+                        #wrap textarea,
+                        #wrap select,
+                        #wrap [style*="text-align: left"],
+                        #wrap [style*="text-align:left"] {
+                            direction: rtl !important;
+                            text-align: right !important;
+                        }
+
+                        .navbar {
+                            direction: rtl;
+                            flex-direction: row;
+                        }
+
+                        .navbar-logo,
+                        .auth-buttons,
+                        .mobile-auth-buttons {
+                            direction: rtl;
+                        }
+
+                        .navbar-links {
+                            direction: rtl;
+                            flex-direction: row;
+                        }
+
+                        .auth-buttons {
+                            flex-direction: row;
+                        }
+
+                        .auth-buttons .js_language_selector .dropdown-menu {
+                            right: auto;
+                            left: 0;
+                            text-align: right;
+                        }
+
+                        .services-grid a {
+                            direction: rtl;
+                            text-align: right;
+                            justify-content: flex-start;
+                        }
+
+                        .services-grid a::before {
+                            content: "‹";
+                            right: -20px;
+                            left: auto;
+                        }
+
+                        .services-grid a:hover {
+                            padding-right: 20px;
+                            padding-left: 0;
+                        }
+
+                        .services-grid a:hover::before {
+                            right: 0;
+                            left: auto;
+                        }
+
+                        .hero-content,
+                        .svc-hero-content,
+                        .arch-hero-content,
+                        .cs-hero-content,
+                        .et-hero-content,
+                        .mp-hero-content,
+                        .cad-hero-content,
+                        .os-hero-content,
+                        .pr-hero-content,
+                        .petroraq-about .hero-content,
+                        .petroraq-careers .hero-content,
+                        .petroraq-clients .hero-content,
+                        .petroraq-contact .hero-content {
+                            direction: rtl !important;
+                            text-align: right !important;
+                        }
+
+                        .hero-content h1,
+                        .hero-content p,
+                        .svc-hero-content h1,
+                        .svc-hero-content p,
+                        .arch-hero-content h1,
+                        .arch-hero-content p,
+                        .cs-hero-content h1,
+                        .cs-hero-content p,
+                        .et-hero-content h1,
+                        .et-hero-content p,
+                        .mp-hero-content h1,
+                        .mp-hero-content p,
+                        .cad-hero-content h1,
+                        .cad-hero-content p,
+                        .os-hero-content h1,
+                        .os-hero-content p,
+                        .pr-hero-content h1,
+                        .pr-hero-content p {
+                            margin-right: 0 !important;
+                            margin-left: auto !important;
+                        }
+
+                        .featured-header,
+                        .job-header,
+                        .cta-banner,
+                        .contact-bar,
+                        .footer-bottom {
+                            direction: rtl;
+                        }
+
+                        .featured-header {
+                            flex-direction: row-reverse;
+                        }
+
+                        .featured-header::after,
+                        .footer-col h4::after,
+                        .petroraq-about .hero-content h1 .dot::after,
+                        .petroraq-careers .hero-content h1 .dot::after,
+                        .petroraq-clients .hero-content h1 .dot::after,
+                        .petroraq-contact .hero-content h1 .dot::after {
+                            right: 0 !important;
+                            left: auto !important;
+                        }
+
+                        .project-body,
+                        .service-card,
+                        .cert-item,
+                        .footer-col,
+                        .contact-item,
+                        .job-card,
+                        .form-group,
+                        .info-card,
+                        .value-card,
+                        .capability-card {
+                            direction: rtl;
+                            text-align: right;
+                        }
+
+                        #wrap .services,
+                        #wrap .services .service-card,
+                        #wrap .services .service-card h3,
+                        #wrap .services .service-card p,
+                        #wrap .services .service-card .arrow-link,
+                        #wrap .stats,
+                        #wrap .stats .stat-item,
+                        #wrap .stats .stat-item h2,
+                        #wrap .stats .stat-item p,
+                        #wrap .certifications,
+                        #wrap .certifications h2,
+                        #wrap .cert-grid,
+                        #wrap .cert-grid .cert-item,
+                        #wrap .cert-grid .cert-item p {
+                            text-align: center !important;
+                        }
+
+                        #wrap .services .service-card .arrow-link {
+                            display: inline-flex;
+                            justify-content: center;
+                        }
+
+                        .footer-container {
+                            direction: rtl;
+                        }
+
+                        .footer-col ul li {
+                            padding-right: 0;
+                            padding-left: 0;
+                        }
+
+                        .footer-col ul li::before {
+                            content: "‹";
+                            right: 0;
+                            left: auto;
+                        }
+
+                        .footer-col ul li:hover {
+                            padding-right: 15px;
+                            padding-left: 0;
+                        }
+
+                        .contact-item:hover {
+                            transform: translateX(-5px);
+                        }
+
+                        .footer-bottom a {
+                            margin-right: 20px;
+                            margin-left: 0;
+                        }
+
+                        .footer-bottom a::after {
+                            right: 0;
+                            left: auto;
+                        }
+
+                        .scroll-top-btn {
+                            right: auto;
+                            left: 30px;
+                        }
+
+                        .quote-btn,
+                        .hero-btn,
+                        .cta-btn,
+                        .primary-btn,
+                        .secondary-btn,
+                        .prq-btn,
+                        .prq-thankyou-btn {
+                            direction: rtl;
+                        }
+
+                        .quote-btn:hover i,
+                        .hero-btn:hover i,
+                        .cta-btn:hover i,
+                        .featured-header a:hover,
+                        .arrow-link:hover .arrow {
+                            transform: translateX(-5px) scaleX(-1) !important;
+                        }
+
+                        .fa-arrow-right,
+                        .fa-arrow-left {
+                            transform: scaleX(-1);
+                        }
+
+                        ul,
+                        ol {
+                            padding-right: 0;
+                            padding-left: 0;
+                        }
+
+                        .prq-suggestion-item {
+                            direction: rtl;
+                            text-align: right;
+                        }
+
+                        @media (max-width: 992px) {
+                            .navbar {
+                                direction: rtl;
+                                flex-direction: row;
+                            }
+
+                            .navbar-toggle {
+                                margin-right: auto;
+                                margin-left: 0;
+                            }
+
+                            .navbar-links {
+                                align-items: flex-end;
+                                right: 0;
+                                left: 0;
+                                text-align: right;
+                            }
+
+                            .services-dropdown {
+                                padding: 10px 20px 10px 0;
+                            }
+
+                            .mobile-auth-buttons {
+                                align-items: stretch;
+                            }
+                        }
+
+                        @media (max-width: 768px) {
+                            .scroll-top-btn {
+                                right: auto;
+                                left: 20px;
+                            }
+                        }
+                    </style>
+                    <script>
+                        document.documentElement.setAttribute('dir', 'rtl');
+                        document.documentElement.classList.add('pr-website-rtl');
+                    </script>
+                </t>
                 <script>
                     (function () {
                         var toggleBtn = document.querySelector('.navbar-toggle');

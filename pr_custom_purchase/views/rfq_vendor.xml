@@ -45,7 +45,7 @@
                                         <t t-esc="rfq.partner_id.name"/>
                                     </td>
                                     <td>
-                                        <t t-esc="rfq.date_request"/>
+                                        <span t-field="rfq.date_request" t-options="{'widget': 'date'}"/>
                                     </td>
                                     <td class="text-start">
                                         <a t-att-href="'/my/rfqs/%s' % rfq.id"

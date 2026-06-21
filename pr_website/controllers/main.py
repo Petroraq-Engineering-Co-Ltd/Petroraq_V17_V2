@@ -2,6 +2,7 @@ import logging
 import base64
 import json
 import re
+import time
 from html import escape
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
@@ -13,16 +14,69 @@ _logger = logging.getLogger(__name__)
 
 
 class CareersController(http.Controller):
+    CONTACT_RATE_LIMIT = 8
+    CONTACT_RATE_WINDOW = 10 * 60
+    CONTACT_CAPTCHA_TTL = 10 * 60
+    _contact_attempts_by_ip = {}
+
     @http.route('/', type='http', auth='public', website=True, sitemap=True)
     def homepage(self, **kwargs):
         return request.render('pr_website.petroraq_homepage_custom')
 
     @http.route('/contact-us', type='http', auth='public', website=True, sitemap=True)
     def contact_us(self, **kwargs):
+        captcha = self._generate_contact_captcha()
         return request.render('pr_website.petroraq_contact_us', {
             'contact_success': kwargs.get('success'),
             'contact_error': kwargs.get('error'),
+            'contact_captcha_question': captcha['question'],
+            'contact_captcha_nonce': captcha['nonce'],
         })
+
+    def _generate_contact_captcha(self):
+        return request.env['pr.website.captcha.challenge'].sudo().create_contact_challenge(
+            ttl_seconds=self.CONTACT_CAPTCHA_TTL,
+        )
+
+    def _get_contact_client_ip(self):
+        access_route = getattr(request.httprequest, 'access_route', None)
+        if access_route:
+            return access_route[0]
+        return request.httprequest.remote_addr or 'unknown'
+
+    def _validate_contact_rate_limit(self):
+        now = time.time()
+        client_ip = self._get_contact_client_ip()
+        attempts = [
+            attempt_time
+            for attempt_time in self._contact_attempts_by_ip.get(client_ip, [])
+            if now - attempt_time < self.CONTACT_RATE_WINDOW
+        ]
+        if len(attempts) >= self.CONTACT_RATE_LIMIT:
+            self._contact_attempts_by_ip[client_ip] = attempts
+            return 'Too many contact form attempts. Please try again later.'
+        attempts.append(now)
+        self._contact_attempts_by_ip[client_ip] = attempts
+        return None
+
+    def _validate_contact_antibot(self, post):
+        if (post.get('website') or '').strip():
+            return 'Your message could not be submitted. Please try again.'
+
+        return None
+
+    def _validate_contact_captcha(self, post):
+        nonce = (post.get('contact_captcha_nonce') or '').strip()
+        answer = (post.get('contact_captcha_answer') or '').strip()
+        result = request.env['pr.website.captcha.challenge'].sudo().consume_contact_challenge(
+            nonce,
+            answer,
+        )
+        if result in ('missing', 'expired'):
+            return 'The security question expired. Please answer the new question.'
+        if result != 'valid':
+            return 'Incorrect security answer. Please try the new question.'
+        return None
 
     def _validate_contact_payload(self, post):
         length_rules = [
@@ -72,7 +126,12 @@ class CareersController(http.Controller):
 
     @http.route('/website/mail/contact', type='http', auth='public', website=True, methods=['POST'], csrf=True)
     def website_mail_contact(self, **post):
-        validation_error = self._validate_contact_payload(post)
+        validation_error = (
+            self._validate_contact_rate_limit()
+            or self._validate_contact_antibot(post)
+            or self._validate_contact_captcha(post)
+            or self._validate_contact_payload(post)
+        )
         if validation_error:
             return request.redirect('/contact-us?error=%s' % quote_plus(validation_error))
 
@@ -191,9 +250,6 @@ class CareersController(http.Controller):
             ('email_from', r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', 'Please enter a valid email address.'),
             ('partner_phone', r'^\+?[0-9][0-9\s().-]{7,19}$', 'Please enter a valid phone number.'),
             ('partner_location', r"^[A-Za-z0-9][A-Za-z0-9,\s'\.-]{1,99}$", 'Please enter a valid location.'),
-            (
-                'linkedin_profile', r'^(https?://)?([a-z]{2,3}\.)?linkedin\.com/.*$',
-                'Please enter a valid LinkedIn URL.'),
         ]
 
         for field_name, pattern, message in validators:
@@ -213,7 +269,16 @@ class CareersController(http.Controller):
         # if (post.get('will_relocate') or '') not in {'yes', 'no'}:
         #     return 'Please select a valid answer for relocation.'
         if (post.get('legally_required') or '') not in {'yes', 'no'}:
-            return 'Please select a valid legal authorization option.'
+            return 'Please select whether you have National ID / Iqama.'
+
+        has_national_id_iqama = post.get('legally_required') == 'yes'
+        national_id_iqama = (post.get('national_id_iqama') or '').strip() if has_national_id_iqama else ''
+        if has_national_id_iqama and not re.fullmatch(r'\d{10}', national_id_iqama):
+            return 'National ID / Iqama Number must be exactly 10 digits.'
+
+        linkedin_profile = (post.get('linkedin_profile') or '').strip()
+        if linkedin_profile and not re.fullmatch(r'^(https?://)?([a-z]{2,3}\.)?linkedin\.com/.*$', linkedin_profile):
+            return 'Please enter a valid LinkedIn URL.'
 
         nationality_id = (post.get('nationality_id') or '').strip()
         if not nationality_id.isdigit() or not request.env['res.country'].sudo().browse(int(nationality_id)).exists():
@@ -244,6 +309,9 @@ class CareersController(http.Controller):
             return request.redirect(
                 f'/job/{job_id}?error={quote_plus("Duplicate application detected: you have already applied to this job with the same email and phone number.")}')
 
+        has_national_id_iqama = post.get('legally_required') == 'yes'
+        national_id_iqama = (post.get('national_id_iqama') or '').strip() if has_national_id_iqama else ''
+
         applicant_vals = {
             'name': post.get('name') or post.get('partner_name') or 'Website Candidate',
             'partner_name': (post.get('partner_name') or '').strip(),
@@ -256,6 +324,7 @@ class CareersController(http.Controller):
             'will_relocate': post.get('will_relocate'),
             'notice_period': post.get('notice_period'),
             'legally_required': post.get('legally_required'),
+            'national_id_iqama': national_id_iqama,
             'salary_expected': post.get('salary_expected'),
             'nationality_id': int(post['nationality_id']) if post.get('nationality_id') and post.get(
                 'nationality_id').isdigit() else False,

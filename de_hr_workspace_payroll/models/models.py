@@ -2,6 +2,7 @@
 
 from odoo import _, models, fields, api
 from odoo.exceptions import AccessError
+from odoo.tools import format_date
 
 
 class HrPayslip(models.Model):
@@ -84,17 +85,13 @@ class HrPayslip(models.Model):
     def _pr_format_payslip_report_date(self, value):
         if not value:
             return ""
-        return value.strftime("%d-%B-%Y")
+        return format_date(self.env, value)
 
     def _pr_format_payslip_joining_date(self, value):
         if not value:
             return ""
         date_value = fields.Date.to_date(value)
-        return "%s %s %s" % (
-            date_value.day,
-            date_value.strftime("%B").lower(),
-            date_value.year,
-        )
+        return format_date(self.env, date_value)
 
     def _pr_get_payslip_report_values(self):
         """Return the compact company payslip values used by the PDF and portal."""
@@ -182,6 +179,7 @@ class HrPayslip(models.Model):
 
         absence_days = payslip.no_absence if "no_absence" in payslip._fields else 0.0
         employee_no = (employee.code if "code" in employee._fields else False) or employee.identification_id or ""
+        currency = payslip._pr_get_payslip_currency()
 
         return {
             "employee": employee,
@@ -198,7 +196,8 @@ class HrPayslip(models.Model):
             "deduction_total": deduction_total,
             "net_amount": net_amount or 0.0,
             "absence_days": absence_days or 0.0,
-            "currency_symbol": payslip._pr_get_payslip_currency().symbol or "",
+            "currency": currency,
+            "currency_symbol": currency.symbol or "",
         }
 
     @api.depends("line_ids", "line_ids.total")

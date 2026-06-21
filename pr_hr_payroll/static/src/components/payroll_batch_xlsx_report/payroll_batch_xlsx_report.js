@@ -96,9 +96,9 @@ class PayrollBatchXlsxReport extends Component {
     const d = new Date(dateStr);
     return d.toLocaleDateString("en-GB", {
         day: "2-digit",
-        month: "long",
+        month: "short",
         year: "numeric",
-    });
+    }).replace(/ /g, "-");
 }
 
 formatMonthYear(dateStr) {

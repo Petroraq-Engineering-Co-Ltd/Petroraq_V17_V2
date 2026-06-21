@@ -82,7 +82,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <t t-esc="pr.date_request.strftime('%Y-%m-%d') if pr.date_request else ''"/>
+                                        <span t-field="pr.date_request" t-options="{'widget': 'date'}"/>
                                     </td>
                                     <td>
                                         <t t-esc="pr.approval"/>

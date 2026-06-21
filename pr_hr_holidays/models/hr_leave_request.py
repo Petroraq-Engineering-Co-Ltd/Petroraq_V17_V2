@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.tools import date_utils
+from odoo.tools import date_utils, format_date
 from odoo.osv import expression
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError, UserError
@@ -46,7 +46,16 @@ class HrLeaveRequest(models.Model):
     manager_approved_user_id = fields.Many2one('res.users', string='Manager Approved By', readonly=True, copy=False)
     hr_supervisor_approved_user_id = fields.Many2one('res.users', string='HR Supervisor Approved By', readonly=True,
                                                      copy=False)
-    reject_reason = fields.Text(string="Rejection Reason", readonly=True)
+    reject_reason = fields.Text(string="Rejection Reason", readonly=True, tracking=True)
+    rejected_stage = fields.Selection([
+        ('manager', 'Department Manager'),
+        ('hr_supervisor', 'HR Supervisor'),
+        ('hr_manager', 'HR Manager'),
+    ], string='Rejected At', readonly=True, copy=False, tracking=True)
+    rejected_by_user_id = fields.Many2one(
+        'res.users', string='Rejected By', readonly=True, copy=False, tracking=True
+    )
+    can_reset_rejection = fields.Boolean(compute='_compute_can_reset_rejection')
     note = fields.Text(string="Note")
     state = fields.Selection([
         ('draft', 'Submitted'),
@@ -92,6 +101,19 @@ class HrLeaveRequest(models.Model):
 
     # endregion [Fields]
 
+    def init(self):
+        """Backfill the decision stage for rejections created before stage tracking existed."""
+        self.env.cr.execute("""
+            UPDATE pr_hr_leave_request
+               SET rejected_stage = CASE
+                   WHEN hr_supervisor_approved_user_id IS NOT NULL THEN 'hr_manager'
+                   WHEN manager_approved_user_id IS NOT NULL THEN 'hr_supervisor'
+                   ELSE 'manager'
+               END
+             WHERE state = 'reject'
+               AND rejected_stage IS NULL
+        """)
+
     # region [Compute Methods]
 
     @api.depends("employee_id", "employee_id.parent_id", "employee_id.parent_id.user_id", "employee_manager_id",
@@ -125,6 +147,115 @@ class HrLeaveRequest(models.Model):
                 rec.hr_manager_check = True
             else:
                 rec.hr_manager_check = False
+
+    @api.depends('state', 'rejected_stage', 'rejected_by_user_id', 'employee_id.parent_id.user_id',
+                 'employee_manager_id', 'employee_manager_id.user_id',
+                 'hr_supervisor_ids', 'hr_manager_ids')
+    @api.depends_context('uid')
+    def _compute_can_reset_rejection(self):
+        user = self.env.user
+        for rec in self:
+            rec.can_reset_rejection = (
+                rec.state == 'reject'
+                and rec._user_can_decide_rejected_stage(user)
+            )
+
+    def _user_can_decide_rejected_stage(self, user):
+        self.ensure_one()
+        # The person who made the rejection must always be able to reopen their
+        # own decision. This also covers hierarchy/group changes after rejection.
+        if self.rejected_stage and self.rejected_by_user_id == user:
+            return True
+        if self.rejected_stage == 'manager':
+            # Approval buttons use the live employee hierarchy. Keep the reset
+            # permission consistent, while retaining the stored manager fallback.
+            return (
+                self.employee_id.parent_id.user_id == user
+                or self.employee_manager_id.user_id == user
+            )
+        if self.rejected_stage == 'hr_supervisor':
+            return (
+                user in self.hr_supervisor_ids
+                and user.has_group('pr_hr_holidays.custom_group_hr_holidays_supervisor')
+            )
+        if self.rejected_stage == 'hr_manager':
+            return (
+                user in self.hr_manager_ids
+                and user.has_group('hr_holidays.group_hr_holidays_manager')
+            )
+        return False
+
+    def _user_can_reject_stage(self, stage, user):
+        self.ensure_one()
+        if stage == 'manager':
+            return self.state == 'draft' and (
+                self.employee_id.parent_id.user_id == user
+                or self.employee_manager_id.user_id == user
+            )
+        if stage == 'hr_supervisor':
+            return (
+                self.state == 'manager_approve'
+                and user in self.hr_supervisor_ids
+                and user.has_group('pr_hr_holidays.custom_group_hr_holidays_supervisor')
+            )
+        if stage == 'hr_manager':
+            return (
+                self.state == 'hr_supervisor'
+                and user in self.hr_manager_ids
+                and user.has_group('hr_holidays.group_hr_holidays_manager')
+            )
+        return False
+
+    def _apply_stage_rejection(self, stage, reason):
+        actor = self.env.user
+        for rec in self:
+            if not rec._user_can_reject_stage(stage, actor):
+                raise UserError(_('You are not allowed to reject this leave request at the current stage.'))
+            rec.sudo().write({
+                'reject_reason': reason,
+                'rejected_stage': stage,
+                'rejected_by_user_id': actor.id,
+                'state': 'reject',
+                'approval_state': 'reject',
+            })
+
+    def action_reset_rejection(self):
+        stage_to_state = {
+            'manager': 'draft',
+            'hr_supervisor': 'manager_approve',
+            'hr_manager': 'hr_supervisor',
+        }
+        actor = self.env.user
+        for rec in self:
+            if rec.state != 'reject' or not rec._user_can_decide_rejected_stage(actor):
+                raise UserError(_('Only an authorized approver from the rejecting stage can reset this decision.'))
+
+            rejected_stage = rec.rejected_stage
+            reset_vals = {
+                'state': stage_to_state[rejected_stage],
+                'approval_state': stage_to_state[rejected_stage],
+                'reject_reason': False,
+                'rejected_stage': False,
+                'rejected_by_user_id': False,
+                'allocation_override_applied': False,
+                'allocation_override_note': False,
+            }
+            if rejected_stage == 'manager':
+                reset_vals.update({
+                    'manager_approved_user_id': False,
+                    'hr_supervisor_approved_user_id': False,
+                })
+            elif rejected_stage == 'hr_supervisor':
+                reset_vals['hr_supervisor_approved_user_id'] = False
+
+            rec.sudo().write(reset_vals)
+            rec.sudo().message_post(
+                body=_('%(user)s reset the rejection and reopened the %(stage)s decision.') % {
+                    'user': actor.display_name,
+                    'stage': dict(rec._fields['rejected_stage'].selection).get(rejected_stage, rejected_stage),
+                }
+            )
+        return True
 
     @api.depends("date_from", "date_to")
     def _compute_requested_days(self):
@@ -268,7 +399,7 @@ class HrLeaveRequest(models.Model):
                 continue  # ✅ Multi-day OK
 
             if non_working_dates:
-                formatted_dates = ", ".join(date.strftime("%d/%m/%Y") for date in non_working_dates)
+                formatted_dates = ", ".join(format_date(rec.env, date) for date in non_working_dates)
                 raise ValidationError(_(
                     "Cannot request leave on non-working date(s) (weekend/public holiday): %(dates)s"
                 ) % {"dates": formatted_dates})
@@ -322,7 +453,7 @@ class HrLeaveRequest(models.Model):
 
             # Only show warning for single-day weekend requests
             if total_days == 1 and weekend_dates:
-                formatted_dates = ", ".join(date.strftime("%d/%m/%Y") for date in weekend_dates)
+                formatted_dates = ", ".join(format_date(rec.env, date) for date in weekend_dates)
                 return {
                     "warning": {
                         "title": _("Weekend Date Selected"),
@@ -631,6 +762,7 @@ class HrLeaveRequest(models.Model):
                 'target': 'new',
                 'context': {
                     'default_record_id': '%s,%s' % (rec._name, rec.id),
+                    'pr_leave_rejection_stage': 'manager',
                 },
                 'views': [(self.env.ref('pr_base.pr_reject_record_wizard_view_form').id, 'form')],
             }
@@ -660,6 +792,7 @@ class HrLeaveRequest(models.Model):
                 'target': 'new',
                 'context': {
                     'default_record_id': '%s,%s' % (rec._name, rec.id),
+                    'pr_leave_rejection_stage': 'hr_supervisor',
                 },
                 'views': [(self.env.ref('pr_base.pr_reject_record_wizard_view_form').id, 'form')],
             }
@@ -701,6 +834,7 @@ class HrLeaveRequest(models.Model):
                 'target': 'new',
                 'context': {
                     'default_record_id': '%s,%s' % (rec._name, rec.id),
+                    'pr_leave_rejection_stage': 'hr_manager',
                 },
                 'views': [(self.env.ref('pr_base.pr_reject_record_wizard_view_form').id, 'form')],
             }

@@ -539,6 +539,13 @@ $de-text-muted:     #5b6b85;
             .de-leave-ratio   { color: #fff; transform: scale(1.06); }
             .de-leave-ratio i { color: $de-amber; }
             .de-leave-caption { color: rgba(255,255,255,0.85); }
+            .de-leave-metric {
+                background: rgba(255,255,255,0.12);
+                border-color: rgba(255,255,255,0.18);
+
+                span { color: rgba(255,255,255,0.78); }
+                strong { color: #fff; }
+            }
             .de-tile-chart    { background: rgba(255,255,255,0.18); }
             .de-tile-chart-fill {
                 background: linear-gradient(90deg, $de-amber 0%, $de-amber-light 100%);
@@ -589,6 +596,45 @@ $de-text-muted:     #5b6b85;
         font-weight: 700;
         text-transform: uppercase;
         transition: color 0.3s ease;
+    }
+
+    .de-leave-metrics {
+        width: 86%;
+        margin: 12px auto 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .de-leave-metric {
+        min-width: 0;
+        padding: 5px 4px;
+        border: 1px solid $de-border-soft;
+        border-radius: 8px;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+
+        span,
+        strong {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        span {
+            font-size: 0.62rem;
+            color: $de-text-muted;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        strong {
+            margin-top: 2px;
+            color: $de-navy;
+            font-size: 0.84rem;
+            font-weight: 800;
+        }
     }
 
     .de-tile-chart {

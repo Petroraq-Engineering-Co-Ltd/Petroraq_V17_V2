@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.tools import format_date
 from datetime import date
 
 class HrLeave(models.Model):
@@ -75,16 +76,16 @@ class HrLeave(models.Model):
             upcoming = [{
                 'employee': l.employee_id.name,
                 'leave_type': l.holiday_status_id.name,
-                'from': l.request_date_from.strftime('%d/%m/%Y'),
-                'to': l.request_date_to.strftime('%d/%m/%Y'),
+                'from': format_date(self.env, l.request_date_from),
+                'to': format_date(self.env, l.request_date_to),
                 'days': l.number_of_days_display,
             } for l in upcoming_leaves]
 
             pending = [{
                 'employee': l.employee_id.name,
                 'leave_type': l.holiday_status_id.name,
-                'from': l.request_date_from.strftime('%d/%m/%Y'),
-                'to': l.request_date_to.strftime('%d/%m/%Y'),
+                'from': format_date(self.env, l.request_date_from),
+                'to': format_date(self.env, l.request_date_to),
                 'days': l.number_of_days_display,
                 'status': l.state,
             } for l in self.search([('state', '=', 'confirm')], limit=5)]

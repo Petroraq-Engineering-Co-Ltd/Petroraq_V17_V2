@@ -16,7 +16,7 @@
           </tr>
           <tr>
             <td style="background:#122AA0; color:#ffffff; font-size:14px; font-weight:bold; text-align:center; padding:6px; border:1px solid #000;">
-              Period: <t t-esc="doc.date_from"/> to <t t-esc="doc.date_to"/>
+              Period: <span t-field="doc.date_from" t-options="{'widget': 'date'}"/> to <span t-field="doc.date_to" t-options="{'widget': 'date'}"/>
             </td>
           </tr>
         </table>

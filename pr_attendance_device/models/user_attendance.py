@@ -212,3 +212,19 @@ class UserAttendance(models.Model):
             "user.attendance: today=%s, yesterday=%s",
             tz_name, hr_count_today, hr_count_yesterday, user_count_today, user_count_yesterday
         )
+
+    @api.model
+    def _pr_cleanup_checkin_leverage_cron(self):
+        xml_id = 'pr_attendance_device.ir_cron_scheduler_checkin_leverage'
+        cron = self.env.ref(xml_id, raise_if_not_found=False)
+        if cron and cron.exists():
+            cron.sudo().unlink()
+
+        self.env['ir.cron'].sudo().search([
+            ('code', '=', 'model._cron_apply_checkin_leverage()'),
+        ]).unlink()
+        self.env['ir.model.data'].sudo().search([
+            ('module', '=', 'pr_attendance_device'),
+            ('name', '=', 'ir_cron_scheduler_checkin_leverage'),
+        ]).unlink()
+        return True

@@ -5,11 +5,13 @@ from contextlib import ExitStack, contextmanager
 
 from odoo import models, fields, api, Command
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 import qrcode
 import base64
 from odoo import models, fields, api
 from io import BytesIO
 import binascii
+import re
 from googletrans import Translator
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -43,6 +45,16 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     custom_qr_image = fields.Binary("QR Code", compute='_generate_qr_code')
+    po_number = fields.Char(
+        string="PO Number",
+        compute="_compute_sale_order_po_details",
+        store=True,
+    )
+    po_date = fields.Date(
+        string="PO Date",
+        compute="_compute_sale_order_po_details",
+        store=True,
+    )
     untaxed_before_downpayment = fields.Monetary(
         string="Untaxed Before Downpayment",
         currency_field="currency_id",
@@ -57,6 +69,42 @@ class AccountMove(models.Model):
         string="Retention (%)",
         compute="_compute_retention_percent",
     )
+
+    def get_partner_address_lines(self, partner, language="en"):
+        """Return stored English or Arabic address lines without translating them."""
+        self.ensure_one()
+        normal_lines = [line for line in (partner.street, partner.street2) if line]
+        arabic_lines = [
+            line for line in (partner.arabic_street, partner.arabic_street2) if line
+        ]
+
+        def contains_arabic(value):
+            return bool(re.search(r"[\u0600-\u06ff]", value or ""))
+
+        if language == "ar":
+            # Older records may contain the Arabic line in Street 2 because Odoo
+            # previously replaced the custom Arabic address form block.
+            return arabic_lines or [
+                line for line in normal_lines if contains_arabic(line)
+            ]
+
+        english_lines = [line for line in normal_lines if not contains_arabic(line)]
+        return english_lines or normal_lines
+
+    @api.depends(
+        "invoice_line_ids.sale_line_ids.order_id.po_number",
+        "invoice_line_ids.sale_line_ids.order_id.po_date",
+    )
+    def _compute_sale_order_po_details(self):
+        for move in self:
+            sale_orders = move.invoice_line_ids.sale_line_ids.order_id.sorted("id")
+            po_numbers = []
+            for order in sale_orders:
+                if order.po_number and order.po_number not in po_numbers:
+                    po_numbers.append(order.po_number)
+            po_dates = [po_date for po_date in sale_orders.mapped("po_date") if po_date]
+            move.po_number = ", ".join(po_numbers) if po_numbers else False
+            move.po_date = min(po_dates) if po_dates else False
 
     @api.depends("invoice_line_ids.price_subtotal", "invoice_line_ids.is_downpayment")
     def _compute_untaxed_before_downpayment(self):
@@ -103,7 +151,7 @@ class AccountMove(models.Model):
         if not input_date or not isinstance(input_date, date):
             return ''
 
-        date_string = input_date.strftime('%Y-%m-%d')
+        date_string = format_date(self.env, input_date)
         numerals_map = str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')
         return date_string.translate(numerals_map)
 

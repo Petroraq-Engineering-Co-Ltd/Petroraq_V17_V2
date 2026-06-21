@@ -346,8 +346,8 @@
             </div>
             <div class="de-selected-employee-grid">
                 <div><i class="fa fa-id-badge me-1"/> <t t-esc="state.employee_profile.employee_code || '-'"/></div>
-                <div>DOJ: <t t-esc="state.employee_profile.joining_date || '-'"/></div>
-                <div>Current Contract Start: <t t-esc="state.employee_profile.current_contract_start_date || '-'"/></div>
+                <div>DOJ: <t t-esc="state.employee_profile.joining_date_display || state.employee_profile.joining_date || '-'"/></div>
+                <div>Current Contract Start: <t t-esc="state.employee_profile.current_contract_start_date_display || state.employee_profile.current_contract_start_date || '-'"/></div>
                 <div><i class="fa fa-sitemap me-1"/> <t t-esc="state.employee_profile.department || '-'"/></div>
                 <div><i class="fa fa-building-o me-1"/> <t t-esc="state.employee_profile.company || '-'"/></div>
             </div>
@@ -375,7 +375,20 @@
                                  class="de-tile-chart-fill"
                                  t-att-style="'width:' + Math.min((line.used_days / line.allocated_days) * 100, 100) + '%'"/>
                         </div>
-                        <div class="de-leave-caption">AVAILED <i class="fa fa-question-circle-o"/></div>
+                        <div class="de-leave-metrics">
+                            <div class="de-leave-metric">
+                                <span>Total</span>
+                                <strong><t t-esc="line.allocated_days"/></strong>
+                            </div>
+                            <div class="de-leave-metric">
+                                <span>Availed</span>
+                                <strong><t t-esc="line.used_days"/></strong>
+                            </div>
+                            <div class="de-leave-metric">
+                                <span>Balance</span>
+                                <strong><t t-esc="line.balance_days"/></strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </t>

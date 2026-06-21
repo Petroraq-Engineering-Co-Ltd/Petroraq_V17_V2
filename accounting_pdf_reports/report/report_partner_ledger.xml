@@ -17,12 +17,12 @@
                         <div class="col-3">
                             <t t-if="data['form']['date_from']">
                                 <strong>Date from :</strong>
-                                <span t-esc="data['form']['date_from']"/>
+                                <span t-esc="data['form'].get('date_from_display') or data['form']['date_from']"/>
                                 <br/>
                             </t>
                             <t t-if="data['form']['date_to']">
                                 <strong>Date to :</strong>
-                                <span t-esc="data['form']['date_to']"/>
+                                <span t-esc="data['form'].get('date_to_display') or data['form']['date_to']"/>
                             </t>
                         </div>
                         <div class="col-3">

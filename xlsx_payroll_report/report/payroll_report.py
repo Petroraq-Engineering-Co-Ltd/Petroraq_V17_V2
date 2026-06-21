@@ -1,4 +1,5 @@
 from odoo import models
+from odoo.tools import format_date
 import string
 
 
@@ -243,7 +244,7 @@ class PayrollReport(models.AbstractModel):
             company_name = ""
             for item in lines.slip_ids:
                 if item.struct_id.id == used_struct[0]:
-                    batch_period = f"{item.date_from.strftime('%d %B %Y')}  To  {item.date_to.strftime('%d %B %Y')}"
+                    batch_period = f"{format_date(self.env, item.date_from)}  To  {format_date(self.env, item.date_to)}"
                     company_name = item.company_id.name or ""
                     break
 

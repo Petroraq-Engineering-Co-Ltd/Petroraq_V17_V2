@@ -1,5 +1,6 @@
 from odoo import models
 from datetime import datetime
+from .ledger_partner_utils import format_report_date
 
 
 class CustomDynamicLedgerReport(models.AbstractModel):
@@ -43,7 +44,11 @@ class CustomDynamicLedgerReport(models.AbstractModel):
         # Header block
         # -------------------------
         sheet.merge_range("A1:G1", f"Company: {wizard.company_id.name}", header_big)
-        sheet.merge_range("A2:G2", f"Period: {wizard.date_start} to {wizard.date_end}", header_big)
+        sheet.merge_range(
+            "A2:G2",
+            f"Period: {format_report_date(self.env, wizard.date_start)} to {format_report_date(self.env, wizard.date_end)}",
+            header_big,
+        )
 
         extra_row = 3
         if wizard.department_id:
@@ -132,13 +137,13 @@ class CustomDynamicLedgerPdfReport(models.AbstractModel):
             "doc_model": wizard._name,
             "docs": report_rows,
             "company_name": wizard.company_id.name,
-            "date_start": wizard.date_start,
-            "date_end": wizard.date_end,
+            "date_start": format_report_date(self.env, wizard.date_start),
+            "date_end": format_report_date(self.env, wizard.date_end),
             "main_head": wizard.main_head,
             "department_name": wizard.department_id.name if wizard.department_id else "",
             "section_name": wizard.section_id.name if wizard.section_id else "",
             "project_name": wizard.project_id.name if wizard.project_id else "",
             "employee_name": wizard.employee_id.name if wizard.employee_id else "",
             "asset_name": wizard.asset_id.name if wizard.asset_id else "",
-            "report_date": today.strftime("%b-%d-%Y"),
+            "report_date": format_report_date(self.env, today),
         }

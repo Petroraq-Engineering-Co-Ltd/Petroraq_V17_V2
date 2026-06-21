@@ -8,7 +8,12 @@ from odoo import models, api
 from datetime import datetime
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
-from .ledger_partner_utils import get_ledger_move_lines, get_opening_balance
+from .ledger_partner_utils import (
+    format_report_date,
+    get_ledger_move_lines,
+    get_ledger_report_line_groups,
+    get_opening_balance,
+)
 
 
 class CustomDynamicLedgerReport(models.AbstractModel):
@@ -26,6 +31,7 @@ class CustomDynamicLedgerReport(models.AbstractModel):
             'project': wizard_id.project_id.id if wizard_id.project_id else False,
             'employee': wizard_id.employee_id.id if wizard_id.employee_id else False,
             'asset': wizard_id.asset_id.id if wizard_id.asset_id else False,
+            'merge_invoice_lines': wizard_id.merge_invoice_lines,
         }
 
         data_in_dictionary = self._get_report_values(report_data, wizard_id)
@@ -70,13 +76,12 @@ class CustomDynamicLedgerReport(models.AbstractModel):
 
         money_format = workbook.add_format({'num_format': '#,##0.00', 'border': 1})
         text_format = workbook.add_format({'border': 1})
-        date_format = workbook.add_format({'num_format': 'yyyy-mm-dd', 'border': 1})
 
         # === First 4 Rows (Title, Info, etc.) ===
         worksheet.merge_range('A1:G1', 'Petroraq Engineering & Construction - VAT Number 311428741500003', title_format)
         worksheet.merge_range('A2:G2', f'{data_in_dictionary["account"]}', title_format)
         worksheet.merge_range('A3:G3',
-                              f'Period: {wizard_id.date_start.strftime("%d-%b-%Y")} to {wizard_id.date_end.strftime("%d-%b-%Y")}',
+                              f'Period: {format_report_date(self.env, wizard_id.date_start)} to {format_report_date(self.env, wizard_id.date_end)}',
                               title_format)
         # worksheet.merge_range('A4:I4', '', info_format)  # Optional empty/info row
 
@@ -91,7 +96,7 @@ class CustomDynamicLedgerReport(models.AbstractModel):
         for entry in docs:
             worksheet.write(row, 0, entry['transaction_ref'],
                             text_format if entry["description"] != "Totals" else header_format)
-            worksheet.write(row, 1, entry['date'], date_format if entry["description"] != "Totals" else header_format)
+            worksheet.write(row, 1, entry['date'], text_format if entry["description"] != "Totals" else header_format)
             worksheet.write(row, 2, entry['reference'],
                             text_format if entry["description"] != "Totals" else header_format)
             worksheet.write(row, 3, entry['description'],
@@ -178,7 +183,7 @@ class CustomDynamicLedgerReport(models.AbstractModel):
             account_name += f"\nAsset: {asset_id_obj.name}"
 
         today = datetime.today()
-        report_date = today.strftime("%b-%d-%Y")
+        report_date = format_report_date(self.env, today)
         if not account:
             return {
                 'account': " ",
@@ -226,7 +231,7 @@ class CustomDynamicLedgerReport(models.AbstractModel):
         init_balance = initial_balance
         docs.append({
             'transaction_ref': ' ',
-            'date': f'{str(date_start)}',
+            'date': format_report_date(self.env, date_start),
             'initial_balance': '{:,.2f}'.format(init_balance),
             'description': 'Opening Balance',
             'reference': ' ',
@@ -235,25 +240,25 @@ class CustomDynamicLedgerReport(models.AbstractModel):
             'credit': '{:,.2f}'.format(initial_credit),
             'balance': '{:,.2f}'.format(init_balance)
         })
-        for item in JournalItems:
-            balance = initial_balance + (item.debit - item.credit)
-            t_debit += item.debit
-            t_credit += item.credit
+        for item in get_ledger_report_line_groups(JournalItems, report_data.get("merge_invoice_lines")):
+            balance = initial_balance + (item["debit"] - item["credit"])
+            t_debit += item["debit"]
+            t_credit += item["credit"]
             docs.append({
-                'transaction_ref': item.move_id.name,
-                'date': item.date,
+                'transaction_ref': item["transaction_ref"],
+                'date': format_report_date(self.env, item["date"]),
                 'initial_balance': '{:,.2f}'.format(initial_balance),
-                'description': item.name,
-                'reference': item.ref,
-                'journal': item.journal_id.name,
-                'debit': '{:,.2f}'.format(item.debit),
-                'credit': '{:,.2f}'.format(item.credit),
+                'description': item["description"],
+                'reference': item["reference"],
+                'journal': item["journal"],
+                'debit': '{:,.2f}'.format(item["debit"]),
+                'credit': '{:,.2f}'.format(item["credit"]),
                 'balance': '{:,.2f}'.format(balance)
             })
             initial_balance = balance
         docs.append({
             'transaction_ref': ' ',
-            'date': f'{str(datetime.now().date())}',
+            'date': format_report_date(self.env, datetime.now()),
             'initial_balance': ' ',
             'description': 'Totals',
             'reference': ' ',

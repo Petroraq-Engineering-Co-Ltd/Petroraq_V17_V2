@@ -8,7 +8,6 @@
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
             <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap"
                   rel="stylesheet"/>
-
             <style>
                 .petroraq-contact * {
                     margin: 0;
@@ -249,6 +248,70 @@
                     resize: vertical;
                     min-height: 160px;
                     padding-top: 22px;
+                }
+                .petroraq-contact .pr-contact-trap {
+                    position: absolute !important;
+                    left: -10000px !important;
+                    top: auto !important;
+                    width: 1px !important;
+                    height: 1px !important;
+                    overflow: hidden !important;
+                }
+                .petroraq-contact .contact-captcha {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    padding: 18px;
+                    margin-bottom: 25px;
+                    border: 2px solid rgba(216,154,43,0.25);
+                    border-radius: 20px;
+                    background: linear-gradient(145deg, rgba(216,154,43,0.08), rgba(255,255,255,0.9));
+                }
+                .petroraq-contact .captcha-icon {
+                    width: 46px;
+                    height: 46px;
+                    flex: 0 0 46px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 14px;
+                    background: var(--blue);
+                    color: var(--gold);
+                    font-size: 20px;
+                }
+                .petroraq-contact .captcha-copy {
+                    flex: 1 1 auto;
+                    min-width: 150px;
+                }
+                .petroraq-contact .captcha-label {
+                    display: block;
+                    color: #6b7a8f;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.6px;
+                    margin-bottom: 3px;
+                }
+                .petroraq-contact .captcha-question {
+                    color: var(--blue);
+                    font-size: 17px;
+                    font-weight: 700;
+                }
+                .petroraq-contact .captcha-answer {
+                    width: 105px;
+                    padding: 14px 16px;
+                    border: 2px solid #e8ecf2;
+                    border-radius: 14px;
+                    background: #fff;
+                    color: var(--blue);
+                    font: 700 17px 'Poppins', sans-serif;
+                    text-align: center;
+                    outline: none;
+                    transition: all 0.3s ease;
+                }
+                .petroraq-contact .captcha-answer:focus {
+                    border-color: var(--gold);
+                    box-shadow: 0 8px 24px rgba(216,154,43,0.2);
                 }
                 .petroraq-contact .input-group input::placeholder,
                 .petroraq-contact .input-group textarea::placeholder {
@@ -584,6 +647,12 @@
                         grid-template-columns: 1fr;
                         gap: 20px;
                     }
+                    .petroraq-contact .contact-captcha {
+                        flex-wrap: wrap;
+                    }
+                    .petroraq-contact .captcha-answer {
+                        width: 100%;
+                    }
                     .petroraq-contact .assistance-banner {
                         flex-direction: column;
                         text-align: center;
@@ -640,37 +709,62 @@
 
                                 <form class="contact-form" action="/website/mail/contact" method="post">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="contact_captcha_nonce" t-att-value="contact_captcha_nonce"/>
+                                    <div class="pr-contact-trap" aria-hidden="true">
+                                        <label>Website</label>
+                                        <input type="text" name="website" tabindex="-1" autocomplete="off"/>
+                                    </div>
 
                                     <div class="form-row">
                                         <div class="input-group">
                                             <i class="fa fa-user"></i>
-                                            <input type="text" name="name" placeholder="Full Name *" required="required"/>
+                                            <input type="text" name="name" placeholder="Full Name *" minlength="2" maxlength="100" required="required"/>
                                         </div>
                                         <div class="input-group">
                                             <i class="fa fa-envelope"></i>
-                                            <input type="email" name="email" placeholder="Email Address *" required="required"/>
+                                            <input type="email" name="email" placeholder="Email Address *" maxlength="160" required="required"/>
                                         </div>
                                     </div>
 
                                     <div class="form-row">
                                         <div class="input-group">
                                             <i class="fa fa-phone"></i>
-                                            <input type="tel" name="phone" placeholder="Phone Number"/>
+                                            <input type="tel" name="phone" placeholder="Phone Number" maxlength="24" pattern="^\+?[0-9][0-9\s().-]{7,19}$"/>
                                         </div>
                                         <div class="input-group">
                                             <i class="fa fa-building"></i>
-                                            <input type="text" name="company" placeholder="Company Name"/>
+                                            <input type="text" name="company" placeholder="Company Name" maxlength="120"/>
                                         </div>
                                     </div>
 
                                     <div class="input-group full">
                                         <i class="fa fa-file-text"></i>
-                                        <input type="text" name="subject" placeholder="Subject *" required="required"/>
+                                        <input type="text" name="subject" placeholder="Subject *" minlength="2" maxlength="160" required="required"/>
                                     </div>
 
                                     <div class="input-group full">
                                         <i class="fa fa-comment"></i>
-                                        <textarea name="message" placeholder="Tell us about your project..." required="required"></textarea>
+                                        <textarea name="message" placeholder="Tell us about your project..." minlength="5" maxlength="5000" required="required"></textarea>
+                                    </div>
+
+                                    <div class="contact-captcha">
+                                        <div class="captcha-icon">
+                                            <i class="fa fa-shield-halved"></i>
+                                        </div>
+                                        <div class="captcha-copy">
+                                            <span class="captcha-label">Human verification</span>
+                                            <strong class="captcha-question" t-esc="contact_captcha_question"/>
+                                        </div>
+                                        <input class="captcha-answer"
+                                               type="text"
+                                               name="contact_captcha_answer"
+                                               inputmode="numeric"
+                                               pattern="[0-9]*"
+                                               maxlength="3"
+                                               autocomplete="off"
+                                               aria-label="Security question answer"
+                                               placeholder="Answer"
+                                               required="required"/>
                                     </div>
 
                                     <div class="form-footer">

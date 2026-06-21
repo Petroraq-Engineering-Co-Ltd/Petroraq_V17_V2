@@ -7,7 +7,7 @@ import xlwt
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from odoo.tools import format_datetime
+from odoo.tools import format_date, format_datetime
 
 
 class AttendanceReportWizard(models.TransientModel):
@@ -157,7 +157,7 @@ class AttendanceReportWizard(models.TransientModel):
             # Non-working day (weekend/public holiday/company leave) from calendar/work entries.
             if planned_hours <= 0 and not has_attendance:
                 result.append({
-                    'date': single_date.strftime('%Y-%m-%d'),
+                    'date': format_date(self.env, single_date),
                     'day': single_date.strftime('%A'),
                     'actual_hours': 0,
                     'check_in': '-',
@@ -175,7 +175,7 @@ class AttendanceReportWizard(models.TransientModel):
             total_planned_hours += planned_hours
             if on_leave:
                 result.append({
-                    'date': single_date.strftime('%Y-%m-%d'),
+                    'date': format_date(self.env, single_date),
                     'day': single_date.strftime('%A'),
                     'actual_hours': planned_hours,
                     'check_in': 'On Leave',
@@ -204,7 +204,7 @@ class AttendanceReportWizard(models.TransientModel):
                 if check_in and check_in.time() > late_absent_cutoff:
                     total_absent_days += 1
                     result.append({
-                        'date': single_date.strftime('%Y-%m-%d'),
+                        'date': format_date(self.env, single_date),
                         'day': single_date.strftime('%A'),
                         'actual_hours': planned_hours,
                         'check_in': format_datetime(self.env, check_in),
@@ -227,7 +227,7 @@ class AttendanceReportWizard(models.TransientModel):
                 total_late_hours += late_hours
 
                 result.append({
-                    'date': single_date.strftime('%Y-%m-%d'),
+                    'date': format_date(self.env, single_date),
                     'day': single_date.strftime('%A'),
                     'actual_hours': planned_hours,
                     'check_in': format_datetime(self.env, check_in),
@@ -242,7 +242,7 @@ class AttendanceReportWizard(models.TransientModel):
             else:
                 total_absent_days += 1
                 result.append({
-                    'date': single_date.strftime('%Y-%m-%d'),
+                    'date': format_date(self.env, single_date),
                     'day': single_date.strftime('%A'),
                     'actual_hours': planned_hours,
                     'check_in': 'Absent',

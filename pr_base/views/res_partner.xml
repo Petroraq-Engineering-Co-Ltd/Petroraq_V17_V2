@@ -16,11 +16,11 @@
             </xpath>
             <xpath expr="//field[@name='l10n_sa_additional_identification_scheme']" position="attributes">
                 <attribute name="invisible">False</attribute>
-                <attribute name="required">is_company and not parent_id</attribute>
+                <attribute name="required">False</attribute>
             </xpath>
             <xpath expr="//field[@name='l10n_sa_additional_identification_number']" position="attributes">
                 <attribute name="invisible">False</attribute>
-                <attribute name="required">is_company and not parent_id</attribute>
+                <attribute name="required">False</attribute>
             </xpath>
 
 
@@ -28,11 +28,11 @@
                 <field name="arabic_name"/>
             </xpath>
 
-            <xpath expr="//div[hasclass('o_address_format')]" position="after">
+            <xpath expr="//span[@name='address_name']/following-sibling::div[hasclass('o_address_format')][1]" position="after">
                 <label for="arabic_street" string="Arabic Address"/>
-                <div class="o_address_format">
-                    <field name="arabic_street" placeholder="Street..." class="o_address_street"/>
-                    <field name="arabic_street2" placeholder="Street 2..." class="o_address_street"/>
+                <div name="pr_arabic_address" class="o_pr_arabic_address" dir="rtl" style="width: 100%;">
+                    <field name="arabic_street" placeholder="Arabic Street..." class="w-100"/>
+                    <field name="arabic_street2" placeholder="Arabic Street 2..." class="w-100"/>
                 </div>
             </xpath>
 

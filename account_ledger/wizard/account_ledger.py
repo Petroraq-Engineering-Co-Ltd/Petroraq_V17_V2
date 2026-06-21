@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, models, fields
+from odoo.tools import format_date
 from datetime import datetime, date
 import json
 
@@ -48,6 +49,10 @@ class AccountLedger(models.TransientModel):
     account_id_domain = fields.Char(compute="_compute_account_id_domain")
     account_ids = fields.Many2many('account.account', required=True, string="Accounts")
     account_name = fields.Char(string='Account Name', related="account_id.name")
+    merge_invoice_lines = fields.Boolean(
+        string="Merge Invoice Lines",
+        help="Show one ledger line per invoice and account by summing invoice journal items.",
+    )
     company_id = fields.Many2one('res.company', required=True, string="Company", default=lambda self: self.env.company)
     department_id = fields.Many2one('account.analytic.account', string="Department",
                                     domain="[('analytic_plan_type', '=', 'department')]")
@@ -297,6 +302,7 @@ class AccountLedger(models.TransientModel):
                 'project': self.project_id.id if self.project_id else False,
                 'employee': self.employee_id.id if self.employee_id else False,
                 'asset': self.asset_id.id if self.asset_id else False,
+                'merge_invoice_lines': self.merge_invoice_lines,
             },
         }
         return self.env.ref('account_ledger.acc_leg_report').report_action(self, data=data)
@@ -323,6 +329,7 @@ class AccountLedger(models.TransientModel):
                 'project': self.project_id.id if self.project_id else False,
                 'employee': self.employee_id.id if self.employee_id else False,
                 'asset': self.asset_id.id if self.asset_id else False,
+                'merge_invoice_lines': self.merge_invoice_lines,
             },
         }
 
@@ -334,12 +341,15 @@ class AccountLedger(models.TransientModel):
             "wizard_id": self.id
         })
         account_names = ", ".join(self.account_ids.mapped("name"))
-        date_range = f"{self.date_start} → {self.date_end}"
+        formatted_date_range = "%s to %s" % (
+            format_date(self.env, self.date_start),
+            format_date(self.env, self.date_end),
+        )
 
         result.write({
             "header_company": self.company_id.name,
             "header_account": account_names,
-            "header_date_range": date_range,
+            "header_date_range": formatted_date_range,
         })
 
         for line in docs:
@@ -349,7 +359,9 @@ class AccountLedger(models.TransientModel):
                 "result_id": result.id,
                 "transaction_ref": line.get("transaction_ref") or "",
                 "reference": line.get("reference") or "",
-                "date": line.get("date") if line.get("transaction_ref") else False,
+                # Report dates are localized strings for PDF/XLSX display.
+                # Store the accompanying raw value in the Date field.
+                "date": line.get("date_value") if line.get("transaction_ref") else False,
                 "label": line.get("description") or "",
                 "debit": float(line.get("debit").replace(",", "")) if line.get("debit") else 0.0,
                 "credit": float(line.get("credit").replace(",", "")) if line.get("credit") else 0.0,

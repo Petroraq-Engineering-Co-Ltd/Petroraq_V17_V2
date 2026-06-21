@@ -26,6 +26,11 @@ class HrLeaveRequest(models.Model):
                 ('employee_manager_id.user_id', '=', user.id),
                 ('state', '=', 'draft')
             ])
+            role_domains.append([
+                ('employee_manager_id.user_id', '=', user.id),
+                ('state', '=', 'reject'),
+                ('rejected_stage', '=', 'manager'),
+            ])
             role_domains.append([('state', '=', 'cancel_request')])
 
             # HR Manager
@@ -34,11 +39,21 @@ class HrLeaveRequest(models.Model):
                     ('state', '=', 'hr_supervisor'),
                     ('hr_manager_ids', 'in', user.id),
                 ])
+                role_domains.append([
+                    ('state', '=', 'reject'),
+                    ('rejected_stage', '=', 'hr_manager'),
+                    ('hr_manager_ids', 'in', user.id),
+                ])
             # HR Supervisor
             # elif user.has_group("hr_holidays.group_hr_holidays_user"):
             if user.has_group("pr_hr_holidays.custom_group_hr_holidays_supervisor"):
                 role_domains.append([
                     ('state', '=', 'manager_approve'),
+                    ('hr_supervisor_ids', 'in', user.id),
+                ])
+                role_domains.append([
+                    ('state', '=', 'reject'),
+                    ('rejected_stage', '=', 'hr_supervisor'),
                     ('hr_supervisor_ids', 'in', user.id),
                 ])
 

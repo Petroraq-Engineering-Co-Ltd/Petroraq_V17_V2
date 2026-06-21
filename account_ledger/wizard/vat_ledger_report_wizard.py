@@ -359,7 +359,9 @@ class VatLedgerReport(models.TransientModel):
                 "result_id": result.id,
                 "transaction_ref": line.get("transaction_ref") or "",
                 "reference": line.get("reference") or "",
-                "date": line.get("date") if line.get("transaction_ref") else False,
+                # Keep the localized date for reports, but store a real date
+                # in the transient result model.
+                "date": line.get("date_value") if line.get("transaction_ref") else False,
                 "description": line.get("description") or "",
                 "amount": float(line.get("amount", '0').replace(",", "")) if not is_total else 0,
                 "tax_amount": float(line.get("tax_amount", '0').replace(",", "")) if not is_total else 0,

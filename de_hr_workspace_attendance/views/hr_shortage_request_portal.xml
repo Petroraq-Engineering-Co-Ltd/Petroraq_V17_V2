@@ -50,7 +50,7 @@
                             <!--                                <span t-field="attendance.employee_id.name"/>-->
                             <!--                            </td>-->
                             <td>
-                                <span t-esc="attendance.check_in.date()"/>
+                                <span t-field="attendance.check_in" t-options="{'widget': 'date'}"/>
                             </td>
                             <td>
                                 <span t-field="attendance.check_in"/>

@@ -6,6 +6,7 @@ from datetime import datetime, time, timedelta
 import pytz
 
 from odoo import api, fields, models, _
+from odoo.tools import format_date
 
 
 class HrAttendanceManagementDashboard(models.AbstractModel):
@@ -95,7 +96,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
 
         return {
             "selected_date": fields.Date.to_string(dashboard_date),
-            "display_date": dashboard_date.strftime("%A, %B %d, %Y"),
+            "display_date": format_date(self.env, dashboard_date),
             "department_id": department_id,
             "departments": departments,
             "company": self.env.company.display_name,

@@ -13,7 +13,7 @@
         <t t-set="resource_calendar_id" t-value="props.resource_calendar_id"/>
         <t t-set="company" t-value="props.company"/>
         <t t-set="employee_code" t-value="props.employee_code"/>
-        <t t-set="joining_date" t-value="props.joining_date"/>
+        <t t-set="joining_date" t-value="props.joining_date_display || props.joining_date"/>
         <t t-set="job_position" t-value="props.job_position"/>
         <t t-set="child_ids" t-value="props.child_ids"/>
         <t t-set="child_count" t-value="props.child_count"/>

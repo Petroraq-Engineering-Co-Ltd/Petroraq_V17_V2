@@ -22,6 +22,7 @@ export class AttendanceManagementDashboard extends Component {
 
     async loadDashboardData() {
         this.state.loading = true;
+        this.state.selectedDate = this.clampDateString(this.state.selectedDate || this.getLocalDateString());
         const data = await this.orm.call(
             "de.hr.attendance.management.dashboard",
             "get_dashboard_data",
@@ -34,7 +35,7 @@ export class AttendanceManagementDashboard extends Component {
     }
 
     async onDateChange(ev) {
-        this.state.selectedDate = ev.target.value;
+        this.state.selectedDate = this.clampDateString(ev.target.value || this.getLocalDateString());
         await this.loadDashboardData();
     }
 
@@ -43,15 +44,45 @@ export class AttendanceManagementDashboard extends Component {
         await this.loadDashboardData();
     }
 
+    isDepartmentSelected(departmentId) {
+        return Number(this.state.departmentId || 0) === Number(departmentId || 0);
+    }
+
+    getLocalDateString(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    addDaysToDateString(dateString, days) {
+        const [year, month, day] = String(dateString || this.getLocalDateString())
+            .split("-")
+            .map((part) => Number(part));
+        const date = new Date(year, month - 1, day);
+        date.setDate(date.getDate() + days);
+        return this.getLocalDateString(date);
+    }
+
+    clampDateString(dateString) {
+        const today = this.getLocalDateString();
+        return String(dateString || today) > today ? today : dateString;
+    }
+
+    isNextDayDisabled() {
+        return String(this.state.selectedDate || this.getLocalDateString()) >= this.getLocalDateString();
+    }
+
     async moveDay(delta) {
-        const base = this.state.selectedDate ? new Date(`${this.state.selectedDate}T00:00:00`) : new Date();
-        base.setDate(base.getDate() + delta);
-        this.state.selectedDate = base.toISOString().slice(0, 10);
+        if (delta > 0 && this.isNextDayDisabled()) {
+            return;
+        }
+        this.state.selectedDate = this.clampDateString(this.addDaysToDateString(this.state.selectedDate, delta));
         await this.loadDashboardData();
     }
 
     async setToday() {
-        this.state.selectedDate = new Date().toISOString().slice(0, 10);
+        this.state.selectedDate = this.getLocalDateString();
         await this.loadDashboardData();
     }
 
@@ -175,7 +206,7 @@ export class AttendanceManagementDashboard extends Component {
         return [
             {
                 key: "coverage",
-                label: "Attendance Coverage",
+                label: "Overall Attendance",
                 value: this.formatPercent(summary.coverage || 0),
                 sub: `${this.formatNumber(summary.with_punch || 0)} of ${this.formatNumber(summary.scheduled || 0)} Employee`,
                 icon: "fa-check-circle",

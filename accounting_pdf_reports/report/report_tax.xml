@@ -17,12 +17,12 @@
                         <div class="col-4">
                             <t>
                                 <strong>Date from :</strong>
-                                <span t-esc="data['date_from']"/>
+                                <span t-esc="data.get('date_from_display') or data['date_from']"/>
                             </t>
                             <br/>
                             <t>
                                 <strong>Date to :</strong>
-                                <span t-esc="data['date_to']"/>
+                                <span t-esc="data.get('date_to_display') or data['date_to']"/>
                             </t>
                         </div>
                         <div class="col-4">

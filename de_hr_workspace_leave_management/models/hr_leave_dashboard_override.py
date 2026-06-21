@@ -1,10 +1,17 @@
 import pytz
 from datetime import timedelta, datetime
 from odoo import api, fields, models
+from odoo.tools import format_date
 
 
 class HrLeaveDashboardOverride(models.Model):
     _inherit = 'hr.leave'
+
+    @api.model
+    def _format_dashboard_date(self, value):
+        if not value:
+            return False
+        return format_date(self.env, fields.Date.to_date(value))
 
     @api.model
     def _is_time_based_allocation_leave_type(self, leave_type):
@@ -262,6 +269,7 @@ class HrLeaveDashboardOverride(models.Model):
             'name': current_employee.name,
             'employee_code': current_employee.code or current_employee.barcode or '',
             'joining_date': self._get_employee_joining_date(current_employee),
+            'joining_date_display': self._format_dashboard_date(self._get_employee_joining_date(current_employee)),
             'job_id': current_employee.job_id.id,
             'image_1920': current_employee.image_1920,
             'work_email': current_employee.work_email,
@@ -317,7 +325,14 @@ class HrLeaveDashboardOverride(models.Model):
         employee_pytz = pytz.timezone(employee_tz) if employee_tz else pytz.utc
         employee_datetime = fields.Datetime.now().astimezone(employee_pytz)
         holidays = self.env['hr.public.holiday'].sudo().search([('state', '=', 'active')])
-        return [holiday.read()[0] for holiday in holidays if employee_datetime.date() < holiday.date_to]
+        rows = []
+        for holiday in holidays:
+            if employee_datetime.date() < holiday.date_to:
+                row = holiday.read()[0]
+                row['date_from_display'] = self._format_dashboard_date(holiday.date_from)
+                row['date_to_display'] = self._format_dashboard_date(holiday.date_to)
+                rows.append(row)
+        return rows
 
     @api.model
     def get_approval_status_count(self, current_employee):
@@ -436,8 +451,8 @@ class HrLeaveDashboardOverride(models.Model):
             'employee_name': leave.employee_id.name,
             'leave_type': leave.holiday_status_id.name,
             'state': leave.state,
-            'date_from': leave.request_date_from,
-            'date_to': leave.request_date_to,
+            'date_from': self._format_dashboard_date(leave.request_date_from),
+            'date_to': self._format_dashboard_date(leave.request_date_to),
             'number_of_days': leave.number_of_days,
         } for leave in leaves]
         if not category:
@@ -655,18 +670,25 @@ class HrLeaveDashboardOverride(models.Model):
             key = leave.holiday_status_id.id
             used[key] = used.get(key, 0.0) + (leave.number_of_days or 0.0)
 
-        lines = [{
-            'leave_type_id': leave_type.id,
-            'leave_type': leave_type.name,
-            'used_days': round(used.get(leave_type.id, 0.0), 2),
-            'allocated_days': round(allocated.get(leave_type.id, 0.0), 2),
-            'requires_allocation': leave_type.requires_allocation == 'yes',
-        } for leave_type in leave_types]
+        lines = []
+        for leave_type in leave_types:
+            used_days = round(used.get(leave_type.id, 0.0), 2)
+            allocated_days = round(allocated.get(leave_type.id, 0.0), 2)
+            requires_allocation = leave_type.requires_allocation == 'yes'
+            lines.append({
+                'leave_type_id': leave_type.id,
+                'leave_type': leave_type.name,
+                'used_days': used_days,
+                'allocated_days': allocated_days,
+                'balance_days': round(allocated_days - used_days, 2) if requires_allocation else 0.0,
+                'requires_allocation': requires_allocation,
+            })
         lines.append({
             'leave_type_id': False,
             'leave_type': 'Absentees',
             'used_days': self._get_employee_absentee_days(employee, start, end),
             'allocated_days': 0.0,
+            'balance_days': 0.0,
             'requires_allocation': False,
         })
 
@@ -678,8 +700,13 @@ class HrLeaveDashboardOverride(models.Model):
                 'name': employee.name,
                 'employee_code': employee.code or employee.barcode or '',
                 'joining_date': self._get_employee_joining_date(employee),
+                'joining_date_display': self._format_dashboard_date(self._get_employee_joining_date(employee)),
                 'current_contract_start_date': self._get_employee_current_contract_start_date(employee),
+                'current_contract_start_date_display': self._format_dashboard_date(
+                    self._get_employee_current_contract_start_date(employee)
+                ),
                 'effective_start_date': fields.Date.to_string(employee_start),
+                'effective_start_date_display': self._format_dashboard_date(employee_start),
                 'job_position': employee.job_title or '',
                 'department': employee.department_id.name or '',
                 'company': employee.company_id.name or '',

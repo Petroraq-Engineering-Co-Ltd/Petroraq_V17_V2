@@ -481,10 +481,31 @@ class PurchaseRequisition(models.Model):
             amount_by_cost_center[line_cc.id]["amount"] += quantity * (line.unit_price or 0.0)
         return amount_by_cost_center
 
+    def _current_budget_reservation_by_cost_center(self):
+        """Return the approved PR amount still reserved before downstream spend takes over."""
+        self.ensure_one()
+        if self.approval != "approved":
+            return {}
+
+        voucher = self.cash_payment_id or self.bank_payment_id
+        if self.pr_type == "cash" and voucher and voucher.sudo().state in ("submit", "finance_approve", "posted"):
+            return {}
+
+        if self.pr_type == "cash":
+            return self._amount_by_cost_center()
+
+        return self._amount_by_cost_center(
+            remaining_quantities=self._get_remaining_requisition_line_quantities()
+        )
+
     def _get_selected_budget_remaining_by_cost_center(self):
         self.ensure_one()
         if self.expense_bucket_id:
-            return self.expense_bucket_id.sudo()._get_remaining_by_cost_center()
+            remaining_by_cost_center = dict(self.expense_bucket_id.sudo()._get_remaining_by_cost_center())
+            for item in self._current_budget_reservation_by_cost_center().values():
+                cc = item["cc"]
+                remaining_by_cost_center[cc.id] = remaining_by_cost_center.get(cc.id, cc.budget_left) + item["amount"]
+            return remaining_by_cost_center
         return {}
 
     def _get_selected_budget_requisition(self):

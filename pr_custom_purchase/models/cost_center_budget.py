@@ -19,9 +19,10 @@ class AccountAnalyticAccount(models.Model):
         string="Cost Center Code",
         help="Legacy alias kept for older purchase/portal flows. It mirrors the official Cost Center Code.",
     )
-    budget_allowance = fields.Float(string="Budget Allowance")
-    budget_spent = fields.Float(string="Budget Spent", compute="_compute_budget_metrics", store=False)
-    budget_left = fields.Float(string="Budget Left", compute="_compute_budget_metrics", store=False)
+    budget_allowance = fields.Float(string="Total Amount")
+    budget_spent = fields.Float(string="Spent Amount", compute="_compute_budget_metrics", store=False)
+    budget_left = fields.Float(string="Remaining Amount", compute="_compute_budget_metrics", store=False)
+    budget_expensed = fields.Float(string="Expensed Amount", compute="_compute_budget_metrics", store=False)
 
     def _sync_budget_code_alias(self):
         if self.env.context.get("skip_budget_code_alias_sync"):
@@ -91,18 +92,53 @@ class AccountAnalyticAccount(models.Model):
                 )
         return allowance_by_analytic
 
-    def _get_po_budget_spent_map(self, date_from=False, date_to=False):
+    def _get_budget_expensed_map(self, date_from=False, date_to=False, active_on=False, expense_type=False):
+        """Return actual analytic/practical amounts for matching budget lines."""
+        expensed_by_analytic = {analytic_id: 0.0 for analytic_id in self.ids}
+        if not self.ids:
+            return expensed_by_analytic
+
+        domain = [
+            ("analytic_account_id", "in", self.ids),
+            ("crossovered_budget_id.state", "in", ["validate", "done"]),
+        ]
+        if expense_type:
+            domain.append(("crossovered_budget_id.expense_type", "=", expense_type))
+        if active_on:
+            active_on = fields.Date.to_date(active_on)
+            domain += [("date_from", "<=", active_on), ("date_to", ">=", active_on)]
+        else:
+            if date_from:
+                domain.append(("date_to", ">=", fields.Date.to_date(date_from)))
+            if date_to:
+                domain.append(("date_from", "<=", fields.Date.to_date(date_to)))
+
+        for line in self.env["crossovered.budget.lines"].sudo().search(domain):
+            analytic_id = line.analytic_account_id.id
+            expensed_by_analytic[analytic_id] += line.practical_amount or 0.0
+        return expensed_by_analytic
+
+    def _get_po_budget_spent_map(self, date_from=False, date_to=False, budget=False):
         """Return committed/spent budget by analytic account.
 
-        Purchase Orders consume budget through PO lines. Cash PR vouchers
-        consume budget through CPV/BPV lines once submitted into accounting
-        approval. When a date range is supplied, only documents inside that
-        budget period consume that budget.
+        Approved PR lines reserve budget immediately. Purchase Orders and
+        submitted CPV/BPV lines replace that reservation as the downstream
+        commitment/spend document. When a date range is supplied, only
+        documents inside that budget period consume that budget. When a
+        budget is supplied, only documents originating from a PR that selected
+        that exact budget are included. This keeps overlapping budgets with the
+        same department, cost center, and dates independent.
         """
         analytic_ids = set(self.ids)
         spent_by_analytic = {analytic_id: 0.0 for analytic_id in analytic_ids}
         if not analytic_ids:
             return spent_by_analytic
+
+        if budget:
+            budget = self.env["crossovered.budget"].sudo().browse(
+                budget.id if hasattr(budget, "id") else budget
+            ).exists()
+            budget.ensure_one()
 
         def add_distributed_amount(distribution, amount):
             if not distribution:
@@ -122,10 +158,13 @@ class AccountAnalyticAccount(models.Model):
                         spent_by_analytic[analytic_id] += amount * (percentage / 100.0)
 
         PurchaseOrderLine = self.env["purchase.order.line"].sudo()
-        po_lines = PurchaseOrderLine.search([
+        po_domain = [
             ("order_id.state", "in", ["pending", "purchase", "done"]),
             ("analytic_distribution", "!=", False),
-        ])
+        ]
+        if budget:
+            po_domain.append(("order_id.requisition_id.expense_bucket_id", "=", budget.id))
+        po_lines = PurchaseOrderLine.search(po_domain)
         for line in po_lines:
             order = line.order_id
             order_date = order.date_order or order.date_approve or line.create_date
@@ -155,10 +194,17 @@ class AccountAnalyticAccount(models.Model):
         for model_name, parent_field in voucher_sources:
             if model_name not in self.env:
                 continue
-            voucher_lines = self.env[model_name].sudo().search([
+            voucher_domain = [
                 ("%s.state" % parent_field, "in", ["submit", "finance_approve", "posted"]),
                 ("analytic_distribution", "!=", False),
-            ])
+            ]
+            if budget:
+                voucher_domain.append((
+                    "%s.purchase_requisition_id.expense_bucket_id" % parent_field,
+                    "=",
+                    budget.id,
+                ))
+            voucher_lines = self.env[model_name].sudo().search(voucher_domain)
             for line in voucher_lines:
                 parent = line[parent_field]
                 voucher_date = (
@@ -169,6 +215,24 @@ class AccountAnalyticAccount(models.Model):
                 if not self._date_in_period(voucher_date, date_from, date_to):
                     continue
                 add_distributed_amount(line.analytic_distribution or {}, line.amount or 0.0)
+
+        PurchaseRequisition = self.env["purchase.requisition"].sudo()
+        requisition_domain = [
+            ("approval", "=", "approved"),
+            ("expense_bucket_id", "!=", False),
+            ("line_ids.cost_center_id", "in", list(analytic_ids)),
+        ]
+        if budget:
+            requisition_domain.append(("expense_bucket_id", "=", budget.id))
+        requisitions = PurchaseRequisition.search(requisition_domain)
+        for requisition in requisitions:
+            requisition_date = requisition.date_request or requisition.create_date
+            if not self._date_in_period(requisition_date, date_from, date_to):
+                continue
+            for item in requisition._current_budget_reservation_by_cost_center().values():
+                analytic_id = item["cc"].id
+                if analytic_id in spent_by_analytic:
+                    spent_by_analytic[analytic_id] += item["amount"]
 
         return spent_by_analytic
 
@@ -202,6 +266,7 @@ class AccountAnalyticAccount(models.Model):
                     "allowance": allowance,
                     "spent": spent,
                     "remaining": allowance - spent,
+                    "expensed": sum(lines.mapped("practical_amount")),
                 }
             return metrics
 
@@ -212,6 +277,12 @@ class AccountAnalyticAccount(models.Model):
             expense_type=expense_type,
         )
         spent_by_analytic = self._get_po_budget_spent_map(date_from=date_from, date_to=date_to)
+        expensed_by_analytic = self._get_budget_expensed_map(
+            date_from=date_from,
+            date_to=date_to,
+            active_on=active_on,
+            expense_type=expense_type,
+        )
         metrics = {}
         for analytic in self:
             allowance = allowance_by_analytic.get(analytic.id, 0.0)
@@ -220,6 +291,7 @@ class AccountAnalyticAccount(models.Model):
                 "allowance": allowance,
                 "spent": spent,
                 "remaining": allowance - spent,
+                "expensed": expensed_by_analytic.get(analytic.id, 0.0),
             }
         return metrics
 
@@ -233,6 +305,7 @@ class AccountAnalyticAccount(models.Model):
             spent = metric.get("spent", 0.0)
             rec.budget_spent = spent
             rec.budget_left = effective_allowance - spent
+            rec.budget_expensed = metric.get("expensed", 0.0)
 
     @api.model
     def get_cost_center_budget(self, budget_type, budget_code):

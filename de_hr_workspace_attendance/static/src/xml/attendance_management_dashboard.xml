@@ -13,26 +13,27 @@
                 <t t-set="summary" t-value="data.summary || {}"/>
 
                 <header class="pr-att-mgmt-toolbar">
-                    <div>
-                        <span class="pr-att-mgmt-eyebrow">Management Attendance</span>
-                        <h1>Attendance Dashboard</h1>
+                    <div class="pr-att-mgmt-heading">
+                        <h1>Employee's Attendance Dashboard</h1>
                         <p t-esc="data.display_date"/>
                     </div>
                     <div class="pr-att-mgmt-filters">
                         <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(-1)" title="Previous day">
                             <i class="fa fa-chevron-left"/>
                         </button>
-                        <input type="date" class="form-control" t-att-value="state.selectedDate" t-on-change="onDateChange"/>
-                        <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(1)" title="Next day">
+                        <input type="date" class="form-control" t-att-value="state.selectedDate" t-att-max="getLocalDateString()" t-on-change="onDateChange"/>
+                        <button type="button" class="btn pr-att-mgmt-icon-btn" t-on-click="() => this.moveDay(1)" t-att-disabled="isNextDayDisabled()" title="Next day">
                             <i class="fa fa-chevron-right"/>
                         </button>
                         <button type="button" class="btn pr-att-mgmt-soft-btn" t-on-click="setToday">
                             Today
                         </button>
-                        <select class="form-select" t-att-value="state.departmentId" t-on-change="onDepartmentChange">
-                            <option value="0">All Departments</option>
+                        <select class="form-select" t-on-change="onDepartmentChange">
+                            <option value="0" t-att-selected="isDepartmentSelected(0)">All Departments</option>
                             <t t-foreach="data.departments || []" t-as="department" t-key="department.id">
-                                <option t-att-value="department.id" t-esc="department.name"/>
+                                <option t-att-value="department.id"
+                                        t-att-selected="isDepartmentSelected(department.id)"
+                                        t-esc="department.name"/>
                             </t>
                         </select>
                         <button type="button" class="btn pr-att-mgmt-refresh" t-on-click="loadDashboardData">
@@ -60,7 +61,7 @@
                 <section class="pr-att-mgmt-grid">
                     <article class="pr-att-mgmt-panel pr-span-5">
                         <div class="pr-att-mgmt-panel-title">
-                            <h2>Daily Attendance Trend</h2>
+                            <h2>Daily Attendance Chart</h2>
                             <span>Last 7 days</span>
                         </div>
                         <div class="pr-att-mgmt-trend">
@@ -92,7 +93,7 @@
 
                     <article class="pr-att-mgmt-panel pr-span-3">
                         <div class="pr-att-mgmt-panel-title">
-                            <h2>Status Mix</h2>
+                            <h2>Employee Status</h2>
                             <span t-esc="formatNumber(summary.total || 0) + ' employees'"/>
                         </div>
                         <div class="pr-att-mgmt-status-list">
@@ -113,7 +114,7 @@
 
                     <article class="pr-att-mgmt-panel pr-span-4">
                         <div class="pr-att-mgmt-panel-title">
-                            <h2>Department Exposure</h2>
+                            <h2>Department Wise Status</h2>
                             <span>Absent, shortage, leave</span>
                         </div>
                         <div class="pr-att-mgmt-departments">
@@ -148,7 +149,7 @@
                 <section class="pr-att-mgmt-panel pr-att-mgmt-pipe-panel">
                     <div class="pr-att-mgmt-panel-title pr-att-mgmt-pipe-title">
                         <div>
-                            <h2>Employee Daily Pipeline</h2>
+                            <h2>Employee Daily Attendance Data</h2>
                             <span>Attendance, absences, leaves, and missing checkouts by hour</span>
                         </div>
                         <strong t-esc="data.company"/>
