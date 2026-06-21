@@ -4,10 +4,10 @@
     'author': "Mahmoud Salah",
     'website': "http://www.petroraq.com",
     'category': 'Uncategorized',
-    'version': '0.1',
+    'version': '0.2',
 
     # any module necessary for this one to work correctly
-    'depends': ['l10n_sa'],
+    'depends': ['l10n_sa', 'pr_base'],
     'assets': {
         'web.report_assets.common': [
             '/tax_Invoice_report/static/src/scss/custom_font.scss'

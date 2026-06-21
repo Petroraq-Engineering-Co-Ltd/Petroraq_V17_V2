@@ -11,6 +11,7 @@ import base64
 from odoo import models, fields, api
 from io import BytesIO
 import binascii
+import re
 from googletrans import Translator
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -68,6 +69,27 @@ class AccountMove(models.Model):
         string="Retention (%)",
         compute="_compute_retention_percent",
     )
+
+    def get_partner_address_lines(self, partner, language="en"):
+        """Return stored English or Arabic address lines without translating them."""
+        self.ensure_one()
+        normal_lines = [line for line in (partner.street, partner.street2) if line]
+        arabic_lines = [
+            line for line in (partner.arabic_street, partner.arabic_street2) if line
+        ]
+
+        def contains_arabic(value):
+            return bool(re.search(r"[\u0600-\u06ff]", value or ""))
+
+        if language == "ar":
+            # Older records may contain the Arabic line in Street 2 because Odoo
+            # previously replaced the custom Arabic address form block.
+            return arabic_lines or [
+                line for line in normal_lines if contains_arabic(line)
+            ]
+
+        english_lines = [line for line in normal_lines if not contains_arabic(line)]
+        return english_lines or normal_lines
 
     @api.depends(
         "invoice_line_ids.sale_line_ids.order_id.po_number",
