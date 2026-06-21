@@ -359,7 +359,9 @@ class AccountLedger(models.TransientModel):
                 "result_id": result.id,
                 "transaction_ref": line.get("transaction_ref") or "",
                 "reference": line.get("reference") or "",
-                "date": line.get("date") if line.get("transaction_ref") else False,
+                # Report dates are localized strings for PDF/XLSX display.
+                # Store the accompanying raw value in the Date field.
+                "date": line.get("date_value") if line.get("transaction_ref") else False,
                 "label": line.get("description") or "",
                 "debit": float(line.get("debit").replace(",", "")) if line.get("debit") else 0.0,
                 "credit": float(line.get("credit").replace(",", "")) if line.get("credit") else 0.0,

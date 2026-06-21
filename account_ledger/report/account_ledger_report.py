@@ -7,6 +7,7 @@ from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 import logging
 
 from .ledger_partner_utils import (
+    as_date,
     format_report_date,
     get_ledger_move_lines,
     get_ledger_report_line_groups,
@@ -126,6 +127,7 @@ class AccountLedgerReport(models.AbstractModel):
         docs.append({
             'transaction_ref': 'Opening',
             'date': format_report_date(self.env, date_start),
+            'date_value': as_date(date_start),
             'description': 'Opening Balance',
             'reference': ' ',
             'journal': ' ',
@@ -142,6 +144,7 @@ class AccountLedgerReport(models.AbstractModel):
             docs.append({
                 'transaction_ref': item["transaction_ref"],
                 'date': format_report_date(self.env, item["date"]),
+                'date_value': item["date"],
                 'description': item["description"],
                 'reference': item["reference"],
                 'journal': item["journal"],
