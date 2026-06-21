@@ -139,6 +139,34 @@
         </field>
     </record>
 
+    <!-- Keep rejection reset controls in a late extension view so Studio or
+         other form customizations do not shadow the feature. -->
+    <record id="hr_leave_request_rejection_reset_form_view" model="ir.ui.view">
+        <field name="name">pr.hr.leave.request.rejection.reset.form.view</field>
+        <field name="model">pr.hr.leave.request</field>
+        <field name="inherit_id" ref="pr_hr_holidays.hr_leave_request_form_view"/>
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form/header" position="before">
+                <field name="can_reset_rejection" invisible="1"/>
+            </xpath>
+            <xpath expr="//form/header" position="inside">
+                <button name="action_reset_rejection" string="RESET REJECTION" class="btn-warning"
+                        invisible="state != 'reject' or not can_reset_rejection"
+                        confirm="Reset this rejection and reopen your decision stage?"
+                        type="object"/>
+            </xpath>
+            <xpath expr="//form/header/field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,manager_approve,hr_supervisor,hr_approve,reject,cancel_request,cancelled</attribute>
+            </xpath>
+            <xpath expr="//form/sheet//field[@name='reject_reason']" position="after">
+                <field name="rejected_stage" invisible="state != 'reject'"/>
+                <field name="rejected_by_user_id" invisible="state != 'reject'"
+                       options="{'no_create': True, 'no_edit': True}"/>
+            </xpath>
+        </field>
+    </record>
+
 
     <record id="hr_leave_request_tree_view" model="ir.ui.view">
         <field name="name">pr.hr.leave.request.tree.view</field>

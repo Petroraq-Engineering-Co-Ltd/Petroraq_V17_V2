@@ -19,11 +19,22 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         if 'my_leave_request_approval_count' in counters:
-            values['my_leave_request_approval_count'] = request.env['pr.hr.leave.request'].search_count([("employee_manager_id.user_id", "=", request.env.user.id), ("state", "=", "draft")])
+            values['my_leave_request_approval_count'] = request.env['pr.hr.leave.request'].search_count(
+                self._prepare_my_leave_request_approval_domain()
+            )
         return values
 
     def _prepare_my_leave_request_approval_domain(self):
-        return [("employee_manager_id.user_id", "=", request.env.user.id), ("state", "=", "draft")]
+        return AND([
+            [("employee_manager_id.user_id", "=", request.env.user.id)],
+            OR([
+                [("state", "=", "draft")],
+                [
+                    ("state", "=", "reject"),
+                    ("rejected_stage", "=", "manager"),
+                ],
+            ]),
+        ])
 
     def _prepare_my_leave_request_approval_searchbar_sortings(self):
         return {
@@ -89,7 +100,9 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
     def portal_my_leave_request_approved(self, leave_request_id, **kw):
         leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
         self._check_leave_request_manager(leave_request_obj)
-        leave_request_obj.sudo().action_manager_approve()
+        if leave_request_obj.state != 'draft':
+            raise MissingError(_("This leave request is not awaiting your approval."))
+        leave_request_obj.with_user(request.env.user).action_manager_approve()
         return request.redirect('/my/leave_requests_approval')
 
     @http.route(['/my/leave_requests_rejected/<model("pr.hr.leave.request"):leave_request_id>'], type='http',
@@ -97,6 +110,16 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
     def portal_my_leave_request_rejected(self, leave_request_id, **kw):
         leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
         self._check_leave_request_manager(leave_request_obj)
-        leave_request_obj.sudo().state = 'reject'
-        leave_request_obj.sudo().approval_state = 'reject'
+        leave_request_obj.with_user(request.env.user)._apply_stage_rejection(
+            'manager',
+            _("Rejected from the employee portal."),
+        )
+        return request.redirect('/my/leave_requests_approval')
+
+    @http.route(['/my/leave_requests_reset_rejection/<model("pr.hr.leave.request"):leave_request_id>'], type='http',
+                auth="user", website=True)
+    def portal_my_leave_request_reset_rejection(self, leave_request_id, **kw):
+        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+        self._check_leave_request_manager(leave_request_obj)
+        leave_request_obj.with_user(request.env.user).action_reset_rejection()
         return request.redirect('/my/leave_requests_approval')
