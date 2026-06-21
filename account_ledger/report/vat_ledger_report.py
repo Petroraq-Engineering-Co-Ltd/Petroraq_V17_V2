@@ -195,6 +195,7 @@ class AccountLedgerReport(models.AbstractModel):
             docs.append({
                 'transaction_ref': item.move_id.name,
                 'date': format_report_date(self.env, item.date),
+                'date_value': item.date,
                 'description': item.name,
                 'reference': item.ref,
                 'journal': item.journal_id.name,
