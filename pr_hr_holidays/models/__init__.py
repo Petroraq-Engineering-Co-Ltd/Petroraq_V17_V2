@@ -7,5 +7,6 @@ from . import hr_leave_allocation
 from . import res_groups
 from . import hr_employee
 from . import hr_contract
+from . import reject_record_wizard
 
 
