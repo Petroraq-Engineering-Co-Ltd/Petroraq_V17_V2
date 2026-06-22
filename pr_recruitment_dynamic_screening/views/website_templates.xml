@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="repeating_question_row" name="Recruitment Repeating Question Row">
+        <div class="pr-repeat-row" t-att-data-row-token="row_token">
+            <div class="pr-repeat-row-number" aria-hidden="true"></div>
+            <div class="pr-repeat-row-grid">
+                <t t-foreach="question.line_column_ids.filtered('active')" t-as="column">
+                    <t t-set="column_input_id"
+                       t-value="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)"/>
+                    <div t-att-class="'form-group full-width' if column.column_type == 'text' else 'form-group'">
+                        <label t-att-class="'form-label required' if column.required else 'form-label'"
+                               t-att-for="column_input_id"
+                               t-esc="column.name"/>
+                        <input t-if="column.column_type == 'char'"
+                               class="form-control" type="text" maxlength="5000"
+                               t-att-id="column_input_id"
+                               t-att-data-row-required="column.required and 'true' or 'false'"
+                               t-att-name="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)"/>
+                        <textarea t-elif="column.column_type == 'text'"
+                                  class="form-control" rows="3" maxlength="5000"
+                                  t-att-id="column_input_id"
+                                  t-att-data-row-required="column.required and 'true' or 'false'"
+                                  t-att-name="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)"></textarea>
+                        <input t-elif="column.column_type == 'integer'"
+                               class="form-control" type="number" step="1"
+                               t-att-id="column_input_id"
+                               t-att-data-row-required="column.required and 'true' or 'false'"
+                               t-att-name="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)"/>
+                        <input t-elif="column.column_type == 'decimal'"
+                               class="form-control" type="number" step="any"
+                               t-att-id="column_input_id"
+                               t-att-data-row-required="column.required and 'true' or 'false'"
+                               t-att-name="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)"/>
+                        <select t-elif="column.column_type == 'selection'"
+                                class="form-select"
+                                t-att-id="column_input_id"
+                                t-att-data-row-required="column.required and 'true' or 'false'"
+                                t-att-name="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)">
+                            <option value="">Select an answer</option>
+                            <t t-foreach="column.option_ids.filtered('active')" t-as="option">
+                                <option t-att-value="option.id" t-esc="option.name"/>
+                            </t>
+                        </select>
+                        <select t-elif="column.column_type == 'many2one'"
+                                class="form-select"
+                                t-att-id="column_input_id"
+                                t-att-data-row-required="column.required and 'true' or 'false'"
+                                t-att-name="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)">
+                            <option value="">Select an answer</option>
+                            <t t-foreach="column.option_ids.filtered('active')" t-as="option">
+                                <option t-att-value="option.id" t-esc="option.name"/>
+                            </t>
+                        </select>
+                        <input t-elif="column.column_type == 'date'"
+                               class="form-control" type="date"
+                               t-att-id="column_input_id"
+                               t-att-data-row-required="column.required and 'true' or 'false'"
+                               t-att-name="'pr_question_%s_%s_column_%s' % (question.id, row_token, column.id)"/>
+                        <small t-if="column.help_text" class="pr-question-help" t-esc="column.help_text"/>
+                    </div>
+                </t>
+            </div>
+            <button type="button" class="pr-remove-row" aria-label="Remove this entry">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
+        </div>
+    </template>
+
+    <template id="careers_job_detail_dynamic_questions"
+              name="Career Application Dynamic Questions"
+              inherit_id="pr_website.careers_job_detail">
+        <xpath expr="//input[@name='resume']/ancestor::div[hasclass('form-group')][1]" position="before">
+            <div class="pr-screening-honeypot" aria-hidden="true">
+                <label for="pr_screening_website">Website</label>
+                <input id="pr_screening_website"
+                       type="text"
+                       name="pr_screening_website"
+                       tabindex="-1"
+                       autocomplete="off"/>
+            </div>
+        </xpath>
+        <xpath expr="//input[@name='resume']/ancestor::div[hasclass('form-group')][1]" position="before">
+            <t t-if="job.application_question_ids.filtered('active')">
+                <section class="pr-dynamic-section full-width" aria-labelledby="prDynamicQuestionsTitle">
+                    <div class="pr-dynamic-header">
+                        <span class="pr-dynamic-icon" aria-hidden="true">
+                            <i class="fa fa-list-check"></i>
+                        </span>
+                        <div>
+                            <h3 class="pr-dynamic-title" id="prDynamicQuestionsTitle">Job-specific questions</h3>
+                            <p class="pr-dynamic-subtitle">A few details to help us review your application.</p>
+                        </div>
+                    </div>
+                    <div class="pr-dynamic-grid">
+                        <t t-foreach="job.application_question_ids.filtered('active')" t-as="question">
+                            <t t-set="question_input_id" t-value="'pr_question_%s' % question.id"/>
+                            <div t-att-class="'form-group pr-question-field full-width' if question.answer_type in ('text', 'one2many') else 'form-group pr-question-field'">
+                                <label t-att-class="'form-label required' if question.required else 'form-label'"
+                                       t-att-id="question.answer_type == 'one2many' and ('%s_label' % question_input_id) or None"
+                                       t-att-for="question.answer_type != 'one2many' and question_input_id or None">
+                                    <t t-esc="question.name"/>
+                                </label>
+                                <input t-if="question.answer_type == 'char'"
+                                       class="form-control"
+                                       type="text"
+                                       t-att-id="question_input_id"
+                                       maxlength="5000"
+                                       t-att-name="'pr_question_%s' % question.id"
+                                       t-att-required="question.required and 'required' or None"/>
+                                <textarea t-elif="question.answer_type == 'text'"
+                                          class="form-control"
+                                          rows="4"
+                                          t-att-id="question_input_id"
+                                          maxlength="5000"
+                                          t-att-name="'pr_question_%s' % question.id"
+                                          t-att-required="question.required and 'required' or None"></textarea>
+                                <input t-elif="question.answer_type == 'integer'"
+                                       class="form-control"
+                                       type="number"
+                                       t-att-id="question_input_id"
+                                       step="1"
+                                       t-att-name="'pr_question_%s' % question.id"
+                                       t-att-required="question.required and 'required' or None"/>
+                                <input t-elif="question.answer_type == 'decimal'"
+                                       class="form-control"
+                                       type="number"
+                                       t-att-id="question_input_id"
+                                       step="any"
+                                       t-att-name="'pr_question_%s' % question.id"
+                                       t-att-required="question.required and 'required' or None"/>
+                                <select t-elif="question.answer_type == 'selection'"
+                                        class="form-select"
+                                        t-att-id="question_input_id"
+                                        t-att-name="'pr_question_%s' % question.id"
+                                        t-att-required="question.required and 'required' or None">
+                                    <option value="">Select an answer</option>
+                                    <t t-foreach="question.option_ids.filtered('active')" t-as="option">
+                                        <option t-att-value="option.id" t-esc="option.name"/>
+                                    </t>
+                                </select>
+                                <select t-elif="question.answer_type == 'many2one'"
+                                        class="form-select"
+                                        t-att-id="question_input_id"
+                                        t-att-name="'pr_question_%s' % question.id"
+                                        t-att-required="question.required and 'required' or None">
+                                    <option value="">Select an answer</option>
+                                    <t t-foreach="question.option_ids.filtered('active')" t-as="option">
+                                        <option t-att-value="option.id" t-esc="option.name"/>
+                                    </t>
+                                </select>
+                                <div t-elif="question.answer_type == 'one2many'"
+                                     class="pr-repeatable"
+                                     role="group"
+                                     t-att-aria-labelledby="'%s_label' % question_input_id"
+                                     t-att-data-question-id="question.id"
+                                     t-att-data-question-required="question.required and 'true' or 'false'">
+                                    <input type="hidden"
+                                           t-att-name="'pr_question_%s_rows' % question.id"
+                                           value="1"
+                                           class="pr-repeat-row-tokens"/>
+                                    <div class="pr-repeat-rows">
+                                        <t t-set="row_token" t-value="'1'"/>
+                                        <t t-call="pr_recruitment_dynamic_screening.repeating_question_row"/>
+                                    </div>
+                                    <template class="pr-repeat-row-template">
+                                        <t t-set="row_token" t-value="'__ROW__'"/>
+                                        <t t-call="pr_recruitment_dynamic_screening.repeating_question_row"/>
+                                    </template>
+                                    <button type="button" class="pr-add-row">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                        Add another entry
+                                    </button>
+                                </div>
+                                <select t-elif="question.answer_type == 'boolean'"
+                                        class="form-select"
+                                        t-att-id="question_input_id"
+                                        t-att-name="'pr_question_%s' % question.id"
+                                        t-att-required="question.required and 'required' or None">
+                                    <option value="">Select an answer</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                                <input t-elif="question.answer_type == 'date'"
+                                       class="form-control"
+                                       type="date"
+                                       t-att-id="question_input_id"
+                                       t-att-name="'pr_question_%s' % question.id"
+                                       t-att-required="question.required and 'required' or None"/>
+                                <small t-if="question.help_text" class="pr-question-help" t-esc="question.help_text"/>
+                                <small t-if="question.website_criterion_hint" class="pr-eligibility-hint">
+                                    <i class="fa fa-shield" aria-hidden="true"></i>
+                                    <span t-esc="question.website_criterion_hint"/>
+                                </small>
+                            </div>
+                        </t>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+</odoo>

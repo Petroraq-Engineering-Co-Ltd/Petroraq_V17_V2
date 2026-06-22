@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_applicant_auto_refused_tree" model="ir.ui.view">
+        <field name="name">hr.applicant.auto.refused.tree</field>
+        <field name="model">hr.applicant</field>
+        <field name="arch" type="xml">
+            <tree create="0" delete="0" decoration-danger="dynamic_screening_status == 'auto_refused'">
+                <field name="partner_name" string="Candidate"/>
+                <field name="job_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="dynamic_screened_on"/>
+                <field name="dynamic_screening_failure_reason" string="Automatic Refusal Reason"/>
+                <field name="refuse_reason_id" optional="show"/>
+                <field name="dynamic_screening_status" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_applicant_auto_refused_pivot" model="ir.ui.view">
+        <field name="name">hr.applicant.auto.refused.pivot</field>
+        <field name="model">hr.applicant</field>
+        <field name="arch" type="xml">
+            <pivot string="Automatic Screening Refusals">
+                <field name="job_id" type="row"/>
+                <field name="department_id" type="row"/>
+                <field name="dynamic_screened_on" type="col" interval="month"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_hr_applicant_auto_refused_graph" model="ir.ui.view">
+        <field name="name">hr.applicant.auto.refused.graph</field>
+        <field name="model">hr.applicant</field>
+        <field name="arch" type="xml">
+            <graph string="Automatic Screening Refusals by Job" type="bar">
+                <field name="job_id"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_hr_applicant_auto_refused_search" model="ir.ui.view">
+        <field name="name">hr.applicant.auto.refused.search</field>
+        <field name="model">hr.applicant</field>
+        <field name="arch" type="xml">
+            <search string="Automatic Screening Refusals">
+                <field name="partner_name"/>
+                <field name="job_id"/>
+                <field name="department_id"/>
+                <filter name="screened_this_month" string="This Month"
+                        date="dynamic_screened_on" default_period="this_month"/>
+                <separator/>
+                <filter name="group_job" string="Job Position"
+                        context="{'group_by': 'job_id'}"/>
+                <filter name="group_department" string="Department"
+                        context="{'group_by': 'department_id'}"/>
+                <filter name="group_month" string="Screening Month"
+                        context="{'group_by': 'dynamic_screened_on:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_applicant_auto_refused" model="ir.actions.act_window">
+        <field name="name">Automatic Screening Refusals</field>
+        <field name="res_model">hr.applicant</field>
+        <field name="view_mode">tree,pivot,graph,form</field>
+        <field name="domain">[('active', '=', False), ('dynamic_screening_status', '=', 'auto_refused')]</field>
+        <field name="context">{'active_test': False, 'search_default_group_job': 1}</field>
+        <field name="search_view_id" ref="view_hr_applicant_auto_refused_search"/>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_hr_applicant_auto_refused_tree')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_hr_applicant_auto_refused_pivot')}),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_hr_applicant_auto_refused_graph')}),
+            (0, 0, {'view_mode': 'form'})
+        ]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No automatic screening refusals.</p>
+            <p>Candidates that fail configured job screening rules appear here.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_hr_applicant_auto_refused"
+              name="Automatic Screening Refusals"
+              parent="hr_recruitment.menu_hr_recruitment_root"
+              action="action_hr_applicant_auto_refused"
+              sequence="85"
+              groups="hr_recruitment.group_hr_recruitment_user,hr_recruitment.group_hr_recruitment_manager"/>
+</odoo>

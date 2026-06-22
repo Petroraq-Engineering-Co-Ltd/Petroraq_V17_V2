@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pr_recruitment_dynamic_screening.RecruitmentDashboardExtension"
+       t-inherit="pr_hr_recruitment.RecruitmentDashboardAction"
+       t-inherit-mode="extension"
+       owl="1">
+        <xpath expr="//div[hasclass('pr-rec-main-grid')][last()]" position="after">
+            <div class="pr-rec-main-grid">
+                <section class="pr-rec-panel">
+                    <div class="pr-rec-panel-title">
+                        <div>
+                            <h2>Automatic Refusals by Position</h2>
+                            <p>
+                                Screening refusals by job position.
+                                <strong t-esc="state.data.summary.auto_refused_month || 0"/>
+                                were refused this month.
+                            </p>
+                        </div>
+                        <span class="pr-rec-pill">Screening</span>
+                    </div>
+                    <div class="pr-rec-pipeline compact">
+                        <t t-foreach="state.data.auto_refused_by_job || []"
+                           t-as="job" t-key="job.id">
+                            <button class="pr-rec-stage-row" type="button"
+                                    t-on-click="() => this.openRecords('hr.applicant', [['active', '=', false], ['dynamic_screening_status', '=', 'auto_refused'], ['job_id', '=', job.id]], job.name + ' - Auto Refused', {'active_test': false})">
+                                <div class="pr-rec-stage-label">
+                                    <span t-esc="job.name"/>
+                                    <strong>
+                                        <t t-esc="job.count"/>
+                                        <small t-esc="' (' + job.rate + '%)'"/>
+                                    </strong>
+                                </div>
+                                <div class="pr-rec-progress">
+                                    <div class="pr-rec-progress-fill"
+                                         t-att-style="'width: ' + job.percent + '%'"/>
+                                </div>
+                            </button>
+                        </t>
+                        <div class="pr-rec-empty"
+                             t-if="!(state.data.auto_refused_by_job || []).length">
+                            No applicants have been automatically refused.
+                        </div>
+                    </div>
+                </section>
+
+                <section class="pr-rec-panel">
+                    <div class="pr-rec-panel-title">
+                        <div>
+                            <h2>Recent Automatic Refusals</h2>
+                            <p>Latest candidates rejected by configured screening rules.</p>
+                        </div>
+                    </div>
+                    <div class="pr-rec-table">
+                        <t t-foreach="state.data.recent_auto_refused || []"
+                           t-as="applicant" t-key="applicant.id">
+                            <button class="pr-rec-table-row" type="button"
+                                    t-on-click="() => this.openApplicant(applicant.id)">
+                                <div>
+                                    <strong t-esc="applicant.name"/>
+                                    <span t-esc="applicant.job"/>
+                                    <small t-esc="applicant.reason"/>
+                                </div>
+                                <span class="pr-rec-status">Refused</span>
+                            </button>
+                        </t>
+                        <div class="pr-rec-empty"
+                             t-if="!(state.data.recent_auto_refused || []).length">
+                            No automatic refusals yet.
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </xpath>
+    </t>
+</templates>

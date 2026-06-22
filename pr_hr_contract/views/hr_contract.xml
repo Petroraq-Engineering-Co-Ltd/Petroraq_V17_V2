@@ -48,17 +48,22 @@
                                        readonly="state != 'draft'"/>
                                 <div class="mb-3">/ month</div>
                             </div>
-                            <field name="is_automatic_gosi" widget="boolean_toggle" readonly="state != 'draft'"/>
+                            <field name="is_saudi_employee" invisible="1"/>
+                            <field name="is_automatic_gosi" widget="boolean_toggle"
+                                   readonly="state != 'draft'" invisible="not is_saudi_employee"/>
                             <field name="gosi_salary" style="color: purple;"
-                                   readonly="is_automatic_gosi == True or state != 'draft'"/>
+                                   readonly="is_automatic_gosi == True or state != 'draft'"
+                                   invisible="not is_saudi_employee"/>
                             <field name="company_portion" style="color: green;"
-                                   readonly="is_automatic_gosi == True or state != 'draft'"/>
+                                   readonly="is_automatic_gosi == True or state != 'draft'"
+                                   invisible="not is_saudi_employee"/>
                             <field name="employee_portion" style="color: green;"
-                                   readonly="is_automatic_gosi == True or state != 'draft'"/>
-                            <field name="is_special_gosi"/>
-                            <field name="special_company_gosi_rate"/>
-                            <field name="is_special_employee_gosi"/>
-                            <field name="special_employee_gosi_rate"/>
+                                   readonly="is_automatic_gosi == True or state != 'draft'"
+                                   invisible="not is_saudi_employee"/>
+                            <field name="is_special_gosi" invisible="not is_saudi_employee"/>
+                            <field name="special_company_gosi_rate" invisible="not is_saudi_employee"/>
+                            <field name="is_special_employee_gosi" invisible="not is_saudi_employee"/>
+                            <field name="special_employee_gosi_rate" invisible="not is_saudi_employee"/>
 
                             <!--                            <field name="struct_id" required="0" invisible="1"/>-->
                             <field name="structure_type_id" required="0" invisible="1"/>
@@ -67,7 +72,7 @@
                         </group>
                         <group name="Salary Details">
                             <field name="wage" string="Basic Salary" style="color:green" force_save="1"/>
-                            <field name="gosi_amount" string="GOSI" style="color:red" readonly="1"/>
+                            <field name="gosi_amount" string="GOSI" style="color:red" readonly="1" invisible="1"/>
                             <field name="gross_amount" string="Gross Salary" style="color:orange" readonly="1"/>
                             <field name="net_amount" string="NET Salary" style="color:green" readonly="1"/>
                         </group>

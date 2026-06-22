@@ -55,6 +55,11 @@ class HrContract(models.Model):
     # endregion [Total Amounts]
 
     # region [GOSI Fields]
+    is_saudi_employee = fields.Boolean(
+        string="Saudi Employee",
+        compute="_compute_is_saudi_employee",
+        help="Technical flag used to show Saudi-only GOSI controls.",
+    )
     is_automatic_gosi = fields.Boolean(string='GOSI Automatic', default=True, tracking=True,
                                        help='If True: GOSI Salary Will be Calculated Automatic'
                                             'If False: GOSI Salary Will Be Manually Added')
@@ -108,6 +113,14 @@ class HrContract(models.Model):
     # endregion [One2many Fields]
 
     # endregion [Fields]
+
+    @api.depends('employee_id', 'employee_id.country_id', 'employee_id.country_id.code')
+    def _compute_is_saudi_employee(self):
+        for contract in self:
+            country = contract.employee_id.country_id
+            contract.is_saudi_employee = bool(
+                country and (country.code or '').upper() == 'SA'
+            )
 
     # region [Methods]
     @api.onchange('employee_id')
