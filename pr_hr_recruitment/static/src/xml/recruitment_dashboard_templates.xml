@@ -24,7 +24,7 @@
                 <div class="pr-rec-kpi-grid">
                     <t t-foreach="state.data.cards || []" t-as="card" t-key="card.key">
                         <button class="pr-rec-kpi-card" type="button"
-                                t-on-click="() => this.openRecords(card.model, card.domain, card.label)">
+                                t-on-click="() => this.openRecords(card.model, card.domain, card.label, card.context || {})">
                             <div class="pr-rec-kpi-icon">
                                 <i t-att-class="'fa ' + card.icon"/>
                             </div>

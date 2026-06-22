@@ -64,7 +64,7 @@
                                     </group>
                                     <group name="Salary Details">
                                         <field name="wage" string="Basic Salary" style="color:green" readonly="1" force_save="1"/>
-                                        <field name="gosi_amount" string="GOSI" style="color:red" readonly="1"/>
+                                        <field name="gosi_amount" string="GOSI" style="color:red" readonly="1" invisible="1"/>
                                         <field name="gross_amount" string="Gross Salary" style="color:orange" readonly="1"/>
                                         <field name="net_amount" string="NET Salary" style="color:green" readonly="1"/>
                                     </group>
