@@ -298,13 +298,19 @@ class BiometricDeviceDetails(models.Model):
                         attendance_id = self.env["hr.attendance"].search([("employee_id", "=", k_employee_id), ("day_date", "=", check_in.date())], limit=1)
                         if attendance_id:
                             if not attendance_id.check_out:
-                                attendance_id.sudo().write({"check_out": check_out})
+                                attendance_id.sudo().with_context(
+                                    attendance_policy_source="biometric"
+                                ).write({"check_out": check_out})
                             elif attendance_id.check_out:
                                 if check_out > attendance_id.check_out:
-                                    attendance_id.sudo().write({"check_out": check_out})
+                                    attendance_id.sudo().with_context(
+                                        attendance_policy_source="biometric"
+                                    ).write({"check_out": check_out})
                         else:
                             # if check_in != check_out:
-                            new_attendance = self.env["hr.attendance"].create({
+                            new_attendance = self.env["hr.attendance"].sudo().with_context(
+                                attendance_policy_source="biometric"
+                            ).create({
                                 "employee_id": employee_id.id,
                                 "check_in": check_in,
                                 "check_out": check_out,

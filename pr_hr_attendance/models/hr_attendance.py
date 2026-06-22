@@ -2,16 +2,45 @@ from datetime import datetime, time, timedelta
 
 import pytz
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import AccessError, ValidationError
 
 
 class HrAttendance(models.Model):
     _inherit = "hr.attendance"
 
+    _ATTENDANCE_POLICY_SOURCES = {
+        "biometric",
+        "scheduled",
+        "approved_shortage",
+    }
+    _ATTENDANCE_PROTECTED_FIELDS = {
+        "employee_id",
+        "check_in",
+        "check_out",
+        "auto_generated_attendance",
+        "checkin_device_id",
+        "checkout_device_id",
+    }
+
     auto_generated_attendance = fields.Boolean(
         string="Auto Generated",
         readonly=True,
         copy=False,
+    )
+    attendance_entry_source = fields.Selection(
+        [
+            ("manual", "Manual HR Entry"),
+            ("biometric", "Biometric Device"),
+            ("scheduled", "Scheduled Attendance"),
+            ("approved_shortage", "Approved Shortage Correction"),
+        ],
+        string="Attendance Source",
+        required=True,
+        default="manual",
+        readonly=True,
+        copy=False,
+        index=True,
     )
 
     attachment_ids = fields.Many2many(
@@ -22,6 +51,110 @@ class HrAttendance(models.Model):
         string="Attachments",
         help="Optional supporting attachments for this attendance/overtime entry.",
     )
+
+    @api.model
+    def _attendance_policy_user_is_hr(self):
+        return self.env.is_superuser() or any(
+            self.env.user.has_group(group)
+            for group in (
+                "hr_attendance.group_hr_attendance_officer",
+                "hr_attendance.group_hr_attendance_manager",
+                "hr.group_hr_manager",
+            )
+        )
+
+    @api.model
+    def _attendance_policy_source(self):
+        source = self.env.context.get("attendance_policy_source")
+        return source if source in self._ATTENDANCE_POLICY_SOURCES else False
+
+    @api.model
+    def _check_attendance_policy_for_employees(self, employees, operation):
+        employees = employees.exists()
+        if not employees:
+            raise ValidationError(_("Select a valid employee for the attendance entry."))
+
+        source = self._attendance_policy_source()
+        if source:
+            if not self.env.su:
+                raise AccessError(
+                    _("System attendance source markers cannot be used manually.")
+                )
+            if source == "biometric":
+                incompatible = employees.filtered(
+                    lambda employee: employee.attendance_entry_mode != "automated"
+                    or not employee.compute_attendance
+                )
+            elif source == "scheduled":
+                incompatible = employees.filtered(
+                    lambda employee: employee.attendance_entry_mode != "automated"
+                    or employee.compute_attendance
+                )
+            else:
+                incompatible = self.env["hr.employee"]
+            if incompatible:
+                raise ValidationError(
+                    _(
+                        "%s cannot be processed by the selected automated attendance source."
+                    )
+                    % ", ".join(incompatible.mapped("display_name"))
+                )
+            return
+
+        automated = employees.filtered(
+            lambda employee: employee.attendance_entry_mode == "automated"
+        )
+        if automated:
+            raise AccessError(
+                _(
+                    "Attendance for automated employees cannot be manually %s. "
+                    "Biometric or scheduled processes must manage it. Employees: %s"
+                )
+                % (operation, ", ".join(automated.mapped("display_name")))
+            )
+        if not self._attendance_policy_user_is_hr():
+            raise AccessError(
+                _("Only HR attendance staff can manage Manual / Site attendance.")
+            )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        Employee = self.env["hr.employee"].sudo()
+        employee_ids = [values.get("employee_id") for values in vals_list]
+        if not all(employee_ids):
+            raise ValidationError(_("Every attendance entry requires an employee."))
+        employees = Employee.browse(employee_ids).exists()
+        if set(employees.ids) != set(employee_ids):
+            raise ValidationError(_("Select a valid employee for every attendance entry."))
+        self._check_attendance_policy_for_employees(employees, _("created"))
+        source = self._attendance_policy_source() or "manual"
+        prepared = []
+        for values in vals_list:
+            prepared_values = dict(values)
+            prepared_values["attendance_entry_source"] = source
+            prepared.append(prepared_values)
+        return super().create(prepared)
+
+    def write(self, values):
+        if "attendance_entry_source" in values and self.filtered(
+            lambda attendance: attendance.attendance_entry_source
+            != values["attendance_entry_source"]
+        ):
+            raise AccessError(_("Attendance Source is immutable audit information."))
+        if self._ATTENDANCE_PROTECTED_FIELDS.intersection(values):
+            employees = self.mapped("employee_id")
+            if values.get("employee_id"):
+                employees |= self.env["hr.employee"].sudo().browse(
+                    values["employee_id"]
+                )
+            self._check_attendance_policy_for_employees(employees, _("modified"))
+        return super().write(values)
+
+    def unlink(self):
+        self._check_attendance_policy_for_employees(
+            self.mapped("employee_id"), _("deleted")
+        )
+        return super().unlink()
 
     @api.depends("worked_hours", "check_in", "check_out", "employee_id")
     def _compute_overtime_for_approval(self):
@@ -174,12 +307,15 @@ class HrAttendance(models.Model):
         return self.env["hr.employee"].sudo().search([
             ("active", "=", True),
             ("company_id", "=", company.id),
+            ("attendance_entry_mode", "=", "automated"),
             ("compute_attendance", "=", False),
         ])
 
     @api.model
     def cron_create_auto_management_attendance_check_in(self, target_date=False):
-        Attendance = self.env["hr.attendance"].sudo()
+        Attendance = self.env["hr.attendance"].sudo().with_context(
+            attendance_policy_source="scheduled"
+        )
         companies = self.env["res.company"].sudo().search([])
         created_attendances = Attendance.browse()
 
@@ -206,7 +342,9 @@ class HrAttendance(models.Model):
 
     @api.model
     def cron_checkout_auto_management_attendance(self, target_date=False):
-        Attendance = self.env["hr.attendance"].sudo()
+        Attendance = self.env["hr.attendance"].sudo().with_context(
+            attendance_policy_source="scheduled"
+        )
         companies = self.env["res.company"].sudo().search([])
         updated_attendances = Attendance.browse()
 

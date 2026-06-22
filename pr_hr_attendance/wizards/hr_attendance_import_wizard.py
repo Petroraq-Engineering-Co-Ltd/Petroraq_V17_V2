@@ -40,10 +40,34 @@ class HRAttendanceImportWizard(models.Model):
             # Convert each row to a dictionary
 
             # Print the result
-            for row in dict_data:
-                employee_id = self.env["hr.employee"].search([("code", "=", str(row.get("Name")).split())], limit=1)
+            for row_number, row in enumerate(dict_data, start=2):
+                employee_reference = str(
+                    row.get("Employee Code")
+                    or row.get("Code")
+                    or row.get("Name")
+                    or ""
+                ).strip()
+                employee_id = self.env["hr.employee"].search(
+                    ["|", ("code", "=", employee_reference), ("barcode", "=", employee_reference)],
+                    limit=1,
+                )
+                if not employee_id and employee_reference:
+                    employee_id = self.env["hr.employee"].search(
+                        [("name", "=ilike", employee_reference)], limit=1
+                    )
                 if not employee_id:
-                    raise ValidationError("Employee Not Exist")
+                    raise ValidationError(
+                        _("Row %s: employee '%s' does not exist.")
+                        % (row_number, employee_reference or _("blank"))
+                    )
+                if employee_id.attendance_entry_mode != "manual":
+                    raise ValidationError(
+                        _(
+                            "Row %s: %s uses Automated Attendance. Submit and approve "
+                            "an Attendance Mode Change request before importing site attendance."
+                        )
+                        % (row_number, employee_id.display_name)
+                    )
                 if isinstance(row.get("Date"), datetime):
                     day_date = row.get("Date").date()
                 else:
@@ -60,8 +84,6 @@ class HRAttendanceImportWizard(models.Model):
                 elif isinstance(check_out, float):
                     check_out_time = datetime.combine(day_date, datetime.min.time()).replace(hour=17)
                 else:
-                    if isinstance(check_out, datetime):
-                        print("kk")
                     check_out_time = datetime.combine(day_date, check_out)
 
 
@@ -78,7 +100,7 @@ class HRAttendanceImportWizard(models.Model):
                 #         check_out_time = check_out
                 # else:
                 #     check_out_time = datetime.combine(check_out, datetime.min.time()).replace(hour=17)
-                attendance_id = self.env["hr.attendance"].create({
+                self.env["hr.attendance"].create({
                     "employee_id": employee_id.id,
                     "check_in": check_in_time - relativedelta(hours=3),
                     "check_out": check_out_time - relativedelta(hours=3),

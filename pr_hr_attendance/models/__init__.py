@@ -8,4 +8,5 @@ from . import hr_attendance_notification
 from . import hr_attendance
 from . import hr_shortage_request
 from . import res_groups
+from . import attendance_mode_change_request
 

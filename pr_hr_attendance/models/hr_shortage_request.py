@@ -301,12 +301,18 @@ class HrShortageRequest(models.Model):
             check_out_dt = fields.Datetime.to_datetime(local_check_out.astimezone(pytz.utc).replace(tzinfo=None))
 
             if attendance_id:
-                attendance_id.sudo().with_context(allow_late_attendance=True).write({
+                attendance_id.sudo().with_context(
+                    allow_late_attendance=True,
+                    attendance_policy_source="approved_shortage",
+                ).write({
                     "check_in": check_in_dt,
                     "check_out": check_out_dt,
                 })
             else:
-                self.env["hr.attendance"].sudo().with_context(allow_late_attendance=True).create({
+                self.env["hr.attendance"].sudo().with_context(
+                    allow_late_attendance=True,
+                    attendance_policy_source="approved_shortage",
+                ).create({
                     "employee_id": rec.employee_id.id,
                     "check_in": check_in_dt,
                     "check_out": check_out_dt,
