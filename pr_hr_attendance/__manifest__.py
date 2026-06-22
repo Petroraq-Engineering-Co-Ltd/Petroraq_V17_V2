@@ -16,16 +16,22 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Human Resources/Attendance',
-    'version': '17.0.1.0.4',
+    'version': '17.0.1.1.1',
     # any module necessary for this one to work correctly
-    'depends': ['pr_hr_contract', 'gs_hr_attendance_sheet'],
+    'depends': [
+        'pr_hr_contract',
+        'gs_hr_attendance_sheet',
+        'pr_hr_recruitment_request',
+    ],
 
     # always loaded
     'data': [
         'security/groups.xml',
+        'security/attendance_mode_security.xml',
         'security/ir.model.access.csv',
         'views/hr_attendance_views.xml',
         'views/hr_employee.xml',
+        'views/attendance_mode_change_request_views.xml',
         'views/hr_attendance_sheet_batch.xml',
         'views/hr_attendance_sheet.xml',
         'views/hr_payslip.xml',
@@ -38,4 +44,5 @@
     ],
     # only loaded in demonstration mode
     'demo': [],
+    'license': 'LGPL-3',
 }

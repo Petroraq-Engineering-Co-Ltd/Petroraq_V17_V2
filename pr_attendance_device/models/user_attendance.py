@@ -81,7 +81,10 @@ class UserAttendance(models.Model):
         vals_list = []
         for r in self:
             vals_list.append(r._prepare_hr_attendance_vals())
-        return self.env['hr.attendance'].with_context(sync_from_device=True).create(vals_list)
+        return self.env['hr.attendance'].sudo().with_context(
+            sync_from_device=True,
+            attendance_policy_source='biometric',
+        ).create(vals_list)
 
     def _sync_attendance(self):
         """
@@ -112,8 +115,11 @@ class UserAttendance(models.Model):
                                     uatt_update = True
                             else:
                                 if last_hr_attendance and not last_hr_attendance.check_out and uatt.timestamp >= last_hr_attendance.check_in:
-                                    last_hr_attendance.with_context(not_manual_check_out_modification=True,
-                                                                    sync_from_device=True).write({
+                                    last_hr_attendance.sudo().with_context(
+                                        not_manual_check_out_modification=True,
+                                        sync_from_device=True,
+                                        attendance_policy_source='biometric',
+                                    ).write({
                                         'check_out': uatt.timestamp,
                                         'checkout_device_id': uatt.device_id.id
                                     })
@@ -185,7 +191,10 @@ class UserAttendance(models.Model):
             ('check_in', '<', leverage_end_utc),
         ])
         if hr_attendances:
-            hr_attendances.with_context(sync_from_device=True).write({'check_in': normalized_checkin_utc})
+            hr_attendances.sudo().with_context(
+                sync_from_device=True,
+                attendance_policy_source='biometric',
+            ).write({'check_in': normalized_checkin_utc})
 
         user_attendances = self.search([
             ('timestamp', '>=', leverage_start_utc),
