@@ -23,15 +23,18 @@ CRITERION_TYPES = [
     ("none", "No Automatic Screening"),
     ("number_min", "Number: Minimum"),
     ("number_max", "Number: Maximum"),
+    ("number_range", "Number: Allowed Range"),
     ("number_equal", "Number: Must Equal"),
     ("text_equal", "Text: Must Equal"),
     ("option_allowed", "Selection / Record: Allowed Values"),
     ("option_min_sequence", "Selection / Record: Minimum Level"),
     ("line_count_min", "Repeating Lines: Minimum Entries"),
     ("line_count_max", "Repeating Lines: Maximum Entries"),
+    ("line_count_range", "Repeating Lines: Allowed Range"),
     ("boolean_equal", "Yes / No: Required Answer"),
     ("date_min", "Date: On or After"),
     ("date_max", "Date: On or Before"),
+    ("date_range", "Date: Allowed Range"),
 ]
 
 RELATION_MODELS = [
@@ -500,9 +503,11 @@ class RecruitmentQuestion(models.Model):
     )
     criterion_type = fields.Selection(CRITERION_TYPES, required=True, default="none")
     criterion_number = fields.Float(string="Required Number")
+    criterion_number_max = fields.Float(string="Maximum Required Number")
     criterion_text = fields.Char(string="Required Text")
     criterion_boolean = fields.Boolean(string="Required Answer")
     criterion_date = fields.Date(string="Required Date")
+    criterion_date_max = fields.Date(string="Maximum Required Date")
     allowed_option_ids = fields.Many2many(
         "pr.recruitment.question.option",
         "pr_recruitment_question_allowed_option_rel",
@@ -600,13 +605,13 @@ class RecruitmentQuestion(models.Model):
         compatible = {
             "char": {"none", "text_equal"},
             "text": {"none", "text_equal"},
-            "integer": {"none", "number_min", "number_max", "number_equal"},
-            "decimal": {"none", "number_min", "number_max", "number_equal"},
+            "integer": {"none", "number_min", "number_max", "number_range", "number_equal"},
+            "decimal": {"none", "number_min", "number_max", "number_range", "number_equal"},
             "selection": {"none", "option_allowed", "option_min_sequence"},
             "many2one": {"none", "option_allowed", "option_min_sequence"},
-            "one2many": {"none", "line_count_min", "line_count_max"},
+            "one2many": {"none", "line_count_min", "line_count_max", "line_count_range"},
             "boolean": {"none", "boolean_equal"},
-            "date": {"none", "date_min", "date_max"},
+            "date": {"none", "date_min", "date_max", "date_range"},
         }
         if self.criterion_type not in compatible.get(self.answer_type, {"none"}):
             self.criterion_type = "none"
@@ -653,9 +658,11 @@ class RecruitmentQuestion(models.Model):
     @api.depends(
         "criterion_type",
         "criterion_number",
+        "criterion_number_max",
         "criterion_text",
         "criterion_boolean",
         "criterion_date",
+        "criterion_date_max",
         "allowed_option_ids.name",
         "minimum_option_id.name",
         "option_ids.name",
@@ -672,6 +679,11 @@ class RecruitmentQuestion(models.Model):
                 hint = _("Minimum accepted: %s") % number
             elif criterion == "number_max":
                 hint = _("Maximum accepted: %s") % number
+            elif criterion == "number_range":
+                hint = _("Accepted range: %s to %s") % (
+                    number,
+                    "%g" % question.criterion_number_max,
+                )
             elif criterion == "number_equal":
                 hint = _("Required value: %s") % number
             elif criterion == "text_equal":
@@ -688,6 +700,11 @@ class RecruitmentQuestion(models.Model):
                 hint = _("Provide at least %s entries") % number
             elif criterion == "line_count_max":
                 hint = _("Provide no more than %s entries") % number
+            elif criterion == "line_count_range":
+                hint = _("Provide between %s and %s entries") % (
+                    number,
+                    "%g" % question.criterion_number_max,
+                )
             elif criterion == "boolean_equal":
                 hint = _("Required answer: %s") % (
                     _("Yes") if question.criterion_boolean else _("No")
@@ -699,6 +716,11 @@ class RecruitmentQuestion(models.Model):
             elif criterion == "date_max":
                 hint = _("Date must be on or before: %s") % (
                     fields.Date.to_string(question.criterion_date) or ""
+                )
+            elif criterion == "date_range":
+                hint = _("Date must be between: %s and %s") % (
+                    fields.Date.to_string(question.criterion_date) or "",
+                    fields.Date.to_string(question.criterion_date_max) or "",
                 )
             question.website_criterion_hint = (
                 False if question.hide_criterion_on_website else hint
@@ -712,9 +734,11 @@ class RecruitmentQuestion(models.Model):
         "required",
         "option_ids",
         "criterion_number",
+        "criterion_number_max",
         "criterion_text",
         "criterion_boolean",
         "criterion_date",
+        "criterion_date_max",
         "allowed_option_ids",
         "minimum_option_id",
     )
@@ -722,13 +746,13 @@ class RecruitmentQuestion(models.Model):
         compatible = {
             "char": {"none", "text_equal"},
             "text": {"none", "text_equal"},
-            "integer": {"none", "number_min", "number_max", "number_equal"},
-            "decimal": {"none", "number_min", "number_max", "number_equal"},
+            "integer": {"none", "number_min", "number_max", "number_range", "number_equal"},
+            "decimal": {"none", "number_min", "number_max", "number_range", "number_equal"},
             "selection": {"none", "option_allowed", "option_min_sequence"},
             "many2one": {"none", "option_allowed", "option_min_sequence"},
-            "one2many": {"none", "line_count_min", "line_count_max"},
+            "one2many": {"none", "line_count_min", "line_count_max", "line_count_range"},
             "boolean": {"none", "boolean_equal"},
-            "date": {"none", "date_min", "date_max"},
+            "date": {"none", "date_min", "date_max", "date_range"},
         }
         for question in self:
             if not question.active:
@@ -745,11 +769,18 @@ class RecruitmentQuestion(models.Model):
             if question.criterion_type in (
                 "number_min",
                 "number_max",
+                "number_range",
                 "number_equal",
                 "line_count_min",
                 "line_count_max",
+                "line_count_range",
             ) and not math.isfinite(question.criterion_number):
                 raise ValidationError(_("The screening threshold must be a finite number."))
+            if question.criterion_type in (
+                "number_range",
+                "line_count_range",
+            ) and not math.isfinite(question.criterion_number_max):
+                raise ValidationError(_("The maximum screening threshold must be a finite number."))
             if question.answer_type in ("selection", "many2one") and not active_options:
                 raise ValidationError(_("A selection or related-record question needs at least one value."))
             if question.answer_type == "many2one" and not question.relation_model:
@@ -757,15 +788,30 @@ class RecruitmentQuestion(models.Model):
             if question.answer_type == "one2many" and not active_columns:
                 raise ValidationError(_("A repeating-lines question needs at least one column."))
             if (
-                question.criterion_type in ("line_count_min", "line_count_max")
+                question.criterion_type in ("line_count_min", "line_count_max", "line_count_range")
                 and question.criterion_number < 0
             ):
                 raise ValidationError(_("The line-count threshold cannot be negative."))
             if (
-                question.criterion_type in ("line_count_min", "line_count_max")
+                question.criterion_type == "line_count_range"
+                and question.criterion_number_max < 0
+            ):
+                raise ValidationError(_("The line-count maximum cannot be negative."))
+            if (
+                question.criterion_type in ("line_count_min", "line_count_max", "line_count_range")
                 and question.criterion_number != int(question.criterion_number)
             ):
                 raise ValidationError(_("The line-count threshold must be a whole number."))
+            if (
+                question.criterion_type == "line_count_range"
+                and question.criterion_number_max != int(question.criterion_number_max)
+            ):
+                raise ValidationError(_("The line-count maximum must be a whole number."))
+            if (
+                question.criterion_type in ("number_range", "line_count_range")
+                and question.criterion_number > question.criterion_number_max
+            ):
+                raise ValidationError(_("The screening minimum cannot be greater than its maximum."))
             if question.answer_type == "many2one":
                 for option in active_options:
                     record = option._get_related_record()
@@ -797,10 +843,19 @@ class RecruitmentQuestion(models.Model):
             if question.criterion_type == "text_equal" and not question.criterion_text:
                 raise ValidationError(_("Enter the required text answer."))
             if (
-                question.criterion_type in ("date_min", "date_max")
+                question.criterion_type in ("date_min", "date_max", "date_range")
                 and not question.criterion_date
             ):
                 raise ValidationError(_("Enter the date used by the screening rule."))
+            if question.criterion_type == "date_range" and not question.criterion_date_max:
+                raise ValidationError(_("Enter the maximum date used by the screening rule."))
+            if (
+                question.criterion_type == "date_range"
+                and question.criterion_date
+                and question.criterion_date_max
+                and question.criterion_date > question.criterion_date_max
+            ):
+                raise ValidationError(_("The screening start date cannot be after its end date."))
             foreign_options = question.allowed_option_ids.filtered(
                 lambda option: option.question_id != question
             )
@@ -930,19 +985,28 @@ class RecruitmentQuestion(models.Model):
         failed = False
         expected = False
         actual = answer.display_value
-        if criterion in ("number_min", "number_max", "number_equal"):
+        if criterion in ("number_min", "number_max", "number_range", "number_equal"):
             number = (
                 answer.value_integer
                 if self.answer_type == "integer"
                 else answer.value_float
             )
-            expected = self.criterion_number
-            comparison = float_compare(number, expected, precision_digits=9)
-            failed = {
-                "number_min": comparison < 0,
-                "number_max": comparison > 0,
-                "number_equal": comparison != 0,
-            }[criterion]
+            if criterion == "number_range":
+                minimum = self.criterion_number
+                maximum = self.criterion_number_max
+                expected = _("between %s and %s") % ("%g" % minimum, "%g" % maximum)
+                failed = (
+                    float_compare(number, minimum, precision_digits=9) < 0
+                    or float_compare(number, maximum, precision_digits=9) > 0
+                )
+            else:
+                expected = self.criterion_number
+                comparison = float_compare(number, expected, precision_digits=9)
+                failed = {
+                    "number_min": comparison < 0,
+                    "number_max": comparison > 0,
+                    "number_equal": comparison != 0,
+                }[criterion]
         elif criterion == "text_equal":
             expected = self.criterion_text or ""
             failed = (answer.value_text or "").strip().casefold() != expected.strip().casefold()
@@ -957,25 +1021,41 @@ class RecruitmentQuestion(models.Model):
                 not answer.option_id.active
                 or answer.option_id.sequence < minimum_option.sequence
             )
-        elif criterion in ("line_count_min", "line_count_max"):
+        elif criterion in ("line_count_min", "line_count_max", "line_count_range"):
             line_count = len(answer.line_ids)
-            expected = int(self.criterion_number)
             actual = line_count
-            failed = (
-                line_count < expected
-                if criterion == "line_count_min"
-                else line_count > expected
-            )
+            if criterion == "line_count_range":
+                minimum = int(self.criterion_number)
+                maximum = int(self.criterion_number_max)
+                expected = _("between %s and %s entries") % (minimum, maximum)
+                failed = line_count < minimum or line_count > maximum
+            else:
+                expected = int(self.criterion_number)
+                failed = (
+                    line_count < expected
+                    if criterion == "line_count_min"
+                    else line_count > expected
+                )
         elif criterion == "boolean_equal":
             expected = _("Yes") if self.criterion_boolean else _("No")
             failed = answer.value_boolean != self.criterion_boolean
-        elif criterion in ("date_min", "date_max"):
-            expected = fields.Date.to_string(self.criterion_date)
-            failed = (
-                answer.value_date < self.criterion_date
-                if criterion == "date_min"
-                else answer.value_date > self.criterion_date
-            )
+        elif criterion in ("date_min", "date_max", "date_range"):
+            if criterion == "date_range":
+                expected = _("between %s and %s") % (
+                    fields.Date.to_string(self.criterion_date),
+                    fields.Date.to_string(self.criterion_date_max),
+                )
+                failed = (
+                    answer.value_date < self.criterion_date
+                    or answer.value_date > self.criterion_date_max
+                )
+            else:
+                expected = fields.Date.to_string(self.criterion_date)
+                failed = (
+                    answer.value_date < self.criterion_date
+                    if criterion == "date_min"
+                    else answer.value_date > self.criterion_date
+                )
 
         if not failed:
             return False
@@ -1213,9 +1293,11 @@ class RecruitmentQuestion(models.Model):
                 "active": source.active,
                 "required": source.required,
                 "criterion_number": source.criterion_number,
+                "criterion_number_max": source.criterion_number_max,
                 "criterion_text": source.criterion_text,
                 "criterion_boolean": source.criterion_boolean,
                 "criterion_date": source.criterion_date,
+                "criterion_date_max": source.criterion_date_max,
                 "hide_criterion_on_website": source.hide_criterion_on_website,
             }
             has_answers = False
