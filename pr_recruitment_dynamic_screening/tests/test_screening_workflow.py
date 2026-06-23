@@ -21,6 +21,23 @@ class TestScreeningRules(ScreeningCase):
             self.make_applicant(), integer, "5"
         )))
 
+        ranged = self.set_criterion(
+            self.make_question("decimal"),
+            "number_range",
+            criterion_number=3.5,
+            criterion_number_max=7.25,
+        )
+        self.assertTrue(
+            ranged._screening_failure(
+                self.make_answer(self.make_applicant(), ranged, "3.49")
+            )
+        )
+        self.assertFalse(
+            ranged._screening_failure(
+                self.make_answer(self.make_applicant(), ranged, "7.25")
+            )
+        )
+
         decimal = self.set_criterion(
             self.make_question("decimal"), "number_equal", criterion_number=0.3
         )
@@ -58,6 +75,23 @@ class TestScreeningRules(ScreeningCase):
         self.assertTrue(
             minimum_date._screening_failure(
                 self.make_answer(self.make_applicant(), minimum_date, "2025-12-31")
+            )
+        )
+
+        date_range = self.set_criterion(
+            self.make_question("date"),
+            "date_range",
+            criterion_date=date(2026, 1, 1),
+            criterion_date_max=date(2026, 12, 31),
+        )
+        self.assertFalse(
+            date_range._screening_failure(
+                self.make_answer(self.make_applicant(), date_range, "2026-12-31")
+            )
+        )
+        self.assertTrue(
+            date_range._screening_failure(
+                self.make_answer(self.make_applicant(), date_range, "2027-01-01")
             )
         )
 
@@ -110,6 +144,24 @@ class TestScreeningRules(ScreeningCase):
             {"answer_id": answer.id}
         )
         self.assertFalse(question._screening_failure(answer))
+
+        ranged = self.set_criterion(
+            self.make_question("one2many"),
+            "line_count_range",
+            criterion_number=2,
+            criterion_number_max=3,
+        )
+        ranged_answer = self.Answer.sudo().create(
+            {"applicant_id": applicant.id, "question_id": ranged.id}
+        )
+        self.env["pr.recruitment.answer.line"].sudo().create(
+            {"answer_id": ranged_answer.id}
+        )
+        self.assertTrue(ranged._screening_failure(ranged_answer))
+        self.env["pr.recruitment.answer.line"].sudo().create(
+            {"answer_id": ranged_answer.id}
+        )
+        self.assertFalse(ranged._screening_failure(ranged_answer))
 
 
 @tagged("post_install", "-at_install")
@@ -533,6 +585,26 @@ class TestConfigurationIntegrity(ScreeningCase):
                 {
                     "criterion_type": "line_count_min",
                     "criterion_number": float("inf"),
+                    "required": True,
+                }
+            )
+
+        with self.assertRaises(ValidationError):
+            self.make_question("integer").write(
+                {
+                    "criterion_type": "number_range",
+                    "criterion_number": 10,
+                    "criterion_number_max": 5,
+                    "required": True,
+                }
+            )
+
+        with self.assertRaises(ValidationError):
+            self.make_question("date").write(
+                {
+                    "criterion_type": "date_range",
+                    "criterion_date": date(2026, 12, 31),
+                    "criterion_date_max": date(2026, 1, 1),
                     "required": True,
                 }
             )

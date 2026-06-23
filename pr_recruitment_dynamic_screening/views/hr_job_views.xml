@@ -72,7 +72,9 @@
                         </group>
                         <group string="National ID / Iqama">
                             <field name="core_iqama_rule"/>
-                            <div class="alert alert-secondary" role="status"
+                            <div class="alert alert-secondary pr_screening_config_note"
+                                 role="status"
+                                 colspan="2"
                                  invisible="core_iqama_rule != 'required'">
                                 Candidates selecting No, omitting the number, or entering anything other than 10 digits will be automatically refused.
                             </div>
@@ -195,15 +197,24 @@
                                         <group string="Eligibility Rule">
                                             <group>
                                                 <field name="criterion_type" string="Screening Rule"/>
+                                                <field name="criterion_number" string="Minimum"
+                                                       invisible="criterion_type not in ('number_min', 'number_range', 'line_count_min', 'line_count_range')"/>
                                                 <field name="criterion_number" string="Threshold"
-                                                       invisible="criterion_type not in ('number_min', 'number_max', 'number_equal', 'line_count_min', 'line_count_max')"/>
+                                                       invisible="criterion_type not in ('number_max', 'number_equal', 'line_count_max')"/>
+                                                <field name="criterion_number_max" string="Maximum"
+                                                       invisible="criterion_type not in ('number_range', 'line_count_range')"/>
                                                 <field name="criterion_text"
                                                        invisible="criterion_type != 'text_equal'"/>
                                                 <field name="criterion_boolean"
                                                        invisible="criterion_type != 'boolean_equal'"/>
-                                                <field name="criterion_date"
-                                                       invisible="criterion_type not in ('date_min', 'date_max')"/>
-                                                <div class="alert alert-info"
+                                                <field name="criterion_date" string="From Date"
+                                                       invisible="criterion_type not in ('date_min', 'date_range')"/>
+                                                <field name="criterion_date" string="Threshold Date"
+                                                       invisible="criterion_type != 'date_max'"/>
+                                                <field name="criterion_date_max" string="To Date"
+                                                       invisible="criterion_type != 'date_range'"/>
+                                                <div class="alert alert-info pr_screening_config_note"
+                                                     colspan="2"
                                                      invisible="criterion_type not in ('option_allowed', 'option_min_sequence')">
                                                     Mark Allowed or Minimum Level directly beside the values on the Available Values tab.
                                                 </div>
