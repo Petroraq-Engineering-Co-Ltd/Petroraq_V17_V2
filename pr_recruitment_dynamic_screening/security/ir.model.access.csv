@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pr_recruitment_question_user,pr.recruitment.question user,model_pr_recruitment_question,base.group_user,1,1,1,1
+access_pr_recruitment_question_option_user,pr.recruitment.question.option user,model_pr_recruitment_question_option,base.group_user,1,1,1,1
+access_pr_recruitment_question_column_user,pr.recruitment.question.column user,model_pr_recruitment_question_column,base.group_user,1,1,1,1
+access_pr_recruitment_question_column_option_user,pr.recruitment.question.column.option user,model_pr_recruitment_question_column_option,base.group_user,1,1,1,1
+access_pr_recruitment_answer_user,pr.recruitment.answer user,model_pr_recruitment_answer,hr_recruitment.group_hr_recruitment_user,1,0,0,0
+access_pr_recruitment_answer_line_user,pr.recruitment.answer.line user,model_pr_recruitment_answer_line,hr_recruitment.group_hr_recruitment_user,1,0,0,0
+access_pr_recruitment_answer_cell_user,pr.recruitment.answer.cell user,model_pr_recruitment_answer_cell,hr_recruitment.group_hr_recruitment_user,1,0,0,0

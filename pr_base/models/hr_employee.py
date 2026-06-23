@@ -2,13 +2,12 @@
 
 import re
 
-from odoo import api, models, _, fields
+from odoo import api, models, _
 from odoo.exceptions import ValidationError
 
 
 class HrEmployee(models.Model):
     _inherit = "hr.employee"
-    identification_id = fields.Char(required=True)
 
     def _pr_normalize_employee_id(self, value):
         return re.sub(r"[^0-9A-Z]", "", (value or "").upper())

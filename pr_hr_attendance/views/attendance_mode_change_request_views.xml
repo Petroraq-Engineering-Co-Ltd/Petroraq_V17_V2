@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_attendance_mode_change_request_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.mode.change.request.tree</field>
+        <field name="model">hr.attendance.mode.change.request</field>
+        <field name="arch" type="xml">
+            <tree create="0" delete="0" decoration-success="state == 'approved'"
+                  decoration-muted="state == 'draft' or state == 'cancelled'"
+                  decoration-warning="state == 'hr_manager_approval'"
+                  decoration-info="state == 'md_approval'"
+                  decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="current_mode"/>
+                <field name="requested_mode"/>
+                <field name="requested_by_id"/>
+                <field name="request_date"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_attendance_mode_change_request_form" model="ir.ui.view">
+        <field name="name">hr.attendance.mode.change.request.form</field>
+        <field name="model">hr.attendance.mode.change.request</field>
+        <field name="arch" type="xml">
+            <form create="1" delete="0">
+                <header>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'draft' or not id"
+                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
+                    <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
+                            class="btn-primary" invisible="state != 'hr_manager_approval' or not id"
+                            groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager"/>
+                    <button name="action_md_approve" type="object" string="MD Approve"
+                            class="btn-primary" invisible="state != 'md_approval' or not id"
+                            groups="pr_hr_recruitment_request.group_onboarding_md"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            class="btn-secondary" invisible="state != 'hr_manager_approval' or not id"
+                            groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            class="btn-secondary" invisible="state != 'md_approval' or not id"
+                            groups="pr_hr_recruitment_request.group_onboarding_md"/>
+                    <button name="action_cancel" type="object" string="Cancel Request"
+                            invisible="state not in ('draft', 'hr_manager_approval', 'md_approval') or not id"
+                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,hr_manager_approval,md_approval,approved,rejected,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="id"/>
+                            <field name="company_id" readonly="1"
+                                   groups="base.group_multi_company"/>
+                            <field name="current_mode" readonly="1" force_save="1"/>
+                            <field name="requested_mode"
+                                   readonly="state != 'draft'"/>
+                            <field name="reason" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Audit">
+                            <field name="requested_by_id" readonly="1"/>
+                            <field name="request_date" readonly="1"/>
+                            <field name="hr_manager_approved_by_id" readonly="1"
+                                   invisible="not hr_manager_approved_by_id"/>
+                            <field name="hr_manager_approved_date" readonly="1"
+                                   invisible="not hr_manager_approved_date"/>
+                            <field name="md_approved_by_id" readonly="1"
+                                   invisible="not md_approved_by_id"/>
+                            <field name="md_approved_date" readonly="1"
+                                   invisible="not md_approved_date"/>
+                            <field name="decision_by_id" readonly="1"
+                                   invisible="not decision_by_id"/>
+                            <field name="decision_date" readonly="1"
+                                   invisible="not decision_date"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_attendance_mode_change_request_search" model="ir.ui.view">
+        <field name="name">hr.attendance.mode.change.request.search</field>
+        <field name="model">hr.attendance.mode.change.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="requested_by_id"/>
+                <filter name="draft" string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="pending" string="Pending Approval"
+                        domain="[('state', 'in', ['hr_manager_approval', 'md_approval'])]"/>
+                <filter name="pending_hr_manager" string="HR Manager Approval"
+                        domain="[('state', '=', 'hr_manager_approval')]"/>
+                <filter name="pending_md" string="MD Approval"
+                        domain="[('state', '=', 'md_approval')]"/>
+                <filter name="approved" string="Approved"
+                        domain="[('state', '=', 'approved')]"/>
+                <filter name="rejected" string="Rejected"
+                        domain="[('state', '=', 'rejected')]"/>
+                <separator/>
+                <filter name="group_employee" string="Employee"
+                        context="{'group_by': 'employee_id'}"/>
+                <filter name="group_state" string="Status"
+                        context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_attendance_mode_change_request_all" model="ir.actions.act_window">
+        <field name="name">Attendance Mode Change Requests</field>
+        <field name="res_model">hr.attendance.mode.change.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_attendance_mode_change_request_search"/>
+    </record>
+
+    <record id="action_attendance_mode_change_request_pending" model="ir.actions.act_window">
+        <field name="name">Attendance Mode Changes</field>
+        <field name="res_model">hr.attendance.mode.change.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', 'in', ['hr_manager_approval', 'md_approval'])]</field>
+        <field name="context">{'create': False, 'search_default_pending': 1}</field>
+        <field name="search_view_id" ref="view_attendance_mode_change_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No attendance mode changes await approval.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_attendance_mode_change_request_history"
+              name="Attendance Mode Requests"
+              parent="hr_attendance.menu_hr_attendance_root"
+              action="action_attendance_mode_change_request_all"
+              sequence="30"
+              groups="hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
+
+    <menuitem id="menu_attendance_mode_change_request_approval"
+              name="Attendance Mode Changes"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_attendance_mode_change_request_pending"
+              sequence="12"
+              groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager,pr_hr_recruitment_request.group_onboarding_md"/>
+</odoo>

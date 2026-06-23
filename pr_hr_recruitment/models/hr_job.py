@@ -16,6 +16,12 @@ class HrJob(models.Model):
 
     job_salary = fields.Float(string="Gross Salary")
     experience_years = fields.Float(string="Years Of Experience")
+    # Compatibility for mixed Odoo 17 source trees. Some patch levels ship
+    # hr.job views/domains that reference this field while an older hr.job
+    # model from another addons path does not define it.
+    allowed_user_ids = fields.Many2many(
+        "res.users", compute="_compute_allowed_user_ids", readonly=True
+    )
     job_state = fields.Selection([
         ("initialize", "Initialized"),
         ("review", "Reviewed"),
@@ -30,6 +36,25 @@ class HrJob(models.Model):
     ], string="Status", default="post")
 
     # endregion [Fields]
+
+    @api.depends("company_id")
+    def _compute_allowed_user_ids(self):
+        company_ids = self.company_id.ids
+        domain = [("share", "=", False)]
+        if company_ids:
+            domain.append(("company_ids", "in", company_ids))
+        users_by_company = dict(
+            self.env["res.users"]._read_group(
+                domain=domain,
+                groupby=["company_id"],
+                aggregates=["id:recordset"],
+            )
+        )
+        all_users = self.env["res.users"]
+        for users in users_by_company.values():
+            all_users |= users
+        for job in self:
+            job.allowed_user_ids = users_by_company.get(job.company_id, all_users)
 
     def action_review(self):
         for rec in self:

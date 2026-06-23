@@ -24,7 +24,7 @@ export class RecruitmentDashboardAction extends Component {
         this.state.loading = false;
     }
 
-    openRecords(model, domain = [], name = "Records") {
+    openRecords(model, domain = [], name = "Records", context = {}) {
         if (!model) {
             return;
         }
@@ -34,6 +34,7 @@ export class RecruitmentDashboardAction extends Component {
             res_model: model,
             views: [[false, "list"], [false, "form"]],
             domain,
+            context,
             target: "current",
         });
     }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="refuse_reason_automatic_screening" model="hr.applicant.refuse.reason">
+        <field name="name">Did not meet automatic screening requirements</field>
+    </record>
+</odoo>
+

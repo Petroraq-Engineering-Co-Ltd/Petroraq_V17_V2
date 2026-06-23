@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_job_form_dynamic_screening" model="ir.ui.view">
+        <field name="name">hr.job.form.dynamic.screening</field>
+        <field name="model">hr.job</field>
+        <field name="inherit_id" ref="hr.view_hr_job_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Existing Field Screening" name="existing_field_screening">
+                    <div class="alert alert-info" role="alert">
+                        Apply rules to Location, Nationality, Education, Experience, Notice Period, Expected Salary, and National ID / Iqama already collected by the application form.
+                    </div>
+                    <group>
+                        <group string="Location">
+                            <field name="core_location_rule"/>
+                            <field name="core_location_values"
+                                   placeholder="One location or term per line, for example:&#10;Jubail&#10;Dammam"
+                                   invisible="core_location_rule == 'none'"
+                                   required="core_location_rule != 'none'"/>
+                        </group>
+                        <group string="Nationality">
+                            <field name="core_nationality_rule"/>
+                            <field name="core_nationality_ids"
+                                   widget="many2many_tags"
+                                   invisible="core_nationality_rule not in ('allowed', 'excluded')"
+                                   required="core_nationality_rule in ('allowed', 'excluded')"/>
+                        </group>
+                    </group>
+                    <group string="Education">
+                        <field name="core_education_rule"/>
+                        <field name="core_education_degree_ids"
+                               widget="many2many_tags"
+                               invisible="core_education_rule != 'allowed'"
+                               required="core_education_rule == 'allowed'"/>
+                        <field name="core_minimum_education_id"
+                               invisible="core_education_rule != 'minimum'"
+                               required="core_education_rule == 'minimum'"/>
+                        <div class="alert alert-secondary" role="status"
+                             invisible="core_education_rule != 'minimum'">
+                            Minimum education uses the Sequence configured on Recruitment Degrees. Higher sequence means a higher accepted level.
+                        </div>
+                    </group>
+                    <group>
+                        <group string="Experience">
+                            <field name="core_experience_rule"/>
+                            <field name="core_experience_minimum"
+                                   invisible="core_experience_rule not in ('minimum', 'range')"
+                                   required="core_experience_rule in ('minimum', 'range')"/>
+                            <field name="core_experience_maximum"
+                                   invisible="core_experience_rule not in ('maximum', 'range')"
+                                   required="core_experience_rule in ('maximum', 'range')"/>
+                        </group>
+                        <group string="Notice Period">
+                            <field name="core_notice_period_rule"/>
+                            <field name="core_notice_period_minimum"
+                                   invisible="core_notice_period_rule not in ('minimum', 'range')"
+                                   required="core_notice_period_rule in ('minimum', 'range')"/>
+                            <field name="core_notice_period_maximum"
+                                   invisible="core_notice_period_rule not in ('maximum', 'range')"
+                                   required="core_notice_period_rule in ('maximum', 'range')"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Expected Salary">
+                            <field name="core_salary_rule"/>
+                            <field name="core_salary_minimum"
+                                   invisible="core_salary_rule not in ('minimum', 'range')"
+                                   required="core_salary_rule in ('minimum', 'range')"/>
+                            <field name="core_salary_maximum"
+                                   invisible="core_salary_rule not in ('maximum', 'range')"
+                                   required="core_salary_rule in ('maximum', 'range')"/>
+                        </group>
+                        <group string="National ID / Iqama">
+                            <field name="core_iqama_rule"/>
+                            <div class="alert alert-secondary pr_screening_config_note"
+                                 role="status"
+                                 colspan="2"
+                                 invisible="core_iqama_rule != 'required'">
+                                Candidates selecting No, omitting the number, or entering anything other than 10 digits will be automatically refused.
+                            </div>
+                        </group>
+                    </group>
+                </page>
+                <page string="Application Questions" name="dynamic_application_questions">
+                    <div class="alert alert-info" role="alert">
+                        These questions appear before the CV upload on the website.
+                        A failed screening rule automatically archives and marks the application as refused.
+                    </div>
+                    <field name="application_question_ids"
+                           context="{'default_job_id': id}"
+                           nolabel="1">
+                        <tree>
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                            <field name="answer_type"/>
+                            <field name="required"/>
+                            <field name="criterion_type"/>
+                            <field name="website_criterion_hint" optional="show"/>
+                            <field name="active"/>
+                        </tree>
+                        <form string="Application Question">
+                            <sheet>
+                                <group>
+                                    <group>
+                                        <field name="job_id" invisible="1"/>
+                                        <field name="request_id" invisible="1"/>
+                                        <field name="source_request_question_id" invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="help_text"/>
+                                        <field name="sequence"/>
+                                    </group>
+                                    <group>
+                                        <field name="answer_type"/>
+                                        <field name="relation_model"
+                                               invisible="answer_type != 'many2one'"
+                                               required="answer_type == 'many2one'"/>
+                                        <field name="required"/>
+                                        <field name="active"/>
+                                    </group>
+                                </group>
+                                <notebook>
+                                    <page string="Available Values" invisible="answer_type not in ('selection', 'many2one')">
+                                        <div class="alert alert-info" role="alert">
+                                            Sequence is the level: 10, 20, 30, 40 means each later value is higher.
+                                        </div>
+                                        <button name="action_load_relation_values"
+                                                type="object"
+                                                string="Load Odoo Records"
+                                                class="btn-secondary"
+                                                invisible="answer_type != 'many2one'"/>
+                                        <field name="option_ids" nolabel="1">
+                                            <tree editable="bottom">
+                                                <field name="sequence" widget="handle"/>
+                                                <field name="relation_model" column_invisible="1"/>
+                                                <field name="name" column_invisible="parent.answer_type == 'many2one'"/>
+                                                <field name="country_id" column_invisible="parent.relation_model != 'res.country'"/>
+                                                <field name="degree_id" column_invisible="parent.relation_model != 'hr.recruitment.degree'"/>
+                                                <field name="skill_id" column_invisible="parent.relation_model != 'hr.skill'"/>
+                                                <field name="language_id" column_invisible="parent.relation_model != 'res.lang'"/>
+                                                <field name="screening_allowed"/>
+                                                <field name="screening_minimum"/>
+                                                <field name="active"/>
+                                            </tree>
+                                        </field>
+                                    </page>
+                                    <page string="Repeating Line Columns" invisible="answer_type != 'one2many'">
+                                        <div class="alert alert-info" role="alert">
+                                            Define the fields in each row, such as Employer, Job Title, From, and To.
+                                        </div>
+                                        <field name="line_column_ids" nolabel="1">
+                                            <tree>
+                                                <field name="sequence" widget="handle"/>
+                                                <field name="name"/>
+                                                <field name="column_type"/>
+                                                <field name="required"/>
+                                                <field name="active" optional="show"/>
+                                            </tree>
+                                            <form string="Repeating Line Column">
+                                                <sheet>
+                                                    <group>
+                                                        <field name="name"/>
+                                                        <field name="column_type"/>
+                                                        <field name="relation_model"
+                                                               invisible="column_type != 'many2one'"
+                                                               required="column_type == 'many2one'"/>
+                                                        <field name="required"/>
+                                                        <field name="active"/>
+                                                        <field name="sequence"/>
+                                                        <field name="help_text"/>
+                                                    </group>
+                                                    <group string="Available Values" invisible="column_type not in ('selection', 'many2one')">
+                                                        <button name="action_load_relation_values"
+                                                                type="object" string="Load Odoo Records"
+                                                                class="btn-secondary"
+                                                                invisible="column_type != 'many2one'"/>
+                                                        <field name="option_ids" nolabel="1">
+                                                            <tree editable="bottom">
+                                                                <field name="sequence" widget="handle"/>
+                                                                <field name="relation_model" column_invisible="1"/>
+                                                                <field name="name" column_invisible="parent.column_type == 'many2one'"/>
+                                                                <field name="country_id" column_invisible="parent.relation_model != 'res.country'"/>
+                                                                <field name="degree_id" column_invisible="parent.relation_model != 'hr.recruitment.degree'"/>
+                                                                <field name="skill_id" column_invisible="parent.relation_model != 'hr.skill'"/>
+                                                                <field name="language_id" column_invisible="parent.relation_model != 'res.lang'"/>
+                                                                <field name="active"/>
+                                                            </tree>
+                                                        </field>
+                                                    </group>
+                                                </sheet>
+                                            </form>
+                                        </field>
+                                    </page>
+                                    <page string="Automatic Screening">
+                                        <div class="alert alert-warning" role="alert">
+                                            If an applicant fails this rule, the application is classified as Refused with an automatic-screening reason.
+                                        </div>
+                                        <group string="Eligibility Rule">
+                                            <group>
+                                                <field name="criterion_type" string="Screening Rule"/>
+                                                <field name="criterion_number" string="Minimum"
+                                                       invisible="criterion_type not in ('number_min', 'number_range', 'line_count_min', 'line_count_range')"/>
+                                                <field name="criterion_number" string="Threshold"
+                                                       invisible="criterion_type not in ('number_max', 'number_equal', 'line_count_max')"/>
+                                                <field name="criterion_number_max" string="Maximum"
+                                                       invisible="criterion_type not in ('number_range', 'line_count_range')"/>
+                                                <field name="criterion_text"
+                                                       invisible="criterion_type != 'text_equal'"/>
+                                                <field name="criterion_boolean"
+                                                       invisible="criterion_type != 'boolean_equal'"/>
+                                                <field name="criterion_date" string="From Date"
+                                                       invisible="criterion_type not in ('date_min', 'date_range')"/>
+                                                <field name="criterion_date" string="Threshold Date"
+                                                       invisible="criterion_type != 'date_max'"/>
+                                                <field name="criterion_date_max" string="To Date"
+                                                       invisible="criterion_type != 'date_range'"/>
+                                                <div class="alert alert-info pr_screening_config_note"
+                                                     colspan="2"
+                                                     invisible="criterion_type not in ('option_allowed', 'option_min_sequence')">
+                                                    Mark Allowed or Minimum Level directly beside the values on the Available Values tab.
+                                                </div>
+                                            </group>
+                                            <group>
+                                                <field name="hide_criterion_on_website"
+                                                       invisible="criterion_type == 'none'"/>
+                                                <field name="website_criterion_hint" readonly="1"
+                                                       invisible="criterion_type == 'none' or hide_criterion_on_website"/>
+                                            </group>
+                                        </group>
+                                    </page>
+                                </notebook>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
