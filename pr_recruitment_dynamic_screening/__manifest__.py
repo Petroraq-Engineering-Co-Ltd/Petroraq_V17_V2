@@ -29,6 +29,7 @@
             "pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js",
         ],
         "web.assets_backend": [
+            "pr_recruitment_dynamic_screening/static/src/css/dynamic_screening_backend.css",
             "pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml",
         ],
     },

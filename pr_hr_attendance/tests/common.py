@@ -15,6 +15,7 @@ class AttendancePolicyCase(TransactionCase):
         attendance_manager = cls.env.ref(
             "hr_attendance.group_hr_attendance_manager"
         )
+        hr_manager_group = cls.env.ref("hr.group_hr_manager")
         md_group = cls.env.ref(
             "pr_hr_recruitment_request.group_onboarding_md"
         )
@@ -24,7 +25,9 @@ class AttendancePolicyCase(TransactionCase):
                 "login": "attendance.policy.hr",
                 "company_id": cls.env.company.id,
                 "company_ids": [Command.set(cls.env.company.ids)],
-                "groups_id": [Command.set((internal | attendance_manager).ids)],
+                "groups_id": [
+                    Command.set((internal | attendance_manager | hr_manager_group).ids)
+                ],
             }
         )
         cls.md_user = cls.env["res.users"].create(
@@ -34,6 +37,15 @@ class AttendancePolicyCase(TransactionCase):
                 "company_id": cls.env.company.id,
                 "company_ids": [Command.set(cls.env.company.ids)],
                 "groups_id": [Command.set((internal | md_group).ids)],
+            }
+        )
+        cls.hr_md_user = cls.env["res.users"].create(
+            {
+                "name": "Attendance Policy HR MD",
+                "login": "attendance.policy.hr.md",
+                "company_id": cls.env.company.id,
+                "company_ids": [Command.set(cls.env.company.ids)],
+                "groups_id": [Command.set((internal | hr_manager_group | md_group).ids)],
             }
         )
         cls.basic_user = cls.env["res.users"].create(
@@ -76,7 +88,8 @@ class AttendancePolicyCase(TransactionCase):
                 "reason": "Employee works at a field site.",
             }
         )
-        request.with_user(cls.md_user).action_approve()
+        request.with_user(cls.hr_user).action_hr_manager_approve()
+        request.with_user(cls.md_user).action_md_approve()
         cls.manual_employee.invalidate_recordset()
 
     def attendance_values(self, employee, offset_days=0):
