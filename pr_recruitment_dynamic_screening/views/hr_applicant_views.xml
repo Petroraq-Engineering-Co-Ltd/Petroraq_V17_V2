@@ -20,7 +20,7 @@
                             <field name="dynamic_screening_status" readonly="1"/>
                             <field name="dynamic_screened_on" readonly="1"/>
                         </group>
-                        <group string="Automatic Refusal"
+                        <group string="Refusal Reason"
                                col="1"
                                class="pr_screening_refusal_group"
                                invisible="dynamic_screening_status != 'auto_refused'">

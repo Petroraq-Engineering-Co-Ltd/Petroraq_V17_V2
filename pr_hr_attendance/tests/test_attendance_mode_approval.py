@@ -73,9 +73,12 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
                 "reason": "Permanent transfer to site.",
             }
         )
+        self.assertEqual(request.state, "draft")
         with self.assertRaises(AccessError):
             request.with_user(self.basic_user).action_hr_manager_approve()
 
+        request.with_user(self.hr_user).action_submit()
+        self.assertEqual(request.state, "hr_manager_approval")
         request.with_user(self.hr_user).action_hr_manager_approve()
         self.assertEqual(request.state, "md_approval")
         self.assertEqual(request.hr_manager_approved_by_id, self.hr_user)
@@ -110,6 +113,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
             }
         )
 
+        request.with_user(self.hr_user).action_submit()
         request.with_user(self.hr_md_user).action_hr_manager_approve()
         employee.invalidate_recordset()
         self.assertEqual(request.state, "approved")
@@ -126,6 +130,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
                 "reason": "Requested site transfer.",
             }
         )
+        rejected.with_user(self.hr_user).action_submit()
         rejected.with_user(self.hr_user).action_hr_manager_approve()
         rejected.with_user(self.md_user).action_reject()
         self.assertEqual(rejected.state, "rejected")
@@ -150,6 +155,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
                 "reason": "Field deployment.",
             }
         )
+        request.with_user(self.hr_user).action_submit()
         with self.assertRaises(UserError):
             request.with_user(self.hr_user).write({"reason": "Changed reason"})
         with self.assertRaises(UserError):
@@ -163,6 +169,10 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
                 "reason": "Site assignment.",
             }
         )
+        self.assertFalse(
+            request.activity_ids.filtered(lambda activity: activity.user_id == self.hr_user)
+        )
+        request.with_user(self.hr_user).action_submit()
         self.assertTrue(
             self.env.ref(
                 "pr_hr_attendance.menu_attendance_mode_change_request_approval"

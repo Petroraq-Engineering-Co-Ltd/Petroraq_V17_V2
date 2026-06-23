@@ -6,7 +6,8 @@ ATTENDANCE_ENTRY_MODES = [
     ("automated", "Automated Attendance"),
     ("manual", "Manual / Site Attendance"),
 ]
-PENDING_STATES = ("hr_manager_approval", "md_approval")
+APPROVAL_STATES = ("hr_manager_approval", "md_approval")
+OPEN_STATES = ("draft",) + APPROVAL_STATES
 HR_MANAGER_GROUPS = (
     "hr.group_hr_manager",
     "pr_hr_recruitment_request.group_onboarding_manager",
@@ -61,6 +62,7 @@ class AttendanceModeChangeRequest(models.Model):
     reason = fields.Text(required=True, tracking=True)
     state = fields.Selection(
         [
+            ("draft", "Draft"),
             ("hr_manager_approval", "HR Manager Approval"),
             ("md_approval", "MD Approval"),
             ("approved", "Approved"),
@@ -68,7 +70,7 @@ class AttendanceModeChangeRequest(models.Model):
             ("cancelled", "Cancelled"),
         ],
         required=True,
-        default="hr_manager_approval",
+        default="draft",
         readonly=True,
         copy=False,
         tracking=True,
@@ -194,7 +196,7 @@ class AttendanceModeChangeRequest(models.Model):
         )
         pending_by_employee = set(
             self.sudo().search(
-                [("employee_id", "in", employees.ids), ("state", "in", PENDING_STATES)]
+                [("employee_id", "in", employees.ids), ("state", "in", OPEN_STATES)]
             ).mapped("employee_id").ids
         )
 
@@ -207,7 +209,7 @@ class AttendanceModeChangeRequest(models.Model):
             reason = (values.get("reason") or "").strip()
             if employee.id in pending_by_employee:
                 raise ValidationError(
-                    _("A pending attendance mode request already exists for %s.")
+                    _("An open attendance mode request already exists for %s.")
                     % employee.display_name
                 )
             if requested_mode not in dict(ATTENDANCE_ENTRY_MODES):
@@ -228,7 +230,7 @@ class AttendanceModeChangeRequest(models.Model):
                     "current_mode": employee.attendance_entry_mode,
                     "requested_mode": requested_mode,
                     "reason": reason,
-                    "state": "hr_manager_approval",
+                    "state": "draft",
                     "requested_by_id": self.env.uid,
                     "request_date": fields.Datetime.now(),
                     "decision_by_id": False,
@@ -243,10 +245,10 @@ class AttendanceModeChangeRequest(models.Model):
             pending_by_employee.add(employee.id)
 
         requests = super().create(prepared)
-        requests._schedule_hr_manager_activities()
         return requests
 
     def write(self, values):
+        values = dict(values)
         immutable_fields = {
             "employee_id",
             "current_mode",
@@ -262,12 +264,36 @@ class AttendanceModeChangeRequest(models.Model):
             "md_approved_by_id",
             "md_approved_date",
         }
-        if immutable_fields.intersection(values) and not (
-            self.env.su and self.env.context.get("attendance_mode_internal_transition")
-        ):
-            raise UserError(
-                _("Attendance mode requests can only be changed through workflow actions.")
+        internal_transition = self.env.su and self.env.context.get(
+            "attendance_mode_internal_transition"
+        )
+        changed_immutable_fields = immutable_fields.intersection(values)
+        draft_editable_fields = {"requested_mode", "reason"}
+        if changed_immutable_fields and not internal_transition:
+            can_edit_draft = (
+                changed_immutable_fields <= draft_editable_fields
+                and all(request.state == "draft" for request in self)
+                and self._user_can_request()
             )
+            if not can_edit_draft:
+                raise UserError(
+                    _("Attendance mode requests can only be changed through workflow actions.")
+                )
+            if "requested_mode" in values:
+                requested_mode = values["requested_mode"]
+                if requested_mode not in dict(ATTENDANCE_ENTRY_MODES):
+                    raise ValidationError(_("Select a valid requested attendance mode."))
+                for request in self:
+                    if requested_mode == request.current_mode:
+                        raise ValidationError(
+                            _(
+                                "The requested mode must be different from the employee's current mode."
+                            )
+                        )
+            if "reason" in values:
+                values["reason"] = (values.get("reason") or "").strip()
+                if not values["reason"]:
+                    raise ValidationError(_("Enter a reason for the attendance mode change."))
         return super().write(values)
 
     def unlink(self):
@@ -321,6 +347,28 @@ class AttendanceModeChangeRequest(models.Model):
         self.invalidate_recordset(["state"])
         if self.state not in allowed_states:
             raise UserError(_("This request cannot be processed in its current state."))
+
+    def action_submit(self):
+        if not self._user_can_request():
+            raise AccessError(_("Only HR can submit an attendance mode change request."))
+        for request in self:
+            request._lock_and_check_state(("draft",))
+            if request.employee_id.attendance_entry_mode != request.current_mode:
+                raise UserError(
+                    _(
+                        "The employee's attendance mode changed after this request was "
+                        "created. Cancel it and create a new request."
+                    )
+                )
+            if request.requested_mode == request.current_mode:
+                raise ValidationError(
+                    _("The requested mode must be different from the employee's current mode.")
+                )
+            request.sudo().with_context(
+                attendance_mode_internal_transition=True
+            ).write({"state": "hr_manager_approval"})
+            request._schedule_hr_manager_activities()
+        return True
 
     def _approve_as_md(self, approval_date, feedback):
         self.ensure_one()
@@ -397,7 +445,7 @@ class AttendanceModeChangeRequest(models.Model):
 
     def action_reject(self):
         for request in self:
-            request._lock_and_check_state(PENDING_STATES)
+            request._lock_and_check_state(APPROVAL_STATES)
             if request.state == "hr_manager_approval":
                 request._check_hr_manager_user()
                 feedback = _("Rejected by HR Manager.")
@@ -421,7 +469,7 @@ class AttendanceModeChangeRequest(models.Model):
             is_requester = request.requested_by_id == self.env.user
             if not is_requester and not self._user_can_request():
                 raise AccessError(_("Only the requester or HR can cancel this request."))
-            request._lock_and_check_state(PENDING_STATES)
+            request._lock_and_check_state(OPEN_STATES)
             request.sudo().with_context(
                 attendance_mode_internal_transition=True
             ).write({"state": "cancelled"})

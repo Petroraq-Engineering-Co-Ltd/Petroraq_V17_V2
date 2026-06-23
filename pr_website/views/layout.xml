@@ -663,7 +663,7 @@
                         }
 
                         .featured-header {
-                            flex-direction: row-reverse;
+                            flex-direction: row;
                         }
 
                         .featured-header::after,

@@ -5,9 +5,10 @@
         <field name="model">hr.attendance.mode.change.request</field>
         <field name="arch" type="xml">
             <tree create="0" delete="0" decoration-success="state == 'approved'"
+                  decoration-muted="state == 'draft' or state == 'cancelled'"
                   decoration-warning="state == 'hr_manager_approval'"
                   decoration-info="state == 'md_approval'"
-                  decoration-danger="state == 'rejected'" decoration-muted="state == 'cancelled'">
+                  decoration-danger="state == 'rejected'">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="company_id" groups="base.group_multi_company"/>
@@ -26,6 +27,9 @@
         <field name="arch" type="xml">
             <form create="1" delete="0">
                 <header>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'draft' or not id"
+                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary" invisible="state != 'hr_manager_approval' or not id"
                             groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager"/>
@@ -39,10 +43,10 @@
                             class="btn-secondary" invisible="state != 'md_approval' or not id"
                             groups="pr_hr_recruitment_request.group_onboarding_md"/>
                     <button name="action_cancel" type="object" string="Cancel Request"
-                            invisible="state not in ('hr_manager_approval', 'md_approval') or not id"
+                            invisible="state not in ('draft', 'hr_manager_approval', 'md_approval') or not id"
                             groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="hr_manager_approval,md_approval,approved,rejected,cancelled"/>
+                           statusbar_visible="draft,hr_manager_approval,md_approval,approved,rejected,cancelled"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -51,13 +55,13 @@
                     </div>
                     <group>
                         <group>
-                            <field name="employee_id" readonly="state != 'hr_manager_approval' or id"/>
+                            <field name="employee_id" readonly="id"/>
                             <field name="company_id" readonly="1"
                                    groups="base.group_multi_company"/>
                             <field name="current_mode" readonly="1" force_save="1"/>
                             <field name="requested_mode"
-                                   readonly="state != 'hr_manager_approval' or id"/>
-                            <field name="reason" readonly="state != 'hr_manager_approval' or id"/>
+                                   readonly="state != 'draft'"/>
+                            <field name="reason" readonly="state != 'draft'"/>
                         </group>
                         <group string="Audit">
                             <field name="requested_by_id" readonly="1"/>
@@ -90,6 +94,8 @@
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="requested_by_id"/>
+                <filter name="draft" string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
                 <filter name="pending" string="Pending Approval"
                         domain="[('state', 'in', ['hr_manager_approval', 'md_approval'])]"/>
                 <filter name="pending_hr_manager" string="HR Manager Approval"
