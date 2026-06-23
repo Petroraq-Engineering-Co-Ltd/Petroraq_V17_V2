@@ -88,6 +88,7 @@ class AttendancePolicyCase(TransactionCase):
                 "reason": "Employee works at a field site.",
             }
         )
+        request.with_user(cls.hr_user).action_submit()
         request.with_user(cls.hr_user).action_hr_manager_approve()
         request.with_user(cls.md_user).action_md_approve()
         cls.manual_employee.invalidate_recordset()
