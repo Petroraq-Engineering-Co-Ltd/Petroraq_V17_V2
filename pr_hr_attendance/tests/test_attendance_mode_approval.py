@@ -65,7 +65,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         with self.assertRaises(ValidationError):
             self.Request.with_user(self.hr_user).create(values)
 
-    def test_only_md_can_approve_and_approval_changes_employee_atomically(self):
+    def test_hr_manager_then_md_approval_changes_employee_atomically(self):
         request = self.Request.with_user(self.hr_user).create(
             {
                 "employee_id": self.biometric_employee.id,
@@ -74,14 +74,49 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
             }
         )
         with self.assertRaises(AccessError):
-            request.with_user(self.hr_user).action_approve()
+            request.with_user(self.basic_user).action_hr_manager_approve()
 
-        request.with_user(self.md_user).action_approve()
+        request.with_user(self.hr_user).action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+        self.assertEqual(request.hr_manager_approved_by_id, self.hr_user)
+        self.assertTrue(request.hr_manager_approved_date)
+
+        with self.assertRaises(AccessError):
+            request.with_user(self.hr_user).action_md_approve()
+
+        request.with_user(self.md_user).action_md_approve()
         self.biometric_employee.invalidate_recordset()
         self.assertEqual(request.state, "approved")
         self.assertEqual(self.biometric_employee.attendance_entry_mode, "manual")
         self.assertEqual(request.decision_by_id, self.md_user)
         self.assertTrue(request.decision_date)
+        self.assertEqual(request.md_approved_by_id, self.md_user)
+        self.assertTrue(request.md_approved_date)
+
+    def test_dual_hr_manager_md_user_approves_once(self):
+        employee = self.env["hr.employee"].create(
+            {
+                "name": "Dual Role Approval Employee",
+                "identification_id": "ATT-POLICY-004",
+                "company_id": self.env.company.id,
+                "compute_attendance": True,
+            }
+        )
+        request = self.Request.with_user(self.hr_user).create(
+            {
+                "employee_id": employee.id,
+                "requested_mode": "manual",
+                "reason": "Field leadership assignment.",
+            }
+        )
+
+        request.with_user(self.hr_md_user).action_hr_manager_approve()
+        employee.invalidate_recordset()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(employee.attendance_entry_mode, "manual")
+        self.assertEqual(request.hr_manager_approved_by_id, self.hr_md_user)
+        self.assertEqual(request.md_approved_by_id, self.hr_md_user)
+        self.assertEqual(request.decision_by_id, self.hr_md_user)
 
     def test_rejection_and_cancellation_do_not_change_employee(self):
         rejected = self.Request.with_user(self.hr_user).create(
@@ -91,6 +126,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
                 "reason": "Requested site transfer.",
             }
         )
+        rejected.with_user(self.hr_user).action_hr_manager_approve()
         rejected.with_user(self.md_user).action_reject()
         self.assertEqual(rejected.state, "rejected")
         self.assertEqual(self.biometric_employee.attendance_entry_mode, "automated")
@@ -119,7 +155,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         with self.assertRaises(UserError):
             request.sudo().unlink()
 
-    def test_dashboard_menu_and_md_activity_are_created(self):
+    def test_dashboard_menu_and_approval_activities_are_created(self):
         request = self.Request.with_user(self.hr_user).create(
             {
                 "employee_id": self.biometric_employee.id,
@@ -132,7 +168,14 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
                 "pr_hr_attendance.menu_attendance_mode_change_request_approval"
             )
         )
+        self.assertTrue(request.activity_ids.filtered(lambda activity: activity.user_id == self.hr_user))
+
+        request.with_user(self.hr_user).action_hr_manager_approve()
+        request.invalidate_recordset(["activity_ids"])
         self.assertTrue(request.activity_ids.filtered(lambda activity: activity.user_id == self.md_user))
+
         approvals_group = self.env.ref("de_hr_workspace.group_hr_employee_approvals")
+        hr_manager_group = self.env.ref("pr_hr_recruitment_request.group_onboarding_manager")
         md_group = self.env.ref("pr_hr_recruitment_request.group_onboarding_md")
+        self.assertIn(approvals_group, hr_manager_group.implied_ids)
         self.assertIn(approvals_group, md_group.implied_ids)

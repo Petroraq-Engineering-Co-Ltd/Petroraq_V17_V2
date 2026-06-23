@@ -93,7 +93,7 @@ class HrEmployee(models.Model):
                     self.env.su
                     and len(changing) == 1
                     and request.exists()
-                    and request.state == "pending"
+                    and request.state in ("hr_manager_approval", "md_approval")
                     and request.employee_id == changing
                     and request.current_mode == changing.attendance_entry_mode
                     and request.requested_mode == values["attendance_entry_mode"]
@@ -102,7 +102,7 @@ class HrEmployee(models.Model):
                     raise ValidationError(
                         _(
                             "Attendance Entry Mode can only be changed through an "
-                            "MD-approved Attendance Mode Change request."
+                            "approved Attendance Mode Change request."
                         )
                     )
         return super().write(values)

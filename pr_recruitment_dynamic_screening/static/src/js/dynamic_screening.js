@@ -17,7 +17,7 @@ function findGroupByField(form, fieldName) {
     return field ? field.closest(".form-group") : null;
 }
 
-function buildStep(title, subtitle, kicker) {
+function buildStep(title, subtitle) {
     const step = createElement("section", "pr-form-step");
     const header = createElement("div", "pr-step-header");
     const heading = createElement(
@@ -26,12 +26,12 @@ function buildStep(title, subtitle, kicker) {
         `<h3 class="pr-step-title">${title}</h3><p class="pr-step-subtitle">${subtitle}</p>`
     );
     const badge = createElement("span", "pr-step-kicker");
-    badge.textContent = kicker;
     header.append(heading, badge);
     step.append(header);
     step.grid = createElement("div", "pr-step-grid");
     step.append(step.grid);
     step.stepTitle = title;
+    step.stepBadge = badge;
     return step;
 }
 
@@ -261,18 +261,15 @@ function initializeRecruitmentStepper() {
     ]);
     const personalStep = buildStep(
         "Personal details",
-        "Tell us how to reach you and where you are based.",
-        "About you"
+        "Tell us how to reach you and where you are based."
     );
     const professionalStep = buildStep(
         "Professional details",
-        "Your qualifications, availability, and job-specific answers.",
-        "Your fit"
+        "Your qualifications, availability, and job-specific answers."
     );
     const documentStep = buildStep(
         "Resume and submit",
-        "Attach your CV, review your details, and send your application.",
-        "Final step"
+        "Attach your CV, review your details, and send your application."
     );
 
     for (const group of directGroups) {
@@ -301,8 +298,7 @@ function initializeRecruitmentStepper() {
                 const pageCount = Math.ceil(questionFields.length / QUESTIONS_PER_PAGE);
                 const questionStep = buildStep(
                     pageCount > 1 ? `Job questions ${pageNumber} of ${pageCount}` : "Job questions",
-                    "Answer the requirements selected for this position.",
-                    "Screening"
+                    "Answer the requirements selected for this position."
                 );
                 for (const field of questionFields.slice(index, index + QUESTIONS_PER_PAGE)) {
                     questionStep.grid.append(field);
@@ -315,6 +311,14 @@ function initializeRecruitmentStepper() {
 
     documentStep.grid.append(resumeGroup);
     steps.push(documentStep);
+
+    steps.forEach((step, index) => {
+        step.stepBadge.textContent = `Step ${index + 1}/${steps.length}`;
+        step.stepBadge.setAttribute(
+            "aria-label",
+            `Step ${index + 1} of ${steps.length}`
+        );
+    });
 
     for (const step of steps) {
         form.append(step);

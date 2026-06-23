@@ -6,6 +6,12 @@ ATTENDANCE_ENTRY_MODES = [
     ("automated", "Automated Attendance"),
     ("manual", "Manual / Site Attendance"),
 ]
+PENDING_STATES = ("hr_manager_approval", "md_approval")
+HR_MANAGER_GROUPS = (
+    "hr.group_hr_manager",
+    "pr_hr_recruitment_request.group_onboarding_manager",
+)
+MD_GROUPS = ("pr_hr_recruitment_request.group_onboarding_md",)
 
 
 class AttendanceModeChangeRequest(models.Model):
@@ -55,13 +61,14 @@ class AttendanceModeChangeRequest(models.Model):
     reason = fields.Text(required=True, tracking=True)
     state = fields.Selection(
         [
-            ("pending", "Pending MD Approval"),
+            ("hr_manager_approval", "HR Manager Approval"),
+            ("md_approval", "MD Approval"),
             ("approved", "Approved"),
             ("rejected", "Rejected"),
             ("cancelled", "Cancelled"),
         ],
         required=True,
-        default="pending",
+        default="hr_manager_approval",
         readonly=True,
         copy=False,
         tracking=True,
@@ -85,6 +92,41 @@ class AttendanceModeChangeRequest(models.Model):
         "res.users", readonly=True, copy=False, tracking=True
     )
     decision_date = fields.Datetime(readonly=True, copy=False, tracking=True)
+    hr_manager_approved_by_id = fields.Many2one(
+        "res.users",
+        string="HR Manager Approved By",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    hr_manager_approved_date = fields.Datetime(
+        string="HR Manager Approved On",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    md_approved_by_id = fields.Many2one(
+        "res.users",
+        string="MD Approved By",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    md_approved_date = fields.Datetime(
+        string="MD Approved On",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+
+    def init(self):
+        self.env.cr.execute(
+            """
+            UPDATE hr_attendance_mode_change_request
+               SET state = 'hr_manager_approval'
+             WHERE state = 'pending'
+            """
+        )
 
     @api.onchange("employee_id")
     def _onchange_employee_id(self):
@@ -111,10 +153,27 @@ class AttendanceModeChangeRequest(models.Model):
         )
 
     @api.model
+    def _user_has_any_group(self, groups):
+        return self.env.is_superuser() or any(
+            self.env.user.has_group(group) for group in groups
+        )
+
+    @api.model
+    def _current_user_is_hr_manager(self):
+        return self._user_has_any_group(HR_MANAGER_GROUPS)
+
+    @api.model
+    def _current_user_is_md(self):
+        return self._user_has_any_group(MD_GROUPS)
+
+    @api.model
+    def _check_hr_manager_user(self):
+        if not self._current_user_is_hr_manager():
+            raise AccessError(_("Only the HR Manager can approve this stage."))
+
+    @api.model
     def _check_md_user(self):
-        if not self.env.is_superuser() and not self.env.user.has_group(
-            "pr_hr_recruitment_request.group_onboarding_md"
-        ):
+        if not self._current_user_is_md():
             raise AccessError(_("Only the Managing Director can decide this request."))
 
     @api.model_create_multi
@@ -135,7 +194,7 @@ class AttendanceModeChangeRequest(models.Model):
         )
         pending_by_employee = set(
             self.sudo().search(
-                [("employee_id", "in", employees.ids), ("state", "=", "pending")]
+                [("employee_id", "in", employees.ids), ("state", "in", PENDING_STATES)]
             ).mapped("employee_id").ids
         )
 
@@ -169,18 +228,22 @@ class AttendanceModeChangeRequest(models.Model):
                     "current_mode": employee.attendance_entry_mode,
                     "requested_mode": requested_mode,
                     "reason": reason,
-                    "state": "pending",
+                    "state": "hr_manager_approval",
                     "requested_by_id": self.env.uid,
                     "request_date": fields.Datetime.now(),
                     "decision_by_id": False,
                     "decision_date": False,
+                    "hr_manager_approved_by_id": False,
+                    "hr_manager_approved_date": False,
+                    "md_approved_by_id": False,
+                    "md_approved_date": False,
                 }
             )
             prepared.append(prepared_values)
             pending_by_employee.add(employee.id)
 
         requests = super().create(prepared)
-        requests._schedule_md_activities()
+        requests._schedule_hr_manager_activities()
         return requests
 
     def write(self, values):
@@ -194,6 +257,10 @@ class AttendanceModeChangeRequest(models.Model):
             "request_date",
             "decision_by_id",
             "decision_date",
+            "hr_manager_approved_by_id",
+            "hr_manager_approved_date",
+            "md_approved_by_id",
+            "md_approved_date",
         }
         if immutable_fields.intersection(values) and not (
             self.env.su and self.env.context.get("attendance_mode_internal_transition")
@@ -208,22 +275,34 @@ class AttendanceModeChangeRequest(models.Model):
             raise UserError(_("Attendance mode requests are retained for audit history."))
         return super().unlink()
 
-    def _schedule_md_activities(self):
-        md_group = self.env.ref(
-            "pr_hr_recruitment_request.group_onboarding_md",
-            raise_if_not_found=False,
-        )
-        if not md_group:
-            return
+    def _schedule_group_activities(self, group_xmlids, summary, note):
+        users = self.env["res.users"]
+        for group_xmlid in group_xmlids:
+            group = self.env.ref(group_xmlid, raise_if_not_found=False)
+            if group:
+                users |= group.users
         for request in self:
-            for user in md_group.users.filtered(lambda candidate: candidate.active):
+            for user in users.filtered(lambda candidate: candidate.active):
                 request.sudo().activity_schedule(
                     "mail.mail_activity_data_todo",
                     user_id=user.id,
-                    summary=_("Attendance mode change approval"),
-                    note=_("Review attendance mode change for %s.")
-                    % request.employee_id.display_name,
+                    summary=summary,
+                    note=note % request.employee_id.display_name,
                 )
+
+    def _schedule_hr_manager_activities(self):
+        self._schedule_group_activities(
+            HR_MANAGER_GROUPS,
+            _("Attendance mode change approval"),
+            _("Review attendance mode change for %s as HR Manager."),
+        )
+
+    def _schedule_md_activities(self):
+        self._schedule_group_activities(
+            MD_GROUPS,
+            _("Attendance mode change approval"),
+            _("Review attendance mode change for %s as Managing Director."),
+        )
 
     def _complete_activities(self, feedback):
         activities = self.sudo().activity_ids.filtered(
@@ -233,20 +312,19 @@ class AttendanceModeChangeRequest(models.Model):
         if activities:
             activities.action_feedback(feedback=feedback)
 
-    def _lock_and_check_pending(self):
+    def _lock_and_check_state(self, allowed_states):
         self.ensure_one()
         self.env.cr.execute(
             "SELECT id FROM hr_attendance_mode_change_request WHERE id = %s FOR UPDATE",
             [self.id],
         )
         self.invalidate_recordset(["state"])
-        if self.state != "pending":
-            raise UserError(_("Only pending requests can be processed."))
+        if self.state not in allowed_states:
+            raise UserError(_("This request cannot be processed in its current state."))
 
-    def action_approve(self):
-        self._check_md_user()
+    def _approve_as_md(self, approval_date, feedback):
+        self.ensure_one()
         for request in self:
-            request._lock_and_check_pending()
             if request.employee_id.attendance_entry_mode != request.current_mode:
                 raise UserError(
                     _(
@@ -262,17 +340,70 @@ class AttendanceModeChangeRequest(models.Model):
             ).write(
                 {
                     "state": "approved",
+                    "md_approved_by_id": self.env.uid,
+                    "md_approved_date": approval_date,
                     "decision_by_id": self.env.uid,
-                    "decision_date": fields.Datetime.now(),
+                    "decision_date": approval_date,
                 }
             )
-            request._complete_activities(_("Approved by the Managing Director."))
+            request._complete_activities(feedback)
+        return True
+
+    def action_hr_manager_approve(self):
+        self._check_hr_manager_user()
+        for request in self:
+            request._lock_and_check_state(("hr_manager_approval",))
+            approval_date = fields.Datetime.now()
+            request.sudo().with_context(
+                attendance_mode_internal_transition=True
+            ).write(
+                {
+                    "hr_manager_approved_by_id": self.env.uid,
+                    "hr_manager_approved_date": approval_date,
+                }
+            )
+            if request._current_user_is_md():
+                request._approve_as_md(
+                    approval_date,
+                    _("Approved by HR Manager and Managing Director."),
+                )
+                continue
+            request.sudo().with_context(
+                attendance_mode_internal_transition=True
+            ).write({"state": "md_approval"})
+            request._complete_activities(_("Approved by HR Manager."))
+            request._schedule_md_activities()
+        return True
+
+    def action_md_approve(self):
+        self._check_md_user()
+        for request in self:
+            request._lock_and_check_state(("md_approval",))
+            request._approve_as_md(
+                fields.Datetime.now(),
+                _("Approved by the Managing Director."),
+            )
+        return True
+
+    def action_approve(self):
+        for request in self:
+            if request.state == "hr_manager_approval":
+                request.action_hr_manager_approve()
+            elif request.state == "md_approval":
+                request.action_md_approve()
+            else:
+                raise UserError(_("This request cannot be approved in its current state."))
         return True
 
     def action_reject(self):
-        self._check_md_user()
         for request in self:
-            request._lock_and_check_pending()
+            request._lock_and_check_state(PENDING_STATES)
+            if request.state == "hr_manager_approval":
+                request._check_hr_manager_user()
+                feedback = _("Rejected by HR Manager.")
+            else:
+                request._check_md_user()
+                feedback = _("Rejected by the Managing Director.")
             request.sudo().with_context(
                 attendance_mode_internal_transition=True
             ).write(
@@ -282,7 +413,7 @@ class AttendanceModeChangeRequest(models.Model):
                     "decision_date": fields.Datetime.now(),
                 }
             )
-            request._complete_activities(_("Rejected by the Managing Director."))
+            request._complete_activities(feedback)
         return True
 
     def action_cancel(self):
@@ -290,7 +421,7 @@ class AttendanceModeChangeRequest(models.Model):
             is_requester = request.requested_by_id == self.env.user
             if not is_requester and not self._user_can_request():
                 raise AccessError(_("Only the requester or HR can cancel this request."))
-            request._lock_and_check_pending()
+            request._lock_and_check_state(PENDING_STATES)
             request.sudo().with_context(
                 attendance_mode_internal_transition=True
             ).write({"state": "cancelled"})

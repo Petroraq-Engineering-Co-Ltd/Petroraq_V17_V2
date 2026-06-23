@@ -119,7 +119,7 @@
 
 
     <record model="ir.actions.act_window" id="action_hr_employee_medical_insurance_line">
-        <field name="name">Iqama Renews</field>
+        <field name="name">Insurance Renews</field>
         <field name="res_model">hr.employee.medical.insurance.line</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="hr_employee_medical_insurance_line_view_tree"/>

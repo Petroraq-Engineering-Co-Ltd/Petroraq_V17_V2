@@ -811,6 +811,89 @@
               sequence="2"
               groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
+    <record id="view_employee_form_compliance_work_permit_button" model="ir.ui.view">
+        <field name="name">hr.employee.form.compliance.work.permit.button</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="pr_hr.pr_hr_view_employee_form_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='open_related_insurance']" position="after">
+                <button type="object" name="open_related_work_permits" class="oe_stat_button" icon="fa-id-card-o">
+                    <field name="work_permit_count" widget="statinfo" string="Work Permits"
+                           help="Show work permits linked to this Employee"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <menuitem id="menu_pr_employee_compliance_records"
+              name="Compliance Records"
+              parent="hr.menu_hr_employee_payroll"
+              sequence="2"
+              groups="hr.group_hr_user"/>
+
+    <record id="pr_hr.menu_hr_employee_dependent" model="ir.ui.menu">
+        <field name="name">Iqamas</field>
+        <field name="parent_id" ref="menu_pr_employee_compliance_records"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="pr_hr.menu_hr_employee_medical_insurance" model="ir.ui.menu">
+        <field name="name">Medical Insurance</field>
+        <field name="parent_id" ref="menu_pr_employee_compliance_records"/>
+        <field name="sequence">2</field>
+    </record>
+
+    <menuitem id="menu_pr_employee_work_permit_records"
+              name="Work Permits"
+              parent="menu_pr_employee_compliance_records"
+              action="pr_hr_recruitment.hr_work_permit_view_action"
+              sequence="3"
+              groups="hr.group_hr_user"/>
+
+    <record id="pr_hr.menu_hr_employee_iqama_line" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="pr_hr.menu_hr_employee_medical_insurance_line" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <menuitem id="menu_pr_employee_compliance_requests"
+              name="Compliance Requests"
+              parent="hr.menu_hr_employee_payroll"
+              sequence="32"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
+    <record id="menu_pr_employee_iqama_new_my" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
+        <field name="sequence">1</field>
+    </record>
+
+    <record id="menu_pr_employee_iqama_renewal_my" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
+        <field name="sequence">2</field>
+    </record>
+
+    <record id="menu_pr_employee_medical_insurance_new_my" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="menu_pr_employee_medical_insurance_my" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
+        <field name="sequence">4</field>
+    </record>
+
+    <record id="menu_pr_employee_work_permit_new_my" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="menu_pr_employee_work_permit_my" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
+        <field name="sequence">6</field>
+    </record>
+
     <record id="view_cash_payment_form_employee_service_request" model="ir.ui.view">
         <field name="name">pr.account.cash.payment.form.employee.service.request</field>
         <field name="model">pr.account.cash.payment</field>

@@ -21,8 +21,13 @@
                             <field name="dynamic_screened_on" readonly="1"/>
                         </group>
                         <group string="Automatic Refusal"
+                               col="1"
+                               class="pr_screening_refusal_group"
                                invisible="dynamic_screening_status != 'auto_refused'">
-                            <field name="dynamic_screening_failure_reason" readonly="1" nolabel="1"/>
+                            <field name="dynamic_screening_failure_reason"
+                                   readonly="1"
+                                   nolabel="1"
+                                   class="pr_screening_refusal_reason"/>
                         </group>
                     </group>
                     <field name="dynamic_answer_ids" nolabel="1" readonly="1">
