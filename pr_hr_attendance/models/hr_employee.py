@@ -105,6 +105,8 @@ class HrEmployee(models.Model):
                             "approved Attendance Mode Change request."
                         )
                     )
+        if values.get("active") is False:
+            self._close_open_attendances_for_archive()
         return super().write(values)
 
     def _attendance_policy_source_for_archive_checkout(self):
