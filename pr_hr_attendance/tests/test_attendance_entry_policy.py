@@ -123,6 +123,8 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         )
 
         self.manual_employee.with_user(self.hr_user).action_archive()
+        self.env.invalidate_all()
+        attendance = self.Attendance.browse(attendance.id)
         new_checkout = attendance.check_out + timedelta(minutes=15)
         attendance.with_user(self.hr_user).write({"check_out": new_checkout})
 

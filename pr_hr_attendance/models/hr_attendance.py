@@ -117,13 +117,27 @@ class HrAttendance(models.Model):
                 _("Only HR attendance staff can manage Manual / Site attendance.")
             )
 
+    @api.model
+    def _attendance_policy_employees_from_ids(self, employee_ids):
+        employee_ids = {employee_id for employee_id in employee_ids if employee_id}
+        return self.env["hr.employee"].sudo().with_context(
+            active_test=False
+        ).browse(list(employee_ids)).exists()
+
+    def _attendance_policy_employee_ids_from_records(self):
+        employee_ids = []
+        for values in self.sudo().with_context(active_test=False).read(["employee_id"]):
+            employee = values.get("employee_id")
+            if employee:
+                employee_ids.append(employee[0])
+        return employee_ids
+
     @api.model_create_multi
     def create(self, vals_list):
-        Employee = self.env["hr.employee"].sudo()
         employee_ids = [values.get("employee_id") for values in vals_list]
         if not all(employee_ids):
             raise ValidationError(_("Every attendance entry requires an employee."))
-        employees = Employee.browse(employee_ids).exists()
+        employees = self._attendance_policy_employees_from_ids(employee_ids)
         if set(employees.ids) != set(employee_ids):
             raise ValidationError(_("Select a valid employee for every attendance entry."))
         self._check_attendance_policy_for_employees(employees, _("created"))
@@ -142,17 +156,19 @@ class HrAttendance(models.Model):
         ):
             raise AccessError(_("Attendance Source is immutable audit information."))
         if self._ATTENDANCE_PROTECTED_FIELDS.intersection(values):
-            employees = self.mapped("employee_id")
+            employee_ids = self._attendance_policy_employee_ids_from_records()
             if values.get("employee_id"):
-                employees |= self.env["hr.employee"].sudo().browse(
-                    values["employee_id"]
-                )
+                employee_ids.append(values["employee_id"])
+            employees = self._attendance_policy_employees_from_ids(employee_ids)
             self._check_attendance_policy_for_employees(employees, _("modified"))
         return super().write(values)
 
     def unlink(self):
         self._check_attendance_policy_for_employees(
-            self.mapped("employee_id"), _("deleted")
+            self._attendance_policy_employees_from_ids(
+                self._attendance_policy_employee_ids_from_records()
+            ),
+            _("deleted"),
         )
         return super().unlink()
 
