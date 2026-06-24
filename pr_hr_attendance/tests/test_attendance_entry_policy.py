@@ -105,6 +105,18 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         attendance.invalidate_recordset(["check_out"])
         self.assertTrue(attendance.check_out)
 
+    def test_direct_inactive_write_closes_open_automated_attendance(self):
+        values = self.attendance_values(self.scheduled_employee, offset_days=23)
+        values.pop("check_out")
+        attendance = self.Attendance.sudo().with_context(
+            attendance_policy_source="scheduled"
+        ).create(values)
+
+        self.scheduled_employee.sudo().write({"active": False})
+
+        attendance.invalidate_recordset(["check_out"])
+        self.assertTrue(attendance.check_out)
+
     def test_historical_attendance_can_be_corrected_after_employee_archive(self):
         attendance = self.Attendance.with_user(self.hr_user).create(
             self.attendance_values(self.manual_employee, offset_days=22)
