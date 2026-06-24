@@ -33,6 +33,10 @@ class CareersController(http.Controller):
             'contact_captcha_nonce': captcha['nonce'],
         })
 
+    @http.route(['/sign-in', '/signin'], type='http', auth='public', website=True, sitemap=True)
+    def sign_in_options(self, **kwargs):
+        return request.render('pr_website.petroraq_sign_in_options')
+
     def _generate_contact_captcha(self):
         return request.env['pr.website.captcha.challenge'].sudo().create_contact_challenge(
             ttl_seconds=self.CONTACT_CAPTCHA_TTL,

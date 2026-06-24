@@ -1,0 +1,331 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_title_case" model="ir.ui.view">
+        <field name="name">res.partner.form.title.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name' and @id='company']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+            <xpath expr="//field[@name='name' and @id='individual']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+            <xpath expr="//field[@name='display_name']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_simple_form_title_case" model="ir.ui.view">
+        <field name="name">res.partner.simple.form.title.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_simple_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name' and @id='company']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+            <xpath expr="//field[@name='name' and @id='individual']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_address_form_title_case" model="ir.ui.view">
+        <field name="name">res.partner.address.form.title.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_address_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="res_partner_view_form_private_title_case" model="ir.ui.view">
+        <field name="name">res.partner.private.form.title.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_view_form_private"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_title_case" model="ir.ui.view">
+        <field name="name">res.partner.tree.title.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="complete_name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="res_partner_kanban_view_title_case" model="ir.ui.view">
+        <field name="name">res.partner.kanban.title.case</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//templates//field[@name='display_name']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_users_form_title_case" model="ir.ui.view">
+        <field name="name">res.users.form.title.case</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_users_tree_title_case" model="ir.ui.view">
+        <field name="name">res.users.tree.title.case</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_employee_form_title_case" model="ir.ui.view">
+        <field name="name">hr.employee.form.title.case</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_employee_tree_title_case" model="ir.ui.view">
+        <field name="name">hr.employee.tree.title.case</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_department_form_title_case" model="ir.ui.view">
+        <field name="name">hr.department.form.title.case</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_department_tree_title_case" model="ir.ui.view">
+        <field name="name">hr.department.tree.title.case</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_tree"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_form_title_case" model="ir.ui.view">
+        <field name="name">account.account.form.title.case</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_list_title_case" model="ir.ui.view">
+        <field name="name">account.account.list.title.case</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_list"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_journal_form_title_case" model="ir.ui.view">
+        <field name="name">account.journal.form.title.case</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[contains(@class, 'oe_title')]//field[@name='name']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_journal_tree_title_case" model="ir.ui.view">
+        <field name="name">account.journal.tree.title.case</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_tree"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="edit_project_title_case" model="ir.ui.view">
+        <field name="name">project.project.form.title.case</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_project_title_case" model="ir.ui.view">
+        <field name="name">project.project.tree.title.case</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_task_form2_title_case" model="ir.ui.view">
+        <field name="name">project.task.form.title.case</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_task_view_tree_main_base_title_case" model="ir.ui.view">
+        <field name="name">project.task.tree.title.case</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.project_task_view_tree_main_base"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_category_form_view_title_case" model="ir.ui.view">
+        <field name="name">product.category.form.title.case</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_category_list_view_title_case" model="ir.ui.view">
+        <field name="name">product.category.list.title.case</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_list_view"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="display_name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_warehouse_title_case" model="ir.ui.view">
+        <field name="name">stock.warehouse.form.title.case</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_warehouse_tree_title_case" model="ir.ui.view">
+        <field name="name">stock.warehouse.tree.title.case</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse_tree"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">title_case</attribute>
+                <attribute name="class" add="o_title_case_field" separator=" "/>
+            </field>
+        </field>
+    </record>
+</odoo>
+

@@ -22,6 +22,7 @@
         "views/layout.xml",  # custom header/footer
         "views/footer.xml",
         "views/hero.xml",
+        "views/sign_in.xml",
         "views/contact_us.xml",
         "views/about_us.xml",
         "views/clients.xml",
