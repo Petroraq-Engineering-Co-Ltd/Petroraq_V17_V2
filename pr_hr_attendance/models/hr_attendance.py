@@ -70,7 +70,7 @@ class HrAttendance(models.Model):
 
     @api.model
     def _check_attendance_policy_for_employees(self, employees, operation):
-        employees = employees.exists()
+        employees = employees.with_context(active_test=False).exists()
         if not employees:
             raise ValidationError(_("Select a valid employee for the attendance entry."))
 

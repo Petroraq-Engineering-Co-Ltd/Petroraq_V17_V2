@@ -107,6 +107,35 @@ class HrEmployee(models.Model):
                     )
         return super().write(values)
 
+    def _attendance_policy_source_for_archive_checkout(self):
+        self.ensure_one()
+        if self.attendance_entry_mode != "automated":
+            return False
+        return "biometric" if self.compute_attendance else "scheduled"
+
+    def _close_open_attendances_for_archive(self):
+        Attendance = self.env["hr.attendance"].sudo()
+        checkout_time = fields.Datetime.now()
+        for employee in self.with_context(active_test=False):
+            open_attendances = Attendance.search([
+                ("employee_id", "=", employee.id),
+                ("check_out", "=", False),
+            ])
+            if not open_attendances:
+                continue
+
+            attendance_context = {}
+            source = employee._attendance_policy_source_for_archive_checkout()
+            if source:
+                attendance_context["attendance_policy_source"] = source
+            open_attendances.with_context(**attendance_context).write({
+                "check_out": checkout_time,
+            })
+
+    def action_archive(self):
+        self._close_open_attendances_for_archive()
+        return super().action_archive()
+
     def action_request_attendance_mode_change(self):
         self.ensure_one()
         self.check_access_rights("read")
