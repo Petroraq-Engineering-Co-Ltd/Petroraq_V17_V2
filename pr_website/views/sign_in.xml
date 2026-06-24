@@ -2,152 +2,157 @@
     <data>
         <template id="petroraq_sign_in_options" name="Petroraq Sign In Options">
             <t t-call="website.layout">
-                <t t-set="is_ar" t-value="(request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')"/>
+                <t t-set="is_ar"
+                   t-value="(request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')"/>
                 <style>
                     .pr-signin-page {
-                        min-height: calc(100vh - 90px);
-                        padding: 110px 24px;
-                        background:
-                            linear-gradient(135deg, rgba(6,38,75,0.88), rgba(10,61,110,0.66)),
-                            url('/pr_website/static/images/main_bg.png') center/cover no-repeat;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
+                    min-height: calc(100vh - 90px);
+                    padding: 110px 24px;
+                    background:
+                    linear-gradient(135deg, rgba(6,38,75,0.88), rgba(10,61,110,0.66)),
+                    url('/pr_website/static/images/main_bg.png') center/cover no-repeat;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                     }
                     .pr-signin-shell {
-                        width: min(980px, 100%);
-                        text-align: center;
-                        color: #fff;
+                    width: min(980px, 100%);
+                    text-align: center;
+                    color: #fff;
                     }
                     .pr-signin-kicker {
-                        color: #f5b24a;
-                        font-size: 14px;
-                        font-weight: 800;
-                        letter-spacing: 0;
-                        text-transform: uppercase;
-                        margin-bottom: 14px;
+                    color: #f5b24a;
+                    font-size: 14px;
+                    font-weight: 800;
+                    letter-spacing: 0;
+                    text-transform: uppercase;
+                    margin-bottom: 14px;
                     }
                     .pr-signin-title {
-                        font-size: clamp(34px, 5vw, 58px);
-                        line-height: 1.08;
-                        font-weight: 900;
-                        margin: 0 0 16px;
+                    font-size: clamp(34px, 5vw, 58px);
+                    line-height: 1.08;
+                    font-weight: 900;
+                    margin: 0 0 16px;
                     }
                     .pr-signin-subtitle {
-                        width: min(660px, 100%);
-                        margin: 0 auto 36px;
-                        color: rgba(255,255,255,0.84);
-                        font-size: 18px;
-                        line-height: 1.7;
+                    width: min(660px, 100%);
+                    margin: 0 auto 36px;
+                    color: rgba(255,255,255,0.84);
+                    font-size: 18px;
+                    line-height: 1.7;
                     }
                     .pr-signin-options {
-                        display: grid;
-                        grid-template-columns: repeat(2, minmax(0, 1fr));
-                        gap: 22px;
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 22px;
                     }
                     .pr-signin-card {
-                        min-height: 300px;
-                        padding: 34px 30px;
-                        border-radius: 8px;
-                        background: #fff;
-                        color: #06264B;
-                        box-shadow: 0 20px 45px rgba(0,0,0,0.2);
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: space-between;
-                        text-decoration: none !important;
-                        transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    min-height: 300px;
+                    padding: 34px 30px;
+                    border-radius: 8px;
+                    background: #fff;
+                    color: #06264B;
+                    box-shadow: 0 20px 45px rgba(0,0,0,0.2);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: space-between;
+                    text-decoration: none !important;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
                     }
                     .pr-signin-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 24px 55px rgba(0,0,0,0.28);
+                    transform: translateY(-4px);
+                    box-shadow: 0 24px 55px rgba(0,0,0,0.28);
                     }
                     .pr-signin-icon {
-                        width: 74px;
-                        height: 74px;
-                        border-radius: 50%;
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        background: rgba(233,162,62,0.14);
-                        color: #e9a23e;
-                        font-size: 30px;
-                        margin-bottom: 22px;
+                    width: 74px;
+                    height: 74px;
+                    border-radius: 50%;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(233,162,62,0.14);
+                    color: #e9a23e;
+                    font-size: 30px;
+                    margin-bottom: 22px;
                     }
                     .pr-signin-card h2 {
-                        font-size: 25px;
-                        line-height: 1.25;
-                        font-weight: 900;
-                        margin: 0 0 12px;
+                    font-size: 25px;
+                    line-height: 1.25;
+                    font-weight: 900;
+                    margin: 0 0 12px;
                     }
                     .pr-signin-card p {
-                        color: #5d6675;
-                        font-size: 16px;
-                        line-height: 1.65;
-                        margin: 0 0 24px;
+                    color: #5d6675;
+                    font-size: 16px;
+                    line-height: 1.65;
+                    margin: 0 0 24px;
                     }
                     .pr-signin-action {
-                        display: inline-flex;
-                        align-items: center;
-                        justify-content: center;
-                        min-height: 46px;
-                        padding: 0 24px;
-                        border-radius: 999px;
-                        background: #e9a23e;
-                        color: #fff;
-                        font-weight: 800;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 46px;
+                    padding: 0 24px;
+                    border-radius: 999px;
+                    background: #e9a23e;
+                    color: #fff;
+                    font-weight: 800;
                     }
                     html[dir="rtl"] .pr-signin-page,
                     .pr-signin-page[dir="rtl"] {
-                        direction: rtl;
+                    direction: rtl;
                     }
                     @media (max-width: 760px) {
-                        .pr-signin-page {
-                            padding: 84px 18px;
-                        }
-                        .pr-signin-options {
-                            grid-template-columns: 1fr;
-                        }
-                        .pr-signin-card {
-                            min-height: 260px;
-                        }
+                    .pr-signin-page {
+                    padding: 84px 18px;
+                    }
+                    .pr-signin-options {
+                    grid-template-columns: 1fr;
+                    }
+                    .pr-signin-card {
+                    min-height: 260px;
+                    }
                     }
                 </style>
 
                 <main class="pr-signin-page" t-att-dir="'rtl' if is_ar else 'ltr'">
                     <section class="pr-signin-shell">
-                        <div class="pr-signin-kicker">
-                            <t t-if="is_ar">تسجيل الدخول</t>
-                            <t t-else="">Sign In</t>
-                        </div>
+
                         <h1 class="pr-signin-title">
-                            <t t-if="is_ar">اختر بوابة الدخول</t>
-                            <t t-else="">Choose Your Sign-In Area</t>
+                            <t t-if="is_ar">اختر نوع الوصول</t>
+                            <t t-else="">Choose Your Access Type</t>
                         </h1>
+
                         <p class="pr-signin-subtitle">
-                            <t t-if="is_ar">اختر الخيار المناسب للمتابعة إلى صفحة تسجيل الدخول.</t>
-                            <t t-else="">Select the option that matches your access type to continue to the login page.</t>
+                            <t t-if="is_ar">اختر الفئة المناسبة للمتابعة إلى بوابة الدخول الخاصة بك.</t>
+                            <t t-else="">Select the option that matches your access type to continue to the login
+                                page
+                            </t>
                         </p>
 
                         <div class="pr-signin-options">
+
                             <a class="pr-signin-card" href="/web/login?redirect=/web">
                                 <div>
                                     <span class="pr-signin-icon">
                                         <i class="fa fa-user"></i>
                                     </span>
+
                                     <h2>
-                                        <t t-if="is_ar">الموظفون</t>
-                                        <t t-else="">Employees</t>
+                                        <t t-if="is_ar">بوابة الموظفين</t>
+                                        <t t-else="">Employee Portal</t>
                                     </h2>
+
                                     <p>
-                                        <t t-if="is_ar">دخول موظفي الشركة إلى نظام أودو الداخلي.</t>
-                                        <t t-else="">Company staff access to the internal Odoo system.</t>
+                                        <t t-if="is_ar">وصول موظفي الشركة إلى نظام أودو الداخلي.</t>
+                                        <t t-else="">Staff access to the Odoo system</t>
                                     </p>
                                 </div>
+
                                 <span class="pr-signin-action">
-                                    <t t-if="is_ar">دخول الموظفين</t>
-                                    <t t-else="">Employee Sign In</t>
+                                    <t t-if="is_ar">تسجيل الدخول</t>
+                                    <t t-else="">Sign In</t>
                                 </span>
                             </a>
 
@@ -156,21 +161,26 @@
                                     <span class="pr-signin-icon">
                                         <i class="fa fa-briefcase"></i>
                                     </span>
+
                                     <h2>
-                                        <t t-if="is_ar">الموردون والبائعون</t>
-                                        <t t-else="">Suppliers / Vendors</t>
+                                        <t t-if="is_ar">بوابة العملاء والموردين</t>
+                                        <t t-else="">Customer / Vendors</t>
                                     </h2>
+
                                     <p>
-                                        <t t-if="is_ar">دخول الموردين والبائعين إلى بوابة الحسابات والخدمات.</t>
-                                        <t t-else="">Supplier and vendor access to the portal area.</t>
+                                        <t t-if="is_ar">وصول العملاء والموردين إلى البوابة والخدمات المتاحة.</t>
+                                        <t t-else="">Supplier or vendor access to the portal</t>
                                     </p>
                                 </div>
+
                                 <span class="pr-signin-action">
-                                    <t t-if="is_ar">دخول الموردين</t>
-                                    <t t-else="">Supplier / Vendor Sign In</t>
+                                    <t t-if="is_ar">تسجيل الدخول</t>
+                                    <t t-else="">Sign In</t>
                                 </span>
                             </a>
+
                         </div>
+
                     </section>
                 </main>
             </t>
