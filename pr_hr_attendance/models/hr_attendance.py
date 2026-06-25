@@ -13,6 +13,7 @@ class HrAttendance(models.Model):
         "biometric",
         "scheduled",
         "approved_shortage",
+        "approved_leave",
     }
     _ATTENDANCE_PROTECTED_FIELDS = {
         "employee_id",
@@ -34,6 +35,7 @@ class HrAttendance(models.Model):
             ("biometric", "Biometric Device"),
             ("scheduled", "Scheduled Attendance"),
             ("approved_shortage", "Approved Shortage Correction"),
+            ("approved_leave", "Approved Leave Cleanup"),
         ],
         string="Attendance Source",
         required=True,
