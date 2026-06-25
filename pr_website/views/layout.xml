@@ -495,7 +495,11 @@
                             <a href="/contact-us"
                                t-att-class="'active' if request.httprequest.path.startswith('/contact') else ''">Contact Us</a>
 
-                            <t t-if="not request.session.uid and not request.httprequest.path == '/web/login' and not request.httprequest.path.endswith('/sign-in') and not request.httprequest.path.endswith('/signin')">
+                            <t t-set="current_path" t-value="request.httprequest.path or ''"/>
+                            <t t-set="is_auth_entry_page"
+                               t-value="current_path == '/web/login' or current_path.endswith('/web/login') or current_path.endswith('/sign-in') or current_path.endswith('/signin')"/>
+
+                            <t t-if="not request.session.uid">
                                 <div class="mobile-auth-buttons">
                                     <div class="pr-language-link-wrap">
                                         <div class="pr-language-link-native">
@@ -510,7 +514,11 @@
                                             <span class="pr-language-link-label">العربية</span>
                                         </a>
                                     </div>
-                                    <a t-att-href="'/ar/sign-in' if ((request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')) else '/sign-in'" class="signin-btn" t-translation="Sign In" target="_blank">
+                                    <a t-if="not is_auth_entry_page"
+                                       t-att-href="'/ar/sign-in' if ((request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')) else '/sign-in'"
+                                       class="signin-btn"
+                                       t-translation="Sign In"
+                                       target="_blank">
                                         <i class="fa fa-sign-in-alt"></i>
                                         Sign In
                                     </a>
@@ -550,7 +558,7 @@
                         </div>
 
                         <!-- Auth Buttons Container -->
-                        <t t-if="not request.session.uid and not request.httprequest.path == '/web/login' and not request.httprequest.path.endswith('/sign-in') and not request.httprequest.path.endswith('/signin')">
+                        <t t-if="not request.session.uid">
                             <div class="auth-buttons">
                                 <div class="pr-language-link-wrap">
                                     <div class="pr-language-link-native">
@@ -565,7 +573,11 @@
                                         <span class="pr-language-link-label">العربية</span>
                                     </a>
                                 </div>
-                                <a t-att-href="'/ar/sign-in' if ((request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')) else '/sign-in'" class="signin-btn" t-translation="Sign In" target="_blank">
+                                <a t-if="not is_auth_entry_page"
+                                   t-att-href="'/ar/sign-in' if ((request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')) else '/sign-in'"
+                                   class="signin-btn"
+                                   t-translation="Sign In"
+                                   target="_blank">
                                     <i class="fa fa-sign-in-alt"></i>
                                     Sign In
                                 </a>
@@ -953,14 +965,15 @@
                             return 'EN';
                         }
 
-                        function inferLanguageLabel(text, href) {
-                            var value = ((text || '') + ' ' + (href || '')).toLowerCase();
+                        function inferLanguageLabel(text, href, urlCode) {
+                            var value = ((text || '') + ' ' + (href || '') + ' ' + (urlCode || '')).toLowerCase();
                             var hrefPathSegment = '';
                             try {
                                 hrefPathSegment = firstPathSegment(new URL(href || '/', window.location.origin).pathname);
                             } catch (ignore) {}
                             if (
                                 isArabicSegment(hrefPathSegment) ||
+                                isArabicSegment(urlCode || '') ||
                                 value.indexOf('arab') !== -1 ||
                                 value.indexOf('الع') !== -1 ||
                                 value.indexOf('lang=ar') !== -1
@@ -994,14 +1007,24 @@
                             return path + searchHash;
                         }
 
+                        function websiteLanguageHref(urlCode, redirectHref) {
+                            var redirectUrl = redirectHref || '/';
+                            return '/website/lang/' + encodeURIComponent(urlCode) + '?r=' + encodeURIComponent(redirectUrl);
+                        }
+
                         document.querySelectorAll('.pr-language-link-wrap').forEach(function(languageWrap) {
                             var activeLabel = currentLanguageLabel();
                             var targetLabel = activeLabel === 'AR' ? 'EN' : 'AR';
-                            var nativeLinks = {};
+                            var nativeLanguages = {};
 
                             languageWrap.querySelectorAll('.pr-language-link-native a[href]').forEach(function(item) {
-                                var itemLabel = inferLanguageLabel(item.textContent, item.getAttribute('href'));
-                                nativeLinks[itemLabel] = item.getAttribute('href');
+                                var itemHref = item.getAttribute('href');
+                                var itemUrlCode = item.getAttribute('data-url_code');
+                                var itemLabel = inferLanguageLabel(item.textContent, itemHref, itemUrlCode);
+                                nativeLanguages[itemLabel] = {
+                                    href: itemHref,
+                                    urlCode: itemUrlCode || (itemLabel === 'AR' ? 'ar' : 'en'),
+                                };
                             });
 
                             var languageLink = languageWrap.querySelector('[data-pr-language-link]');
@@ -1010,7 +1033,12 @@
                                 return;
                             }
 
-                            languageLink.setAttribute('href', nativeLinks[targetLabel] || fallbackLanguageHref(targetLabel));
+                            var targetLanguage = nativeLanguages[targetLabel] || {
+                                href: fallbackLanguageHref(targetLabel),
+                                urlCode: targetLabel === 'AR' ? 'ar' : 'en',
+                            };
+                            var targetHref = targetLanguage.href || fallbackLanguageHref(targetLabel);
+                            languageLink.setAttribute('href', websiteLanguageHref(targetLanguage.urlCode, targetHref));
                             languageLink.setAttribute('aria-label', targetLabel === 'AR' ? 'Switch to Arabic' : 'Switch to English');
                             languageLink.classList.toggle('is-target-ar', targetLabel === 'AR');
                             languageLink.classList.toggle('is-target-en', targetLabel === 'EN');
