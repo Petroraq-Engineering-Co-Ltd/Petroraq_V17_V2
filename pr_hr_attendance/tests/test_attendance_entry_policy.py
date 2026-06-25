@@ -117,6 +117,12 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         attendance.invalidate_recordset(["check_out"])
         self.assertTrue(attendance.check_out)
 
+    def test_empty_attendance_write_and_unlink_are_noops(self):
+        empty_attendance = self.Attendance.browse()
+
+        self.assertTrue(empty_attendance.write({"check_out": False}))
+        self.assertTrue(empty_attendance.unlink())
+
     def test_historical_attendance_can_be_corrected_after_employee_archive(self):
         attendance = self.Attendance.with_user(self.hr_user).create(
             self.attendance_values(self.manual_employee, offset_days=22)
