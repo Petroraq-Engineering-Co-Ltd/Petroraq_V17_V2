@@ -125,12 +125,18 @@ class HrAttendance(models.Model):
         ).browse(list(employee_ids)).exists()
 
     def _attendance_policy_employee_ids_from_records(self):
-        employee_ids = []
-        for values in self.sudo().with_context(active_test=False).read(["employee_id"]):
-            employee = values.get("employee_id")
-            if employee:
-                employee_ids.append(employee[0])
-        return employee_ids
+        if not self:
+            return []
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT employee_id
+              FROM hr_attendance
+             WHERE id IN %s
+               AND employee_id IS NOT NULL
+            """,
+            [tuple(self.ids)],
+        )
+        return [row[0] for row in self.env.cr.fetchall()]
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -150,6 +156,8 @@ class HrAttendance(models.Model):
         return super().create(prepared)
 
     def write(self, values):
+        if not self:
+            return super().write(values)
         if "attendance_entry_source" in values and self.filtered(
             lambda attendance: attendance.attendance_entry_source
             != values["attendance_entry_source"]
@@ -164,6 +172,8 @@ class HrAttendance(models.Model):
         return super().write(values)
 
     def unlink(self):
+        if not self:
+            return super().unlink()
         self._check_attendance_policy_for_employees(
             self._attendance_policy_employees_from_ids(
                 self._attendance_policy_employee_ids_from_records()
