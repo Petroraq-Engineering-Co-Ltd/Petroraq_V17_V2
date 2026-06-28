@@ -83,6 +83,59 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
             attendance_policy_source="approved_shortage"
         ).write({"check_out": attendance.check_out + timedelta(minutes=30)})
 
+    def test_archiving_manual_employee_closes_open_attendance(self):
+        values = self.attendance_values(self.manual_employee, offset_days=20)
+        values.pop("check_out")
+        attendance = self.Attendance.with_user(self.hr_user).create(values)
+
+        self.manual_employee.with_user(self.hr_user).action_archive()
+
+        attendance.invalidate_recordset(["check_out"])
+        self.assertTrue(attendance.check_out)
+
+    def test_archiving_automated_employee_closes_open_attendance(self):
+        values = self.attendance_values(self.biometric_employee, offset_days=21)
+        values.pop("check_out")
+        attendance = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric"
+        ).create(values)
+
+        self.biometric_employee.sudo().action_archive()
+
+        attendance.invalidate_recordset(["check_out"])
+        self.assertTrue(attendance.check_out)
+
+    def test_direct_inactive_write_closes_open_automated_attendance(self):
+        values = self.attendance_values(self.scheduled_employee, offset_days=23)
+        values.pop("check_out")
+        attendance = self.Attendance.sudo().with_context(
+            attendance_policy_source="scheduled"
+        ).create(values)
+
+        self.scheduled_employee.sudo().write({"active": False})
+
+        attendance.invalidate_recordset(["check_out"])
+        self.assertTrue(attendance.check_out)
+
+    def test_empty_attendance_write_and_unlink_are_noops(self):
+        empty_attendance = self.Attendance.browse()
+
+        self.assertTrue(empty_attendance.write({"check_out": False}))
+        self.assertTrue(empty_attendance.unlink())
+
+    def test_historical_attendance_can_be_corrected_after_employee_archive(self):
+        attendance = self.Attendance.with_user(self.hr_user).create(
+            self.attendance_values(self.manual_employee, offset_days=22)
+        )
+
+        self.manual_employee.with_user(self.hr_user).action_archive()
+        self.env.invalidate_all()
+        attendance = self.Attendance.browse(attendance.id)
+        new_checkout = attendance.check_out + timedelta(minutes=15)
+        attendance.with_user(self.hr_user).write({"check_out": new_checkout})
+
+        self.assertEqual(attendance.check_out, new_checkout)
+
     def test_attendance_source_cannot_be_relabelled(self):
         attendance = self.Attendance.with_user(self.hr_user).create(
             self.attendance_values(self.manual_employee)

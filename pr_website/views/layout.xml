@@ -126,6 +126,47 @@
                         right: 0;
                         left: auto;
                     }
+                    .pr-language-link-wrap {
+                        display: inline-flex;
+                        align-items: center;
+                        direction: ltr !important;
+                    }
+                    .pr-language-link-native {
+                        display: none !important;
+                    }
+                    .pr-language-link {
+                        min-width: 104px;
+                        min-height: 38px;
+                        padding: 0 18px !important;
+                        border: 1px solid rgba(255,255,255,0.34) !important;
+                        border-radius: 999px;
+                        display: inline-flex !important;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 9px;
+                        background: rgba(255,255,255,0.12);
+                        color: #fff !important;
+                        font-size: 14px !important;
+                        font-weight: 700;
+                        line-height: 1.1;
+                        white-space: nowrap;
+                        text-decoration: none !important;
+                        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+                    }
+                    .pr-language-link:hover {
+                        background: rgba(255,255,255,0.22);
+                        border-color: rgba(255,255,255,0.52) !important;
+                        color: #fff !important;
+                        transform: translateY(-1px);
+                    }
+                    .pr-language-link i {
+                        color: #e9a23e;
+                        font-size: 15px;
+                    }
+                    html[dir="rtl"] .pr-language-link,
+                    .pr-website-rtl .pr-language-link {
+                        flex-direction: row-reverse;
+                    }
                     .mobile-auth-buttons {
                         display: none;
                     }
@@ -399,6 +440,12 @@
                         .mobile-auth-buttons .js_language_selector .dropdown-toggle {
                             width: 100%;
                         }
+                        .mobile-auth-buttons .pr-language-link-wrap {
+                            width: 100%;
+                        }
+                        .mobile-auth-buttons .pr-language-link {
+                            width: 100%;
+                        }
                     }
                 </style>
             </xpath>
@@ -448,14 +495,30 @@
                             <a href="/contact-us"
                                t-att-class="'active' if request.httprequest.path.startswith('/contact') else ''">Contact Us</a>
 
-                            <t t-if="not request.session.uid and not request.httprequest.path == '/web/login'">
+                            <t t-set="current_path" t-value="request.httprequest.path or ''"/>
+                            <t t-set="is_auth_entry_page"
+                               t-value="current_path == '/web/login' or current_path.endswith('/web/login') or current_path.endswith('/sign-in') or current_path.endswith('/signin')"/>
+
+                            <t t-if="not request.session.uid">
                                 <div class="mobile-auth-buttons">
-                                    <t t-call="website.placeholder_header_language_selector">
-                                        <t t-set="_item_class" t-valuef="pr-language-selector"/>
-                                        <t t-set="_btn_class" t-valuef="pr-language-btn w-100 justify-content-between"/>
-                                        <t t-set="_dropdown_menu_class" t-valuef="w-100"/>
-                                    </t>
-                                    <a href="/web/login" class="signin-btn" t-translation="Sign In" target="_blank">
+                                    <div class="pr-language-link-wrap">
+                                        <div class="pr-language-link-native">
+                                            <t t-call="website.placeholder_header_language_selector">
+                                                <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                                <t t-set="_btn_class" t-valuef="pr-language-btn"/>
+                                                <t t-set="_dropdown_menu_class" t-valuef="pr-language-link-menu"/>
+                                            </t>
+                                        </div>
+                                        <a href="/ar" class="pr-language-link" data-pr-language-link="">
+                                            <i class="fa fa-globe" aria-hidden="true"></i>
+                                            <span class="pr-language-link-label">العربية</span>
+                                        </a>
+                                    </div>
+                                    <a t-if="not is_auth_entry_page"
+                                       t-att-href="'/ar/sign-in' if ((request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')) else '/sign-in'"
+                                       class="signin-btn"
+                                       t-translation="Sign In"
+                                       target="_blank">
                                         <i class="fa fa-sign-in-alt"></i>
                                         Sign In
                                     </a>
@@ -463,11 +526,19 @@
                             </t>
                             <t t-if="request.session.uid">
                                 <div class="mobile-auth-buttons">
-                                    <t t-call="website.placeholder_header_language_selector">
-                                        <t t-set="_item_class" t-valuef="pr-language-selector"/>
-                                        <t t-set="_btn_class" t-valuef="pr-language-btn w-100 justify-content-between"/>
-                                        <t t-set="_dropdown_menu_class" t-valuef="w-100"/>
-                                    </t>
+                                    <div class="pr-language-link-wrap">
+                                        <div class="pr-language-link-native">
+                                            <t t-call="website.placeholder_header_language_selector">
+                                                <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                                <t t-set="_btn_class" t-valuef="pr-language-btn"/>
+                                                <t t-set="_dropdown_menu_class" t-valuef="pr-language-link-menu"/>
+                                            </t>
+                                        </div>
+                                        <a href="/ar" class="pr-language-link" data-pr-language-link="">
+                                            <i class="fa fa-globe" aria-hidden="true"></i>
+                                            <span class="pr-language-link-label">العربية</span>
+                                        </a>
+                                    </div>
                                     <t t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('base.group_user')">
                                         <a href="/my" class="signin-btn" title="Portal">
                                             <i class="fa fa-th-large"></i>
@@ -487,14 +558,26 @@
                         </div>
 
                         <!-- Auth Buttons Container -->
-                        <t t-if="not request.session.uid and not request.httprequest.path == '/web/login'">
+                        <t t-if="not request.session.uid">
                             <div class="auth-buttons">
-                                <t t-call="website.placeholder_header_language_selector">
-                                    <t t-set="_item_class" t-valuef="pr-language-selector"/>
-                                    <t t-set="_btn_class" t-valuef="pr-language-btn"/>
-                                    <t t-set="_dropdown_menu_class" t-valuef="dropdown-menu-end"/>
-                                </t>
-                                <a href="/web/login" class="signin-btn" t-translation="Sign In" target="_blank">
+                                <div class="pr-language-link-wrap">
+                                    <div class="pr-language-link-native">
+                                        <t t-call="website.placeholder_header_language_selector">
+                                            <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                            <t t-set="_btn_class" t-valuef="pr-language-btn"/>
+                                            <t t-set="_dropdown_menu_class" t-valuef="pr-language-link-menu"/>
+                                        </t>
+                                    </div>
+                                    <a href="/ar" class="pr-language-link" data-pr-language-link="">
+                                        <i class="fa fa-globe" aria-hidden="true"></i>
+                                        <span class="pr-language-link-label">العربية</span>
+                                    </a>
+                                </div>
+                                <a t-if="not is_auth_entry_page"
+                                   t-att-href="'/ar/sign-in' if ((request.env.lang or '').startswith('ar') or request.httprequest.path.startswith('/ar')) else '/sign-in'"
+                                   class="signin-btn"
+                                   t-translation="Sign In"
+                                   target="_blank">
                                     <i class="fa fa-sign-in-alt"></i>
                                     Sign In
                                 </a>
@@ -502,11 +585,19 @@
                         </t>
                         <t t-if="request.session.uid">
                             <div class="auth-buttons">
-                                <t t-call="website.placeholder_header_language_selector">
-                                    <t t-set="_item_class" t-valuef="pr-language-selector"/>
-                                    <t t-set="_btn_class" t-valuef="pr-language-btn"/>
-                                    <t t-set="_dropdown_menu_class" t-valuef="dropdown-menu-end"/>
-                                </t>
+                                <div class="pr-language-link-wrap">
+                                    <div class="pr-language-link-native">
+                                        <t t-call="website.placeholder_header_language_selector">
+                                            <t t-set="_item_class" t-valuef="pr-language-selector"/>
+                                            <t t-set="_btn_class" t-valuef="pr-language-btn"/>
+                                            <t t-set="_dropdown_menu_class" t-valuef="pr-language-link-menu"/>
+                                        </t>
+                                    </div>
+                                    <a href="/ar" class="pr-language-link" data-pr-language-link="">
+                                        <i class="fa fa-globe" aria-hidden="true"></i>
+                                        <span class="pr-language-link-label">العربية</span>
+                                    </a>
+                                </div>
                                 <t t-if="request.env.user.has_group('base.group_portal') and not request.env.user.has_group('base.group_user')">
                                     <a href="/my" class="signin-btn" title="Portal">
                                         <i class="fa fa-th-large"></i>
@@ -846,6 +937,115 @@
                                 }
                             });
                         }
+
+                        var currentLanguageCode = "<t t-esc='request.env.lang or ""'/>";
+
+                        function firstPathSegment(pathname) {
+                            return ((pathname || '').split('/')[1] || '').toLowerCase();
+                        }
+
+                        function isArabicSegment(segment) {
+                            return segment === 'ar' || segment.indexOf('ar_') === 0 || segment.indexOf('ar-') === 0;
+                        }
+
+                        function currentLanguageLabel() {
+                            var html = document.documentElement;
+                            var body = document.body || {};
+                            var pageLang = ((html.getAttribute('lang') || body.getAttribute('lang') || currentLanguageCode || '') + '').toLowerCase();
+                            var pageDir = ((html.getAttribute('dir') || body.getAttribute('dir') || '') + '').toLowerCase();
+                            var currentPathSegment = firstPathSegment(window.location.pathname);
+                            if (
+                                pageLang.indexOf('ar') === 0 ||
+                                currentLanguageCode.toLowerCase().indexOf('ar') === 0 ||
+                                pageDir === 'rtl' ||
+                                isArabicSegment(currentPathSegment)
+                            ) {
+                                return 'AR';
+                            }
+                            return 'EN';
+                        }
+
+                        function inferLanguageLabel(text, href, urlCode) {
+                            var value = ((text || '') + ' ' + (href || '') + ' ' + (urlCode || '')).toLowerCase();
+                            var hrefPathSegment = '';
+                            try {
+                                hrefPathSegment = firstPathSegment(new URL(href || '/', window.location.origin).pathname);
+                            } catch (ignore) {}
+                            if (
+                                isArabicSegment(hrefPathSegment) ||
+                                isArabicSegment(urlCode || '') ||
+                                value.indexOf('arab') !== -1 ||
+                                value.indexOf('الع') !== -1 ||
+                                value.indexOf('lang=ar') !== -1
+                            ) {
+                                return 'AR';
+                            }
+                            return 'EN';
+                        }
+
+                        function fallbackLanguageHref(label) {
+                            var path = window.location.pathname || '/';
+                            var searchHash = (window.location.search || '') + (window.location.hash || '');
+                            var parts = path.split('/');
+                            var hasArabicPrefix = isArabicSegment(firstPathSegment(path));
+                            if (label === 'AR') {
+                                if (hasArabicPrefix) {
+                                    return path + searchHash;
+                                }
+                                if (path.charAt(0) !== '/') {
+                                    path = '/' + path;
+                                }
+                                return (path === '/' ? '/ar' : '/ar' + path) + searchHash;
+                            }
+                            if (hasArabicPrefix) {
+                                parts.splice(1, 1);
+                                path = parts.join('/') || '/';
+                                if (path.charAt(0) !== '/') {
+                                    path = '/' + path;
+                                }
+                            }
+                            return path + searchHash;
+                        }
+
+                        function websiteLanguageHref(urlCode, redirectHref) {
+                            var redirectUrl = redirectHref || '/';
+                            return '/website/lang/' + encodeURIComponent(urlCode) + '?r=' + encodeURIComponent(redirectUrl);
+                        }
+
+                        document.querySelectorAll('.pr-language-link-wrap').forEach(function(languageWrap) {
+                            var activeLabel = currentLanguageLabel();
+                            var targetLabel = activeLabel === 'AR' ? 'EN' : 'AR';
+                            var nativeLanguages = {};
+
+                            languageWrap.querySelectorAll('.pr-language-link-native a[href]').forEach(function(item) {
+                                var itemHref = item.getAttribute('href');
+                                var itemUrlCode = item.getAttribute('data-url_code');
+                                var itemLabel = inferLanguageLabel(item.textContent, itemHref, itemUrlCode);
+                                nativeLanguages[itemLabel] = {
+                                    href: itemHref,
+                                    urlCode: itemUrlCode || (itemLabel === 'AR' ? 'ar' : 'en'),
+                                };
+                            });
+
+                            var languageLink = languageWrap.querySelector('[data-pr-language-link]');
+                            var languageLabel = languageWrap.querySelector('.pr-language-link-label');
+                            if (!languageLink) {
+                                return;
+                            }
+
+                            var targetLanguage = nativeLanguages[targetLabel] || {
+                                href: fallbackLanguageHref(targetLabel),
+                                urlCode: targetLabel === 'AR' ? 'ar' : 'en',
+                            };
+                            var targetHref = targetLanguage.href || fallbackLanguageHref(targetLabel);
+                            languageLink.setAttribute('href', websiteLanguageHref(targetLanguage.urlCode, targetHref));
+                            languageLink.setAttribute('aria-label', targetLabel === 'AR' ? 'Switch to Arabic' : 'Switch to English');
+                            languageLink.classList.toggle('is-target-ar', targetLabel === 'AR');
+                            languageLink.classList.toggle('is-target-en', targetLabel === 'EN');
+                            if (languageLabel) {
+                                languageLabel.textContent = targetLabel === 'AR' ? 'العربية' : 'English';
+                            }
+                        });
 
                         /* Desktop: Improved dropdown with delay to prevent premature close */
                         var navItems = document.querySelectorAll('.nav-item');

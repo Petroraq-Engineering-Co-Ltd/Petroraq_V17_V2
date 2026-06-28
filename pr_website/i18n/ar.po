@@ -106,626 +106,626 @@ msgstr "عرض المزيد من الوظائف"
 msgid ""
 "<i class=\"fa fa-check-circle\"/>\n"
 "                                    <span>Your message has been sent. Our sales team will contact you soon.</span>"
-msgstr "تم إرسال رسالتك. سيتواصل معك فريق المبيعات قريبًا."
+msgstr "<i class=\"fa fa-check-circle\"/>تم إرسال رسالتك. سيتواصل معك فريق المبيعات قريبًا."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>115kV &amp; 132 kV Substation with Scada "
 "and Communication Systems between Substations"
-msgstr "محطات فرعية بجهد 115 ك.ف و132 ك.ف مع أنظمة (سكادا) وأنظمة الاتصال بين المحطات."
+msgstr "<i class=\"fa fa-check-circle\"/>محطات فرعية بجهد 115 ك.ف و132 ك.ف مع أنظمة (سكادا) وأنظمة الاتصال بين المحطات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>3D Models and Walkthrough Presentations"
-msgstr "نماذج ثلاثية الأبعاد وعروض محاكاة افتراضية."
+msgstr "<i class=\"fa fa-check-circle\"/>نماذج ثلاثية الأبعاد وعروض محاكاة افتراضية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Assessment of Labor and Equipment "
 "requirements"
-msgstr "تقييم متطلبات العمالة والمعدات."
+msgstr "<i class=\"fa fa-check-circle\"/>تقييم متطلبات العمالة والمعدات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Assistance during construction and "
 "commissioning"
-msgstr "المساندة أثناء التنفيذ والتشغيل التجريبي."
+msgstr "<i class=\"fa fa-check-circle\"/>المساندة أثناء التنفيذ والتشغيل التجريبي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Assistance during construction, pre-"
 "commissioning and commissioning"
-msgstr "المساندة أثناء التنفيذ وما قبل التشغيل والتشغيل التجريبي."
+msgstr "<i class=\"fa fa-check-circle\"/>المساندة أثناء التنفيذ وما قبل التشغيل والتشغيل التجريبي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Assistance with technical review of "
 "material and equipment specifications"
-msgstr "المساندة في المراجعة الفنية لمواصفات المواد والمعدات."
+msgstr "<i class=\"fa fa-check-circle\"/>المساندة في المراجعة الفنية لمواصفات المواد والمعدات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Audio Visual Systems"
-msgstr "أنظمة الصوت والصورة."
+msgstr "<i class=\"fa fa-check-circle\"/>أنظمة الصوت والصورة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Bridges, Tunnels and Retaining Walls"
-msgstr "الجسور والأنفاق والجدران الاستنادية."
+msgstr "<i class=\"fa fa-check-circle\"/>الجسور والأنفاق والجدران الاستنادية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Building and equipment foundations"
-msgstr "أساسات المباني والمعدات."
+msgstr "<i class=\"fa fa-check-circle\"/>أساسات المباني والمعدات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Cable &amp; Conduit Schedules and "
 "Interconnection Diagrams"
-msgstr "جداول الكابلات والمواسير ومخططات التوصيل البيني."
+msgstr "<i class=\"fa fa-check-circle\"/>جداول الكابلات والمواسير ومخططات التوصيل البيني."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Carry out site visits and inspections to "
 "gather technical data"
-msgstr "تنفيذ زيارات ومعاينات ميدانية لجمع البيانات الفنية."
+msgstr "<i class=\"fa fa-check-circle\"/>تنفيذ زيارات ومعاينات ميدانية لجمع البيانات الفنية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Cathodic Protection Systems"
-msgstr "أنظمة الحماية الكاثودية."
+msgstr "<i class=\"fa fa-check-circle\"/>أنظمة الحماية الكاثودية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Change Order and Claims Evaluation"
-msgstr "تقييم أوامر التغيير والمطالبات."
+msgstr "<i class=\"fa fa-check-circle\"/>تقييم أوامر التغيير والمطالبات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Commercial Centers"
-msgstr "المراكز التجارية."
+msgstr "<i class=\"fa fa-check-circle\"/>المراكز التجارية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Constructability Reviews"
-msgstr "مراجعات قابلية التنفيذ."
+msgstr "<i class=\"fa fa-check-circle\"/>مراجعات قابلية التنفيذ."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Construction and Fabrication Drawings "
 "Scrutiny and Approval"
-msgstr "مراجعة واعتماد رسومات التنفيذ والتصنيع."
+msgstr "<i class=\"fa fa-check-circle\"/>مراجعة واعتماد رسومات التنفيذ والتصنيع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Contaminated Land Assessment and "
 "Improvement"
-msgstr "تقييم وتحسين الأراضي الملوثة."
+msgstr "<i class=\"fa fa-check-circle\"/>تقييم وتحسين الأراضي الملوثة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Contract Documents – Preparation, Bid "
 "Invitation, Evaluation, Negotiation"
-msgstr "إعداد مستندات العقود وطرح المناقصات والتقييم والتفاوض."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد مستندات العقود وطرح المناقصات والتقييم والتفاوض."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Cost Control"
-msgstr "ضبط التكاليف."
+msgstr "<i class=\"fa fa-check-circle\"/>ضبط التكاليف."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Define project objectives"
-msgstr "تحديد أهداف المشروع."
+msgstr "<i class=\"fa fa-check-circle\"/>تحديد أهداف المشروع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Detailed installation packages"
-msgstr "حزم تركيب تفصيلية."
+msgstr "<i class=\"fa fa-check-circle\"/>حزم تركيب تفصيلية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Develop SLD, Metering &amp; Protection "
 "Diagrams"
-msgstr "إعداد المخططات الأحادية ومخططات القياس والحماية."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد المخططات الأحادية ومخططات القياس والحماية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Development of deliverables required for "
 "the projects scope of work"
-msgstr "تطوير المخرجات المطلوبة لنطاق عمل المشروع."
+msgstr "<i class=\"fa fa-check-circle\"/>تطوير المخرجات المطلوبة لنطاق عمل المشروع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Development of plant I/O take off aided by "
 "existing plant experience"
-msgstr "إعداد بيانات مداخل ومخارج المصنع بالاستفادة من خبرات التشغيل القائمة."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد بيانات مداخل ومخارج المصنع بالاستفادة من خبرات التشغيل القائمة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Development of project cost estimates and "
 "schedules for budget presentation"
-msgstr "إعداد تقديرات تكلفة المشروع والجداول الزمنية لعرض الميزانية."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد تقديرات تكلفة المشروع والجداول الزمنية لعرض الميزانية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Development of vendor non-material "
 "requirements (NMR's)"
-msgstr "إعداد متطلبات الموردين غير المادية(NMR) ."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد متطلبات الموردين غير المادية(NMR) ."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Earthwork and Cut-Fill Optimization"
-msgstr "الأعمال الترابية وتحسين القطع والردم."
+msgstr "<i class=\"fa fa-check-circle\"/>الأعمال الترابية وتحسين القطع والردم."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Educational Facilities"
-msgstr "المرافق التعليمية."
+msgstr "<i class=\"fa fa-check-circle\"/>المرافق التعليمية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Electrical Substations"
-msgstr "المحطات الكهربائية الفرعية."
+msgstr "<i class=\"fa fa-check-circle\"/>المحطات الكهربائية الفرعية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Elementary diagrams and Installation "
 "Details"
-msgstr "المخططات الأساسية وتفاصيل التركيب."
+msgstr "<i class=\"fa fa-check-circle\"/>المخططات الأساسية وتفاصيل التركيب."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Environmental Engineering"
-msgstr "الهندسة البيئية."
+msgstr "<i class=\"fa fa-check-circle\"/>الهندسة البيئية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Environmental Impact Assessments"
-msgstr "تقييمات الأثر البيئي."
+msgstr "<i class=\"fa fa-check-circle\"/>تقييمات الأثر البيئي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>External Utilities"
-msgstr "المرافق الخارجية."
+msgstr "<i class=\"fa fa-check-circle\"/>المرافق الخارجية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Feasibility Studies and Project Proposals"
-msgstr "دراسات الجدوى ومقترحات المشاريع."
+msgstr "<i class=\"fa fa-check-circle\"/>دراسات الجدوى ومقترحات المشاريع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Fiber Optic Trunking, Access and Backbone "
 "Systems"
-msgstr "أنظمة الألياف البصرية الرئيسية وأنظمة الوصول والبنية الأساسية."
+msgstr "<i class=\"fa fa-check-circle\"/>أنظمة الألياف البصرية الرئيسية وأنظمة الوصول والبنية الأساسية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Fire Alarm Systems both Conventional and "
 "Intelligent Types and Building Management System"
-msgstr "أنظمة إنذار الحريق التقليدية والذكية وأنظمة إدارة المباني."
+msgstr "<i class=\"fa fa-check-circle\"/>أنظمة إنذار الحريق التقليدية والذكية وأنظمة إدارة المباني."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>General application of existing site "
 "conventions to the current project"
-msgstr "تطبيق معايير الموقع القائمة على المشروع الحالي."
+msgstr "<i class=\"fa fa-check-circle\"/>تطبيق معايير الموقع القائمة على المشروع الحالي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Governmental Facilities"
-msgstr "المرافق الحكومية."
+msgstr "<i class=\"fa fa-check-circle\"/>المرافق الحكومية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Grading and Drainage Plans"
-msgstr "مخططات التسوية وتصريف المياه."
+msgstr "<i class=\"fa fa-check-circle\"/>مخططات التسوية وتصريف المياه."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Highways and Roads network"
-msgstr "شبكات الطرق والطرق السريعة."
+msgstr "<i class=\"fa fa-check-circle\"/>شبكات الطرق والطرق السريعة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Hospitals and Laboratories"
-msgstr "المستشفيات والمختبرات."
+msgstr "<i class=\"fa fa-check-circle\"/>المستشفيات والمختبرات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Identification of deviations and waivers "
 "inherent in the proposal client design"
-msgstr "تحديد الانحرافات والاستثناءات ضمن تصميم العميل المقترح."
+msgstr "<i class=\"fa fa-check-circle\"/>تحديد الانحرافات والاستثناءات ضمن تصميم العميل المقترح."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Industrial Buildings"
-msgstr "المباني الصناعية."
+msgstr "<i class=\"fa fa-check-circle\"/>المباني الصناعية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Inspection, Testing and Commissioning"
-msgstr "الفحص والاختبار والتشغيل التجريبي."
+msgstr "<i class=\"fa fa-check-circle\"/>الفحص والاختبار والتشغيل التجريبي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Irrigation and Water Conveyance Systems"
-msgstr "أنظمة الري ونقل المياه."
+msgstr "<i class=\"fa fa-check-circle\"/>أنظمة الري ونقل المياه."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Landscaping &amp; Interior Design"
-msgstr "تنسيق المواقع والتصميم الداخلي."
+msgstr "<i class=\"fa fa-check-circle\"/>تنسيق المواقع والتصميم الداخلي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Landscaping and external finishing works"
-msgstr "تنسيق المواقع وأعمال التشطيبات الخارجية."
+msgstr "<i class=\"fa fa-check-circle\"/>تنسيق المواقع وأعمال التشطيبات الخارجية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Leakage Detection Systems"
-msgstr "أنظمة كشف التسرب."
+msgstr "<i class=\"fa fa-check-circle\"/>أنظمة كشف التسرب."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>MTO's"
-msgstr "حصر المواد (MTO)."
+msgstr "<i class=\"fa fa-check-circle\"/>حصر المواد (MTO)."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Man-hour and Project Cost Estimation, "
 "Scheduling and Management Control"
-msgstr "تقدير ساعات العمل وتكاليف المشروع والجدولة والرقابة الإدارية."
+msgstr "<i class=\"fa fa-check-circle\"/>تقدير ساعات العمل وتكاليف المشروع والجدولة والرقابة الإدارية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Market Survey Material Selection, Testing "
 "and Acceptance"
-msgstr "مسح السوق واختيار المواد واختبارها واعتمادها."
+msgstr "<i class=\"fa fa-check-circle\"/>مسح السوق واختيار المواد واختبارها واعتمادها."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Measurements, Billing and Passing for "
 "Payment"
-msgstr "القياسات والفوترة وتمرير الدفعات."
+msgstr "<i class=\"fa fa-check-circle\"/>القياسات والفوترة وتمرير الدفعات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Mechanical layout of piping and equipment"
-msgstr "المخطط الميكانيكي للأنابيب والمعدات."
+msgstr "<i class=\"fa fa-check-circle\"/>المخطط الميكانيكي للأنابيب والمعدات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Monitoring and Reporting"
-msgstr "المتابعة وإعداد التقارير."
+msgstr "<i class=\"fa fa-check-circle\"/>المتابعة وإعداد التقارير."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Multi-storied Parking Lots"
-msgstr "مواقف سيارات متعددة الطوابق."
+msgstr "<i class=\"fa fa-check-circle\"/>مواقف سيارات متعددة الطوابق."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Non Material Requirements (NMR) and Spares "
 "Parts"
-msgstr "المتطلبات الغير مادية وقطع الغيار."
+msgstr "<i class=\"fa fa-check-circle\"/>المتطلبات الغير مادية وقطع الغيار."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Office Buildings"
-msgstr "المباني المكتبية."
+msgstr "<i class=\"fa fa-check-circle\"/>المباني المكتبية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Outside Plant Primary &amp; Secondary "
 "Networks"
-msgstr "الشبكات الخارجية الرئيسية والثانوية."
+msgstr "<i class=\"fa fa-check-circle\"/>الشبكات الخارجية الرئيسية والثانوية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Paging Systems"
-msgstr "أنظمة النداء."
+msgstr "<i class=\"fa fa-check-circle\"/>أنظمة النداء."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Parking Areas and Access Roads"
-msgstr "مناطق المواقف وطرق الوصول."
+msgstr "<i class=\"fa fa-check-circle\"/>مناطق المواقف وطرق الوصول."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Planning, Scheduling and Monitoring "
 "progress"
-msgstr "التخطيط والجدولة ومتابعة التقدم."
+msgstr "<i class=\"fa fa-check-circle\"/>التخطيط والجدولة ومتابعة التقدم."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Potable Water Treatment"
-msgstr "معالجة مياه الشرب."
+msgstr "<i class=\"fa fa-check-circle\"/>معالجة مياه الشرب."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Power, Lighting, Emergency, UPS Systems, "
 "Distribution and Grounding Layouts"
-msgstr "مخططات أنظمة الطاقة والإنارة والطوارئ وأنظمة. (UPS) والتوزيع والتأريض"
+msgstr "<i class=\"fa fa-check-circle\"/>مخططات أنظمة الطاقة والإنارة والطوارئ وأنظمة. (UPS) والتوزيع والتأريض"
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Pre-cast Concrete Structures"
-msgstr "الهياكل الخرسانية مسبقة الصب."
+msgstr "<i class=\"fa fa-check-circle\"/>الهياكل الخرسانية مسبقة الصب."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Pre-stressed concrete Structures"
-msgstr "الهياكل الخرسانية مسبقة الإجهاد."
+msgstr "<i class=\"fa fa-check-circle\"/>الهياكل الخرسانية مسبقة الإجهاد."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Premises Distribution Systems (PDS) "
 "(Structured cabling)"
-msgstr "  أنظمة توزيع المباني والكابلات الهيكلية (بي دي إس)"
+msgstr "<i class=\"fa fa-check-circle\"/>  أنظمة توزيع المباني والكابلات الهيكلية (بي دي إس)"
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Preparation of specifications for the "
 "definition phase"
-msgstr "إعداد المواصفات لمرحلة التعريف."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد المواصفات لمرحلة التعريف."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Prepare As-Built Drawings and other records"
-msgstr "إعداد رسومات حسب المنفذ والسجلات الأخرى."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد رسومات حسب المنفذ والسجلات الأخرى."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Procurement"
-msgstr "المشتريات."
+msgstr "<i class=\"fa fa-check-circle\"/>المشتريات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Procurement assistance, Bid Evaluations "
 "&amp; Vendor Data Review"
-msgstr "دعم المشتريات وتقييم العروض ومراجعة بيانات الموردين."
+msgstr "<i class=\"fa fa-check-circle\"/>دعم المشتريات وتقييم العروض ومراجعة بيانات الموردين."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Project study/development"
-msgstr "دراسة وتطوير المشروع."
+msgstr "<i class=\"fa fa-check-circle\"/>دراسة وتطوير المشروع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Public area and open-space improvement "
 "works"
-msgstr "أعمال تحسين المناطق العامة والمساحات المفتوحة."
+msgstr "<i class=\"fa fa-check-circle\"/>أعمال تحسين المناطق العامة والمساحات المفتوحة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Pumping, Storage Facilities and "
 "Distribution Networks"
-msgstr "مرافق الضخ والتخزين وشبكات التوزيع."
+msgstr "<i class=\"fa fa-check-circle\"/>مرافق الضخ والتخزين وشبكات التوزيع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Quality Control and Assurance"
-msgstr "ضبط الجودة وضمانها."
+msgstr "<i class=\"fa fa-check-circle\"/>ضبط الجودة وضمانها."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Recreational and leisure facility "
 "development"
-msgstr "تطوير مرافق الترفيه والاستجمام."
+msgstr "<i class=\"fa fa-check-circle\"/>تطوير مرافق الترفيه والاستجمام."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Regional and Community Development works"
-msgstr "أعمال التطوير الإقليمي والمجتمعي."
+msgstr "<i class=\"fa fa-check-circle\"/>أعمال التطوير الإقليمي والمجتمعي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Reinforced Concrete Structures"
-msgstr "الهياكل الخرسانية المسلحة."
+msgstr "<i class=\"fa fa-check-circle\"/>الهياكل الخرسانية المسلحة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Requesting and obtaining drawings from the "
 "client's central drawing office"
-msgstr "طلب واستلام الرسومات من مكتب الرسومات المركزي لدى العميل."
+msgstr "<i class=\"fa fa-check-circle\"/>طلب واستلام الرسومات من مكتب الرسومات المركزي لدى العميل."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Requisition, Bid Analysis"
-msgstr "طلبات الشراء وتحليل العروض."
+msgstr "<i class=\"fa fa-check-circle\"/>طلبات الشراء وتحليل العروض."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Roads and Highways"
-msgstr "الطرق والطرق السريعة."
+msgstr "<i class=\"fa fa-check-circle\"/>الطرق والطرق السريعة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Site Development and Infrastructure"
-msgstr "تطوير الموقع والبنية التحتية."
+msgstr "<i class=\"fa fa-check-circle\"/>تطوير الموقع والبنية التحتية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Site Development and Landscaping"
-msgstr "تطوير الموقع وتنسيق المواقع."
+msgstr "<i class=\"fa fa-check-circle\"/>تطوير الموقع وتنسيق المواقع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Site Planning and Layouts"
-msgstr "تخطيط الموقع والمخططات العامة."
+msgstr "<i class=\"fa fa-check-circle\"/>تخطيط الموقع والمخططات العامة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Site Surveys"
-msgstr "المسوحات الميدانية."
+msgstr "<i class=\"fa fa-check-circle\"/>المسوحات الميدانية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Sludge Treatment and Treated Effluent "
 "Utilization"
-msgstr "معالجة الحمأة والاستفادة من المياه المعالجة."
+msgstr "<i class=\"fa fa-check-circle\"/>معالجة الحمأة والاستفادة من المياه المعالجة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Specifications and Data Sheets for "
 "Equipment and Material"
-msgstr "المواصفات وأوراق البيانات للمعدات والمواد."
+msgstr "<i class=\"fa fa-check-circle\"/>المواصفات وأوراق البيانات للمعدات والمواد."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Sports and Recreational Facilities"
-msgstr "المرافق الرياضية والترفيهية."
+msgstr "<i class=\"fa fa-check-circle\"/>المرافق الرياضية والترفيهية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Steel Structures"
-msgstr "الهياكل الفولاذية."
+msgstr "<i class=\"fa fa-check-circle\"/>الهياكل الفولاذية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Street Lighting"
-msgstr "إنارة الشوارع."
+msgstr "<i class=\"fa fa-check-circle\"/>إنارة الشوارع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Studies Performed Using Electrical "
 "Transient Analyzer Program (ETAP) Power Station (Windows Version)"
-msgstr "دراسات باستخدام برنامج (إي تاب) لتحليل العابر الكهربائي لمحطات الطاقة (إصدار ويندوز)."
+msgstr "<i class=\"fa fa-check-circle\"/>دراسات باستخدام برنامج (إي تاب) لتحليل العابر الكهربائي لمحطات الطاقة (إصدار ويندوز)."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Studies and Environmental Impact "
 "Assessments"
-msgstr "الدراسات وتقييمات الأثر البيئي."
+msgstr "<i class=\"fa fa-check-circle\"/>الدراسات وتقييمات الأثر البيئي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid ""
 "<i class=\"fa fa-check-circle\"/>System Design for LAN/WAN (Wired and "
 "Wireless)"
-msgstr "تصميم الأنظمة السلكية واللاسلكية (LAN/WAN)."
+msgstr "<i class=\"fa fa-check-circle\"/>تصميم الأنظمة السلكية واللاسلكية (LAN/WAN)."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Systems Rehabilitation"
-msgstr "إعادة تأهيل الأنظمة."
+msgstr "<i class=\"fa fa-check-circle\"/>إعادة تأهيل الأنظمة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Technical Specifications, data sheets"
-msgstr "المواصفات الفنية وأوراق البيانات."
+msgstr "<i class=\"fa fa-check-circle\"/>المواصفات الفنية وأوراق البيانات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Technical bid preparations / procedures in "
 "accordance with standard procedures"
-msgstr "إعداد العروض الفنية والإجراءات وفق الإجراءات القياسية."
+msgstr "<i class=\"fa fa-check-circle\"/>إعداد العروض الفنية والإجراءات وفق الإجراءات القياسية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Technical support to construction, SAT's "
 "and As-Built"
-msgstr "الدعم الفني للتنفيذ واختبارات القبول بالموقع ورسومات حسب المنفذ."
+msgstr "<i class=\"fa fa-check-circle\"/>الدعم الفني للتنفيذ واختبارات القبول بالموقع ورسومات حسب المنفذ."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Telephoning/PBX Network"
-msgstr "شبكات الهاتف و Pbx."
+msgstr "<i class=\"fa fa-check-circle\"/>شبكات الهاتف و Pbx."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid "<i class=\"fa fa-check-circle\"/>Treatment and Collection"
-msgstr "المعالجة والتجميع."
+msgstr "<i class=\"fa fa-check-circle\"/>المعالجة والتجميع."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_electrical_telecommunication
 msgid "<i class=\"fa fa-check-circle\"/>Use of State-of-art Technology"
-msgstr "استخدام أحدث التقنيات."
+msgstr "<i class=\"fa fa-check-circle\"/>استخدام أحدث التقنيات."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_civil_structural
 msgid "<i class=\"fa fa-check-circle\"/>Utility Corridors and Service Routing"
-msgstr "ممرات الخدمات ومسارات المرافق."
+msgstr "<i class=\"fa fa-check-circle\"/>ممرات الخدمات ومسارات المرافق."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Utility corridor and infrastructure support"
 " works"
-msgstr "ممرات الخدمات وأعمال دعم البنية التحتية."
+msgstr "<i class=\"fa fa-check-circle\"/>ممرات الخدمات وأعمال دعم البنية التحتية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Value Engineering Studies"
-msgstr "دراسات هندسة القيمة."
+msgstr "<i class=\"fa fa-check-circle\"/>دراسات هندسة القيمة."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Value Engineering and Design Basis "
 "Confirmation"
-msgstr "هندسة القيمة وتأكيد أسس التصميم."
+msgstr "<i class=\"fa fa-check-circle\"/>هندسة القيمة وتأكيد أسس التصميم."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_design_engineering
 msgid "<i class=\"fa fa-check-circle\"/>Vendor Liaison, Technical Review"
-msgstr "التواصل مع الموردين والمراجعة الفنية."
+msgstr "<i class=\"fa fa-check-circle\"/>التواصل مع الموردين والمراجعة الفنية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning
 msgid "<i class=\"fa fa-check-circle\"/>Villas and Apartments"
-msgstr "الفلل والشقق."
+msgstr "<i class=\"fa fa-check-circle\"/>الفلل والشقق."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services
 msgid ""
 "<i class=\"fa fa-check-circle\"/>Waste Water Collection, Treatment and "
 "Disposal"
-msgstr "تجميع ومعالجة وتصريف مياه الصرف الصحي."
+msgstr "<i class=\"fa fa-check-circle\"/>تجميع ومعالجة وتصريف مياه الصرف الصحي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_architecture_planning

@@ -13,6 +13,7 @@ class HrAttendance(models.Model):
         "biometric",
         "scheduled",
         "approved_shortage",
+        "approved_leave",
     }
     _ATTENDANCE_PROTECTED_FIELDS = {
         "employee_id",
@@ -34,6 +35,7 @@ class HrAttendance(models.Model):
             ("biometric", "Biometric Device"),
             ("scheduled", "Scheduled Attendance"),
             ("approved_shortage", "Approved Shortage Correction"),
+            ("approved_leave", "Approved Leave Cleanup"),
         ],
         string="Attendance Source",
         required=True,
@@ -70,7 +72,7 @@ class HrAttendance(models.Model):
 
     @api.model
     def _check_attendance_policy_for_employees(self, employees, operation):
-        employees = employees.exists()
+        employees = employees.with_context(active_test=False).exists()
         if not employees:
             raise ValidationError(_("Select a valid employee for the attendance entry."))
 
@@ -117,13 +119,33 @@ class HrAttendance(models.Model):
                 _("Only HR attendance staff can manage Manual / Site attendance.")
             )
 
+    @api.model
+    def _attendance_policy_employees_from_ids(self, employee_ids):
+        employee_ids = {employee_id for employee_id in employee_ids if employee_id}
+        return self.env["hr.employee"].sudo().with_context(
+            active_test=False
+        ).browse(list(employee_ids)).exists()
+
+    def _attendance_policy_employee_ids_from_records(self):
+        if not self:
+            return []
+        self.env.cr.execute(
+            """
+            SELECT DISTINCT employee_id
+              FROM hr_attendance
+             WHERE id IN %s
+               AND employee_id IS NOT NULL
+            """,
+            [tuple(self.ids)],
+        )
+        return [row[0] for row in self.env.cr.fetchall()]
+
     @api.model_create_multi
     def create(self, vals_list):
-        Employee = self.env["hr.employee"].sudo()
         employee_ids = [values.get("employee_id") for values in vals_list]
         if not all(employee_ids):
             raise ValidationError(_("Every attendance entry requires an employee."))
-        employees = Employee.browse(employee_ids).exists()
+        employees = self._attendance_policy_employees_from_ids(employee_ids)
         if set(employees.ids) != set(employee_ids):
             raise ValidationError(_("Select a valid employee for every attendance entry."))
         self._check_attendance_policy_for_employees(employees, _("created"))
@@ -136,23 +158,29 @@ class HrAttendance(models.Model):
         return super().create(prepared)
 
     def write(self, values):
+        if not self:
+            return super().write(values)
         if "attendance_entry_source" in values and self.filtered(
             lambda attendance: attendance.attendance_entry_source
             != values["attendance_entry_source"]
         ):
             raise AccessError(_("Attendance Source is immutable audit information."))
         if self._ATTENDANCE_PROTECTED_FIELDS.intersection(values):
-            employees = self.mapped("employee_id")
+            employee_ids = self._attendance_policy_employee_ids_from_records()
             if values.get("employee_id"):
-                employees |= self.env["hr.employee"].sudo().browse(
-                    values["employee_id"]
-                )
+                employee_ids.append(values["employee_id"])
+            employees = self._attendance_policy_employees_from_ids(employee_ids)
             self._check_attendance_policy_for_employees(employees, _("modified"))
         return super().write(values)
 
     def unlink(self):
+        if not self:
+            return super().unlink()
         self._check_attendance_policy_for_employees(
-            self.mapped("employee_id"), _("deleted")
+            self._attendance_policy_employees_from_ids(
+                self._attendance_policy_employee_ids_from_records()
+            ),
+            _("deleted"),
         )
         return super().unlink()
 

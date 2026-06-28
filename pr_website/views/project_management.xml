@@ -756,6 +756,12 @@
                     transition: color 0.3s ease;
                 }
                 .pr-pm-page .cb-item a:hover { color: var(--gold); }
+                .pr-pm-page .contact-ltr {
+                    direction: ltr;
+                    unicode-bidi: isolate;
+                    display: inline-block;
+                    white-space: nowrap;
+                }
 
                 /* ===== RESPONSIVE ===== */
                 @media (max-width: 992px) {
@@ -779,6 +785,44 @@
                     .pr-pm-page .fn-grid { grid-template-columns: 1fr; }
                 }
             </style>
+            <t t-if="(request.env.lang or '').startswith('ar')">
+                <style>
+                    .pr-pm-page .dev-grid,
+                    .pr-pm-page .dev-grid.row2 {
+                        direction: rtl;
+                    }
+                    .pr-pm-page .dev-wrap .dev-item,
+                    .pr-pm-page .dev-wrap .dev-item h4,
+                    .pr-pm-page .dev-wrap .dev-item ul,
+                    .pr-pm-page .dev-wrap .dev-item ul li {
+                        direction: rtl;
+                        text-align: right !important;
+                    }
+                    .pr-pm-page .dev-wrap .dev-item h4 {
+                        width: 100%;
+                    }
+                    .pr-pm-page .dev-wrap .dev-icon {
+                        margin: 0 0 15px auto !important;
+                    }
+                    .pr-pm-page .dev-wrap .dev-item ul {
+                        width: 100%;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                    }
+                    .pr-pm-page .dev-wrap .dev-item ul li {
+                        display: block !important;
+                        position: relative;
+                        padding: 3px 14px 3px 0 !important;
+                    }
+                    .pr-pm-page .dev-wrap .dev-item ul li::before {
+                        position: absolute;
+                        right: 0;
+                        left: auto;
+                        top: 0.7em;
+                        margin-top: 0 !important;
+                    }
+                </style>
+            </t>
 
             <div class="pr-pm-page">
 
@@ -1166,7 +1210,7 @@
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-phone"></i>
-                        <span>+966 13 - 361 - 4446</span>
+                        <span class="contact-ltr">+966 13 361 4446</span>
                     </div>
                     <div class="cb-item">
                         <i class="fa fa-envelope"></i>
