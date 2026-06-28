@@ -61,3 +61,87 @@ class TestBusinessXlsxHelpers(TransactionCase):
         self.assertIn("SUM(C2)-SUM(B2)", sheet_xml)
         self.assertIn("FF173B76", styles_xml)
 
+    def test_discount_values_are_blank_without_discount(self):
+        self.assertEqual(
+            self.report._discount_values(125.0, 4.0, 0.0),
+            (None, None, None),
+        )
+
+    def test_purchase_and_sale_orders_share_requested_line_layout(self):
+        self.assertEqual(
+            self.report.ORDER_LINE_HEADERS,
+            [
+                "#",
+                "Product Code",
+                "Product Name",
+                "Description",
+                "Ordered Qty",
+                "UoM",
+                "Unit Price",
+                "Discount %",
+                "Discount Amount",
+                "Unit Price After Discount",
+                "Untaxed Amount",
+                "VAT Amount",
+                "Total Amount",
+            ],
+        )
+
+    def test_invoice_and_bill_layout_keeps_existing_fields_and_adds_details(self):
+        self.assertEqual(
+            self.report.INVOICE_LINE_HEADERS,
+            [
+                "#",
+                "Product Code",
+                "Product Name",
+                "Description",
+                "Account",
+                "Qty",
+                "UoM",
+                "Unit Price",
+                "Discount %",
+                "Discount Amount",
+                "Unit Price After Discount",
+                "Taxes",
+                "Analytic Distribution",
+                "Untaxed Amount",
+                "VAT Amount",
+                "Total Amount",
+            ],
+        )
+
+    def test_discount_values_include_rate_amount_and_net_unit_price(self):
+        rate, amount, net_unit_price = self.report._discount_values(
+            125.0, 4.0, 10.0
+        )
+        self.assertEqual(rate, 0.10)
+        self.assertEqual(amount, 50.0)
+        self.assertEqual(net_unit_price, 112.5)
+
+    def test_explicit_vat_column_is_used_by_totals(self):
+        stream = BytesIO()
+        workbook = xlsxwriter.Workbook(stream, {"in_memory": True})
+        formats = self.report._build_formats(workbook)
+        worksheet = workbook.add_worksheet("VAT")
+        worksheet.write_number(1, 1, 100.0, formats["money"])
+        worksheet.write_number(1, 2, 15.0, formats["money"])
+        worksheet.write_number(1, 3, 115.0, formats["money"])
+        self.report._write_totals(
+            worksheet,
+            3,
+            1,
+            1,
+            1,
+            3,
+            100.0,
+            15.0,
+            115.0,
+            formats,
+            tax_col=2,
+        )
+        workbook.close()
+
+        with ZipFile(BytesIO(stream.getvalue())) as archive:
+            sheet_xml = archive.read("xl/worksheets/sheet1.xml").decode("utf-8")
+        self.assertIn("SUM(C2)", sheet_xml)
+

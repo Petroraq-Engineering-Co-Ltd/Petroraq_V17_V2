@@ -18,6 +18,76 @@ class BusinessXlsxReportMixin:
     BODY_FONT = "Arial"
     MONEY_FORMAT = "#,##0.00;[Red]-#,##0.00;0.00"
     QUANTITY_FORMAT = "#,##0.00####;[Red]-#,##0.00####;0"
+    ORDER_LINE_HEADERS = [
+        "#",
+        "Product Code",
+        "Product Name",
+        "Description",
+        "Ordered Qty",
+        "UoM",
+        "Unit Price",
+        "Discount %",
+        "Discount Amount",
+        "Unit Price After Discount",
+        "Untaxed Amount",
+        "VAT Amount",
+        "Total Amount",
+    ]
+    ORDER_LINE_FORMATS = [
+        "center",
+        "text",
+        "text",
+        "text_wrap",
+        "quantity",
+        "center",
+        "money",
+        "percent",
+        "money",
+        "money",
+        "money",
+        "money",
+        "money",
+    ]
+    ORDER_LINE_WIDTHS = [6, 16, 24, 42, 13, 12, 14, 12, 16, 20, 16, 16, 16]
+    INVOICE_LINE_HEADERS = [
+        "#",
+        "Product Code",
+        "Product Name",
+        "Description",
+        "Account",
+        "Qty",
+        "UoM",
+        "Unit Price",
+        "Discount %",
+        "Discount Amount",
+        "Unit Price After Discount",
+        "Taxes",
+        "Analytic Distribution",
+        "Untaxed Amount",
+        "VAT Amount",
+        "Total Amount",
+    ]
+    INVOICE_LINE_FORMATS = [
+        "center",
+        "text",
+        "text",
+        "text_wrap",
+        "text",
+        "quantity",
+        "center",
+        "money",
+        "percent",
+        "money",
+        "money",
+        "text_wrap",
+        "text_wrap",
+        "money",
+        "money",
+        "money",
+    ]
+    INVOICE_LINE_WIDTHS = [
+        6, 16, 24, 42, 25, 12, 12, 14, 12, 16, 20, 20, 30, 16, 16, 16
+    ]
 
     def _build_formats(self, workbook):
         base = {"font_name": self.BODY_FONT, "font_size": 10}
@@ -253,6 +323,63 @@ class BusinessXlsxReportMixin:
             values.append("%s (%s)" % (account_label, percentage_label))
         return "; ".join(values)
 
+    def _discount_values(self, unit_price, quantity, discount):
+        """Return display values for a discount, or blanks when none applies."""
+        discount = float(discount or 0.0)
+        if not discount:
+            return None, None, None
+        unit_price = float(unit_price or 0.0)
+        quantity = float(quantity or 0.0)
+        rate = discount / 100.0
+        return rate, unit_price * quantity * rate, unit_price * (1.0 - rate)
+
+    def _order_line_values(self, line, sequence, quantity, uom):
+        discount = line.discount if "discount" in line._fields else 0.0
+        discount_rate, discount_amount, discounted_unit_price = self._discount_values(
+            line.price_unit, quantity, discount
+        )
+        product = line.product_id
+        return [
+            sequence,
+            (product.default_code or "") if product else "",
+            (product.name or "") if product else "",
+            line.name or "",
+            quantity,
+            uom.display_name if uom else "",
+            line.price_unit,
+            discount_rate,
+            discount_amount,
+            discounted_unit_price,
+            line.price_subtotal,
+            line.price_total - line.price_subtotal,
+            line.price_total,
+        ]
+
+    def _invoice_line_values(self, line, sequence):
+        discount = line.discount if "discount" in line._fields else 0.0
+        discount_rate, discount_amount, discounted_unit_price = self._discount_values(
+            line.price_unit, line.quantity, discount
+        )
+        product = line.product_id
+        return [
+            sequence,
+            (product.default_code or "") if product else "",
+            (product.name or "") if product else "",
+            line.name or "",
+            line.account_id.display_name if line.account_id else "",
+            line.quantity,
+            line.product_uom_id.display_name if line.product_uom_id else "",
+            line.price_unit,
+            discount_rate,
+            discount_amount,
+            discounted_unit_price,
+            self._tax_names(line.tax_ids),
+            self._analytic_distribution(line.analytic_distribution),
+            line.price_subtotal,
+            line.price_total - line.price_subtotal,
+            line.price_total,
+        ]
+
     def _plain_text(self, value):
         if not value:
             return ""
@@ -336,25 +463,30 @@ class BusinessXlsxReportMixin:
             self._write_string(worksheet, row, col, header, formats["header"])
         worksheet.set_row(row, 34)
 
-    def _write_special_line(self, worksheet, row, col_count, label, formats, kind):
+    def _write_special_line(
+        self, worksheet, row, col_count, label, formats, kind, label_col=1
+    ):
         cell_format = formats[kind]
         for col in range(col_count):
             worksheet.write_blank(row, col, None, cell_format)
-        self._write_string(worksheet, row, 1 if col_count > 1 else 0, label, cell_format)
+        target_col = min(label_col, col_count - 1) if col_count else 0
+        self._write_string(worksheet, row, target_col, label, cell_format)
         worksheet.set_row(row, 30 if kind == "note" else 21)
 
     def _write_totals(self, worksheet, row, first_data_row, last_data_row,
-                      subtotal_col, total_col, untaxed, tax, total, formats):
+                      subtotal_col, total_col, untaxed, tax, total, formats,
+                      tax_col=None):
         label_col = total_col - 1
         data_range = lambda col: xl_range(first_data_row, col, last_data_row, col)
+        tax_formula = (
+            "=SUM(%s)" % data_range(tax_col)
+            if tax_col is not None
+            else "=SUM(%s)-SUM(%s)"
+            % (data_range(total_col), data_range(subtotal_col))
+        )
         totals = [
             ("Untaxed Amount", "=SUM(%s)" % data_range(subtotal_col), untaxed, False),
-            (
-                "Tax Amount",
-                "=SUM(%s)-SUM(%s)" % (data_range(total_col), data_range(subtotal_col)),
-                tax,
-                False,
-            ),
+            ("Tax Amount", tax_formula, tax, False),
             ("Total Amount", "=SUM(%s)" % data_range(total_col), total, True),
         ]
         for label, formula, cached_value, is_grand_total in totals:
@@ -399,11 +531,7 @@ class PurchaseOrderXlsx(BusinessXlsxReportMixin, models.AbstractModel):
     def generate_xlsx_report(self, workbook, data, orders):
         formats = self._build_formats(workbook)
         used_names = set()
-        headers = [
-            "#", "Product", "Description", "Ordered Qty", "Received Qty",
-            "Billed Qty", "UoM", "Unit Price", "Discount %", "Taxes",
-            "Analytic Distribution", "Untaxed Amount", "Total Amount",
-        ]
+        headers = self.ORDER_LINE_HEADERS
         for order in orders:
             sheet = self._prepare_sheet(workbook, order.name, used_names, self.BRAND_GOLD)
             last_col = len(headers) - 1
@@ -437,30 +565,16 @@ class PurchaseOrderXlsx(BusinessXlsxReportMixin, models.AbstractModel):
                     self._write_special_line(
                         sheet, row, len(headers), line.name or "", formats,
                         "section" if line.display_type == "line_section" else "note",
+                        label_col=2,
                     )
                     row += 1
                     continue
-                discount = line.discount if "discount" in line._fields else 0.0
-                values = [
-                    sequence,
-                    line.product_id.display_name,
-                    line.name or "",
-                    line.product_qty,
-                    line.qty_received,
-                    line.qty_invoiced,
-                    line.product_uom.display_name,
-                    line.price_unit,
-                    discount / 100.0,
-                    self._tax_names(line.taxes_id),
-                    self._analytic_distribution(line.analytic_distribution),
-                    line.price_subtotal,
-                    line.price_total,
-                ]
-                row_formats = [
-                    "center", "text", "text_wrap", "quantity", "quantity", "quantity",
-                    "center", "money", "percent", "text_wrap", "text_wrap", "money", "money",
-                ]
-                for col, (value, format_name) in enumerate(zip(values, row_formats)):
+                values = self._order_line_values(
+                    line, sequence, line.product_qty, line.product_uom
+                )
+                for col, (value, format_name) in enumerate(
+                    zip(values, self.ORDER_LINE_FORMATS)
+                ):
                     self._write_value(sheet, row, col, value, formats[format_name])
                 sheet.set_row(row, 30)
                 sequence += 1
@@ -473,12 +587,12 @@ class PurchaseOrderXlsx(BusinessXlsxReportMixin, models.AbstractModel):
                 row = first_data_row + 1
             row += 1
             row = self._write_totals(
-                sheet, row, first_data_row, last_data_row, 11, 12,
+                sheet, row, first_data_row, last_data_row, 10, 12,
                 order.amount_untaxed, order.amount_tax, order.amount_total, formats,
+                tax_col=11,
             )
             self._write_notes(sheet, row, last_col, order.notes, formats)
-            widths = [6, 24, 42, 13, 13, 13, 12, 14, 12, 20, 30, 16, 16]
-            for col, width in enumerate(widths):
+            for col, width in enumerate(self.ORDER_LINE_WIDTHS):
                 sheet.set_column(col, col, width)
             self._finalize_sheet(
                 sheet, order.name, table_header_row, first_data_row, last_data_row, last_col
@@ -493,11 +607,7 @@ class SaleOrderXlsx(BusinessXlsxReportMixin, models.AbstractModel):
     def generate_xlsx_report(self, workbook, data, orders):
         formats = self._build_formats(workbook)
         used_names = set()
-        headers = [
-            "#", "Product", "Description", "Ordered Qty", "Delivered Qty",
-            "Invoiced Qty", "UoM", "Unit Price", "Discount %", "Taxes",
-            "Analytic Distribution", "Untaxed Amount", "Total Amount",
-        ]
+        headers = self.ORDER_LINE_HEADERS
         for order in orders:
             sheet = self._prepare_sheet(workbook, order.name, used_names)
             last_col = len(headers) - 1
@@ -535,29 +645,16 @@ class SaleOrderXlsx(BusinessXlsxReportMixin, models.AbstractModel):
                     self._write_special_line(
                         sheet, row, len(headers), line.name or "", formats,
                         "section" if line.display_type == "line_section" else "note",
+                        label_col=2,
                     )
                     row += 1
                     continue
-                values = [
-                    sequence,
-                    line.product_id.display_name,
-                    line.name or "",
-                    line.product_uom_qty,
-                    line.qty_delivered,
-                    line.qty_invoiced,
-                    line.product_uom.display_name,
-                    line.price_unit,
-                    line.discount / 100.0,
-                    self._tax_names(line.tax_id),
-                    self._analytic_distribution(line.analytic_distribution),
-                    line.price_subtotal,
-                    line.price_total,
-                ]
-                row_formats = [
-                    "center", "text", "text_wrap", "quantity", "quantity", "quantity",
-                    "center", "money", "percent", "text_wrap", "text_wrap", "money", "money",
-                ]
-                for col, (value, format_name) in enumerate(zip(values, row_formats)):
+                values = self._order_line_values(
+                    line, sequence, line.product_uom_qty, line.product_uom
+                )
+                for col, (value, format_name) in enumerate(
+                    zip(values, self.ORDER_LINE_FORMATS)
+                ):
                     self._write_value(sheet, row, col, value, formats[format_name])
                 sheet.set_row(row, 30)
                 sequence += 1
@@ -570,12 +667,12 @@ class SaleOrderXlsx(BusinessXlsxReportMixin, models.AbstractModel):
                 row = first_data_row + 1
             row += 1
             row = self._write_totals(
-                sheet, row, first_data_row, last_data_row, 11, 12,
+                sheet, row, first_data_row, last_data_row, 10, 12,
                 order.amount_untaxed, order.amount_tax, order.amount_total, formats,
+                tax_col=11,
             )
             self._write_notes(sheet, row, last_col, order.note, formats)
-            widths = [6, 24, 42, 13, 13, 13, 12, 14, 12, 20, 30, 16, 16]
-            for col, width in enumerate(widths):
+            for col, width in enumerate(self.ORDER_LINE_WIDTHS):
                 sheet.set_column(col, col, width)
             self._finalize_sheet(
                 sheet, order.name, table_header_row, first_data_row, last_data_row, last_col
@@ -629,11 +726,7 @@ class AccountMoveXlsx(BusinessXlsxReportMixin, models.AbstractModel):
         ]
 
     def _write_invoice_sheet(self, sheet, move, title, formats):
-        headers = [
-            "#", "Product", "Description", "Account", "Qty", "UoM",
-            "Unit Price", "Discount %", "Taxes", "Analytic Distribution",
-            "Untaxed Amount", "Total Amount",
-        ]
+        headers = self.INVOICE_LINE_HEADERS
         last_col = len(headers) - 1
         state = self._selection_label(move, "state")
         self._write_title(
@@ -652,28 +745,14 @@ class AccountMoveXlsx(BusinessXlsxReportMixin, models.AbstractModel):
                 self._write_special_line(
                     sheet, row, len(headers), line.name or "", formats,
                     "section" if line.display_type == "line_section" else "note",
+                    label_col=2,
                 )
                 row += 1
                 continue
-            values = [
-                sequence,
-                line.product_id.display_name,
-                line.name or "",
-                line.account_id.display_name,
-                line.quantity,
-                line.product_uom_id.display_name,
-                line.price_unit,
-                line.discount / 100.0,
-                self._tax_names(line.tax_ids),
-                self._analytic_distribution(line.analytic_distribution),
-                line.price_subtotal,
-                line.price_total,
-            ]
-            row_formats = [
-                "center", "text", "text_wrap", "text", "quantity", "center",
-                "money", "percent", "text_wrap", "text_wrap", "money", "money",
-            ]
-            for col, (value, format_name) in enumerate(zip(values, row_formats)):
+            values = self._invoice_line_values(line, sequence)
+            for col, (value, format_name) in enumerate(
+                zip(values, self.INVOICE_LINE_FORMATS)
+            ):
                 self._write_value(sheet, row, col, value, formats[format_name])
             sheet.set_row(row, 30)
             sequence += 1
@@ -686,12 +765,12 @@ class AccountMoveXlsx(BusinessXlsxReportMixin, models.AbstractModel):
             row = first_data_row + 1
         row += 1
         row = self._write_totals(
-            sheet, row, first_data_row, last_data_row, 10, 11,
+            sheet, row, first_data_row, last_data_row, 13, 15,
             move.amount_untaxed, move.amount_tax, move.amount_total, formats,
+            tax_col=14,
         )
         self._write_notes(sheet, row, last_col, move.narration, formats)
-        widths = [6, 24, 42, 25, 12, 12, 14, 12, 20, 30, 16, 16]
-        for col, width in enumerate(widths):
+        for col, width in enumerate(self.INVOICE_LINE_WIDTHS):
             sheet.set_column(col, col, width)
         self._finalize_sheet(
             sheet, move.name, table_header_row, first_data_row, last_data_row, last_col
