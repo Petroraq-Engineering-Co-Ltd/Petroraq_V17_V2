@@ -1,15 +1,432 @@
-.o_portal_wrap,
-.o_portal {
-    .table,
-    .o_portal_table {
-        tbody td a:not(.btn) {
-            color: #0b3d66 !important;
-            text-decoration-color: rgba(11, 61, 102, 0.35);
+$pr-portal-navy: #17326f;
+$pr-portal-navy-dark: #0b254b;
+$pr-portal-gold: #d89a28;
+$pr-portal-text: #1f2937;
+$pr-portal-muted: #5f6b7a;
+$pr-portal-border: #d8e0ea;
+$pr-portal-surface: #ffffff;
+$pr-portal-background: #f4f7fb;
+
+// The public website theme contains broad global selectors. Scope these rules
+// to the content wrapper only: Odoo can place `o_portal` on a high-level node
+// that also contains the public header and footer.
+.o_portal_wrap {
+    color: $pr-portal-text !important;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    label,
+    strong,
+    legend {
+        color: $pr-portal-navy-dark !important;
+    }
+
+    p,
+    li,
+    td,
+    .navbar-text,
+    .form-text {
+        color: $pr-portal-text;
+    }
+
+    .text-muted,
+    .text-600 {
+        color: $pr-portal-muted !important;
+    }
+
+    a:not(.btn):not(.dropdown-item):not(.badge) {
+        color: $pr-portal-navy !important;
+        text-decoration-color: rgba($pr-portal-navy, 0.35);
+
+        &:hover,
+        &:focus {
+            color: $pr-portal-gold !important;
+            text-decoration-color: currentColor;
+        }
+    }
+
+    .btn {
+        border-radius: 0.4rem;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        border-color: $pr-portal-navy !important;
+        background-color: $pr-portal-navy !important;
+        color: #ffffff !important;
+
+        &:hover,
+        &:focus {
+            border-color: $pr-portal-navy-dark !important;
+            background-color: $pr-portal-navy-dark !important;
+        }
+    }
+
+    .btn-secondary {
+        border-color: #b8c5d6 !important;
+        background-color: #e8eef6 !important;
+        color: $pr-portal-navy-dark !important;
+
+        &:hover,
+        &:focus {
+            border-color: #9babc0 !important;
+            background-color: #d9e3ef !important;
+            color: $pr-portal-navy-dark !important;
+        }
+    }
+
+    .badge.text-bg-secondary,
+    .badge.text-bg-primary,
+    .badge.text-bg-success,
+    .badge.text-bg-danger {
+        color: #ffffff !important;
+    }
+
+    .badge.text-bg-info,
+    .badge.text-bg-warning {
+        color: #172033 !important;
+    }
+}
+
+.o_portal_wrap {
+    min-height: 60vh;
+    background: $pr-portal-background !important;
+
+    > .container {
+        padding-bottom: 2rem;
+    }
+
+    .o_portal_content {
+        color: $pr-portal-text !important;
+    }
+
+    // Home cards: force readable content even when website link styles leak in.
+    .o_portal_index_card > a {
+        border: 1px solid $pr-portal-border !important;
+        background: $pr-portal-surface !important;
+        color: $pr-portal-text !important;
+        box-shadow: 0 4px 14px rgba(11, 37, 75, 0.06);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+
+        h5 {
+            color: $pr-portal-navy-dark !important;
         }
 
-        tbody td a:not(.btn):hover {
-            color: #e09a28 !important;
-            text-decoration-color: currentColor;
+        p,
+        span {
+            color: $pr-portal-muted !important;
+        }
+
+        &:hover,
+        &:focus {
+            border-color: rgba($pr-portal-gold, 0.75) !important;
+            color: $pr-portal-text !important;
+            box-shadow: 0 7px 20px rgba(11, 37, 75, 0.12);
+            transform: translateY(-1px);
+        }
+    }
+
+    .o_portal_icon {
+        flex: 0 0 46px;
+        width: 46px;
+        height: 46px;
+        padding: 7px;
+        border-radius: 0.55rem;
+        background: #edf2f8;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    // Neutralize the public website's global .navbar treatment.
+    .o_portal_navbar {
+        position: static !important;
+        top: auto !important;
+        z-index: auto !important;
+        width: 100% !important;
+        min-height: auto !important;
+        margin: 0 0 1rem !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: $pr-portal-text !important;
+    }
+
+    .breadcrumb {
+        margin: 0 !important;
+        padding: 0.5rem 0 !important;
+        background: transparent !important;
+
+        .breadcrumb-item,
+        .breadcrumb-item.active {
+            color: $pr-portal-muted !important;
+        }
+    }
+
+    .dropdown-menu {
+        border: 1px solid $pr-portal-border !important;
+        background: $pr-portal-surface !important;
+        color: $pr-portal-text !important;
+        box-shadow: 0 8px 24px rgba(11, 37, 75, 0.12);
+
+        .dropdown-item {
+            color: $pr-portal-text !important;
+
+            &:hover,
+            &:focus,
+            &.active {
+                background: #edf2f8 !important;
+                color: $pr-portal-navy-dark !important;
+            }
+        }
+    }
+
+    // Lists and details.
+    .table-responsive {
+        border: 1px solid $pr-portal-border !important;
+        border-radius: 0.55rem;
+        background: $pr-portal-surface !important;
+        box-shadow: 0 3px 12px rgba(11, 37, 75, 0.05);
+    }
+
+    .table,
+    .o_portal_table,
+    .o_portal_my_doc_table {
+        margin-bottom: 0 !important;
+        background: $pr-portal-surface !important;
+        color: $pr-portal-text !important;
+
+        thead,
+        thead tr,
+        thead th {
+            border-color: #c7d2e1 !important;
+            background: #e7edf5 !important;
+            color: $pr-portal-navy-dark !important;
+            font-weight: 700;
+        }
+
+        tbody,
+        tbody tr,
+        tbody td {
+            border-color: #e0e6ee !important;
+            color: $pr-portal-text !important;
+        }
+
+        tbody tr:nth-of-type(odd) > * {
+            --table-accent-bg: #f8fafc;
+            background-color: #f8fafc !important;
+        }
+
+        tbody tr:nth-of-type(even) > * {
+            background-color: $pr-portal-surface !important;
+        }
+
+        tbody td a:not(.btn) {
+            color: $pr-portal-navy !important;
+            font-weight: 600;
+        }
+    }
+
+    // Forms.
+    .o_portal_form,
+    .o_pr_portal_panel {
+        border: 1px solid $pr-portal-border;
+        border-radius: 0.65rem;
+        background: $pr-portal-surface !important;
+        color: $pr-portal-text !important;
+        box-shadow: 0 5px 18px rgba(11, 37, 75, 0.07);
+    }
+
+    .o_portal_form {
+        padding: 1.25rem;
+    }
+
+    .form-label {
+        margin-bottom: 0.4rem !important;
+        color: $pr-portal-navy-dark !important;
+        font-weight: 600;
+    }
+
+    .form-control,
+    .form-select,
+    textarea,
+    input {
+        border-color: #b9c6d6 !important;
+        background-color: #ffffff !important;
+        color: #172033 !important;
+
+        &:focus {
+            border-color: $pr-portal-navy !important;
+            box-shadow: 0 0 0 0.2rem rgba($pr-portal-navy, 0.13) !important;
+        }
+
+        &::placeholder {
+            color: #7a8696 !important;
+        }
+    }
+
+    .form-select option {
+        background: #ffffff;
+        color: #172033;
+    }
+
+    .alert {
+        color: #172033 !important;
+
+        a {
+            color: $pr-portal-navy !important;
+        }
+    }
+
+    .o_portal_sidebar_content,
+    .o_portal_html_view,
+    .card {
+        background-color: $pr-portal-surface !important;
+        color: $pr-portal-text !important;
+    }
+
+    .o_pr_portal_intro {
+        margin: 0.25rem 0 1rem;
+        padding: 1rem 1.1rem;
+        border: 1px solid #cbd7e5;
+        border-left: 4px solid $pr-portal-gold;
+        border-radius: 0.55rem;
+        background: #ffffff;
+        color: $pr-portal-text;
+
+        h4,
+        h5 {
+            margin: 0 0 0.35rem !important;
+        }
+
+        p {
+            margin: 0 !important;
+            color: $pr-portal-muted !important;
+        }
+    }
+
+    .o_pr_portal_workflow {
+        margin-bottom: 1rem;
+        padding: 1rem 1.1rem;
+        border: 1px solid #cbd7e5;
+        border-radius: 0.55rem;
+        background: #eef3f9;
+        color: $pr-portal-text;
+
+        ol,
+        ul {
+            margin: 0.5rem 0 0 !important;
+            padding-left: 1.25rem !important;
+        }
+
+        li + li {
+            margin-top: 0.25rem !important;
+        }
+    }
+
+    .o_pr_statement_toolbar {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid $pr-portal-border;
+        border-radius: 0.65rem;
+        background: $pr-portal-surface;
+        box-shadow: 0 4px 14px rgba(11, 37, 75, 0.06);
+    }
+
+    .o_pr_statement_summary {
+        margin-bottom: 1rem;
+    }
+
+    .o_pr_statement_card {
+        display: flex;
+        min-height: 120px;
+        flex-direction: column;
+        justify-content: center;
+        padding: 1rem 1.1rem;
+        border: 1px solid $pr-portal-border;
+        border-top: 4px solid $pr-portal-navy;
+        border-radius: 0.65rem;
+        background: $pr-portal-surface;
+        box-shadow: 0 4px 14px rgba(11, 37, 75, 0.06);
+
+        > span {
+            color: $pr-portal-muted;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        > strong {
+            margin: 0.2rem 0;
+            color: $pr-portal-navy-dark;
+            font-size: 1.55rem;
+        }
+
+        > small {
+            color: $pr-portal-muted;
+        }
+
+        &.o_pr_statement_receivable {
+            border-top-color: #1f7a4d;
+        }
+
+        &.o_pr_statement_payable {
+            border-top-color: $pr-portal-gold;
+        }
+    }
+
+    .o_pr_statement_account {
+        margin-top: 1rem;
+    }
+
+    .o_pr_statement_account_header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.8rem 1rem;
+        border: 1px solid $pr-portal-border;
+        border-bottom: 0;
+        border-radius: 0.55rem 0.55rem 0 0;
+        background: #e7edf5;
+        color: $pr-portal-navy-dark;
+    }
+
+    .o_pr_statement_opening > td {
+        background: #eef3f8 !important;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .o_portal_wrap {
+        .o_portal_form {
+            padding: 1rem;
+        }
+
+        .o_pr_portal_intro,
+        .o_pr_portal_workflow {
+            padding: 0.85rem;
+        }
+
+        .o_pr_statement_account_header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .table,
+        .o_portal_table,
+        .o_portal_my_doc_table {
+            font-size: 0.875rem;
         }
     }
 }

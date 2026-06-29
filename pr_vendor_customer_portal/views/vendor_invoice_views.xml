@@ -103,8 +103,9 @@
     </record>
 
     <menuitem id="menu_pr_portal_vendor_invoice"
-              name="Vendor Portal Invoices"
+              name="Legacy Vendor Portal Invoices"
               parent="purchase.menu_procurement_management"
               action="action_pr_portal_vendor_invoice"
-              sequence="90"/>
+              sequence="90"
+              active="False"/>
 </odoo>

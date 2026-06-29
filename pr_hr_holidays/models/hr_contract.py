@@ -2,7 +2,8 @@ import logging
 from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
-from odoo import api, fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 _logger = logging.getLogger(__name__)
@@ -157,16 +158,68 @@ class HrContract(models.Model):
                         allocation._process_accrual_plans(process_until, log=False)
                 allocation.action_validate()
 
+    def _pr_check_timeoff_after_last_working_day(self, cutoff):
+        self.ensure_one()
+        if not self.employee_id or not cutoff:
+            return
+        conflicting_leaves = self.env["hr.leave"].sudo().search([
+            ("employee_id", "=", self.employee_id.id),
+            ("state", "not in", ["cancel", "refuse"]),
+            ("request_date_to", ">", cutoff),
+        ], limit=5)
+        if conflicting_leaves:
+            leave_names = ", ".join(conflicting_leaves.mapped("display_name"))
+            raise ValidationError(_(
+                "Time off exists after the proposed Last Working Day for %(employee)s: "
+                "%(leaves)s. Refuse or adjust it before setting the cutoff.",
+                employee=self.employee_id.display_name,
+                leaves=leave_names,
+            ))
+
+    def _pr_close_timeoff_at_last_working_day(self):
+        for contract in self.sudo().filtered(lambda item: item.employee_id and item.date_end):
+            allocations = self.env["hr.leave.allocation"].sudo().search([
+                ("employee_id", "=", contract.employee_id.id),
+                ("active", "=", True),
+                ("state", "in", ["draft", "confirm", "validate"]),
+            ])
+            future_allocations = allocations.filtered(
+                lambda allocation: allocation.date_from and allocation.date_from > contract.date_end
+            )
+            if future_allocations:
+                future_allocations.write({"active": False})
+
+            allocations_to_cap = (allocations - future_allocations).filtered(
+                lambda allocation: not allocation.date_to or allocation.date_to > contract.date_end
+            )
+            today = fields.Date.context_today(self)
+            for allocation in allocations_to_cap:
+                if (
+                    allocation.state == "validate"
+                    and allocation.accrual_plan_id
+                    and allocation.date_from
+                    and allocation.date_from <= contract.date_end <= today
+                ):
+                    allocation._pr_process_accrual_until(contract.date_end)
+                allocation.write({"date_to": contract.date_end})
+
     @api.model_create_multi
     def create(self, vals_list):
         contracts = super().create(vals_list)
         contracts._pr_sync_onboarding_timeoff_allocations()
+        contracts._pr_close_timeoff_at_last_working_day()
         return contracts
 
     def write(self, vals):
+        if vals.get("date_end"):
+            cutoff = fields.Date.to_date(vals["date_end"])
+            for contract in self:
+                contract._pr_check_timeoff_after_last_working_day(cutoff)
         result = super().write(vals)
         if {"employee_id", "date_start", "company_id"}.intersection(vals):
             self._pr_sync_onboarding_timeoff_allocations()
+        if "date_end" in vals:
+            self._pr_close_timeoff_at_last_working_day()
         return result
 
     def action_running(self):

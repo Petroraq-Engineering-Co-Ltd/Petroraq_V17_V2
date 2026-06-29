@@ -111,7 +111,7 @@
                             </div>
                         </div>
                         <field name="expected_end_date"/>
-                        <field name="date_end" invisible="1" readonly="state != 'draft'"/>
+                        <field name="date_end" readonly="state not in ['draft', 'open']"/>
                     </group>
 
                     <group string="Trial Period Info" name="trial_period_info">
@@ -203,7 +203,9 @@
             </field>
 
             <field name="date_end" position="attributes">
-                <attribute name="invisible">1</attribute>
+                <attribute name="invisible">0</attribute>
+                <attribute name="string">Last Working Day</attribute>
+                <attribute name="readonly">state not in ['draft', 'open']</attribute>
             </field>
 
             <xpath expr="//field[@name='structure_type_id'][2]" position="attributes">

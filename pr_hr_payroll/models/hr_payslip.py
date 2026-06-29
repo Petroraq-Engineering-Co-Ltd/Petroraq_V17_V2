@@ -66,6 +66,105 @@ class HrPayslip(models.Model):
         related="attendance_sheet_id.carry_forward_early_checkout_amount", readonly=True)
     carry_forward_deduction = fields.Float(string="Carry Forward Deduction", readonly=True)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        prepared_vals_list = []
+        for incoming_vals in vals_list:
+            vals = dict(incoming_vals)
+            contract = self.env["hr.contract"].browse(vals.get("contract_id")).exists()
+            date_from = fields.Date.to_date(vals.get("date_from"))
+            date_to = fields.Date.to_date(vals.get("date_to"))
+            if contract and contract.date_end and date_from:
+                if date_from > contract.date_end:
+                    raise ValidationError(_(
+                        "A payslip cannot start after the Last Working Day (%s) for %s.",
+                        contract.date_end,
+                        contract.employee_id.display_name,
+                    ))
+                if date_to and date_to > contract.date_end:
+                    vals["date_to"] = contract.date_end
+            prepared_vals_list.append(vals)
+        return super().create(prepared_vals_list)
+
+    @api.constrains("contract_id", "date_from", "date_to")
+    def _check_last_working_day(self):
+        for payslip in self:
+            cutoff = payslip.contract_id.date_end
+            if cutoff and payslip.date_from and payslip.date_from > cutoff:
+                raise ValidationError(_(
+                    "The payslip period for %s starts after the Last Working Day (%s).",
+                    payslip.employee_id.display_name,
+                    cutoff,
+                ))
+            if cutoff and payslip.date_to and payslip.date_to > cutoff:
+                raise ValidationError(_(
+                    "The payslip must end on or before the Last Working Day (%s) for %s.",
+                    cutoff,
+                    payslip.employee_id.display_name,
+                ))
+
+    def _pr_get_last_working_day_ratio(self):
+        """Return the payable share of the batch period when a contract ends mid-period."""
+        self.ensure_one()
+        contract = self.contract_id
+        if not contract or not contract.date_end or not self.date_from or not self.date_to:
+            return 1.0
+
+        if self.payslip_run_id:
+            period_start = self.payslip_run_id.date_start
+            period_end = self.payslip_run_id.date_end
+        else:
+            period_start = self.date_from
+            period_end = self.date_from + self._get_schedule_timedelta()
+
+        if not period_start or not period_end or contract.date_end >= period_end:
+            return 1.0
+
+        payable_start = max(period_start, contract.date_start or period_start)
+        payable_end = min(period_end, contract.date_end)
+        if payable_end < payable_start:
+            return 0.0
+        period_days = (period_end - period_start).days + 1
+        payable_days = (payable_end - payable_start).days + 1
+        return payable_days / period_days if period_days else 1.0
+
+    def _pr_should_prorate_final_period_line(self, code, category_code):
+        """Return whether a line is a recurring amount that still needs proration."""
+        excluded_codes = {
+            "GROSS", "NET", "OVT", "OTHER", "ADVALL", "REIMBURSEMENT199",
+            "ABS", "LATE", "ECO", "DIFFT",
+            # These are attendance-derived daily amounts. Their allowance and
+            # deduction lines must remain equal and must not be prorated again.
+            "PAID86", "PAID87", "SICKTO88", "SICKTO89", "BTA", "BTD",
+        }
+        gosi_codes = {"GOSI", "GOSIALLOW", "GOSI_COMP_ADD", "GOSI_EMP", "GOSI_COMP_DED"}
+        return (
+            code not in excluded_codes
+            and (category_code in {"BASIC", "ALW"} or code in gosi_codes)
+        )
+
+    def _pr_prorate_final_period_lines(self, line_vals):
+        """Prorate recurring earnings and GOSI once for a mid-period final payslip."""
+        self.ensure_one()
+        ratio = self._pr_get_last_working_day_ratio()
+        if ratio >= 1.0:
+            return
+
+        salary_rules = self.env["hr.salary.rule"].browse(
+            [vals.get("salary_rule_id") for vals in line_vals if vals.get("salary_rule_id")]
+        )
+        category_by_rule = {
+            rule.id: rule.category_id.code
+            for rule in salary_rules
+        }
+        for vals in line_vals:
+            code = vals.get("code")
+            category_code = category_by_rule.get(vals.get("salary_rule_id"))
+            if not self._pr_should_prorate_final_period_line(code, category_code):
+                continue
+            vals["amount"] = (vals.get("amount", 0.0) or 0.0) * ratio
+            vals["total"] = (vals.get("total", 0.0) or 0.0) * ratio
+
     @api.model
     def _compute_gross_net_amounts(self, line_vals, excluded_earning_codes=None):
         excluded_earning_codes = excluded_earning_codes or set()
@@ -148,7 +247,7 @@ class HrPayslip(models.Model):
             'code': salary_rule.code,
             'name': salary_rule.name,
             'salary_rule_id': salary_rule.id,
-            'contract_id': payslip.employee_id.contract_id.id if payslip.employee_id.contract_id else False,
+            'contract_id': payslip.contract_id.id if payslip.contract_id else False,
             'employee_id': payslip.employee_id.id,
             'amount': amount,
             'quantity': 1,
@@ -162,7 +261,9 @@ class HrPayslip(models.Model):
         for payslip in self:
             payslip._sync_attendance_summary_fields()
 
-            contract_id = payslip.employee_id.contract_id
+            contract_id = payslip.contract_id or payslip.employee_id.contract_id
+            if not contract_id:
+                continue
             gosi_salary_rule = self.env.ref("pr_hr_payroll.hr_salary_rule_saudi_gosi")
             gosi_allow_salary_rule = self.env.ref("pr_hr_payroll.hr_salary_rule_saudi_gosi_allow")
             # ===============================
@@ -282,7 +383,7 @@ class HrPayslip(models.Model):
                         'code': gosi_allow_salary_rule.code,
                         'name': gosi_allow_salary_rule.name,
                         'salary_rule_id': gosi_allow_salary_rule.id,
-                        'contract_id': payslip.employee_id.contract_id.id,
+                        'contract_id': contract_id.id,
                         'employee_id': payslip.employee_id.id,
                         'amount': (gosi_line_amount if gosi_line_amount <= 900 else 900) or 0,
                         'quantity': 1,
@@ -296,7 +397,7 @@ class HrPayslip(models.Model):
                         'code': gosi_salary_rule.code,
                         'name': gosi_salary_rule.name,
                         'salary_rule_id': gosi_salary_rule.id,
-                        'contract_id': payslip.employee_id.contract_id.id,
+                        'contract_id': contract_id.id,
                         'employee_id': payslip.employee_id.id,
                         'amount': (gosi_line_amount * -1 if gosi_line_amount <= 900 else -900) or 0,
                         'quantity': 1,
@@ -320,7 +421,7 @@ class HrPayslip(models.Model):
                         'code': other_salary_rule.code,
                         'name': other_salary_rule.name,
                         'salary_rule_id': other_salary_rule.id,
-                        'contract_id': payslip.employee_id.contract_id.id,
+                        'contract_id': contract_id.id,
                         'employee_id': payslip.employee_id.id,
                         'amount': extra_salary_amount or 0,
                         'quantity': 1,
@@ -345,7 +446,7 @@ class HrPayslip(models.Model):
                             'code': gosi_salary_rule.code,
                             'name': gosi_salary_rule.name,
                             'salary_rule_id': gosi_salary_rule.id,
-                            'contract_id': payslip.employee_id.contract_id.id,
+                            'contract_id': contract_id.id,
                             'employee_id': payslip.employee_id.id,
                             'amount': (extra_gosi_salary_amount * -1 * .0975) or 0,
                             'quantity': 1,
@@ -355,8 +456,8 @@ class HrPayslip(models.Model):
                         })
 
             # Contract Salary Rules
-            if payslip.employee_id.contract_id and payslip.employee_id.contract_id.contract_salary_rule_ids:
-                for salary_rule_line_id in payslip.employee_id.contract_id.contract_salary_rule_ids:
+            if contract_id.contract_salary_rule_ids:
+                for salary_rule_line_id in contract_id.contract_salary_rule_ids:
                     if salary_rule_line_id.pay_in_payslip:
                         salary_rule_id = salary_rule_line_id.sudo().salary_rule_id.sudo()
                         base_amount = salary_rule_line_id.sudo().amount or 0.0
@@ -370,7 +471,7 @@ class HrPayslip(models.Model):
                             'code': salary_rule_id.code,
                             'name': salary_rule_id.name,
                             'salary_rule_id': salary_rule_id.id,
-                            'contract_id': payslip.employee_id.contract_id.id,
+                            'contract_id': contract_id.id,
                             'employee_id': payslip.employee_id.id,
                             'amount': eligible_amount,
                             'quantity': 1,
@@ -403,11 +504,16 @@ class HrPayslip(models.Model):
                         vals['amount'] = 0.0
                         vals['total'] = 0.0
 
+            payslip_line_vals = [
+                vals for vals in line_vals
+                if vals.get("slip_id") == payslip.id
+            ]
+            payslip._pr_prorate_final_period_lines(payslip_line_vals)
             gross_amount, net_amount, _gosi_company_add = self._compute_gross_net_amounts(
-                line_vals,
+                payslip_line_vals,
             )
 
-            for val_line in line_vals:
+            for val_line in payslip_line_vals:
                 code = val_line.get("code")
                 if code == "NET":
                     val_line["amount"] = net_amount
@@ -447,31 +553,8 @@ class HrPayslip(models.Model):
         return (base_amount * eligible_days / considered_days) if considered_days else 0.0
 
     def check_payslip_dates(self):
-        for payslip in self:
-            payslip._sync_attendance_summary_fields()
-
-            payslip_days = (payslip.date_to - payslip.date_from).days + 1
-            start_of_month = date_utils.start_of(payslip.date_to, 'month')
-            end_of_month = date_utils.end_of(payslip.date_to, 'month')
-            month_days = (end_of_month - start_of_month).days + 1
-            for line in payslip.line_ids:
-                if line.code not in ["GROSS", "NET"]:
-                    amount = (line.total * payslip_days) / month_days
-                    line.sudo().write({"amount": amount, "total": amount})
-            # Calculate net and gross amounts, excluding "NET" and "GROSS" codes
-            prepared_line_vals = [{"code": l.code, "total": l.total} for l in payslip.line_ids]
-            gross_amount, net_amount, _gosi_company_add = self._compute_gross_net_amounts(
-                prepared_line_vals,
-            )
-
-            for val_line in payslip.line_ids:
-                code = val_line.code
-                if code == "NET":
-                    val_line.amount = net_amount
-                    val_line.total = net_amount
-                elif code == "GROSS":
-                    val_line.amount = gross_amount
-                    val_line.total = gross_amount
+        """Backward-compatible entry point: recompute from source values exactly once."""
+        return self.compute_sheet()
 
     def prepare_payslip_entry_vals_lines(self):
         for rec in self:

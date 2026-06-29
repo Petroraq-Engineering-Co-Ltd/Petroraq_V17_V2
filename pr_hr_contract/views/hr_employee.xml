@@ -11,6 +11,7 @@
                     <group name="contract_details" groups="hr_contract.group_hr_contract_manager" string="Contract Details" invisible="contracts_count == 0">
                         <field name="first_contract_date"/>
                         <field name="joining_date"/>
+                        <field name="last_working_date"/>
                         <field name="contract_employment_type"/>
                     </group>
                 </xpath>

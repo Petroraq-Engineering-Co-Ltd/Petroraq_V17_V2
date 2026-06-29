@@ -16,6 +16,10 @@
                     <button name="action_done" string="Approve Sheets" class="oe_highlight"
                             invisible="state != 'att_sub'"
                             type="object"/>
+                    <button name="action_sync_payslip_batch"
+                            string="Sync Payslip Batch"
+                            invisible="state != 'done'"
+                            type="object"/>
 
                     <field name="state" widget="statusbar" statusbar_visible="new,att_gen,att_sub,done"/>
                 </header>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_purchase_order_xlsx" model="ir.actions.report">
+        <field name="name">Excel Purchase Order</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">pr_business_xlsx_export.purchase_order_xlsx</field>
+        <field name="report_file">pr_business_xlsx_export.purchase_order_xlsx</field>
+        <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Purchase_Order_%s' % ((object.name or 'Export').replace('/', '-'))</field>
+    </record>
+
+    <record id="action_sale_order_xlsx" model="ir.actions.report">
+        <field name="name">Excel Sales Order / Quotation</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">pr_business_xlsx_export.sale_order_xlsx</field>
+        <field name="report_file">pr_business_xlsx_export.sale_order_xlsx</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Sales_Order_%s' % ((object.name or 'Export').replace('/', '-'))</field>
+    </record>
+
+    <record id="action_account_move_xlsx" model="ir.actions.report">
+        <field name="name">Excel Invoice / Bill / Journal Entry</field>
+        <field name="model">account.move</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">pr_business_xlsx_export.account_move_xlsx</field>
+        <field name="report_file">pr_business_xlsx_export.account_move_xlsx</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Accounting_%s' % ((object.name or 'Export').replace('/', '-'))</field>
+    </record>
+</odoo>
+
