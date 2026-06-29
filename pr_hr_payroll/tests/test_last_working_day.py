@@ -67,3 +67,19 @@ class TestLastWorkingDay(TransactionCase):
                 "date_from": july_run.date_start,
                 "date_to": july_run.date_end,
             })
+
+    def test_time_off_pairs_are_not_prorated_again(self):
+        payslip_model = self.env["hr.payslip"]
+
+        for code in ("PAID86", "PAID87", "SICKTO88", "SICKTO89", "BTA", "BTD"):
+            self.assertFalse(
+                payslip_model._pr_should_prorate_final_period_line(code, "ALW"),
+                "%s is attendance-derived and must retain its full daily amount" % code,
+            )
+
+        self.assertTrue(
+            payslip_model._pr_should_prorate_final_period_line("BASIC", "BASIC")
+        )
+        self.assertTrue(
+            payslip_model._pr_should_prorate_final_period_line("TRANSPORTATION", "ALW")
+        )

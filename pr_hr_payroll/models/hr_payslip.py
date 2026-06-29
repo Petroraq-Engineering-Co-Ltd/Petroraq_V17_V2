@@ -128,6 +128,21 @@ class HrPayslip(models.Model):
         payable_days = (payable_end - payable_start).days + 1
         return payable_days / period_days if period_days else 1.0
 
+    def _pr_should_prorate_final_period_line(self, code, category_code):
+        """Return whether a line is a recurring amount that still needs proration."""
+        excluded_codes = {
+            "GROSS", "NET", "OVT", "OTHER", "ADVALL", "REIMBURSEMENT199",
+            "ABS", "LATE", "ECO", "DIFFT",
+            # These are attendance-derived daily amounts. Their allowance and
+            # deduction lines must remain equal and must not be prorated again.
+            "PAID86", "PAID87", "SICKTO88", "SICKTO89", "BTA", "BTD",
+        }
+        gosi_codes = {"GOSI", "GOSIALLOW", "GOSI_COMP_ADD", "GOSI_EMP", "GOSI_COMP_DED"}
+        return (
+            code not in excluded_codes
+            and (category_code in {"BASIC", "ALW"} or code in gosi_codes)
+        )
+
     def _pr_prorate_final_period_lines(self, line_vals):
         """Prorate recurring earnings and GOSI once for a mid-period final payslip."""
         self.ensure_one()
@@ -135,11 +150,6 @@ class HrPayslip(models.Model):
         if ratio >= 1.0:
             return
 
-        excluded_codes = {
-            "GROSS", "NET", "OVT", "OTHER", "ADVALL", "REIMBURSEMENT199",
-            "ABS", "LATE", "ECO", "DIFFT",
-        }
-        gosi_codes = {"GOSI", "GOSIALLOW", "GOSI_COMP_ADD", "GOSI_EMP", "GOSI_COMP_DED"}
         salary_rules = self.env["hr.salary.rule"].browse(
             [vals.get("salary_rule_id") for vals in line_vals if vals.get("salary_rule_id")]
         )
@@ -150,9 +160,7 @@ class HrPayslip(models.Model):
         for vals in line_vals:
             code = vals.get("code")
             category_code = category_by_rule.get(vals.get("salary_rule_id"))
-            if code in excluded_codes:
-                continue
-            if category_code not in {"BASIC", "ALW"} and code not in gosi_codes:
+            if not self._pr_should_prorate_final_period_line(code, category_code):
                 continue
             vals["amount"] = (vals.get("amount", 0.0) or 0.0) * ratio
             vals["total"] = (vals.get("total", 0.0) or 0.0) * ratio
