@@ -26,7 +26,7 @@ class TestLastWorkingDay(TransactionCase):
         })
         cls.contract.write({"state": "open"})
 
-    def test_final_payslip_is_capped_and_prorated(self):
+    def test_final_payslip_is_capped_and_ratio_is_computable(self):
         payroll_run = self.env["hr.payslip.run"].create({
             "name": "June 2099",
             "date_start": date(2099, 6, 1),
@@ -45,6 +45,90 @@ class TestLastWorkingDay(TransactionCase):
         self.assertAlmostEqual(payslip._pr_get_last_working_day_ratio(), 0.5)
         self.assertTrue(self.employee.active)
         self.assertEqual(self.employee.last_working_date, date(2099, 6, 15))
+
+    def test_last_working_day_shortfall_becomes_absence_amount(self):
+        payroll_run = self.env["hr.payslip.run"].create({
+            "name": "June 2099",
+            "date_start": date(2099, 6, 1),
+            "date_end": date(2099, 6, 30),
+        })
+        payslip = self.env["hr.payslip"].create({
+            "name": "Final Payslip",
+            "employee_id": self.employee.id,
+            "contract_id": self.contract.id,
+            "payslip_run_id": payroll_run.id,
+            "date_from": payroll_run.date_start,
+            "date_to": payroll_run.date_end,
+        })
+
+        self.assertEqual(payslip._pr_get_last_working_day_missing_days(), 15)
+        self.assertAlmostEqual(
+            payslip._pr_get_last_working_day_absence_amount(),
+            1500.0,
+        )
+
+    def test_terminal_absence_amount_excludes_transport_when_configured(self):
+        if "exclude_transportation_from_attendance_gross" not in self.employee._fields:
+            self.skipTest("transport exclusion field is not available in this test environment")
+
+        transport_rule = self.env["hr.salary.rule"].search([
+            ("code", "=", "TRANSPORTATION"),
+        ], limit=1)
+        extra_rule = self.env["hr.salary.rule"].search([
+            ("code", "!=", "BASIC"),
+            ("code", "!=", "TRANSPORTATION"),
+        ], limit=1)
+        if not transport_rule or not extra_rule:
+            self.skipTest("salary rules for transport exclusion are not available")
+
+        employee = self.env["hr.employee"].create({
+            "name": "Transport Exclusion Final Day Employee",
+            "exclude_transportation_from_attendance_gross": True,
+        })
+        contract = self.env["hr.contract"].create({
+            "name": "Transport Exclusion Final Day Contract",
+            "employee_id": employee.id,
+            "date_start": date(2099, 1, 1),
+            "joining_date": date(2099, 1, 1),
+            "date_end": date(2099, 6, 24),
+            "wage": 5000.0,
+            "structure_type_id": self.structure_type.id,
+        })
+        self.env["hr.contract.salary.rule"].create({
+            "contract_id": contract.id,
+            "salary_rule_id": extra_rule.id,
+            "pay_in_payslip": True,
+            "amount_type": "fixed",
+            "amount_value": 1250.0,
+        })
+        self.env["hr.contract.salary.rule"].create({
+            "contract_id": contract.id,
+            "salary_rule_id": transport_rule.id,
+            "pay_in_payslip": True,
+            "amount_type": "fixed",
+            "amount_value": 3875.45,
+        })
+        contract._compute_amount()
+        contract.write({"state": "open"})
+
+        payroll_run = self.env["hr.payslip.run"].create({
+            "name": "June 2099 - Transport Exclusion",
+            "date_start": date(2099, 6, 1),
+            "date_end": date(2099, 6, 30),
+        })
+        payslip = self.env["hr.payslip"].create({
+            "name": "Transport Exclusion Final Payslip",
+            "employee_id": employee.id,
+            "contract_id": contract.id,
+            "payslip_run_id": payroll_run.id,
+            "date_from": payroll_run.date_start,
+            "date_to": payroll_run.date_end,
+        })
+
+        self.assertEqual(payslip._pr_get_last_working_day_missing_days(), 6)
+        self.assertAlmostEqual(contract.gross_amount, 10125.45, places=2)
+        self.assertAlmostEqual(payslip._pr_get_attendance_deduction_salary_base(), 6250.0, places=2)
+        self.assertAlmostEqual(payslip._pr_get_last_working_day_absence_amount(), 1250.0, places=2)
 
     def test_employee_is_excluded_after_cutoff(self):
         july_run = self.env["hr.payslip.run"].create({
