@@ -195,6 +195,11 @@ class PrEndOfService(models.Model):
         store=True,
     )
 
+    @api.onchange("employee_id")
+    def _onchange_employee_last_working_day(self):
+        if self.employee_id and self.employee_id.last_working_date:
+            self.service_end_date = self.employee_id.last_working_date
+
     @api.depends("employee_id", "employee_id.contract_id", "employee_id.contract_id.joining_date", "employee_id.contract_id.date_start")
     def _compute_contract_data(self):
         for rec in self:
@@ -371,7 +376,14 @@ class PrEndOfService(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        records = super().create(vals_list)
+        prepared_vals_list = []
+        for incoming_vals in vals_list:
+            vals = dict(incoming_vals)
+            employee = self.env["hr.employee"].browse(vals.get("employee_id")).exists()
+            if employee and employee.last_working_date and not vals.get("service_end_date"):
+                vals["service_end_date"] = employee.last_working_date
+            prepared_vals_list.append(vals)
+        records = super().create(prepared_vals_list)
         for rec in records:
             if rec.name in (False, _("New"), "New"):
                 rec.name = self.env["ir.sequence"].next_by_code("pr.end.of.service") or _("New")

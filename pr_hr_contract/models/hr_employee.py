@@ -28,6 +28,17 @@ class HrEmployee(models.Model):
                                related="contract_id.joining_date",
                                store=True,
                                tracking=True)
+    last_working_date = fields.Date(
+        string="Last Working Day",
+        related="contract_id.date_end",
+        readonly=False,
+        store=True,
+        tracking=True,
+        help=(
+            "Final day included in payroll and attendance. The employee stays active "
+            "until final clearance and End of Service are completed."
+        ),
+    )
 
     # endregion [Fields]
 

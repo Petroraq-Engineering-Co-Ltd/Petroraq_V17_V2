@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Online payment is intentionally unavailable in the Petroraq portal. -->
+    <template id="portal_invoice_list_hide_online_payment"
+              inherit_id="account_payment.portal_my_invoices_payment"
+              priority="100">
+        <xpath expr="//th[not(@name) and not(normalize-space())]" position="replace"/>
+        <xpath expr="//td[a[@t-if='invoice._has_to_be_paid()']]" position="replace"/>
+    </template>
+
+    <template id="portal_invoice_page_hide_online_payment"
+              inherit_id="account_payment.portal_invoice_page_inherit_payment"
+              priority="100">
+        <xpath expr="//a[@data-bs-target='#pay_with']" position="replace"/>
+        <xpath expr="//div[@id='portal_pay']" position="replace"/>
+    </template>
+</odoo>

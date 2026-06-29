@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pr_po_vendor_invoice_attachment_tree" model="ir.ui.view">
+        <field name="name">ir.attachment.vendor.portal.invoice.tree</field>
+        <field name="model">ir.attachment</field>
+        <field name="arch" type="xml">
+            <tree string="Vendor Invoices" create="0" delete="0">
+                <field name="name" string="Invoice PDF"/>
+                <field name="pr_vendor_id"/>
+                <field name="pr_vendor_invoice_number"/>
+                <field name="pr_vendor_invoice_date"/>
+                <field name="pr_vendor_invoice_amount"
+                       widget="monetary"
+                       options="{'currency_field': 'pr_vendor_invoice_currency_id'}"/>
+                <field name="pr_vendor_invoice_currency_id" column_invisible="True"/>
+                <field name="pr_vendor_portal_user_id"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="purchase_order_form_vendor_portal_invoices" model="ir.ui.view">
+        <field name="name">purchase.order.form.vendor.portal.invoices</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_pr_vendor_portal_invoices"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-file-pdf-o"
+                        groups="purchase.group_purchase_user"
+                        invisible="pr_vendor_portal_invoice_count == 0">
+                    <field name="pr_vendor_portal_invoice_count"
+                           widget="statinfo"
+                           string="Vendor Invoices"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

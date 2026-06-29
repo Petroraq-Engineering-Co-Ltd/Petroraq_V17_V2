@@ -42,6 +42,22 @@ class HrHolidays(models.Model):
 
     # endregion [Fields]
 
+    @api.constrains("employee_id", "request_date_from", "request_date_to", "state")
+    def _check_last_working_day(self):
+        for leave in self:
+            cutoff = leave.employee_id.last_working_date
+            if (
+                cutoff
+                and leave.state not in ("cancel", "refuse")
+                and leave.request_date_to
+                and leave.request_date_to > cutoff
+            ):
+                raise ValidationError(_(
+                    "Time off for %(employee)s cannot extend beyond the Last Working Day (%(date)s).",
+                    employee=leave.employee_id.display_name,
+                    date=cutoff,
+                ))
+
     # region [Compute Methods]
 
     # @api.depends('date_from', 'date_to', 'resource_calendar_id', 'holiday_status_id.request_unit', 'request_date_from', 'request_date_to')

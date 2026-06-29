@@ -9,7 +9,7 @@
     "author": "Mudassir Amin",
     "website": "https://webmail.petroraq.com/",
     "category": "Human Resources",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.1.0",
     "license": "LGPL-3",
     "depends": [
         "pr_hr_payroll",

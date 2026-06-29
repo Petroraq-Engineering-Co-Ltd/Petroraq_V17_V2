@@ -673,15 +673,15 @@ class AttendanceSheet(models.Model):
                                                                 self.date_to,
                                                                 date_format="MMMM y"))
         self.company_id = employee.company_id
-        contracts = employee._get_contracts(date_from, date_to)
-        # if not contracts:
-        #     raise ValidationError(
-        #         _('There Is No Valid Contract For Employee %s' % employee.name))
-
-        if not employee.contract_id or (employee.contract_id.state != "open"):
+        contracts = employee._get_contracts(
+            date_from, date_to, states=["open", "close"]
+        )
+        if not contracts:
             raise ValidationError(
                 _('There Is No Valid Contract For Employee %s' % employee.name))
-        self.contract_id = contracts[0] if contracts else employee.contract_id
+        self.contract_id = contracts.sorted(lambda item: item.date_start, reverse=True)[0]
+        if self.contract_id.date_end and self.date_to > self.contract_id.date_end:
+            self.date_to = self.contract_id.date_end
         if not self.contract_id.att_policy_id:
             raise ValidationError(_(
                 "Employee %s does not have attendance policy" % employee.name))
@@ -1488,17 +1488,18 @@ class AttendanceSheet(models.Model):
         payslips = payslip_obj
         for sheet in self:
             sheet._collect_carry_forward_deduction()
-            contracts = sheet.employee_id._get_contracts(sheet.date_from,
-                                                         sheet.date_to)
+            contracts = sheet.employee_id._get_contracts(
+                sheet.date_from,
+                sheet.date_to,
+                states=["open", "close"],
+            )
             if not contracts:
-                if not sheet.employee_id.contract_id:
-                    raise ValidationError(_('There is no active contract for current employee'))
+                raise ValidationError(_('There is no active contract for current employee'))
             if sheet.payslip_id:
                 raise ValidationError(_('Payslip Has Been Created Before'))
-            contract = sheet.employee_id.contract_id
-            if not contract:
-                contract = self.env['hr.contract'].search(
-                    [('employee_id', '=', sheet.employee_id.id), ('state', '=', 'open')], limit=1)
+            contract = sheet.contract_id or contracts.sorted(
+                lambda item: item.date_start, reverse=True
+            )[0]
             struct_id = self.env.ref("gs_hr_attendance_sheet.structure_attendance_sheet")
             new_payslip = payslip_obj.new({
                 'name': sheet.employee_id.name + 'Payslip',
