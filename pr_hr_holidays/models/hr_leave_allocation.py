@@ -88,6 +88,8 @@ class HrLeaveAllocation(models.Model):
 
         date_from = self.date_to + timedelta(days=1)
         date_to = date_from + relativedelta(years=1) - timedelta(days=1)
+        if self.employee_id.last_working_date and date_from > self.employee_id.last_working_date:
+            return self.env["hr.leave.allocation"]
         existing_allocation = self.search([
             ("pr_carryover_origin_allocation_id", "=", self.id),
             ("active", "=", True),
@@ -113,6 +115,8 @@ class HrLeaveAllocation(models.Model):
 
         date_from = self.date_to + timedelta(days=1)
         date_to = date_from + relativedelta(years=1) - timedelta(days=1)
+        if self.employee_id.last_working_date and date_from > self.employee_id.last_working_date:
+            return self.env["hr.leave.allocation"]
         existing_allocation = self.search([
             ("employee_id", "=", self.employee_id.id),
             ("holiday_status_id", "=", self.holiday_status_id.id),

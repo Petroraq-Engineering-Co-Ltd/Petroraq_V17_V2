@@ -103,25 +103,80 @@ class AttendanceSheetBatch(models.Model):
 
     def action_done(self):
         for batch in self:
-            payslip_batch_name = batch.name.replace("Attendance", "Payslip")
-            payslip_batch_id = self.env["hr.payslip.run"].sudo().create({
-                "name": payslip_batch_name or batch.name,
-                "date_start": batch.date_from,
-                "date_end": batch.date_to,
-            })
             if batch.state != "att_sub":
                 continue
+            payslip_batch_id = batch._get_or_create_payslip_batch()
             for sheet in batch.att_sheet_ids:
                 if sheet.state == 'confirm':
                     sheet.action_approve()
-                    payslip_id = self.env["hr.payslip"].search([("attendance_sheet_id", "=", sheet.id)], limit=1)
-                    if payslip_id and payslip_batch_id:
-                        payslip_id.payslip_run_id = payslip_batch_id.id
-            batch_info = dir(payslip_batch_id)
-            if "_generate_batch_payslip_data_summary" in batch_info:
-                payslip_batch_id._generate_batch_payslip_data_summary()
-            batch.payslip_batch_id = payslip_batch_id.id
+            _linked_payslips, missing_sheets = batch._sync_payslips_to_batch(
+                payslip_batch_id
+            )
+            if missing_sheets:
+                raise UserError(_(
+                    "No payslip was found for these attendance sheets: %s",
+                    ", ".join(missing_sheets.mapped("display_name")),
+                ))
             batch.write({'state': 'done'})
+
+    def _get_or_create_payslip_batch(self):
+        self.ensure_one()
+        if self.payslip_batch_id:
+            return self.payslip_batch_id
+        payslip_batch_name = (self.name or "").replace("Attendance", "Payslip")
+        payslip_batch = self.env["hr.payslip.run"].sudo().create({
+            "name": payslip_batch_name or self.name,
+            "date_start": self.date_from,
+            "date_end": self.date_to,
+        })
+        self.payslip_batch_id = payslip_batch
+        return payslip_batch
+
+    def _sync_payslips_to_batch(self, payslip_batch=False):
+        self.ensure_one()
+        payslip_batch = payslip_batch or self._get_or_create_payslip_batch()
+        linked_payslips = self.env["hr.payslip"]
+        missing_sheets = self.env["attendance.sheet"]
+
+        for sheet in self.att_sheet_ids:
+            payslip = sheet.payslip_id or self.env["hr.payslip"].search(
+                [("attendance_sheet_id", "=", sheet.id)],
+                order="id desc",
+                limit=1,
+            )
+            if not payslip:
+                missing_sheets |= sheet
+                continue
+            if sheet.payslip_id != payslip:
+                sheet.payslip_id = payslip
+            if payslip.payslip_run_id != payslip_batch:
+                payslip.payslip_run_id = payslip_batch
+            linked_payslips |= payslip
+
+        if "_generate_batch_payslip_data_summary" in dir(payslip_batch):
+            if "batch_employee_ids" in payslip_batch._fields:
+                payslip_batch.batch_employee_ids.unlink()
+            if "batch_summary_ids" in payslip_batch._fields:
+                payslip_batch.batch_summary_ids.unlink()
+            payslip_batch._generate_batch_payslip_data_summary()
+        return linked_payslips, missing_sheets
+
+    def action_sync_payslip_batch(self):
+        self.ensure_one()
+        linked_payslips, missing_sheets = self._sync_payslips_to_batch()
+        message = _("%s payslip(s) are now linked to this batch.", len(linked_payslips))
+        if missing_sheets:
+            message += _(" Missing payslips: %s.", ", ".join(missing_sheets.mapped("display_name")))
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Payslip Batch Synchronized"),
+                "message": message,
+                "type": "warning" if missing_sheets else "success",
+                "sticky": bool(missing_sheets),
+            },
+        }
 
     def action_att_gen(self):
         return self.write({'state': 'att_gen'})
@@ -141,21 +196,16 @@ class AttendanceSheetBatch(models.Model):
                     raise UserError(_("There is no  Employees In This Department"))
                 for employee in employee_ids:
 
-                    contract_ids = employee._get_contracts(from_date, to_date)
-
-                    # if not contract_ids:
-                    #     raise UserError(_(
-                    #         "There is no  Running contracts for :%s " % employee.name))
-
-                    # Add Custom Condition
-                    if not employee.contract_id or (employee.contract_id.state != "open"):
-                        raise UserError(_(
-                            "There is no  Running contracts for :%s " % employee.name))
-                    else:
+                    contract_ids = employee._get_contracts(
+                        from_date, to_date, states=["open", "close"]
+                    )
+                    if contract_ids:
+                        contract = contract_ids.sorted(lambda item: item.date_start, reverse=True)[0]
+                        sheet_date_to = min(to_date, contract.date_end) if contract.date_end else to_date
                         new_sheet = att_sheet_obj.new({
                             'employee_id': employee.id,
                             'date_from': from_date,
-                            'date_to': to_date,
+                            'date_to': sheet_date_to,
                             'batch_id':batch.id,
                             'predictive_mode': batch.predictive_mode,
                             'predictive_cutoff_date': batch.predictive_cutoff_date,
@@ -175,22 +225,16 @@ class AttendanceSheetBatch(models.Model):
                     raise UserError(_("There is no  Employees In This Company"))
                 for employee in employee_ids:
 
-                    contract_ids = employee._get_contracts(from_date, to_date)
-
-                    # if not contract_ids:
-                    #     raise UserError(_(
-                    #         "There is no  Running contracts for :%s " % employee.name))
-
-                    # Add Custom Condition
-                    if not employee.contract_id or (employee.contract_id.state != "open"):
-                        raise UserError(_(
-                            "There is no  Running contracts for :%s " % employee.name))
-                    else:
-
+                    contract_ids = employee._get_contracts(
+                        from_date, to_date, states=["open", "close"]
+                    )
+                    if contract_ids:
+                        contract = contract_ids.sorted(lambda item: item.date_start, reverse=True)[0]
+                        sheet_date_to = min(to_date, contract.date_end) if contract.date_end else to_date
                         new_sheet = att_sheet_obj.new({
                             'employee_id': employee.id,
                             'date_from': from_date,
-                            'date_to': to_date,
+                            'date_to': sheet_date_to,
                             'batch_id':batch.id,
                             'predictive_mode': batch.predictive_mode,
                             'predictive_cutoff_date': batch.predictive_cutoff_date,
