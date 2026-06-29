@@ -103,6 +103,14 @@ class HrPayslip(models.Model):
                     payslip.employee_id.display_name,
                 ))
 
+    def _pr_get_last_working_day_period_bounds(self):
+        self.ensure_one()
+        if self.payslip_run_id:
+            return self.payslip_run_id.date_start, self.payslip_run_id.date_end
+        if not self.date_from:
+            return False, False
+        return self.date_from, self.date_from + self._get_schedule_timedelta()
+
     def _pr_get_last_working_day_ratio(self):
         """Return the payable share of the batch period when a contract ends mid-period."""
         self.ensure_one()
@@ -110,13 +118,7 @@ class HrPayslip(models.Model):
         if not contract or not contract.date_end or not self.date_from or not self.date_to:
             return 1.0
 
-        if self.payslip_run_id:
-            period_start = self.payslip_run_id.date_start
-            period_end = self.payslip_run_id.date_end
-        else:
-            period_start = self.date_from
-            period_end = self.date_from + self._get_schedule_timedelta()
-
+        period_start, period_end = self._pr_get_last_working_day_period_bounds()
         if not period_start or not period_end or contract.date_end >= period_end:
             return 1.0
 
@@ -127,6 +129,59 @@ class HrPayslip(models.Model):
         period_days = (period_end - period_start).days + 1
         payable_days = (payable_end - payable_start).days + 1
         return payable_days / period_days if period_days else 1.0
+
+    def _pr_get_last_working_day_missing_days(self):
+        """Return the unpaid tail of the payroll period after the contract cutoff."""
+        self.ensure_one()
+        contract = self.contract_id
+        period_start, period_end = self._pr_get_last_working_day_period_bounds()
+        if not contract or not contract.date_end or not period_start or not period_end:
+            return 0
+        if contract.date_end >= period_end:
+            return 0
+        if contract.date_end < period_start:
+            return (period_end - period_start).days + 1
+        return max((period_end - contract.date_end).days, 0)
+
+    def _pr_get_transportation_allowance_amount(self):
+        self.ensure_one()
+        contract = self.contract_id
+        if not contract:
+            return 0.0
+        transport_rules = contract.contract_salary_rule_ids.filtered(
+            lambda rule: rule.pay_in_payslip and (rule.salary_rule_id.code or "").upper() == "TRANSPORTATION"
+        )
+        return sum(transport_rules.mapped("amount")) if transport_rules else 0.0
+
+    def _pr_get_attendance_deduction_salary_base(self):
+        self.ensure_one()
+        contract = self.contract_id
+        gross_amount = contract.gross_amount if contract else 0.0
+        employee = self.employee_id
+        exclude_transport = (
+            employee
+            and "exclude_transportation_from_attendance_gross" in employee._fields
+            and employee.exclude_transportation_from_attendance_gross
+        )
+        if not exclude_transport:
+            return gross_amount
+        return max(gross_amount - self._pr_get_transportation_allowance_amount(), 0.0)
+
+    def _pr_get_last_working_day_day_amount(self):
+        self.ensure_one()
+        attendance_line = self.attendance_sheet_line_ids[:1]
+        if attendance_line and attendance_line.day_amount:
+            return attendance_line.day_amount
+        salary_base = self._pr_get_attendance_deduction_salary_base()
+        return salary_base / 30.0 if salary_base else 0.0
+
+    def _pr_get_last_working_day_absence_amount(self):
+        """Convert post-cutoff days into the same daily deduction used by attendance absences."""
+        self.ensure_one()
+        missing_days = self._pr_get_last_working_day_missing_days()
+        if not missing_days:
+            return 0.0
+        return missing_days * self._pr_get_last_working_day_day_amount()
 
     def _pr_should_prorate_final_period_line(self, code, category_code):
         """Return whether a line is a recurring amount that still needs proration."""
@@ -482,8 +537,10 @@ class HrPayslip(models.Model):
 
             if payslip.attendance_sheet_id and payslip.employee_id.compute_attendance:
                 att_sheet = payslip.attendance_sheet_id
+                final_period_absence_amount = payslip._pr_get_last_working_day_absence_amount()
                 abs_amount = -((att_sheet.tot_absence_amount or 0.0) + (
-                        getattr(att_sheet, 'carry_forward_absence_amount', 0.0) or 0.0))
+                        getattr(att_sheet, 'carry_forward_absence_amount', 0.0) or 0.0)
+                    + final_period_absence_amount)
                 late_amount = -((att_sheet.tot_late_amount or 0.0) + (
                         getattr(att_sheet, 'carry_forward_late_amount', 0.0) or 0.0))
                 eco_amount = -((getattr(att_sheet, 'tot_early_checkout_amount', 0.0) or 0.0) + (
@@ -508,7 +565,8 @@ class HrPayslip(models.Model):
                 vals for vals in line_vals
                 if vals.get("slip_id") == payslip.id
             ]
-            payslip._pr_prorate_final_period_lines(payslip_line_vals)
+            if not (payslip.attendance_sheet_id and payslip.employee_id.compute_attendance):
+                payslip._pr_prorate_final_period_lines(payslip_line_vals)
             gross_amount, net_amount, _gosi_company_add = self._compute_gross_net_amounts(
                 payslip_line_vals,
             )
