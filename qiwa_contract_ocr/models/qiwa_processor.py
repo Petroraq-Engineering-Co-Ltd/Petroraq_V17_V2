@@ -316,6 +316,7 @@ class QiwaContractProcessor(models.Model):
         }
         self._apply_format_fallbacks(data, clean_text, sections)
         data = self._normalize_extracted_data(data)
+        data['employee_name'] = self._resolve_employee_name(data.get('employee_name'))
 
         if not data['employee_name']:
             raise ValueError(_('Employee name could not be extracted from the Qiwa contract.'))
@@ -327,6 +328,28 @@ class QiwaContractProcessor(models.Model):
                 data['contract_end'],
             )
         return data
+
+    def _resolve_employee_name(self, extracted_name):
+        """Prefer the recruitment applicant when an Arabic-only PDF name is unreliable.
+
+        Some Qiwa PDFs render Arabic correctly but expose an incomplete,
+        reversed Arabic value through their embedded text map. The linked
+        applicant already contains the reviewed candidate name, so it is the
+        safest fallback for an empty or Arabic-only extracted name.
+        """
+        self.ensure_one()
+        extracted_name = self._squash_value(extracted_name)
+        applicant_name = ''
+        if self.applicant_id:
+            applicant_name = self._squash_value(
+                self.applicant_id.partner_name or self.applicant_id.name
+            )
+        if applicant_name and (
+            not extracted_name
+            or not re.search(r'[A-Za-z]', extracted_name)
+        ):
+            return applicant_name
+        return extracted_name or applicant_name
 
     @staticmethod
     def _clean_text(text):
@@ -669,7 +692,7 @@ class QiwaContractProcessor(models.Model):
         value = re.split(r'\s+:[^A-Za-z0-9]*', value, maxsplit=1)[0]
         if value.startswith(':'):
             return ''
-        if not re.search(r'[A-Za-z0-9]', value):
+        if not any(character.isalnum() for character in value):
             return ''
         return value.strip(' :-')
 

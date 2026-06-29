@@ -1,6 +1,6 @@
 {
     'name': 'Qiwa Contract OCR Processor',
-    'version': '17.0.1.0.3',
+    'version': '17.0.1.0.4',
     'depends': [
         'hr_recruitment',
         'pr_hr_recruitment',
