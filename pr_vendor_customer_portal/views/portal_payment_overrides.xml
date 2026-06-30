@@ -213,7 +213,7 @@
                     <a class="btn btn-primary"
                        t-att-href="invoice.get_portal_url(report_type='pdf', download=True)">
                         <i class="fa fa-file-pdf-o me-1"/>
-                        Download Detailed Tax Invoice
+                        Download Invoice
                     </a>
                     <small>
                         Includes complete DP, retention, VAT, bilingual details, and QR information.

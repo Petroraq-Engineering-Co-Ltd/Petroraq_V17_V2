@@ -20,6 +20,17 @@ class TestPortalStatement(TransactionCase):
                 "type": "general",
                 "company_id": cls.company.id,
             })
+        cls.sale_journal = cls.env["account.journal"].search([
+            ("company_id", "=", cls.company.id),
+            ("type", "=", "sale"),
+        ], limit=1)
+        if not cls.sale_journal:
+            cls.sale_journal = cls.env["account.journal"].create({
+                "name": "Portal Statement Sales",
+                "code": "PSS",
+                "type": "sale",
+                "company_id": cls.company.id,
+            })
 
         cls.legacy_account = cls.env["account.account"].create({
             "name": "Shared Customer Legacy Ledger",
@@ -61,10 +72,15 @@ class TestPortalStatement(TransactionCase):
             "company_id": cls.company.id,
             "pr_ledger_account_id": cls.unique_legacy_account.id,
         })
+        cls.partner_unique.with_company(
+            cls.company
+        ).property_account_receivable_id = cls.receivable_account
 
-    def _post_move(self, account, amount, partner=False):
+    def _post_move(
+        self, account, amount, partner=False, move_date=date(2026, 1, 15)
+    ):
         move = self.env["account.move"].create({
-            "date": date(2026, 1, 15),
+            "date": move_date,
             "journal_id": self.journal.id,
             "line_ids": [
                 (0, 0, {
@@ -122,6 +138,105 @@ class TestPortalStatement(TransactionCase):
         self.assertEqual(len(statement["accounts"]), 1)
         self.assertEqual(statement["accounts"][0]["id"], self.unique_legacy_account.id)
 
+    def test_opening_balance_is_included_in_ledger_totals(self):
+        self._post_move(
+            self.unique_legacy_account,
+            75.0,
+            move_date=date(2025, 12, 31),
+        )
+        self._post_move(self.unique_legacy_account, 25.0)
+
+        statement = self.partner_unique._pr_get_portal_statement_data(
+            self.company,
+            date(2026, 1, 1),
+            date(2026, 1, 31),
+        )
+        account = statement["accounts"][0]
+
+        self.assertEqual(account["opening_balance"], 75.0)
+        self.assertEqual(account["opening_debit"], 75.0)
+        self.assertEqual(account["opening_credit"], 0.0)
+        self.assertEqual(account["period_debit"], 25.0)
+        self.assertEqual(account["total_debit"], 100.0)
+        self.assertEqual(account["total_credit"], 0.0)
+        self.assertEqual(account["closing_balance"], 100.0)
+
+    def test_invoice_lines_are_merged_by_source_account_by_default(self):
+        invoice = self.env["account.move"].create({
+            "move_type": "out_invoice",
+            "partner_id": self.partner_unique.id,
+            "invoice_date": date(2026, 1, 15),
+            "date": date(2026, 1, 15),
+            "journal_id": self.sale_journal.id,
+            "invoice_line_ids": [
+                (0, 0, {
+                    "name": "First merged invoice line",
+                    "account_id": self.unique_legacy_account.id,
+                    "quantity": 1.0,
+                    "price_unit": 60.0,
+                }),
+                (0, 0, {
+                    "name": "Second merged invoice line",
+                    "account_id": self.unique_legacy_account.id,
+                    "quantity": 1.0,
+                    "price_unit": 40.0,
+                }),
+            ],
+        })
+        invoice.action_post()
+
+        statement = self.partner_unique._pr_get_portal_statement_data(
+            self.company,
+            date(2026, 1, 1),
+            date(2026, 1, 31),
+        )
+
+        self.assertEqual(statement["entry_count"], 2)
+        entries = statement["accounts"][0]["entries"]
+        self.assertEqual(
+            sorted((entry["debit"], entry["credit"]) for entry in entries),
+            [(0.0, 100.0), (100.0, 0.0)],
+        )
+
+    def test_journal_entry_lines_remain_separate(self):
+        move = self.env["account.move"].create({
+            "date": date(2026, 1, 15),
+            "journal_id": self.journal.id,
+            "line_ids": [
+                (0, 0, {
+                    "name": "First journal line",
+                    "account_id": self.unique_legacy_account.id,
+                    "debit": 25.0,
+                    "credit": 0.0,
+                }),
+                (0, 0, {
+                    "name": "Second journal line",
+                    "account_id": self.unique_legacy_account.id,
+                    "debit": 50.0,
+                    "credit": 0.0,
+                }),
+                (0, 0, {
+                    "name": "Journal counterpart",
+                    "account_id": self.counterpart_account.id,
+                    "debit": 0.0,
+                    "credit": 75.0,
+                }),
+            ],
+        })
+        move.action_post()
+
+        statement = self.partner_unique._pr_get_portal_statement_data(
+            self.company,
+            date(2026, 1, 1),
+            date(2026, 1, 31),
+        )
+
+        self.assertEqual(statement["entry_count"], 2)
+        self.assertEqual(
+            [entry["debit"] for entry in statement["accounts"][0]["entries"]],
+            [25.0, 50.0],
+        )
+
     def test_parent_company_mapped_account_is_recognized(self):
         parent_company = self.env["res.company"].create({
             "name": "Portal Statement Parent Company",
@@ -144,7 +259,19 @@ class TestPortalStatement(TransactionCase):
             date(2026, 1, 1),
             date(2026, 1, 31),
         )
+        period_domain = partner._pr_portal_statement_domain(
+            self.company,
+            date_from=date(2026, 1, 1),
+            date_to=date(2026, 1, 31),
+        )
+        opening_domain = partner._pr_portal_statement_domain(
+            self.company,
+            date_from=date(2026, 1, 1),
+            opening=True,
+        )
 
         self.assertEqual(statement["mapped_account_id"], parent_account.id)
         self.assertEqual(len(statement["accounts"]), 1)
         self.assertEqual(statement["accounts"][0]["id"], parent_account.id)
+        self.assertIn(("account_id", "=", parent_account.id), period_domain)
+        self.assertIn(("account_id", "=", parent_account.id), opening_domain)

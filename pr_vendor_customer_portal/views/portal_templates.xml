@@ -11,6 +11,62 @@
                position="replace"/>
     </template>
 
+    <template id="portal_record_sidebar_remove_odoo_branding"
+              inherit_id="portal.portal_record_sidebar"
+              priority="100">
+        <xpath expr="//div[@id='sidebar_content']/div[hasclass('d-none', 'd-lg-block', 'mt-5', 'text-center', 'text-muted')]"
+               position="replace"/>
+    </template>
+
+    <template id="portal_sale_order_remove_last_invoices"
+              inherit_id="sale.sale_order_portal_content"
+              priority="100">
+        <xpath expr="//div[@id='sale_invoices']" position="replace"/>
+    </template>
+
+    <template id="portal_sale_order_remove_last_deliveries"
+              inherit_id="sale.sale_order_portal_content"
+              priority="110">
+        <xpath expr="//div[@t-if='delivery_orders']" position="replace"/>
+    </template>
+
+    <template id="portal_my_sales_order_status_column"
+              inherit_id="sale.portal_my_orders"
+              priority="100">
+        <xpath expr="//thead/tr/th[3]" position="replace">
+            <th class="text-center">Status</th>
+        </xpath>
+        <xpath expr="//t[@t-foreach='orders']/tr/td[3]" position="replace">
+            <td class="text-center">
+                <span t-if="order.state == 'cancel'"
+                      class="badge rounded-pill text-bg-danger">
+                    <i class="fa fa-fw fa-times" role="img" aria-label="Cancelled" title="Cancelled"/>
+                    Cancelled
+                </span>
+                <span t-elif="order.locked or order.state == 'done'"
+                      class="badge rounded-pill text-bg-success">
+                    <i class="fa fa-fw fa-check" role="img" aria-label="Done" title="Done"/>
+                    Done
+                </span>
+                <span t-elif="order.state == 'sale'"
+                      class="badge rounded-pill text-bg-primary">
+                    <i class="fa fa-fw fa-check-circle" role="img" aria-label="Confirmed" title="Confirmed"/>
+                    Confirmed
+                </span>
+                <span t-elif="order.state == 'sent'"
+                      class="badge rounded-pill text-bg-info">
+                    <i class="fa fa-fw fa-paper-plane" role="img" aria-label="Sent" title="Sent"/>
+                    Sent
+                </span>
+                <span t-else=""
+                      class="badge rounded-pill text-bg-secondary">
+                    <i class="fa fa-fw fa-file-o" role="img" aria-label="Draft" title="Draft"/>
+                    Draft
+                </span>
+            </td>
+        </xpath>
+    </template>
+
     <template id="portal_my_home_remove_standard_account_cards"
               inherit_id="account.portal_my_home_invoice"
               priority="100">
@@ -76,7 +132,6 @@
                     <t t-set="title">Quotations</t>
                     <t t-set="url" t-value="'/my/quotes'"/>
                     <t t-set="text">View your quotations</t>
-                    <t t-set="placeholder_count" t-value="'quotation_count'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/sale/static/description/icon.png'"/>
@@ -115,7 +170,6 @@
                     <t t-set="title">RFQs</t>
                     <t t-set="url" t-value="'/my/rfq'"/>
                     <t t-set="text">View requests for quotation</t>
-                    <t t-set="placeholder_count" t-value="'rfq_count'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
@@ -179,40 +233,31 @@
                 <t t-set="title">Statement of Account</t>
             </t>
 
-            <div class="o_pr_portal_intro">
-                <h5>Account activity for <t t-out="statement['partner_name']"/></h5>
-                <p>
-                    Posted invoices, bills, payments, journal entries, and entries from your configured ledger account are shown below in company currency.
-                </p>
-            </div>
+
 
             <div t-foreach="statement_errors" t-as="error" class="alert alert-warning" role="alert">
                 <t t-out="error"/>
             </div>
-            <div t-if="statement['shared_ledger_account']" class="alert alert-info" role="alert">
-                The configured ledger account is shared. For privacy, direct ledger entries are restricted to entries explicitly posted against your company.
-            </div>
-            <div t-if="not statement['mapped_account_id']" class="alert alert-secondary" role="alert">
-                No dedicated ledger account is configured. This statement currently includes your posted receivable and payable entries.
-            </div>
+<!--            <div t-if="statement['shared_ledger_account']" class="alert alert-info" role="alert">-->
+<!--                The configured ledger account is shared. For privacy, direct ledger entries are restricted to entries explicitly posted against your company.-->
+<!--            </div>-->
+<!--            <div t-if="not statement['mapped_account_id']" class="alert alert-secondary" role="alert">-->
+<!--                No dedicated ledger account is configured. This statement currently includes your posted receivable and payable entries.-->
+<!--            </div>-->
 
             <div class="o_pr_statement_toolbar">
                 <form action="/my/statement" method="get" class="row g-3 align-items-end">
                     <div class="col-sm-5 col-lg-3">
                         <label class="form-label" for="statement_date_from">From</label>
                         <input id="statement_date_from" name="date_from" type="date"
-                               class="form-control" t-att-value="date_from"/>
+                               class="form-control" t-att-value="date_from"
+                               onchange="this.form.requestSubmit()"/>
                     </div>
                     <div class="col-sm-5 col-lg-3">
                         <label class="form-label" for="statement_date_to">To</label>
                         <input id="statement_date_to" name="date_to" type="date"
-                               class="form-control" t-att-value="date_to"/>
-                    </div>
-                    <div class="col-sm-2 col-lg-auto">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="fa fa-filter me-1"/>
-                            Apply
-                        </button>
+                               class="form-control" t-att-value="date_to"
+                               onchange="this.form.requestSubmit()"/>
                     </div>
                     <div class="col-lg-auto ms-lg-auto">
                         <a class="btn btn-secondary w-100"
@@ -260,15 +305,6 @@
                  class="o_pr_statement_account">
                 <div class="o_pr_statement_account_header">
                     <div>
-                        <strong>
-                            <t t-out="account_group['code']"/> -
-                            <t t-out="account_group['name']"/>
-                        </strong>
-                        <span t-if="account_group['is_mapped']" class="badge text-bg-primary ms-2">
-                            Configured Ledger Account
-                        </span>
-                    </div>
-                    <div>
                         Closing:
                         <strong t-out="account_group['closing_balance']"
                                 t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
@@ -291,8 +327,14 @@
                             <tr class="o_pr_statement_opening">
                                 <td><t t-out="date_from"/></td>
                                 <td colspan="3">Opening Balance</td>
-                                <td/>
-                                <td/>
+                                <td class="text-end">
+                                    <span t-out="account_group['opening_debit']"
+                                          t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-out="account_group['opening_credit']"
+                                          t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                </td>
                                 <td class="text-end">
                                     <span t-out="account_group['opening_balance']"
                                           t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
@@ -325,13 +367,13 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="4">Period Total</th>
+                                <th colspan="4">Total</th>
                                 <th class="text-end">
-                                    <span t-out="account_group['period_debit']"
+                                    <span t-out="account_group['total_debit']"
                                           t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
                                 </th>
                                 <th class="text-end">
-                                    <span t-out="account_group['period_credit']"
+                                    <span t-out="account_group['total_credit']"
                                           t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
                                 </th>
                                 <th class="text-end">
@@ -352,12 +394,12 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Deliveries</t>
             </t>
-            <div class="o_pr_portal_intro">
-                <h5>Customer Deliveries</h5>
-                <p>
-                    This page shows outbound deliveries linked to your customer account. Open a delivery to review its items and download the official Petroraq Delivery Note PDF.
-                </p>
-            </div>
+<!--            <div class="o_pr_portal_intro">-->
+<!--                <h5>Customer Deliveries</h5>-->
+<!--                <p>-->
+<!--                    This page shows outbound deliveries linked to your customer account. Open a delivery to review its items and download the official Petroraq Delivery Note PDF.-->
+<!--                </p>-->
+<!--            </div>-->
             <div t-if="not deliveries" class="alert alert-warning" role="alert">
                 There are currently no deliveries for your account.
             </div>

@@ -8,130 +8,94 @@ _logger = logging.getLogger(__name__)
 class PortalRFQ(http.Controller):
 
     def _resolve_rfq(self, rfq_id):
-        """Resolve RFQ against purchase.order first, then legacy custom.purchase.rfq.
+        """Resolve a portal RFQ without creating or migrating records."""
+        return request.env["purchase.order"].sudo().browse(rfq_id).exists()
 
-        This prevents FK violations on purchase.quotation.custom_rfq_id when old
-        links still pass a legacy custom RFQ id.
-        """
-        PurchaseOrder = request.env["purchase.order"].sudo()
-        rfq = PurchaseOrder.browse(rfq_id).exists()
-        if rfq:
-            return rfq
+    def _can_access_rfq(self, rfq):
+        partner = request.env.user.partner_id.commercial_partner_id
+        rfq_partner = rfq.partner_id.commercial_partner_id
+        follower_ids = rfq.message_partner_ids.mapped(
+            "commercial_partner_id"
+        ).ids
+        return rfq_partner == partner or partner.id in follower_ids
 
-        legacy_rfq = request.env["custom.purchase.rfq"].sudo().browse(rfq_id).exists()
-        if not legacy_rfq:
-            return PurchaseOrder.browse()
-
-        mapped_rfq = PurchaseOrder.search([("name", "=", legacy_rfq.name)], limit=1)
-        if mapped_rfq:
-            return mapped_rfq
-
-        mapped_rfq = PurchaseOrder.create({
-            "name": legacy_rfq.name,
-            "origin": legacy_rfq.origin,
-            "partner_id": legacy_rfq.partner_id.id,
-            "pr_name": legacy_rfq.pr_name,
-            "requisition_id": legacy_rfq.requisition_id.id,
-            "date_planned": legacy_rfq.date_planned,
-            "date_request": legacy_rfq.date_request,
-            "requested_by": legacy_rfq.requested_by,
-            "department": legacy_rfq.department,
-            "supervisor": legacy_rfq.supervisor,
-            "supervisor_partner_id": legacy_rfq.supervisor_partner_id,
-            "project_id": legacy_rfq.project_id.id,
-            "state": legacy_rfq.state if legacy_rfq.state in ["draft", "sent", "pending", "purchase", "done", "cancel"] else "draft",
-            "custom_line_ids": [
-                (0, 0, {
-                    "name": line.name,
-                    "quantity": line.quantity,
-                    "type": line.type,
-                    "unit": line.unit,
-                    "price_unit": line.price_unit,
-                    "cost_center_id": line.cost_center_id.id,
-                })
-                for line in legacy_rfq.line_ids
-            ],
-        })
-        return mapped_rfq
-
-    @http.route("/my/rfq", type="http", auth="user", website=True)
-    def my_rfq(self):
-        partner = request.env.user.partner_id
-
-        rfqs_vendor = (
-            request.env["purchase.order"]
-            .sudo()
-            .search(
-                [("partner_id", "=", partner.id), ("state", "in", ["draft", "sent"])]
-            )
-        )
-        rfqs_following = (
-            request.env["purchase.order"]
-            .sudo()
-            .search(
-                [
-                    ("message_follower_ids.partner_id", "=", partner.id),
-                    ("state", "in", ["draft", "sent"]),
-                ]
-            )
+    def _get_rfq_lines(self, rfq):
+        return rfq.custom_line_ids or rfq.order_line.filtered(
+            lambda line: not line.display_type
         )
 
-        rfqs = (rfqs_vendor | rfqs_following).filtered(
-            lambda r: r.state in ["draft", "sent"]
-        )
-
-        return request.render("pr_custom_purchase.portal_rfq_template", {"rfqs": rfqs})
+    def _prepare_rfq_lines(self, rfq):
+        values = []
+        for line in self._get_rfq_lines(rfq):
+            is_custom_line = line._name == "purchase.order.custom.line"
+            quantity = line.quantity if is_custom_line else line.product_qty
+            unit = line.unit if is_custom_line else line.product_uom.name
+            if is_custom_line:
+                product_type = line.type
+            else:
+                detailed_type = (
+                    line.product_id.detailed_type
+                    if "detailed_type" in line.product_id._fields
+                    else line.product_id.type
+                )
+                product_type = (
+                    "service" if detailed_type == "service" else "material"
+                )
+            values.append({
+                "name": line.name,
+                "quantity": quantity,
+                "type": product_type,
+                "unit": unit,
+                "price_unit": line.price_unit,
+                "subtotal": quantity * line.price_unit,
+            })
+        return values
 
     @http.route(
         "/my/rfq/<int:rfq_id>/quotation", type="http", auth="user", website=True
     )
     def portal_create_rfq_quotation(self, rfq_id, **kw):
         rfq = self._resolve_rfq(rfq_id)
-        if not rfq:
+        if not rfq or not self._can_access_rfq(rfq):
             return request.redirect("/my/rfq")
-        rfq.line_ids  # ensure it’s loaded
+        rfq_lines = self._prepare_rfq_lines(rfq)
         company_registry = rfq.partner_id.company_registry
         return request.render(
             "pr_custom_purchase.portal_create_rfq_quotation_form",
-            {"rfq": rfq, "company_registry": company_registry},
+            {
+                "rfq": rfq,
+                "rfq_lines": rfq_lines,
+                "company_registry": company_registry,
+            },
         )
+
     @http.route("/my/rfqs", type="http", auth="user", website=True)
-    def my_rfq(self):
-        partner = request.env.user.partner_id
+    def portal_rfqs_legacy_redirect(self, **kw):
+        return request.redirect("/my/rfq")
 
-        rfqs_following = (
-            request.env["purchase.order"]
-            .sudo()
-            .search([
-                ("message_follower_ids.partner_id", "=", partner.id),
-                ("state", "in", ["draft", "sent"]),
-            ])
-        )
-
-        return request.render(
-            "pr_custom_purchase.portal_rfq_list_template",
-            {"rfqs": rfqs_following},
-        )
     @http.route("/my/rfqs/<int:rfq_id>", type="http", auth="user", website=True)
     def portal_rfq_view(self, rfq_id, **kw):
-        partner = request.env.user.partner_id
         rfq = self._resolve_rfq(rfq_id)
-        if not rfq:
+        if not rfq or not self._can_access_rfq(rfq):
             return request.redirect("/my")
 
-        # Security check: only followers or vendor can see
-        if partner not in rfq.message_follower_ids.mapped("partner_id") and partner.id != rfq.partner_id.id:
-            return request.redirect("/my")  # not authorized
-
-        rfq.line_ids  # ensure lines are loaded
+        rfq_lines = self._prepare_rfq_lines(rfq)
 
         # Fetch all quotations related to this RFQ
-        quotations = request.env["purchase.quotation"].sudo().search([("custom_rfq_id", "=", rfq.id)])
+        quotations = request.env["purchase.quotation"].sudo().search([
+            ("custom_rfq_id", "=", rfq.id),
+            (
+                "vendor_id.commercial_partner_id",
+                "=",
+                request.env.user.partner_id.commercial_partner_id.id,
+            ),
+        ])
 
         return request.render(
             "pr_custom_purchase.portal_rfq_view_template",
             {
                 "rfq": rfq,
+                "rfq_lines": rfq_lines,
                 "quotations": quotations,
             },
         )
@@ -146,9 +110,19 @@ class PortalRFQ(http.Controller):
     )
     def submit_rfq_quotation(self, rfq_id, **post):
         rfq = self._resolve_rfq(rfq_id)
-        if not rfq:
+        if not rfq or not self._can_access_rfq(rfq):
             return request.redirect("/my/rfq")
         partner = request.env.user.partner_id
+        existing_quotation = request.env["purchase.quotation"].sudo().search([
+            ("custom_rfq_id", "=", rfq.id),
+            (
+                "vendor_id.commercial_partner_id",
+                "=",
+                partner.commercial_partner_id.id,
+            ),
+        ], limit=1)
+        if existing_quotation:
+            return request.redirect("/my/rfq?quotation_already_submitted=1")
 
         # Create quotation record in your custom model
         quotation = (
@@ -223,7 +197,9 @@ class PortalRFQ(http.Controller):
                 }
             )
         )
-        rfq_line_by_index = {idx: line for idx, line in enumerate(rfq.line_ids)}
+        rfq_line_by_index = {
+            idx: line for idx, line in enumerate(self._get_rfq_lines(rfq))
+        }
 
         product_indexes = set()
         for key in post:
@@ -245,8 +221,23 @@ class PortalRFQ(http.Controller):
                 continue
 
             rfq_line = rfq_line_by_index.get(i)
-            if not (rfq_line and rfq_line.cost_center_id):
-                return request.redirect(f"/vendor/rfq/form/{rfq_id}?error=missing_cost_center")
+            cost_center = (
+                getattr(rfq_line, "cost_center_id", False)
+                if rfq_line
+                else False
+            )
+            if (
+                not cost_center
+                and rfq_line
+                and rfq_line._name == "purchase.order.line"
+            ):
+                cost_center = (
+                    rfq_line.custom_requisition_line_id.cost_center_id
+                )
+            if not cost_center:
+                return request.redirect(
+                    f"/my/rfq/{rfq_id}/quotation?error=missing_cost_center"
+                )
             request.env["purchase.quotation.line"].sudo().create(
                 {
                     "quotation_id": quotation.id,
@@ -255,7 +246,7 @@ class PortalRFQ(http.Controller):
                     "type": product_type,
                     "unit": unit,
                     "price_unit": price_unit,
-                    "cost_center_id": rfq_line.cost_center_id.id if rfq_line and rfq_line.cost_center_id else False,
+                    "cost_center_id": cost_center.id,
                 }
             )
 
@@ -332,4 +323,4 @@ class PortalRFQ(http.Controller):
                     }
                 )
 
-        return request.redirect("/my/rfqs?quotation_submitted=1")
+        return request.redirect("/my/rfq?quotation_submitted=1")

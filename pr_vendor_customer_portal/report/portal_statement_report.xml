@@ -124,8 +124,14 @@
                                     <tr class="pr-opening">
                                         <td><t t-out="statement['date_from_display']"/></td>
                                         <td colspan="3">Opening Balance</td>
-                                        <td/>
-                                        <td/>
+                                        <td class="number">
+                                            <span t-out="account_group['opening_debit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                        <td class="number">
+                                            <span t-out="account_group['opening_credit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
                                         <td class="number">
                                             <span t-out="account_group['opening_balance']"
                                                   t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
@@ -150,13 +156,13 @@
                                         </td>
                                     </tr>
                                     <tr class="pr-total">
-                                        <td colspan="4">Period Total / Closing Balance</td>
+                                        <td colspan="4">Total / Closing Balance</td>
                                         <td class="number">
-                                            <span t-out="account_group['period_debit']"
+                                            <span t-out="account_group['total_debit']"
                                                   t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
                                         </td>
                                         <td class="number">
-                                            <span t-out="account_group['period_credit']"
+                                            <span t-out="account_group['total_credit']"
                                                   t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
                                         </td>
                                         <td class="number">

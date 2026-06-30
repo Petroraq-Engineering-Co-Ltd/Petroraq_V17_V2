@@ -80,11 +80,15 @@ class ResPartner(models.Model):
         partner_ids = commercial_partner._pr_portal_statement_partner_ids()
         mapped_account = commercial_partner._pr_portal_statement_mapped_account(company)
 
-        branches = [[
+        partner_branch = [
             ("partner_id", "in", partner_ids),
             ("account_id.account_type", "in", PARTNER_BALANCE_ACCOUNT_TYPES),
-        ]]
-        if mapped_account and mapped_account.company_id == company:
+        ]
+        if mapped_account:
+            partner_branch.append(("account_id", "!=", mapped_account.id))
+
+        branches = [partner_branch]
+        if mapped_account:
             mapped_branch = [("account_id", "=", mapped_account.id)]
             if commercial_partner._pr_portal_statement_has_shared_ledger():
                 mapped_branch.append(("partner_id", "in", partner_ids))
@@ -135,6 +139,17 @@ class ResPartner(models.Model):
         )
         return next((str(value).strip() for value in candidates if value), "")
 
+    @staticmethod
+    def _pr_statement_group_key(line):
+        """Match Account Ledger's always-on invoice merge behavior.
+
+        Invoice lines are collapsed per invoice and source account. Ordinary
+        journal-entry lines remain separate even when they belong to one move.
+        """
+        if line.move_id.move_type in INVOICE_MOVE_TYPES:
+            return ("invoice", line.move_id.id, line.account_id.id)
+        return ("line", line.id)
+
     def _pr_get_portal_statement_data(self, company, date_from, date_to):
         self.ensure_one()
         commercial_partner = self.commercial_partner_id
@@ -171,7 +186,7 @@ class ResPartner(models.Model):
         grouped_move_lines = OrderedDict()
         for line in move_lines:
             display_account = mapped_account or line.account_id
-            key = (display_account.id, line.move_id.id)
+            key = commercial_partner._pr_statement_group_key(line)
             if key not in grouped_move_lines:
                 grouped_move_lines[key] = {
                     "account": display_account,
@@ -207,13 +222,19 @@ class ResPartner(models.Model):
         total_opening = 0.0
         total_debit = 0.0
         total_credit = 0.0
+        ledger_total_debit = 0.0
+        ledger_total_credit = 0.0
         amount_receivable = 0.0
         amount_payable = 0.0
         for account in accounts:
             grouped_account = grouped_by_account.get(account.id, {})
             opening_balance = opening_by_account.get(account.id, 0.0)
+            opening_debit = max(opening_balance, 0.0)
+            opening_credit = max(-opening_balance, 0.0)
             period_debit = grouped_account.get("period_debit", 0.0)
             period_credit = grouped_account.get("period_credit", 0.0)
+            account_total_debit = opening_debit + period_debit
+            account_total_credit = opening_credit + period_credit
             running_balance = opening_balance
             entries = []
 
@@ -242,6 +263,8 @@ class ResPartner(models.Model):
             total_opening += opening_balance
             total_debit += period_debit
             total_credit += period_credit
+            ledger_total_debit += account_total_debit
+            ledger_total_credit += account_total_credit
             account_groups.append({
                 "id": account.id,
                 "code": account.code,
@@ -249,8 +272,12 @@ class ResPartner(models.Model):
                 "account_type": account.account_type,
                 "is_mapped": account == mapped_account,
                 "opening_balance": opening_balance,
+                "opening_debit": opening_debit,
+                "opening_credit": opening_credit,
                 "period_debit": period_debit,
                 "period_credit": period_credit,
+                "total_debit": account_total_debit,
+                "total_credit": account_total_credit,
                 "closing_balance": closing_balance,
                 "entries": entries,
             })
@@ -276,6 +303,8 @@ class ResPartner(models.Model):
             "opening_balance": total_opening,
             "period_debit": total_debit,
             "period_credit": total_credit,
+            "total_debit": ledger_total_debit,
+            "total_credit": ledger_total_credit,
             "closing_balance": total_opening + total_debit - total_credit,
             "amount_receivable": amount_receivable,
             "amount_payable": amount_payable,
