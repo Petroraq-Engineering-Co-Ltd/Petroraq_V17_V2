@@ -261,10 +261,14 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
     @http.route()
     def portal_my_quotes(self, **kwargs):
+        if not self._is_customer_portal_partner():
+            return request.redirect("/my")
         return super().portal_my_quotes(**kwargs)
 
     @http.route()
     def portal_my_orders(self, **kwargs):
+        if not self._is_customer_portal_partner():
+            return request.redirect("/my")
         return super().portal_my_orders(**kwargs)
 
     @http.route()
@@ -302,10 +306,14 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
     @http.route()
     def portal_my_requests_for_quotation(self, page=1, date_begin=None, date_end=None, sortby=None, filterby=None, **kw):
+        if not self._is_vendor_portal_partner():
+            return request.redirect("/my")
         return super().portal_my_requests_for_quotation(page=page, date_begin=date_begin, date_end=date_end, sortby=sortby, filterby=filterby, **kw)
 
     @http.route()
     def portal_my_purchase_orders(self, page=1, date_begin=None, date_end=None, sortby=None, filterby=None, **kw):
+        if not self._is_vendor_portal_partner():
+            return request.redirect("/my")
         return super().portal_my_purchase_orders(page=page, date_begin=date_begin, date_end=date_end, sortby=sortby, filterby=filterby, **kw)
 
     @http.route()

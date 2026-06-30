@@ -1,24 +1,15 @@
 <odoo>
-    <template id="portal_request_for_quotation_custom_card" inherit_id="portal.portal_my_home">
+    <!--
+        Retain the old XML ID so module upgrades neutralize the obsolete
+        customer-facing /my/rfqs card already stored in the database.
+    -->
+    <template id="portal_request_for_quotation_custom_card"
+              inherit_id="portal.portal_my_home">
         <xpath expr="//div[@id='portal_client_category']" position="after">
-            <t t-if="not request.env.user.employee_id">
-                <div class="o_portal_category row g-2 mt-3" id="portal_pr_category">
-                    <div class="col-12 col-md-6 col-lg-6">
-                        <a href="/my/rfqs" style="text-decoration: none;">
-                            <div class="card h-100 border-0" style="background-color: #bcc2c8 !important;">
-                                <div class="card-body d-flex flex-column justify-content-between">
-                                    <div>
-                                        <h6 class="text-muted text-uppercase">Request For Quotation</h6>
-                                        <p class="mb-2 text-dark">Submit and view your quotations</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </t>
+            <t t-if="False"/>
         </xpath>
     </template>
+
     <template id="portal_rfq_list_template" name="Portal RFQ List">
         <t t-call="portal.portal_layout">
             <div class="container mt-4">
@@ -104,23 +95,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="rfq.line_ids" t-as="line">
-                                    <tr>
-                                        <td>
-                                            <t t-esc="line.name"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="line.quantity"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="line.unit"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="line.price_unit"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="line.subtotal"/>
-                                        </td>
+                            <t t-foreach="rfq_lines" t-as="line">
+                                <tr>
+                                    <td>
+                                        <t t-esc="line['name']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['quantity']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['unit']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['price_unit']"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['subtotal']"/>
+                                    </td>
                                     </tr>
                                 </t>
                             </tbody>
