@@ -532,6 +532,7 @@ class CustomPR(models.Model):
         for line in self.line_ids:
             line_vals.append({
                 "description": line.description.id,
+                "line_description": line.line_description,
                 "type": line.type,
                 "cost_center_id": line.cost_center_id.id,
                 "quantity": line.quantity,
@@ -748,6 +749,10 @@ class CustomPRLine(models.Model):
         required=True,
         ondelete="restrict",
         context={'display_default_code': False},
+    )
+    line_description = fields.Text(
+        string="Description",
+        help="Line description copied to RFQs, purchase orders, and payment vouchers.",
     )
     product_internal_reference = fields.Many2one(
         "product.internal.reference.lookup",

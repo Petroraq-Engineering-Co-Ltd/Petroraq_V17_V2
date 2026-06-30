@@ -110,6 +110,7 @@
                                     <field name="currency_id" column_invisible="True"/>
                                     <field name="source_line_id" column_invisible="True"/>
                                     <field name="product_id" readonly="1"/>
+                                    <field name="description" readonly="1"/>
                                     <field name="cost_center_id" readonly="1"/>
                                     <field name="quantity" readonly="1"/>
                                     <field name="unit" readonly="1"/>
@@ -121,6 +122,11 @@
                                     <field name="remarks"/>
                                 </tree>
                             </field>
+                        </page>
+                        <page string="Attachments">
+                            <field name="attachment_ids"
+                                   widget="many2many_binary"
+                                   readonly="state != 'requested'"/>
                         </page>
                     </notebook>
                 </sheet>

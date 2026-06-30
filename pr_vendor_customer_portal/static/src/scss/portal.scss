@@ -7,6 +7,60 @@ $pr-portal-border: #d8e0ea;
 $pr-portal-surface: #ffffff;
 $pr-portal-background: #f4f7fb;
 
+// Portal breadcrumbs are rendered outside `.o_portal_wrap` on document detail
+// pages. Keep every PO/SO/delivery/invoice/bill breadcrumb readable against
+// the white submenu bar, regardless of the public website theme.
+.o_portal_submenu,
+.o_portal_navbar {
+    .breadcrumb {
+        .breadcrumb-item,
+        .breadcrumb-item.active,
+        .breadcrumb-item::before {
+            color: $pr-portal-muted !important;
+        }
+
+        .breadcrumb-item a {
+            color: $pr-portal-navy !important;
+            text-decoration-color: rgba($pr-portal-navy, 0.3) !important;
+
+            &:hover,
+            &:focus {
+                color: $pr-portal-gold !important;
+                text-decoration-color: currentColor !important;
+            }
+
+            .fa,
+            i {
+                color: $pr-portal-gold !important;
+            }
+        }
+    }
+}
+
+// SO and invoice detail pages place the breadcrumb list directly in
+// `#wrapwrap`, rather than below one of the usual portal navbar wrappers.
+#wrapwrap .breadcrumb {
+    .breadcrumb-item,
+    .breadcrumb-item.active,
+    .breadcrumb-item::before {
+        color: $pr-portal-muted !important;
+    }
+
+    .breadcrumb-item a {
+        color: $pr-portal-navy !important;
+
+        &:hover,
+        &:focus {
+            color: $pr-portal-gold !important;
+        }
+
+        .fa,
+        i {
+            color: $pr-portal-gold !important;
+        }
+    }
+}
+
 // The public website theme contains broad global selectors. Scope these rules
 // to the content wrapper only: Odoo can place `o_portal` on a high-level node
 // that also contains the public header and footer.
@@ -293,6 +347,152 @@ $pr-portal-background: #f4f7fb;
         color: $pr-portal-text !important;
     }
 
+    // Keep report previews contained in the document pane. The downloadable
+    // PDF retains its own paper format and dimensions.
+    .o_portal_html_view {
+        max-width: 100%;
+        padding: 0.75rem;
+        overflow-x: auto;
+        border: 1px solid $pr-portal-border;
+        border-radius: 0.65rem;
+        box-shadow: 0 5px 18px rgba(11, 37, 75, 0.07);
+
+        .article,
+        .page {
+            max-width: 100% !important;
+            margin-right: auto !important;
+            margin-left: auto !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .o_pr_invoice_portal_card {
+        overflow: hidden;
+        border: 1px solid $pr-portal-border;
+        border-radius: 0.75rem;
+        background: $pr-portal-surface;
+        box-shadow: 0 6px 22px rgba(11, 37, 75, 0.08);
+    }
+
+    .o_pr_invoice_portal_header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.25rem 1.35rem;
+        border-top: 4px solid $pr-portal-navy;
+        border-bottom: 1px solid $pr-portal-border;
+        background: linear-gradient(135deg, #ffffff 0%, #eef3f9 100%);
+
+        h3 {
+            margin: 0.15rem 0 0 !important;
+        }
+
+        p {
+            margin: 0.25rem 0 0;
+            color: $pr-portal-muted;
+        }
+    }
+
+    .o_pr_invoice_portal_eyebrow {
+        color: $pr-portal-gold;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .o_pr_invoice_portal_meta {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+        padding: 0.5rem 1.35rem 1rem;
+
+        > div {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e6ebf2;
+
+            &:nth-child(odd) {
+                padding-right: 1rem;
+            }
+
+            > span {
+                color: $pr-portal-muted;
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+
+            > strong {
+                overflow-wrap: anywhere;
+            }
+        }
+    }
+
+    .o_pr_invoice_portal_lines {
+        margin: 0 1.35rem;
+        box-shadow: none;
+
+        .o_pr_invoice_dp_line > td {
+            background: #fff8e8 !important;
+        }
+    }
+
+    .o_pr_invoice_portal_totals {
+        width: 100%;
+        max-width: 430px;
+        margin: 1rem 1.35rem 1rem auto;
+        padding: 0 1.35rem;
+
+        > div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.45rem 0;
+            border-bottom: 1px solid #e2e8f0;
+
+            > span {
+                color: $pr-portal-muted;
+            }
+        }
+
+        .o_pr_invoice_retention strong {
+            color: #a64343 !important;
+        }
+
+        .o_pr_invoice_total_due,
+        .o_pr_invoice_outstanding {
+            color: $pr-portal-navy-dark;
+            font-size: 1.05rem;
+        }
+
+        .o_pr_invoice_total_due {
+            border-top: 2px solid $pr-portal-navy;
+        }
+    }
+
+    .o_pr_invoice_portal_actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.35rem;
+        border-top: 1px solid $pr-portal-border;
+        background: #f7f9fc;
+
+        small {
+            max-width: 55%;
+            color: $pr-portal-muted;
+            text-align: right;
+        }
+    }
+
     .o_pr_portal_intro {
         margin: 0.25rem 0 1rem;
         padding: 1rem 1.1rem;
@@ -421,6 +621,41 @@ $pr-portal-background: #f4f7fb;
         .o_pr_statement_account_header {
             align-items: flex-start;
             flex-direction: column;
+        }
+
+        .o_portal_html_view {
+            padding: 0.35rem;
+        }
+
+        .o_pr_invoice_portal_header,
+        .o_pr_invoice_portal_actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .o_pr_invoice_portal_meta {
+            grid-template-columns: 1fr;
+
+            > div:nth-child(odd) {
+                padding-right: 0;
+            }
+        }
+
+        .o_pr_invoice_portal_lines {
+            margin-right: 0.75rem;
+            margin-left: 0.75rem;
+        }
+
+        .o_pr_invoice_portal_totals {
+            width: auto;
+            margin-right: 0.75rem;
+            margin-left: 0.75rem;
+            padding: 0;
+        }
+
+        .o_pr_invoice_portal_actions small {
+            max-width: none;
+            text-align: left;
         }
 
         .table,

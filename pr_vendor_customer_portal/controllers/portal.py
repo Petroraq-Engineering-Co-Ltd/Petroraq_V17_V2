@@ -285,7 +285,11 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             return self._show_report(
                 model=invoice,
                 report_type=report_type,
-                report_ref="pr_tax_Invoice_report_custom.petroraq_invoice_report_action_id",
+                report_ref=(
+                    "account.account_invoices"
+                    if report_type == "html"
+                    else "pr_tax_Invoice_report_custom.petroraq_invoice_report_action_id"
+                ),
                 download=download,
             )
         return super().portal_my_invoice_detail(

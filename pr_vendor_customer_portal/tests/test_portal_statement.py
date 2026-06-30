@@ -99,6 +99,8 @@ class TestPortalStatement(TransactionCase):
         self.assertTrue(statement["shared_ledger_account"])
         self.assertEqual(statement["entry_count"], 2)
         self.assertEqual(statement["amount_receivable"], 150.0)
+        self.assertEqual(len(statement["accounts"]), 1)
+        self.assertEqual(statement["accounts"][0]["id"], self.legacy_account.id)
         self.assertNotIn(200.0, [
             entry["debit"]
             for account in statement["accounts"]
@@ -117,3 +119,32 @@ class TestPortalStatement(TransactionCase):
         self.assertFalse(statement["shared_ledger_account"])
         self.assertEqual(statement["entry_count"], 1)
         self.assertEqual(statement["amount_receivable"], 75.0)
+        self.assertEqual(len(statement["accounts"]), 1)
+        self.assertEqual(statement["accounts"][0]["id"], self.unique_legacy_account.id)
+
+    def test_parent_company_mapped_account_is_recognized(self):
+        parent_company = self.env["res.company"].create({
+            "name": "Portal Statement Parent Company",
+        })
+        self.company.parent_id = parent_company.id
+        parent_account = self.env["account.account"].create({
+            "name": "Parent Company Customer Ledger",
+            "code": "PST10003",
+            "account_type": "asset_current",
+            "company_id": parent_company.id,
+        })
+        partner = self.env["res.partner"].create({
+            "name": "Portal Statement Parent Account Partner",
+            "company_id": self.company.id,
+            "pr_ledger_account_id": parent_account.id,
+        })
+
+        statement = partner._pr_get_portal_statement_data(
+            self.company,
+            date(2026, 1, 1),
+            date(2026, 1, 31),
+        )
+
+        self.assertEqual(statement["mapped_account_id"], parent_account.id)
+        self.assertEqual(len(statement["accounts"]), 1)
+        self.assertEqual(statement["accounts"][0]["id"], parent_account.id)

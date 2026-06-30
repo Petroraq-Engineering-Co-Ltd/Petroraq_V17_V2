@@ -53,21 +53,21 @@
                t-value="request.env.user.partner_id.commercial_partner_id.customer_rank &gt; 0"/>
             <t t-set="portal_vendor_category_enable"
                t-value="request.env.user.partner_id.commercial_partner_id.supplier_rank &gt; 0"/>
-            <div class="o_pr_portal_intro">
-                <h4>Portal Workspace</h4>
-                <p t-if="request.env.user.partner_id.commercial_partner_id.customer_rank and request.env.user.partner_id.commercial_partner_id.supplier_rank">
-                    Use the customer area for quotations, orders, invoices, and deliveries. Use the vendor area for RFQs, purchase orders, bills, and invoice submissions.
-                </p>
-                <p t-elif="request.env.user.partner_id.commercial_partner_id.customer_rank">
-                    Review your quotations, confirmed sale orders, invoices, and outbound deliveries from one place.
-                </p>
-                <p t-elif="request.env.user.partner_id.commercial_partner_id.supplier_rank">
-                    Review RFQs and purchase orders, view posted bills, and submit invoice PDFs to Accounts.
-                </p>
-                <p t-else="">
-                    Your available documents and account settings are shown below.
-                </p>
-            </div>
+<!--            <div class="o_pr_portal_intro">-->
+<!--                <h4>Portal Workspace</h4>-->
+<!--                <p t-if="request.env.user.partner_id.commercial_partner_id.customer_rank and request.env.user.partner_id.commercial_partner_id.supplier_rank">-->
+<!--                    Use the customer area for quotations, orders, invoices, and deliveries. Use the vendor area for RFQs, purchase orders, bills, and invoice submissions.-->
+<!--                </p>-->
+<!--                <p t-elif="request.env.user.partner_id.commercial_partner_id.customer_rank">-->
+<!--                    Review your quotations, confirmed sale orders, invoices, and outbound deliveries from one place.-->
+<!--                </p>-->
+<!--                <p t-elif="request.env.user.partner_id.commercial_partner_id.supplier_rank">-->
+<!--                    Review RFQs and purchase orders, view posted bills, and submit invoice PDFs to Accounts.-->
+<!--                </p>-->
+<!--                <p t-else="">-->
+<!--                    Your available documents and account settings are shown below.-->
+<!--                </p>-->
+<!--            </div>-->
         </xpath>
         <div id="portal_client_category" position="inside">
             <t t-if="request.env.user.partner_id.commercial_partner_id.customer_rank">

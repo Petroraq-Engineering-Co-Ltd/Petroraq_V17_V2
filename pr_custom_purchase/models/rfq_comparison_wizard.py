@@ -131,7 +131,7 @@ class RFQComparisonWizard(models.TransientModel):
                 "sequence": seq,
                 "requisition_line_id": req_line.id,
                 "product_id": req_line.description.id,
-                "description": req_line.description.display_name,
+                "description": req_line._get_document_line_description(),
                 "unit": req_line.unit,
                 "quantity": req_line.quantity,
                 "selected_vendor_id": selected_vendor_id,
