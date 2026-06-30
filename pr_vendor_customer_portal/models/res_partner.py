@@ -45,6 +45,22 @@ class ResPartner(models.Model):
         ]).mapped("commercial_partner_id")
         return bool(mapped_partners - commercial_partner)
 
+    def _pr_portal_statement_mapped_account(self, company):
+        """Return the configured ledger usable by the active company.
+
+        The accounting setup allows a child company to use accounts owned by
+        its parent company, so the portal must recognize both companies.
+        """
+        self.ensure_one()
+        configured_account = self.commercial_partner_id.pr_ledger_account_id
+        if not configured_account:
+            return configured_account
+        allowed_companies = company | company.parent_id
+        return configured_account.filtered(
+            lambda account: not account.company_id
+            or account.company_id in allowed_companies
+        )
+
     def _pr_portal_statement_domain(
         self, company, date_from=False, date_to=False, opening=False
     ):
@@ -62,10 +78,7 @@ class ResPartner(models.Model):
         self.ensure_one()
         commercial_partner = self.commercial_partner_id
         partner_ids = commercial_partner._pr_portal_statement_partner_ids()
-        configured_account = commercial_partner.pr_ledger_account_id
-        mapped_account = configured_account.filtered(
-            lambda account: account.company_id == company
-        )
+        mapped_account = commercial_partner._pr_portal_statement_mapped_account(company)
 
         branches = [[
             ("partner_id", "in", partner_ids),
@@ -126,6 +139,7 @@ class ResPartner(models.Model):
         self.ensure_one()
         commercial_partner = self.commercial_partner_id
         MoveLine = self.env["account.move.line"].sudo()
+        mapped_account = commercial_partner._pr_portal_statement_mapped_account(company)
 
         opening_domain = commercial_partner._pr_portal_statement_domain(
             company, date_from=date_from, opening=True
@@ -145,17 +159,22 @@ class ResPartner(models.Model):
             for group in opening_groups
             if group.get("account_id")
         }
+        if mapped_account:
+            opening_by_account = {
+                mapped_account.id: sum(opening_by_account.values())
+            }
 
         move_lines = MoveLine.search(
             period_domain,
-            order="account_id, date, id",
+            order="date, id" if mapped_account else "account_id, date, id",
         )
         grouped_move_lines = OrderedDict()
         for line in move_lines:
-            key = (line.account_id.id, line.move_id.id)
+            display_account = mapped_account or line.account_id
+            key = (display_account.id, line.move_id.id)
             if key not in grouped_move_lines:
                 grouped_move_lines[key] = {
-                    "account": line.account_id,
+                    "account": display_account,
                     "move": line.move_id,
                     "line": line,
                     "debit": 0.0,
@@ -178,10 +197,6 @@ class ResPartner(models.Model):
             grouped_by_account[account.id]["period_credit"] += group["credit"]
 
         account_ids = set(opening_by_account) | set(grouped_by_account)
-        configured_account = commercial_partner.pr_ledger_account_id
-        mapped_account = configured_account.filtered(
-            lambda account: account.company_id == company
-        )
         if mapped_account:
             account_ids.add(mapped_account.id)
         accounts = self.env["account.account"].sudo().browse(list(account_ids)).exists().sorted(

@@ -2,7 +2,7 @@
 {
     "name": "Petroraq Customer & Vendor Portal",
     "summary": "Customer deliveries and vendor invoice portal adapted for Petroraq workflows",
-    "version": "17.0.1.3.1",
+    "version": "17.0.1.3.7",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "category": "Portal",
     "license": "OPL-1",

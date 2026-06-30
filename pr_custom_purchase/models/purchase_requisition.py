@@ -1053,7 +1053,7 @@ class PurchaseRequisition(models.Model):
             )
             line_vals.append({
                 "account_id": self._get_cash_pr_expense_account(line).id,
-                "description": "%s - %s" % (self.name, line.description.display_name),
+                "description": line._get_document_line_description(),
                 "reference_number": self.name,
                 "cs_project_id": line.cost_center_id.id if cost_center_is_project else False,
                 "partner_id": self.vendor_id.id if self.vendor_id else False,
@@ -1074,6 +1074,7 @@ class PurchaseRequisition(models.Model):
             line_vals.append((0, 0, {
                 "source_line_id": line.id,
                 "product_id": line.description.id,
+                "description": line._get_document_line_description(),
                 "cost_center_id": line.cost_center_id.id,
                 "quantity": line.quantity,
                 "unit": line.unit,
@@ -1110,6 +1111,7 @@ class PurchaseRequisition(models.Model):
                 "company_id": pr.company_id.id if "company_id" in pr._fields and pr.company_id else self.env.company.id,
                 "line_ids": pr._prepare_payment_request_line_vals(),
             })
+            request._copy_attachments_from_record(pr)
             pr.status = "payment"
             request._notify_accounts()
             pr.message_post(
@@ -1266,7 +1268,7 @@ class PurchaseRequisition(models.Model):
                     else False
                 )
                 rfq_vals["order_line"].append((0, 0, {
-                    "name": line.description.display_name,
+                    "name": line._get_document_line_description(),
                     "product_id": line.description.id,
                     "product_qty": remaining_qty,
                     "price_unit": 0.0,
@@ -1360,7 +1362,7 @@ class PurchaseRequisition(models.Model):
                     0,
                     0,
                     {
-                        "name": line.description.display_name,
+                        "name": line._get_document_line_description(),
                         "product_id": line.description.id,
                         "product_qty": remaining_qty,
                         "product_uom": line.description.uom_po_id.id if line.description.uom_po_id else False,
@@ -1483,6 +1485,10 @@ class PurchaseRequisitionLine(models.Model):
         ondelete="restrict",
         context={'display_default_code': False},
     )
+    line_description = fields.Text(
+        string="Description",
+        help="Line description copied to RFQs, purchase orders, and payment vouchers.",
+    )
     product_internal_reference = fields.Many2one(
         "product.internal.reference.lookup",
         string="Product Code",
@@ -1536,6 +1542,15 @@ class PurchaseRequisitionLine(models.Model):
             rec.type = "service" if product.detailed_type == "service" else "material"
             rec.unit = product.uom_id.name if product.uom_id else False
             rec.unit_price = product.standard_price or 0.0
+
+    def _get_document_line_description(self):
+        """Return the user-entered description, with a safe fallback for old PR lines."""
+        self.ensure_one()
+        return (
+            (self.line_description or "").strip()
+            or self.description.with_context(display_default_code=False).display_name
+            or ""
+        )
 
     @api.constrains("cost_center_id", "requisition_id")
     def _check_cost_center_matches_bucket(self):
