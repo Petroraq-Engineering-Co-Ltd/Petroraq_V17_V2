@@ -7,6 +7,9 @@ from collections import defaultdict
 class HrPayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
 
+    PAYROLL_BANK_CHARGE_PER_EMPLOYEE = 3.0
+    PAYROLL_BANK_CHARGE_VAT_RATE = 0.15
+
     batch_employee_ids = fields.One2many("hr.payslip.run.employee", "payslip_batch_id",
                                          string="Payslip Batch Employees")
     batch_summary_ids = fields.One2many("hr.payslip.run.summary", "payslip_batch_id", string="Payslip Batch Summary")
@@ -171,18 +174,118 @@ class HrPayslipRun(models.Model):
             rec.approval_state = 'submitted'
             rec.rejection_reason = False
 
+    def _find_payroll_account(self, domain, company):
+        Account = self.env['account.account'].with_context(active_test=False)
+        accounts = Account.search(domain)
+        if not accounts:
+            return accounts
+        if 'company_ids' in Account._fields:
+            company_accounts = accounts.filtered(lambda account: company in account.company_ids)
+        elif 'company_id' in Account._fields:
+            company_accounts = accounts.filtered(
+                lambda account: not account.company_id or account.company_id == company
+            )
+        else:
+            company_accounts = accounts
+        # Some accounts in this database are deliberately shared from a parent
+        # company, so retain the historical cross-company fallback.
+        return (company_accounts or accounts)[:1]
+
     def _get_anb_balancing_account(self, company):
         # NOTE:
         # In this database the ANB account can be configured in a parent/shared company,
         # so avoid strict company filtering and prioritize exact code match.
-        account = self.env['account.account'].with_context(active_test=False).search([
+        account = self._find_payroll_account([
             ('code', '=', '1001.02.00.07')
-        ], limit=1)
+        ], company)
         if not account:
-            account = self.env['account.account'].with_context(active_test=False).search([
+            account = self._find_payroll_account([
                 ('name', 'ilike', 'ANB Bank-470015')
-            ], limit=1)
+            ], company)
         return account
+
+    def _get_payroll_bank_charge_account(self, company):
+        account = self._find_payroll_account([
+            ('code', '=', '5001.03.01.02')
+        ], company)
+        if not account:
+            account = self._find_payroll_account([
+                ('name', 'ilike', 'Bank Charges')
+            ], company)
+        return account
+
+    def _get_vat_receivable_account(self, company):
+        account = self._find_payroll_account([
+            ('vat_receivable_subcategory', '=', 'vat_receivable')
+        ], company)
+        if not account:
+            account = self._find_payroll_account([
+                ('other_assets_category', '=', 'vat_receivable')
+            ], company)
+        if not account:
+            account = self._find_payroll_account([
+                ('name', 'ilike', 'VAT Receivable')
+            ], company)
+        return account
+
+    def _prepare_payroll_charge_lines(self, batch, journal, pay_slips):
+        employee_count = len(pay_slips.mapped('employee_id'))
+        if not employee_count:
+            return []
+
+        bank_charge_account = self._get_payroll_bank_charge_account(batch.company_id)
+        if not bank_charge_account:
+            raise ValidationError(_(
+                "Could not find the Bank Charges account (code 5001.03.01.02) "
+                "for the payroll journal entry."
+            ))
+        vat_receivable_account = self._get_vat_receivable_account(batch.company_id)
+        if not vat_receivable_account:
+            raise ValidationError(_(
+                "Could not find an account classified or named as VAT Receivable "
+                "for the payroll journal entry."
+            ))
+        anb_account = self._get_anb_balancing_account(batch.company_id)
+        if not anb_account:
+            raise ValidationError(_(
+                "Could not find ANB account (code 1001.02.00.07) "
+                "for the payroll bank charges."
+            ))
+
+        currency = batch.company_id.currency_id
+        charge_amount = currency.round(
+            self.PAYROLL_BANK_CHARGE_PER_EMPLOYEE * employee_count
+        )
+        vat_amount = currency.round(charge_amount * self.PAYROLL_BANK_CHARGE_VAT_RATE)
+        total_amount = currency.round(charge_amount + vat_amount)
+        common_vals = {
+            'partner_id': False,
+            'journal_id': journal.id,
+            'date': fields.Date.today(),
+        }
+        return [
+            (0, 0, {
+                **common_vals,
+                'name': _("Payroll bank charges (%s employees)") % employee_count,
+                'account_id': bank_charge_account.id,
+                'debit': charge_amount,
+                'credit': 0.0,
+            }),
+            (0, 0, {
+                **common_vals,
+                'name': _("VAT on payroll bank charges"),
+                'account_id': vat_receivable_account.id,
+                'debit': vat_amount,
+                'credit': 0.0,
+            }),
+            (0, 0, {
+                **common_vals,
+                'name': _("Payroll bank charges including VAT"),
+                'account_id': anb_account.id,
+                'debit': 0.0,
+                'credit': total_amount,
+            }),
+        ]
 
     def _prepare_balancing_line_vals(self, batch, journal, account, imbalance_amount):
         return {
@@ -205,6 +308,7 @@ class HrPayslipRun(models.Model):
             move_line_ids = []
             for slip in pay_slips:
                 move_line_ids += slip.prepare_payslip_entry_vals_lines()
+            move_line_ids += rec._prepare_payroll_charge_lines(rec, journal, pay_slips)
 
             total_debit = sum(vals[2].get('debit', 0.0) for vals in move_line_ids if vals[0] == 0)
             total_credit = sum(vals[2].get('credit', 0.0) for vals in move_line_ids if vals[0] == 0)
