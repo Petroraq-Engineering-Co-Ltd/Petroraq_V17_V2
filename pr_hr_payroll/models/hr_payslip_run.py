@@ -227,7 +227,7 @@ class HrPayslipRun(models.Model):
 
             salary_journal_entry_id = self.env['account.move'].sudo().with_context(check_move_validity=False,
                                                                                    skip_invoice_sync=True).create({
-                'ref': f"Payslip Batch of PETRORAQ Company for {rec.date_end.strftime('%B')} {rec.date_end.year}",
+                'ref': f"Staff Payroll for the Month of {rec.date_end.strftime('%B')} {rec.date_end.year}",
                 'date': fields.Date.today(),
                 'move_type': 'entry',
                 'journal_id': journal.id,
