@@ -260,6 +260,8 @@ class PortalPR(http.Controller):
                     "budget_details": post.get("budget_input_field"),
                     "notes": post.get("notes"),
                     "pr_type": post.get("pr_type") or "pr",
+                    # This HTTP route is itself the portal's explicit Submit action.
+                    "approval": "pending",
                 }
             )
         )
@@ -279,6 +281,11 @@ class PortalPR(http.Controller):
                 {"requisition_id": requisition.id, **item}
             )
             index += 1
+
+        # Model creation no longer starts approval automatically. The portal form
+        # already has an explicit Submit button, so start its approval workflow here.
+        requisition._notify_supervisor()
+        requisition.message_post(body="Purchase Requisition submitted for approval.")
 
         supervisor_user = request.env.user.sudo().supervisor_user_id
         recipient_emails = set()
