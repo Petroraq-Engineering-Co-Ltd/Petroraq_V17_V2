@@ -5,8 +5,9 @@ from dateutil.relativedelta import relativedelta
 
 IQAMA_REQUEST_TYPES = ("iqama_new", "iqama_renewal")
 MEDICAL_INSURANCE_REQUEST_TYPES = ("medical_insurance_new", "medical_insurance_renewal")
-WORK_PERMIT_REQUEST_TYPES = ("work_permit_new", "work_permit_renewal")
-HR_COMPLIANCE_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES + WORK_PERMIT_REQUEST_TYPES
+HR_COMPLIANCE_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES
+NEW_COMPLIANCE_REQUEST_TYPES = ("iqama_new", "medical_insurance_new")
+COMPLIANCE_RENEWAL_REQUEST_TYPES = ("iqama_renewal", "medical_insurance_renewal")
 SERVICE_PERIOD_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES
 TICKET_REIMBURSEMENT_TYPE = "ticket"
 ACCOUNTING_GROUP_XML_IDS = (
@@ -31,12 +32,10 @@ class PrEmployeeServiceRequest(models.Model):
         [
             ("reimbursement", "Reimbursement"),
             ("exit_reentry", "Exit/Re-entry"),
-            ("iqama_new", "New Iqama"),
-            ("iqama_renewal", "Iqama Renewal"),
+            ("iqama_new", "New Iqama & Work Permit"),
+            ("iqama_renewal", "Iqama & Work Permit Renewal"),
             ("medical_insurance_new", "New Medical Insurance"),
             ("medical_insurance_renewal", "Medical Insurance Renewal"),
-            ("work_permit_new", "New Work Permit"),
-            ("work_permit_renewal", "Work Permit Renewal"),
         ],
         string="Request Type",
         required=True,
@@ -224,10 +223,23 @@ class PrEmployeeServiceRequest(models.Model):
     service_from_date = fields.Date(string="From Date", tracking=True)
     service_to_date = fields.Date(string="To Date", tracking=True)
     service_expiry_date = fields.Date(string="Expiry Date", tracking=True)
+    work_permit_expiry_date = fields.Date(string="Work Permit Expiry Date", tracking=True)
     place_of_issue = fields.Char(string="Place of Issue", tracking=True)
     insurance_company = fields.Char(string="Insurance Company", tracking=True)
     insurance_category = fields.Char(string="Insurance Category", tracking=True)
     iqama_profession = fields.Char(string="Iqama / Work Permit Profession", tracking=True)
+    moi_fee_amount = fields.Monetary(
+        string="MOI Fee",
+        currency_field="currency_id",
+        tracking=True,
+        help="Ministry of Interior fee for the Iqama.",
+    )
+    mol_fee_amount = fields.Monetary(
+        string="MOL Fee",
+        currency_field="currency_id",
+        tracking=True,
+        help="Ministry of Labor fee for the work permit.",
+    )
     iqama_id = fields.Many2one("hr.employee.iqama", string="Iqama", readonly=True, copy=False, tracking=True)
     iqama_line_id = fields.Many2one("hr.employee.iqama.line", string="Iqama Renewal Line", readonly=True, copy=False, tracking=True)
     insurance_id = fields.Many2one(
@@ -387,10 +399,13 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.payment_account_id:
                 rec.payment_account_id = rec._get_default_payment_account()
 
-    @api.onchange("requested_amount", "visa_fee", "request_type")
+    @api.onchange("requested_amount", "visa_fee", "moi_fee_amount", "mol_fee_amount", "request_type")
     def _onchange_amounts(self):
         for rec in self:
-            if not rec.approved_amount:
+            if rec.request_type == "iqama_renewal":
+                rec.requested_amount = rec.moi_fee_amount + rec.mol_fee_amount
+                rec.approved_amount = rec.requested_amount
+            elif not rec.approved_amount:
                 rec.approved_amount = rec._get_payment_amount()
 
     @api.onchange("request_type", "employee_id")
@@ -403,11 +418,10 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.request_type in IQAMA_REQUEST_TYPES:
                 rec.iqama_id = False
                 rec.iqama_line_id = False
+                rec.work_permit_id = False
             if rec.request_type in MEDICAL_INSURANCE_REQUEST_TYPES:
                 rec.insurance_id = False
                 rec.insurance_line_id = False
-            if rec.request_type in WORK_PERMIT_REQUEST_TYPES:
-                rec.work_permit_id = False
 
             if rec.request_type == "iqama_renewal":
                 iqama = rec._find_employee_iqama()
@@ -417,6 +431,19 @@ class PrEmployeeServiceRequest(models.Model):
                     rec.place_of_issue = iqama.place_of_issue or rec.place_of_issue
                     rec.service_from_date = rec._next_service_from_date(iqama.iqama_line_ids)
                     rec.service_expiry_date = iqama.expiry_date or rec.service_expiry_date
+                work_permit = rec._find_employee_work_permit()
+                if work_permit:
+                    rec.work_permit_id = work_permit.id
+                    rec.visa_number = work_permit.visa_number or rec.visa_number
+                    rec.iqama_profession = work_permit.iqama_profession or rec.iqama_profession
+                    rec.work_permit_expiry_date = (
+                        work_permit.work_permit_expiry_date
+                        or rec.work_permit_expiry_date
+                    )
+                rec.issue_date = rec.service_from_date or rec.issue_date
+                rec.iqama_profession = rec.iqama_profession or rec.employee_id.job_id.name
+            elif rec.request_type == "iqama_new":
+                rec.iqama_profession = rec.iqama_profession or rec.employee_id.job_id.name
             elif rec.request_type == "medical_insurance_renewal":
                 insurance = rec._find_employee_insurance()
                 if insurance:
@@ -426,16 +453,6 @@ class PrEmployeeServiceRequest(models.Model):
                     rec.insurance_category = insurance.insurance_category or rec.insurance_category
                     rec.service_from_date = rec._next_service_from_date(insurance.insurance_line_ids)
                     rec.service_expiry_date = insurance.expiry_date or rec.service_expiry_date
-            elif rec.request_type == "work_permit_renewal":
-                work_permit = rec._find_employee_work_permit()
-                if work_permit:
-                    rec.work_permit_id = work_permit.id
-                    rec.visa_number = work_permit.visa_number or rec.visa_number
-                    rec.iqama_profession = work_permit.iqama_profession or rec.iqama_profession
-                    rec.service_expiry_date = work_permit.work_permit_expiry_date or rec.service_expiry_date
-                rec.iqama_profession = rec.iqama_profession or rec.employee_id.job_id.name
-            elif rec.request_type == "work_permit_new":
-                rec.iqama_profession = rec.iqama_profession or rec.employee_id.job_id.name
 
     @api.onchange("service_to_date")
     def _onchange_service_to_date(self):
@@ -443,13 +460,26 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.service_to_date:
                 rec.service_expiry_date = rec.service_to_date
 
-    @api.constrains("request_type", "requested_amount", "travel_date", "return_date", "service_from_date", "service_to_date")
+    @api.constrains(
+        "request_type",
+        "requested_amount",
+        "moi_fee_amount",
+        "mol_fee_amount",
+        "travel_date",
+        "return_date",
+        "service_from_date",
+        "service_to_date",
+    )
     def _check_request_values(self):
         for rec in self:
             if rec.request_type == "reimbursement" and rec.requested_amount <= 0.0:
                 raise ValidationError(_("Requested Amount must be greater than zero for reimbursement requests."))
-            if rec.request_type in HR_COMPLIANCE_REQUEST_TYPES and rec.requested_amount <= 0.0:
-                raise ValidationError(_("Requested Amount must be greater than zero for this HR compliance request."))
+            if rec.request_type == "iqama_renewal" and (
+                rec.moi_fee_amount < 0.0 or rec.mol_fee_amount < 0.0
+            ):
+                raise ValidationError(_("MOI and MOL fees cannot be negative."))
+            if rec._get_requested_compliance_amount() <= 0.0 and rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES:
+                raise ValidationError(_("Requested Amount must be greater than zero for renewal requests."))
             if rec.request_type == "exit_reentry" and rec.travel_date and rec.return_date:
                 if rec.return_date < rec.travel_date:
                     raise ValidationError(_("Return Date cannot be before Travel Date."))
@@ -459,6 +489,12 @@ class PrEmployeeServiceRequest(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("request_type") == "iqama_renewal":
+                vals["requested_amount"] = (
+                    vals.get("moi_fee_amount", 0.0)
+                    + vals.get("mol_fee_amount", 0.0)
+                )
         records = super().create(vals_list)
         for rec in records:
             if rec.name in (False, "New", _("New")):
@@ -508,10 +544,13 @@ class PrEmployeeServiceRequest(models.Model):
             "service_from_date",
             "service_to_date",
             "service_expiry_date",
+            "work_permit_expiry_date",
             "place_of_issue",
             "insurance_company",
             "insurance_category",
             "iqama_profession",
+            "moi_fee_amount",
+            "mol_fee_amount",
             "reason",
         }
         if protected.intersection(vals):
@@ -580,9 +619,18 @@ class PrEmployeeServiceRequest(models.Model):
                     raise UserError(_("Please enter travel and return dates."))
                 if rec.return_date < rec.travel_date:
                     raise UserError(_("Return Date cannot be before Travel Date."))
-            if rec.request_type in HR_COMPLIANCE_REQUEST_TYPES:
-                if rec.requested_amount <= 0.0:
+            if rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES:
+                if rec._get_requested_compliance_amount() <= 0.0:
                     raise UserError(_("Please enter the expected fee amount greater than zero."))
+                if not rec.expense_bucket_id:
+                    raise UserError(_("Please select the approved Budget for this renewal."))
+                if not rec.cost_center_id:
+                    raise UserError(_("Please select the Cost Center for this renewal."))
+                if not rec.expense_account_id:
+                    raise UserError(_("Please select the Employee / Expense Account for this renewal."))
+                if not rec.attachment_ids:
+                    raise UserError(_("Please attach the renewal supporting document(s)."))
+            if rec.request_type in HR_COMPLIANCE_REQUEST_TYPES:
                 if not rec.iqama_no:
                     raise UserError(_("Please enter the Iqama No."))
             if rec.request_type in SERVICE_PERIOD_REQUEST_TYPES:
@@ -592,14 +640,16 @@ class PrEmployeeServiceRequest(models.Model):
                     raise UserError(_("To Date cannot be before From Date."))
                 if not rec.service_expiry_date:
                     raise UserError(_("Please enter the expiry date."))
+            if rec.request_type in IQAMA_REQUEST_TYPES:
+                if not rec.iqama_profession:
+                    raise UserError(_("Please enter the Iqama / Work Permit Profession."))
+                if not rec.issue_date:
+                    raise UserError(_("Please enter the Iqama / Work Permit issuance date."))
+                if not rec.work_permit_expiry_date:
+                    raise UserError(_("Please enter the Work Permit expiry date."))
             if rec.request_type in MEDICAL_INSURANCE_REQUEST_TYPES:
                 if not rec.insurance_company or not rec.insurance_category:
                     raise UserError(_("Please enter insurance company and category."))
-            if rec.request_type in WORK_PERMIT_REQUEST_TYPES:
-                if not rec.iqama_profession:
-                    raise UserError(_("Please enter Iqama / Work Permit Profession."))
-                if not rec.service_expiry_date:
-                    raise UserError(_("Please enter the work permit expiry date."))
             rec._check_new_or_renewal_target()
 
     def _is_ticket_reimbursement(self):
@@ -609,6 +659,14 @@ class PrEmployeeServiceRequest(models.Model):
     def _is_department_manager_flow(self):
         self.ensure_one()
         return self.request_type == "reimbursement" and not self._is_ticket_reimbursement()
+
+    def _is_new_compliance_request(self):
+        self.ensure_one()
+        return self.request_type in NEW_COMPLIANCE_REQUEST_TYPES
+
+    def _is_compliance_renewal(self):
+        self.ensure_one()
+        return self.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES
 
     def _is_hr_flow(self):
         self.ensure_one()
@@ -630,10 +688,6 @@ class PrEmployeeServiceRequest(models.Model):
             )
         if self.request_type == "medical_insurance_renewal" and not (self.insurance_id or self._find_employee_insurance()):
             raise UserError(_("No existing Medical Insurance record was found for this employee. Please use New Medical Insurance."))
-        if self.request_type == "work_permit_new" and self._find_employee_work_permit():
-            raise UserError(_("An existing Work Permit is already recorded for this employee. Please use Work Permit Renewal."))
-        if self.request_type == "work_permit_renewal" and not (self.work_permit_id or self._find_employee_work_permit()):
-            raise UserError(_("No existing Work Permit was found for this employee. Please use New Work Permit."))
 
     def _check_before_md_approval(self):
         for rec in self:
@@ -698,7 +752,26 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.state != "draft":
                 continue
             vals = {"rejection_reason": False, "approved_amount": False}
-            if rec._is_department_manager_flow():
+            if rec.request_type == "iqama_renewal":
+                vals["requested_amount"] = rec._get_requested_compliance_amount()
+            if rec._is_new_compliance_request():
+                rec.write(vals)
+                if rec.request_type == "iqama_new":
+                    rec._issue_iqama_request()
+                else:
+                    rec._issue_medical_insurance()
+                continue
+            if rec._is_compliance_renewal():
+                vals["state"] = "hr_manager_approval"
+                rec.write(vals)
+                rec._notify_group(
+                    ["hr.group_hr_manager", "pr_hr_recruitment_request.group_onboarding_manager"],
+                    _("Employee Renewal Approval Needed"),
+                    _("%s <b>%s</b> is waiting for HR Manager approval.")
+                    % (rec._get_type_label(), rec.display_name),
+                )
+                rec.message_post(body=_("Renewal submitted for HR Manager approval."))
+            elif rec._is_department_manager_flow():
                 vals["state"] = "employee_manager_approval"
                 rec.write(vals)
                 rec._notify_users(
@@ -832,6 +905,19 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.can_md_approve:
                 raise UserError(_("Only MD can approve this stage."))
             rec._check_before_md_approval()
+            if rec._is_compliance_renewal():
+                voucher = rec._create_renewal_bpv()
+                rec.write({
+                    "state": "payment_approval",
+                    "approved_amount": rec._get_payment_amount(),
+                    "md_approved_by_id": self.env.user.id,
+                    "md_approved_date": fields.Datetime.now(),
+                })
+                rec.message_post(
+                    body=_("MD approved this renewal and created draft BPV %s.")
+                    % voucher.display_name
+                )
+                continue
             payment_request = rec._create_payment_request()
             rec.write({
                 "state": "payment_approval",
@@ -874,8 +960,6 @@ class PrEmployeeServiceRequest(models.Model):
                 rec._issue_iqama_request()
             elif rec.request_type in MEDICAL_INSURANCE_REQUEST_TYPES:
                 rec._issue_medical_insurance()
-            elif rec.request_type in WORK_PERMIT_REQUEST_TYPES:
-                rec._issue_work_permit()
 
     def action_cancel(self):
         for rec in self:
@@ -936,7 +1020,29 @@ class PrEmployeeServiceRequest(models.Model):
             "target": "current",
         }
 
-    def _create_payment_request(self):
+    def _prepare_payment_request_lines(self):
+        self.ensure_one()
+        expense_account_id = self.expense_account_id.id if self.expense_account_id else False
+        if self.request_type == "iqama_renewal":
+            return [
+                (0, 0, {
+                    "description": description,
+                    "amount": line_amount,
+                    "expense_account_id": expense_account_id,
+                })
+                for description, line_amount in (
+                    (_("MOI fee - Iqama renewal - %s") % self.employee_id.name, self.moi_fee_amount),
+                    (_("MOL fee - Work Permit renewal - %s") % self.employee_id.name, self.mol_fee_amount),
+                )
+                if line_amount > 0.0
+            ]
+        return [(0, 0, {
+            "description": self._get_payment_description(),
+            "amount": self._get_payment_amount(),
+            "expense_account_id": expense_account_id,
+        })]
+
+    def _create_payment_request(self, notify_accounts=True):
         self.ensure_one()
         if self.payment_request_id:
             if self.payment_request_id.state == "cancelled":
@@ -953,15 +1059,60 @@ class PrEmployeeServiceRequest(models.Model):
             "company_id": self.company_id.id,
             "expense_bucket_id": self.expense_bucket_id.id,
             "cost_center_id": self.cost_center_id.id,
-            "line_ids": [(0, 0, {
-                "description": self._get_payment_description(),
-                "amount": amount,
-                "expense_account_id": self.expense_account_id.id if self.expense_account_id else False,
-            })],
+            "line_ids": self._prepare_payment_request_lines(),
         })
         self.payment_request_id = payment_request.id
-        payment_request._notify_accounts()
+        if notify_accounts:
+            payment_request._notify_accounts()
         return payment_request
+
+    def _create_renewal_bpv(self):
+        """Create the renewal payment request and its draft BPV immediately after MD approval."""
+        self.ensure_one()
+        if not self._is_compliance_renewal():
+            raise UserError(_("Automatic BPV creation is only available for compliance renewals."))
+        if self.bank_payment_id:
+            return self.bank_payment_id
+
+        payment_request = self._create_payment_request(notify_accounts=False)
+        pay_from_account = self.payment_account_id or payment_request._get_default_payment_account("bank")
+        if not pay_from_account:
+            raise UserError(_("Please configure or select the bank account used for renewal BPVs."))
+        payment_request.sudo().write({
+            "transfer_type": "bank",
+            "pay_from_account_id": pay_from_account.id,
+        })
+        payment_request.sudo().action_create_payment_voucher()
+        voucher = payment_request.bank_payment_id
+        if not voucher:
+            raise UserError(_("The renewal BPV could not be created."))
+        self.bank_payment_id = voucher.id
+        self._copy_attachments_to(voucher)
+        return voucher
+
+    def _copy_attachments_to(self, target):
+        self.ensure_one()
+        if not target or not self.attachment_ids:
+            return
+        Attachment = self.env["ir.attachment"].sudo()
+        existing = Attachment.search([
+            ("res_model", "=", target._name),
+            ("res_id", "=", target.id),
+        ])
+        existing_keys = {
+            (attachment.name, attachment.checksum)
+            for attachment in existing
+        }
+        for attachment in self.attachment_ids.sudo():
+            key = (attachment.name, attachment.checksum)
+            if key in existing_keys:
+                continue
+            attachment.copy({
+                "res_model": target._name,
+                "res_id": target.id,
+                "res_field": False,
+            })
+            existing_keys.add(key)
 
     def _create_payment_voucher(self):
         self.ensure_one()
@@ -1061,11 +1212,18 @@ class PrEmployeeServiceRequest(models.Model):
             })
             self.iqama_line_id = iqama_line.id
         self.iqama_id = iqama.id
+        self._copy_attachments_to(iqama)
+        work_permit = self._create_or_update_combined_work_permit()
         self.with_context(skip_employee_service_request_lock=True).write({
             "state": "issued",
             "issue_date": self.issue_date or fields.Date.context_today(self),
+            "work_permit_id": work_permit.id,
         })
-        message = _("New Iqama has been issued.") if self.request_type == "iqama_new" else _("Iqama renewal has been issued.")
+        message = (
+            _("New Iqama and Work Permit records have been created.")
+            if self.request_type == "iqama_new"
+            else _("Iqama and Work Permit renewal has been issued.")
+        )
         self.message_post(body=message)
 
     def _issue_medical_insurance(self):
@@ -1113,25 +1271,23 @@ class PrEmployeeServiceRequest(models.Model):
             })
             self.insurance_line_id = insurance_line.id
         self.insurance_id = insurance.id
+        self._copy_attachments_to(insurance)
         self.with_context(skip_employee_service_request_lock=True).write({
             "state": "issued",
             "issue_date": self.issue_date or fields.Date.context_today(self),
         })
         message = (
-            _("New medical insurance has been issued.")
+            _("New medical insurance record has been created.")
             if self.request_type == "medical_insurance_new"
             else _("Medical insurance renewal has been issued.")
         )
         self.message_post(body=message)
 
-    def _issue_work_permit(self):
+    def _create_or_update_combined_work_permit(self):
         self.ensure_one()
-        self._check_new_or_renewal_target()
-        work_permit = self.work_permit_id or (
-            self._find_employee_work_permit() if self.request_type == "work_permit_renewal" else False
-        )
+        work_permit = self.work_permit_id or self._find_employee_work_permit()
         if not self.issue_date:
-            raise UserError(_("Please enter the work permit issuance date before issuing."))
+            raise UserError(_("Please enter the Iqama / Work Permit issuance date."))
         visa_number = self.visa_number or self.iqama_no or self.passport_no or self.name
         vals = {
             "name": self.name,
@@ -1139,11 +1295,11 @@ class PrEmployeeServiceRequest(models.Model):
             "visa_number": visa_number,
             "iqama_profession": self.iqama_profession or self.employee_id.job_id.name or _("To Be Confirmed"),
             "work_permit_fees": self._get_payment_amount(),
-            "iqama_issuance_date": self.issue_date or fields.Date.context_today(self),
+            "iqama_issuance_date": self.issue_date,
             "iqama_expiry_date": self.service_expiry_date,
-            "work_permit_expiry_date": self.service_expiry_date,
+            "work_permit_expiry_date": self.work_permit_expiry_date,
             "state": "issued",
-            "payment_state": "paid",
+            "payment_state": "draft" if self.request_type == "iqama_new" else "paid",
         }
         if work_permit:
             work_permit.sudo().write(vals)
@@ -1151,14 +1307,10 @@ class PrEmployeeServiceRequest(models.Model):
             work_permit = self.env["hr.work.permit"].sudo().create(vals)
         if self.bank_payment_id and "bank_payment_id" in work_permit._fields:
             work_permit.sudo().bank_payment_id = self.bank_payment_id.id
-        self.with_context(skip_employee_service_request_lock=True).write({
-            "work_permit_id": work_permit.id,
-            "visa_number": visa_number,
-            "state": "issued",
-            "issue_date": self.issue_date or fields.Date.context_today(self),
-        })
-        message = _("New work permit has been issued.") if self.request_type == "work_permit_new" else _("Work permit renewal has been issued.")
-        self.message_post(body=message)
+        self._copy_attachments_to(work_permit)
+        if self.visa_number != visa_number:
+            self.with_context(skip_employee_service_request_lock=True).visa_number = visa_number
+        return work_permit
 
     def _get_self_relation(self):
         relation = self.env.ref("pr_hr.employee_dependent_relationship_self", raise_if_not_found=False)
@@ -1207,14 +1359,29 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_payment_amount(self):
         self.ensure_one()
+        if self.request_type == "iqama_renewal":
+            return self._get_requested_compliance_amount()
         if self.approved_amount:
             return self.approved_amount
         if self.request_type == "exit_reentry":
             return self.visa_fee
         return self.requested_amount
 
+    def _get_requested_compliance_amount(self):
+        self.ensure_one()
+        if self.request_type == "iqama_renewal":
+            return (self.moi_fee_amount or 0.0) + (self.mol_fee_amount or 0.0)
+        return self.requested_amount
+
     def _get_payment_description(self):
         self.ensure_one()
+        if self.request_type == "iqama_renewal":
+            return _("%(request)s - Iqama & Work Permit renewal - %(employee)s (MOI %(moi).2f + MOL %(mol).2f)") % {
+                "request": self.name,
+                "employee": self.employee_id.name,
+                "moi": self.moi_fee_amount,
+                "mol": self.mol_fee_amount,
+            }
         return _("%s - %s - %s") % (self.name, self._get_type_label(), self.employee_id.name)
 
     def _get_type_label(self):

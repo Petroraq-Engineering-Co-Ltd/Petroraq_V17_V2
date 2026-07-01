@@ -37,7 +37,7 @@ class HrEmployee(models.Model):
             "default_company_id": self.company_id.id or self.env.company.id,
             "default_iqama_no": self.identification_id or False,
         }
-        if request_type in ("work_permit_new", "work_permit_renewal"):
+        if request_type in ("iqama_new", "iqama_renewal"):
             context["default_iqama_profession"] = self.job_id.name or False
         if extra_context:
             context.update(extra_context)
@@ -59,11 +59,11 @@ class HrEmployee(models.Model):
         if not iqamas:
             return self._open_employee_compliance_request(
                 "iqama_new",
-                _("New Iqama Request"),
+                _("New Iqama & Work Permit Request"),
             )
         return {
             "type": "ir.actions.act_window",
-            "name": _("%s Iqamas") % self.name,
+            "name": _("%s Iqama & Work Permit") % self.name,
             "res_model": "hr.employee.iqama",
             "view_mode": "tree,form",
             "views": [
@@ -98,21 +98,5 @@ class HrEmployee(models.Model):
         }
 
     def open_related_work_permits(self):
-        self.ensure_one()
-        work_permits = self.env["hr.work.permit"].sudo().search([
-            ("employee_id", "=", self.id),
-        ])
-        if not work_permits:
-            return self._open_employee_compliance_request(
-                "work_permit_new",
-                _("New Work Permit Request"),
-            )
-        action = self.env["ir.actions.actions"]._for_xml_id(
-            "pr_hr_recruitment.hr_work_permit_view_action"
-        )
-        action.update({
-            "name": _("%s Work Permits") % self.name,
-            "domain": [("employee_id", "=", self.id)],
-            "context": {"default_employee_id": self.id},
-        })
-        return action
+        """Compatibility redirect: Work Permit is managed by the Iqama flow."""
+        return self.open_related_iqamas()
