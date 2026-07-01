@@ -27,6 +27,7 @@
                 <field name="approval" widget="badge"
                        decoration-success="approval == 'approved'"
                        decoration-danger="approval == 'rejected'"
+                       decoration-muted="approval == 'draft'"
                        decoration-info="approval == 'pending'"/>
                 <field name="date_request"/>
             </tree>
@@ -39,6 +40,16 @@
         <field name="arch" type="xml">
             <form string="Purchase Requisition">
                 <header>
+                    <button name="action_submit"
+                            type="object"
+                            string="Submit"
+                            class="btn-primary"
+                            invisible="approval != 'draft'"/>
+                    <button name="action_reset_to_draft"
+                            type="object"
+                            string="Reset to Draft"
+                            class="btn-secondary"
+                            invisible="approval != 'rejected'"/>
                     <button name="action_supervisor_approve"
                             type="object"
                             string="Approve"
@@ -58,7 +69,7 @@
                             type="object"
                             string="Get All Products"
                             class="btn-secondary"
-                            invisible="not expense_bucket_id or approval != 'pending' or status != 'pr'"/>
+                            invisible="not expense_bucket_id or approval != 'draft' or status != 'pr'"/>
                     <button name="action_create_rfq"
                             type="object"
                             string="Create RFQ"
@@ -70,6 +81,9 @@
                             string="Request Payment"
                             class="btn-primary"
                             invisible="not show_request_payment_button"/>
+                    <field name="approval"
+                           widget="statusbar"
+                           statusbar_visible="draft,pending,approved,rejected"/>
                 </header>
                 <sheet>
                     <!-- Hidden fields for button visibility logic -->
@@ -137,10 +151,10 @@
                                    invisible="pr_type == 'cash'"
                                    groups="pr_custom_purchase.procurement_admin"/>
                             <field name="expense_type"
-                                   readonly="approval != 'pending' or status != 'pr'"/>
+                                   readonly="approval != 'draft' or status != 'pr'"/>
                             <field name="expense_bucket_id"
                                    domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('date_from', '&lt;=', context_today()), ('date_to', '&gt;=', context_today()), ('pr_under_revision', '=', False)]"
-                                   readonly="approval != 'pending' or status != 'pr'"
+                                   readonly="approval != 'draft' or status != 'pr'"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                             <field name="expense_scope" readonly="1"/>
                             <field name="status" invisible="1"/>
@@ -150,7 +164,7 @@
                         <group>
                             <field name="required_date" readonly="1"/>
                             <field name="priority"
-                                   readonly="approval != 'pending' or status != 'pr'"/>
+                                   readonly="approval != 'draft' or status != 'pr'"/>
                             <field name="approval" readonly="1"/>
                             <field name="payment_request_state"
                                    readonly="1"
@@ -165,7 +179,7 @@
                         <page string="Products">
                             <field name="allowed_cost_center_ids" invisible="1"/>
                             <field name="line_ids"
-                                   readonly="approval != 'pending' or status != 'pr'">
+                                   readonly="approval != 'draft' or status != 'pr'">
                                 <tree editable="bottom">
                                     <field name="product_internal_reference"
                                            string="Product Code"
@@ -187,7 +201,7 @@
                         </page>
                         <page string="Notes">
                             <group>
-                                <field name="notes" readonly="approval != 'pending' or status != 'pr'"/>
+                                <field name="notes" readonly="approval != 'draft' or status != 'pr'"/>
                             </group>
                         </page>
                         <page string="Comments">
@@ -198,7 +212,8 @@
                         <page string="Reason">
                             <group>
                                 <field name="rejection_reason"
-                                       invisible="not is_supervisor"/>
+                                       readonly="1"
+                                       invisible="not rejection_reason"/>
                             </group>
                         </page>
                     </notebook>

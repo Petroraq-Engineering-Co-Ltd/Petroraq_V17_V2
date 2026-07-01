@@ -38,9 +38,15 @@ class PurchaseRequisition(models.Model):
     cost_center_id = fields.Many2one("account.analytic.account", string="Cost Center")
     notes = fields.Text(string="Notes")
     approval = fields.Selection(
-        [("pending", "Pending"), ("rejected", "Rejected"), ("approved", "Approved")],
-        default="pending",
+        [
+            ("draft", "Draft"),
+            ("pending", "Pending Approval"),
+            ("rejected", "Rejected"),
+            ("approved", "Approved"),
+        ],
+        default="draft",
         string="Approval",
+        tracking=True,
     )
     wo_variance_requires_approval = fields.Boolean(
         string="WO Variance Requires Approval",
@@ -262,8 +268,6 @@ class PurchaseRequisition(models.Model):
                         self.env["ir.sequence"].sudo().next_by_code("purchase.requisition")
                         or "PR0001"
                 )
-        if not self.env.context.get("skip_pr_notifications"):
-            record._notify_supervisor()
         return record
 
     @api.model
@@ -339,7 +343,7 @@ class PurchaseRequisition(models.Model):
                             {"approval": "rejected"}
                         )
 
-                    elif new_approval == "pending" and custom_pr.approval != "pending":
+                    elif new_approval in ("draft", "pending") and custom_pr.approval != "pending":
                         custom_pr.write({"approval": "pending"})
 
         return res
@@ -528,7 +532,7 @@ class PurchaseRequisition(models.Model):
             domain = [
                 ("id", "not in", self.line_ids.ids),
                 ("requisition_id.expense_bucket_id", "=", bucket.id),
-                ("requisition_id.approval", "!=", "rejected"),
+                ("requisition_id.approval", "in", ("pending", "approved")),
                 ("cost_center_id", "=", cost_center.id),
                 ("description", "=", product.id),
             ]
@@ -689,13 +693,11 @@ class PurchaseRequisition(models.Model):
             "target": "current",
         }
 
-    def action_supervisor_approve(self):
+    def _validate_for_submission(self):
         for rec in self:
-            if rec.approval != "pending":
-                continue
             rec._check_selected_budget_active()
             if not rec.line_ids:
-                raise UserError(_("You must add at least one line before approving the Purchase Requisition."))
+                raise UserError(_("You must add at least one line before submitting the Purchase Requisition."))
             if rec.total_excl_vat <= 0.0:
                 raise UserError(_("Total requested amount must be greater than zero."))
             for line in rec.line_ids:
@@ -704,6 +706,36 @@ class PurchaseRequisition(models.Model):
             rec.line_ids._check_work_order_product_limits()
             rec.line_ids._check_trading_sale_order_product_limits()
             rec._check_amounts_against_selected_budget(rec._amount_by_cost_center())
+
+    def action_submit(self):
+        for rec in self:
+            if rec.approval != "draft":
+                raise UserError(_("Only draft Purchase Requisitions can be submitted."))
+            rec._validate_for_submission()
+            rec.write({
+                "approval": "pending",
+                "rejection_reason": False,
+            })
+            rec._notify_supervisor()
+            rec.message_post(body=_("Purchase Requisition submitted for approval."))
+        return True
+
+    def action_reset_to_draft(self):
+        for rec in self:
+            if rec.approval != "rejected":
+                raise UserError(_("Only rejected Purchase Requisitions can be reset to draft."))
+            rec.write({
+                "approval": "draft",
+                "rejection_reason": False,
+            })
+            rec.message_post(body=_("Purchase Requisition reset to draft."))
+        return True
+
+    def action_supervisor_approve(self):
+        for rec in self:
+            if rec.approval != "pending":
+                continue
+            rec._validate_for_submission()
             rec.write({"approval": "approved"})
 
     def action_supervisor_reject_wizard(self):
@@ -719,7 +751,7 @@ class PurchaseRequisition(models.Model):
             "context": {"default_requisition_id": self.id},
         }
 
-    # sending activity to configured supervisor when PR is created
+    # Send approval activity only after the requester explicitly submits the PR.
     def _notify_supervisor(self):
         for rec in self:
             try:
@@ -1679,7 +1711,7 @@ class PurchaseRequisitionLine(models.Model):
                 ("id", "not in", rec.requisition_id.line_ids.ids),
                 ("cost_center_id", "=", rec.cost_center_id.id),
                 ("description", "=", rec.description.id),
-                ("requisition_id.approval", "!=", "rejected"),
+                ("requisition_id.approval", "in", ("pending", "approved")),
             ])
             total_requested_amount = current_req_amount + sum(other_pr_lines.mapped("total_price"))
 
@@ -1724,7 +1756,7 @@ class PurchaseRequisitionLine(models.Model):
                 ("cost_center_id", "=", rec.cost_center_id.id),
                 ("description", "=", rec.description.id),
                 ("requisition_id.expense_bucket_id", "=", rec.requisition_id.expense_bucket_id.id),
-                ("requisition_id.approval", "!=", "rejected"),
+                ("requisition_id.approval", "in", ("pending", "approved")),
             ])
             total_requested_qty = current_req_qty + sum(other_pr_lines.mapped("quantity"))
             total_requested_amount = current_req_amount + sum(other_pr_lines.mapped("total_price"))
