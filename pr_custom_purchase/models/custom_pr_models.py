@@ -863,7 +863,7 @@ class CustomPRLine(models.Model):
     def _onchange_description(self):
         for rec in self:
             if rec.description:
-                rec.unit = rec.description.uom_id
+                rec.unit = rec.description.uom_po_id or rec.description.uom_id
 
     @api.depends('description', 'description.detailed_type')
     def _compute_type_from_product(self):

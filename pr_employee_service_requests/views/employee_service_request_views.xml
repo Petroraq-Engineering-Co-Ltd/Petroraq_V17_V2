@@ -41,12 +41,10 @@
                 <filter name="my_requests" string="My Requests" domain="['|', ('requested_by_id', '=', uid), ('employee_id.user_id', '=', uid)]"/>
                 <filter name="reimbursement" string="Reimbursements" domain="[('request_type', '=', 'reimbursement')]"/>
                 <filter name="exit_reentry" string="Exit/Re-entry" domain="[('request_type', '=', 'exit_reentry')]"/>
-                <filter name="iqama_new" string="New Iqama" domain="[('request_type', '=', 'iqama_new')]"/>
-                <filter name="iqama_renewal" string="Iqama Renewals" domain="[('request_type', '=', 'iqama_renewal')]"/>
+                <filter name="iqama_new" string="New Iqama &amp; Work Permit" domain="[('request_type', '=', 'iqama_new')]"/>
+                <filter name="iqama_renewal" string="Iqama &amp; Work Permit Renewals" domain="[('request_type', '=', 'iqama_renewal')]"/>
                 <filter name="medical_insurance_new" string="New Medical Insurance" domain="[('request_type', '=', 'medical_insurance_new')]"/>
                 <filter name="medical_insurance_renewal" string="Medical Insurance Renewals" domain="[('request_type', '=', 'medical_insurance_renewal')]"/>
-                <filter name="work_permit_new" string="New Work Permit" domain="[('request_type', '=', 'work_permit_new')]"/>
-                <filter name="work_permit_renewal" string="Work Permit Renewals" domain="[('request_type', '=', 'work_permit_renewal')]"/>
                 <separator/>
                 <filter name="hr_supervisor_approval" string="HR Supervisor" domain="[('state', '=', 'hr_supervisor_approval')]"/>
                 <filter name="employee_manager_approval" string="Dept. Manager" domain="[('state', '=', 'employee_manager_approval')]"/>
@@ -153,18 +151,28 @@
                         </group>
                     </group>
 
-                    <group string="Iqama Details" invisible="request_type not in ('iqama_new', 'iqama_renewal')">
+                    <group string="Iqama &amp; Work Permit Details" invisible="request_type not in ('iqama_new', 'iqama_renewal')">
                         <group>
                             <field name="iqama_id" readonly="1" invisible="not iqama_id"/>
                             <field name="iqama_line_id" readonly="1" invisible="not iqama_line_id"/>
+                            <field name="work_permit_id" readonly="1" invisible="not work_permit_id"/>
                             <field name="iqama_no" readonly="state != 'draft'"/>
                             <field name="place_of_issue" readonly="state != 'draft'"/>
+                            <field name="visa_number" string="Work Permit / Visa Number" readonly="state != 'draft'"/>
+                            <field name="iqama_profession" readonly="state != 'draft'"/>
                         </group>
                         <group>
                             <field name="service_from_date" readonly="state != 'draft'"/>
                             <field name="service_to_date" readonly="state != 'draft'"/>
-                            <field name="service_expiry_date" readonly="state != 'draft'"/>
-                            <field name="requested_amount" readonly="state != 'draft'"/>
+                            <field name="issue_date" string="Iqama / Work Permit Issue Date" readonly="state != 'draft'"/>
+                            <field name="service_expiry_date" string="Iqama Expiry Date" readonly="state != 'draft'"/>
+                            <field name="work_permit_expiry_date" readonly="state != 'draft'"/>
+                            <field name="moi_fee_amount" readonly="state != 'draft'"
+                                   invisible="request_type != 'iqama_renewal'"/>
+                            <field name="mol_fee_amount" readonly="state != 'draft'"
+                                   invisible="request_type != 'iqama_renewal'"/>
+                            <field name="requested_amount" string="Total MOI + MOL Fees" readonly="1"
+                                   invisible="request_type != 'iqama_renewal'"/>
                         </group>
                     </group>
 
@@ -180,35 +188,24 @@
                             <field name="service_from_date" readonly="state != 'draft'"/>
                             <field name="service_to_date" readonly="state != 'draft'"/>
                             <field name="service_expiry_date" readonly="state != 'draft'"/>
-                            <field name="requested_amount" readonly="state != 'draft'"/>
+                            <field name="requested_amount" readonly="state != 'draft'"
+                                   invisible="request_type == 'medical_insurance_new'"/>
                         </group>
                     </group>
 
-                    <group string="Work Permit Details" invisible="request_type not in ('work_permit_new', 'work_permit_renewal')">
-                        <group>
-                            <field name="work_permit_id" readonly="1" invisible="not work_permit_id"/>
-                            <field name="visa_number" readonly="state not in ('draft', 'paid', 'issued')"/>
-                            <field name="iqama_no" readonly="state != 'draft'"/>
-                            <field name="iqama_profession" readonly="state != 'draft'"/>
-                        </group>
-                        <group>
-                            <field name="issue_date" readonly="state not in ('draft', 'paid', 'issued')"/>
-                            <field name="service_expiry_date" readonly="state != 'draft'"/>
-                            <field name="requested_amount" readonly="state != 'draft'"/>
-                        </group>
-                    </group>
-
-                    <group string="Payment">
+                    <group string="Payment"
+                           invisible="request_type in ('iqama_new', 'medical_insurance_new')">
                         <group>
                             <field name="expense_bucket_id" readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')" options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="cost_center_id" readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')" options="{'no_create': True, 'no_create_edit': True}"/>
-                            <field name="approved_amount" readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"/>
+                            <field name="approved_amount"
+                                   invisible="request_type == 'iqama_renewal'"
+                                   readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"/>
                             <field name="payment_method" invisible="1"/>
                             <field name="payment_account_id"
                                    invisible="1"
                                    options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="expense_account_id"
-                                   invisible="1"
                                    options="{'no_create': True, 'no_create_edit': True}"/>
                         </group>
                         <group>
@@ -230,10 +227,11 @@
                         <field name="reason" placeholder="Enter request reason / notes..." readonly="state != 'draft'"/>
                     </group>
                     <notebook>
-                        <page string="Attachments" invisible="request_type != 'reimbursement'">
+                        <page string="Attachments">
                             <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
                         </page>
-                        <page string="Approvals">
+                        <page string="Approvals"
+                              invisible="request_type in ('iqama_new', 'medical_insurance_new')">
                             <group>
                                 <group>
                                     <field name="hr_supervisor_approved_by_id" readonly="1"/>
@@ -406,6 +404,88 @@
         </field>
     </record>
 
+    <record id="view_hr_work_permit_form_renewal" model="ir.ui.view">
+        <field name="name">hr.work.permit.form.renewal</field>
+        <field name="model">hr.work.permit</field>
+        <field name="inherit_id" ref="pr_hr_recruitment.hr_work_permit_form_view"/>
+        <field name="active" eval="False"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_renew"
+                        type="object"
+                        string="RENEW"
+                        class="btn-primary"
+                        invisible="state not in ('approved', 'issued')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_work_permit_form_no_standalone_create" model="ir.ui.view">
+        <field name="name">hr.work.permit.form.no.standalone.create</field>
+        <field name="model">hr.work.permit</field>
+        <field name="inherit_id" ref="pr_hr_recruitment.hr_work_permit_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_work_permit_tree_no_standalone_create" model="ir.ui.view">
+        <field name="name">hr.work.permit.tree.no.standalone.create</field>
+        <field name="model">hr.work.permit</field>
+        <field name="inherit_id" ref="pr_hr_recruitment.hr_work_permit_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="pr_hr_recruitment.hr_work_permit_view_action" model="ir.actions.act_window">
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <record id="view_hr_employee_iqama_form_combined_request_only" model="ir.ui.view">
+        <field name="name">hr.employee.iqama.form.combined.request.only</field>
+        <field name="model">hr.employee.iqama</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_iqama_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>
+            <xpath expr="//field[@name='iqama_line_ids']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_iqama_tree_combined_request_only" model="ir.ui.view">
+        <field name="name">hr.employee.iqama.tree.combined.request.only</field>
+        <field name="model">hr.employee.iqama</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_iqama_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_iqama_kanban_combined_request_only" model="ir.ui.view">
+        <field name="name">hr.employee.iqama.kanban.combined.request.only</field>
+        <field name="model">hr.employee.iqama</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_iqama_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="pr_hr.action_hr_employee_iqama" model="ir.actions.act_window">
+        <field name="context">{'create': False}</field>
+    </record>
+
     <record id="action_pr_employee_reimbursement_my" model="ir.actions.act_window">
         <field name="name">Reimbursements</field>
         <field name="res_model">pr.employee.service.request</field>
@@ -434,7 +514,7 @@
     </record>
 
     <record id="action_pr_employee_iqama_new_my" model="ir.actions.act_window">
-        <field name="name">New Iqama Requests</field>
+        <field name="name">New Iqama &amp; Work Permit Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
@@ -443,7 +523,7 @@
     </record>
 
     <record id="action_pr_employee_iqama_renewal_my" model="ir.actions.act_window">
-        <field name="name">Iqama Renewal Requests</field>
+        <field name="name">Iqama &amp; Work Permit Renewal Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
@@ -470,21 +550,21 @@
     </record>
 
     <record id="action_pr_employee_work_permit_new_my" model="ir.actions.act_window">
-        <field name="name">New Work Permit Requests</field>
+        <field name="name">New Iqama &amp; Work Permit Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'work_permit_new')]</field>
-        <field name="context">{'default_request_type': 'work_permit_new', 'search_default_my_requests': 1}</field>
+        <field name="domain">[('request_type', '=', 'iqama_new')]</field>
+        <field name="context">{'default_request_type': 'iqama_new', 'search_default_my_requests': 1}</field>
     </record>
 
     <record id="action_pr_employee_work_permit_my" model="ir.actions.act_window">
-        <field name="name">Work Permit Renewal Requests</field>
+        <field name="name">Iqama &amp; Work Permit Renewal Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'work_permit_renewal')]</field>
-        <field name="context">{'default_request_type': 'work_permit_renewal', 'search_default_my_requests': 1}</field>
+        <field name="domain">[('request_type', '=', 'iqama_renewal')]</field>
+        <field name="context">{'default_request_type': 'iqama_renewal', 'search_default_my_requests': 1}</field>
     </record>
 
     <record id="action_pr_employee_reimbursement_hr_approvals" model="ir.actions.act_window">
@@ -506,7 +586,7 @@
     </record>
 
     <record id="action_pr_employee_iqama_new_hr_approvals" model="ir.actions.act_window">
-        <field name="name">New Iqama Requests</field>
+        <field name="name">New Iqama &amp; Work Permit Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
@@ -515,7 +595,7 @@
     </record>
 
     <record id="action_pr_employee_iqama_renewal_hr_approvals" model="ir.actions.act_window">
-        <field name="name">Iqama Renewal Requests</field>
+        <field name="name">Iqama &amp; Work Permit Renewal Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
@@ -542,21 +622,21 @@
     </record>
 
     <record id="action_pr_employee_work_permit_new_hr_approvals" model="ir.actions.act_window">
-        <field name="name">New Work Permit Requests</field>
+        <field name="name">New Iqama &amp; Work Permit Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'work_permit_new'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval', 'paid'])]</field>
-        <field name="context">{'default_request_type': 'work_permit_new'}</field>
+        <field name="domain">[('request_type', '=', 'iqama_new'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval', 'paid'])]</field>
+        <field name="context">{'default_request_type': 'iqama_new'}</field>
     </record>
 
     <record id="action_pr_employee_work_permit_hr_approvals" model="ir.actions.act_window">
-        <field name="name">Work Permit Renewal Requests</field>
+        <field name="name">Iqama &amp; Work Permit Renewal Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'work_permit_renewal'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval', 'paid'])]</field>
-        <field name="context">{'default_request_type': 'work_permit_renewal'}</field>
+        <field name="domain">[('request_type', '=', 'iqama_renewal'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval', 'paid'])]</field>
+        <field name="context">{'default_request_type': 'iqama_renewal'}</field>
     </record>
 
     <record id="action_pr_employee_manager_approvals" model="ir.actions.act_window">
@@ -659,14 +739,14 @@
               groups="base.group_user,de_hr_workspace.group_hr_employee_workspace"/>
 
     <menuitem id="menu_pr_employee_iqama_new_my"
-              name="New Iqama Requests"
+              name="New Iqama &amp; Work Permit Requests"
               parent="hr.menu_hr_employee_payroll"
               action="action_pr_employee_iqama_new_my"
               sequence="32"
               groups="de_hr_workspace.group_hr_employee_workspace"/>
 
     <menuitem id="menu_pr_employee_iqama_renewal_my"
-              name="Iqama Renewal Requests"
+              name="Iqama &amp; Work Permit Renewal Requests"
               parent="hr.menu_hr_employee_payroll"
               action="action_pr_employee_iqama_renewal_my"
               sequence="33"
@@ -687,18 +767,20 @@
               groups="de_hr_workspace.group_hr_employee_workspace"/>
 
     <menuitem id="menu_pr_employee_work_permit_new_my"
-              name="New Work Permit Requests"
+              name="New Iqama &amp; Work Permit Requests"
               parent="hr.menu_hr_employee_payroll"
               action="action_pr_employee_work_permit_new_my"
               sequence="36"
-              groups="de_hr_workspace.group_hr_employee_workspace"/>
+              groups="de_hr_workspace.group_hr_employee_workspace"
+              active="False"/>
 
     <menuitem id="menu_pr_employee_work_permit_my"
-              name="Work Permit Renewal Requests"
+              name="Iqama &amp; Work Permit Renewal Requests"
               parent="hr.menu_hr_employee_payroll"
               action="action_pr_employee_work_permit_my"
               sequence="37"
-              groups="de_hr_workspace.group_hr_employee_workspace"/>
+              groups="de_hr_workspace.group_hr_employee_workspace"
+              active="False"/>
 
     <menuitem id="menu_pr_employee_reimbursement_hr_approvals"
               name="Reimbursement Requests"
@@ -715,14 +797,14 @@
               groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
 
     <menuitem id="menu_pr_employee_iqama_new_hr_approvals"
-              name="New Iqama Requests"
+              name="New Iqama &amp; Work Permit Requests"
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_iqama_new_hr_approvals"
               sequence="22"
               groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
 
     <menuitem id="menu_pr_employee_iqama_renewal_hr_approvals"
-              name="Iqama Renewal Requests"
+              name="Iqama &amp; Work Permit Renewal Requests"
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_iqama_renewal_hr_approvals"
               sequence="23"
@@ -743,18 +825,20 @@
               groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
 
     <menuitem id="menu_pr_employee_work_permit_new_hr_approvals"
-              name="New Work Permit Requests"
+              name="New Iqama &amp; Work Permit Requests"
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_work_permit_new_hr_approvals"
               sequence="26"
-              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
+              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"
+              active="False"/>
 
     <menuitem id="menu_pr_employee_work_permit_hr_approvals"
-              name="Work Permit Renewal Requests"
+              name="Iqama &amp; Work Permit Renewal Requests"
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_work_permit_hr_approvals"
               sequence="27"
-              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
+              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"
+              active="False"/>
 
     <menuitem id="menu_pr_employee_manager_approvals"
               name="Dept. Manager Approvals"
@@ -815,6 +899,7 @@
         <field name="name">hr.employee.form.compliance.work.permit.button</field>
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="pr_hr.pr_hr_view_employee_form_inherit"/>
+        <field name="active" eval="False"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='open_related_insurance']" position="after">
                 <button type="object" name="open_related_work_permits" class="oe_stat_button" icon="fa-id-card-o">
@@ -832,7 +917,7 @@
               groups="hr.group_hr_user"/>
 
     <record id="pr_hr.menu_hr_employee_dependent" model="ir.ui.menu">
-        <field name="name">Iqamas</field>
+        <field name="name">Iqama &amp; Work Permits</field>
         <field name="parent_id" ref="menu_pr_employee_compliance_records"/>
         <field name="sequence">1</field>
     </record>
@@ -848,7 +933,8 @@
               parent="menu_pr_employee_compliance_records"
               action="pr_hr_recruitment.hr_work_permit_view_action"
               sequence="3"
-              groups="hr.group_hr_user"/>
+              groups="hr.group_hr_user"
+              active="False"/>
 
     <record id="pr_hr.menu_hr_employee_iqama_line" model="ir.ui.menu">
         <field name="active" eval="False"/>
@@ -885,13 +971,30 @@
     </record>
 
     <record id="menu_pr_employee_work_permit_new_my" model="ir.ui.menu">
-        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
-        <field name="sequence">5</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="view_employee_form_combined_iqama_label" model="ir.ui.view">
+        <field name="name">hr.employee.form.combined.iqama.label</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="pr_hr.pr_hr_view_employee_form_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='open_related_iqamas']/field[@name='iqama_count']" position="attributes">
+                <attribute name="string">Iqama &amp; Work Permit</attribute>
+            </xpath>
+        </field>
     </record>
 
     <record id="menu_pr_employee_work_permit_my" model="ir.ui.menu">
-        <field name="parent_id" ref="menu_pr_employee_compliance_requests"/>
-        <field name="sequence">6</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="pr_hr_recruitment.hr_work_permit_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="pr_hr_recruitment.hr_work_permit_approvals_view_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
     </record>
 
     <record id="view_cash_payment_form_employee_service_request" model="ir.ui.view">
