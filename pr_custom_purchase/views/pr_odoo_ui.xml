@@ -193,8 +193,8 @@
                                            readonly="1"
                                            options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
                                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
-                                    <field name="type" readonly="1"/>
-                                    <field name="unit" readonly="1"/>
+                                    <field name="type" readonly="1" force_save="1"/>
+                                    <field name="unit" readonly="1" force_save="1"/>
                                     <field name="quantity"/>
                                     <field name="unit_price"/>
                                 </tree>
