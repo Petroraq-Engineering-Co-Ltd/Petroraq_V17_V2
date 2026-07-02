@@ -25,6 +25,8 @@
                                    widget="many2many_tags"
                                    options="{'no_create': True, 'no_quick_create': True}" invisible="1"/>
                             <field name="is_detailed"/>
+                            <field name="merge_invoice_lines"
+                                   invisible="not is_detailed"/>
                         </group>
                     </group>
 

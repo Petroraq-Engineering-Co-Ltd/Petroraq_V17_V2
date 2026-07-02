@@ -1,10 +1,22 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 from odoo.tools import format_date
 from datetime import date
 from dateutil.relativedelta import relativedelta
 from markupsafe import escape
+
+
+INVOICE_MOVE_TYPES = (
+    "out_invoice",
+    "out_refund",
+    "in_invoice",
+    "in_refund",
+    "out_receipt",
+    "in_receipt",
+)
 
 
 class VatSummaryWizard(models.TransientModel):
@@ -62,6 +74,14 @@ class VatSummaryWizard(models.TransientModel):
 
     summary_html = fields.Html(readonly=True)
     is_detailed = fields.Boolean(string="Is Detailed", default=False)
+    merge_invoice_lines = fields.Boolean(
+        string="Merge Invoice Lines",
+        default=True,
+        help=(
+            "Show one detailed row per invoice, refund, or receipt by summing "
+            "its invoice lines. Ordinary journal entries remain separate."
+        ),
+    )
 
     # -------------------------------------------------------------------------
     # Auto Compute Date Range
@@ -248,6 +268,11 @@ class VatSummaryWizard(models.TransientModel):
 
     def _prepare_detail_line_vals(self, line, amount, vat_amount=0.0):
         return {
+            "_group_key": (
+                ("invoice", line.move_id.id)
+                if line.move_id.move_type in INVOICE_MOVE_TYPES
+                else ("line", line.id)
+            ),
             "date": format_date(self.env, line.date) if line.date else "",
             "entry": line.move_id.name or line.move_name or "",
             "reference": line.move_id.ref or "",
@@ -259,8 +284,37 @@ class VatSummaryWizard(models.TransientModel):
             "total_amount": (amount or 0.0) + (vat_amount or 0.0),
         }
 
+    def _merge_detailed_invoice_lines(self, lines):
+        """Collapse invoice lines while leaving ordinary journal items intact."""
+        self.ensure_one()
+        if not self.merge_invoice_lines:
+            return [
+                {key: value for key, value in line.items() if not key.startswith("_")}
+                for line in lines
+            ]
+
+        grouped_lines = OrderedDict()
+        for line in lines:
+            group_key = line["_group_key"]
+            if group_key not in grouped_lines:
+                grouped_lines[group_key] = {
+                    key: value
+                    for key, value in line.items()
+                    if not key.startswith("_")
+                }
+                continue
+
+            grouped_lines[group_key]["amount"] += line.get("amount", 0.0)
+            grouped_lines[group_key]["vat_amount"] += line.get("vat_amount", 0.0)
+            grouped_lines[group_key]["total_amount"] = (
+                grouped_lines[group_key]["amount"]
+                + grouped_lines[group_key]["vat_amount"]
+            )
+
+        return list(grouped_lines.values())
+
     def _prepare_detailed_lines(self):
-        """Collect detailed base lines grouped by vated/non-vated and sales/purchase."""
+        """Collect details by VAT section, optionally one row per invoice."""
         self.ensure_one()
         aml = self.env["account.move.line"]
         base_domain = self._base_domain()
@@ -300,7 +354,10 @@ class VatSummaryWizard(models.TransientModel):
                 else:
                     details["non_vated_purchases"].append(line_vals)
 
-        return details
+        return {
+            section: self._merge_detailed_invoice_lines(lines)
+            for section, lines in details.items()
+        }
 
     def _prepare_detailed_html(self, details):
         html = "<br/><h3>Detailed Breakdown</h3>"
