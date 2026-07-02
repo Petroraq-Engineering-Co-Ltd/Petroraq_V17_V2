@@ -325,6 +325,11 @@ class AccountCashReceiptLine(models.Model):
     currency_id = fields.Many2one('res.currency', string='Currency', related="cash_receipt_id.currency_id", store=True)
     cs_project_id = fields.Many2one("account.analytic.account", string="Project",
                                     domain="[('analytic_plan_type', '=', 'project')]", tracking=True)
+    cs_project_name = fields.Char(
+        string="Project Name",
+        related="cs_project_id.name",
+        store=True,
+    )
     partner_id = fields.Many2one('res.partner', string='Project Manager', tracking=True)
     account_id = fields.Many2one('account.account', string='Code', required=True,
                                  ondelete='restrict', tracking=True, index=True)

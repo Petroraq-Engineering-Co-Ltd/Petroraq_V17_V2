@@ -24,6 +24,7 @@
             </xpath>
             <xpath expr="//field[@name='analytic_distribution']" position="before">
                 <field name="cs_project_id" optional="show"/>
+                <field name="cs_project_name" string="Project Name" optional="show"/>
             </xpath>
             <xpath expr="//field[@name='analytic_distribution']" position="after">
                 <field name="partner_id" optional="show" readonly="move_type != 'entry'" string="Project Manager"/>

@@ -211,6 +211,7 @@
                                    readonly="check_cost_centers_block == False"
                                    force_save="1"
                                    options="{'no_create':True,'no_create_edit':True,'no_quick_create':True}"/>
+                            <field name="cs_project_name" string="Project Name"/>
 
                             <field name="analytic_distribution"
                                    widget="analytic_distribution"
