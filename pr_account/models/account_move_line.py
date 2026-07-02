@@ -10,6 +10,11 @@ class AccountMoveLine(models.Model):
                                tracking=True)
     cs_project_id = fields.Many2one("account.analytic.account", string="Project",
                                     domain="[('analytic_plan_type', '=', 'project')]")
+    cs_project_name = fields.Char(
+        string="Project Name",
+        related="cs_project_id.name",
+        store=True,
+    )
     check_cost_centers_block = fields.Boolean(compute="_compute_check_cost_centers_block")
     journal_voucher_view = fields.Boolean(related="move_id.journal_voucher_view", store=True)
 

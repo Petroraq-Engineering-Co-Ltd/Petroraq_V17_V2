@@ -111,6 +111,7 @@
                 <field name="check_cost_centers_block" column_invisible="True"/>
                 <field name="cs_project_id" options="{'no_create':True, 'no_create_edit':True, 'no_quick_create':True}"
                        force_save="1" readonly="check_cost_centers_block == False"/>
+                <field name="cs_project_name" string="Project Name"/>
             </xpath>
 
             <xpath expr="//field[@name='line_ids']/tree/field[@name='analytic_distribution']" position="attributes">
