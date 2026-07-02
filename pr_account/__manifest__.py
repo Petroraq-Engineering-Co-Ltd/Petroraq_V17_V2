@@ -16,7 +16,7 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Accounting/Accounting',
-    'version': '17.0.1.0.7',
+    'version': '17.0.1.0.9',
     "license": "LGPL-3",
     # any module necessary for this one to work correctly
     'depends': ['account_accountant', 'account_reports', 'de_hr_workspace'],
@@ -58,7 +58,9 @@
     ],
     'assets': {
         'web.assets_backend': [
+            'pr_account/static/src/js/analytic_distribution_names.js',
             'pr_account/static/src/js/list_renderer_bottom_pager.js',
+            'pr_account/static/src/xml/analytic_distribution_names.xml',
             'pr_account/static/src/xml/list_renderer_extend.xml',
             'pr_account/static/src/scss/list_renderer_bottom_pager.scss',
             'pr_account/static/src/css/custom.css',

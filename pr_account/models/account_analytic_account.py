@@ -152,24 +152,26 @@ class AccountAnalyticAccount(models.Model):
             },
         }
 
+    def _get_cost_center_display_name(self):
+        self.ensure_one()
+        code = self.code or self.project_code
+        if self.env.context.get("show_analytic_name"):
+            if code and self.name and self.name != code:
+                return "%s - %s" % (code, self.name)
+            return code or self.name or _("Unnamed Cost Center")
+        return code or self.name or False
+
     @api.depends('name', 'code', 'project_code', 'analytic_plan_type')
+    @api.depends_context('show_analytic_name')
     def _compute_display_name(self):
         for rec in self:
-            if rec.code:
-                rec.display_name = rec.code
-            elif rec.project_code:
-                rec.display_name = rec.project_code
-            elif rec.name:
-                rec.display_name = rec.name
-            else:
-                rec.display_name = False
+            rec.display_name = rec._get_cost_center_display_name()
 
     def name_get(self):
-        result = []
-        for rec in self:
-            name = rec.code or rec.project_code or rec.name or _("Unnamed Cost Center")
-            result.append((rec.id, name))
-        return result
+        return [
+            (rec.id, rec._get_cost_center_display_name())
+            for rec in self
+        ]
 
     @api.model
     def name_search(self, name="", args=None, operator="ilike", limit=100):
