@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Petroraq Employee Service Requests",
-    "summary": "Employee reimbursement and exit/re-entry self-service requests",
+    "summary": "Employee payments and HR compliance record/renewal workflows",
     "description": """
-Adds employee self-service requests for reimbursements and exit/re-entry visas,
-with HR Supervisor, Employee Manager, HR Manager, MD, and accounting voucher flow.
+Employee self-service requests for reimbursements, exit/re-entry visas, combined
+Iqama/work permit processing, and medical insurance. New compliance requests
+create record-only entries; renewals use HR Manager and MD approval with
+budget-controlled BPVs.
 """,
     "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",
     "category": "Human Resources",
-    "version": "17.0.1.0.2",
+    "version": "17.0.1.0.4",
     "license": "LGPL-3",
     "depends": [
         "de_hr_workspace",

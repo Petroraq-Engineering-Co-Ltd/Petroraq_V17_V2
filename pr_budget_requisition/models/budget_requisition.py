@@ -95,6 +95,27 @@ class PrBudgetRequisition(models.Model):
         copy=False,
     )
     rejection_reason = fields.Text(string="Rejection Reason", readonly=True, tracking=True)
+    department_approved = fields.Boolean(copy=False, readonly=True)
+    department_approved_by_id = fields.Many2one(
+        "res.users",
+        string="Department Approved By",
+        copy=False,
+        readonly=True,
+    )
+    accounts_approved = fields.Boolean(copy=False, readonly=True)
+    accounts_approved_by_id = fields.Many2one(
+        "res.users",
+        string="Accounts Approved By",
+        copy=False,
+        readonly=True,
+    )
+    md_approved = fields.Boolean(copy=False, readonly=True)
+    md_approved_by_id = fields.Many2one(
+        "res.users",
+        string="MD Approved By",
+        copy=False,
+        readonly=True,
+    )
     line_ids = fields.One2many(
         "pr.budget.requisition.line",
         "requisition_id",
@@ -500,17 +521,127 @@ class PrBudgetRequisition(models.Model):
                 users |= group.users
         self._notify_users(users, summary, note)
 
+    def _reset_role_approvals(self):
+        self.write({
+            "department_approved": False,
+            "department_approved_by_id": False,
+            "accounts_approved": False,
+            "accounts_approved_by_id": False,
+            "md_approved": False,
+            "md_approved_by_id": False,
+        })
+
+    def _backfill_completed_stages(self):
+        """Keep requisitions already in progress compatible after this upgrade."""
+        for rec in self:
+            vals = {}
+            if rec.state in ("accounts_approval", "md_approval", "approved"):
+                vals["department_approved"] = True
+            if rec.state in ("md_approval", "approved"):
+                vals["accounts_approved"] = True
+            if rec.state == "approved":
+                vals["md_approved"] = True
+            if vals:
+                rec.write(vals)
+
+    def _record_current_user_roles(self):
+        """One approval click covers every approval role held by the user."""
+        self.ensure_one()
+        user = self.env.user
+        vals = {}
+        roles = []
+        if not self.department_approved and self.department_manager_user_id == user:
+            vals.update({
+                "department_approved": True,
+                "department_approved_by_id": user.id,
+            })
+            roles.append(_("Department Manager"))
+        if (
+            not self.accounts_approved
+            and (
+                user.has_group("account.group_account_manager")
+                or user.has_group("account.group_account_user")
+            )
+        ):
+            vals.update({
+                "accounts_approved": True,
+                "accounts_approved_by_id": user.id,
+            })
+            roles.append(_("Accounts"))
+        if not self.md_approved and user.has_group("pr_custom_purchase.managing_director"):
+            vals.update({
+                "md_approved": True,
+                "md_approved_by_id": user.id,
+            })
+            roles.append(_("Managing Director"))
+        if vals:
+            self.write(vals)
+        return roles
+
+    def _complete_approval(self):
+        self.ensure_one()
+        budget = self._create_or_validate_generated_budget()
+        self.write({
+            "state": "approved",
+            "generated_budget_id": budget.id,
+        })
+        if self.revision_of_id or self.revision_number:
+            message = _("All required roles approved this revision and updated budget %s.")
+        else:
+            message = _("All required roles approved this request and generated budget %s.")
+        self.message_post(body=message % budget.display_name)
+
+    def _advance_to_next_unapproved_role(self):
+        self.ensure_one()
+        if not self.department_approved:
+            self.state = "department_approval"
+            self._notify_users(
+                self.department_manager_user_id,
+                _("Budget Requisition Approval Needed"),
+                _("Budget requisition <b>%s</b> is waiting for Department Manager approval.")
+                % self.display_name,
+            )
+        elif not self.accounts_approved:
+            self.state = "accounts_approval"
+            self._notify_group(
+                ["account.group_account_manager", "account.group_account_user"],
+                _("Budget Requisition Approval Needed"),
+                _("Budget requisition <b>%s</b> is waiting for Accounts approval.") % self.display_name,
+            )
+        elif not self.md_approved:
+            self.state = "md_approval"
+            self._notify_group(
+                ["pr_custom_purchase.managing_director"],
+                _("Budget Requisition Approval Needed"),
+                _("Budget requisition <b>%s</b> is waiting for Managing Director approval.")
+                % self.display_name,
+            )
+        else:
+            self._complete_approval()
+
+    def _approve_current_stage(self):
+        self.ensure_one()
+        self._backfill_completed_stages()
+        roles = self._record_current_user_roles()
+        if not roles:
+            raise UserError(_("Your approval role has already been recorded for this requisition."))
+        self.message_post(
+            body=_("%(user)s approved this budget requisition for: %(roles)s.")
+            % {
+                "user": self.env.user.display_name,
+                "roles": ", ".join(roles),
+            }
+        )
+        self._advance_to_next_unapproved_role()
+
     def action_submit(self):
         self._check_ready_for_submission()
         for rec in self:
             if rec.state != "draft":
                 continue
-            rec.write({"state": "department_approval", "rejection_reason": False})
-            rec._notify_users(
-                rec.department_manager_user_id,
-                _("Budget Requisition Approval Needed"),
-                _("Budget requisition <b>%s</b> is waiting for Department Manager approval.") % rec.display_name,
-            )
+            rec._reset_role_approvals()
+            rec.write({"rejection_reason": False})
+            rec._advance_to_next_unapproved_role()
             rec.message_post(body=_("Budget requisition submitted for Department Manager approval."))
 
     def action_department_approve(self):
@@ -519,13 +650,7 @@ class PrBudgetRequisition(models.Model):
                 continue
             if not rec.can_department_approve:
                 raise UserError(_("Only the selected Department Manager can approve this stage."))
-            rec.state = "accounts_approval"
-            rec._notify_group(
-                ["account.group_account_manager", "account.group_account_user"],
-                _("Budget Requisition Approval Needed"),
-                _("Budget requisition <b>%s</b> is waiting for Accounts approval.") % rec.display_name,
-            )
-            rec.message_post(body=_("Department Manager approved this budget requisition."))
+            rec._approve_current_stage()
 
     def action_accounts_approve(self):
         for rec in self:
@@ -533,13 +658,7 @@ class PrBudgetRequisition(models.Model):
                 continue
             if not rec.can_accounts_approve:
                 raise UserError(_("Only Accounts can approve this stage."))
-            rec.state = "md_approval"
-            rec._notify_group(
-                ["pr_custom_purchase.managing_director"],
-                _("Budget Requisition Approval Needed"),
-                _("Budget requisition <b>%s</b> is waiting for Managing Director approval.") % rec.display_name,
-            )
-            rec.message_post(body=_("Accounts approved this budget requisition."))
+            rec._approve_current_stage()
 
     def action_md_approve(self):
         for rec in self:
@@ -547,22 +666,14 @@ class PrBudgetRequisition(models.Model):
                 continue
             if not rec.can_md_approve:
                 raise UserError(_("Only Managing Director can approve this stage."))
-            budget = rec._create_or_validate_generated_budget()
-            rec.write({
-                "state": "approved",
-                "generated_budget_id": budget.id,
-            })
-            if rec.revision_of_id or rec.revision_number:
-                message = _("Managing Director approved this revision and updated budget %s.")
-            else:
-                message = _("Managing Director approved this request and generated budget %s.")
-            rec.message_post(body=message % budget.display_name)
+            rec._approve_current_stage()
 
     def action_reset_to_draft(self):
         for rec in self:
             if not rec.can_reset_to_draft:
                 raise UserError(_("You cannot reset this requisition to draft."))
             rec.write({"state": "draft", "rejection_reason": False})
+            rec._reset_role_approvals()
             rec.message_post(body=_("Budget requisition has been reset to draft."))
 
     def action_reject(self):
@@ -669,6 +780,7 @@ class PrBudgetRequisition(models.Model):
             "revision_number": revision_number,
             "rejection_reason": False,
         })
+        self._reset_role_approvals()
         self.message_post(
             body=_("Budget revision R%s started. Edit the existing lines, then submit for approval again.")
             % revision_number

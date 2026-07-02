@@ -63,7 +63,8 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Item Description</th>
+                            <th>Product</th>
+                            <th>Description</th>
                             <th>Type</th>
                             <th>Quantity</th>
                             <th>Unit</th>
@@ -76,6 +77,9 @@
                             <tr>
                                 <td>
                                     <t t-esc="line.description"/>
+                                </td>
+                                <td>
+                                    <t t-esc="line.line_description or line.description.display_name"/>
                                 </td>
                                 <td>
                                     <t t-esc="line.type"/>

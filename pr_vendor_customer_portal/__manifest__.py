@@ -2,7 +2,7 @@
 {
     "name": "Petroraq Customer & Vendor Portal",
     "summary": "Customer deliveries and vendor invoice portal adapted for Petroraq workflows",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.4.4",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "category": "Portal",
     "license": "OPL-1",
@@ -14,7 +14,11 @@
         "purchase",
         "purchase_stock",
         "account",
+        "account_payment",
         "mail",
+        "pr_account",
+        "pr_custom_purchase",
+        "pr_tax_Invoice_report_custom",
         "petroraq_sale_workflow",
     ],
     "data": [
@@ -22,7 +26,11 @@
         "security/ir.model.access.csv",
         "data/vendor_invoice_sequence.xml",
         "views/vendor_invoice_views.xml",
+        "views/purchase_order_views.xml",
         "views/portal_templates.xml",
+        "views/portal_payment_overrides.xml",
+        "report/portal_report_actions.xml",
+        "report/portal_statement_report.xml",
     ],
     "assets": {
         "web.assets_frontend": [

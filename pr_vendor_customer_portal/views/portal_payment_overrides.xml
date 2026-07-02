@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Online payment is intentionally unavailable in the Petroraq portal. -->
+    <template id="portal_invoice_list_hide_online_payment"
+              inherit_id="account_payment.portal_my_invoices_payment"
+              priority="100">
+        <xpath expr="//th[not(@name) and not(normalize-space())]" position="replace"/>
+        <xpath expr="//td[a[@t-if='invoice._has_to_be_paid()']]" position="replace"/>
+    </template>
+
+    <template id="portal_invoice_page_hide_online_payment"
+              inherit_id="account_payment.portal_invoice_page_inherit_payment"
+              priority="100">
+        <xpath expr="//a[@data-bs-target='#pay_with']" position="replace"/>
+        <xpath expr="//div[@id='portal_pay']" position="replace"/>
+    </template>
+
+    <template id="portal_invoice_page_form_summary"
+              inherit_id="account.portal_invoice_page"
+              priority="110">
+        <xpath expr="//a[hasclass('o_download_btn')]" position="replace">
+            <a class="btn btn-secondary d-block o_download_btn"
+               t-att-href="invoice.get_portal_url(report_type='pdf', download=True)"
+               title="Download Custom Tax Invoice">
+                <i class="fa fa-download me-1"/>
+                Tax Invoice PDF
+            </a>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_portal_html_view')]" position="replace">
+            <t t-set="invoice_lines"
+               t-value="invoice.invoice_line_ids.filtered(lambda line: line.display_type not in ('line_section', 'line_note'))"/>
+            <t t-set="downpayment_lines"
+               t-value="invoice_lines.filtered(lambda line: line.is_downpayment)"/>
+            <t t-set="downpayment_total"
+               t-value="sum(downpayment_lines.mapped('price_subtotal'))"/>
+            <t t-set="retention_amount"
+               t-value="invoice.retention_deduct_amount or 0.0"/>
+            <t t-set="total_after_retention"
+               t-value="invoice.amount_total - retention_amount"/>
+            <t t-set="document_label"
+               t-value="'Vendor Bill' if invoice.move_type in ('in_invoice', 'in_refund') else 'Credit Note' if invoice.move_type == 'out_refund' else 'Tax Invoice'"/>
+
+            <section class="o_pr_invoice_portal_card">
+                <header class="o_pr_invoice_portal_header">
+                    <div>
+                        <span class="o_pr_invoice_portal_eyebrow" t-out="document_label"/>
+                        <h3 t-out="invoice.name"/>
+                        <p t-if="invoice.invoice_origin">
+                            Source: <strong t-out="invoice.invoice_origin"/>
+                        </p>
+                    </div>
+                    <div class="o_pr_invoice_portal_status">
+                        <span t-if="invoice.payment_state in ('paid', 'in_payment')"
+                              class="badge rounded-pill text-bg-success">
+                            <i class="fa fa-check me-1"/>
+                            Paid
+                        </span>
+                        <span t-elif="invoice.payment_state == 'reversed'"
+                              class="badge rounded-pill text-bg-secondary">
+                            Reversed
+                        </span>
+                        <span t-elif="invoice.state == 'cancel'"
+                              class="badge rounded-pill text-bg-warning">
+                            Cancelled
+                        </span>
+                        <span t-else="" class="badge rounded-pill text-bg-info">
+                            Waiting for Payment
+                        </span>
+                    </div>
+                </header>
+
+                <div class="o_pr_invoice_portal_meta">
+                    <div>
+                        <span>Invoice Date</span>
+                        <strong>
+                            <span t-field="invoice.invoice_date"/>
+                        </strong>
+                    </div>
+                    <div>
+                        <span>Due Date</span>
+                        <strong>
+                            <span t-field="invoice.invoice_date_due"/>
+                        </strong>
+                    </div>
+                    <div>
+                        <span t-out="'Vendor' if invoice.move_type in ('in_invoice', 'in_refund') else 'Customer'"/>
+                        <strong t-out="invoice.partner_id.display_name"/>
+                    </div>
+                    <div t-if="invoice.invoice_payment_term_id">
+                        <span>Payment Terms</span>
+                        <strong t-out="invoice.invoice_payment_term_id.display_name"/>
+                    </div>
+                    <div t-if="invoice.po_number">
+                        <span>PO Number</span>
+                        <strong t-out="invoice.po_number"/>
+                    </div>
+                    <div t-if="invoice.po_date">
+                        <span>PO Date</span>
+                        <strong>
+                            <span t-field="invoice.po_date"/>
+                        </strong>
+                    </div>
+                    <div t-if="invoice.ref">
+                        <span>Reference</span>
+                        <strong t-out="invoice.ref"/>
+                    </div>
+                    <div>
+                        <span>Currency</span>
+                        <strong t-out="invoice.currency_id.name"/>
+                    </div>
+                </div>
+
+                <div class="table-responsive o_pr_invoice_portal_lines">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-end">Quantity</th>
+                                <th class="text-end d-none d-md-table-cell">Unit Price</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="invoice_lines" t-as="line"
+                                t-att-class="'o_pr_invoice_dp_line' if line.is_downpayment else ''">
+                                <td>
+                                    <span t-out="line.name"/>
+                                    <span t-if="line.is_downpayment"
+                                          class="badge text-bg-info ms-1">
+                                        Down Payment
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span t-out="line.quantity"/>
+                                    <small t-if="line.product_uom_id"
+                                           t-out="line.product_uom_id.name"/>
+                                </td>
+                                <td class="text-end d-none d-md-table-cell">
+                                    <span t-out="line.price_unit"
+                                          t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                                </td>
+                                <td class="text-end">
+                                    <span t-out="line.price_subtotal"
+                                          t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="o_pr_invoice_portal_totals">
+                    <div t-if="downpayment_total &lt; 0">
+                        <span>
+                            Total Before Advance
+                        </span>
+                        <strong t-out="invoice.untaxed_before_downpayment"
+                                t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                    </div>
+                    <div t-if="downpayment_total">
+                        <span>
+                            <t t-out="'Advance Deduction' if downpayment_total &lt; 0 else 'Down Payment'"/>
+                            <t t-if="invoice.downpayment_percent">
+                                (<t t-out="'%g' % invoice.downpayment_percent"/>%)
+                            </t>
+                        </span>
+                        <strong t-out="downpayment_total"
+                                t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                    </div>
+                    <div>
+                        <span>Taxable Amount</span>
+                        <strong t-out="invoice.amount_untaxed"
+                                t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                    </div>
+                    <div>
+                        <span>VAT</span>
+                        <strong t-out="invoice.amount_tax"
+                                t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                    </div>
+                    <div>
+                        <span>Total Taxed Amount</span>
+                        <strong t-out="invoice.amount_total"
+                                t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                    </div>
+                    <div t-if="not invoice.currency_id.is_zero(retention_amount)"
+                         class="o_pr_invoice_retention">
+                        <span>
+                            Retention
+                            <t t-if="invoice.retention_percent">
+                                (<t t-out="'%g' % invoice.retention_percent"/>%)
+                            </t>
+                        </span>
+                        <strong>
+                            -
+                            <t t-out="abs(retention_amount)"
+                               t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                        </strong>
+                    </div>
+                    <div t-if="not invoice.currency_id.is_zero(retention_amount)"
+                         class="o_pr_invoice_total_due">
+                        <span>Total Due After Retention</span>
+                        <strong t-out="total_after_retention"
+                                t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                    </div>
+                    <div class="o_pr_invoice_outstanding">
+                        <span>Outstanding Balance</span>
+                        <strong t-out="invoice.amount_residual"
+                                t-options="{'widget': 'monetary', 'display_currency': invoice.currency_id}"/>
+                    </div>
+                </div>
+
+                <footer class="o_pr_invoice_portal_actions">
+                    <a class="btn btn-primary"
+                       t-att-href="invoice.get_portal_url(report_type='pdf', download=True)">
+                        <i class="fa fa-file-pdf-o me-1"/>
+                        Download Invoice
+                    </a>
+                    <small>
+                        Includes complete DP, retention, VAT, bilingual details, and QR information.
+                    </small>
+                </footer>
+            </section>
+
+            <!--
+                Odoo's portal invoice widget always initializes the original
+                report iframe to manage its height. Keep it hidden so the core
+                widget remains compatible while the form-style summary is the
+                only document view presented to the user.
+            -->
+            <div class="d-none" aria-hidden="true">
+                <iframe id="invoice_html"
+                        width="1"
+                        height="1"
+                        frameborder="0"
+                        scrolling="no"
+                        tabindex="-1"
+                        t-att-src="invoice.get_portal_url(report_type='html')"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_portal_statement" model="report.paperformat">
+        <field name="name">Petroraq Statement of Account</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">35</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">20</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_portal_statement_pdf" model="ir.actions.report">
+        <field name="name">Statement of Account</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pr_vendor_customer_portal.portal_statement_pdf</field>
+        <field name="report_file">pr_vendor_customer_portal.portal_statement_pdf</field>
+        <field name="paperformat_id" ref="pr_vendor_customer_portal.paperformat_portal_statement"/>
+        <field name="print_report_name">'Statement of Account - %s' % (object.name or '')</field>
+    </record>
+
+    <template id="portal_statement_pdf">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="company" t-value="env['res.company'].browse(statement['company_id'])"/>
+                <t t-set="statement_currency" t-value="env['res.currency'].browse(statement['currency_id'])"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <style>
+                            .pr-statement-title { color: #173778; text-align: center; margin-bottom: 18px; }
+                            .pr-statement-meta { width: 100%; margin-bottom: 16px; }
+                            .pr-statement-meta td { padding: 3px 5px; }
+                            .pr-statement-summary { width: 100%; margin-bottom: 18px; border-collapse: collapse; }
+                            .pr-statement-summary th { background: #173778; color: #fff; padding: 7px; }
+                            .pr-statement-summary td { border: 1px solid #ccd5e3; padding: 8px; text-align: right; }
+                            .pr-account-title { margin: 16px 0 5px; padding: 7px 9px; background: #e8eef7; color: #173778; }
+                            .pr-statement-table { width: 100%; border-collapse: collapse; font-size: 9px; }
+                            .pr-statement-table th { background: #173778; color: #fff; padding: 5px; }
+                            .pr-statement-table td { border: 1px solid #d8dee8; padding: 4px; }
+                            .pr-statement-table .number { text-align: right; white-space: nowrap; }
+                            .pr-opening td { background: #f3f5f8; font-weight: bold; }
+                            .pr-total td { background: #e8eef7; font-weight: bold; }
+                            .pr-muted { color: #667085; }
+                        </style>
+
+                        <h2 class="pr-statement-title">Statement of Account</h2>
+                        <table class="pr-statement-meta">
+                            <tr>
+                                <td><strong>Partner:</strong> <t t-out="statement['partner_name']"/></td>
+                                <td style="text-align:right;">
+                                    <strong>Period:</strong>
+                                    <t t-out="statement['date_from_display']"/>
+                                    -
+                                    <t t-out="statement['date_to_display']"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Ledger Account:</strong>
+                                    <t t-out="statement['mapped_account_name'] or 'Standard receivable/payable accounts'"/>
+                                </td>
+                                <td style="text-align:right;">
+                                    <strong>Currency:</strong> <t t-out="statement_currency.name"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="pr-statement-summary">
+                            <thead>
+                                <tr>
+                                    <th>Receivable</th>
+                                    <th>Payable</th>
+                                    <th>Net Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span t-out="statement['amount_receivable']"
+                                              t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                    </td>
+                                    <td>
+                                        <span t-out="statement['amount_payable']"
+                                              t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                    </td>
+                                    <td>
+                                        <span t-out="statement['net_balance']"
+                                              t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p t-if="not statement['entry_count'] and not statement['opening_balance']"
+                           class="pr-muted">
+                            No posted account entries were found for this statement.
+                        </p>
+
+                        <t t-foreach="statement['accounts']" t-as="account_group">
+                            <div class="pr-account-title">
+                                <strong>
+                                    <t t-out="account_group['code']"/> -
+                                    <t t-out="account_group['name']"/>
+                                </strong>
+                            </div>
+                            <table class="pr-statement-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:11%;">Date</th>
+                                        <th style="width:16%;">Document</th>
+                                        <th style="width:16%;">Reference</th>
+                                        <th>Description</th>
+                                        <th style="width:11%;">Debit</th>
+                                        <th style="width:11%;">Credit</th>
+                                        <th style="width:12%;">Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="pr-opening">
+                                        <td><t t-out="statement['date_from_display']"/></td>
+                                        <td colspan="3">Opening Balance</td>
+                                        <td class="number">
+                                            <span t-out="account_group['opening_debit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                        <td class="number">
+                                            <span t-out="account_group['opening_credit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                        <td class="number">
+                                            <span t-out="account_group['opening_balance']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-foreach="account_group['entries']" t-as="entry">
+                                        <td><t t-out="entry['date_display']"/></td>
+                                        <td><t t-out="entry['move_name']"/></td>
+                                        <td><t t-out="entry['reference']"/></td>
+                                        <td><t t-out="entry['description']"/></td>
+                                        <td class="number">
+                                            <span t-out="entry['debit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                        <td class="number">
+                                            <span t-out="entry['credit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                        <td class="number">
+                                            <span t-out="entry['balance']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="pr-total">
+                                        <td colspan="4">Total / Closing Balance</td>
+                                        <td class="number">
+                                            <span t-out="account_group['total_debit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                        <td class="number">
+                                            <span t-out="account_group['total_credit']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                        <td class="number">
+                                            <span t-out="account_group['closing_balance']"
+                                                  t-options="{'widget': 'monetary', 'display_currency': statement_currency}"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <p class="pr-muted" style="margin-top:16px;">
+                            This statement includes posted accounting entries only. Please contact Accounts if any transaction requires clarification.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

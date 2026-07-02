@@ -24,6 +24,11 @@ class TransactionPayment(models.Model):
     debit_account_name = fields.Char(string='Debit Account Name', related="debit_account_id.name", store=True, tracking=True)
     debit_cs_project_id = fields.Many2one("account.analytic.account", string="Debit Project",
                                           domain="[('analytic_plan_type', '=', 'project')]", tracking=True)
+    debit_cs_project_name = fields.Char(
+        string="Debit Project Name",
+        related="debit_cs_project_id.name",
+        store=True,
+    )
     check_debit_cost_centers_block = fields.Boolean(compute="_compute_check_debit_cost_centers_block")
     # === Analytic fields === #
     debit_analytic_line_ids = fields.One2many(
@@ -37,6 +42,11 @@ class TransactionPayment(models.Model):
     credit_account_name = fields.Char(string='Credit Account Name', related="credit_account_id.name", store=True, tracking=True)
     credit_cs_project_id = fields.Many2one("account.analytic.account", string="Credit Project",
                                            domain="[('analytic_plan_type', '=', 'project')]", tracking=True)
+    credit_cs_project_name = fields.Char(
+        string="Credit Project Name",
+        related="credit_cs_project_id.name",
+        store=True,
+    )
     check_credit_cost_centers_block = fields.Boolean(compute="_compute_check_credit_cost_centers_block")
     # === Analytic fields === #
     credit_analytic_line_ids = fields.One2many(

@@ -1,14 +1,4 @@
 <odoo>
-    <template id="portal_my_rqf_card" inherit_id="portal.portal_my_home">
-        <xpath expr="//div[@id='portal_common_category']" position="inside">
-            <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/purchase_request_custom/static/src/img/rqf-icon.svg'"/>
-                <t t-set="title">My RQFs</t>
-                <t t-set="text">View all your RQFs</t>
-                <t t-set="url" t-value="'/my/rqf'"/>
-        </t>
-        </xpath>
-    </template>
     <!-- RQF List Template -->
     <template id="portal_rfq_template" inherit_id="purchase.portal_my_purchase_rfqs">
         <xpath expr="//thead/tr" position="inside">
@@ -19,7 +9,7 @@
                 <t t-set="has_quotation"
        t-value="request.env['purchase.quotation'].sudo().search_count([
             ('custom_rfq_id', '=', rfq.id),
-            ('email_address', '=', request.env.user.email)
+            ('vendor_id.commercial_partner_id', '=', request.env.user.partner_id.commercial_partner_id.id)
        ]) > 0"/>
                 <t t-if="not has_quotation">
                     <a t-att-href="'/my/rfq/%s/quotation' % rfq.id"
@@ -48,7 +38,9 @@
                 <h3>Create Quotation for:
                     <t t-esc="rfq.name"/>
                 </h3>
-                <form t-att-action="'/my/rfq/%s/quotation/submit' % rfq.id" method="POST">
+                <form id="portal_rfq_quotation_form"
+                      t-att-action="'/my/rfq/%s/quotation/submit' % rfq.id"
+                      method="POST">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <!-- Vendor Reference -->
                     <div class="form-group mb-3">
@@ -124,39 +116,39 @@
                         </thead>
                         <tbody id="quotation_lines">
                             <t t-set="idx" t-value="0"/>
-                            <t t-foreach="rfq.line_ids" t-as="line">
+                            <t t-foreach="rfq_lines" t-as="line">
                                 <tr>
                                     <td>
                                         <t t-esc="idx + 1"/>
                                     </td>
                                     <td>
                                         <input type="text" t-att-name="'product_description_%s' % idx"
-                       t-att-value="line.name"
+                       t-att-value="line['name']"
                        class="form-control border-0 text-center" readonly="1"/>
                                     </td>
                                     <td>
-                                        <input type="number" t-att-name="'product_quantity_%s' % idx"
+                                       <input type="number" t-att-name="'product_quantity_%s' % idx"
                        class="form-control border-0 text-center qty-input"
-                       t-att-value="line.quantity" step="0.01" readonly="1"/>
+                       t-att-value="line['quantity']" step="0.01" readonly="1"/>
                                     </td>
                                     <td>
                                         <input type="text" t-att-name="'product_type_%s' % idx"
                        class="form-control border-0 text-center type-input"
-                       t-att-value="line.type" step="0.01" readonly="1"/>
+                       t-att-value="line['type']" readonly="1"/>
                                     </td>
                                     <td>
                                         <input type="text" t-att-name="'product_unit_%s' % idx"
-                       t-att-value="line.unit"
+                       t-att-value="line['unit']"
                        readonly="1" class="form-control border-0 text-center"/>
                                     </td>
                                     <td>
                                         <input type="number" t-att-name="'product_price_%s' % idx"
-                       t-att-value="line.price_unit"
+                       t-att-value="line['price_unit']"
                        class="form-control border-0 text-center price-input" step="0.01"/>
                                     </td>
                                     <td>
                                         <input type="number" t-att-name="'product_total_%s' % idx"
-                       t-att-value="line.subtotal"
+                       t-att-value="line['subtotal']"
                        class="form-control border-0 text-center total-input" step="0.01" readonly="1"/>
                                     </td>
                                 </tr>
@@ -291,7 +283,7 @@
                         <label>Additional Information / Notes  (if applicable)</label>
                         <textarea name="description" class="form-control"></textarea>
                     </div>
-                    <input type="hidden" name="product_count" t-att-value="len(rfq.line_ids)"/>
+                    <input type="hidden" name="product_count" t-att-value="len(rfq_lines)"/>
                     <button type="submit" class="btn" style='background-color: #122AA0; color: white;'>Submit Quotation</button>
                     <script type="text/javascript">
                             var tableBody = document.getElementById('quotation_lines');
@@ -370,9 +362,9 @@
                         });
 
                         document.addEventListener("DOMContentLoaded", function () {
-                        const form = document.querySelector("form"); // Adjust if needed
+                        const form = document.getElementById("portal_rfq_quotation_form");
 
-                        form.addEventListener("submit", function (e) {
+                        if (form) form.addEventListener("submit", function (e) {
                             // Define groups of checkbox IDs per section
                             const sections = [
                                 {

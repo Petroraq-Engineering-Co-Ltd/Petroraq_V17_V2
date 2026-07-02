@@ -65,6 +65,15 @@ class PurchaseRequisitionPaymentRequest(models.Model):
         string="Payment Lines",
         copy=True,
     )
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "purchase_requisition_payment_request_attachment_rel",
+        "payment_request_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Supporting documents copied to the generated CPV or BPV.",
+    )
     total_amount = fields.Monetary(
         string="Total Amount",
         currency_field="currency_id",
@@ -139,6 +148,45 @@ class PurchaseRequisitionPaymentRequest(models.Model):
         ):
             raise UserError(_("Only Accounts users can create payment vouchers."))
 
+    def _get_supporting_attachments(self):
+        self.ensure_one()
+        chatter_attachments = self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", self._name),
+            ("res_id", "=", self.id),
+        ])
+        return self.attachment_ids.sudo() | chatter_attachments
+
+    def _copy_attachments_from_record(self, source):
+        """Copy source chatter documents into this payment request."""
+        self.ensure_one()
+        source.ensure_one()
+        source_attachments = self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", source._name),
+            ("res_id", "=", source.id),
+        ])
+        copied_attachments = self.env["ir.attachment"]
+        for attachment in source_attachments:
+            copied_attachments |= attachment.copy({
+                "res_model": self._name,
+                "res_id": self.id,
+                "res_field": False,
+            })
+        if copied_attachments:
+            self.sudo().write({
+                "attachment_ids": [(4, attachment.id) for attachment in copied_attachments],
+            })
+
+    def _copy_attachments_to_record(self, target):
+        """Copy all request attachments to the generated voucher chatter."""
+        self.ensure_one()
+        target.ensure_one()
+        for attachment in self._get_supporting_attachments():
+            attachment.copy({
+                "res_model": target._name,
+                "res_id": target.id,
+                "res_field": False,
+            })
+
     def _notify_accounts(self):
         users = self.env["res.users"]
         for xmlid in ("account.group_account_invoice", "account.group_account_user", "account.group_account_manager"):
@@ -200,7 +248,10 @@ class PurchaseRequisitionPaymentRequest(models.Model):
             )
             line_vals.append({
                 "account_id": line.expense_account_id.id,
-                "description": "%s - %s" % (self.purchase_requisition_id.name, line.product_id.display_name),
+                "description": (
+                    (line.description or "").strip()
+                    or line.product_id.with_context(display_default_code=False).display_name
+                ),
                 "reference_number": self.purchase_requisition_id.name,
                 "cs_project_id": line.cost_center_id.id if cost_center_is_project else False,
                 "partner_id": self.vendor_id.id if self.vendor_id else False,
@@ -242,6 +293,7 @@ class PurchaseRequisitionPaymentRequest(models.Model):
                 rec.bank_payment_id = voucher.id
                 pr.bank_payment_id = voucher.id
 
+            rec._copy_attachments_to_record(voucher)
             pr.write({
                 "cash_pr_payment_method": rec.transfer_type,
                 "cash_pr_payment_account_id": rec.pay_from_account_id.id,
@@ -305,6 +357,7 @@ class PurchaseRequisitionPaymentRequestLine(models.Model):
     currency_id = fields.Many2one(related="payment_request_id.currency_id", readonly=True)
     source_line_id = fields.Many2one("purchase.requisition.line", string="PR Line", readonly=True)
     product_id = fields.Many2one("product.product", string="Product", readonly=True)
+    description = fields.Text(string="Description", readonly=True)
     cost_center_id = fields.Many2one("account.analytic.account", string="Cost Center", readonly=True)
     quantity = fields.Float(string="Quantity", readonly=True)
     unit = fields.Char(string="Unit", readonly=True)

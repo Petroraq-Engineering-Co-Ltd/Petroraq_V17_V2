@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="purchase_order_form_xlsx_export" model="ir.ui.view">
+        <field name="name">purchase.order.form.xlsx.export</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_export_business_xlsx"
+                        type="object"
+                        string="Export Excel"
+                        icon="fa-file-excel-o"
+                        class="btn-secondary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_form_xlsx_export" model="ir.ui.view">
+        <field name="name">sale.order.form.xlsx.export</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_export_business_xlsx"
+                        type="object"
+                        string="Export Excel"
+                        icon="fa-file-excel-o"
+                        class="btn-secondary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="account_move_form_xlsx_export" model="ir.ui.view">
+        <field name="name">account.move.form.xlsx.export</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_export_business_xlsx"
+                        type="object"
+                        string="Export Excel"
+                        icon="fa-file-excel-o"
+                        class="btn-secondary"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

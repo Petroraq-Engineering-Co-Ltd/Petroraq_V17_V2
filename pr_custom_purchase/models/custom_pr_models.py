@@ -532,6 +532,7 @@ class CustomPR(models.Model):
         for line in self.line_ids:
             line_vals.append({
                 "description": line.description.id,
+                "line_description": line.line_description,
                 "type": line.type,
                 "cost_center_id": line.cost_center_id.id,
                 "quantity": line.quantity,
@@ -749,6 +750,10 @@ class CustomPRLine(models.Model):
         ondelete="restrict",
         context={'display_default_code': False},
     )
+    line_description = fields.Text(
+        string="Description",
+        help="Line description copied to RFQs, purchase orders, and payment vouchers.",
+    )
     product_internal_reference = fields.Many2one(
         "product.internal.reference.lookup",
         string="Product Code",
@@ -858,7 +863,7 @@ class CustomPRLine(models.Model):
     def _onchange_description(self):
         for rec in self:
             if rec.description:
-                rec.unit = rec.description.uom_id
+                rec.unit = rec.description.uom_po_id or rec.description.uom_id
 
     @api.depends('description', 'description.detailed_type')
     def _compute_type_from_product(self):

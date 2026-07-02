@@ -3,10 +3,12 @@
 
     <!--Bridge template-->
     <template id="custom_invoice_bridge_layout">
-        .header, .footer {
-        margin: 0 !important;
-        padding: 0 !important;
-        }
+        <style>
+            .header, .footer {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        </style>
         <!-- Multicompany -->
         <t t-if="not o and doc">
             <t t-set="o" t-value="doc"/>

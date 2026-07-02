@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 
 class PrPortalVendorInvoice(models.Model):
@@ -57,6 +57,11 @@ class PrPortalVendorInvoice(models.Model):
     def _compute_has_attachment(self):
         for invoice in self:
             invoice.has_attachment = bool(invoice.attachment_id)
+
+    @api.constrains("amount_total")
+    def _check_positive_amount(self):
+        if any(invoice.amount_total <= 0 for invoice in self):
+            raise ValidationError(_("The invoice amount must be greater than zero."))
 
     @api.model_create_multi
     def create(self, vals_list):

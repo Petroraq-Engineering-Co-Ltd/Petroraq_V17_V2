@@ -21,6 +21,15 @@ class HrContract(models.Model):
     # endregion [Initial]
 
     # region [Fields]
+    date_end = fields.Date(
+        string="Last Working Day",
+        tracking=True,
+        help=(
+            "The employee remains active for clearance and End of Service, but payroll, "
+            "work entries, attendance, and time-off eligibility stop on this date."
+        ),
+    )
+
     is_special_gosi = fields.Boolean(
         string="Special GOSI (12.75%)",
         help="Enable special company GOSI rate for this employee"

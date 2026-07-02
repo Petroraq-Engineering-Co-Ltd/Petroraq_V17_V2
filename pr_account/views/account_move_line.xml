@@ -14,6 +14,7 @@
             </xpath>
             <xpath expr="//field[@name='analytic_distribution']" position="attributes">
                 <attribute name="string">Cost Centers</attribute>
+                <attribute name="context">{'show_analytic_name': True}</attribute>
             </xpath>
             <xpath expr="//field[@name='amount_currency']" position="attributes">
                 <attribute name="optional">hide</attribute>
@@ -23,6 +24,7 @@
             </xpath>
             <xpath expr="//field[@name='analytic_distribution']" position="before">
                 <field name="cs_project_id" optional="show"/>
+                <field name="cs_project_name" string="Project Name" optional="show"/>
             </xpath>
             <xpath expr="//field[@name='analytic_distribution']" position="after">
                 <field name="partner_id" optional="show" readonly="move_type != 'entry'" string="Project Manager"/>
