@@ -119,6 +119,18 @@
                 <attribute name="string">Cost Centers</attribute>
             </xpath>
 
+            <xpath expr="//field[@name='line_ids']/tree/field[@name='analytic_distribution']" position="attributes">
+                <attribute name="context">{'show_analytic_name': True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='analytic_distribution']" position="attributes">
+                <attribute name="context">{'show_analytic_name': True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='analytic_distribution']" position="attributes">
+                <attribute name="context">{'show_analytic_name': True}</attribute>
+            </xpath>
+
             <xpath expr="//field[@name='line_ids']/tree/field[@name='partner_id']" position="attributes">
                 <attribute name="column_invisible">True</attribute>
             </xpath>

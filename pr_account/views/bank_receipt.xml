@@ -125,6 +125,7 @@
                             <field name="analytic_line_ids" invisible="1"/>
                             <field name="analytic_distribution"
                                    widget="analytic_distribution"
+                                   context="{'show_analytic_name': True}"
                                    readonly="state != 'draft'"
                                    string="Cost Centers"
                                    invisible="1"/>
@@ -213,6 +214,7 @@
 
                             <field name="analytic_distribution"
                                    widget="analytic_distribution"
+                                   context="{'show_analytic_name': True}"
                                    optional="show"
                                    readonly="check_cost_centers_block == False"
                                    force_save="1"/>

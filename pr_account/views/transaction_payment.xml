@@ -110,7 +110,9 @@
                             <field name="debit_cs_project_id" readonly="state != 'draft'"
                                        options="{'no_create':True, 'no_create_edit':True, 'no_quick_create':True}" string="Project" force_save="1"/>
                             <field name="debit_analytic_line_ids" invisible="1"/>
-                            <field name="debit_analytic_distribution" widget="analytic_distribution" readonly="state != 'draft' or check_debit_cost_centers_block == True"
+                            <field name="debit_analytic_distribution" widget="analytic_distribution"
+                                   context="{'show_analytic_name': True}"
+                                   readonly="state != 'draft' or check_debit_cost_centers_block == True"
                                    string="Cost Centers" force_save="1"/>
                         </group>
                         <group>
@@ -155,7 +157,9 @@
                             <field name="credit_cs_project_id" readonly="state != 'draft'"
                                        options="{'no_create':True, 'no_create_edit':True, 'no_quick_create':True}" string="Project" force_save="1"/>
                             <field name="credit_analytic_line_ids" invisible="1"/>
-                            <field name="credit_analytic_distribution" widget="analytic_distribution" readonly="state != 'draft' or check_credit_cost_centers_block == True"
+                            <field name="credit_analytic_distribution" widget="analytic_distribution"
+                                   context="{'show_analytic_name': True}"
+                                   readonly="state != 'draft' or check_credit_cost_centers_block == True"
                                    string="Cost Centers" force_save="1"/>
                         </group>
                         <group>
@@ -185,11 +189,13 @@
                 <field name="debit_account_name" string="Debit Account Name" optional="hide"/>
                 <field name="debit_analytic_line_ids" column_invisible="True"/>
                 <field name="debit_analytic_distribution" widget="analytic_distribution"
+                                   context="{'show_analytic_name': True}"
                                    string="Debit Cost Centers" optional="hide"/>
                 <field name="credit_account_id" string="Credit Account Code"/>
                 <field name="credit_account_name" string="Credit Account Name" optional="hide"/>
                 <field name="credit_analytic_line_ids" column_invisible="True"/>
                 <field name="credit_analytic_distribution" widget="analytic_distribution"
+                                   context="{'show_analytic_name': True}"
                                    string="Credit Cost Centers" optional="hide"/>
                 <field name="description" optional="hide"/>
                 <field name="company_id" optional="hide"/>
