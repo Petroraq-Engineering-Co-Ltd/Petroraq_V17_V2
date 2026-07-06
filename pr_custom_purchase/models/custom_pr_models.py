@@ -124,6 +124,7 @@ class CustomPR(models.Model):
             ('pending', 'Pending Approval'),
             ('purchase', 'Purchase Order'),
             ('done', 'Locked'),
+            ('rejected', 'Rejected'),
             ('cancel', 'Cancelled'),
         ],
         string="RFQ Status",
@@ -146,6 +147,7 @@ class CustomPR(models.Model):
             ('pending', 'Pending'),
             ('purchase', 'Purchase Order'),
             ('done', 'Locked'),
+            ('rejected', 'Rejected'),
             ('cancel', 'Cancelled'),
         ],
         string="Purchase Order Status",
@@ -159,8 +161,14 @@ class CustomPR(models.Model):
             rec.allowed_cost_center_ids = rec.expense_bucket_id.crossovered_budget_line.mapped("analytic_account_id")
 
     def _compute_linked_document_statuses(self):
-        rfq_priority = {'draft': 1, 'sent': 2, 'done': 3, 'cancel': 4}
-        po_priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'done': 5, 'cancel': 6}
+        rfq_priority = {
+            'draft': 1, 'sent': 2, 'cancel': 3, 'rejected': 4,
+            'pending': 5, 'purchase': 6, 'done': 7,
+        }
+        po_priority = {
+            'draft': 1, 'sent': 2, 'cancel': 3, 'rejected': 4,
+            'pending': 5, 'purchase': 6, 'done': 7,
+        }
 
         for rec in self:
             requisition = rec.purchase_requisition_id or self.env['purchase.requisition'].sudo().search([('name', '=', rec.name)], limit=1)
@@ -176,7 +184,11 @@ class CustomPR(models.Model):
             rfqs_for_quote_status = self.env['purchase.order'].sudo().search([('pr_name', '=', rec.name)])
             if rfqs_for_quote_status:
                 best_rfq_for_quote = max(rfqs_for_quote_status, key=lambda rfq: po_priority.get(rfq.state, 0))
-                rec.linked_quotation_status = 'po' if best_rfq_for_quote.state in ('pending', 'purchase', 'done') else 'quote'
+                rec.linked_quotation_status = (
+                    'po'
+                    if best_rfq_for_quote.state in ('pending', 'purchase', 'done', 'rejected')
+                    else 'quote'
+                )
             else:
                 rec.linked_quotation_status = 'missing'
 

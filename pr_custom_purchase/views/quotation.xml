@@ -24,7 +24,7 @@
                        decoration-muted="linked_pr_state in ('draft','missing')"/>
                 <field name="linked_po_state" widget="badge"
                        decoration-success="linked_po_state in ('purchase','done')"
-                       decoration-danger="linked_po_state == 'cancel'"
+                       decoration-danger="linked_po_state in ('rejected','cancel')"
                        decoration-warning="linked_po_state == 'pending'"
                        decoration-info="linked_po_state in ('draft','sent')"
                        decoration-muted="linked_po_state == 'missing'"/>
@@ -168,7 +168,7 @@
                                 <group>
                                     <field name="linked_po_state" widget="badge"
                                            decoration-success="linked_po_state in ('purchase','done')"
-                                           decoration-danger="linked_po_state == 'cancel'"
+                                           decoration-danger="linked_po_state in ('rejected','cancel')"
                                            decoration-warning="linked_po_state == 'pending'"
                                            decoration-info="linked_po_state in ('draft','sent')"
                                            decoration-muted="linked_po_state == 'missing'"/>

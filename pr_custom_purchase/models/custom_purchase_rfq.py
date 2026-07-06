@@ -49,6 +49,7 @@ class CustomPurchaseRFQ(models.Model):
         ("pending", "Pending"),
         ("purchase", "Purchase Order"),
         ("done", "Locked"),
+        ("rejected", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="PO Status", compute="_compute_linked_statuses")
     linked_quotation_status = fields.Selection([
@@ -58,8 +59,14 @@ class CustomPurchaseRFQ(models.Model):
     ], string="RFQ / PO Status", compute="_compute_linked_statuses")
 
     def _compute_linked_statuses(self):
-        po_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
-        rfq_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
+        po_priority = {
+            "draft": 1, "sent": 2, "cancel": 3, "rejected": 4,
+            "pending": 5, "purchase": 6, "done": 7,
+        }
+        rfq_priority = {
+            "draft": 1, "sent": 2, "cancel": 3, "rejected": 4,
+            "pending": 5, "purchase": 6, "done": 7,
+        }
 
         for rec in self:
             requisition = rec.requisition_id or (
@@ -78,7 +85,11 @@ class CustomPurchaseRFQ(models.Model):
             related_rfqs = rec.related_rfq_ids.filtered(lambda r: r.id != rec.id)
             if related_rfqs:
                 max_state = max(related_rfqs, key=lambda r: rfq_priority.get(r.state, 0)).state
-                rec.linked_quotation_status = "po" if max_state in ("pending", "purchase", "done") else "quote"
+                rec.linked_quotation_status = (
+                    "po"
+                    if max_state in ("pending", "purchase", "done", "rejected")
+                    else "quote"
+                )
             else:
                 rec.linked_quotation_status = "missing"
 
