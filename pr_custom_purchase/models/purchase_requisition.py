@@ -24,7 +24,7 @@ class PurchaseRequisition(models.Model):
     department = fields.Char(string="Department")
     supervisor = fields.Char(string="Supervisor")
     supervisor_partner_id = fields.Char(string="supervisor_partner_id")
-    required_date = fields.Date(string="Required Date", readonly=True)
+    required_date = fields.Date(string="Required Date")
     priority = fields.Selection(
         [("low", "Low"), ("medium", "Medium"), ("high", "High"), ("urgent", "Urgent")],
         string="Priority",
@@ -55,6 +55,15 @@ class PurchaseRequisition(models.Model):
         help="Quantity/unit cost exceeds WO baseline but total requested amount remains within allowed WO amount.",
     )
     comments = fields.Text(string="Comments")
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "purchase_requisition_attachment_rel",
+        "purchase_requisition_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Optional supporting documents copied to Cash PR payment requests and their CPV/BPV.",
+    )
     vendor_id = fields.Many2one("res.partner", string="Preferred Vendor")
     total_excl_vat = fields.Float(
         string="Total Amount",
@@ -646,6 +655,66 @@ class PurchaseRequisition(models.Model):
                     % (cc.display_name, remaining, amount)
                 )
 
+    def _resolve_voucher_budget_cost_center(self, voucher_line, raise_if_missing=True):
+        """Return the PR cost center that owns a generated voucher line's budget.
+
+        Voucher analytic distributions can also contain project, employee,
+        asset, department, and section dimensions. Those dimensions are valid
+        for accounting analysis, but they must not each be treated as a budget
+        cost center.
+        """
+        self.ensure_one()
+        explicit_cost_center = (
+            voucher_line.budget_cost_center_id
+            if "budget_cost_center_id" in voucher_line._fields
+            else False
+        )
+        if explicit_cost_center:
+            return explicit_cost_center
+
+        # Compatibility for vouchers generated before budget_cost_center_id
+        # existed: identify the one selected-budget PR cost center present in
+        # the analytic distribution.
+        pr_cost_centers = self.line_ids.mapped("cost_center_id")
+        if self.expense_bucket_id:
+            allowed_cost_centers = self.expense_bucket_id.crossovered_budget_line.mapped(
+                "analytic_account_id"
+            )
+            pr_cost_centers &= allowed_cost_centers
+
+        distribution_ids = set()
+        for analytic_key in (voucher_line.analytic_distribution or {}):
+            for key_part in str(analytic_key).split(","):
+                if key_part.strip().isdigit():
+                    distribution_ids.add(int(key_part))
+        matching_cost_centers = pr_cost_centers.filtered(
+            lambda cost_center: cost_center.id in distribution_ids
+        )
+        if len(matching_cost_centers) == 1:
+            return matching_cost_centers
+        if len(pr_cost_centers) == 1:
+            return pr_cost_centers
+
+        if raise_if_missing:
+            raise UserError(_(
+                "Unable to identify the original PR budget cost center for voucher line '%s'. "
+                "Please recreate the payment voucher from its payment request."
+            ) % (voucher_line.description or _("Unnamed line")))
+        return self.env["account.analytic.account"]
+
+    def _get_voucher_budget_amounts(self, voucher_lines):
+        """Group voucher amounts only by their originating PR cost centers."""
+        self.ensure_one()
+        amount_by_cost_center = {}
+        for line in voucher_lines:
+            cost_center = self._resolve_voucher_budget_cost_center(line)
+            amount_by_cost_center.setdefault(cost_center.id, {
+                "cc": cost_center,
+                "amount": 0.0,
+            })
+            amount_by_cost_center[cost_center.id]["amount"] += line.amount or 0.0
+        return amount_by_cost_center
+
     @api.constrains("expense_type", "expense_bucket_id", "date_request")
     def _check_expense_bucket_period(self):
         for rec in self:
@@ -1087,6 +1156,7 @@ class PurchaseRequisition(models.Model):
                 "account_id": self._get_cash_pr_expense_account(line).id,
                 "description": line._get_document_line_description(),
                 "reference_number": self.name,
+                "budget_cost_center_id": line.cost_center_id.id,
                 "cs_project_id": line.cost_center_id.id if cost_center_is_project else False,
                 "partner_id": self.vendor_id.id if self.vendor_id else False,
                 "amount": amount,
@@ -1869,35 +1939,14 @@ class AccountCashPayment(models.Model):
     )
 
     def _check_purchase_requisition_voucher_budget(self, line_field):
-        AnalyticAccount = self.env["account.analytic.account"].sudo()
         for voucher in self.filtered("purchase_requisition_id"):
             if voucher.state != "draft":
                 continue
-            amount_by_cost_center = {}
-            for line in voucher[line_field]:
-                distribution = line.analytic_distribution or {}
-                if not distribution:
-                    raise UserError(_("Every Cash PR voucher line must have a cost center."))
-                for analytic_key, percentage in distribution.items():
-                    try:
-                        percentage = float(percentage or 0.0)
-                    except (TypeError, ValueError):
-                        percentage = 0.0
-                    if not percentage:
-                        continue
-                    for key_part in str(analytic_key).split(","):
-                        if not key_part.strip().isdigit():
-                            continue
-                        analytic = AnalyticAccount.browse(int(key_part)).exists()
-                        if not analytic:
-                            continue
-                        amount_by_cost_center.setdefault(analytic.id, {
-                            "cc": analytic,
-                            "amount": 0.0,
-                        })
-                        amount_by_cost_center[analytic.id]["amount"] += (
-                            (line.amount or 0.0) * percentage / 100.0
-                        )
+            amount_by_cost_center = (
+                voucher.purchase_requisition_id._get_voucher_budget_amounts(
+                    voucher[line_field]
+                )
+            )
             for item in amount_by_cost_center.values():
                 if item["amount"] <= 0.0:
                     raise UserError(_("Cash PR voucher lines must have a positive amount."))
@@ -1926,35 +1975,14 @@ class AccountBankPayment(models.Model):
     )
 
     def _check_purchase_requisition_voucher_budget(self, line_field):
-        AnalyticAccount = self.env["account.analytic.account"].sudo()
         for voucher in self.filtered("purchase_requisition_id"):
             if voucher.state != "draft":
                 continue
-            amount_by_cost_center = {}
-            for line in voucher[line_field]:
-                distribution = line.analytic_distribution or {}
-                if not distribution:
-                    raise UserError(_("Every Cash PR voucher line must have a cost center."))
-                for analytic_key, percentage in distribution.items():
-                    try:
-                        percentage = float(percentage or 0.0)
-                    except (TypeError, ValueError):
-                        percentage = 0.0
-                    if not percentage:
-                        continue
-                    for key_part in str(analytic_key).split(","):
-                        if not key_part.strip().isdigit():
-                            continue
-                        analytic = AnalyticAccount.browse(int(key_part)).exists()
-                        if not analytic:
-                            continue
-                        amount_by_cost_center.setdefault(analytic.id, {
-                            "cc": analytic,
-                            "amount": 0.0,
-                        })
-                        amount_by_cost_center[analytic.id]["amount"] += (
-                            (line.amount or 0.0) * percentage / 100.0
-                        )
+            amount_by_cost_center = (
+                voucher.purchase_requisition_id._get_voucher_budget_amounts(
+                    voucher[line_field]
+                )
+            )
             for item in amount_by_cost_center.values():
                 if item["amount"] <= 0.0:
                     raise UserError(_("Cash PR voucher lines must have a positive amount."))
@@ -1970,6 +1998,30 @@ class AccountBankPayment(models.Model):
             "status": "completed",
         })
         return res
+
+
+class AccountCashPaymentLine(models.Model):
+    _inherit = "pr.account.cash.payment.line"
+
+    budget_cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="PR Budget Cost Center",
+        readonly=True,
+        copy=False,
+        help="Original Cash PR cost center used exclusively for budget validation.",
+    )
+
+
+class AccountBankPaymentLine(models.Model):
+    _inherit = "pr.account.bank.payment.line"
+
+    budget_cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="PR Budget Cost Center",
+        readonly=True,
+        copy=False,
+        help="Original Cash PR cost center used exclusively for budget validation.",
+    )
 
 
 class PurchaseQuotation(models.Model):
