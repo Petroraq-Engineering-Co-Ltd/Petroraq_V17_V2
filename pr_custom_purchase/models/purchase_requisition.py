@@ -790,15 +790,173 @@ class PurchaseRequisition(models.Model):
         return True
 
     def action_reset_to_draft(self):
-        for rec in self:
-            if rec.approval != "rejected":
-                raise UserError(_("Only rejected Purchase Requisitions can be reset to draft."))
-            rec.write({
-                "approval": "draft",
-                "rejection_reason": False,
-            })
-            rec.message_post(body=_("Purchase Requisition reset to draft."))
-        return True
+        self.ensure_one()
+        impact = self._get_reset_to_draft_impact()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reset Purchase Requisition to Draft"),
+            "res_model": "purchase.requisition.reset.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_requisition_id": self.id,
+                "default_warning_message": impact["warning_message"],
+            },
+        }
+
+    def _get_reset_to_draft_impact(self):
+        """Validate reset eligibility and return records that may be deleted."""
+        self.ensure_one()
+        if self.approval not in ("rejected", "approved"):
+            raise UserError(_(
+                "Only rejected or approved Purchase Requisitions can be reset to draft."
+            ))
+
+        if self.pr_type == "cash":
+            payment_requests = self.env[
+                "purchase.requisition.payment.request"
+            ].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            cash_vouchers = self.env["pr.account.cash.payment"].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            bank_vouchers = self.env["pr.account.bank.payment"].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            cash_vouchers |= self.cash_payment_id.sudo().exists()
+            bank_vouchers |= self.bank_payment_id.sudo().exists()
+            cash_vouchers |= payment_requests.mapped("cash_payment_id").sudo().exists()
+            bank_vouchers |= payment_requests.mapped("bank_payment_id").sudo().exists()
+
+            if cash_vouchers or bank_vouchers:
+                voucher_names = ", ".join(
+                    cash_vouchers.mapped("display_name")
+                    + bank_vouchers.mapped("display_name")
+                )
+                raise UserError(_(
+                    "This Cash PR cannot be reset because CPV/BPV record(s) already exist: %s. "
+                    "Cancel or reverse the downstream voucher process first."
+                ) % (voucher_names or _("Unnamed voucher")))
+
+            advanced_requests = payment_requests.filtered(
+                lambda request: request.state != "requested"
+            )
+            if advanced_requests:
+                request_states = ", ".join(
+                    "%s (%s)" % (
+                        request.display_name,
+                        dict(request._fields["state"].selection).get(
+                            request.state,
+                            request.state,
+                        ),
+                    )
+                    for request in advanced_requests
+                )
+                raise UserError(_(
+                    "This Cash PR cannot be reset because its Payment Request is no longer "
+                    "in the draft/requested stage: %s."
+                ) % request_states)
+
+            if payment_requests:
+                warning_message = _(
+                    "Payment Request %(requests)s is still in the draft/requested stage. "
+                    "Confirming will permanently delete the Payment Request and its owned "
+                    "attachments, then reset this Cash PR to Draft."
+                ) % {"requests": ", ".join(payment_requests.mapped("display_name"))}
+            else:
+                warning_message = _(
+                    "No Payment Request, CPV, or BPV exists. Confirming will reset this "
+                    "Cash PR to Draft."
+                )
+            return {
+                "payment_requests": payment_requests,
+                "rfqs": self.env["purchase.order"],
+                "warning_message": warning_message,
+            }
+
+        rfqs = self.env["purchase.order"].sudo().search([
+            ("requisition_id", "=", self.id),
+        ])
+        non_draft_rfqs = rfqs.filtered(lambda order: order.state != "draft")
+        if non_draft_rfqs:
+            rfq_states = ", ".join(
+                "%s (%s)" % (
+                    order.display_name,
+                    dict(order._fields["state"].selection).get(
+                        order.state,
+                        order.state,
+                    ),
+                )
+                for order in non_draft_rfqs
+            )
+            raise UserError(_(
+                "This Purchase Requisition cannot be reset because these RFQ/PO records "
+                "are no longer in Draft: %s."
+            ) % rfq_states)
+
+        if rfqs:
+            warning_message = _(
+                "Draft RFQ record(s) %(rfqs)s will be permanently deleted before this "
+                "Purchase Requisition is reset to Draft."
+            ) % {"rfqs": ", ".join(rfqs.mapped("display_name"))}
+        else:
+            warning_message = _(
+                "No RFQ or Purchase Order exists. Confirming will reset this Purchase "
+                "Requisition to Draft."
+            )
+        return {
+            "payment_requests": self.env["purchase.requisition.payment.request"],
+            "rfqs": rfqs,
+            "warning_message": warning_message,
+        }
+
+    def _confirm_reset_to_draft(self):
+        self.ensure_one()
+        impact = self._get_reset_to_draft_impact()
+        deleted_documents = []
+
+        for payment_request in impact["payment_requests"]:
+            deleted_documents.append(payment_request.display_name)
+            owned_attachments = payment_request._get_supporting_attachments().filtered(
+                lambda attachment: (
+                    attachment.res_model == payment_request._name
+                    and attachment.res_id == payment_request.id
+                )
+            )
+            payment_request.sudo().unlink()
+            owned_attachments.sudo().exists().unlink()
+
+        if impact["rfqs"]:
+            deleted_documents.extend(impact["rfqs"].mapped("display_name"))
+            impact["rfqs"].sudo().unlink()
+
+        self.sudo().write({
+            "approval": "draft",
+            "status": "pr",
+            "rejection_reason": False,
+            "payment_request_id": False,
+            "cash_payment_id": False,
+            "bank_payment_id": False,
+            "cash_pr_payment_method": False,
+            "cash_pr_payment_account_id": False,
+        })
+        if deleted_documents:
+            self.message_post(
+                body=_(
+                    "Purchase Requisition reset to Draft. Deleted draft downstream "
+                    "record(s): %s"
+                ) % ", ".join(deleted_documents)
+            )
+        else:
+            self.message_post(body=_("Purchase Requisition reset to Draft."))
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": self._name,
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "current",
+        }
 
     def action_supervisor_approve(self):
         for rec in self:
@@ -1571,6 +1729,32 @@ class PurchaseRequisitionRejectWizard(models.TransientModel):
             "rejection_reason": self.rejection_reason,
         })
         return {"type": "ir.actions.act_window_close"}
+
+
+class PurchaseRequisitionResetWizard(models.TransientModel):
+    _name = "purchase.requisition.reset.wizard"
+    _description = "Purchase Requisition Reset Wizard"
+
+    requisition_id = fields.Many2one(
+        "purchase.requisition",
+        string="Purchase Requisition",
+        required=True,
+        readonly=True,
+    )
+    warning_message = fields.Text(
+        string="Reset Impact",
+        required=True,
+        readonly=True,
+    )
+    confirm_reset = fields.Boolean(
+        string="I understand that the listed draft records will be permanently deleted.",
+    )
+
+    def action_confirm_reset(self):
+        self.ensure_one()
+        if not self.confirm_reset:
+            raise UserError(_("Please confirm the reset and deletion warning."))
+        return self.requisition_id._confirm_reset_to_draft()
 
 
 class PurchaseRequisitionLine(models.Model):
