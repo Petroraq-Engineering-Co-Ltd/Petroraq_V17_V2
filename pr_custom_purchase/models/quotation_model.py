@@ -27,6 +27,7 @@ class PurchaseOrder(models.Model):
         ("pending", "Pending"),
         ("purchase", "Purchase Order"),
         ("done", "Locked"),
+        ("rejected", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="PO Status", compute="_compute_linked_statuses")
     current_user_has_acted = fields.Boolean("Current User Has Acted", )
@@ -55,6 +56,7 @@ class PurchaseOrder(models.Model):
             ("pending", "Pending Approval"),
             ("purchase", "Purchase Order"),
             ("done", "Locked"),
+            ("rejected", "Rejected"),
             ("cancel", "Cancelled"),
         ],
         string="Status",
@@ -155,7 +157,15 @@ class PurchaseOrder(models.Model):
             order.quotation_count = self.env["purchase.order"].search_count(domain)
 
     def _compute_linked_statuses(self):
-        po_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
+        po_priority = {
+            "draft": 1,
+            "sent": 2,
+            "cancel": 3,
+            "rejected": 4,
+            "pending": 5,
+            "purchase": 6,
+            "done": 7,
+        }
         for rec in self:
             requisition = rec.requisition_id or (
                 self.env["purchase.requisition"].sudo().search([("name", "=", rec.pr_name)], limit=1)
@@ -173,7 +183,11 @@ class PurchaseOrder(models.Model):
             ]) if rec.requisition_id else self.env["purchase.order"]
             if related_rfqs:
                 top_state = max(related_rfqs, key=lambda r: po_priority.get(r.state, 0)).state
-                rec.linked_quotation_status = "po" if top_state in ("pending", "purchase", "done") else "quote"
+                rec.linked_quotation_status = (
+                    "po"
+                    if top_state in ("pending", "purchase", "done", "rejected")
+                    else "quote"
+                )
             else:
                 rec.linked_quotation_status = "missing"
 
@@ -711,7 +725,9 @@ class PurchaseOrder(models.Model):
             "md": "pending_md",
         }
         for order in self:
-            if order.state == "cancel" and order.rejection_reason:
+            if order.state == "rejected" or (
+                order.state == "cancel" and order.rejection_reason
+            ):
                 order.approval_status = "rejected"
             elif order.state in ("purchase", "done"):
                 order.approval_status = "approved"
@@ -858,6 +874,7 @@ class PurchaseOrder(models.Model):
                 "pm_approved": False,
                 "od_approved": False,
                 "md_approved": False,
+                "rejection_reason": False,
             })
 
             if order.pr_name:
@@ -899,16 +916,25 @@ class PurchaseOrder(models.Model):
         }
 
     def action_reject(self, reason=False):
-        reason = reason or self.env.context.get("reject_reason")
+        reason = (reason or self.env.context.get("reject_reason") or "").strip()
         if not reason:
             raise UserError(_("Please provide reason for rejection."))
 
         for order in self:
+            if order.state != "pending":
+                raise UserError(_("Only pending Purchase Orders can be rejected."))
             if not order.origin:
                 raise UserError(_("This Purchase Order has no origin."))
 
             rejecting_user = self.env.user
-            order.rejection_reason = reason
+            order.write({
+                "rejection_reason": reason,
+                "state": "rejected",
+            })
+            order.message_post(
+                body=_("Purchase Order rejected by %s.<br/>Reason: %s")
+                % (rejecting_user.name, reason)
+            )
             _logger.info(
                 "Rejecting PO %s with origin: %s by %s",
                 order.name,
@@ -921,12 +947,10 @@ class PurchaseOrder(models.Model):
             )
             if not parent_po:
                 _logger.warning("No parent PO found for origin: %s", order.origin)
-                order.state = "cancel"
                 continue
 
             if not parent_po.origin:
                 _logger.warning("Parent PO %s has no origin.", parent_po.name)
-                order.state = "cancel"
                 continue
 
             pr_record = self.env["purchase.requisition"].search(
@@ -936,12 +960,10 @@ class PurchaseOrder(models.Model):
                 _logger.warning(
                     "No Purchase Requisition found with name: %s", parent_po.origin
                 )
-                order.state = "cancel"
                 continue
 
             if not pr_record.supervisor_partner_id:
                 _logger.warning("PR %s has no supervisor_partner_id.", pr_record.name)
-                order.state = "cancel"
                 continue
 
             try:
@@ -952,7 +974,6 @@ class PurchaseOrder(models.Model):
                     pr_record.name,
                     pr_record.supervisor_partner_id,
                 )
-                order.state = "cancel"
                 continue
 
             supervisor_partner = self.env["res.partner"].browse(supervisor_id_int)
@@ -994,9 +1015,6 @@ class PurchaseOrder(models.Model):
                         "email_to": supervisor_partner.email,
                     }
                     self.env["mail.mail"].create(mail_values).send()
-
-            order.message_post(body=_("Purchase Order rejected by %s.<br/>Reason: %s") % (rejecting_user.name, reason))
-            order.state = "cancel"
 
     # PO send by Email in RFQ
     def action_rfq_send(self):

@@ -24,7 +24,7 @@ class PurchaseRequisition(models.Model):
     department = fields.Char(string="Department")
     supervisor = fields.Char(string="Supervisor")
     supervisor_partner_id = fields.Char(string="supervisor_partner_id")
-    required_date = fields.Date(string="Required Date", readonly=True)
+    required_date = fields.Date(string="Required Date")
     priority = fields.Selection(
         [("low", "Low"), ("medium", "Medium"), ("high", "High"), ("urgent", "Urgent")],
         string="Priority",
@@ -55,6 +55,15 @@ class PurchaseRequisition(models.Model):
         help="Quantity/unit cost exceeds WO baseline but total requested amount remains within allowed WO amount.",
     )
     comments = fields.Text(string="Comments")
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "purchase_requisition_attachment_rel",
+        "purchase_requisition_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Optional supporting documents copied to Cash PR payment requests and their CPV/BPV.",
+    )
     vendor_id = fields.Many2one("res.partner", string="Preferred Vendor")
     total_excl_vat = fields.Float(
         string="Total Amount",
@@ -646,6 +655,66 @@ class PurchaseRequisition(models.Model):
                     % (cc.display_name, remaining, amount)
                 )
 
+    def _resolve_voucher_budget_cost_center(self, voucher_line, raise_if_missing=True):
+        """Return the PR cost center that owns a generated voucher line's budget.
+
+        Voucher analytic distributions can also contain project, employee,
+        asset, department, and section dimensions. Those dimensions are valid
+        for accounting analysis, but they must not each be treated as a budget
+        cost center.
+        """
+        self.ensure_one()
+        explicit_cost_center = (
+            voucher_line.budget_cost_center_id
+            if "budget_cost_center_id" in voucher_line._fields
+            else False
+        )
+        if explicit_cost_center:
+            return explicit_cost_center
+
+        # Compatibility for vouchers generated before budget_cost_center_id
+        # existed: identify the one selected-budget PR cost center present in
+        # the analytic distribution.
+        pr_cost_centers = self.line_ids.mapped("cost_center_id")
+        if self.expense_bucket_id:
+            allowed_cost_centers = self.expense_bucket_id.crossovered_budget_line.mapped(
+                "analytic_account_id"
+            )
+            pr_cost_centers &= allowed_cost_centers
+
+        distribution_ids = set()
+        for analytic_key in (voucher_line.analytic_distribution or {}):
+            for key_part in str(analytic_key).split(","):
+                if key_part.strip().isdigit():
+                    distribution_ids.add(int(key_part))
+        matching_cost_centers = pr_cost_centers.filtered(
+            lambda cost_center: cost_center.id in distribution_ids
+        )
+        if len(matching_cost_centers) == 1:
+            return matching_cost_centers
+        if len(pr_cost_centers) == 1:
+            return pr_cost_centers
+
+        if raise_if_missing:
+            raise UserError(_(
+                "Unable to identify the original PR budget cost center for voucher line '%s'. "
+                "Please recreate the payment voucher from its payment request."
+            ) % (voucher_line.description or _("Unnamed line")))
+        return self.env["account.analytic.account"]
+
+    def _get_voucher_budget_amounts(self, voucher_lines):
+        """Group voucher amounts only by their originating PR cost centers."""
+        self.ensure_one()
+        amount_by_cost_center = {}
+        for line in voucher_lines:
+            cost_center = self._resolve_voucher_budget_cost_center(line)
+            amount_by_cost_center.setdefault(cost_center.id, {
+                "cc": cost_center,
+                "amount": 0.0,
+            })
+            amount_by_cost_center[cost_center.id]["amount"] += line.amount or 0.0
+        return amount_by_cost_center
+
     @api.constrains("expense_type", "expense_bucket_id", "date_request")
     def _check_expense_bucket_period(self):
         for rec in self:
@@ -721,15 +790,173 @@ class PurchaseRequisition(models.Model):
         return True
 
     def action_reset_to_draft(self):
-        for rec in self:
-            if rec.approval != "rejected":
-                raise UserError(_("Only rejected Purchase Requisitions can be reset to draft."))
-            rec.write({
-                "approval": "draft",
-                "rejection_reason": False,
-            })
-            rec.message_post(body=_("Purchase Requisition reset to draft."))
-        return True
+        self.ensure_one()
+        impact = self._get_reset_to_draft_impact()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reset Purchase Requisition to Draft"),
+            "res_model": "purchase.requisition.reset.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_requisition_id": self.id,
+                "default_warning_message": impact["warning_message"],
+            },
+        }
+
+    def _get_reset_to_draft_impact(self):
+        """Validate reset eligibility and return records that may be deleted."""
+        self.ensure_one()
+        if self.approval not in ("rejected", "approved"):
+            raise UserError(_(
+                "Only rejected or approved Purchase Requisitions can be reset to draft."
+            ))
+
+        if self.pr_type == "cash":
+            payment_requests = self.env[
+                "purchase.requisition.payment.request"
+            ].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            cash_vouchers = self.env["pr.account.cash.payment"].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            bank_vouchers = self.env["pr.account.bank.payment"].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            cash_vouchers |= self.cash_payment_id.sudo().exists()
+            bank_vouchers |= self.bank_payment_id.sudo().exists()
+            cash_vouchers |= payment_requests.mapped("cash_payment_id").sudo().exists()
+            bank_vouchers |= payment_requests.mapped("bank_payment_id").sudo().exists()
+
+            if cash_vouchers or bank_vouchers:
+                voucher_names = ", ".join(
+                    cash_vouchers.mapped("display_name")
+                    + bank_vouchers.mapped("display_name")
+                )
+                raise UserError(_(
+                    "This Cash PR cannot be reset because CPV/BPV record(s) already exist: %s. "
+                    "Cancel or reverse the downstream voucher process first."
+                ) % (voucher_names or _("Unnamed voucher")))
+
+            advanced_requests = payment_requests.filtered(
+                lambda request: request.state != "requested"
+            )
+            if advanced_requests:
+                request_states = ", ".join(
+                    "%s (%s)" % (
+                        request.display_name,
+                        dict(request._fields["state"].selection).get(
+                            request.state,
+                            request.state,
+                        ),
+                    )
+                    for request in advanced_requests
+                )
+                raise UserError(_(
+                    "This Cash PR cannot be reset because its Payment Request is no longer "
+                    "in the draft/requested stage: %s."
+                ) % request_states)
+
+            if payment_requests:
+                warning_message = _(
+                    "Payment Request %(requests)s is still in the draft/requested stage. "
+                    "Confirming will permanently delete the Payment Request and its owned "
+                    "attachments, then reset this Cash PR to Draft."
+                ) % {"requests": ", ".join(payment_requests.mapped("display_name"))}
+            else:
+                warning_message = _(
+                    "No Payment Request, CPV, or BPV exists. Confirming will reset this "
+                    "Cash PR to Draft."
+                )
+            return {
+                "payment_requests": payment_requests,
+                "rfqs": self.env["purchase.order"],
+                "warning_message": warning_message,
+            }
+
+        rfqs = self.env["purchase.order"].sudo().search([
+            ("requisition_id", "=", self.id),
+        ])
+        non_draft_rfqs = rfqs.filtered(lambda order: order.state != "draft")
+        if non_draft_rfqs:
+            rfq_states = ", ".join(
+                "%s (%s)" % (
+                    order.display_name,
+                    dict(order._fields["state"].selection).get(
+                        order.state,
+                        order.state,
+                    ),
+                )
+                for order in non_draft_rfqs
+            )
+            raise UserError(_(
+                "This Purchase Requisition cannot be reset because these RFQ/PO records "
+                "are no longer in Draft: %s."
+            ) % rfq_states)
+
+        if rfqs:
+            warning_message = _(
+                "Draft RFQ record(s) %(rfqs)s will be permanently deleted before this "
+                "Purchase Requisition is reset to Draft."
+            ) % {"rfqs": ", ".join(rfqs.mapped("display_name"))}
+        else:
+            warning_message = _(
+                "No RFQ or Purchase Order exists. Confirming will reset this Purchase "
+                "Requisition to Draft."
+            )
+        return {
+            "payment_requests": self.env["purchase.requisition.payment.request"],
+            "rfqs": rfqs,
+            "warning_message": warning_message,
+        }
+
+    def _confirm_reset_to_draft(self):
+        self.ensure_one()
+        impact = self._get_reset_to_draft_impact()
+        deleted_documents = []
+
+        for payment_request in impact["payment_requests"]:
+            deleted_documents.append(payment_request.display_name)
+            owned_attachments = payment_request._get_supporting_attachments().filtered(
+                lambda attachment: (
+                    attachment.res_model == payment_request._name
+                    and attachment.res_id == payment_request.id
+                )
+            )
+            payment_request.sudo().unlink()
+            owned_attachments.sudo().exists().unlink()
+
+        if impact["rfqs"]:
+            deleted_documents.extend(impact["rfqs"].mapped("display_name"))
+            impact["rfqs"].sudo().unlink()
+
+        self.sudo().write({
+            "approval": "draft",
+            "status": "pr",
+            "rejection_reason": False,
+            "payment_request_id": False,
+            "cash_payment_id": False,
+            "bank_payment_id": False,
+            "cash_pr_payment_method": False,
+            "cash_pr_payment_account_id": False,
+        })
+        if deleted_documents:
+            self.message_post(
+                body=_(
+                    "Purchase Requisition reset to Draft. Deleted draft downstream "
+                    "record(s): %s"
+                ) % ", ".join(deleted_documents)
+            )
+        else:
+            self.message_post(body=_("Purchase Requisition reset to Draft."))
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": self._name,
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "current",
+        }
 
     def action_supervisor_approve(self):
         for rec in self:
@@ -1087,6 +1314,7 @@ class PurchaseRequisition(models.Model):
                 "account_id": self._get_cash_pr_expense_account(line).id,
                 "description": line._get_document_line_description(),
                 "reference_number": self.name,
+                "budget_cost_center_id": line.cost_center_id.id,
                 "cs_project_id": line.cost_center_id.id if cost_center_is_project else False,
                 "partner_id": self.vendor_id.id if self.vendor_id else False,
                 "amount": amount,
@@ -1503,6 +1731,32 @@ class PurchaseRequisitionRejectWizard(models.TransientModel):
         return {"type": "ir.actions.act_window_close"}
 
 
+class PurchaseRequisitionResetWizard(models.TransientModel):
+    _name = "purchase.requisition.reset.wizard"
+    _description = "Purchase Requisition Reset Wizard"
+
+    requisition_id = fields.Many2one(
+        "purchase.requisition",
+        string="Purchase Requisition",
+        required=True,
+        readonly=True,
+    )
+    warning_message = fields.Text(
+        string="Reset Impact",
+        required=True,
+        readonly=True,
+    )
+    confirm_reset = fields.Boolean(
+        string="I understand that the listed draft records will be permanently deleted.",
+    )
+
+    def action_confirm_reset(self):
+        self.ensure_one()
+        if not self.confirm_reset:
+            raise UserError(_("Please confirm the reset and deletion warning."))
+        return self.requisition_id._confirm_reset_to_draft()
+
+
 class PurchaseRequisitionLine(models.Model):
     _name = "purchase.requisition.line"
     _description = "Purchase Requisition Line"
@@ -1869,35 +2123,14 @@ class AccountCashPayment(models.Model):
     )
 
     def _check_purchase_requisition_voucher_budget(self, line_field):
-        AnalyticAccount = self.env["account.analytic.account"].sudo()
         for voucher in self.filtered("purchase_requisition_id"):
             if voucher.state != "draft":
                 continue
-            amount_by_cost_center = {}
-            for line in voucher[line_field]:
-                distribution = line.analytic_distribution or {}
-                if not distribution:
-                    raise UserError(_("Every Cash PR voucher line must have a cost center."))
-                for analytic_key, percentage in distribution.items():
-                    try:
-                        percentage = float(percentage or 0.0)
-                    except (TypeError, ValueError):
-                        percentage = 0.0
-                    if not percentage:
-                        continue
-                    for key_part in str(analytic_key).split(","):
-                        if not key_part.strip().isdigit():
-                            continue
-                        analytic = AnalyticAccount.browse(int(key_part)).exists()
-                        if not analytic:
-                            continue
-                        amount_by_cost_center.setdefault(analytic.id, {
-                            "cc": analytic,
-                            "amount": 0.0,
-                        })
-                        amount_by_cost_center[analytic.id]["amount"] += (
-                            (line.amount or 0.0) * percentage / 100.0
-                        )
+            amount_by_cost_center = (
+                voucher.purchase_requisition_id._get_voucher_budget_amounts(
+                    voucher[line_field]
+                )
+            )
             for item in amount_by_cost_center.values():
                 if item["amount"] <= 0.0:
                     raise UserError(_("Cash PR voucher lines must have a positive amount."))
@@ -1926,35 +2159,14 @@ class AccountBankPayment(models.Model):
     )
 
     def _check_purchase_requisition_voucher_budget(self, line_field):
-        AnalyticAccount = self.env["account.analytic.account"].sudo()
         for voucher in self.filtered("purchase_requisition_id"):
             if voucher.state != "draft":
                 continue
-            amount_by_cost_center = {}
-            for line in voucher[line_field]:
-                distribution = line.analytic_distribution or {}
-                if not distribution:
-                    raise UserError(_("Every Cash PR voucher line must have a cost center."))
-                for analytic_key, percentage in distribution.items():
-                    try:
-                        percentage = float(percentage or 0.0)
-                    except (TypeError, ValueError):
-                        percentage = 0.0
-                    if not percentage:
-                        continue
-                    for key_part in str(analytic_key).split(","):
-                        if not key_part.strip().isdigit():
-                            continue
-                        analytic = AnalyticAccount.browse(int(key_part)).exists()
-                        if not analytic:
-                            continue
-                        amount_by_cost_center.setdefault(analytic.id, {
-                            "cc": analytic,
-                            "amount": 0.0,
-                        })
-                        amount_by_cost_center[analytic.id]["amount"] += (
-                            (line.amount or 0.0) * percentage / 100.0
-                        )
+            amount_by_cost_center = (
+                voucher.purchase_requisition_id._get_voucher_budget_amounts(
+                    voucher[line_field]
+                )
+            )
             for item in amount_by_cost_center.values():
                 if item["amount"] <= 0.0:
                     raise UserError(_("Cash PR voucher lines must have a positive amount."))
@@ -1970,6 +2182,30 @@ class AccountBankPayment(models.Model):
             "status": "completed",
         })
         return res
+
+
+class AccountCashPaymentLine(models.Model):
+    _inherit = "pr.account.cash.payment.line"
+
+    budget_cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="PR Budget Cost Center",
+        readonly=True,
+        copy=False,
+        help="Original Cash PR cost center used exclusively for budget validation.",
+    )
+
+
+class AccountBankPaymentLine(models.Model):
+    _inherit = "pr.account.bank.payment.line"
+
+    budget_cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="PR Budget Cost Center",
+        readonly=True,
+        copy=False,
+        help="Original Cash PR cost center used exclusively for budget validation.",
+    )
 
 
 class PurchaseQuotation(models.Model):

@@ -49,7 +49,7 @@
                             type="object"
                             string="Reset to Draft"
                             class="btn-secondary"
-                            invisible="approval != 'rejected'"/>
+                            invisible="approval not in ['rejected', 'approved']"/>
                     <button name="action_supervisor_approve"
                             type="object"
                             string="Approve"
@@ -144,7 +144,7 @@
                     <group>
                         <group>
                             <field name="name" readonly="1"/>
-                            <field name="date_request" readonly="1"/>
+                            <field name="date_request" readonly="approval != 'draft' or status != 'pr'"/>
                             <field name="department" readonly="1"/>
                             <field name="supervisor" readonly="1"/>
                             <field name="vendor_id"
@@ -162,7 +162,7 @@
                             <field name="requested_user_id" invisible="1"/>
                         </group>
                         <group>
-                            <field name="required_date" readonly="1"/>
+                            <field name="required_date" readonly="approval != 'draft' or status != 'pr'"/>
                             <field name="priority"
                                    readonly="approval != 'draft' or status != 'pr'"/>
                             <field name="approval" readonly="1"/>
@@ -186,7 +186,8 @@
                                            optional="show"/>
                                     <field name="description"/>
                                     <field name="line_description" string="Description"/>
-                                    <field name="cost_center_id" domain="[('id', 'in', parent.allowed_cost_center_ids)]"/>
+                                    <field name="cost_center_id"
+                                           domain="[('id', 'in', parent.allowed_cost_center_ids)]"/>
                                     <field name="expense_account_id"
                                            optional="hide"
                                            column_invisible="1"
@@ -204,6 +205,11 @@
                             <group>
                                 <field name="notes" readonly="approval != 'draft' or status != 'pr'"/>
                             </group>
+                        </page>
+                        <page string="Attachments">
+                            <field name="attachment_ids"
+                                   widget="many2many_binary"
+                                   readonly="approval != 'draft' or status != 'pr'"/>
                         </page>
                         <page string="Comments">
                             <group>
@@ -252,6 +258,27 @@
                 </group>
                 <footer>
                     <button name="action_confirm_reject" type="object" string="Reject" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_purchase_requisition_reset_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.requisition.reset.wizard.form</field>
+        <field name="model">purchase.requisition.reset.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reset Purchase Requisition to Draft">
+                <group>
+                    <field name="requisition_id"/>
+                    <field name="warning_message" nolabel="1"/>
+                    <field name="confirm_reset"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reset"
+                            type="object"
+                            string="Delete Draft Records and Reset"
+                            class="btn-danger"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

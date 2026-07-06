@@ -75,7 +75,7 @@
                            decoration-muted="linked_requisition_status == 'missing'"/>
                     <field name="linked_rfq_status" widget="badge"
                            decoration-success="linked_rfq_status == 'done'"
-                           decoration-danger="linked_rfq_status == 'cancel'"
+                           decoration-danger="linked_rfq_status in ('rejected','cancel')"
                            decoration-warning="linked_rfq_status == 'sent'"
                            decoration-muted="linked_rfq_status in ('draft','missing')"/>
                     <field name="linked_quotation_status" widget="badge"
@@ -84,7 +84,7 @@
                            decoration-muted="linked_quotation_status == 'missing'"/>
                     <field name="linked_po_status" widget="badge"
                            decoration-success="linked_po_status in ('purchase','done')"
-                           decoration-danger="linked_po_status == 'cancel'"
+                           decoration-danger="linked_po_status in ('rejected','cancel')"
                            decoration-warning="linked_po_status == 'pending'"
                            decoration-info="linked_po_status in ('draft','sent')"
                            decoration-muted="linked_po_status == 'missing'"/>
@@ -234,7 +234,7 @@
                                                decoration-muted="linked_requisition_status == 'missing'"/>
                                         <field name="linked_rfq_status" widget="badge"
                                                decoration-success="linked_rfq_status == 'done'"
-                                               decoration-danger="linked_rfq_status == 'cancel'"
+                                               decoration-danger="linked_rfq_status in ('rejected','cancel')"
                                                decoration-warning="linked_rfq_status == 'sent'"
                                                decoration-muted="linked_rfq_status in ('draft','missing')"/>
                                     </group>
@@ -245,7 +245,7 @@
                                                decoration-muted="linked_quotation_status == 'missing'"/>
                                         <field name="linked_po_status" widget="badge"
                                                decoration-success="linked_po_status in ('purchase','done')"
-                                               decoration-danger="linked_po_status == 'cancel'"
+                                               decoration-danger="linked_po_status in ('rejected','cancel')"
                                                decoration-warning="linked_po_status == 'pending'"
                                                decoration-info="linked_po_status in ('draft','sent')"
                                                decoration-muted="linked_po_status == 'missing'"/>

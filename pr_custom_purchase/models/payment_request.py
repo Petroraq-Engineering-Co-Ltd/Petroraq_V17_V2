@@ -157,20 +157,33 @@ class PurchaseRequisitionPaymentRequest(models.Model):
         return self.attachment_ids.sudo() | chatter_attachments
 
     def _copy_attachments_from_record(self, source):
-        """Copy source chatter documents into this payment request."""
+        """Copy explicit and chatter documents into this payment request."""
         self.ensure_one()
         source.ensure_one()
-        source_attachments = self.env["ir.attachment"].sudo().search([
+        explicit_attachments = (
+            source.attachment_ids.sudo()
+            if "attachment_ids" in source._fields
+            else self.env["ir.attachment"]
+        )
+        chatter_attachments = self.env["ir.attachment"].sudo().search([
             ("res_model", "=", source._name),
             ("res_id", "=", source.id),
         ])
+        source_attachments = explicit_attachments | chatter_attachments
+        existing_keys = {
+            (attachment.name, attachment.checksum)
+            for attachment in self._get_supporting_attachments()
+        }
         copied_attachments = self.env["ir.attachment"]
         for attachment in source_attachments:
+            if (attachment.name, attachment.checksum) in existing_keys:
+                continue
             copied_attachments |= attachment.copy({
                 "res_model": self._name,
                 "res_id": self.id,
                 "res_field": False,
             })
+            existing_keys.add((attachment.name, attachment.checksum))
         if copied_attachments:
             self.sudo().write({
                 "attachment_ids": [(4, attachment.id) for attachment in copied_attachments],
@@ -253,6 +266,7 @@ class PurchaseRequisitionPaymentRequest(models.Model):
                     or line.product_id.with_context(display_default_code=False).display_name
                 ),
                 "reference_number": self.purchase_requisition_id.name,
+                "budget_cost_center_id": line.cost_center_id.id,
                 "cs_project_id": line.cost_center_id.id if cost_center_is_project else False,
                 "partner_id": self.vendor_id.id if self.vendor_id else False,
                 "amount": amount,
