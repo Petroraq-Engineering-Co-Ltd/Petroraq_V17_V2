@@ -1585,9 +1585,14 @@ class PurchaseRequisitionLine(models.Model):
             vals = dict(vals)
             product = self.env["product.product"].browse(vals.get("description")).exists()
             defaults = self._get_product_purchase_defaults(product)
+            product_actually_changed = any(
+                line.description != product
+                for line in self
+            )
             vals["type"] = defaults["type"]
             vals["unit"] = defaults["unit"]
-            vals.setdefault("unit_price", defaults["unit_price"])
+            if product_actually_changed:
+                vals.setdefault("unit_price", defaults["unit_price"])
         return super().write(vals)
 
     @api.depends("description")
@@ -1598,7 +1603,9 @@ class PurchaseRequisitionLine(models.Model):
 
     def _inverse_product_internal_reference(self):
         for line in self:
-            line.description = line.product_internal_reference.product_id
+            product = line.product_internal_reference.product_id
+            if line.description != product:
+                line.description = product
 
     @api.onchange("product_internal_reference")
     def _onchange_product_internal_reference(self):

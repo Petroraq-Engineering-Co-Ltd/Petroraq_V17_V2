@@ -186,10 +186,16 @@ class ServiceReceiptNote(models.Model):
 
     def action_view_backorders(self):
         self.ensure_one()
-        action = self.env.ref("service_receipt_note.action_service_receipt_note").read()[0]
-        action["domain"] = [("id", "in", self.backorder_ids.ids)]
+        action = {
+            "type": "ir.actions.act_window",
+            "name": _("SRN Backorders"),
+            "res_model": "service.receipt.note",
+            "view_mode": "tree,form",
+            "domain": [("id", "in", self.backorder_ids.ids)],
+            "target": "current",
+        }
         if len(self.backorder_ids) == 1:
-            action["views"] = [(self.env.ref("service_receipt_note.view_service_receipt_note_form").id, "form")]
+            action["view_mode"] = "form"
             action["res_id"] = self.backorder_ids.id
         return action
 
