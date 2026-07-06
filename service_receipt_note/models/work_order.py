@@ -21,13 +21,16 @@ class PRWorkOrder(models.Model):
 
     def action_view_service_receipt_notes(self):
         self.ensure_one()
-        action = self.env.ref("service_receipt_note.action_service_receipt_note").read()[0]
-        action["domain"] = [("work_order_id", "=", self.id)]
+        action = {
+            "type": "ir.actions.act_window",
+            "name": _("Service Receipt Notes"),
+            "res_model": "service.receipt.note",
+            "view_mode": "tree,form",
+            "domain": [("work_order_id", "=", self.id)],
+            "target": "current",
+        }
         if self.service_receipt_note_count == 1:
             receipt = self.env["service.receipt.note"].search([("work_order_id", "=", self.id)], limit=1)
             action["view_mode"] = "form"
             action["res_id"] = receipt.id
-        else:
-            action["view_mode"] = "tree,form"
-        action["name"] = _("Service Receipt Notes")
         return action
