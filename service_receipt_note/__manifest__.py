@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Service Receipt Note",
-    "version": "17.0.1.0.1",
+    "version": "17.0.1.0.2",
     "summary": "Service Receipt Note for Purchase Orders",
     "description": """
 Service Receipt Note for Odoo 17

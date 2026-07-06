@@ -139,8 +139,14 @@ class PurchaseOrder(models.Model):
 
     def action_view_service_receipt_notes(self):
         self.ensure_one()
-        action = self.env.ref("service_receipt_note.action_service_receipt_note").read()[0]
-        action["domain"] = [("purchase_id", "=", self.id)]
+        action = {
+            "type": "ir.actions.act_window",
+            "name": _("Service Receipt Notes"),
+            "res_model": "service.receipt.note",
+            "view_mode": "tree,form",
+            "domain": [("purchase_id", "=", self.id)],
+            "target": "current",
+        }
         if self.service_receipt_note_count == 1:
             action["view_mode"] = "form"
             action["res_id"] = self.service_receipt_note_ids.id
