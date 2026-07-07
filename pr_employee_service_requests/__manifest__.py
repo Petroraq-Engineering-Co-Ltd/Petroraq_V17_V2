@@ -21,6 +21,7 @@ budget-controlled BPVs.
         "pr_hr_account",
         "pr_hr_recruitment_request",
         "pr_custom_purchase",
+        "prt_report_attachment_preview",
     ],
     "data": [
         "security/ir.model.access.csv",

@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -116,3 +116,14 @@ class HrApplicantOnboardingChecklist(models.Model):
     is_completed = fields.Boolean(string='Completed', default=False)
     file_attachment = fields.Binary(string='Attachment', attachment=True, required=False)
     attachment_file_name = fields.Char(string='File Name', required=False)
+
+    def action_preview_attachment(self):
+        self.ensure_one()
+        attachment = self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", self._name),
+            ("res_id", "=", self.id),
+            ("res_field", "=", "file_attachment"),
+        ], limit=1)
+        if not attachment:
+            raise UserError(_("Please upload an attachment first."))
+        return attachment.action_preview_inline()

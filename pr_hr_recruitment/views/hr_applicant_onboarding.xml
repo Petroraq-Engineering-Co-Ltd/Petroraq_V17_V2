@@ -62,6 +62,12 @@
                                     <field name="checklist_item"/>
                                     <field name="is_completed"/>
                                     <field name="file_attachment" widget="binary" filename="attachment_file_name"/>
+                                    <button name="action_preview_attachment"
+                                            type="object"
+                                            string="Preview"
+                                            icon="fa-eye"
+                                            class="btn-secondary"
+                                            invisible="not file_attachment"/>
                                     <field name="attachment_file_name" column_invisible="1"/>
                                 </tree>
                             </field>

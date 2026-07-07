@@ -7,6 +7,43 @@ from dateutil.relativedelta import relativedelta
 _logger = logging.getLogger(__name__)
 
 
+def _open_attachment_preview_action(record, attachments, title=None):
+    attachments = attachments.exists()
+    if not attachments:
+        raise UserError(_("No attachments found to preview."))
+    if len(attachments) == 1:
+        return attachments.action_preview_inline()
+
+    tree_view = record.env.ref(
+        "prt_report_attachment_preview.view_attachment_preview_tree",
+        raise_if_not_found=False,
+    )
+    form_view = record.env.ref(
+        "prt_report_attachment_preview.view_attachment_preview_form",
+        raise_if_not_found=False,
+    )
+    views = []
+    if tree_view:
+        views.append((tree_view.id, "tree"))
+    if form_view:
+        views.append((form_view.id, "form"))
+    action = {
+        "type": "ir.actions.act_window",
+        "name": title or _("Attachments"),
+        "res_model": "ir.attachment",
+        "view_mode": "tree,form",
+        "domain": [("id", "in", attachments.ids)],
+        "target": "current",
+        "context": {
+            "create": False,
+            "delete": False,
+        },
+    }
+    if views:
+        action["views"] = views
+    return action
+
+
 class PurchaseRequisition(models.Model):
     _name = "purchase.requisition"
     _description = "Purchase Requisition"
@@ -64,6 +101,7 @@ class PurchaseRequisition(models.Model):
         copy=False,
         help="Optional supporting documents copied to Cash PR payment requests and their CPV/BPV.",
     )
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
     vendor_id = fields.Many2one("res.partner", string="Preferred Vendor")
     total_excl_vat = fields.Float(
         string="Total Amount",
@@ -220,6 +258,27 @@ class PurchaseRequisition(models.Model):
     def _compute_allowed_cost_center_ids(self):
         for rec in self:
             rec.allowed_cost_center_ids = rec.expense_bucket_id.crossovered_budget_line.mapped("analytic_account_id")
+
+    @api.depends("attachment_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(rec._get_supporting_attachments())
+
+    def _get_supporting_attachments(self):
+        self.ensure_one()
+        chatter_attachments = self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", self._name),
+            ("res_id", "=", self.id),
+        ])
+        return self.attachment_ids.sudo() | chatter_attachments
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            self._get_supporting_attachments(),
+            _("Attachments - %s") % self.display_name,
+        )
 
     def _required_date_from_priority(self, priority):
         today = fields.Date.context_today(self)

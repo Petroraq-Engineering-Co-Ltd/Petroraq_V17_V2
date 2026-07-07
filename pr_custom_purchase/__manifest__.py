@@ -9,7 +9,7 @@
     'version': '17.0.1.0.28',
     'license': 'LGPL-3',
     'depends': ['base', 'portal', 'product', 'hr', 'mail', 'web', 'purchase', 'purchase_stock', 'stock', 'bus',
-                'project', 'account', 'account_budget', 'pr_account', 'pr_base'],
+                'project', 'account', 'account_budget', 'pr_account', 'pr_base', 'prt_report_attachment_preview'],
     'data': [
         'security/custom_pr_groups.xml',
         'security/user_portal_groups.xml',

@@ -21,6 +21,43 @@ ACCOUNTING_GROUP_XML_IDS = (
 ACCOUNTING_EPR_RULE_BYPASS_MODES = ("read", "write")
 
 
+def _open_attachment_preview_action(record, attachments, title=None):
+    attachments = attachments.exists()
+    if not attachments:
+        raise UserError(_("No attachments found to preview."))
+    if len(attachments) == 1:
+        return attachments.action_preview_inline()
+
+    tree_view = record.env.ref(
+        "prt_report_attachment_preview.view_attachment_preview_tree",
+        raise_if_not_found=False,
+    )
+    form_view = record.env.ref(
+        "prt_report_attachment_preview.view_attachment_preview_form",
+        raise_if_not_found=False,
+    )
+    views = []
+    if tree_view:
+        views.append((tree_view.id, "tree"))
+    if form_view:
+        views.append((form_view.id, "form"))
+    action = {
+        "type": "ir.actions.act_window",
+        "name": title or _("Attachments"),
+        "res_model": "ir.attachment",
+        "view_mode": "tree,form",
+        "domain": [("id", "in", attachments.ids)],
+        "target": "current",
+        "context": {
+            "create": False,
+            "delete": False,
+        },
+    }
+    if views:
+        action["views"] = views
+    return action
+
+
 class PrEmployeeServiceRequest(models.Model):
     _name = "pr.employee.service.request"
     _description = "Employee Service Request"
@@ -168,6 +205,7 @@ class PrEmployeeServiceRequest(models.Model):
         "attachment_id",
         string="Receipts / Attachments",
     )
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
     cash_payment_id = fields.Many2one(
         "pr.account.cash.payment",
         string="CPV",
@@ -304,6 +342,27 @@ class PrEmployeeServiceRequest(models.Model):
             if manager == rec.employee_id:
                 manager = rec.employee_id.department_id.parent_id.manager_id if rec.employee_id.department_id.parent_id else False
             rec.employee_manager_user_id = manager.user_id if manager and manager.user_id else False
+
+    @api.depends("attachment_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(rec._get_supporting_attachments())
+
+    def _get_supporting_attachments(self):
+        self.ensure_one()
+        chatter_attachments = self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", self._name),
+            ("res_id", "=", self.id),
+        ])
+        return self.attachment_ids.sudo() | chatter_attachments
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            self._get_supporting_attachments(),
+            _("Attachments - %s") % self.display_name,
+        )
 
     @api.depends("cash_payment_id.state", "bank_payment_id.state")
     def _compute_payment_voucher_state(self):
@@ -998,6 +1057,7 @@ class PrEmployeeServiceRequest(models.Model):
         voucher = self.cash_payment_id or self.bank_payment_id
         if not voucher:
             raise UserError(_("No payment voucher has been created yet."))
+        self._copy_attachments_to(voucher)
         return {
             "type": "ir.actions.act_window",
             "name": _("Payment Voucher"),
@@ -1011,6 +1071,7 @@ class PrEmployeeServiceRequest(models.Model):
         self.ensure_one()
         if not self.payment_request_id:
             raise UserError(_("No payment request has been created yet."))
+        self._copy_attachments_to(self.payment_request_id)
         return {
             "type": "ir.actions.act_window",
             "name": _("Payment Request"),
@@ -1047,6 +1108,7 @@ class PrEmployeeServiceRequest(models.Model):
         if self.payment_request_id:
             if self.payment_request_id.state == "cancelled":
                 self.payment_request_id.state = "requested"
+            self._copy_attachments_to(self.payment_request_id)
             return self.payment_request_id
         if self.cash_payment_id or self.bank_payment_id:
             raise UserError(_("A payment voucher already exists for this request."))
@@ -1062,6 +1124,7 @@ class PrEmployeeServiceRequest(models.Model):
             "line_ids": self._prepare_payment_request_lines(),
         })
         self.payment_request_id = payment_request.id
+        self._copy_attachments_to(payment_request)
         if notify_accounts:
             payment_request._notify_accounts()
         return payment_request
@@ -1092,8 +1155,9 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _copy_attachments_to(self, target):
         self.ensure_one()
-        if not target or not self.attachment_ids:
-            return
+        source_attachments = self._get_supporting_attachments()
+        if not target or not source_attachments:
+            return self.env["ir.attachment"]
         Attachment = self.env["ir.attachment"].sudo()
         existing = Attachment.search([
             ("res_model", "=", target._name),
@@ -1103,16 +1167,29 @@ class PrEmployeeServiceRequest(models.Model):
             (attachment.name, attachment.checksum)
             for attachment in existing
         }
-        for attachment in self.attachment_ids.sudo():
+        linked_attachments = self.env["ir.attachment"]
+        for attachment in source_attachments:
             key = (attachment.name, attachment.checksum)
             if key in existing_keys:
+                linked_attachments |= existing.filtered(
+                    lambda existing_attachment: (
+                        existing_attachment.name,
+                        existing_attachment.checksum,
+                    ) == key
+                )[:1]
                 continue
-            attachment.copy({
+            copied_attachment = attachment.copy({
                 "res_model": target._name,
                 "res_id": target.id,
                 "res_field": False,
             })
+            linked_attachments |= copied_attachment
             existing_keys.add(key)
+        if linked_attachments and "attachment_ids" in target._fields:
+            target.sudo().write({
+                "attachment_ids": [(4, attachment.id) for attachment in linked_attachments],
+            })
+        return linked_attachments
 
     def _create_payment_voucher(self):
         self.ensure_one()
@@ -1158,6 +1235,7 @@ class PrEmployeeServiceRequest(models.Model):
             self.bank_payment_id = voucher.id
 
         voucher.sudo().action_submit()
+        self._copy_attachments_to(voucher)
         self.write({"payment_reference": voucher.name})
         return voucher
 
@@ -1611,6 +1689,15 @@ class PrEmployeePaymentRequest(models.Model):
         string="Payment Lines",
         copy=True,
     )
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "pr_employee_payment_request_attachment_rel",
+        "payment_request_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Supporting documents copied from the employee service request and then copied to the generated CPV/BPV.",
+    )
     total_amount = fields.Monetary(
         string="Total Amount",
         currency_field="currency_id",
@@ -1642,6 +1729,7 @@ class PrEmployeePaymentRequest(models.Model):
         copy=False,
         tracking=True,
     )
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
 
     _sql_constraints = [
         (
@@ -1693,6 +1781,101 @@ class PrEmployeePaymentRequest(models.Model):
     def _compute_total_amount(self):
         for rec in self:
             rec.total_amount = sum(rec.line_ids.mapped("amount"))
+
+    @api.depends("attachment_ids", "service_request_id", "service_request_id.attachment_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(rec._get_supporting_attachments())
+
+    def _get_supporting_attachments(self):
+        self.ensure_one()
+        Attachment = self.env["ir.attachment"]
+        own_attachments = self.attachment_ids.sudo() | Attachment.sudo().search([
+            ("res_model", "=", self._name),
+            ("res_id", "=", self.id),
+        ])
+        source_attachments = Attachment
+        if self.service_request_id:
+            source_attachments |= self.service_request_id._get_supporting_attachments()
+        if self.iqama_line_id:
+            source_attachments |= Attachment.sudo().search([
+                ("res_model", "=", self.iqama_line_id._name),
+                ("res_id", "=", self.iqama_line_id.id),
+            ])
+            if self.iqama_line_id.iqama_id:
+                source_attachments |= Attachment.sudo().search([
+                    ("res_model", "=", self.iqama_line_id.iqama_id._name),
+                    ("res_id", "=", self.iqama_line_id.iqama_id.id),
+                ])
+        if self.insurance_line_id:
+            source_attachments |= Attachment.sudo().search([
+                ("res_model", "=", self.insurance_line_id._name),
+                ("res_id", "=", self.insurance_line_id.id),
+            ])
+            if self.insurance_line_id.insurance_id:
+                source_attachments |= Attachment.sudo().search([
+                    ("res_model", "=", self.insurance_line_id.insurance_id._name),
+                    ("res_id", "=", self.insurance_line_id.insurance_id.id),
+                ])
+
+        unique_ids = []
+        seen_keys = set()
+        for attachment in own_attachments | source_attachments:
+            key = (
+                attachment.name,
+                attachment.checksum or attachment.url or attachment.store_fname or attachment.id,
+            )
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            unique_ids.append(attachment.id)
+        return Attachment.browse(unique_ids)
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            self._get_supporting_attachments(),
+            _("Attachments - %s") % self.display_name,
+        )
+
+    def _copy_attachments_to(self, target):
+        self.ensure_one()
+        source_attachments = self._get_supporting_attachments()
+        if not target or not source_attachments:
+            return self.env["ir.attachment"]
+        Attachment = self.env["ir.attachment"].sudo()
+        existing = Attachment.search([
+            ("res_model", "=", target._name),
+            ("res_id", "=", target.id),
+        ])
+        existing_keys = {
+            (attachment.name, attachment.checksum)
+            for attachment in existing
+        }
+        linked_attachments = self.env["ir.attachment"]
+        for attachment in source_attachments:
+            key = (attachment.name, attachment.checksum)
+            if key in existing_keys:
+                linked_attachments |= existing.filtered(
+                    lambda existing_attachment: (
+                        existing_attachment.name,
+                        existing_attachment.checksum,
+                    ) == key
+                )[:1]
+                continue
+            copied_attachment = attachment.copy({
+                "res_model": target._name,
+                "res_id": target.id,
+                "res_field": False,
+            })
+            linked_attachments |= copied_attachment
+            existing_keys.add(key)
+        if linked_attachments and "attachment_ids" in target._fields:
+            target.sudo().write({
+                "attachment_ids": [(4, attachment.id) for attachment in linked_attachments],
+            })
+        return linked_attachments
 
     @api.onchange("transfer_type")
     def _onchange_transfer_type(self):
@@ -1871,6 +2054,7 @@ class PrEmployeePaymentRequest(models.Model):
                     rec.insurance_line_id.bank_payment_id = voucher.id
 
             rec.state = "voucher_created"
+            rec._copy_attachments_to(voucher)
             if rec.service_request_id:
                 rec.service_request_id.payment_reference = voucher.name
             rec.message_post(
@@ -1893,6 +2077,7 @@ class PrEmployeePaymentRequest(models.Model):
         voucher = self.cash_payment_id or self.bank_payment_id
         if not voucher:
             raise UserError(_("No payment voucher has been created yet."))
+        self._copy_attachments_to(voucher)
         return {
             "type": "ir.actions.act_window",
             "name": _("Payment Voucher"),
