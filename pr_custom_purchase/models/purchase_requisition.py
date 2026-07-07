@@ -231,6 +231,101 @@ class PurchaseRequisition(models.Model):
         }
         return today + relativedelta(days=offsets.get(priority, 0))
 
+    @api.model
+    def _find_request_employee(self, user=False, requested_by=False):
+        """Find the employee behind a PR even when the employee has no user.
+
+        Some requester employees are maintained in HR without a linked Odoo
+        user.  The PR still stores requester information as text/user fields,
+        so use the linked user first and then fall back to the typed requester
+        name.
+        """
+        Employee = self.env["hr.employee"].sudo().with_context(active_test=False)
+        employee = Employee
+        if user:
+            employee = Employee.search([("user_id", "=", user.id)], limit=1)
+        requester_name = (requested_by or "").strip()
+        if not employee and requester_name:
+            employee = Employee.search([("name", "=ilike", requester_name)], limit=1)
+        return employee
+
+    @api.model
+    def _get_budget_department(self, budget):
+        if not budget:
+            return self.env["hr.department"]
+        budget = budget.sudo()
+        if "department_id" in budget._fields and budget.department_id:
+            return budget.department_id
+        if "pr.budget.requisition" in self.env:
+            budget_requisition = self.env["pr.budget.requisition"].sudo().search([
+                ("generated_budget_id", "=", budget.id),
+            ], limit=1)
+            if budget_requisition.department_id:
+                return budget_requisition.department_id
+        return self.env["hr.department"]
+
+    @api.model
+    def _get_requisition_supervisor_user(self, requester=False, employee=False, budget=False):
+        supervisor_user = requester.supervisor_user_id if requester else False
+        if supervisor_user and supervisor_user.active:
+            return supervisor_user
+
+        employee = employee.sudo() if employee else self.env["hr.employee"]
+        if employee:
+            manager_user = employee.parent_id.user_id
+            if manager_user and manager_user.active:
+                return manager_user
+            department_manager_user = employee.department_id.manager_id.user_id
+            if department_manager_user and department_manager_user.active:
+                return department_manager_user
+
+        budget_department = self._get_budget_department(budget)
+        budget_manager_user = budget_department.manager_id.user_id
+        if budget_manager_user and budget_manager_user.active:
+            return budget_manager_user
+
+        if budget and "department_manager_user_id" in budget._fields and budget.department_manager_user_id:
+            if budget.department_manager_user_id.active:
+                return budget.department_manager_user_id
+        return self.env["res.users"]
+
+    @api.model
+    def _get_requester_context_values(self, requested_user=False, requested_by=False, budget=False):
+        employee = self._find_request_employee(requested_user, requested_by)
+        department = employee.department_id if employee and employee.department_id else self._get_budget_department(budget)
+        supervisor_user = self._get_requisition_supervisor_user(
+            requester=requested_user,
+            employee=employee,
+            budget=budget,
+        )
+        return {
+            "employee": employee,
+            "department": department,
+            "supervisor_user": supervisor_user,
+        }
+
+    def _sync_requester_department_supervisor(self):
+        if self.env.context.get("skip_pr_requester_sync"):
+            return
+        for rec in self:
+            requested_user = rec.requested_user_id.sudo() if rec.requested_user_id else self.env.user.sudo()
+            context_values = rec._get_requester_context_values(
+                requested_user=requested_user,
+                requested_by=rec.requested_by,
+                budget=rec.expense_bucket_id,
+            )
+            values = {}
+            department = context_values["department"]
+            if department and not rec.department:
+                values["department"] = department.name
+            supervisor_user = context_values["supervisor_user"]
+            if supervisor_user and (not rec.supervisor or not rec.supervisor_partner_id):
+                values["supervisor"] = rec.supervisor or supervisor_user.name
+                if supervisor_user.partner_id and not rec.supervisor_partner_id:
+                    values["supervisor_partner_id"] = str(supervisor_user.partner_id.id)
+            if values:
+                rec.with_context(skip_pr_requester_sync=True).sudo().write(values)
+
     @api.onchange("priority")
     def _onchange_priority_set_required_date(self):
         for rec in self:
@@ -247,18 +342,23 @@ class PurchaseRequisition(models.Model):
 
         requester = self.env["res.users"].sudo().browse(vals.get("requested_user_id")) if vals.get(
             "requested_user_id") else self.env.user
-
-        employee = self.env["hr.employee"].sudo().search([
-            ("user_id", "=", requester.id)
-        ], limit=1) if requester else False
+        budget = self.env["crossovered.budget"].sudo().browse(vals.get("expense_bucket_id")).exists() if vals.get(
+            "expense_bucket_id") else False
+        context_values = self._get_requester_context_values(
+            requested_user=requester,
+            requested_by=vals.get("requested_by"),
+            budget=budget,
+        )
+        employee = context_values["employee"]
 
         if not vals.get("requested_by"):
             vals["requested_by"] = employee.name if employee else (requester.name if requester else self.env.user.name)
 
-        if not vals.get("department") and employee and employee.department_id:
-            vals["department"] = employee.department_id.name
+        department = context_values["department"]
+        if not vals.get("department") and department:
+            vals["department"] = department.name
 
-        supervisor_user = requester.supervisor_user_id if requester else False
+        supervisor_user = context_values["supervisor_user"]
         if supervisor_user:
             vals["supervisor"] = vals.get("supervisor") or supervisor_user.name
             vals["supervisor_partner_id"] = vals.get("supervisor_partner_id") or str(supervisor_user.partner_id.id)
@@ -283,14 +383,16 @@ class PurchaseRequisition(models.Model):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         user = self.env.user
-        employee = self.env["hr.employee"].sudo().search([("user_id", "=", user.id)], limit=1)
-        supervisor_user = user.supervisor_user_id
+        context_values = self._get_requester_context_values(requested_user=user)
+        employee = context_values["employee"]
+        supervisor_user = context_values["supervisor_user"]
+        department = context_values["department"]
 
         if employee:
             res.update({
                 "requested_by": employee.name,
                 "requested_user_id": user.id,
-                "department": employee.department_id.name if employee.department_id else False,
+                "department": department.name if department else False,
                 "supervisor": supervisor_user.name if supervisor_user else (
                     employee.parent_id.name if employee.parent_id else False
                 ),
@@ -355,6 +457,9 @@ class PurchaseRequisition(models.Model):
                     elif new_approval in ("draft", "pending") and custom_pr.approval != "pending":
                         custom_pr.write({"approval": "pending"})
 
+        if any(field in vals for field in ("requested_user_id", "requested_by", "expense_bucket_id")):
+            self._sync_requester_department_supervisor()
+
         return res
 
     @api.depends("line_ids.total_price")
@@ -385,6 +490,19 @@ class PurchaseRequisition(models.Model):
                 continue
             rec.expense_scope = bucket.scope
             rec.expense_type = bucket.expense_type
+            department = rec._get_budget_department(bucket)
+            if department and not rec.department:
+                rec.department = department.name
+            employee = rec._find_request_employee(rec.requested_user_id, rec.requested_by)
+            supervisor_user = rec._get_requisition_supervisor_user(
+                requester=rec.requested_user_id,
+                employee=employee,
+                budget=bucket,
+            )
+            if supervisor_user and (not rec.supervisor or not rec.supervisor_partner_id):
+                rec.supervisor = rec.supervisor or supervisor_user.name
+                if supervisor_user.partner_id and not rec.supervisor_partner_id:
+                    rec.supervisor_partner_id = str(supervisor_user.partner_id.id)
             allowed = bucket.crossovered_budget_line.mapped("analytic_account_id")
             for line in rec.line_ids:
                 if line.cost_center_id and line.cost_center_id not in allowed:
@@ -983,11 +1101,28 @@ class PurchaseRequisition(models.Model):
         for rec in self:
             try:
                 requester = rec.requested_user_id.sudo() if rec.requested_user_id else self.env.user.sudo()
-                supervisor_user = requester.supervisor_user_id if requester else False
+                employee = rec._find_request_employee(requester, rec.requested_by)
+                supervisor_user = rec._get_requisition_supervisor_user(
+                    requester=requester,
+                    employee=employee,
+                    budget=rec.expense_bucket_id,
+                )
 
                 if not supervisor_user:
-                    _logger.warning("No supervisor configured for requester on PR=%s", rec.name)
+                    _logger.warning(
+                        "No supervisor/department manager configured for requester or budget on PR=%s",
+                        rec.name,
+                    )
                     continue
+
+                if not rec.supervisor or not rec.supervisor_partner_id:
+                    rec.with_context(skip_pr_requester_sync=True).sudo().write({
+                        "supervisor": rec.supervisor or supervisor_user.name,
+                        "supervisor_partner_id": (
+                            rec.supervisor_partner_id
+                            or (str(supervisor_user.partner_id.id) if supervisor_user.partner_id else False)
+                        ),
+                    })
 
                 rec.activity_schedule(
                     activity_type_id=self.env.ref("mail.mail_activity_data_todo").id,
@@ -1706,9 +1841,16 @@ class PurchaseRequisition(models.Model):
             current_user = rec.env.user
             current_partner_id = current_user.partner_id.id if current_user.partner_id else 0
             requester_supervisor = rec.requested_user_id.supervisor_user_id if rec.requested_user_id else False
+            employee = rec._find_request_employee(rec.requested_user_id, rec.requested_by)
+            resolved_supervisor = rec._get_requisition_supervisor_user(
+                requester=rec.requested_user_id,
+                employee=employee,
+                budget=rec.expense_bucket_id,
+            )
 
             rec.is_supervisor = (
                     (requester_supervisor and requester_supervisor.id == current_user.id)
+                    or (resolved_supervisor and resolved_supervisor.id == current_user.id)
                     or (supervisor_partner_id == current_partner_id)
             )
 
