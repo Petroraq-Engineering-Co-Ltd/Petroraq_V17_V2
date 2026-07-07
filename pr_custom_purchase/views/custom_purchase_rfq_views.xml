@@ -52,9 +52,9 @@
                 <header>
                     <button name="action_rfq_send" type="object" string="Send by Email" class="btn-primary"
                             invisible="not is_rfq_record"/>
-                    <button name="button_confirm" type="object" string="Confirm Order" class="btn-primary"
-                            invisible="is_rfq_record or state not in ('draft', 'sent', 'pending')"
-                            groups="purchase.group_purchase_user"/>
+                    <button name="action_submit_for_approval" type="object" string="Submit" class="btn-primary"
+                            invisible="is_rfq_record or state not in ('draft', 'sent')"
+                            groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
                     <button name="button_cancel" type="object" string="Cancel" class="btn-secondary"
                             invisible="not is_rfq_record"/>
                     <button name="button_draft" type="object" string="Reset to RFQ" class="btn-secondary"
@@ -164,7 +164,7 @@
         <field name="name">RFQs</field>
         <field name="res_model">purchase.order</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('state','in',['draft','sent','cancel'])]</field>
+        <field name="domain">[('state','in',['draft','sent','cancel']),('name','ilike','RFQ')]</field>
     </record>
 
     <menuitem id="menu_custom_purchase_rfq_root"
@@ -185,7 +185,7 @@
         <field name="name">Purchase Orders</field>
         <field name="res_model">purchase.order</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('state','in',['pending','purchase','done','rejected'])]</field>
+        <field name="domain">['|',('state','in',['pending','purchase','done','rejected']),'&amp;',('state','in',['draft','sent']),('name','not ilike','RFQ')]</field>
     </record>
 
 <!--    <menuitem id="menu_custom_purchase_order_root"-->
@@ -204,12 +204,12 @@
     <!-- Keep Odoo core actions aligned with custom state semantics. -->
     <record id="purchase.purchase_rfq" model="ir.actions.act_window">
         <field name="name">RFQs</field>
-        <field name="domain">[('state','in',['draft','sent'])]</field>
+        <field name="domain">[('state','in',['draft','sent']),('name','ilike','RFQ')]</field>
     </record>
 
     <record id="purchase.purchase_form_action" model="ir.actions.act_window">
         <field name="name">Purchase Orders</field>
-        <field name="domain">[('state','in',['pending','purchase','done','rejected'])]</field>
+        <field name="domain">['|',('state','in',['pending','purchase','done','rejected']),'&amp;',('state','in',['draft','sent']),('name','not ilike','RFQ')]</field>
     </record>
 
     <!-- Hide the default RFQ menu; Purchase Orders uses the standard Orders menu. -->
