@@ -2,7 +2,9 @@
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import _, models
+from odoo import _, api, fields, models
+
+from .employee_service_request import _open_attachment_preview_action
 
 
 def _next_from_date(lines):
@@ -10,8 +12,31 @@ def _next_from_date(lines):
     return max(to_dates) + relativedelta(days=1) if to_dates else False
 
 
+def _record_attachments(record):
+    record.ensure_one()
+    return record.env["ir.attachment"].sudo().search([
+        ("res_model", "=", record._name),
+        ("res_id", "=", record.id),
+    ])
+
+
 class HrEmployeeIqama(models.Model):
     _inherit = "hr.employee.iqama"
+
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
+
+    @api.depends("message_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(_record_attachments(rec))
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            _record_attachments(self),
+            _("Attachments - %s") % self.display_name,
+        )
 
     def action_renew(self):
         self.ensure_one()
@@ -42,6 +67,21 @@ class HrEmployeeIqama(models.Model):
 class HrEmployeeMedicalInsurance(models.Model):
     _inherit = "hr.employee.medical.insurance"
 
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
+
+    @api.depends("message_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(_record_attachments(rec))
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            _record_attachments(self),
+            _("Attachments - %s") % self.display_name,
+        )
+
     def action_renew(self):
         self.ensure_one()
         return self.employee_id._open_employee_compliance_request(
@@ -60,6 +100,21 @@ class HrEmployeeMedicalInsurance(models.Model):
 
 class HrWorkPermit(models.Model):
     _inherit = "hr.work.permit"
+
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
+
+    @api.depends("message_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(_record_attachments(rec))
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            _record_attachments(self),
+            _("Attachments - %s") % self.display_name,
+        )
 
     def action_renew(self):
         self.ensure_one()

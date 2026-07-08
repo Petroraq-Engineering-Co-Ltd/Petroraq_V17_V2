@@ -521,38 +521,45 @@ class PurchaseOrder(models.Model):
             "rejection_reason": False,
         })
 
-    def _approval_group_xmlids_for_amount(self):
-        self.ensure_one()
-        amount = self.subtotal
-        if amount <= 10000:
-            return ["pr_custom_purchase.project_engineer"]
-        if amount <= 100000:
-            return [
-                "pr_custom_purchase.project_engineer",
-                "pr_custom_purchase.project_manager",
-            ]
-        if amount <= 500000:
-            return [
-                "pr_custom_purchase.project_engineer",
-                "pr_custom_purchase.project_manager",
-                "pr_custom_purchase.operations_director",
-            ]
-        return [
-            "pr_custom_purchase.project_engineer",
-            "pr_custom_purchase.project_manager",
-            "pr_custom_purchase.operations_director",
-            "pr_custom_purchase.managing_director",
-        ]
+    def _approval_stage_group_xmlid(self, stage):
+        return {
+            "pe": "pr_custom_purchase.project_engineer",
+            "pm": "pr_custom_purchase.project_manager",
+            "od": "pr_custom_purchase.operations_director",
+            "md": "pr_custom_purchase.managing_director",
+        }.get(stage)
+
+    def _approval_stage_label(self, stage):
+        return {
+            "pe": _("Procurement Manager"),
+            "pm": _("Project Manager"),
+            "od": _("Operations Director"),
+            "md": _("Managing Director"),
+        }.get(stage, stage and stage.upper())
+
+    def _schedule_next_po_approval_activity(self, note=False):
+        for order in self:
+            pending_stage = order._get_pending_approval_stage()
+            group_xml_id = order._approval_stage_group_xmlid(pending_stage)
+            if not group_xml_id:
+                continue
+            activity_note = note or _(
+                "PO %(po)s is waiting for %(stage)s approval. Please review."
+            ) % {
+                "po": order.name,
+                "stage": order._approval_stage_label(pending_stage),
+            }
+            order._schedule_activity_for_group(
+                group_xml_id,
+                _("Review Purchase Order"),
+                activity_note,
+            )
 
     def _schedule_initial_po_approval_activities(self, note=False):
         for order in self:
-            activity_note = note or _("PO %s is waiting for approval. Please review.") % order.name
-            for group_xml_id in order._approval_group_xmlids_for_amount():
-                order._schedule_activity_for_group(
-                    group_xml_id,
-                    _("Review Purchase Order"),
-                    activity_note,
-                )
+            order._schedule_next_po_approval_activity(
+                note or _("PO %s is waiting for approval. Please review.") % order.name
+            )
 
     def _submit_for_po_approval(self):
         for order in self:
@@ -689,79 +696,67 @@ class PurchaseOrder(models.Model):
     def action_approve(self):
         self.ensure_one()
         amount = self.subtotal
+        approved_stage = False
 
         if amount <= 10000:
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
 
         elif amount <= 100000:
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.project_manager",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PE. Please review.",
-                )
             elif not self.pm_approved:
                 self.write({"pm_approved": True})
+                approved_stage = "pm"
                 self.message_post(body="Approved by Project Manager.")
 
         elif amount <= 500000:
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.project_manager",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PE. Please review.",
-                )
             elif not self.pm_approved:
                 self.write({"pm_approved": True})
+                approved_stage = "pm"
                 self.message_post(body="Approved by Project Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.operations_director",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PM. Please review.",
-                )
             elif not self.od_approved:
                 self.write({"od_approved": True})
+                approved_stage = "od"
                 self.message_post(body="Approved by Operations Director.")
 
         else:  # Above 500k
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.project_manager",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PE. Please review.",
-                )
             elif not self.pm_approved:
                 self.write({"pm_approved": True})
+                approved_stage = "pm"
                 self.message_post(body="Approved by Project Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.operations_director",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PM. Please review.",
-                )
             elif not self.od_approved:
                 self.write({"od_approved": True})
+                approved_stage = "od"
                 self.message_post(body="Approved by Operations Director.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.managing_director",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by OD. Please review.",
-                )
             elif not self.md_approved:
                 self.write({"md_approved": True})
+                approved_stage = "md"
                 self.message_post(body="Approved by Managing Director.")
 
         self._auto_approve_following_stages_for_user(self.env.user)
 
         if self.state == "pending" and self.can_confirm_order:
             self.button_confirm()
+        elif self.state == "pending" and approved_stage:
+            self._schedule_next_po_approval_activity(
+                _("PO %(po)s approved by %(approver)s. Please review.") % {
+                    "po": self.name,
+                    "approver": self.env.user.name,
+                }
+            )
 
         return self._reload_action()
 

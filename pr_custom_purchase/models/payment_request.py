@@ -1,6 +1,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from .purchase_requisition import _open_attachment_preview_action
+
 
 class PurchaseRequisitionPaymentRequest(models.Model):
     _name = "purchase.requisition.payment.request"
@@ -74,6 +76,7 @@ class PurchaseRequisitionPaymentRequest(models.Model):
         copy=False,
         help="Supporting documents copied to the generated CPV or BPV.",
     )
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
     total_amount = fields.Monetary(
         string="Total Amount",
         currency_field="currency_id",
@@ -131,6 +134,19 @@ class PurchaseRequisitionPaymentRequest(models.Model):
     def _compute_total_amount(self):
         for rec in self:
             rec.total_amount = sum(rec.line_ids.mapped("amount"))
+
+    @api.depends("attachment_ids", "purchase_requisition_id.attachment_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(rec._get_supporting_attachments())
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            self._get_supporting_attachments(),
+            _("Attachments - %s") % self.display_name,
+        )
 
     @api.onchange("transfer_type")
     def _onchange_transfer_type(self):

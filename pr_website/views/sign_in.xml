@@ -163,8 +163,8 @@
                                     </span>
 
                                     <h2>
-                                        <t t-if="is_ar">بوابة العملاء والموردين</t>
-                                        <t t-else="">Customer / Vendors</t>
+                                        <t t-if="is_ar">بوابة الموردين / البائعين</t>
+                                        <t t-else="">Supplier / Vendor</t>
                                     </h2>
 
                                     <p>
