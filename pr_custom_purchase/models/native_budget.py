@@ -324,7 +324,7 @@ class CrossoveredBudget(models.Model):
             return True
         if "RFQ" in name:
             return False
-        return order.state in ("pending", "purchase", "done")
+        return order.state in ("pending", "purchase", "done", "rejected")
 
     @api.depends(
         "crossovered_budget_line.analytic_account_id",

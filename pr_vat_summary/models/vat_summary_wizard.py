@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError
@@ -268,6 +268,7 @@ class VatSummaryWizard(models.TransientModel):
 
     def _prepare_detail_line_vals(self, line, amount, vat_amount=0.0):
         return {
+            "_move_id": line.move_id.id,
             "_group_key": (
                 ("invoice", line.move_id.id)
                 if line.move_id.move_type in INVOICE_MOVE_TYPES
@@ -283,6 +284,47 @@ class VatSummaryWizard(models.TransientModel):
             "vat_amount": vat_amount or 0.0,
             "total_amount": (amount or 0.0) + (vat_amount or 0.0),
         }
+
+    @api.model
+    def _get_vated_detail_amounts(self, line):
+        """Return base amounts using the same tax classification as the summary."""
+        sale_tax_count = sum(
+            1 for tax in line.tax_ids if tax.type_tax_use == "sale"
+        )
+        purchase_tax_count = sum(
+            1 for tax in line.tax_ids if tax.type_tax_use == "purchase"
+        )
+        return {
+            "vated_sales": -(line.balance or 0.0) * sale_tax_count,
+            "vated_purchases": (line.balance or 0.0) * purchase_tax_count,
+        }
+
+    @api.model
+    def _allocate_actual_vat(self, lines, vat_by_move):
+        """Allocate posted tax-line VAT to details and preserve exact totals."""
+        lines_by_move = OrderedDict()
+        for line in lines:
+            lines_by_move.setdefault(line["_move_id"], []).append(line)
+
+        for move_id, move_lines in lines_by_move.items():
+            actual_vat = vat_by_move.get(move_id, 0.0)
+            total_weight = sum(abs(line.get("amount", 0.0)) for line in move_lines)
+            allocated = 0.0
+            for index, line in enumerate(move_lines):
+                if index == len(move_lines) - 1:
+                    vat_amount = actual_vat - allocated
+                elif total_weight:
+                    vat_amount = (
+                        actual_vat
+                        * abs(line.get("amount", 0.0))
+                        / total_weight
+                    )
+                    allocated += vat_amount
+                else:
+                    vat_amount = 0.0
+                line["vat_amount"] = vat_amount
+                line["total_amount"] = line.get("amount", 0.0) + vat_amount
+        return lines
 
     def _merge_detailed_invoice_lines(self, lines):
         """Collapse invoice lines while leaving ordinary journal items intact."""
@@ -321,8 +363,19 @@ class VatSummaryWizard(models.TransientModel):
 
         detail_lines = aml.search(base_domain + [
             ("tax_line_id", "=", False),
-            ("account_id.account_type", "in", ["income", "other_income", "expense", "cost_of_revenue"]),
         ], order="date, move_id, id")
+        tax_lines = aml.search(
+            base_domain + [("tax_line_id", "!=", False)]
+        )
+
+        sales_vat_by_move = defaultdict(float)
+        purchase_vat_by_move = defaultdict(float)
+        for tax_line in tax_lines:
+            tax_usage = tax_line.tax_line_id.type_tax_use
+            if tax_usage == "sale":
+                sales_vat_by_move[tax_line.move_id.id] += -(tax_line.balance or 0.0)
+            elif tax_usage == "purchase":
+                purchase_vat_by_move[tax_line.move_id.id] += tax_line.balance or 0.0
 
         details = {
             "vated_sales": [],
@@ -331,28 +384,44 @@ class VatSummaryWizard(models.TransientModel):
             "non_vated_purchases": [],
         }
         for line in detail_lines:
-            if line.account_id.account_type in ["income", "other_income"]:
-                amount = -line.balance
-                vat_amount = 0.0
-                for tax in line.tax_ids:
-                    if tax.amount_type in ("percent", "division"):
-                        vat_amount += amount * tax.amount / 100.0
-                line_vals = self._prepare_detail_line_vals(line, amount, vat_amount)
-                if line.tax_ids:
-                    details["vated_sales"].append(line_vals)
-                else:
-                    details["non_vated_sales"].append(line_vals)
-            else:
-                amount = line.balance
-                vat_amount = 0.0
-                for tax in line.tax_ids:
-                    if tax.amount_type in ("percent", "division"):
-                        vat_amount += amount * tax.amount / 100.0
-                line_vals = self._prepare_detail_line_vals(line, amount, vat_amount)
-                if line.tax_ids:
-                    details["vated_purchases"].append(line_vals)
-                else:
-                    details["non_vated_purchases"].append(line_vals)
+            vated_amounts = self._get_vated_detail_amounts(line)
+            if vated_amounts["vated_sales"]:
+                details["vated_sales"].append(
+                    self._prepare_detail_line_vals(
+                        line,
+                        vated_amounts["vated_sales"],
+                    )
+                )
+            if vated_amounts["vated_purchases"]:
+                details["vated_purchases"].append(
+                    self._prepare_detail_line_vals(
+                        line,
+                        vated_amounts["vated_purchases"],
+                    )
+                )
+            if line.tax_ids or line.tax_tag_ids:
+                continue
+
+            account_type = line.account_id.account_type
+            if account_type in ("income", "other_income"):
+                details["non_vated_sales"].append(
+                    self._prepare_detail_line_vals(line, -line.balance)
+                )
+            elif account_type in ("expense", "cost_of_revenue") and (
+                not self.account_ids or line.account_id in self.account_ids
+            ):
+                details["non_vated_purchases"].append(
+                    self._prepare_detail_line_vals(line, line.balance)
+                )
+
+        self._allocate_actual_vat(
+            details["vated_sales"],
+            sales_vat_by_move,
+        )
+        self._allocate_actual_vat(
+            details["vated_purchases"],
+            purchase_vat_by_move,
+        )
 
         return {
             section: self._merge_detailed_invoice_lines(lines)

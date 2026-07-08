@@ -78,6 +78,13 @@
                                 <span class="o_stat_text">Voucher</span>
                             </div>
                         </button>
+                        <button name="action_view_attachments"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-eye"
+                                invisible="attachment_count == 0">
+                            <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                        </button>
                     </div>
                     <group>
                         <group>
@@ -124,6 +131,12 @@
                             </field>
                         </page>
                         <page string="Attachments">
+                            <button name="action_view_attachments"
+                                    type="object"
+                                    string="Preview Attachments"
+                                    icon="fa-eye"
+                                    class="btn-secondary"
+                                    invisible="attachment_count == 0"/>
                             <field name="attachment_ids"
                                    widget="many2many_binary"
                                    readonly="state != 'requested'"/>

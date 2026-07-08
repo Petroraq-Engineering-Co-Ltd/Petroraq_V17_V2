@@ -27,6 +27,7 @@ class PurchaseOrder(models.Model):
         ("pending", "Pending"),
         ("purchase", "Purchase Order"),
         ("done", "Locked"),
+        ("rejected", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="PO Status", compute="_compute_linked_statuses")
     current_user_has_acted = fields.Boolean("Current User Has Acted", )
@@ -55,6 +56,7 @@ class PurchaseOrder(models.Model):
             ("pending", "Pending Approval"),
             ("purchase", "Purchase Order"),
             ("done", "Locked"),
+            ("rejected", "Rejected"),
             ("cancel", "Cancelled"),
         ],
         string="Status",
@@ -155,7 +157,15 @@ class PurchaseOrder(models.Model):
             order.quotation_count = self.env["purchase.order"].search_count(domain)
 
     def _compute_linked_statuses(self):
-        po_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
+        po_priority = {
+            "draft": 1,
+            "sent": 2,
+            "cancel": 3,
+            "rejected": 4,
+            "pending": 5,
+            "purchase": 6,
+            "done": 7,
+        }
         for rec in self:
             requisition = rec.requisition_id or (
                 self.env["purchase.requisition"].sudo().search([("name", "=", rec.pr_name)], limit=1)
@@ -173,7 +183,11 @@ class PurchaseOrder(models.Model):
             ]) if rec.requisition_id else self.env["purchase.order"]
             if related_rfqs:
                 top_state = max(related_rfqs, key=lambda r: po_priority.get(r.state, 0)).state
-                rec.linked_quotation_status = "po" if top_state in ("pending", "purchase", "done") else "quote"
+                rec.linked_quotation_status = (
+                    "po"
+                    if top_state in ("pending", "purchase", "done", "rejected")
+                    else "quote"
+                )
             else:
                 rec.linked_quotation_status = "missing"
 
@@ -297,7 +311,8 @@ class PurchaseOrder(models.Model):
         if self.requisition_id:
             existing_domain = [
                 ("order_id.requisition_id", "=", self.requisition_id.id),
-                ("order_id.state", "in", ["pending", "purchase", "done"]),
+                ("order_id.state", "in", ["draft", "pending", "purchase", "done", "rejected"]),
+                ("order_id.name", "not ilike", "RFQ"),
             ]
             if rfq_requisition_line_ids and len(rfq_requisition_line_ids) == len(rfq_lines):
                 existing_domain.append(("custom_requisition_line_id", "in", rfq_requisition_line_ids))
@@ -313,7 +328,8 @@ class PurchaseOrder(models.Model):
         else:
             existing_po = self.env["purchase.order"].sudo().search_count([
                 ("origin", "=", self.name),
-                ("state", "in", ["pending", "purchase", "done"]),
+                ("state", "in", ["draft", "pending", "purchase", "done", "rejected"]),
+                ("name", "not ilike", "RFQ"),
             ])
             if existing_po:
                 raise UserError(_("A Purchase Order already exists for RFQ %s.") % self.name)
@@ -496,19 +512,107 @@ class PurchaseOrder(models.Model):
     #         else:
     #             super(PurchaseOrder, order).button_confirm()
 
+    def _reset_po_approval_fields(self):
+        self.write({
+            "pe_approved": False,
+            "pm_approved": False,
+            "od_approved": False,
+            "md_approved": False,
+            "rejection_reason": False,
+        })
+
+    def _approval_stage_group_xmlid(self, stage):
+        return {
+            "pe": "pr_custom_purchase.project_engineer",
+            "pm": "pr_custom_purchase.project_manager",
+            "od": "pr_custom_purchase.operations_director",
+            "md": "pr_custom_purchase.managing_director",
+        }.get(stage)
+
+    def _approval_stage_label(self, stage):
+        return {
+            "pe": _("Procurement Manager"),
+            "pm": _("Project Manager"),
+            "od": _("Operations Director"),
+            "md": _("Managing Director"),
+        }.get(stage, stage and stage.upper())
+
+    def _schedule_next_po_approval_activity(self, note=False):
+        for order in self:
+            pending_stage = order._get_pending_approval_stage()
+            group_xml_id = order._approval_stage_group_xmlid(pending_stage)
+            if not group_xml_id:
+                continue
+            activity_note = note or _(
+                "PO %(po)s is waiting for %(stage)s approval. Please review."
+            ) % {
+                "po": order.name,
+                "stage": order._approval_stage_label(pending_stage),
+            }
+            order._schedule_activity_for_group(
+                group_xml_id,
+                _("Review Purchase Order"),
+                activity_note,
+            )
+
+    def _schedule_initial_po_approval_activities(self, note=False):
+        for order in self:
+            order._schedule_next_po_approval_activity(
+                note or _("PO %s is waiting for approval. Please review.") % order.name
+            )
+
+    def _submit_for_po_approval(self):
+        for order in self:
+            if order.is_rfq_record:
+                raise UserError(_("RFQs cannot be submitted for PO approval. Create/select a Purchase Order first."))
+            if not order.order_line:
+                raise UserError(_("Please add at least one product line before submitting for approval."))
+            order.write({
+                "state": "pending",
+                "pe_approved": False,
+                "pm_approved": False,
+                "od_approved": False,
+                "md_approved": False,
+                "rejection_reason": False,
+            })
+            order._schedule_initial_po_approval_activities(
+                _("PO %s has been submitted for approval from the beginning.") % order.name
+            )
+            order.message_post(body=_("Purchase Order submitted for approval from the first approval stage."))
+        return True
+
+    def action_submit_for_approval(self):
+        for order in self:
+            if order.state not in ("draft", "sent"):
+                raise UserError(_("Only draft/sent Purchase Orders can be submitted for approval."))
+        return self._submit_for_po_approval()
+
+    def _confirm_fully_approved_po(self):
+        for order in self:
+            if not order.can_confirm_order:
+                raise UserError(
+                    _("All required approvals must be completed before confirming this Purchase Order."))
+            # Re-enter the native purchase confirmation flow so stock pickings/
+            # receipts are generated by standard Odoo logic.
+            order.write({"state": "draft"})
+            super(PurchaseOrder, order).button_confirm()
+            order._lock_purchase_order_after_approval()
+
     def button_confirm(self):
+        native_orders = self.env["purchase.order"]
         for order in self:
             if order.state == "pending":
-                if not order.can_confirm_order:
-                    raise UserError(
-                        _("All required approvals must be completed before confirming this Purchase Order."))
-                    # Re-enter the native purchase confirmation flow so stock pickings/
-                    # receipts are generated by standard Odoo logic.
-                order.write({"state": "draft"})
-                super(PurchaseOrder, order).button_confirm()
-                order._lock_purchase_order_after_approval()
+                order._confirm_fully_approved_po()
+            elif order.state in ("draft", "sent"):
+                order._submit_for_po_approval()
+            elif order.state == "rejected":
+                raise UserError(_("Reset the rejected Purchase Order to Draft before submitting it again."))
             else:
-                super(PurchaseOrder, order).button_confirm()
+                native_orders |= order
+
+        if native_orders:
+            return super(PurchaseOrder, native_orders).button_confirm()
+        return True
 
     def _lock_purchase_order_after_approval(self):
         for order in self:
@@ -592,79 +696,67 @@ class PurchaseOrder(models.Model):
     def action_approve(self):
         self.ensure_one()
         amount = self.subtotal
+        approved_stage = False
 
         if amount <= 10000:
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
 
         elif amount <= 100000:
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.project_manager",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PE. Please review.",
-                )
             elif not self.pm_approved:
                 self.write({"pm_approved": True})
+                approved_stage = "pm"
                 self.message_post(body="Approved by Project Manager.")
 
         elif amount <= 500000:
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.project_manager",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PE. Please review.",
-                )
             elif not self.pm_approved:
                 self.write({"pm_approved": True})
+                approved_stage = "pm"
                 self.message_post(body="Approved by Project Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.operations_director",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PM. Please review.",
-                )
             elif not self.od_approved:
                 self.write({"od_approved": True})
+                approved_stage = "od"
                 self.message_post(body="Approved by Operations Director.")
 
         else:  # Above 500k
             if not self.pe_approved:
                 self.write({"pe_approved": True})
+                approved_stage = "pe"
                 self.message_post(body="Approved by Procurement Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.project_manager",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PE. Please review.",
-                )
             elif not self.pm_approved:
                 self.write({"pm_approved": True})
+                approved_stage = "pm"
                 self.message_post(body="Approved by Project Manager.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.operations_director",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by PM. Please review.",
-                )
             elif not self.od_approved:
                 self.write({"od_approved": True})
+                approved_stage = "od"
                 self.message_post(body="Approved by Operations Director.")
-                self._schedule_activity_for_group(
-                    "pr_custom_purchase.managing_director",
-                    "Review Purchase Order",
-                    f"PO {self.name} approved by OD. Please review.",
-                )
             elif not self.md_approved:
                 self.write({"md_approved": True})
+                approved_stage = "md"
                 self.message_post(body="Approved by Managing Director.")
 
         self._auto_approve_following_stages_for_user(self.env.user)
 
         if self.state == "pending" and self.can_confirm_order:
             self.button_confirm()
+        elif self.state == "pending" and approved_stage:
+            self._schedule_next_po_approval_activity(
+                _("PO %(po)s approved by %(approver)s. Please review.") % {
+                    "po": self.name,
+                    "approver": self.env.user.name,
+                }
+            )
 
         return self._reload_action()
 
@@ -711,7 +803,9 @@ class PurchaseOrder(models.Model):
             "md": "pending_md",
         }
         for order in self:
-            if order.state == "cancel" and order.rejection_reason:
+            if order.state == "rejected" or (
+                order.state == "cancel" and order.rejection_reason
+            ):
                 order.approval_status = "rejected"
             elif order.state in ("purchase", "done"):
                 order.approval_status = "approved"
@@ -858,26 +952,29 @@ class PurchaseOrder(models.Model):
                 "pm_approved": False,
                 "od_approved": False,
                 "md_approved": False,
+                "rejection_reason": False,
             })
 
-            if order.pr_name:
-                requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
-                    [("name", "=", order.pr_name)], limit=1
-                )
-                if requisition:
-                    requisition.sudo().write({"status": "pr", "approval": "pending"})
-                custom_pr = self.env["custom.pr"].sudo().search([("name", "=", order.pr_name)], limit=1)
-                if custom_pr:
-                    vals = {"state": "draft", "approval": "pending", "pr_created": False}
-                    if requisition and not custom_pr.purchase_requisition_id:
-                        vals["purchase_requisition_id"] = requisition.id
-                    custom_pr.write(vals)
+            order.message_post(body=_(
+                "Purchase Order reset to draft and approvals cleared. "
+                "Confirm again to resubmit it from the first approval stage."
+            ))
+        return True
 
-            if order.origin:
-                rfqs = self.env["purchase.order"].sudo().search([("name", "=", order.origin)])
-                rfqs.write({"state": "draft"})
-
-            order.message_post(body=_("Purchase Order reset to draft and approvals cleared."))
+    def button_draft(self):
+        custom_orders = self.filtered(
+            lambda order: order.state in ("pending", "rejected")
+            or order.rejection_reason
+            or order.pe_approved
+            or order.pm_approved
+            or order.od_approved
+            or order.md_approved
+        )
+        native_orders = self - custom_orders
+        if custom_orders:
+            custom_orders.action_reset_to_draft()
+        if native_orders:
+            return super(PurchaseOrder, native_orders).button_draft()
         return True
 
     def action_open_reject_wizard(self):
@@ -899,16 +996,25 @@ class PurchaseOrder(models.Model):
         }
 
     def action_reject(self, reason=False):
-        reason = reason or self.env.context.get("reject_reason")
+        reason = (reason or self.env.context.get("reject_reason") or "").strip()
         if not reason:
             raise UserError(_("Please provide reason for rejection."))
 
         for order in self:
+            if order.state != "pending":
+                raise UserError(_("Only pending Purchase Orders can be rejected."))
             if not order.origin:
                 raise UserError(_("This Purchase Order has no origin."))
 
             rejecting_user = self.env.user
-            order.rejection_reason = reason
+            order.write({
+                "rejection_reason": reason,
+                "state": "rejected",
+            })
+            order.message_post(
+                body=_("Purchase Order rejected by %s.<br/>Reason: %s")
+                % (rejecting_user.name, reason)
+            )
             _logger.info(
                 "Rejecting PO %s with origin: %s by %s",
                 order.name,
@@ -921,12 +1027,10 @@ class PurchaseOrder(models.Model):
             )
             if not parent_po:
                 _logger.warning("No parent PO found for origin: %s", order.origin)
-                order.state = "cancel"
                 continue
 
             if not parent_po.origin:
                 _logger.warning("Parent PO %s has no origin.", parent_po.name)
-                order.state = "cancel"
                 continue
 
             pr_record = self.env["purchase.requisition"].search(
@@ -936,12 +1040,10 @@ class PurchaseOrder(models.Model):
                 _logger.warning(
                     "No Purchase Requisition found with name: %s", parent_po.origin
                 )
-                order.state = "cancel"
                 continue
 
             if not pr_record.supervisor_partner_id:
                 _logger.warning("PR %s has no supervisor_partner_id.", pr_record.name)
-                order.state = "cancel"
                 continue
 
             try:
@@ -952,7 +1054,6 @@ class PurchaseOrder(models.Model):
                     pr_record.name,
                     pr_record.supervisor_partner_id,
                 )
-                order.state = "cancel"
                 continue
 
             supervisor_partner = self.env["res.partner"].browse(supervisor_id_int)
@@ -994,9 +1095,6 @@ class PurchaseOrder(models.Model):
                         "email_to": supervisor_partner.email,
                     }
                     self.env["mail.mail"].create(mail_values).send()
-
-            order.message_post(body=_("Purchase Order rejected by %s.<br/>Reason: %s") % (rejecting_user.name, reason))
-            order.state = "cancel"
 
     # PO send by Email in RFQ
     def action_rfq_send(self):

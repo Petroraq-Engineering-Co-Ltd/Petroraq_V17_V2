@@ -109,6 +109,15 @@
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
                     <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary" invisible="state != 'cancelled'"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_attachments"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-eye"
+                                invisible="attachment_count == 0">
+                            <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                        </button>
+                    </div>
                     <group>
                         <group>
                             <field name="name" readonly="1"/>
@@ -228,6 +237,12 @@
                     </group>
                     <notebook>
                         <page string="Attachments">
+                            <button name="action_view_attachments"
+                                    type="object"
+                                    string="Preview Attachments"
+                                    icon="fa-eye"
+                                    class="btn-secondary"
+                                    invisible="attachment_count == 0"/>
                             <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
                         </page>
                         <page string="Approvals"
@@ -357,6 +372,13 @@
                                 <span class="o_stat_text">Voucher</span>
                             </div>
                         </button>
+                        <button name="action_view_attachments"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-eye"
+                                invisible="attachment_count == 0">
+                            <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                        </button>
                     </div>
                     <group>
                         <group>
@@ -397,6 +419,17 @@
                                 </tree>
                             </field>
                         </page>
+                        <page string="Attachments">
+                            <button name="action_view_attachments"
+                                    type="object"
+                                    string="Preview Attachments"
+                                    icon="fa-eye"
+                                    class="btn-secondary"
+                                    invisible="attachment_count == 0"/>
+                            <field name="attachment_ids"
+                                   widget="many2many_binary"
+                                   readonly="state != 'requested'"/>
+                        </page>
                     </notebook>
                 </sheet>
                 <chatter/>
@@ -428,6 +461,15 @@
             <xpath expr="//form" position="attributes">
                 <attribute name="create">false</attribute>
             </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_attachments"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-eye"
+                        invisible="attachment_count == 0">
+                    <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                </button>
+            </xpath>
         </field>
     </record>
 
@@ -454,8 +496,38 @@
             <xpath expr="//form" position="attributes">
                 <attribute name="create">false</attribute>
             </xpath>
+            <xpath expr="//sheet/field[@name='active']" position="after">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_attachments"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-eye"
+                            invisible="attachment_count == 0">
+                        <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                    </button>
+                </div>
+            </xpath>
             <xpath expr="//field[@name='iqama_line_ids']" position="attributes">
                 <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_medical_insurance_form_attachment_preview" model="ir.ui.view">
+        <field name="name">hr.employee.medical.insurance.form.attachment.preview</field>
+        <field name="model">hr.employee.medical.insurance</field>
+        <field name="inherit_id" ref="pr_hr.hr_employee_medical_insurance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/field[@name='active']" position="after">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_attachments"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-eye"
+                            invisible="attachment_count == 0">
+                        <field name="attachment_count" widget="statinfo" string="Attachments"/>
+                    </button>
+                </div>
             </xpath>
         </field>
     </record>

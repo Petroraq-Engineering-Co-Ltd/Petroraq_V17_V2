@@ -113,6 +113,7 @@ class PurchaseQuotation(models.Model):
         ("pending", "Pending Approval"),
         ("purchase", "Purchase Order"),
         ("done", "Locked"),
+        ("rejected", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="RFQ Status", compute="_compute_linked_statuses")
     linked_pr_state = fields.Selection([
@@ -130,6 +131,7 @@ class PurchaseQuotation(models.Model):
         ("pending", "Pending"),
         ("purchase", "Purchase Order"),
         ("done", "Locked"),
+        ("rejected", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="PO Status", compute="_compute_linked_statuses")
 
@@ -148,7 +150,10 @@ class PurchaseQuotation(models.Model):
     )
 
     def _compute_linked_statuses(self):
-        po_priority = {"draft": 1, "sent": 2, "pending": 3, "purchase": 4, "done": 5, "cancel": 6}
+        po_priority = {
+            "draft": 1, "sent": 2, "cancel": 3, "rejected": 4,
+            "pending": 5, "purchase": 6, "done": 7,
+        }
         for rec in self:
             rec.linked_rfq_state = rec.custom_rfq_id.state if rec.custom_rfq_id else "missing"
             requisition = rec.requisition_id or (

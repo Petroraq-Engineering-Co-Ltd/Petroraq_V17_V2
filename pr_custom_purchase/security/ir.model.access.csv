@@ -21,6 +21,7 @@ access_budget_increase_reject_wizard_user,budget.increase.reject.wizard user,mod
 access_custom_pr_all_user_read,access.custom.pr.all.user.read,model_custom_pr,base.group_user,1,0,0,0
 access_custom_pr_line_all_user_read,access.custom.pr.line.all.user.read,model_custom_pr_line,base.group_user,1,0,0,0
 access_purchase_requisition_reject_wizard_user,purchase.requisition.reject.wizard user,model_purchase_requisition_reject_wizard,base.group_user,1,1,1,1
+access_purchase_requisition_reset_wizard_user,purchase.requisition.reset.wizard user,model_purchase_requisition_reset_wizard,base.group_user,1,1,1,1
 access_pr_expense_bucket_user,pr.expense.bucket user,model_pr_expense_bucket,base.group_user,1,1,1,1
 access_pr_expense_bucket_line_user,pr.expense.bucket.line user,model_pr_expense_bucket_line,base.group_user,1,1,1,1
 access_pr_expense_bucket_reject_wizard_user,pr.expense.bucket.reject.wizard user,model_pr_expense_bucket_reject_wizard,base.group_user,1,1,1,1

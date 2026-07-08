@@ -214,6 +214,18 @@ class AccountAnalyticAccount(models.Model):
                 )
                 if not self._date_in_period(voucher_date, date_from, date_to):
                     continue
+                requisition = getattr(parent, "purchase_requisition_id", False)
+                if requisition:
+                    budget_cost_center = requisition._resolve_voucher_budget_cost_center(
+                        line,
+                        raise_if_missing=False,
+                    )
+                    if budget_cost_center:
+                        add_distributed_amount(
+                            {str(budget_cost_center.id): 100.0},
+                            line.amount or 0.0,
+                        )
+                    continue
                 add_distributed_amount(line.analytic_distribution or {}, line.amount or 0.0)
 
         PurchaseRequisition = self.env["purchase.requisition"].sudo()

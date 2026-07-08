@@ -228,6 +228,15 @@ class HrPayslipRun(models.Model):
             ], company)
         return account
 
+    def _prepare_batch_payroll_cost_center_vals(self, pay_slips, account=False, label=False):
+        helper = self.env["hr.payslip"]
+        if helper._pr_payroll_line_excludes_cost_centers(account=account, label=label):
+            return {}
+        analytic_distribution = helper._pr_employees_payroll_analytic_distribution(
+            pay_slips.mapped("employee_id")
+        )
+        return {"analytic_distribution": analytic_distribution} if analytic_distribution else {}
+
     def _prepare_payroll_charge_lines(self, batch, journal, pay_slips):
         employee_count = len(pay_slips.mapped('employee_id'))
         if not employee_count:
@@ -263,32 +272,50 @@ class HrPayslipRun(models.Model):
             'journal_id': journal.id,
             'date': fields.Date.today(),
         }
+        bank_charge_label = _("Payroll bank charges (%s employees)") % employee_count
+        vat_label = _("VAT on payroll bank charges")
+        total_label = _("Payroll bank charges including VAT")
         return [
             (0, 0, {
                 **common_vals,
-                'name': _("Payroll bank charges (%s employees)") % employee_count,
+                **self._prepare_batch_payroll_cost_center_vals(
+                    pay_slips,
+                    account=bank_charge_account,
+                    label=bank_charge_label,
+                ),
+                'name': bank_charge_label,
                 'account_id': bank_charge_account.id,
                 'debit': charge_amount,
                 'credit': 0.0,
             }),
             (0, 0, {
                 **common_vals,
-                'name': _("VAT on payroll bank charges"),
+                **self._prepare_batch_payroll_cost_center_vals(
+                    pay_slips,
+                    account=vat_receivable_account,
+                    label=vat_label,
+                ),
+                'name': vat_label,
                 'account_id': vat_receivable_account.id,
                 'debit': vat_amount,
                 'credit': 0.0,
             }),
             (0, 0, {
                 **common_vals,
-                'name': _("Payroll bank charges including VAT"),
+                **self._prepare_batch_payroll_cost_center_vals(
+                    pay_slips,
+                    account=anb_account,
+                    label=total_label,
+                ),
+                'name': total_label,
                 'account_id': anb_account.id,
                 'debit': 0.0,
                 'credit': total_amount,
             }),
         ]
 
-    def _prepare_balancing_line_vals(self, batch, journal, account, imbalance_amount):
-        return {
+    def _prepare_balancing_line_vals(self, batch, journal, account, imbalance_amount, pay_slips=False):
+        vals = {
             'name': f"{batch.name} balancing line",
             'partner_id': False,
             'account_id': account.id,
@@ -297,6 +324,13 @@ class HrPayslipRun(models.Model):
             'debit': abs(imbalance_amount) if imbalance_amount < 0 else 0.0,
             'credit': imbalance_amount if imbalance_amount > 0 else 0.0,
         }
+        if pay_slips:
+            vals.update(self._prepare_batch_payroll_cost_center_vals(
+                pay_slips,
+                account=account,
+                label=vals["name"],
+            ))
+        return vals
 
     def action_validate(self):
         res = super().action_validate()
@@ -327,6 +361,7 @@ class HrPayslipRun(models.Model):
                     journal=journal,
                     account=anb_account,
                     imbalance_amount=imbalance_amount,
+                    pay_slips=pay_slips,
                 )))
 
             salary_journal_entry_id = self.env['account.move'].sudo().with_context(check_move_validity=False,
@@ -354,6 +389,7 @@ class HrPayslipRun(models.Model):
                             journal=journal,
                             account=anb_account,
                             imbalance_amount=final_imbalance,
+                            pay_slips=pay_slips,
                         ))],
                     })
 

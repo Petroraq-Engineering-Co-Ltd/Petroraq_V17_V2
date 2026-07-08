@@ -39,6 +39,7 @@
                     <group>
                         <field name="rejection_reason"
                                placeholder="Enter Reason for Rejection"
+                               readonly="state != 'pending'"
                                groups="pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director"/>
                         <field name="rejection_reason"
                                readonly="1"

@@ -42,29 +42,20 @@
             <xpath expr="//header" position="before">
                 <field name='subtotal' invisible='1'/>
                 <field name="can_confirm_order" invisible="1"/>
+                <field name="is_rfq_record" invisible="1"/>
             </xpath>
-            <!-- Hide Confirm button with id 'bid_confirm' -->
+            <!-- Replace Odoo's sent-state Confirm button with an approval Submit button. -->
             <xpath expr="//header/button[@id='bid_confirm']" position="replace">
-                <!-- Confirm for Procurement Manager (≤ 10k) -->
-                <button name="action_confirm" type="object" string="Confirm Order" class="btn btn-primary"
-                        invisible="state != 'pending' or subtotal &gt; 10000 or not can_confirm_order"
-                        groups="pr_custom_purchase.project_engineer"/>
-                <!-- Confirm for Project Manager (10k–100k) -->
-                <button name="action_confirm" type="object" string="Confirm Order" class="btn btn-primary"
-                        invisible="state != 'pending' or subtotal &lt;= 10000 or subtotal &gt; 100000 or not can_confirm_order"
-                        groups="pr_custom_purchase.project_manager"/>
-                <!-- Confirm for Operations Director (100k–500k) -->
-                <button name="action_confirm" type="object" string="Confirm Order" class="btn btn-primary"
-                        invisible="state != 'pending' or subtotal &lt;= 100000 or subtotal &gt; 500000 or not can_confirm_order"
-                        groups="pr_custom_purchase.operations_director"/>
-                <!-- Confirm for Managing Director (> 500k) -->
-                <button name="action_confirm" type="object" string="Confirm Order" class="btn btn-primary"
-                        invisible="state != 'pending' or subtotal &lt;= 500000 or not can_confirm_order"
-                        groups="pr_custom_purchase.managing_director"/>
+                <button name="action_submit_for_approval"
+                        type="object"
+                        string="Submit"
+                        class="btn btn-primary"
+                        invisible="is_rfq_record or state not in ('draft', 'sent')"
+                        groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
             </xpath>
-            <!-- Hide Confirm button with id 'draft_confirm' -->
+            <!-- Hide Odoo's draft-state Confirm button: PO approval starts from Submit. -->
             <xpath expr="//header/button[@id='draft_confirm']" position="attributes">
-                <attribute name="invisible">0</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//header" position="inside">
                 <button name="action_open_reject_wizard"
@@ -108,7 +99,7 @@
         <field name="arch" type="xml">
             <!-- Extend the statusbar to show 'pending' before 'purchase' -->
             <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,sent,pending,purchase,done,cancel</attribute>
+                <attribute name="statusbar_visible">draft,sent,pending,purchase,done,rejected,cancel</attribute>
             </xpath>
         </field>
     </record>
@@ -118,6 +109,9 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="readonly">state in ('purchase', 'done', 'rejected', 'cancel')</attribute>
+            </xpath>
             <!-- Hide the existing Products page -->
             <xpath expr="//page[@name='products']" position="attributes">
                 <attribute name="invisible">0</attribute>

@@ -1120,11 +1120,13 @@ class HrOnboardingComplianceRequest(models.Model):
             return False
         voucher = self.cash_payment_id or self.bank_payment_id
         if voucher and voucher.state != 'cancel':
+            self._copy_supporting_file_to_record(voucher)
             self.payment_state = 'paid' if voucher.state == 'posted' else 'pending'
             return self.payment_request_id or voucher
         if self.payment_request_id:
             if self.payment_request_id.state == 'cancelled':
                 self.payment_request_id.state = 'requested'
+            self._copy_supporting_file_to_record(self.payment_request_id)
             self.payment_state = 'pending'
             return self.payment_request_id
         existing_request = self.env['pr.employee.payment.request'].sudo().search([
@@ -1136,6 +1138,7 @@ class HrOnboardingComplianceRequest(models.Model):
                 'payment_request_id': existing_request.id,
                 'payment_state': 'pending',
             })
+            self._copy_supporting_file_to_record(existing_request)
             return existing_request
         if self.amount <= 0:
             raise UserError(_('Please set a positive amount before sending this request to Accounting.'))
@@ -1170,10 +1173,77 @@ class HrOnboardingComplianceRequest(models.Model):
             'payment_request_id': payment_request.id,
             'payment_state': 'pending',
         })
+        self._copy_supporting_file_to_record(payment_request)
         if self.work_permit_id and 'payment_state' in self.work_permit_id._fields:
             self.work_permit_id.payment_state = 'pending'
         payment_request._notify_accounts()
         return payment_request
+
+    def _get_supporting_file_attachments(self):
+        self.ensure_one()
+        Attachment = self.env['ir.attachment'].sudo()
+        attachments = Attachment.search([
+            ('res_model', '=', self._name),
+            ('res_id', '=', self.id),
+            ('res_field', '=', 'attachment_file'),
+        ])
+        if not attachments and self.attachment_file:
+            attachments = Attachment.create({
+                'name': self.attachment_filename or _('%s Supporting File') % self.display_name,
+                'type': 'binary',
+                'datas': self.attachment_file,
+                'res_model': self._name,
+                'res_id': self.id,
+                'res_field': 'attachment_file',
+            })
+        return attachments
+
+    @staticmethod
+    def _attachment_copy_key(attachment):
+        return (
+            attachment.name,
+            attachment.checksum or attachment.url or attachment.store_fname or attachment.id,
+        )
+
+    def _copy_supporting_file_to_record(self, target):
+        self.ensure_one()
+        if not target:
+            return self.env['ir.attachment']
+        source_attachments = self._get_supporting_file_attachments()
+        if not source_attachments:
+            return self.env['ir.attachment']
+
+        Attachment = self.env['ir.attachment'].sudo()
+        existing_attachments = Attachment.search([
+            ('res_model', '=', target._name),
+            ('res_id', '=', target.id),
+        ])
+        if 'attachment_ids' in target._fields:
+            existing_attachments |= target.attachment_ids.sudo()
+        existing_by_key = {
+            self._attachment_copy_key(attachment): attachment
+            for attachment in existing_attachments
+        }
+
+        linked_attachments = self.env['ir.attachment']
+        for attachment in source_attachments:
+            key = self._attachment_copy_key(attachment)
+            if key in existing_by_key:
+                linked_attachments |= existing_by_key[key]
+                continue
+            copied_attachment = attachment.copy({
+                'res_model': target._name,
+                'res_id': target.id,
+                'res_field': False,
+            })
+            linked_attachments |= copied_attachment
+            existing_by_key[key] = copied_attachment
+
+        if linked_attachments and 'attachment_ids' in target._fields:
+            target.sudo().write({
+                'attachment_ids': [(4, attachment.id) for attachment in linked_attachments],
+            })
+        return linked_attachments
 
     def _check_selected_budget_or_raise(self, amount=False):
         self.ensure_one()
@@ -1322,11 +1392,15 @@ class HrOnboardingComplianceRequest(models.Model):
 
     def action_open_payment_request(self):
         self.ensure_one()
+        if self.payment_request_id:
+            self._copy_supporting_file_to_record(self.payment_request_id)
         return self._open_linked_record(self.payment_request_id, _('Payment Request'))
 
     def action_open_payment_voucher(self):
         self.ensure_one()
         voucher = self.cash_payment_id or self.bank_payment_id
+        if voucher:
+            self._copy_supporting_file_to_record(voucher)
         return self._open_linked_record(voucher, _('Payment Voucher'))
 
     def action_open_bank_payment(self):
@@ -1600,7 +1674,15 @@ class PrEmployeePaymentRequest(models.Model):
                 'payment_request_id': record.id,
                 'payment_state': 'pending',
             })
+            record.onboarding_compliance_request_id.sudo()._copy_supporting_file_to_record(record)
         return records
+
+    def _get_supporting_attachments(self):
+        self.ensure_one()
+        attachments = super()._get_supporting_attachments()
+        if self.onboarding_compliance_request_id:
+            attachments |= self.onboarding_compliance_request_id.sudo()._get_supporting_file_attachments()
+        return attachments
 
     def _check_ready_for_voucher(self):
         super()._check_ready_for_voucher()
@@ -1628,6 +1710,8 @@ class PrEmployeePaymentRequest(models.Model):
                 vals['bank_payment_id'] = voucher.id
             if 'onboarding_compliance_request_id' in voucher._fields:
                 voucher.sudo().onboarding_compliance_request_id = request.id
+            request.sudo()._copy_supporting_file_to_record(rec)
+            request.sudo()._copy_supporting_file_to_record(voucher)
             request.sudo().write(vals)
             if request.work_permit_id and 'payment_state' in request.work_permit_id._fields:
                 request.work_permit_id.sudo().payment_state = 'pending'

@@ -1,3 +1,4 @@
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -102,3 +103,35 @@ class TestPurchaseRequisitionProductDefaults(TransactionCase):
         })
 
         self.assertEqual(line.unit_price, 75.0)
+
+    def test_requisition_create_requires_line_item(self):
+        with self.assertRaises(ValidationError):
+            self.env["purchase.requisition"].create({
+                "name": "NO-LINE-PR",
+            })
+
+    def test_requisition_create_requires_positive_line_amount(self):
+        with self.assertRaises(ValidationError):
+            self.env["purchase.requisition"].create({
+                "name": "ZERO-AMOUNT-PR",
+                "line_ids": [(0, 0, {
+                    "description": self.material_product.id,
+                    "cost_center_id": self.cost_center.id,
+                    "quantity": 1.0,
+                    "unit_price": 0.0,
+                })],
+            })
+
+    def test_requisition_create_accepts_positive_line_amount(self):
+        requisition = self.env["purchase.requisition"].create({
+            "name": "POSITIVE-AMOUNT-PR",
+            "line_ids": [(0, 0, {
+                "description": self.material_product.id,
+                "cost_center_id": self.cost_center.id,
+                "quantity": 2.0,
+                "unit_price": 5.0,
+            })],
+        })
+
+        self.assertTrue(requisition.exists())
+        self.assertEqual(requisition.total_excl_vat, 10.0)

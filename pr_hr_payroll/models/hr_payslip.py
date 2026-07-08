@@ -6,6 +6,30 @@ from odoo.tools import date_utils
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
+    PAYROLL_COST_CENTER_EXCLUDED_CODES = {
+        "ADVALL",
+        "ADVANCE_ALLOWANCE",
+        "ADVANCE_ALLOWANCES",
+        "PETTY",
+        "PETTYCASH",
+        "PETTY_CASH",
+        "DEPR",
+        "DEP",
+        "DEPRECIATION",
+    }
+    PAYROLL_COST_CENTER_EXCLUDED_TERMS = (
+        "petty cash",
+        "pettycash",
+        "advance allowance",
+        "advance allowances",
+        "advanceallowance",
+        "advanceallowances",
+        "depreciation",
+        "provision for gosi",
+        "provision gosi",
+        "gosi provision",
+    )
+
     other_amount = fields.Float(string="Other Amount", default=0.0)
     salary_journal_entry_id = fields.Many2one("account.move", readonly=True)
 
@@ -614,6 +638,84 @@ class HrPayslip(models.Model):
         """Backward-compatible entry point: recompute from source values exactly once."""
         return self.compute_sheet()
 
+    def _pr_payroll_line_excludes_cost_centers(self, salary_rule=False, account=False, label=False):
+        """Return True for payroll JE lines that must not receive cost centers."""
+        salary_rule = salary_rule.sudo() if salary_rule else self.env["hr.salary.rule"]
+        account = (account or salary_rule.account_id).sudo() if (account or salary_rule) else self.env["account.account"]
+        code = (salary_rule.code or "").strip().upper() if salary_rule else ""
+
+        searchable_text = " ".join(filter(None, [
+            code,
+            salary_rule.name if salary_rule else "",
+            account.code if account else "",
+            account.name if account else "",
+            label or "",
+        ])).lower()
+        if code in self.PAYROLL_COST_CENTER_EXCLUDED_CODES:
+            return True
+        if "gosi" in searchable_text and "provision" in searchable_text:
+            return True
+        return any(term in searchable_text for term in self.PAYROLL_COST_CENTER_EXCLUDED_TERMS)
+
+    def _pr_employee_payroll_cost_centers(self, employee):
+        employee = employee.sudo()
+        return [
+            employee.department_cost_center_id,
+            employee.section_cost_center_id,
+            employee.project_cost_center_id,
+            employee.employee_cost_center_id,
+        ]
+
+    def _pr_employee_payroll_analytic_distribution(self, employee, percentage=100.0):
+        distribution = {}
+        for cost_center in self._pr_employee_payroll_cost_centers(employee):
+            if cost_center:
+                distribution[str(cost_center.id)] = distribution.get(str(cost_center.id), 0.0) + percentage
+        return {
+            key: round(value, 6)
+            for key, value in distribution.items()
+            if value
+        }
+
+    def _pr_employees_payroll_analytic_distribution(self, employees):
+        employees = employees.filtered(lambda employee: employee.employee_cost_center_id)
+        if not employees:
+            return {}
+        distribution = {}
+        for employee in employees:
+            employee_distribution = self._pr_employee_payroll_analytic_distribution(employee)
+            for key, value in employee_distribution.items():
+                distribution[key] = 100.0
+        return {
+            key: round(value, 6)
+            for key, value in distribution.items()
+            if value
+        }
+
+    def _pr_prepare_payroll_cost_center_vals(self, employee, salary_rule=False, account=False, label=False):
+        if self._pr_payroll_line_excludes_cost_centers(
+            salary_rule=salary_rule,
+            account=account,
+            label=label,
+        ):
+            return {}
+
+        analytic_distribution = self._pr_employee_payroll_analytic_distribution(employee)
+        if not analytic_distribution:
+            return {}
+
+        line_vals = {
+            "analytic_distribution": analytic_distribution,
+        }
+        move_line_fields = self.env["account.move.line"]._fields
+        if "cs_project_id" in move_line_fields and employee.project_cost_center_id:
+            line_vals["cs_project_id"] = employee.project_cost_center_id.id
+        if "cs_employee_id" in move_line_fields and employee.employee_cost_center_id:
+            line_vals["cs_employee_id"] = employee.employee_cost_center_id.id
+        if employee.project_cost_center_id and employee.project_cost_center_id.project_partner_id:
+            line_vals["partner_id"] = employee.project_cost_center_id.project_partner_id.id
+        return line_vals
+
     def prepare_payslip_entry_vals_lines(self):
         for rec in self:
             payslip_entry_vals_lines = []
@@ -636,38 +738,30 @@ class HrPayslip(models.Model):
             return payslip_entry_vals_lines
 
     def prepare_payslip_entry_line_vals(self, line):
-        if (line.total != 0 or line.total > 0 or line.total < 0) and line.salary_rule_id.code not in ["GROSS", "NET"]:
+        if line.total and line.salary_rule_id.code not in ["GROSS", "NET"]:
             payslip_date_to = line.slip_id.date_to or self.date_to
             month_name = payslip_date_to.strftime('%B') if payslip_date_to else ""
             year_name = payslip_date_to.year if payslip_date_to else ""
-            analytic_distribution = {}
-            if self.employee_id.department_cost_center_id:
-                analytic_distribution[str(self.employee_id.department_cost_center_id.id)] = 100
-            if self.employee_id.section_cost_center_id:
-                analytic_distribution[str(self.employee_id.section_cost_center_id.id)] = 100
-            if self.employee_id.project_cost_center_id:
-                analytic_distribution[str(self.employee_id.project_cost_center_id.id)] = 100
-            if self.employee_id.employee_cost_center_id:
-                analytic_distribution[str(self.employee_id.employee_cost_center_id.id)] = 100
-            # if line.slip_id.employee_id.department_id and line.slip_id.employee_id.department_id.department_cost_center_id:
-            #     analytic_distribution.update({str(line.slip_id.employee_id.department_id.department_cost_center_id.id): 100})
             line_vals = {
                 "account_id": line.salary_rule_id.account_id.id,
-                "analytic_distribution": analytic_distribution,
             }
-            # Project Manager
-            if self.employee_id.project_cost_center_id and self.employee_id.project_cost_center_id.project_partner_id:
-                line_vals.update({"partner_id": self.employee_id.project_cost_center_id.project_partner_id.id})
+            line_vals.update(self._pr_prepare_payroll_cost_center_vals(
+                employee=self.employee_id,
+                salary_rule=line.salary_rule_id,
+                account=line.salary_rule_id.account_id,
+                label=line.salary_rule_id.name,
+            ))
             # if line.salary_rule_id.code in ["LOAN", "ADVALL"]:
             #     line_vals["account_id"] = line.slip_id.employee_id.employee_account_id.id
 
-            if line.category_id.code in ["BASIC", "ALW"]:
+            category_code = (line.category_id.code or "").upper()
+            if category_code in ["BASIC", "ALW"] or line.total > 0:
                 line_vals.update({
                     "name": f"{line.slip_id.employee_id.code} - {line.slip_id.employee_id.name} {line.salary_rule_id.name} of Month {month_name} {year_name}",
                     "debit": abs(line.total),
                     "credit": 0.0,
                 })
-            elif line.category_id.code == "DED":
+            elif category_code == "DED" or line.total < 0:
                 line_vals.update({
                     "name": f"{line.slip_id.employee_id.code} - {line.slip_id.employee_id.name} {line.salary_rule_id.name} of Month {month_name} {year_name}",
                     "credit": abs(line.total),

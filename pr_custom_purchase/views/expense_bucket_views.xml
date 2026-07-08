@@ -109,7 +109,7 @@
                             <field name="state" widget="badge"
                                    decoration-success="state in ('purchase', 'done')"
                                    decoration-warning="state == 'pending'"
-                                   decoration-danger="state == 'cancel'"/>
+                                   decoration-danger="state in ('rejected', 'cancel')"/>
                         </tree>
                     </field>
                 </page>
