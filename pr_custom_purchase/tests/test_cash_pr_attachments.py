@@ -7,9 +7,27 @@ class TestCashPrAttachmentFlow(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.plan = cls.env["account.analytic.plan"].create({
+            "name": "Cash PR Attachment Test Plan",
+        })
+        cls.cost_center = cls.env["account.analytic.account"].create({
+            "name": "Cash PR Attachment Test Cost Center",
+            "plan_id": cls.plan.id,
+        })
+        cls.product = cls.env["product.product"].create({
+            "name": "Cash PR Attachment Test Product",
+            "standard_price": 10.0,
+        })
+        line_commands = [(0, 0, {
+            "description": cls.product.id,
+            "cost_center_id": cls.cost_center.id,
+            "quantity": 1.0,
+            "unit_price": 10.0,
+        })]
         cls.requisition = cls.env["purchase.requisition"].create({
             "name": "CASH-PR-ATTACHMENT-TEST",
             "pr_type": "cash",
+            "line_ids": line_commands,
         })
         cls.explicit_pr_attachment = cls.env["ir.attachment"].create({
             "name": "pr-explicit.pdf",
@@ -57,6 +75,12 @@ class TestCashPrAttachmentFlow(TransactionCase):
         voucher_target = self.env["purchase.requisition"].create({
             "name": "CASH-PR-ATTACHMENT-VOUCHER-TARGET",
             "pr_type": "cash",
+            "line_ids": [(0, 0, {
+                "description": self.product.id,
+                "cost_center_id": self.cost_center.id,
+                "quantity": 1.0,
+                "unit_price": 10.0,
+            })],
         })
         self.payment_request._copy_attachments_to_record(voucher_target)
 

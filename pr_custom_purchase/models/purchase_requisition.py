@@ -392,7 +392,72 @@ class PurchaseRequisition(models.Model):
                 rec.required_date = rec._required_date_from_priority(rec.priority)
 
     @api.model
+    def _to_float(self, value):
+        try:
+            return float(value or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @api.model
+    def _product_from_line_vals(self, vals):
+        product_id = vals.get("description")
+        if not product_id:
+            return self.env["product.product"]
+        try:
+            product_id = int(product_id)
+        except (TypeError, ValueError):
+            return self.env["product.product"]
+        return self.env["product.product"].browse(product_id).exists()
+
+    @api.model
+    def _line_vals_amount(self, vals):
+        quantity = self._to_float(vals.get("quantity"))
+        if "unit_price" in vals:
+            unit_price = self._to_float(vals.get("unit_price"))
+        else:
+            product = self._product_from_line_vals(vals)
+            unit_price = self.env["purchase.requisition.line"]._get_product_purchase_defaults(product)["unit_price"]
+        return quantity * unit_price
+
+    @api.model
+    def _has_positive_line_command(self, commands):
+        for command in commands or []:
+            if not isinstance(command, (list, tuple)) or not command:
+                continue
+            operation = command[0]
+            if operation == 0 and len(command) > 2:
+                if self._line_vals_amount(command[2] or {}) > 0.0:
+                    return True
+            elif operation == 1 and len(command) > 2:
+                line = self.env["purchase.requisition.line"].browse(command[1]).exists()
+                if line:
+                    vals = {
+                        "description": line.description.id,
+                        "quantity": line.quantity,
+                        "unit_price": line.unit_price,
+                    }
+                    vals.update(command[2] or {})
+                    if self._line_vals_amount(vals) > 0.0:
+                        return True
+            elif operation == 4 and len(command) > 1:
+                line = self.env["purchase.requisition.line"].browse(command[1]).exists()
+                if line and line.total_price > 0.0:
+                    return True
+            elif operation == 6 and len(command) > 2:
+                lines = self.env["purchase.requisition.line"].browse(command[2]).exists()
+                if any(line.total_price > 0.0 for line in lines):
+                    return True
+        return False
+
+    @api.model
+    def _check_create_has_positive_line(self, vals):
+        if not self._has_positive_line_command(vals.get("line_ids")):
+            raise ValidationError(_("A purchase requisition requires at least one line item with a positive amount."))
+
+    @api.model
     def create(self, vals):
+        self._check_create_has_positive_line(vals)
+
         if vals.get("priority"):
             vals["required_date"] = self._required_date_from_priority(vals["priority"])
 

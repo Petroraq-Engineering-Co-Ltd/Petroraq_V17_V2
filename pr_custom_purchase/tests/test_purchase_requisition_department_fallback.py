@@ -27,6 +27,17 @@ class TestPurchaseRequisitionDepartmentFallback(TransactionCase):
             "name": "PR Employee Without User",
             "department_id": cls.department.id,
         })
+        cls.plan = cls.env["account.analytic.plan"].create({
+            "name": "PR Fallback Test Plan",
+        })
+        cls.cost_center = cls.env["account.analytic.account"].create({
+            "name": "PR Fallback Cost Center",
+            "plan_id": cls.plan.id,
+        })
+        cls.product = cls.env["product.product"].create({
+            "name": "PR Fallback Product",
+            "standard_price": 10.0,
+        })
         cls.budget = cls.env["crossovered.budget"].create({
             "name": "PR Department Fallback Budget",
             "date_from": "2026-07-01",
@@ -37,6 +48,21 @@ class TestPurchaseRequisitionDepartmentFallback(TransactionCase):
             "scope": "department",
             "department_id": cls.department.id,
         })
+        cls.env["crossovered.budget.lines"].create({
+            "crossovered_budget_id": cls.budget.id,
+            "analytic_account_id": cls.cost_center.id,
+            "date_from": cls.budget.date_from,
+            "date_to": cls.budget.date_to,
+            "planned_amount": 1000.0,
+        })
+
+    def _line_commands(self):
+        return [(0, 0, {
+            "description": self.product.id,
+            "cost_center_id": self.cost_center.id,
+            "quantity": 1.0,
+            "unit_price": 10.0,
+        })]
 
     def test_employee_name_without_user_sets_department_and_manager(self):
         requisition = self.env["purchase.requisition"].create({
@@ -45,6 +71,7 @@ class TestPurchaseRequisitionDepartmentFallback(TransactionCase):
             "date_request": "2026-07-07",
             "expense_type": "opex",
             "expense_bucket_id": self.budget.id,
+            "line_ids": self._line_commands(),
         })
 
         self.assertEqual(requisition.department, self.department.name)
@@ -61,6 +88,7 @@ class TestPurchaseRequisitionDepartmentFallback(TransactionCase):
             "date_request": "2026-07-07",
             "expense_type": "opex",
             "expense_bucket_id": self.budget.id,
+            "line_ids": self._line_commands(),
         })
 
         self.assertEqual(requisition.department, self.department.name)

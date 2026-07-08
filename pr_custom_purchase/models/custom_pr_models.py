@@ -587,10 +587,13 @@ class CustomPR(models.Model):
 
         requisition = self.env["purchase.requisition"].sudo().with_context(
             skip_pr_notifications=skip_notifications
-        ).create(self._prepare_purchase_requisition_vals(wo_variance_requires_approval))
-        for line_vals in self._prepare_purchase_requisition_line_vals():
-            line_vals["requisition_id"] = requisition.id
-            self.env["purchase.requisition.line"].sudo().create(line_vals)
+        ).create({
+            **self._prepare_purchase_requisition_vals(wo_variance_requires_approval),
+            "line_ids": [
+                (0, 0, line_vals)
+                for line_vals in self._prepare_purchase_requisition_line_vals()
+            ],
+        })
         self._link_purchase_requisition(requisition)
         requisition.message_post(
             body=_("Created from legacy Custom PR %s.") % self.display_name,

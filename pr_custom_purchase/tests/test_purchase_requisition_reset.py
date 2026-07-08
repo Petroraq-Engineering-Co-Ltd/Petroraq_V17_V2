@@ -10,12 +10,32 @@ class TestPurchaseRequisitionReset(TransactionCase):
             "name": "PR Reset Test Vendor",
             "supplier_rank": 1,
         })
+        cls.plan = cls.env["account.analytic.plan"].create({
+            "name": "PR Reset Test Plan",
+        })
+        cls.cost_center = cls.env["account.analytic.account"].create({
+            "name": "PR Reset Test Cost Center",
+            "plan_id": cls.plan.id,
+        })
+        cls.product = cls.env["product.product"].create({
+            "name": "PR Reset Test Product",
+            "standard_price": 10.0,
+        })
+
+    def _line_commands(self):
+        return [(0, 0, {
+            "description": self.product.id,
+            "cost_center_id": self.cost_center.id,
+            "quantity": 1.0,
+            "unit_price": 10.0,
+        })]
 
     def _create_pr(self, pr_type):
         return self.env["purchase.requisition"].create({
             "name": "RESET-%s-%s" % (pr_type.upper(), self.env["ir.sequence"].next_by_code("purchase.order") or "TEST"),
             "pr_type": pr_type,
             "approval": "approved",
+            "line_ids": self._line_commands(),
         })
 
     def _confirm_reset(self, requisition):
