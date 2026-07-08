@@ -22,9 +22,19 @@ class TestCashPrVoucherBudget(TransactionCase):
             "name": "Employee Cost Center",
             "plan_id": cls.plan.id,
         })
+        cls.product = cls.env["product.product"].create({
+            "name": "Cash PR Voucher Budget Product",
+            "standard_price": 90.0,
+        })
         cls.requisition = cls.env["purchase.requisition"].create({
             "name": "CASH-PR-BUDGET-DIMENSION-TEST",
             "pr_type": "cash",
+            "line_ids": [(0, 0, {
+                "description": cls.product.id,
+                "cost_center_id": cls.budget_cost_center.id,
+                "quantity": 1.0,
+                "unit_price": 90.0,
+            })],
         })
 
     def test_only_originating_cost_center_is_checked(self):
