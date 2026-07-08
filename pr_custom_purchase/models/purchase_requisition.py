@@ -54,7 +54,7 @@ class PurchaseRequisition(models.Model):
         string="PR Number", required=True, copy=False, readonly=True, default="New"
     )
     date_request = fields.Date(
-        string="Date of Request", default=fields.Date.context_today
+        string="PR Date", default=fields.Date.context_today
     )
     requested_by = fields.Char(string="Requested By")
     requested_user_id = fields.Many2one("res.users", string="Requested User", readonly=True)
@@ -82,7 +82,7 @@ class PurchaseRequisition(models.Model):
             ("approved", "Approved"),
         ],
         default="draft",
-        string="Approval",
+        string="PR Status",
         tracking=True,
     )
     wo_variance_requires_approval = fields.Boolean(

@@ -6,6 +6,7 @@
         <field name="model">purchase.requisition</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="date_request"/>
                 <field name="name"/>
                 <field name="requested_by"/>
                 <field name="approval" widget="badge"
@@ -29,13 +30,11 @@
                        decoration-danger="cash_pr_voucher_state == 'cancel'"/>
 
 
-<!--                <field name="status" widget="badge"-->
-<!--                       decoration-success="status in ('po', 'completed')"-->
-<!--                       decoration-warning="status == 'rfq'"-->
-<!--                       decoration-info="status in ('pr', 'payment')"/>-->
+                <!--                <field name="status" widget="badge"-->
+                <!--                       decoration-success="status in ('po', 'completed')"-->
+                <!--                       decoration-warning="status == 'rfq'"-->
+                <!--                       decoration-info="status in ('pr', 'payment')"/>-->
 
-
-                <field name="date_request"/>
 
                 <field name="total_excl_vat"/>
             </tree>
