@@ -1,5 +1,5 @@
 import pytz
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 from odoo import api, fields, models
 from odoo.tools import format_date
 
@@ -158,11 +158,93 @@ class HrLeaveDashboardOverride(models.Model):
     @api.model
     def _get_employee_absentee_days(self, employee, start, end):
         """Count employee absent working days excluding public holidays, approved leaves and attendances."""
+        return len(self._get_employee_absentee_day_rows(employee, start, end))
+
+    @api.model
+    def _format_calendar_hour(self, hour_float):
+        hour_float = hour_float or 0.0
+        hours = int(hour_float)
+        minutes = int(round((hour_float - hours) * 60))
+        if minutes == 60:
+            hours += 1
+            minutes = 0
+        return '%02d:%02d' % (hours, minutes)
+
+    @api.model
+    def _get_employee_absentee_shift_label(self, employee, absent_date):
+        calendar = employee.resource_calendar_id
+        if not calendar:
+            return ''
+        attendance_lines = calendar.attendance_ids.filtered(
+            lambda attendance: int(attendance.dayofweek) == absent_date.weekday()
+        )
+        shift_parts = []
+        for attendance in attendance_lines:
+            time_range = '%s-%s' % (
+                self._format_calendar_hour(attendance.hour_from),
+                self._format_calendar_hour(attendance.hour_to),
+            )
+            shift_parts.append('%s (%s)' % (attendance.name, time_range) if attendance.name else time_range)
+        return ', '.join(shift_parts)
+
+    @api.model
+    def _get_absentee_timezone_name(self, employee):
+        calendar = employee.resource_calendar_id
+        return (
+            (calendar and calendar.tz)
+            or employee.user_id.tz
+            or self.env.user.tz
+            or 'Asia/Riyadh'
+        )
+
+    @api.model
+    def _get_absentee_timezone(self, employee):
+        try:
+            return pytz.timezone(self._get_absentee_timezone_name(employee))
+        except pytz.UnknownTimeZoneError:
+            return pytz.timezone('Asia/Riyadh')
+
+    @api.model
+    def _get_absentee_day_bounds_utc(self, employee, target_date):
+        timezone = self._get_absentee_timezone(employee)
+        local_start = timezone.localize(datetime.combine(target_date, time.min))
+        local_end = local_start + timedelta(days=1)
+        return (
+            local_start.astimezone(pytz.UTC).replace(tzinfo=None),
+            local_end.astimezone(pytz.UTC).replace(tzinfo=None),
+        )
+
+    @api.model
+    def _to_absentee_local_datetime(self, employee, value):
+        value = fields.Datetime.to_datetime(value)
+        if not value:
+            return False
+        if value.tzinfo:
+            utc_value = value.astimezone(pytz.UTC)
+        else:
+            utc_value = pytz.UTC.localize(value)
+        return utc_value.astimezone(self._get_absentee_timezone(employee))
+
+    @api.model
+    def _get_absentee_cutoff_time(self):
+        return time(9, 0, 0)
+
+    @api.model
+    def _get_absentee_late_policy_start_date(self):
+        return fields.Date.to_date('2026-07-01')
+
+    @api.model
+    def _format_absentee_check_in(self, local_check_in):
+        return local_check_in.strftime('%H:%M:%S') if local_check_in else ''
+
+    @api.model
+    def _get_employee_absentee_day_rows(self, employee, start, end):
+        """Return one row per absent working day for dashboard drill-down."""
         if not employee or not start or not end or end < start:
-            return 0
+            return []
         if not getattr(employee, 'compute_attendance', False):
             # Employees without attendance tracking enabled should not be counted as absentees.
-            return 0
+            return []
 
         calendar = employee.resource_calendar_id
         if calendar and calendar.attendance_ids:
@@ -199,29 +281,88 @@ class HrLeaveDashboardOverride(models.Model):
                 leave_days.add(current)
                 current += timedelta(days=1)
 
-        attendance_days = set()
-        start_dt = datetime.combine(start, datetime.min.time())
-        end_dt = datetime.combine(end + timedelta(days=1), datetime.min.time())
+        on_time_attendance_days = set()
+        late_attendance_by_day = {}
+        start_dt, _start_end_dt = self._get_absentee_day_bounds_utc(employee, start)
+        _end_start_dt, end_dt = self._get_absentee_day_bounds_utc(employee, end)
         attendances = self.env['hr.attendance'].sudo().search([
             ('employee_id', '=', employee.id),
             ('check_in', '>=', fields.Datetime.to_string(start_dt)),
             ('check_in', '<', fields.Datetime.to_string(end_dt)),
-        ])
+        ], order='check_in')
         for attendance in attendances:
-            attendance_days.add(fields.Datetime.to_datetime(attendance.check_in).date())
+            local_check_in = self._to_absentee_local_datetime(employee, attendance.check_in)
+            if not local_check_in:
+                continue
+            attendance_date = local_check_in.date()
+            if attendance_date < start or attendance_date > end:
+                continue
+            if (
+                    attendance_date < self._get_absentee_late_policy_start_date()
+                    or local_check_in.time() < self._get_absentee_cutoff_time()
+            ):
+                on_time_attendance_days.add(attendance_date)
+                late_attendance_by_day.pop(attendance_date, None)
+            elif attendance_date not in on_time_attendance_days and attendance_date not in late_attendance_by_day:
+                late_attendance_by_day[attendance_date] = local_check_in
 
-        absentees = 0
+        rows = []
         current = start
         while current <= end:
             if (
                     current.weekday() in working_days
                     and current not in public_holiday_dates
                     and current not in leave_days
-                    and current not in attendance_days
+                    and current not in on_time_attendance_days
             ):
-                absentees += 1
+                late_check_in = late_attendance_by_day.get(current)
+                rows.append({
+                    'employee_id': employee.id,
+                    'employee_code': employee.code or employee.barcode or '',
+                    'employee_name': employee.name,
+                    'department': employee.department_id.name or '',
+                    'job_position': employee.job_title or employee.job_id.name or '',
+                    'date': fields.Date.to_string(current),
+                    'date_display': self._format_dashboard_date(current),
+                    'day_name': current.strftime('%A'),
+                    'shift': self._get_employee_absentee_shift_label(employee, current),
+                    'check_in': self._format_absentee_check_in(late_check_in),
+                    'reason': 'Late check-in after 08:59:59' if late_check_in else 'No attendance',
+                })
             current += timedelta(days=1)
-        return absentees
+        return rows
+
+    @api.model
+    def get_employee_absentee_day_details(self, employee_id=None, duration='current_contract', date_from=False, date_to=False):
+        employee = self.env['hr.employee'].sudo().browse(employee_id).exists() if employee_id else self.env.user.employee_id
+        if not employee:
+            return {
+                'employee_id': False,
+                'employee_name': '',
+                'date_from': False,
+                'date_to': False,
+                'date_from_display': False,
+                'date_to_display': False,
+                'rows': [],
+                'count': 0,
+            }
+        start, end, _employee_start = self._sanitize_summary_date_range(
+            employee,
+            duration=duration,
+            date_from=date_from,
+            date_to=date_to,
+        )
+        rows = self._get_employee_absentee_day_rows(employee, start, end)
+        return {
+            'employee_id': employee.id,
+            'employee_name': employee.name,
+            'date_from': fields.Date.to_string(start),
+            'date_to': fields.Date.to_string(end),
+            'date_from_display': self._format_dashboard_date(start),
+            'date_to_display': self._format_dashboard_date(end),
+            'rows': rows,
+            'count': len(rows),
+        }
 
     @api.model
     def _get_period_date_range(self, duration):
@@ -400,19 +541,31 @@ class HrLeaveDashboardOverride(models.Model):
                 leave_days_map.setdefault(leave.employee_id.id, set()).add(current)
                 current += timedelta(days=1)
 
-        attendance_days_map = {employee.id: set() for employee in employees}
-        date_from_dt = fields.Datetime.to_datetime(date_from)
-        date_to_dt = fields.Datetime.to_datetime(date_to) + timedelta(days=1)
+        on_time_attendance_days_map = {employee.id: set() for employee in employees}
+        date_from_dt = datetime.combine(date_from - timedelta(days=1), time.min)
+        date_to_dt = datetime.combine(date_to + timedelta(days=2), time.min)
         attendances = self.env['hr.attendance'].sudo().search([
             ('employee_id', 'in', employees.ids),
-            ('check_in', '>=', date_from_dt),
-            ('check_in', '<', date_to_dt),
-        ])
+            ('check_in', '>=', fields.Datetime.to_string(date_from_dt)),
+            ('check_in', '<', fields.Datetime.to_string(date_to_dt)),
+        ], order='check_in')
         for attendance in attendances:
-            attendance_days_map.setdefault(attendance.employee_id.id, set()).add(attendance.check_in.date())
+            local_check_in = self._to_absentee_local_datetime(attendance.employee_id, attendance.check_in)
+            if not local_check_in:
+                continue
+            attendance_date = local_check_in.date()
+            if attendance_date < date_from or attendance_date > date_to:
+                continue
+            if (
+                    attendance_date < self._get_absentee_late_policy_start_date()
+                    or local_check_in.time() < self._get_absentee_cutoff_time()
+            ):
+                on_time_attendance_days_map.setdefault(attendance.employee_id.id, set()).add(attendance_date)
 
         rows = []
         for employee in employees:
+            if not getattr(employee, 'compute_attendance', False):
+                continue
             calendar = employee.resource_calendar_id
             if calendar and calendar.attendance_ids:
                 working_days = {int(a.dayofweek) for a in calendar.attendance_ids}
@@ -426,7 +579,7 @@ class HrLeaveDashboardOverride(models.Model):
                         current.weekday() in working_days
                         and current not in public_holiday_dates
                         and current not in leave_days_map.get(employee.id, set())
-                        and current not in attendance_days_map.get(employee.id, set())
+                        and current not in on_time_attendance_days_map.get(employee.id, set())
                 ):
                     absent_count += 1
                 current += timedelta(days=1)
