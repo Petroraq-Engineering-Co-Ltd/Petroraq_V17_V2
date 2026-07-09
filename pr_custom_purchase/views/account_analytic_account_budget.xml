@@ -56,9 +56,11 @@
             <field name="planned_amount" position="after">
                 <field name="po_spent_amount" string="Spent Amount" readonly="1"/>
                 <field name="budget_remaining_amount" string="Remaining Amount" readonly="1"/>
+                <field name="budget_expensed_amount" string="Expensed Amount" readonly="1"/>
             </field>
             <field name="practical_amount" position="attributes">
-                <attribute name="string">Expensed Amount</attribute>
+                <attribute name="string">Odoo Practical Amount</attribute>
+                <attribute name="column_invisible">1</attribute>
             </field>
         </field>
     </record>
@@ -74,9 +76,11 @@
             <field name="planned_amount" position="after">
                 <field name="po_spent_amount" string="Spent Amount" readonly="1"/>
                 <field name="budget_remaining_amount" string="Remaining Amount" readonly="1"/>
+                <field name="budget_expensed_amount" string="Expensed Amount" readonly="1"/>
             </field>
             <field name="practical_amount" position="attributes">
-                <attribute name="string">Expensed Amount</attribute>
+                <attribute name="string">Odoo Practical Amount</attribute>
+                <attribute name="invisible">1</attribute>
             </field>
         </field>
     </record>

@@ -118,6 +118,104 @@ class AccountAnalyticAccount(models.Model):
             expensed_by_analytic[analytic_id] += line.practical_amount or 0.0
         return expensed_by_analytic
 
+    def _get_budget_scoped_expensed_map(self, date_from=False, date_to=False, budget=False):
+        """Return actual expenses that originated from documents linked to a budget."""
+        analytic_ids = set(self.ids)
+        expensed_by_analytic = {analytic_id: 0.0 for analytic_id in analytic_ids}
+        if not analytic_ids:
+            return expensed_by_analytic
+        if not budget:
+            return self._get_budget_expensed_map(date_from=date_from, date_to=date_to)
+
+        budget = self.env["crossovered.budget"].sudo().browse(
+            budget.id if hasattr(budget, "id") else budget
+        ).exists()
+        budget.ensure_one()
+
+        budget_prs = self.env["purchase.requisition"].sudo().search([
+            ("expense_bucket_id", "=", budget.id),
+        ])
+        budget_pr_names = set(budget_prs.mapped("name"))
+
+        def add_voucher_actuals(model_name, parent_field):
+            if model_name not in self.env:
+                return
+            model = self.env[model_name].sudo()
+            domains = [
+                [
+                    ("%s.state" % parent_field, "=", "posted"),
+                    ("%s.purchase_requisition_id.expense_bucket_id" % parent_field, "=", budget.id),
+                ],
+            ]
+            if budget_pr_names:
+                domains.append([
+                    ("%s.state" % parent_field, "=", "posted"),
+                    ("%s.purchase_requisition_id" % parent_field, "=", False),
+                    ("reference_number", "in", list(budget_pr_names)),
+                ])
+
+            seen_line_ids = set()
+            for domain in domains:
+                for line in model.search(domain):
+                    if line.id in seen_line_ids:
+                        continue
+                    seen_line_ids.add(line.id)
+                    parent = line[parent_field]
+                    voucher_date = getattr(parent, "accounting_date", False) or parent.create_date
+                    if not self._date_in_period(voucher_date, date_from, date_to):
+                        continue
+
+                    requisition = parent.purchase_requisition_id or budget_prs.filtered(
+                        lambda pr: pr.name == line.reference_number
+                    )[:1]
+                    budget_cost_center = (
+                        line.budget_cost_center_id
+                        if "budget_cost_center_id" in line._fields
+                        else False
+                    )
+                    if not budget_cost_center and requisition:
+                        budget_cost_center = requisition._resolve_voucher_budget_cost_center(
+                            line,
+                            raise_if_missing=False,
+                        )
+                    if not budget_cost_center or budget_cost_center.id not in expensed_by_analytic:
+                        continue
+                    amount = getattr(line, "total_amount", 0.0) or getattr(line, "amount", 0.0) or 0.0
+                    expensed_by_analytic[budget_cost_center.id] -= amount
+
+        add_voucher_actuals("pr.account.cash.payment.line", "cash_payment_id")
+        add_voucher_actuals("pr.account.bank.payment.line", "bank_payment_id")
+
+        AnalyticLine = self.env["account.analytic.line"].sudo()
+        MoveLine = self.env["account.move.line"].sudo()
+        if "move_line_id" not in AnalyticLine._fields or "purchase_line_id" not in MoveLine._fields:
+            return expensed_by_analytic
+
+        analytics_by_plan_field = {}
+        for analytic in self:
+            plan_field = analytic.plan_id._column_name()
+            analytics_by_plan_field[plan_field] = (
+                analytics_by_plan_field.get(plan_field, self.env["account.analytic.account"])
+                | analytic
+            )
+
+        for plan_field, analytics in analytics_by_plan_field.items():
+            domain = [
+                (plan_field, "in", analytics.ids),
+                ("move_line_id.move_id.state", "=", "posted"),
+                ("move_line_id.purchase_line_id.order_id.requisition_id.expense_bucket_id", "=", budget.id),
+            ]
+            if date_from:
+                domain.append(("date", ">=", fields.Date.to_date(date_from)))
+            if date_to:
+                domain.append(("date", "<=", fields.Date.to_date(date_to)))
+
+            for line in AnalyticLine.search(domain):
+                analytic = line[plan_field]
+                if analytic.id in expensed_by_analytic:
+                    expensed_by_analytic[analytic.id] += line.amount or 0.0
+        return expensed_by_analytic
+
     def _get_po_budget_spent_map(self, date_from=False, date_to=False, budget=False):
         """Return committed/spent budget by analytic account.
 
