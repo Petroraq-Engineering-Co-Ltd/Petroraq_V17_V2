@@ -15,6 +15,7 @@ budget-controlled BPVs.
     "license": "LGPL-3",
     "depends": [
         "de_hr_workspace",
+        "pr_hr_contract",
         "pr_account",
         "pr_hr",
         "pr_hr_recruitment",
@@ -27,7 +28,9 @@ budget-controlled BPVs.
         "security/ir.model.access.csv",
         "security/record_rules.xml",
         "data/ir_sequence_data.xml",
+        "data/employee_letter_mail_templates.xml",
         "views/employee_service_request_views.xml",
+        "views/employee_document_letter_views.xml",
     ],
     "installable": True,
     "application": False,

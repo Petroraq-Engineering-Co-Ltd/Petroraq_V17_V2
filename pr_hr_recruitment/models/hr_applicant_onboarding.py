@@ -26,18 +26,71 @@ class HrApplicantOnboarding(models.Model):
         [
             ('initialize', 'Initialized'),
             ('checklist', 'Checklist'),
-            ('work_permit', 'Work Permit')
+            ('work_permit', 'Work Permit'),
+            ('completed', 'Onboarded'),
         ],
         string='Status', default="initialize",
     )
 
     # endregion [Fields]
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._mark_onboarded_after_employee_created()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if not self.env.context.get("skip_onboarding_completion") and "employee_id" in vals:
+            self._mark_onboarded_after_employee_created()
+        return res
+
+    @staticmethod
+    def _is_saudi_country(country):
+        return bool(
+            country
+            and (
+                (country.code or "").upper() == "SA"
+                or ("is_homeland" in country._fields and country.is_homeland)
+                or (country.name or "").strip().casefold()
+                in ("saudi", "saudi arabia", "kingdom of saudi arabia")
+            )
+        )
+
+    def _mark_onboarded_after_employee_created(self):
+        records = self.filtered(lambda rec: rec.employee_id and rec.state != "completed")
+        if records:
+            records.with_context(
+                skip_onboarding_completion=True,
+                skip_onboarding_auto_tasks=True,
+            ).write({"state": "completed"})
+
+    def _is_saudi_employee(self):
+        self.ensure_one()
+        return self._is_saudi_country(self.employee_id.country_id)
+
+    def _is_saudi_applicant_or_employee(self):
+        self.ensure_one()
+        if self.employee_id and self._is_saudi_employee():
+            return True
+        applicant = self.applicant_id
+        if applicant and hasattr(applicant, "_get_applicant_country"):
+            return self._is_saudi_country(applicant._get_applicant_country())
+        return False
+
     def generate_checklist(self):
         for rec in self:
             checklist_items = []
             # Generate checklist items based on hire type
-            if rec.hire_type == 'local':
+            if rec._is_saudi_applicant_or_employee():
+                checklist_items += [
+                    (0, 0, {"checklist_item": "National ID Copy"}),
+                    (0, 0, {"checklist_item": "Education Certificates"}),
+                    (0, 0, {"checklist_item": "SCE Registration (if engineer)"}),
+                    (0, 0, {"checklist_item": "GOSI Certificate"}),
+                ]
+            elif rec.hire_type == 'local':
                 checklist_items += [
                     (0, 0, {"checklist_item": "Passport Copy"}),
                     (0, 0, {"checklist_item": "Iqama Copy"}),
@@ -59,10 +112,13 @@ class HrApplicantOnboarding(models.Model):
                     rec.checklist_ids = checklist_items
                 else:
                     rec.checklist_ids = checklist_items
-            rec.state="checklist"
+            if rec.state != "completed":
+                rec.state = "checklist"
 
     def action_generate_work_permit(self):
         self.ensure_one()
+        if self._is_saudi_employee():
+            raise UserError(_("Saudi employees do not require Iqama/Work Permit records."))
         view = self.env.ref("pr_hr_recruitment.hr_work_permit_form_view")
         return {
             'name': "Work Permit",
