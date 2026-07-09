@@ -160,7 +160,6 @@ class AccountAnalyticAccount(models.Model):
         PurchaseOrderLine = self.env["purchase.order.line"].sudo()
         po_domain = [
             ("order_id.state", "in", ["pending", "purchase", "done"]),
-            ("analytic_distribution", "!=", False),
         ]
         if budget:
             po_domain.append(("order_id.requisition_id.expense_bucket_id", "=", budget.id))
@@ -171,8 +170,6 @@ class AccountAnalyticAccount(models.Model):
             if not self._date_in_period(order_date, date_from, date_to):
                 continue
             distribution = line.analytic_distribution or {}
-            if not distribution:
-                continue
 
             amount = line.price_subtotal or 0.0
             line_currency = order.currency_id or line.company_id.currency_id
@@ -185,7 +182,25 @@ class AccountAnalyticAccount(models.Model):
                     order.date_order or fields.Date.context_today(line),
                 )
 
-            add_distributed_amount(distribution, amount)
+            if distribution:
+                add_distributed_amount(distribution, amount)
+                continue
+
+            requisition_line = line.custom_requisition_line_id
+            if (
+                requisition_line
+                and requisition_line.cost_center_id
+                and requisition_line.cost_center_id.id in spent_by_analytic
+            ):
+                spent_by_analytic[requisition_line.cost_center_id.id] += amount
+                continue
+
+            requisition = order.requisition_id
+            requisition_cost_centers = requisition.line_ids.mapped("cost_center_id").filtered(
+                lambda cc: cc.id in spent_by_analytic
+            )
+            if len(requisition_cost_centers) == 1:
+                spent_by_analytic[requisition_cost_centers.id] += amount
 
         voucher_sources = [
             ("pr.account.cash.payment.line", "cash_payment_id"),

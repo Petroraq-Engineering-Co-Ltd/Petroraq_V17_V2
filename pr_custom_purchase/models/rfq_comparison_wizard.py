@@ -235,29 +235,23 @@ class RFQComparisonWizard(models.TransientModel):
                 % duplicate_products
             )
 
-        purchase_orders = self.env["purchase.order"]
-        for vendor, vendor_lines in grouped_by_vendor.items():
-            source_rfq = next((offer.rfq_id for _line, offer in vendor_lines if offer.rfq_id), False)
-            line_amounts = {}
+        selected_amounts = {}
+        for vendor_lines in grouped_by_vendor.values():
             for line, offer in vendor_lines:
                 if not line.cost_center_id:
                     continue
-                line_amounts.setdefault(line.cost_center_id.id, 0.0)
-                line_amounts[line.cost_center_id.id] += line.quantity * offer.unit_price
+                cc = line.cost_center_id.sudo()
+                selected_amounts.setdefault(cc.id, {"cc": cc, "amount": 0.0})
+                selected_amounts[cc.id]["amount"] += line.quantity * offer.unit_price
+        if selected_amounts:
+            self.requisition_id._check_amounts_against_selected_budget(
+                selected_amounts,
+                exception_cls=ValidationError,
+            )
 
-            if line_amounts:
-                cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
-                cc_map = {cc.id: cc for cc in cost_centers}
-                for cc_id, amount in line_amounts.items():
-                    cc = cc_map.get(cc_id)
-                    if not cc:
-                        raise ValidationError(_("Invalid cost center found in selected comparison lines."))
-                    if cc.budget_left < amount:
-                        raise ValidationError(
-                            _("Insufficient budget for cost center %s. Remaining: %s, Required: %s")
-                            % (cc.display_name, cc.budget_left, amount)
-                        )
-
+        purchase_orders = self.env["purchase.order"]
+        for vendor, vendor_lines in grouped_by_vendor.items():
+            source_rfq = next((offer.rfq_id for _line, offer in vendor_lines if offer.rfq_id), False)
             po_vals = {
                 "name": self.env["ir.sequence"].sudo().next_by_code("purchase.order") or "PO0001",
                 "state": "pending",
