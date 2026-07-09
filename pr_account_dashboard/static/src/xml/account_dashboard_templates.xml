@@ -1,0 +1,913 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pr_account_dashboard.AccountDashboardAction" owl="1">
+        <div class="o_pr_account_dashboard">
+            <t t-if="state.loading">
+                <div class="pr-account-loading">
+                    <span class="pr-account-loader"><i/></span>
+                    <strong>Preparing your financial command center</strong>
+                    <span>Loading ledgers, vouchers, aging, and cash positions…</span>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-set="summary" t-value="state.data.summary || {}"/>
+                <t t-set="aging" t-value="state.data.aging || {}"/>
+                <t t-set="receivable" t-value="aging.receivable || {}"/>
+                <t t-set="payable" t-value="aging.payable || {}"/>
+                <t t-set="gl" t-value="state.data.gl || {}"/>
+                <t t-set="mainHeads" t-value="state.data.main_heads || {}"/>
+                <t t-set="analytics" t-value="state.data.analytics || {}"/>
+                <t t-set="vat" t-value="state.data.vat || {}"/>
+                <t t-set="forecast" t-value="state.data.cash_forecast || {}"/>
+                <t t-set="profitability" t-value="state.data.profitability || {}"/>
+
+                <header class="pr-account-hero">
+                    <div class="pr-account-hero-copy">
+                        <span class="pr-account-eyebrow">
+                            <i class="fa fa-line-chart"/>
+                            Finance Intelligence
+                        </span>
+                        <h1>Accounting <em>Dashboard</em></h1>
+                        <p>
+                            A live view of billing, collections, obligations, liquidity,
+                            custom vouchers, approvals, VAT, and the general ledger.
+                        </p>
+                    </div>
+                    <div class="pr-account-hero-meta">
+                        <div>
+                            <span>Company</span>
+                            <strong t-esc="(state.data.filters || {}).company_name || ''"/>
+                            <small t-if="(state.data.filters || {}).is_consolidated">
+                                Consolidated ·
+                                <t t-esc="((state.data.filters || {}).scope_company_ids || []).length"/>
+                                companies
+                            </small>
+                        </div>
+                        <div>
+                            <span>Reporting period</span>
+                            <strong>
+                                <t t-esc="this.formatDate((state.data.filters || {}).date_from)"/>
+                                <i class="fa fa-long-arrow-right mx-2"/>
+                                <t t-esc="this.formatDate((state.data.filters || {}).date_to)"/>
+                            </strong>
+                        </div>
+                        <button type="button" t-on-click="loadDashboardData" title="Refresh dashboard">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                    </div>
+                </header>
+
+                <section class="pr-account-filterbar">
+                    <div class="pr-account-presets">
+                        <button type="button"
+                                data-period="month"
+                                t-att-class="state.filters.period === 'month' ? 'active' : ''"
+                                t-on-click="setPeriod">This Month</button>
+                        <button type="button"
+                                data-period="quarter"
+                                t-att-class="state.filters.period === 'quarter' ? 'active' : ''"
+                                t-on-click="setPeriod">This Quarter</button>
+                        <button type="button"
+                                data-period="year"
+                                t-att-class="state.filters.period === 'year' ? 'active' : ''"
+                                t-on-click="setPeriod">This Year</button>
+                    </div>
+                    <label>
+                        <span>From</span>
+                        <input type="date"
+                               t-att-value="state.filters.date_from"
+                               t-on-change="onDateFromChange"/>
+                    </label>
+                    <label>
+                        <span>To</span>
+                        <input type="date"
+                               t-att-value="state.filters.date_to"
+                               t-on-change="onDateToChange"/>
+                    </label>
+                    <label class="pr-account-company-filter">
+                        <span>Company</span>
+                        <select t-att-value="state.filters.company_id" t-on-change="onCompanyChange">
+                            <t t-foreach="(state.data.filters || {}).companies || []"
+                               t-as="company"
+                               t-key="company.id">
+                                <option t-att-value="company.id"
+                                        t-att-selected="company.id === state.filters.company_id"
+                                        t-esc="company.name"/>
+                            </t>
+                        </select>
+                    </label>
+                    <button type="button" class="pr-account-apply" t-on-click="applyFilters">
+                        <i class="fa fa-filter"/>
+                        Apply
+                    </button>
+                </section>
+
+                <section class="pr-account-kpis">
+                    <button type="button"
+                            class="pr-account-kpi is-blue"
+                            t-on-click="() => this.openRecords('account.move', summary.invoice_domain, 'Customer Invoices')">
+                        <span class="pr-account-kpi-icon"><i class="fa fa-file-text-o"/></span>
+                        <span class="pr-account-kpi-label">Customer Invoices</span>
+                        <strong t-esc="this.formatMoney(summary.customer_invoice_total || 0)"/>
+                        <small>
+                            <b t-esc="this.formatNumber(summary.customer_invoice_count || 0)"/>
+                            posted invoices
+                        </small>
+                    </button>
+                    <button type="button"
+                            class="pr-account-kpi is-cyan"
+                            t-on-click="() => this.openRecords('account.move', summary.receivable_domain, 'Open Receivables')">
+                        <span class="pr-account-kpi-icon"><i class="fa fa-hourglass-half"/></span>
+                        <span class="pr-account-kpi-label">Open Receivables</span>
+                        <strong t-esc="this.formatMoney(summary.receivable_total || 0)"/>
+                        <small>
+                            <b t-esc="this.formatNumber(summary.receivable_count || 0)"/>
+                            outstanding invoices
+                        </small>
+                    </button>
+                    <button type="button"
+                            class="pr-account-kpi is-violet"
+                            t-on-click="() => this.openRecords('account.move', summary.bill_domain, 'Vendor Bills')">
+                        <span class="pr-account-kpi-icon"><i class="fa fa-file-o"/></span>
+                        <span class="pr-account-kpi-label">Vendor Bills</span>
+                        <strong t-esc="this.formatMoney(summary.vendor_bill_total || 0)"/>
+                        <small>
+                            <b t-esc="this.formatNumber(summary.vendor_bill_count || 0)"/>
+                            posted bills
+                        </small>
+                    </button>
+                    <button type="button"
+                            class="pr-account-kpi is-amber"
+                            t-on-click="() => this.openRecords('account.move', summary.payable_domain, 'Open Payables')">
+                        <span class="pr-account-kpi-icon"><i class="fa fa-calendar-times-o"/></span>
+                        <span class="pr-account-kpi-label">Open Payables</span>
+                        <strong t-esc="this.formatMoney(summary.payable_total || 0)"/>
+                        <small>
+                            <b t-esc="this.formatNumber(summary.payable_count || 0)"/>
+                            outstanding bills
+                        </small>
+                    </button>
+                    <article class="pr-account-kpi is-green">
+                        <span class="pr-account-kpi-icon"><i class="fa fa-arrow-down"/></span>
+                        <span class="pr-account-kpi-label">Total Cash In</span>
+                        <strong t-esc="this.formatMoney(summary.cash_in || 0)"/>
+                        <small>Registered receipts + BRV + CRV</small>
+                    </article>
+                    <article class="pr-account-kpi is-red">
+                        <span class="pr-account-kpi-icon"><i class="fa fa-arrow-up"/></span>
+                        <span class="pr-account-kpi-label">Total Cash Out</span>
+                        <strong t-esc="this.formatMoney(summary.cash_out || 0)"/>
+                        <small>Registered payments + BPV + CPV</small>
+                    </article>
+                </section>
+
+                <section class="pr-account-net-strip"
+                         t-att-class="this.amountClass(summary.net_cash || 0)">
+                    <div>
+                        <span>Net Cash Movement</span>
+                        <strong t-esc="this.formatMoney(summary.net_cash || 0)"/>
+                    </div>
+                    <p>
+                        <i class="fa fa-info-circle"/>
+                        Registered payments and posted Petroraq vouchers during the selected period.
+                    </p>
+                    <div class="pr-account-net-split">
+                        <span>In <b t-esc="this.formatMoney(summary.cash_in || 0)"/></span>
+                        <span>Out <b t-esc="this.formatMoney(summary.cash_out || 0)"/></span>
+                    </div>
+                </section>
+
+                <section class="pr-account-section-title">
+                    <div>
+                        <span>Accounting Control Center</span>
+                        <h2>Close Readiness, Exceptions &amp; Cash Forecast</h2>
+                    </div>
+                    <p>Fast checks for period close, approval delays, branch/shared-journal issues, and 30-day liquidity.</p>
+                </section>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-4 pr-account-control-card">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Period Close</span>
+                                <h2>Close Checklist</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-issue-list">
+                            <button type="button"
+                                    t-foreach="state.data.close_checklist || []"
+                                    t-as="check"
+                                    t-key="check.label"
+                                    t-att-class="this.severityClass(check.severity)"
+                                    t-att-style="'--issue-color:' + check.color"
+                                    t-on-click="() => this.openRecords(check.model, check.domain, check.label)">
+                                <i t-att-class="'fa ' + check.icon"/>
+                                <span>
+                                    <strong t-esc="check.label"/>
+                                    <small t-esc="check.description"/>
+                                    <em t-esc="this.formatMoney(check.amount || 0)"/>
+                                </span>
+                                <b t-esc="this.formatNumber(check.count || 0)"/>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-4 pr-account-control-card">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Control Monitor</span>
+                                <h2>Accounting Exceptions</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-issue-list">
+                            <button type="button"
+                                    t-foreach="state.data.exceptions || []"
+                                    t-as="issue"
+                                    t-key="issue.label"
+                                    t-att-class="this.severityClass(issue.severity)"
+                                    t-att-style="'--issue-color:' + issue.color"
+                                    t-on-click="() => this.openRecords(issue.model, issue.domain, issue.label)">
+                                <i t-att-class="'fa ' + issue.icon"/>
+                                <span>
+                                    <strong t-esc="issue.label"/>
+                                    <small t-esc="issue.description"/>
+                                    <em t-esc="this.formatMoney(issue.amount || 0)"/>
+                                </span>
+                                <b t-esc="this.formatNumber(issue.count || 0)"/>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-4 pr-account-forecast-card">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Liquidity</span>
+                                <h2>30-Day Cash Forecast</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-forecast-main">
+                            <span>Projected Cash</span>
+                            <strong t-att-class="this.amountClass(forecast.projected_30 || 0)"
+                                    t-esc="this.formatMoney(forecast.projected_30 || 0)"/>
+                            <small>
+                                Current cash
+                                <b t-esc="this.formatMoney(forecast.current_cash || 0)"/>
+                            </small>
+                        </div>
+                        <div class="pr-account-forecast-split">
+                            <button type="button"
+                                    t-on-click="() => this.openRecords('account.move', forecast.receivable_domain, 'Receivables Due in 30 Days')">
+                                <span>Expected Receipts</span>
+                                <strong t-esc="this.formatMoney(forecast.expected_receipts_30 || 0)"/>
+                            </button>
+                            <button type="button"
+                                    t-on-click="() => this.openRecords('account.move', forecast.payable_domain, 'Payables Due in 30 Days')">
+                                <span>Expected Payments</span>
+                                <strong t-esc="this.formatMoney(forecast.expected_payments_30 || 0)"/>
+                            </button>
+                        </div>
+                        <div class="pr-account-forecast-buckets">
+                            <span>AR overdue <b t-esc="this.formatMoney((forecast.receivable || {}).overdue || 0)"/></span>
+                            <span>AP overdue <b t-esc="this.formatMoney((forecast.payable || {}).overdue || 0)"/></span>
+                            <span>AR 30d <b t-esc="this.formatMoney(((forecast.receivable || {}).next_7 || 0) + ((forecast.receivable || {}).next_15 || 0) + ((forecast.receivable || {}).next_30 || 0))"/></span>
+                            <span>AP 30d <b t-esc="this.formatMoney(((forecast.payable || {}).next_7 || 0) + ((forecast.payable || {}).next_15 || 0) + ((forecast.payable || {}).next_30 || 0))"/></span>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-8">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Performance</span>
+                                <h2>Monthly Financial Trend</h2>
+                            </div>
+                            <div class="pr-account-legend">
+                                <span><i class="invoice"/>Invoices</span>
+                                <span><i class="bill"/>Bills</span>
+                                <span><i class="cash-in"/>Cash In</span>
+                                <span><i class="cash-out"/>Cash Out</span>
+                            </div>
+                        </div>
+                        <div class="pr-account-month-chart">
+                            <t t-foreach="state.data.monthly || []" t-as="month" t-key="month.label">
+                                <div class="pr-account-month">
+                                    <div class="pr-account-month-bars">
+                                        <i class="invoice"
+                                           t-att-style="'height:' + this.clampPercent(month.invoice_percent || 0) + '%'"
+                                           t-att-title="'Invoices: ' + this.formatMoney(month.invoices || 0)"/>
+                                        <i class="bill"
+                                           t-att-style="'height:' + this.clampPercent(month.bill_percent || 0) + '%'"
+                                           t-att-title="'Bills: ' + this.formatMoney(month.bills || 0)"/>
+                                        <i class="cash-in"
+                                           t-att-style="'height:' + this.clampPercent(month.cash_in_percent || 0) + '%'"
+                                           t-att-title="'Cash In: ' + this.formatMoney(month.cash_in || 0)"/>
+                                        <i class="cash-out"
+                                           t-att-style="'height:' + this.clampPercent(month.cash_out_percent || 0) + '%'"
+                                           t-att-title="'Cash Out: ' + this.formatMoney(month.cash_out || 0)"/>
+                                    </div>
+                                    <strong t-esc="month.label"/>
+                                    <small t-esc="this.formatMoney(month.invoices || 0)"/>
+                                </div>
+                            </t>
+                            <div class="pr-account-empty" t-if="!(state.data.monthly || []).length">
+                                No accounting movement in this period.
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-4 pr-account-gl-card">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">General Ledger</span>
+                                <h2>Financial Snapshot</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-gl-list">
+                            <t t-foreach="gl.rows || []" t-as="row" t-key="row.key">
+                                <button type="button"
+                                        t-on-click="() => this.openRecords('account.move.line', row.domain, row.label)">
+                                    <span><i t-att-style="'background:' + row.color"/><t t-esc="row.label"/></span>
+                                    <strong t-esc="this.formatMoney(row.amount || 0)"/>
+                                </button>
+                            </t>
+                        </div>
+                        <div class="pr-account-profit"
+                             t-att-class="this.amountClass(gl.net_profit || 0)">
+                            <span>Net Profit / (Loss)</span>
+                            <strong t-esc="this.formatMoney(gl.net_profit || 0)"/>
+                            <small t-esc="this.formatPercent(gl.profit_margin || 0) + ' margin'"/>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-6">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Collections</span>
+                                <h2>Receivable Aging</h2>
+                            </div>
+                            <button type="button"
+                                    t-on-click="() => this.openRecords('account.move', receivable.domain, 'Open Receivables')">
+                                <strong t-esc="this.formatMoney(receivable.total || 0)"/>
+                                <span t-esc="this.formatNumber(receivable.count || 0) + ' invoices'"/>
+                            </button>
+                        </div>
+                        <div class="pr-account-aging-stack">
+                            <t t-foreach="receivable.buckets || []" t-as="bucket" t-key="bucket.key">
+                                <i t-att-style="'width:' + this.clampPercent(bucket.percent || 0) + '%; background:' + bucket.color"
+                                   t-att-title="bucket.label + ': ' + this.formatMoney(bucket.amount || 0)"/>
+                            </t>
+                        </div>
+                        <div class="pr-account-aging-list">
+                            <t t-foreach="receivable.buckets || []" t-as="bucket" t-key="bucket.key">
+                                <button type="button"
+                                        t-on-click="() => this.openRecords('account.move', bucket.domain, 'Receivable ' + bucket.label)">
+                                    <span><i t-att-style="'background:' + bucket.color"/><t t-esc="bucket.label"/></span>
+                                    <strong t-esc="this.formatMoney(bucket.amount || 0)"/>
+                                    <em t-esc="this.formatNumber(bucket.count || 0)"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-6">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Obligations</span>
+                                <h2>Payable Aging</h2>
+                            </div>
+                            <button type="button"
+                                    t-on-click="() => this.openRecords('account.move', payable.domain, 'Open Payables')">
+                                <strong t-esc="this.formatMoney(payable.total || 0)"/>
+                                <span t-esc="this.formatNumber(payable.count || 0) + ' bills'"/>
+                            </button>
+                        </div>
+                        <div class="pr-account-aging-stack">
+                            <t t-foreach="payable.buckets || []" t-as="bucket" t-key="bucket.key">
+                                <i t-att-style="'width:' + this.clampPercent(bucket.percent || 0) + '%; background:' + bucket.color"
+                                   t-att-title="bucket.label + ': ' + this.formatMoney(bucket.amount || 0)"/>
+                            </t>
+                        </div>
+                        <div class="pr-account-aging-list">
+                            <t t-foreach="payable.buckets || []" t-as="bucket" t-key="bucket.key">
+                                <button type="button"
+                                        t-on-click="() => this.openRecords('account.move', bucket.domain, 'Payable ' + bucket.label)">
+                                    <span><i t-att-style="'background:' + bucket.color"/><t t-esc="bucket.label"/></span>
+                                    <strong t-esc="this.formatMoney(bucket.amount || 0)"/>
+                                    <em t-esc="this.formatNumber(bucket.count || 0)"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="pr-account-section-title">
+                    <div>
+                        <span>Ledger Intelligence</span>
+                        <h2>Classification &amp; Cost-Center Analysis</h2>
+                    </div>
+                    <p>Uses the same Main Head and analytic dimensions as Account Ledger reporting.</p>
+                </section>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-5">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Chart of Accounts</span>
+                                <h2>Main Head Overview</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-main-heads">
+                            <button type="button"
+                                    t-foreach="mainHeads.rows || []"
+                                    t-as="head"
+                                    t-key="head.key"
+                                    t-on-click="() => this.openRecords('account.move.line', head.domain, head.label)">
+                                <i t-att-class="'fa ' + head.icon"
+                                   t-att-style="'--head-color:' + head.color"/>
+                                <span>
+                                    <strong t-esc="head.label"/>
+                                    <small t-esc="this.formatNumber(head.accounts || 0) + ' accounts · ' + this.formatNumber(head.entries || 0) + ' lines'"/>
+                                    <em><b t-att-style="'width:' + this.clampPercent(head.percent || 0) + '%; background:' + head.color"/></em>
+                                </span>
+                                <b t-esc="this.formatMoney(head.amount || 0)"/>
+                            </button>
+                        </div>
+                        <div class="pr-account-classification-list">
+                            <h3>Top Classifications</h3>
+                            <button type="button"
+                                    t-foreach="mainHeads.categories || []"
+                                    t-as="category"
+                                    t-key="category.key"
+                                    t-on-click="() => this.openRecords('account.move.line', category.domain, category.label)">
+                                <span>
+                                    <i t-att-style="'background:' + category.color"/>
+                                    <b t-esc="category.label"/>
+                                    <small t-esc="category.main_head_label"/>
+                                </span>
+                                <strong t-esc="this.formatMoney(category.amount || 0)"/>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-7">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Project Accounting</span>
+                                <h2>Project Revenue vs Expense</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-project-table">
+                            <div class="pr-account-project-head">
+                                <span>Project</span><span>Revenue</span><span>Expense</span><span>Net</span>
+                            </div>
+                            <button type="button"
+                                    t-foreach="analytics.projects || []"
+                                    t-as="project"
+                                    t-key="project.id"
+                                    t-on-click="() => this.openRecords('account.move.line', project.domain, project.name)">
+                                <span>
+                                    <b t-esc="project.name"/>
+                                    <small t-esc="this.formatNumber(project.entries || 0) + ' ledger lines'"/>
+                                </span>
+                                <span>
+                                    <b t-esc="this.formatMoney(project.revenue || 0)"/>
+                                    <i><em class="is-revenue" t-att-style="'width:' + this.clampPercent(project.revenue_percent || 0) + '%'"/></i>
+                                </span>
+                                <span>
+                                    <b t-esc="this.formatMoney(project.expense || 0)"/>
+                                    <i><em class="is-expense" t-att-style="'width:' + this.clampPercent(project.expense_percent || 0) + '%'"/></i>
+                                </span>
+                                <strong t-att-class="this.amountClass(project.net || 0)"
+                                        t-esc="this.formatMoney(project.net || 0)"/>
+                            </button>
+                            <div class="pr-account-empty" t-if="!(analytics.projects || []).length">
+                                No project analytic movement in this period.
+                            </div>
+                        </div>
+                        <div class="pr-account-profitability">
+                            <div class="pr-account-profitability-summary">
+                                <span>
+                                    <small>Revenue</small>
+                                    <b t-esc="this.formatMoney(profitability.revenue || 0)"/>
+                                </span>
+                                <span>
+                                    <small>Expense</small>
+                                    <b t-esc="this.formatMoney(profitability.expense || 0)"/>
+                                </span>
+                                <span>
+                                    <small>Net</small>
+                                    <b t-att-class="this.amountClass(profitability.net || 0)"
+                                       t-esc="this.formatMoney(profitability.net || 0)"/>
+                                </span>
+                                <button type="button"
+                                        t-on-click="() => this.openRecords('account.move.line', profitability.missing_project_domain, 'Revenue/Expense Lines Missing Project')">
+                                    Missing Project
+                                    <b t-esc="this.formatNumber(profitability.missing_project_count || 0)"/>
+                                </button>
+                            </div>
+                            <div class="pr-account-profitability-lists">
+                                <div>
+                                    <h3>Top Profitable Projects</h3>
+                                    <button type="button"
+                                            t-foreach="profitability.top_profit || []"
+                                            t-as="project"
+                                            t-key="'profit-' + project.id"
+                                            t-on-click="() => this.openRecords('account.move.line', project.domain, project.name)">
+                                        <span t-esc="project.name"/>
+                                        <strong t-esc="this.formatMoney(project.net || 0)"/>
+                                    </button>
+                                    <div class="pr-account-empty" t-if="!(profitability.top_profit || []).length">No project profit movement.</div>
+                                </div>
+                                <div>
+                                    <h3>Loss / Overrun Projects</h3>
+                                    <button type="button"
+                                            t-foreach="profitability.losses || []"
+                                            t-as="project"
+                                            t-key="'loss-' + project.id"
+                                            t-on-click="() => this.openRecords('account.move.line', project.domain, project.name)">
+                                        <span t-esc="project.name"/>
+                                        <strong t-att-class="this.amountClass(project.net || 0)"
+                                                t-esc="this.formatMoney(project.net || 0)"/>
+                                    </button>
+                                    <div class="pr-account-empty" t-if="!(profitability.losses || []).length">No loss projects detected.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-account-dimension-grid">
+                    <section class="pr-account-dimension"
+                             t-foreach="analytics.dimensions || []"
+                             t-as="dimension"
+                             t-key="dimension.key"
+                             t-att-style="'--dimension-color:' + dimension.color">
+                        <div class="pr-account-dimension-head">
+                            <i t-att-class="'fa ' + dimension.icon"/>
+                            <span>
+                                <strong t-esc="dimension.label"/>
+                                <small t-esc="this.formatNumber(dimension.count || 0) + ' active dimensions'"/>
+                            </span>
+                            <b t-esc="this.formatMoney(dimension.movement || 0)"/>
+                        </div>
+                        <div>
+                            <button type="button"
+                                    t-foreach="dimension.top || []"
+                                    t-as="analytic"
+                                    t-key="analytic.id"
+                                    t-on-click="() => this.openRecords('account.move.line', analytic.domain, analytic.name)">
+                                <span>
+                                    <b t-esc="analytic.name"/>
+                                    <i><em t-att-style="'width:' + this.clampPercent(analytic.percent || 0) + '%'"/></i>
+                                </span>
+                                <strong t-esc="this.formatMoney(analytic.movement || 0)"/>
+                            </button>
+                            <div class="pr-account-empty" t-if="!(dimension.top || []).length">No activity</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-5">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Control Checks</span>
+                                <h2>Accounting Data Quality</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-quality-list">
+                            <button type="button"
+                                    t-foreach="state.data.data_quality || []"
+                                    t-as="check"
+                                    t-key="check.label"
+                                    t-att-style="'--quality-color:' + check.color"
+                                    t-on-click="() => this.openRecords(check.model, check.domain, check.label)">
+                                <i t-att-class="'fa ' + check.icon"/>
+                                <span>
+                                    <strong t-esc="check.label"/>
+                                    <small t-esc="check.description"/>
+                                    <em t-esc="this.formatMoney(check.amount || 0)"/>
+                                </span>
+                                <b t-esc="this.formatNumber(check.count || 0)"/>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-7">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Reporting</span>
+                                <h2>Ledger &amp; Balance Reports</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-report-launchers">
+                            <button type="button" t-on-click="() => this.openAction('account_ledger.account_ledger_action')">
+                                <i class="fa fa-book"/>
+                                <span><strong>Account Ledger</strong><small>Account, Main Head, and analytic filters</small></span>
+                                <i class="fa fa-arrow-right"/>
+                            </button>
+                            <button type="button" t-on-click="() => this.openAction('account_ledger.account_ledger_multi_action')">
+                                <i class="fa fa-clone"/>
+                                <span><strong>Multi Ledger</strong><small>Compare multiple accounts and dimensions</small></span>
+                                <i class="fa fa-arrow-right"/>
+                            </button>
+                            <button type="button" t-on-click="() => this.openAction('account_ledger.custom_dynamic_ledger_report_wizard_action')">
+                                <i class="fa fa-sitemap"/>
+                                <span><strong>Classification Balance</strong><small>Main Head to account hierarchy</small></span>
+                                <i class="fa fa-arrow-right"/>
+                            </button>
+                            <button type="button" t-on-click="() => this.openAction('account_ledger.vat_ledger_report_action')">
+                                <i class="fa fa-percent"/>
+                                <span><strong>VAT Ledger</strong><small>Detailed input and output VAT lines</small></span>
+                                <i class="fa fa-arrow-right"/>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="pr-account-section-title">
+                    <div>
+                        <span>Customized Workflow</span>
+                        <h2>Petroraq Voucher Control</h2>
+                    </div>
+                    <p>Bank and cash payment and receipt vouchers, including approval progress and posted value.</p>
+                </section>
+                <div class="pr-account-voucher-grid">
+                    <t t-foreach="state.data.vouchers || []" t-as="voucher" t-key="voucher.code">
+                        <section class="pr-account-voucher"
+                                 t-att-style="'--voucher-color:' + voucher.color">
+                            <button type="button"
+                                    class="pr-account-voucher-head"
+                                    t-on-click="() => this.openRecords(voucher.model, voucher.domain, voucher.label)">
+                                <span><i class="fa fa-credit-card"/><b t-esc="voucher.code"/></span>
+                                <em t-esc="voucher.label"/>
+                            </button>
+                            <strong t-esc="this.formatMoney(voucher.posted_total || 0)"/>
+                            <div class="pr-account-voucher-stats">
+                                <span><b t-esc="this.formatNumber(voucher.count || 0)"/>Total</span>
+                                <span><b t-esc="this.formatNumber(voucher.posted_count || 0)"/>Posted</span>
+                                <span><b t-esc="this.formatNumber(voucher.pending_count || 0)"/>Pending</span>
+                            </div>
+                            <div class="pr-account-state-pills">
+                                <t t-foreach="voucher.states || []" t-as="voucherState" t-key="voucher.code + voucherState.state">
+                                    <button type="button"
+                                            t-on-click="() => this.openRecords(voucher.model, voucherState.domain, voucher.code + ' — ' + voucherState.label)">
+                                        <i t-att-style="'background:' + voucherState.color"/>
+                                        <span t-esc="voucherState.label"/>
+                                        <b t-esc="this.formatNumber(voucherState.count || 0)"/>
+                                    </button>
+                                </t>
+                            </div>
+                        </section>
+                    </t>
+                </div>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-12">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Approval Performance</span>
+                                <h2>Voucher Approval SLA</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-sla-list">
+                            <button type="button"
+                                    t-foreach="state.data.voucher_sla || []"
+                                    t-as="row"
+                                    t-key="row.code"
+                                    t-att-class="this.severityClass(row.severity)"
+                                    t-att-style="'--sla-color:' + row.color"
+                                    t-on-click="() => this.openRecords(row.model, row.domain, row.label)">
+                                <span>
+                                    <b t-esc="row.code"/>
+                                    <small t-esc="this.formatNumber(row.count || 0) + ' pending'"/>
+                                </span>
+                                <span>
+                                    <small>Pending Amount</small>
+                                    <strong t-esc="this.formatMoney(row.amount || 0)"/>
+                                </span>
+                                <span>
+                                    <small>Average Age</small>
+                                    <strong t-esc="this.formatNumber(row.avg_age || 0) + ' days'"/>
+                                </span>
+                                <span>
+                                    <small>Oldest</small>
+                                    <strong t-esc="this.formatNumber(row.oldest_age || 0) + ' days'"/>
+                                </span>
+                                <span>
+                                    <small>Over 7 Days</small>
+                                    <strong t-esc="this.formatNumber(row.overdue_count || 0)"/>
+                                </span>
+                            </button>
+                            <div class="pr-account-empty" t-if="!(state.data.voucher_sla || []).length">
+                                No pending vouchers in this period.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-5">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Action Center</span>
+                                <h2>Approval Queue</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-approval-list">
+                            <t t-foreach="state.data.approval_queue || []" t-as="row" t-key="row.label">
+                                <button type="button"
+                                        t-on-click="() => this.openRecords(row.model, row.domain, row.label)">
+                                    <i t-att-class="'fa ' + row.icon"
+                                       t-att-style="'--approval-color:' + row.color"/>
+                                    <span>
+                                        <strong t-esc="row.label"/>
+                                        <em t-esc="this.formatMoney(row.amount || 0)"/>
+                                    </span>
+                                    <b t-esc="this.formatNumber(row.count || 0)"/>
+                                    <i class="fa fa-chevron-right"/>
+                                </button>
+                            </t>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-3 pr-account-vat">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Tax Position</span>
+                                <h2>VAT Overview</h2>
+                            </div>
+                        </div>
+                        <button type="button"
+                                t-on-click="() => this.openRecords('account.move.line', vat.output_domain, 'Output VAT')">
+                            <span>Output VAT</span>
+                            <strong t-esc="this.formatMoney(vat.output_vat || 0)"/>
+                        </button>
+                        <button type="button"
+                                t-on-click="() => this.openRecords('account.move.line', vat.input_domain, 'Input VAT')">
+                            <span>Input VAT</span>
+                            <strong t-esc="this.formatMoney(vat.input_vat || 0)"/>
+                        </button>
+                        <div t-att-class="this.amountClass(vat.net_vat || 0)">
+                            <span>Net VAT Position</span>
+                            <strong t-esc="this.formatMoney(vat.net_vat || 0)"/>
+                            <small t-esc="(vat.net_vat || 0) &gt;= 0 ? 'Payable' : 'Recoverable'"/>
+                        </div>
+                        <div class="pr-account-vat-audit">
+                            <h3>VAT Audit Checks</h3>
+                            <button type="button"
+                                    t-foreach="(state.data.vat_audit || {}).checks || []"
+                                    t-as="check"
+                                    t-key="check.label"
+                                    t-att-class="this.severityClass(check.severity)"
+                                    t-on-click="() => this.openRecords(check.model, check.domain, check.label)">
+                                <span>
+                                    <i t-att-class="'fa ' + check.icon"/>
+                                    <b t-esc="check.label"/>
+                                </span>
+                                <strong t-esc="this.formatNumber(check.count || 0)"/>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-4">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Exposure</span>
+                                <h2>Largest Open Balances</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-exposure-tabs">
+                            <div>
+                                <h3>Customers</h3>
+                                <t t-foreach="state.data.top_customers || []" t-as="partner" t-key="partner.id || partner.name">
+                                    <button type="button"
+                                            t-on-click="() => this.openRecords('account.move', partner.domain, partner.name)">
+                                        <span><b t-esc="partner.name"/><i><em t-att-style="'width:' + this.clampPercent(partner.percent || 0) + '%'"/></i></span>
+                                        <strong t-esc="this.formatMoney(partner.amount || 0)"/>
+                                    </button>
+                                </t>
+                            </div>
+                            <div>
+                                <h3>Vendors</h3>
+                                <t t-foreach="state.data.top_vendors || []" t-as="partner" t-key="partner.id || partner.name">
+                                    <button type="button"
+                                            t-on-click="() => this.openRecords('account.move', partner.domain, partner.name)">
+                                        <span><b t-esc="partner.name"/><i><em t-att-style="'width:' + this.clampPercent(partner.percent || 0) + '%'"/></i></span>
+                                        <strong t-esc="this.formatMoney(partner.amount || 0)"/>
+                                    </button>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="pr-account-grid">
+                    <section class="pr-account-card pr-span-7">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Liquidity</span>
+                                <h2>Bank &amp; Cash Balances by Journal</h2>
+                            </div>
+                            <span class="pr-account-asof">
+                                As of <t t-esc="this.formatDate((state.data.filters || {}).date_to)"/>
+                            </span>
+                        </div>
+                        <div class="pr-account-journal-table">
+                            <div class="pr-account-table-head">
+                                <span>Journal</span><span>Account</span><span>Type</span><span>Balance</span>
+                            </div>
+                            <button type="button"
+                                    t-foreach="state.data.journals || []"
+                                    t-as="journal"
+                                    t-key="journal.id"
+                                    t-on-click="() => this.openRecords('account.move.line', journal.domain, journal.name)">
+                                <span>
+                                    <i t-att-class="'fa ' + (journal.type === 'bank' ? 'fa-university' : 'fa-money')"/>
+                                    <b t-esc="journal.name"/>
+                                    <small>
+                                        <t t-esc="journal.code"/>
+                                        <t t-if="journal.shared"> · Shared from <t t-esc="journal.owner_company"/></t>
+                                    </small>
+                                </span>
+                                <span t-esc="journal.account"/>
+                                <span class="pr-account-journal-type" t-esc="journal.type"/>
+                                <span>
+                                    <strong t-esc="this.formatMoney(journal.balance || 0)"/>
+                                    <i><em t-att-style="'width:' + this.clampPercent(journal.percent || 0) + '%'"/></i>
+                                </span>
+                            </button>
+                            <div class="pr-account-empty" t-if="!(state.data.journals || []).length">
+                                No active bank or cash journals found.
+                            </div>
+                        </div>
+                        <div class="pr-account-bank-health">
+                            <h3>Bank Reconciliation Health</h3>
+                            <button type="button"
+                                    t-foreach="state.data.bank_health || []"
+                                    t-as="journal"
+                                    t-key="'health-' + journal.id"
+                                    t-att-class="this.severityClass(journal.severity)"
+                                    t-on-click="() => this.openRecords('account.move.line', journal.unreconciled_domain, journal.name + ' Unreconciled Lines')">
+                                <span>
+                                    <b t-esc="journal.name"/>
+                                    <small>
+                                        Last entry:
+                                        <t t-esc="this.formatDate(journal.last_entry_date) || 'N/A'"/>
+                                    </small>
+                                </span>
+                                <span>
+                                    <small>Unreconciled</small>
+                                    <strong t-esc="this.formatNumber(journal.unreconciled_count || 0)"/>
+                                </span>
+                                <span>
+                                    <small>Old &gt; 30d</small>
+                                    <strong t-esc="this.formatNumber(journal.old_unreconciled_count || 0)"/>
+                                </span>
+                                <span>
+                                    <small>Amount</small>
+                                    <strong t-esc="this.formatMoney(journal.unreconciled_amount || 0)"/>
+                                </span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pr-account-card pr-span-5">
+                        <div class="pr-account-card-heading">
+                            <div>
+                                <span class="pr-account-section-kicker">Audit Trail</span>
+                                <h2>Recent Accounting Activity</h2>
+                            </div>
+                        </div>
+                        <div class="pr-account-activity">
+                            <button type="button"
+                                    t-foreach="state.data.recent_activity || []"
+                                    t-as="item"
+                                    t-key="item.model + '-' + item.id"
+                                    t-on-click="() => this.openRecord(item.model, item.id)">
+                                <span class="pr-account-activity-date">
+                                    <b t-esc="this.formatDate(item.date)"/>
+                                    <i t-esc="item.type"/>
+                                </span>
+                                <span>
+                                    <strong t-esc="item.name"/>
+                                    <small t-esc="item.partner"/>
+                                </span>
+                                <span>
+                                    <b t-esc="this.formatMoney(item.amount || 0)"/>
+                                    <em t-att-class="this.statusClass(item.state)" t-esc="item.state"/>
+                                </span>
+                            </button>
+                            <div class="pr-account-empty" t-if="!(state.data.recent_activity || []).length">
+                                No recent accounting activity in this period.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>
