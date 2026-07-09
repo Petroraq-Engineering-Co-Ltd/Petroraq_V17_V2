@@ -342,17 +342,27 @@ class PurchaseOrder(models.Model):
         ]) if self.requisition_id else self.env["purchase.order"]
 
         line_amounts = {}
+        requisition_cost_center_ids = set(
+            self.requisition_id.line_ids.mapped("cost_center_id").ids
+        ) if self.requisition_id else set()
         for line in self.order_line:
             distribution = line.analytic_distribution or {}
-            for cc_id, percentage in distribution.items():
+            for analytic_key, percentage in distribution.items():
                 try:
                     share = (line.price_subtotal or 0.0) * (float(percentage) / 100.0)
                 except (TypeError, ValueError):
                     share = 0.0
                 if share <= 0.0:
                     continue
-                line_amounts.setdefault(int(cc_id), 0.0)
-                line_amounts[int(cc_id)] += share
+                for key_part in str(analytic_key).split(","):
+                    key_part = key_part.strip()
+                    if not key_part.isdigit():
+                        continue
+                    cc_id = int(key_part)
+                    if requisition_cost_center_ids and cc_id not in requisition_cost_center_ids:
+                        continue
+                    line_amounts.setdefault(cc_id, 0.0)
+                    line_amounts[cc_id] += share
 
         if line_amounts and self.requisition_id:
             amount_by_cost_center = {}
