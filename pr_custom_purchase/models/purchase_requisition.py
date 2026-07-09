@@ -720,6 +720,16 @@ class PurchaseRequisition(models.Model):
         for rec in self.filtered("expense_bucket_id"):
             rec.expense_bucket_id.sudo()._check_active_for_date(rec._budget_usage_date())
 
+    @api.model
+    def _analytic_distribution_account_ids(self, distribution):
+        account_ids = set()
+        for analytic_key in (distribution or {}):
+            for key_part in str(analytic_key).split(","):
+                key_part = key_part.strip()
+                if key_part.isdigit():
+                    account_ids.add(int(key_part))
+        return account_ids
+
     def _amount_by_cost_center(self, remaining_quantities=False):
         self.ensure_one()
         amount_by_cost_center = {}
@@ -749,9 +759,14 @@ class PurchaseRequisition(models.Model):
         if self.pr_type == "cash":
             return self._amount_by_cost_center()
 
-        return self._amount_by_cost_center(
-            remaining_quantities=self._get_remaining_requisition_line_quantities()
-        )
+        downstream_po_count = self.env["purchase.order.line"].sudo().search_count([
+            ("order_id.requisition_id", "=", self.id),
+            ("order_id.state", "in", ["pending", "purchase", "done"]),
+        ])
+        if downstream_po_count:
+            return {}
+
+        return self._amount_by_cost_center()
 
     def _get_selected_budget_remaining_by_cost_center(self):
         self.ensure_one()
@@ -1444,8 +1459,7 @@ class PurchaseRequisition(models.Model):
                 quantities[requisition_line.id] += line.product_qty or 0.0
                 continue
 
-            distribution = line.analytic_distribution or {}
-            distribution_cc_ids = {int(key) for key in distribution.keys() if str(key).isdigit()}
+            distribution_cc_ids = self._analytic_distribution_account_ids(line.analytic_distribution)
             candidates = requisition_lines.filtered(
                 lambda req_line: req_line.description.id == line.product_id.id
                 and (

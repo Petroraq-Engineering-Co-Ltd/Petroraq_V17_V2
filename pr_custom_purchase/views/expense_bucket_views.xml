@@ -127,13 +127,13 @@
             <xpath expr="//field[@name='crossovered_budget_line']/tree/field[@name='planned_amount']" position="after">
                 <field name="po_spent_amount" readonly="1" string="Spent Amount" sum="Spent Amount"/>
                 <field name="budget_remaining_amount" readonly="1" string="Remaining Amount" sum="Remaining Amount"/>
+                <field name="budget_expensed_amount" readonly="1" string="Expensed Amount" sum="Expensed Amount"/>
             </xpath>
 
             <xpath expr="//field[@name='crossovered_budget_line']/tree/field[@name='practical_amount']" position="attributes">
-                <attribute name="string">Expensed Amount</attribute>
-                <attribute name="sum">Expensed Amount</attribute>
-                <attribute name="column_invisible">0</attribute>
-                <attribute name="optional">show</attribute>
+                <attribute name="string">Odoo Practical Amount</attribute>
+                <attribute name="column_invisible">1</attribute>
+                <attribute name="optional">hide</attribute>
             </xpath>
 
         </field>
