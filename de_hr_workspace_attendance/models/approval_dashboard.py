@@ -177,6 +177,43 @@ class HrApprovalDashboardService(models.AbstractModel):
         )
 
     @api.model
+    def _account_payment_approval_domain(self):
+        user = self.env.user
+        if user.has_group("pr_account.custom_group_accounting_manager"):
+            return [("state", "=", "finance_approve")]
+        if (
+            user.has_group("account.group_account_manager")
+            or user.has_group("pr_account.custom_group_account_supervisor")
+        ):
+            return [("state", "=", "submit")]
+        if user.has_group("base.group_system"):
+            return [("state", "in", ["submit", "finance_approve"])]
+        return [("id", "=", 0)]
+
+    @api.model
+    def _account_payment_approval_model(self, menu, action):
+        refs = (
+            (
+                "de_hr_workspace_account.pr_account_bank_payment_approvals_view_menu",
+                "de_hr_workspace_account.pr_account_bank_payment_approvals_workspace_action",
+                "pr.account.bank.payment",
+            ),
+            (
+                "de_hr_workspace_account.pr_account_cash_payment_approvals_view_menu",
+                "de_hr_workspace_account.pr_account_cash_payment_approvals_workspace_action",
+                "pr.account.cash.payment",
+            ),
+        )
+        for menu_xmlid, action_xmlid, model_name in refs:
+            payment_menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
+            payment_action = self.env.ref(action_xmlid, raise_if_not_found=False)
+            if (payment_menu and menu.id == payment_menu.id) or (
+                payment_action and action.id == payment_action.id
+            ):
+                return model_name
+        return False
+
+    @api.model
     def _override_domain_for_menu(self, menu, action, domain):
         menu_name = (menu.name or "").lower()
         if action.res_model == "pr.hr.shortage.request" or "shortage" in menu_name:
@@ -196,6 +233,13 @@ class HrApprovalDashboardService(models.AbstractModel):
                 if "pr.work.order" not in self.env:
                     return 0
                 return self.env["pr.work.order"].search_count(self._work_order_pending_domain())
+            account_payment_model = self._account_payment_approval_model(menu, action)
+            if account_payment_model:
+                if account_payment_model not in self.env:
+                    return 0
+                return self.env[account_payment_model].search_count(
+                    self._account_payment_approval_domain()
+                )
             if action._name != "ir.actions.act_window" or not action.res_model:
                 return 0
             return self.env[action.res_model].search_count(self._domain_for_menu_action(menu, action))

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import _, fields, models
+from odoo.exceptions import UserError
 
 
 class HrEmployee(models.Model):
@@ -29,8 +30,26 @@ class HrEmployee(models.Model):
                 ("employee_id", "=", employee.id),
             ])
 
+    @staticmethod
+    def _is_saudi_country(country):
+        return bool(
+            country
+            and (
+                (country.code or "").upper() == "SA"
+                or ("is_homeland" in country._fields and country.is_homeland)
+                or (country.name or "").strip().casefold()
+                in ("saudi", "saudi arabia", "kingdom of saudi arabia")
+            )
+        )
+
+    def _is_saudi_national(self):
+        self.ensure_one()
+        return self._is_saudi_country(self.country_id)
+
     def _open_employee_compliance_request(self, request_type, title, extra_context=None):
         self.ensure_one()
+        if request_type in ("iqama_new", "iqama_renewal") and self._is_saudi_national():
+            raise UserError(_("Saudi employees do not require Iqama/Work Permit requests."))
         context = {
             "default_request_type": request_type,
             "default_employee_id": self.id,

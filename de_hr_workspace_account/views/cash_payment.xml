@@ -31,7 +31,7 @@
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'tree', 'view_id': ref('de_hr_workspace_account_cash_payment_view_tree')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('pr_account.pr_account_cash_payment_view_form')})]"/>
-        <field name="domain">[('state', '=', 'finance_approve')]</field>
+        <field name="domain">[]</field>
         <field name="context">{'create': False,'edit': False}</field>
         <field name="search_view_id" ref="pr_account.pr_account_cash_payment_view_search"/>
         <field name="help" type="html">
@@ -41,9 +41,40 @@
         </field>
     </record>
 
+    <record id="pr_account_cash_payment_approvals_workspace_action" model="ir.actions.server">
+        <field name="name">Cash Payments</field>
+        <field name="model_id" ref="pr_account.model_pr_account_cash_payment"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_workspace_cash_payment_approvals()</field>
+    </record>
+
     <menuitem id="pr_account_cash_payment_approvals_view_menu"
               parent="menu_my_financial_accounting_approvals"
               name="Cash Payments"
-              action="pr_account_cash_payment_approvals_view_action"
-              sequence="2"/>
+              action="pr_account_cash_payment_approvals_workspace_action"
+              sequence="2"
+              groups="account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
+
+    <record id="pr_account_cash_payment_workspace_approval_buttons" model="ir.ui.view">
+        <field name="name">pr.account.cash.payment.workspace.approval.buttons</field>
+        <field name="model">pr.account.cash.payment</field>
+        <field name="inherit_id" ref="pr_account.pr_account_cash_payment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_finance_approve']" position="attributes">
+                <attribute name="groups">account.group_account_manager,pr_account.custom_group_account_supervisor</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_approve_remaining_lines']" position="attributes">
+                <attribute name="groups">account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_reject_remaining_lines']" position="attributes">
+                <attribute name="groups">account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor</attribute>
+            </xpath>
+            <xpath expr="//field[@name='cash_payment_line_ids']//button[@name='action_line_approve']" position="attributes">
+                <attribute name="groups">account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor</attribute>
+            </xpath>
+            <xpath expr="//field[@name='cash_payment_line_ids']//button[@name='action_line_reject']" position="attributes">
+                <attribute name="groups">account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor</attribute>
+            </xpath>
+        </field>
+    </record>
 </odoo>

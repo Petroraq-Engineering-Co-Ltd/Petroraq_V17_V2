@@ -93,7 +93,9 @@
                 <field name="hire_type"/>
                 <field name="state" widget="badge"
                     decoration-danger="state == 'initialize'"
-                    decoration-warning="state == 'checklist'"/>
+                    decoration-warning="state == 'checklist'"
+                    decoration-info="state == 'work_permit'"
+                    decoration-success="state == 'completed'"/>
             </tree>
         </field>
     </record>

@@ -10,6 +10,12 @@ NEW_COMPLIANCE_REQUEST_TYPES = ("iqama_new", "medical_insurance_new")
 COMPLIANCE_RENEWAL_REQUEST_TYPES = ("iqama_renewal", "medical_insurance_renewal")
 SERVICE_PERIOD_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES
 TICKET_REIMBURSEMENT_TYPE = "ticket"
+SELF_COMPANY_REQUEST_TYPES = ("exit_reentry",) + COMPLIANCE_RENEWAL_REQUEST_TYPES
+SAUDI_RESTRICTED_REQUEST_TYPES = ("exit_reentry",) + IQAMA_REQUEST_TYPES
+SELF_PAYMENT_RESPONSIBILITY = "self"
+COMPANY_PAYMENT_RESPONSIBILITY = "company"
+EXIT_REENTRY_SINGLE_ENTRY = "single"
+EXIT_REENTRY_MULTIPLE_ENTRY = "multiple"
 ACCOUNTING_GROUP_XML_IDS = (
     "base.group_system",
     "account.group_account_invoice",
@@ -114,6 +120,58 @@ class PrEmployeeServiceRequest(models.Model):
         default=fields.Date.context_today,
         required=True,
         tracking=True,
+    )
+    payment_responsibility = fields.Selection(
+        [
+            (COMPANY_PAYMENT_RESPONSIBILITY, "By Company"),
+            (SELF_PAYMENT_RESPONSIBILITY, "Self"),
+        ],
+        string="Payment Responsibility",
+        default=COMPANY_PAYMENT_RESPONSIBILITY,
+        required=True,
+        tracking=True,
+        help="Self-paid requests do not create employee payment requests or accounting vouchers.",
+    )
+    exit_reentry_entry_type = fields.Selection(
+        [
+            (EXIT_REENTRY_SINGLE_ENTRY, "Single Entry"),
+            (EXIT_REENTRY_MULTIPLE_ENTRY, "Multiple Entry"),
+        ],
+        string="Exit/Re-entry Type",
+        default=EXIT_REENTRY_SINGLE_ENTRY,
+        required=True,
+        tracking=True,
+        help="Multiple-entry Exit/Re-entry visas are always self-paid.",
+    )
+    exit_reentry_historical_company_paid = fields.Boolean(
+        string="Already Taken on Company Expense",
+        copy=False,
+        tracking=True,
+        help=(
+            "Use this for old company-paid Exit/Re-entry visas that were already "
+            "approved and paid outside this workflow. It creates a record only and "
+            "still consumes the company-paid entitlement."
+        ),
+    )
+    contract_id = fields.Many2one(
+        "hr.contract",
+        string="Contract",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    contract_exit_reentry_benefit_type = fields.Selection(
+        related="contract_id.exit_reentry_benefit_type",
+        string="Contract Category",
+        readonly=True,
+    )
+    exit_reentry_company_eligible = fields.Boolean(
+        string="Company Exit/Re-entry Eligible",
+        compute="_compute_exit_reentry_eligibility",
+    )
+    exit_reentry_eligibility_message = fields.Char(
+        string="Eligibility Note",
+        compute="_compute_exit_reentry_eligibility",
     )
     state = fields.Selection(
         [
@@ -383,8 +441,56 @@ class PrEmployeeServiceRequest(models.Model):
             else:
                 rec.duration_days = 0
 
+    @api.depends(
+        "employee_id",
+        "request_type",
+        "request_date",
+        "travel_date",
+        "contract_id",
+        "exit_reentry_entry_type",
+        "exit_reentry_historical_company_paid",
+    )
+    def _compute_exit_reentry_eligibility(self):
+        for rec in self:
+            if rec.request_type != "exit_reentry" or not rec.employee_id:
+                rec.exit_reentry_company_eligible = False
+                rec.exit_reentry_eligibility_message = False
+                continue
+            if rec._is_saudi_restricted_request():
+                rec.exit_reentry_company_eligible = False
+                rec.exit_reentry_eligibility_message = _(
+                    "Saudi employees do not require Exit/Re-entry requests."
+                )
+                continue
+            if rec.exit_reentry_entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
+                rec.exit_reentry_company_eligible = False
+                rec.exit_reentry_eligibility_message = _(
+                    "Multiple-entry Exit/Re-entry visas must be Self-paid."
+                )
+                continue
+            if rec.exit_reentry_historical_company_paid:
+                rec.exit_reentry_company_eligible = False
+                rec.exit_reentry_eligibility_message = _(
+                    "Historical company-paid record: no payment workflow will run, but this consumes the entitlement."
+                )
+                continue
+            eligible, message, _contract = rec._get_exit_reentry_company_eligibility()
+            rec.exit_reentry_company_eligible = eligible
+            rec.exit_reentry_eligibility_message = message
+
     @api.depends_context("uid")
-    @api.depends("state", "request_type", "requested_by_id", "employee_manager_user_id")
+    @api.depends(
+        "state",
+        "request_type",
+        "payment_responsibility",
+        "requested_by_id",
+        "employee_manager_user_id",
+        "payment_request_id.state",
+        "cash_payment_id.state",
+        "bank_payment_id.state",
+        "cash_payment_id.accounting_manager_state",
+        "bank_payment_id.accounting_manager_state",
+    )
     def _compute_action_flags(self):
         user = self.env.user
         is_hr_supervisor = (
@@ -438,8 +544,39 @@ class PrEmployeeServiceRequest(models.Model):
                     or is_admin
                 )
             )
-            rec.can_reset_to_draft = rec.state == "rejected" and (is_owner or is_hr_manager or is_admin)
-            rec.can_cancel = rec.state in ("draft", "hr_supervisor_approval") and is_owner
+            can_manage_own_non_final = is_owner or is_hr_manager or is_admin
+            payment_is_final = rec._has_posted_payment_artifacts()
+            rec.can_reset_to_draft = (
+                rec.state in (
+                    "hr_supervisor_approval",
+                    "employee_manager_approval",
+                    "hr_manager_approval",
+                    "accounts_approval",
+                    "md_approval",
+                    "finance_approval",
+                    "payment_approval",
+                    "rejected",
+                    "cancelled",
+                )
+                and can_manage_own_non_final
+                and not payment_is_final
+            )
+            rec.can_cancel = (
+                rec.state
+                in (
+                    "draft",
+                    "hr_supervisor_approval",
+                    "employee_manager_approval",
+                    "hr_manager_approval",
+                    "accounts_approval",
+                    "md_approval",
+                    "finance_approval",
+                    "payment_approval",
+                    "rejected",
+                )
+                and can_manage_own_non_final
+                and not payment_is_final
+            )
 
     @api.onchange("employee_id", "payment_method", "cost_center_id")
     def _onchange_employee_or_payment_method(self):
@@ -448,6 +585,9 @@ class PrEmployeeServiceRequest(models.Model):
                 rec.company_id = rec.employee_id.company_id or self.env.company
                 rec.passport_no = rec.employee_id.passport_id or rec.passport_no
                 rec.iqama_no = rec.employee_id.identification_id or rec.iqama_no
+                current_contract = rec._get_current_contract()
+                if current_contract:
+                    rec.contract_id = current_contract.id
                 if not rec.cost_center_id:
                     rec.cost_center_id = rec._get_default_hr_cost_center()
                 if rec.cost_center_id and not rec.expense_bucket_id:
@@ -458,9 +598,70 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.payment_account_id:
                 rec.payment_account_id = rec._get_default_payment_account()
 
-    @api.onchange("requested_amount", "visa_fee", "moi_fee_amount", "mol_fee_amount", "request_type")
+    @api.onchange(
+        "request_type",
+        "payment_responsibility",
+        "employee_id",
+        "travel_date",
+        "request_date",
+        "exit_reentry_entry_type",
+        "exit_reentry_historical_company_paid",
+    )
+    def _onchange_payment_responsibility_eligibility(self):
+        for rec in self:
+            if rec.request_type not in SELF_COMPANY_REQUEST_TYPES:
+                rec.payment_responsibility = COMPANY_PAYMENT_RESPONSIBILITY
+                rec.exit_reentry_historical_company_paid = False
+                continue
+            current_contract = rec._get_current_contract()
+            if current_contract:
+                rec.contract_id = current_contract.id
+            if rec.request_type != "exit_reentry":
+                rec.exit_reentry_historical_company_paid = False
+                continue
+            if rec.exit_reentry_entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
+                rec.payment_responsibility = SELF_PAYMENT_RESPONSIBILITY
+                rec.exit_reentry_historical_company_paid = False
+                rec.approved_amount = 0.0
+                return {
+                    "warning": {
+                        "title": _("Multiple-entry is Self-paid"),
+                        "message": _("Multiple-entry Exit/Re-entry visas cannot be charged to the company."),
+                    }
+                }
+            if rec.exit_reentry_historical_company_paid:
+                rec.exit_reentry_entry_type = EXIT_REENTRY_SINGLE_ENTRY
+                rec.payment_responsibility = COMPANY_PAYMENT_RESPONSIBILITY
+                rec.approved_amount = 0.0
+                continue
+            if rec.payment_responsibility != COMPANY_PAYMENT_RESPONSIBILITY:
+                continue
+            eligible, message, _contract = rec._get_exit_reentry_company_eligibility()
+            if not eligible:
+                rec.payment_responsibility = SELF_PAYMENT_RESPONSIBILITY
+                return {
+                    "warning": {
+                        "title": _("Company-paid Exit/Re-entry is not eligible"),
+                        "message": message,
+                    }
+                }
+
+    @api.onchange(
+        "requested_amount",
+        "visa_fee",
+        "moi_fee_amount",
+        "mol_fee_amount",
+        "request_type",
+        "payment_responsibility",
+        "exit_reentry_historical_company_paid",
+    )
     def _onchange_amounts(self):
         for rec in self:
+            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+                rec.approved_amount = 0.0
+                if rec.request_type == "iqama_renewal":
+                    rec.requested_amount = rec.moi_fee_amount + rec.mol_fee_amount
+                continue
             if rec.request_type == "iqama_renewal":
                 rec.requested_amount = rec.moi_fee_amount + rec.mol_fee_amount
                 rec.approved_amount = rec.requested_amount
@@ -472,6 +673,22 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             if not rec.employee_id:
                 continue
+            if rec._is_saudi_restricted_request():
+                return {
+                    "warning": {
+                        "title": _("Not required for Saudi employees"),
+                        "message": _(
+                            "Saudi employees do not require Iqama/Work Permit or Exit/Re-entry requests."
+                        ),
+                    }
+                }
+            if rec.request_type not in SELF_COMPANY_REQUEST_TYPES:
+                rec.payment_responsibility = COMPANY_PAYMENT_RESPONSIBILITY
+            if rec.request_type != "exit_reentry":
+                rec.exit_reentry_historical_company_paid = False
+                rec.exit_reentry_entry_type = EXIT_REENTRY_SINGLE_ENTRY
+            elif not rec.exit_reentry_entry_type:
+                rec.exit_reentry_entry_type = EXIT_REENTRY_SINGLE_ENTRY
             rec.passport_no = rec.employee_id.passport_id or rec.passport_no
             rec.iqama_no = rec.employee_id.identification_id or rec.iqama_no
             if rec.request_type in IQAMA_REQUEST_TYPES:
@@ -521,7 +738,11 @@ class PrEmployeeServiceRequest(models.Model):
 
     @api.constrains(
         "request_type",
+        "employee_id",
         "requested_amount",
+        "payment_responsibility",
+        "exit_reentry_entry_type",
+        "exit_reentry_historical_company_paid",
         "moi_fee_amount",
         "mol_fee_amount",
         "travel_date",
@@ -531,14 +752,33 @@ class PrEmployeeServiceRequest(models.Model):
     )
     def _check_request_values(self):
         for rec in self:
+            if rec._is_saudi_restricted_request():
+                raise ValidationError(_(
+                    "Saudi employees do not require Iqama/Work Permit or Exit/Re-entry requests."
+                ))
             if rec.request_type == "reimbursement" and rec.requested_amount <= 0.0:
                 raise ValidationError(_("Requested Amount must be greater than zero for reimbursement requests."))
             if rec.request_type == "iqama_renewal" and (
                 rec.moi_fee_amount < 0.0 or rec.mol_fee_amount < 0.0
             ):
                 raise ValidationError(_("MOI and MOL fees cannot be negative."))
-            if rec._get_requested_compliance_amount() <= 0.0 and rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES:
+            if (
+                rec._get_requested_compliance_amount() <= 0.0
+                and rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES
+                and not rec._is_self_paid_request()
+            ):
                 raise ValidationError(_("Requested Amount must be greater than zero for renewal requests."))
+            if rec.request_type == "exit_reentry":
+                if rec.exit_reentry_entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
+                    if rec.payment_responsibility != SELF_PAYMENT_RESPONSIBILITY:
+                        raise ValidationError(_("Multiple-entry Exit/Re-entry visas must be Self-paid."))
+                    if rec.exit_reentry_historical_company_paid:
+                        raise ValidationError(_("Historical company-paid Exit/Re-entry records must be single-entry."))
+                if rec.exit_reentry_historical_company_paid:
+                    if rec.payment_responsibility != COMPANY_PAYMENT_RESPONSIBILITY:
+                        raise ValidationError(_("Historical Exit/Re-entry records are only for company-paid visas."))
+                    if rec.exit_reentry_entry_type != EXIT_REENTRY_SINGLE_ENTRY:
+                        raise ValidationError(_("Historical company-paid Exit/Re-entry records must be single-entry."))
             if rec.request_type == "exit_reentry" and rec.travel_date and rec.return_date:
                 if rec.return_date < rec.travel_date:
                     raise ValidationError(_("Return Date cannot be before Travel Date."))
@@ -546,8 +786,54 @@ class PrEmployeeServiceRequest(models.Model):
                 if rec.service_to_date < rec.service_from_date:
                     raise ValidationError(_("To Date cannot be before From Date."))
 
+    @api.model
+    def _normalize_exit_reentry_create_vals(self, vals):
+        vals = dict(vals)
+        request_type = vals.get("request_type")
+        if request_type == "exit_reentry":
+            entry_type = vals.get("exit_reentry_entry_type") or EXIT_REENTRY_SINGLE_ENTRY
+            if entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
+                vals["payment_responsibility"] = SELF_PAYMENT_RESPONSIBILITY
+                vals["exit_reentry_historical_company_paid"] = False
+                vals["approved_amount"] = 0.0
+            elif vals.get("exit_reentry_historical_company_paid"):
+                vals["exit_reentry_entry_type"] = EXIT_REENTRY_SINGLE_ENTRY
+                vals["payment_responsibility"] = COMPANY_PAYMENT_RESPONSIBILITY
+                vals["approved_amount"] = 0.0
+        elif request_type:
+            vals["exit_reentry_historical_company_paid"] = False
+        return vals
+
+    def _normalize_exit_reentry_write_vals(self, vals):
+        self.ensure_one()
+        vals = dict(vals)
+        request_type = vals.get("request_type", self.request_type)
+        if request_type != "exit_reentry":
+            if "request_type" in vals:
+                vals["exit_reentry_historical_company_paid"] = False
+            return vals
+
+        entry_type = vals.get(
+            "exit_reentry_entry_type",
+            self.exit_reentry_entry_type or EXIT_REENTRY_SINGLE_ENTRY,
+        )
+        historical = vals.get(
+            "exit_reentry_historical_company_paid",
+            self.exit_reentry_historical_company_paid,
+        )
+        if entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
+            vals["payment_responsibility"] = SELF_PAYMENT_RESPONSIBILITY
+            vals["exit_reentry_historical_company_paid"] = False
+            vals["approved_amount"] = 0.0
+        elif historical:
+            vals["exit_reentry_entry_type"] = EXIT_REENTRY_SINGLE_ENTRY
+            vals["payment_responsibility"] = COMPANY_PAYMENT_RESPONSIBILITY
+            vals["approved_amount"] = 0.0
+        return vals
+
     @api.model_create_multi
     def create(self, vals_list):
+        vals_list = [self._normalize_exit_reentry_create_vals(vals) for vals in vals_list]
         for vals in vals_list:
             if vals.get("request_type") == "iqama_renewal":
                 vals["requested_amount"] = (
@@ -563,6 +849,9 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.iqama_no:
                 rec.iqama_no = rec.employee_id.identification_id or False
             updates = {}
+            current_contract = rec._get_current_contract()
+            if current_contract and not rec.contract_id:
+                updates["contract_id"] = current_contract.id
             if not rec.cost_center_id:
                 cost_center = rec._get_default_hr_cost_center()
                 if cost_center:
@@ -582,11 +871,23 @@ class PrEmployeeServiceRequest(models.Model):
                     updates["payment_account_id"] = payment_account.id
             if updates:
                 rec.write(updates)
+        records._apply_exit_reentry_company_eligibility(auto_message=False)
         return records
 
     def write(self, vals):
         if self.env.context.get("skip_employee_service_request_lock"):
             return super().write(vals)
+        if {
+            "request_type",
+            "payment_responsibility",
+            "exit_reentry_entry_type",
+            "exit_reentry_historical_company_paid",
+        }.intersection(vals):
+            if len(self) > 1:
+                for rec in self:
+                    rec.write(rec._normalize_exit_reentry_write_vals(vals))
+                return True
+            vals = self._normalize_exit_reentry_write_vals(vals)
         protected = {
             "request_type",
             "employee_id",
@@ -594,6 +895,9 @@ class PrEmployeeServiceRequest(models.Model):
             "expense_date",
             "requested_amount",
             "payment_method",
+            "payment_responsibility",
+            "exit_reentry_entry_type",
+            "exit_reentry_historical_company_paid",
             "attachment_ids",
             "destination_country_id",
             "travel_date",
@@ -648,7 +952,18 @@ class PrEmployeeServiceRequest(models.Model):
             for rec in self:
                 if rec.state != "draft" and not can_edit_approval:
                     raise UserError(_("Only HR/MD approvers can edit approval and voucher accounting fields."))
-        return super().write(vals)
+        res = super().write(vals)
+        if {
+            "request_type",
+            "employee_id",
+            "payment_responsibility",
+            "exit_reentry_entry_type",
+            "exit_reentry_historical_company_paid",
+            "travel_date",
+            "request_date",
+        }.intersection(vals):
+            self._apply_exit_reentry_company_eligibility(auto_message=True)
+        return res
 
     def unlink(self):
         for rec in self:
@@ -662,6 +977,10 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             if not rec.employee_id:
                 raise UserError(_("Please select an employee."))
+            if rec._is_saudi_restricted_request():
+                raise UserError(_(
+                    "Saudi employees do not require Iqama/Work Permit or Exit/Re-entry requests."
+                ))
             if rec._is_department_manager_flow() and not rec.employee_manager_user_id:
                 raise UserError(_("Please set a manager user on the employee before submitting."))
             if rec.request_type == "reimbursement":
@@ -679,16 +998,17 @@ class PrEmployeeServiceRequest(models.Model):
                 if rec.return_date < rec.travel_date:
                     raise UserError(_("Return Date cannot be before Travel Date."))
             if rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES:
-                if rec._get_requested_compliance_amount() <= 0.0:
-                    raise UserError(_("Please enter the expected fee amount greater than zero."))
-                if not rec.expense_bucket_id:
-                    raise UserError(_("Please select the approved Budget for this renewal."))
-                if not rec.cost_center_id:
-                    raise UserError(_("Please select the Cost Center for this renewal."))
-                if not rec.expense_account_id:
-                    raise UserError(_("Please select the Employee / Expense Account for this renewal."))
-                if not rec.attachment_ids:
-                    raise UserError(_("Please attach the renewal supporting document(s)."))
+                if not rec._is_self_paid_request():
+                    if rec._get_requested_compliance_amount() <= 0.0:
+                        raise UserError(_("Please enter the expected fee amount greater than zero."))
+                    if not rec.expense_bucket_id:
+                        raise UserError(_("Please select the approved Budget for this renewal."))
+                    if not rec.cost_center_id:
+                        raise UserError(_("Please select the Cost Center for this renewal."))
+                    if not rec.expense_account_id:
+                        raise UserError(_("Please select the Employee / Expense Account for this renewal."))
+                    if not rec.attachment_ids:
+                        raise UserError(_("Please attach the renewal supporting document(s)."))
             if rec.request_type in HR_COMPLIANCE_REQUEST_TYPES:
                 if not rec.iqama_no:
                     raise UserError(_("Please enter the Iqama No."))
@@ -735,6 +1055,206 @@ class PrEmployeeServiceRequest(models.Model):
             or self.request_type in HR_COMPLIANCE_REQUEST_TYPES
         )
 
+    @staticmethod
+    def _is_saudi_country(country):
+        return bool(
+            country
+            and (
+                (country.code or "").upper() == "SA"
+                or ("is_homeland" in country._fields and country.is_homeland)
+                or (country.name or "").strip().casefold()
+                in ("saudi", "saudi arabia", "kingdom of saudi arabia")
+            )
+        )
+
+    def _is_saudi_employee(self):
+        self.ensure_one()
+        return self._is_saudi_country(self.employee_id.country_id)
+
+    def _is_saudi_restricted_request(self):
+        self.ensure_one()
+        return self.request_type in SAUDI_RESTRICTED_REQUEST_TYPES and self._is_saudi_employee()
+
+    def _is_self_paid_request(self):
+        self.ensure_one()
+        return (
+            self.request_type in SELF_COMPANY_REQUEST_TYPES
+            and self.payment_responsibility == SELF_PAYMENT_RESPONSIBILITY
+        )
+
+    def _is_historical_company_paid_exit_reentry(self):
+        self.ensure_one()
+        return (
+            self.request_type == "exit_reentry"
+            and self.exit_reentry_historical_company_paid
+            and self.payment_responsibility == COMPANY_PAYMENT_RESPONSIBILITY
+        )
+
+    def _is_company_paid_exit_reentry_consumption(self):
+        self.ensure_one()
+        return (
+            self.request_type == "exit_reentry"
+            and self.exit_reentry_entry_type in (False, EXIT_REENTRY_SINGLE_ENTRY)
+            and self.payment_responsibility == COMPANY_PAYMENT_RESPONSIBILITY
+            and self.state not in ("cancelled", "rejected")
+        )
+
+    def _get_current_contract(self):
+        self.ensure_one()
+        employee = self.employee_id
+        if not employee:
+            return self.env["hr.contract"]
+        contract = employee.contract_id if "contract_id" in employee._fields else self.env["hr.contract"]
+        if contract and contract.state == "open":
+            return contract.sudo()
+        return self.env["hr.contract"].sudo().search([
+            ("employee_id", "=", employee.id),
+            ("state", "=", "open"),
+        ], order="date_start desc, id desc", limit=1)
+
+    def _get_exit_reentry_eligibility_date(self):
+        self.ensure_one()
+        return self.travel_date or self.request_date or fields.Date.context_today(self)
+
+    def _get_exit_reentry_company_schedule(self, contract):
+        benefit_type = contract.exit_reentry_benefit_type or "non_executive"
+        if benefit_type == "executive":
+            return 11, 12
+        return 23, 24
+
+    def _get_exit_reentry_company_window(self, contract, target_date):
+        self.ensure_one()
+        if not contract or not contract.date_start:
+            return False, False
+        first_offset_months, interval_months = self._get_exit_reentry_company_schedule(contract)
+        window_start = contract.date_start + relativedelta(months=first_offset_months)
+        if target_date < window_start:
+            return window_start, False
+        while window_start + relativedelta(months=interval_months) <= target_date:
+            window_start += relativedelta(months=interval_months)
+        window_end = window_start + relativedelta(months=interval_months) - relativedelta(days=1)
+        return window_start, window_end
+
+    def _consumes_exit_reentry_company_window(self, contract, window_start, window_end):
+        self.ensure_one()
+        if not self._is_company_paid_exit_reentry_consumption():
+            return False
+        consumed_date = self._get_exit_reentry_eligibility_date()
+        if not consumed_date or consumed_date < contract.date_start or consumed_date > window_end:
+            return False
+        if window_start <= consumed_date <= window_end:
+            return True
+        first_offset_months, _interval_months = self._get_exit_reentry_company_schedule(contract)
+        first_window_start = contract.date_start + relativedelta(months=first_offset_months)
+        return window_start == first_window_start and consumed_date < window_start
+
+    def _get_exit_reentry_company_eligibility(self):
+        self.ensure_one()
+        if self.request_type != "exit_reentry":
+            return False, False, self.env["hr.contract"]
+        if self.exit_reentry_entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
+            return (
+                False,
+                _("Multiple-entry Exit/Re-entry visas must be Self-paid."),
+                self.env["hr.contract"],
+            )
+        if self._is_saudi_employee():
+            return (
+                False,
+                _("Saudi employees do not require Exit/Re-entry requests."),
+                self.env["hr.contract"],
+            )
+        contract = self.contract_id or self._get_current_contract()
+        if not contract:
+            return (
+                False,
+                _("No running contract was found. The request will be handled as Self-paid."),
+                contract,
+            )
+        if not contract.date_start:
+            return (
+                False,
+                _("The current contract has no start date. The request will be handled as Self-paid."),
+                contract,
+            )
+        target_date = self._get_exit_reentry_eligibility_date()
+        window_start, window_end = self._get_exit_reentry_company_window(contract, target_date)
+        benefit_label = dict(contract._fields["exit_reentry_benefit_type"].selection).get(
+            contract.exit_reentry_benefit_type or "non_executive",
+            _("Non Executive"),
+        )
+        if not window_end:
+            return (
+                False,
+                _("%(category)s employees become company-paid eligible from %(date)s.")
+                % {"category": benefit_label, "date": window_start},
+                contract,
+            )
+
+        candidate_requests = self.sudo().search([
+            ("id", "!=", self.id or 0),
+            ("employee_id", "=", self.employee_id.id),
+            ("request_type", "=", "exit_reentry"),
+            ("payment_responsibility", "=", COMPANY_PAYMENT_RESPONSIBILITY),
+            ("state", "not in", ["cancelled", "rejected"]),
+        ])
+        used_request = candidate_requests.filtered(
+            lambda request: request._consumes_exit_reentry_company_window(
+                contract,
+                window_start,
+                window_end,
+            )
+        )[:1]
+        if used_request:
+            return (
+                False,
+                _("Company-paid Exit/Re-entry was already used in this entitlement period by %s.")
+                % used_request.display_name,
+                contract,
+            )
+        return (
+            True,
+            _("%(category)s company-paid entitlement is available for %(start)s to %(end)s.")
+            % {"category": benefit_label, "start": window_start, "end": window_end},
+            contract,
+        )
+
+    def _apply_exit_reentry_company_eligibility(self, auto_message=True):
+        for rec in self.filtered(lambda request: request.request_type == "exit_reentry"):
+            contract = rec._get_current_contract()
+            if contract and rec.contract_id != contract:
+                rec.with_context(skip_employee_service_request_lock=True).write({"contract_id": contract.id})
+            if rec.exit_reentry_entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
+                needs_update = (
+                    rec.payment_responsibility != SELF_PAYMENT_RESPONSIBILITY
+                    or rec.exit_reentry_historical_company_paid
+                    or rec.approved_amount
+                )
+                if needs_update:
+                    rec.with_context(skip_employee_service_request_lock=True).write({
+                        "payment_responsibility": SELF_PAYMENT_RESPONSIBILITY,
+                        "exit_reentry_historical_company_paid": False,
+                        "approved_amount": 0.0,
+                    })
+                if auto_message and needs_update:
+                    rec.message_post(body=_("Multiple-entry Exit/Re-entry switched to Self-paid."))
+                continue
+            if rec._is_historical_company_paid_exit_reentry():
+                if rec.approved_amount:
+                    rec.with_context(skip_employee_service_request_lock=True).write({"approved_amount": 0.0})
+                continue
+            if rec.payment_responsibility != COMPANY_PAYMENT_RESPONSIBILITY:
+                continue
+            eligible, message, _contract = rec._get_exit_reentry_company_eligibility()
+            if eligible:
+                continue
+            rec.with_context(skip_employee_service_request_lock=True).write({
+                "payment_responsibility": SELF_PAYMENT_RESPONSIBILITY,
+                "approved_amount": 0.0,
+            })
+            if auto_message:
+                rec.message_post(body=_("Payment responsibility switched to Self: %s") % message)
+
     def _check_new_or_renewal_target(self):
         self.ensure_one()
         if self.request_type == "iqama_new" and self._find_employee_iqama():
@@ -750,6 +1270,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _check_before_md_approval(self):
         for rec in self:
+            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+                continue
             amount = rec._get_payment_amount()
             if amount <= 0.0:
                 if rec.request_type == "exit_reentry":
@@ -763,6 +1285,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _check_before_accounts_approval(self):
         for rec in self:
+            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+                continue
             amount = rec._get_payment_amount()
             if amount <= 0.0:
                 if rec.request_type == "exit_reentry":
@@ -806,13 +1330,30 @@ class PrEmployeeServiceRequest(models.Model):
                 }).send()
 
     def action_submit(self):
+        self._apply_exit_reentry_company_eligibility(auto_message=True)
         self._check_before_submit()
         for rec in self:
             if rec.state != "draft":
                 continue
             vals = {"rejection_reason": False, "approved_amount": False}
+            if rec._is_self_paid_request():
+                vals["approved_amount"] = 0.0
             if rec.request_type == "iqama_renewal":
                 vals["requested_amount"] = rec._get_requested_compliance_amount()
+            if rec._is_historical_company_paid_exit_reentry():
+                vals.update({
+                    "state": "issued",
+                    "approved_amount": 0.0,
+                    "issue_date": rec.issue_date or fields.Date.context_today(rec),
+                })
+                rec.write(vals)
+                rec.message_post(
+                    body=_(
+                        "Historical company-paid Exit/Re-entry recorded as already approved/paid. "
+                        "No payment request or voucher was created."
+                    )
+                )
+                continue
             if rec._is_new_compliance_request():
                 rec.write(vals)
                 if rec.request_type == "iqama_new":
@@ -915,6 +1456,24 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             if not rec.can_hr_manager_approve:
                 raise UserError(_("Only HR Manager can approve this stage."))
+            approval_vals = {
+                "approved_amount": 0.0 if rec._is_self_paid_request() else rec._get_payment_amount(),
+                "hr_manager_approved_by_id": self.env.user.id,
+                "hr_manager_approved_date": fields.Datetime.now(),
+            }
+            if rec._is_self_paid_request():
+                if rec.request_type == "exit_reentry":
+                    approval_vals["state"] = "paid"
+                    rec.write(approval_vals)
+                    rec.message_post(body=_("Self-paid Exit/Re-entry approved. No accounting entry will be created; HR can issue the visa."))
+                    continue
+                rec.write(approval_vals)
+                if rec.request_type in IQAMA_REQUEST_TYPES:
+                    rec._issue_iqama_request()
+                elif rec.request_type in MEDICAL_INSURANCE_REQUEST_TYPES:
+                    rec._issue_medical_insurance()
+                rec.message_post(body=_("Self-paid renewal approved and issued without accounting entries."))
+                continue
             rec.write({
                 "state": "md_approval",
                 "approved_amount": rec._get_payment_amount(),
@@ -964,6 +1523,20 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.can_md_approve:
                 raise UserError(_("Only MD can approve this stage."))
             rec._check_before_md_approval()
+            if rec._is_self_paid_request():
+                rec.write({
+                    "approved_amount": 0.0,
+                    "md_approved_by_id": self.env.user.id,
+                    "md_approved_date": fields.Datetime.now(),
+                })
+                if rec.request_type == "exit_reentry":
+                    rec.write({"state": "paid"})
+                    rec.message_post(body=_("Self-paid Exit/Re-entry approved. No accounting entry will be created; HR can issue the visa."))
+                elif rec.request_type in IQAMA_REQUEST_TYPES:
+                    rec._issue_iqama_request()
+                elif rec.request_type in MEDICAL_INSURANCE_REQUEST_TYPES:
+                    rec._issue_medical_insurance()
+                continue
             if rec._is_compliance_renewal():
                 voucher = rec._create_renewal_bpv()
                 rec.write({
@@ -973,7 +1546,7 @@ class PrEmployeeServiceRequest(models.Model):
                     "md_approved_date": fields.Datetime.now(),
                 })
                 rec.message_post(
-                    body=_("MD approved this renewal and created draft BPV %s.")
+                    body=_("MD approved this renewal and submitted BPV %s for Accounts approval.")
                     % voucher.display_name
                 )
                 continue
@@ -994,6 +1567,19 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec.can_finance_approve:
                 raise UserError(_("Only Finance can approve this stage."))
             rec._check_before_accounts_approval()
+            if rec._is_self_paid_request():
+                rec.write({
+                    "state": "paid" if rec.request_type == "exit_reentry" else rec.state,
+                    "approved_amount": 0.0,
+                    "finance_approved_by_id": self.env.user.id,
+                    "finance_approved_date": fields.Datetime.now(),
+                })
+                if rec.request_type in IQAMA_REQUEST_TYPES:
+                    rec._issue_iqama_request()
+                elif rec.request_type in MEDICAL_INSURANCE_REQUEST_TYPES:
+                    rec._issue_medical_insurance()
+                rec.message_post(body=_("Self-paid request approved without accounting entries."))
+                continue
             payment_request = rec._create_payment_request()
             rec.write({
                 "state": "payment_approval",
@@ -1020,18 +1606,90 @@ class PrEmployeeServiceRequest(models.Model):
             elif rec.request_type in MEDICAL_INSURANCE_REQUEST_TYPES:
                 rec._issue_medical_insurance()
 
+    def _iter_payment_artifacts(self):
+        self.ensure_one()
+        vouchers = []
+        for voucher in (self.cash_payment_id, self.bank_payment_id):
+            if voucher:
+                vouchers.append(voucher)
+        if self.payment_request_id:
+            for voucher in (self.payment_request_id.cash_payment_id, self.payment_request_id.bank_payment_id):
+                if voucher and voucher not in vouchers:
+                    vouchers.append(voucher)
+        return vouchers
+
+    def _has_posted_payment_artifacts(self):
+        self.ensure_one()
+        for voucher in self._iter_payment_artifacts():
+            voucher = voucher.sudo()
+            if (
+                voucher.state == "posted"
+                or voucher.accounting_manager_state == "posted"
+                or (voucher.journal_entry_id and voucher.journal_entry_id.state == "posted")
+            ):
+                return True
+        return False
+
+    def _cleanup_payment_artifacts(self):
+        for rec in self:
+            if rec._has_posted_payment_artifacts() or rec.state in ("paid", "issued"):
+                raise UserError(_("This request already has posted accounting/payment activity and cannot be reset or cancelled."))
+            payment_request = rec.payment_request_id
+            for voucher in rec._iter_payment_artifacts():
+                voucher = voucher.sudo()
+                if voucher.journal_entry_id:
+                    raise UserError(_("Voucher %s already has an accounting entry and cannot be removed by reset/cancel.") % voucher.display_name)
+                if voucher.state != "draft":
+                    voucher.sudo().action_draft()
+                voucher.sudo().unlink()
+            if payment_request:
+                payment_request.sudo().unlink()
+            rec.with_context(skip_employee_service_request_lock=True).write({
+                "payment_request_id": False,
+                "cash_payment_id": False,
+                "bank_payment_id": False,
+                "payment_reference": False,
+                "paid_date": False,
+            })
+
+    def _reset_approval_tracking_vals(self):
+        return {
+            "approved_amount": 0.0,
+            "rejection_reason": False,
+            "payment_reference": False,
+            "paid_date": False,
+            "hr_supervisor_approved_by_id": False,
+            "hr_supervisor_approved_date": False,
+            "employee_manager_approved_by_id": False,
+            "employee_manager_approved_date": False,
+            "hr_manager_approved_by_id": False,
+            "hr_manager_approved_date": False,
+            "accounts_approved_by_id": False,
+            "accounts_approved_date": False,
+            "md_approved_by_id": False,
+            "md_approved_date": False,
+            "finance_approved_by_id": False,
+            "finance_approved_date": False,
+        }
+
     def action_cancel(self):
         for rec in self:
             if not rec.can_cancel:
-                raise UserError(_("You can only cancel your own draft or submitted requests."))
-            rec.write({"state": "cancelled"})
+                raise UserError(_("You can only cancel non-final requests that do not have posted accounting."))
+            rec._cleanup_payment_artifacts()
+            vals = rec._reset_approval_tracking_vals()
+            vals["state"] = "cancelled"
+            rec.with_context(skip_employee_service_request_lock=True).write(vals)
             rec.message_post(body=_("Request cancelled by employee."))
 
     def action_reset_to_draft(self):
         for rec in self:
             if not rec.can_reset_to_draft:
                 raise UserError(_("You cannot reset this request to draft."))
-            rec.write({"state": "draft", "rejection_reason": False})
+            rec._cleanup_payment_artifacts()
+            vals = rec._reset_approval_tracking_vals()
+            vals["state"] = "draft"
+            rec.with_context(skip_employee_service_request_lock=True).write(vals)
             rec.message_post(body=_("Request reset to draft."))
 
     def action_reject(self):
@@ -1105,6 +1763,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _create_payment_request(self, notify_accounts=True):
         self.ensure_one()
+        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
+            raise UserError(_("Self-paid and historical requests do not create payment requests or accounting vouchers."))
         if self.payment_request_id:
             if self.payment_request_id.state == "cancelled":
                 self.payment_request_id.state = "requested"
@@ -1130,8 +1790,10 @@ class PrEmployeeServiceRequest(models.Model):
         return payment_request
 
     def _create_renewal_bpv(self):
-        """Create the renewal payment request and its draft BPV immediately after MD approval."""
+        """Create and submit the renewal BPV immediately after MD approval."""
         self.ensure_one()
+        if self._is_self_paid_request():
+            raise UserError(_("Self-paid renewals do not create BPVs."))
         if not self._is_compliance_renewal():
             raise UserError(_("Automatic BPV creation is only available for compliance renewals."))
         if self.bank_payment_id:
@@ -1151,6 +1813,9 @@ class PrEmployeeServiceRequest(models.Model):
             raise UserError(_("The renewal BPV could not be created."))
         self.bank_payment_id = voucher.id
         self._copy_attachments_to(voucher)
+        if voucher.state == "draft":
+            voucher.sudo().action_submit()
+        payment_request.sudo()._notify_accounts()
         return voucher
 
     def _copy_attachments_to(self, target):
@@ -1193,6 +1858,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _create_payment_voucher(self):
         self.ensure_one()
+        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
+            raise UserError(_("Self-paid and historical requests do not create payment vouchers."))
         existing_voucher = self.cash_payment_id or self.bank_payment_id
         if existing_voucher:
             return existing_voucher
@@ -1437,6 +2104,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_payment_amount(self):
         self.ensure_one()
+        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
+            return 0.0
         if self.request_type == "iqama_renewal":
             return self._get_requested_compliance_amount()
         if self.approved_amount:
@@ -2406,4 +3075,6 @@ class HrWorkspaceDashboardService(models.AbstractModel):
             return "fa-medkit", "success"
         if "work permit" in name:
             return "fa-briefcase", "primary"
+        if "letter" in name:
+            return "fa-file-text-o", "primary"
         return super()._style_for_menu(menu_name)

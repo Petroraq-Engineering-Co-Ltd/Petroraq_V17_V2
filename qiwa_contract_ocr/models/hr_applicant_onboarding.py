@@ -2,7 +2,7 @@ from datetime import timedelta
 import logging
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -56,6 +56,12 @@ PAYMENT_REQUIRED_REQUEST_TYPES = {
     'iqama_renewal',
     'other',
 }
+SAUDI_RESTRICTED_COMPLIANCE_REQUEST_TYPES = {
+    'iqama_transfer',
+    'work_permit_issuance',
+    'work_permit_renewal',
+    'iqama_renewal',
+}
 
 
 class HrApplicantOnboarding(models.Model):
@@ -99,7 +105,7 @@ class HrApplicantOnboarding(models.Model):
     def create(self, vals_list):
         records = super().create(vals_list)
         if not self.env.context.get('skip_onboarding_auto_tasks'):
-            records.filtered('employee_id')._auto_start_onboarding_reminders()
+            records.filtered('employee_id')._mark_onboarded_after_employee_created()
         return records
 
     def write(self, vals):
@@ -113,13 +119,18 @@ class HrApplicantOnboarding(models.Model):
             'needs_company_car',
         }
         if not self.env.context.get('skip_onboarding_auto_tasks') and watched_fields.intersection(vals):
-            self.filtered('employee_id').with_context(skip_onboarding_auto_tasks=True).action_start_onboarding_reminders()
+            records = self.filtered('employee_id')
+            if 'employee_id' in vals:
+                records._mark_onboarded_after_employee_created()
+            records.filtered('onboarding_task_initialized').with_context(
+                skip_onboarding_auto_tasks=True
+            ).action_start_onboarding_reminders()
         return res
 
     @api.depends('employee_id', 'employee_id.country_id', 'employee_id.country_id.is_homeland')
     def _compute_employee_category(self):
         for rec in self:
-            rec.employee_category = 'saudi' if rec.employee_id.country_id.is_homeland else 'expat'
+            rec.employee_category = 'saudi' if rec.employee_id and rec._is_saudi_employee() else 'expat'
 
     @api.depends('compliance_request_ids')
     def _compute_compliance_request_count(self):
@@ -141,17 +152,20 @@ class HrApplicantOnboarding(models.Model):
     def generate_checklist(self):
         for rec in self:
             rec._sync_employee_type_checklist()
-            rec.state = 'checklist'
+            if rec.state != 'completed':
+                rec.state = 'checklist'
             rec._schedule_open_task_reminders()
 
     def action_start_onboarding_reminders(self):
         for rec in self:
             was_initialized = rec.onboarding_task_initialized
             rec._sync_employee_type_checklist()
-            rec.with_context(skip_onboarding_auto_tasks=True).write({
-                'state': 'checklist',
+            vals = {
                 'onboarding_task_initialized': True,
-            })
+            }
+            if rec.state != 'completed':
+                vals['state'] = 'checklist'
+            rec.with_context(skip_onboarding_auto_tasks=True).write(vals)
             rec._schedule_open_task_reminders()
             rec.message_post(body=_(
                 'Onboarding checklist reminders have been refreshed.'
@@ -160,7 +174,7 @@ class HrApplicantOnboarding(models.Model):
 
     def _auto_start_onboarding_reminders(self):
         for rec in self:
-            if rec.onboarding_task_initialized or not rec.employee_id:
+            if rec.onboarding_task_initialized or not rec.employee_id or rec.state == 'completed':
                 continue
             rec.with_context(skip_onboarding_auto_tasks=True).action_start_onboarding_reminders()
 
@@ -280,7 +294,8 @@ class HrApplicantOnboarding(models.Model):
         if not self.employee_id:
             raise UserError(_('Please set an employee before creating a compliance request.'))
         self._sync_employee_type_checklist()
-        self.state = 'checklist'
+        if self.state != 'completed':
+            self.state = 'checklist'
 
         view = self.env.ref('qiwa_contract_ocr.view_hr_onboarding_compliance_request_form')
         return {
@@ -821,6 +836,42 @@ class HrOnboardingComplianceRequest(models.Model):
         readonly=True,
     )
 
+    @staticmethod
+    def _is_saudi_country(country):
+        return bool(
+            country
+            and (
+                (country.code or '').upper() == 'SA'
+                or ('is_homeland' in country._fields and country.is_homeland)
+                or (country.name or '').strip().casefold()
+                in ('saudi', 'saudi arabia', 'kingdom of saudi arabia')
+            )
+        )
+
+    def _is_saudi_employee_record(self, employee):
+        return self._is_saudi_country(employee.country_id)
+
+    def _is_saudi_restricted_request(self):
+        self.ensure_one()
+        return (
+            self.request_type in SAUDI_RESTRICTED_COMPLIANCE_REQUEST_TYPES
+            and (
+                self.employee_category == 'saudi'
+                or self._is_saudi_employee_record(self.employee_id)
+            )
+        )
+
+    def _check_saudi_restricted_requests(self):
+        for rec in self:
+            if rec._is_saudi_restricted_request():
+                raise ValidationError(_(
+                    'Saudi employees do not require Iqama or Work Permit onboarding compliance requests.'
+                ))
+
+    @api.constrains('request_type', 'employee_id', 'employee_category')
+    def _check_saudi_restricted_request_constraint(self):
+        self._check_saudi_restricted_requests()
+
     @api.model
     def create(self, vals):
         if (
@@ -828,6 +879,16 @@ class HrOnboardingComplianceRequest(models.Model):
             and not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_supervisor')
         ):
             raise UserError(_('Only Onboarding Supervisor can initiate onboarding compliance requests.'))
+        vals = dict(vals)
+        if vals.get('onboarding_id') and not vals.get('employee_id'):
+            onboarding = self.env['hr.applicant.onboarding'].browse(vals['onboarding_id'])
+            if onboarding.employee_id:
+                vals['employee_id'] = onboarding.employee_id.id
+            if onboarding.employee_category and not vals.get('employee_category'):
+                vals['employee_category'] = onboarding.employee_category
+        if vals.get('employee_id') and not vals.get('employee_category'):
+            employee = self.env['hr.employee'].browse(vals['employee_id'])
+            vals['employee_category'] = 'saudi' if self._is_saudi_employee_record(employee) else 'expat'
         if vals.get('name', '/') == '/':
             vals['name'] = self.env['ir.sequence'].next_by_code('hr.onboarding.compliance.request') or '/'
         if 'requires_payment' not in vals and vals.get('request_type'):
@@ -835,8 +896,15 @@ class HrOnboardingComplianceRequest(models.Model):
         if 'payment_state' not in vals:
             vals['payment_state'] = 'draft' if vals.get('requires_payment') else 'not_required'
         rec = super().create(vals)
+        rec._check_saudi_restricted_requests()
         rec._link_checklist_task()
         return rec
+
+    def write(self, vals):
+        res = super().write(vals)
+        if {'request_type', 'employee_id', 'employee_category', 'onboarding_id'}.intersection(vals):
+            self._check_saudi_restricted_requests()
+        return res
 
     @api.onchange('onboarding_id')
     def _onchange_onboarding_id(self):
@@ -853,7 +921,7 @@ class HrOnboardingComplianceRequest(models.Model):
         for rec in self:
             employee = rec.employee_id
             if employee:
-                rec.employee_category = 'saudi' if employee.country_id.is_homeland else 'expat'
+                rec.employee_category = 'saudi' if rec._is_saudi_employee_record(employee) else 'expat'
                 rec.contract_id = employee.contract_id
                 rec.iqama_no = employee.identification_id
                 rec.passport_no = employee.passport_id
@@ -870,6 +938,15 @@ class HrOnboardingComplianceRequest(models.Model):
         for rec in self:
             rec.requires_payment = rec.request_type in PAYMENT_REQUIRED_REQUEST_TYPES
             rec.payment_state = 'draft' if rec.requires_payment else 'not_required'
+            if rec._is_saudi_restricted_request():
+                return {
+                    'warning': {
+                        'title': _('Not required for Saudi employees'),
+                        'message': _(
+                            'Saudi employees do not require Iqama or Work Permit onboarding compliance requests.'
+                        ),
+                    }
+                }
 
     @api.onchange('requires_payment')
     def _onchange_requires_payment(self):
@@ -1002,6 +1079,7 @@ class HrOnboardingComplianceRequest(models.Model):
 
     def _create_or_update_linked_record(self):
         self.ensure_one()
+        self._check_saudi_restricted_requests()
         if self.request_type in ('work_permit_issuance', 'work_permit_renewal'):
             self._ensure_work_permit()
         elif self.request_type in ('iqama_transfer', 'iqama_renewal'):
@@ -1025,6 +1103,7 @@ class HrOnboardingComplianceRequest(models.Model):
             checklist.sudo().write(vals)
 
     def _ensure_work_permit(self):
+        self._check_saudi_restricted_requests()
         if self.work_permit_id:
             return
         employee = self.employee_id
@@ -1066,6 +1145,7 @@ class HrOnboardingComplianceRequest(models.Model):
             work_permit.onboarding_compliance_request_id = self.id
 
     def _ensure_iqama(self):
+        self._check_saudi_restricted_requests()
         if self.iqama_id:
             return
         iqama_no = self.iqama_no or self.employee_id.identification_id
@@ -1456,6 +1536,7 @@ class HRWorkPermit(models.Model):
 
     def action_submit(self):
         for rec in self:
+            rec._check_not_saudi_employee()
             if rec.state == 'draft':
                 rec.state = 'hr_manager_approval'
 
@@ -1463,6 +1544,7 @@ class HRWorkPermit(models.Model):
         if not self._is_hr_manager_approver():
             raise UserError(_('Only HR Manager can approve work permits.'))
         for rec in self:
+            rec._check_not_saudi_employee()
             if rec.state not in ('submit', 'hr_manager_approval'):
                 continue
             rec.write({
@@ -1475,12 +1557,15 @@ class HRWorkPermit(models.Model):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
             raise UserError(_('Only Onboarding MD can approve work permits.'))
         for rec in self:
+            rec._check_not_saudi_employee()
             if rec.state != 'md_approval':
                 continue
             rec._create_or_reuse_bank_payment()
             if rec.applicant_onboarding_id:
                 rec.applicant_onboarding_id.work_permit_id = rec.id
-                rec.applicant_onboarding_id.state = 'work_permit'
+                if not rec.applicant_onboarding_id.employee_id:
+                    rec.applicant_onboarding_id.employee_id = rec.employee_id.id
+                rec.applicant_onboarding_id._mark_onboarded_after_employee_created()
             rec.write({
                 'state': 'approved',
                 'payment_state': 'paid' if rec.bank_payment_id.state == 'posted' else 'pending',
@@ -1557,6 +1642,7 @@ class HREmployeeIqama(models.Model):
 
     def action_request_approval(self):
         for rec in self:
+            rec._check_not_saudi_employee()
             if rec.state == 'draft':
                 rec.state = 'hr_manager_approval'
 
@@ -1564,6 +1650,7 @@ class HREmployeeIqama(models.Model):
         if not self._is_hr_manager_approver():
             raise UserError(_('Only HR Manager can approve Iqama requests.'))
         for rec in self:
+            rec._check_not_saudi_employee()
             if rec.state not in ('pending_approval', 'hr_manager_approval'):
                 continue
             rec.write({
@@ -1576,6 +1663,7 @@ class HREmployeeIqama(models.Model):
         if not self.env.user.has_group('pr_hr_recruitment_request.group_onboarding_md'):
             raise UserError(_('Only Onboarding MD can approve Iqama requests.'))
         for rec in self:
+            rec._check_not_saudi_employee()
             if rec.state != 'md_approval':
                 continue
             rec.write({
