@@ -362,7 +362,7 @@
                          t-on-click="() => this.openLeaveRequests(line)">
                         <div class="de-leave-type"><t t-esc="line.leave_type"/></div>
                         <div class="de-leave-ratio">
-                            <i class="fa fa-umbrella me-1"/>
+                            <i t-att-class="this.isAbsenteeLine(line) ? 'fa fa-user-times me-1' : 'fa fa-umbrella me-1'"/>
                             <t t-if="line.requires_allocation and line.allocated_days &gt; 0">
                                 <t t-esc="line.used_days"/>/<t t-esc="line.allocated_days"/>
                             </t>
@@ -390,6 +390,64 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </t>
+        </div>
+        <div t-if="state.show_absentee_details" class="de-absentee-detail-panel mt-3">
+            <div class="de-absentee-detail-header">
+                <div>
+                    <strong>Absentee Details</strong>
+                    <div class="text-muted">
+                        <t t-esc="state.employee_name"/> - <t t-esc="state.absentee_range_label"/>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" t-on-click="closeAbsenteeDetails">
+                    Close
+                </button>
+            </div>
+            <t t-if="state.absentee_loading">
+                <div class="text-muted py-3">Loading absentee dates...</div>
+            </t>
+            <t t-else="">
+                <div class="de-absentee-count mb-2">
+                    <i class="fa fa-user-times me-1"/>
+                    <strong><t t-esc="state.absentee_count"/></strong>
+                    absent day<t t-if="state.absentee_count !== 1">s</t>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm de-absentee-detail-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Employee ID</th>
+                                <th>Department</th>
+                                <th>Job Position</th>
+                                <th>First Check In</th>
+                                <th>Reason</th>
+                                <th>Expected Shift</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="!state.absentee_rows.length">
+                                <tr>
+                                    <td colspan="8" class="text-muted">No absent days found for this range.</td>
+                                </tr>
+                            </t>
+                            <t t-foreach="state.absentee_rows" t-as="row" t-key="row.row_key">
+                                <tr>
+                                    <td><t t-esc="row.date_display || row.date"/></td>
+                                    <td><t t-esc="row.day_name"/></td>
+                                    <td><t t-esc="row.employee_code || '-'"/></td>
+                                    <td><t t-esc="row.department || '-'"/></td>
+                                    <td><t t-esc="row.job_position || '-'"/></td>
+                                    <td><t t-esc="row.check_in || '-'"/></td>
+                                    <td><t t-esc="row.reason || '-'"/></td>
+                                    <td><t t-esc="row.shift || '-'"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
                 </div>
             </t>
         </div>
