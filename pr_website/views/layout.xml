@@ -8,6 +8,8 @@
                 <style>
                     * { box-sizing: border-box; margin: 0; padding: 0; }
                     body { font-family: 'Arial', sans-serif; color: #222; background: #fff; }
+                    :root { --pr-navbar-height: 110px; }
+                    html { scroll-padding-top: var(--pr-navbar-height); }
                     a { text-decoration: none; color: inherit; }
                     ul { list-style: none; }
                     img { max-width: 100%; display: block; }
@@ -18,12 +20,19 @@
                         display: flex;
                         align-items: center;
                         padding: 15px 40px;
-                        position: sticky;
+                        position: fixed;
                         top: 0;
-                        z-index: 1000;
+                        left: 0;
+                        right: 0;
+                        width: 100%;
+                        z-index: 1040;
                         gap: 30px;
                         box-shadow: 0 4px 20px rgba(0,0,0,0.15);
                         transition: all 0.3s ease;
+                    }
+                    .pr-navbar-spacer {
+                        height: var(--pr-navbar-height);
+                        flex: 0 0 auto;
                     }
                     .navbar.scrolled {
                         padding: 10px 40px;
@@ -396,7 +405,7 @@
                             z-index: 1001;
                         }
                         .navbar-links.open {
-                            max-height: calc(100vh - 78px);
+                            max-height: calc(100vh - var(--pr-navbar-height));
                             overflow-y: auto;
                             padding: 20px;
                             gap: 15px;
@@ -629,6 +638,7 @@
                         </a>
                     </nav>
                 </header>
+                <div class="pr-navbar-spacer" aria-hidden="true"></div>
             </xpath>
 
             <xpath expr="//body" position="inside">
@@ -969,13 +979,19 @@
 
                         /* Navbar scroll effect */
                         if (navbar) {
-                            window.addEventListener('scroll', function() {
-                                if (window.scrollY > 50) {
+                            var scrollHost = document.getElementById('wrapwrap') || window;
+                            var getScrollTop = function () {
+                                return scrollHost === window ? window.scrollY : scrollHost.scrollTop;
+                            };
+                            var updateNavbarScrollState = function () {
+                                if (getScrollTop() > 50) {
                                     navbar.classList.add('scrolled');
                                 } else {
                                     navbar.classList.remove('scrolled');
                                 }
-                            });
+                            };
+                            scrollHost.addEventListener('scroll', updateNavbarScrollState, {passive: true});
+                            updateNavbarScrollState();
                         }
 
                         var currentLanguageCode = "<t t-esc='request.env.lang or ""'/>";

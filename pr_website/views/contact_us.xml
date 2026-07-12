@@ -802,7 +802,7 @@
                                         </div>
                                         <div class="info-text">
                                             <h4>Main Line</h4>
-                                            <p><a href="tel:+966133614446">+966 13 361 4446</a></p>
+                                            <p><a href="tel:+966133614446"><bdi dir="ltr">+966 13 361 4446</bdi></a></p>
                                         </div>
                                     </div>
 
@@ -812,7 +812,7 @@
                                         </div>
                                         <div class="info-text">
                                             <h4>Email</h4>
-                                            <p><a href="mailto:info@petroraq.com">info@petroraq.com</a></p>
+                                            <p><a href="mailto:info@petroraq.com"><bdi dir="ltr">info@petroraq.com</bdi></a></p>
                                         </div>
                                     </div>
 

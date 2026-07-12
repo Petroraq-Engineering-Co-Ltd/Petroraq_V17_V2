@@ -1529,3 +1529,324 @@
 @keyframes prq404Float{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(180deg)}100%{transform:translateY(0) rotate(360deg)}}
 @keyframes prq404Pulse{0%,100%{text-shadow:0 0 0 rgba(253,181,20,.0)}50%{text-shadow:0 0 24px rgba(253,181,20,.6)}}
 @keyframes prq404Rocket{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* Mobile polish for PETRORAQ website pages */
+@media (max-width: 576px) {
+    .petroraq-about .pr-container,
+    .petroraq-careers .pr-container,
+    .petroraq-contact .pr-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-inline: 18px !important;
+    }
+
+    .petroraq-about .section-padding,
+    .petroraq-careers .openings-section,
+    .petroraq-contact .contact-section {
+        padding-block: 56px !important;
+    }
+
+    .petroraq-about .section-title,
+    .petroraq-careers .openings-header h2,
+    .petroraq-contact .contact-card h2 {
+        font-size: 28px !important;
+        line-height: 1.18 !important;
+        margin-bottom: 32px !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+    }
+
+    .petroraq-about .mv-grid,
+    .petroraq-about .values-grid,
+    .petroraq-about .expertise-grid,
+    .petroraq-about .certs-grid,
+    .petroraq-careers .jobs-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 18px !important;
+    }
+
+    .petroraq-about .who-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+    }
+
+    .petroraq-about .who-stats .value-card {
+        min-height: 148px !important;
+        padding: 22px 10px !important;
+    }
+
+    .petroraq-about .who-stats .value-card i {
+        font-size: 28px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .petroraq-about .who-stats .value-card h3 {
+        font-size: 22px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .petroraq-about .who-stats .value-card p {
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+    }
+
+    .petroraq-about .mv-card {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 28px 18px !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 16px !important;
+        text-align: center !important;
+    }
+
+    .petroraq-about .mv-icon {
+        width: 64px !important;
+        height: 64px !important;
+        border-radius: 18px !important;
+    }
+
+    .petroraq-about .mv-text,
+    .petroraq-about .mv-text h3,
+    .petroraq-about .mv-text p {
+        width: 100% !important;
+        max-width: 100% !important;
+        text-align: center !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+    }
+
+    .petroraq-about .mv-text p {
+        font-size: 14px !important;
+        line-height: 1.7 !important;
+    }
+
+    .petroraq-about .value-card,
+    .petroraq-about .expertise-card,
+    .petroraq-about .cert-card {
+        width: 100% !important;
+        margin: 0 !important;
+        min-height: 0 !important;
+        padding: 28px 18px !important;
+    }
+
+    .petroraq-about .value-card h4,
+    .petroraq-about .expertise-card h4,
+    .petroraq-about .cert-card h4 {
+        font-size: 18px !important;
+        line-height: 1.3 !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+    }
+
+    .petroraq-careers .openings-header {
+        display: block !important;
+        text-align: start !important;
+    }
+
+    .petroraq-careers .search-box {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        margin-top: 18px !important;
+        padding: 10px !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .petroraq-careers .search-box i {
+        flex: 0 0 auto !important;
+        margin: 0 4px !important;
+    }
+
+    .petroraq-careers .search-box input {
+        min-width: 0 !important;
+        flex: 1 1 calc(100% - 34px) !important;
+        padding: 12px 8px !important;
+        font-size: 13px !important;
+    }
+
+    .petroraq-careers .search-box button {
+        width: 100% !important;
+        padding: 12px 18px !important;
+        display: inline-flex !important;
+        justify-content: center !important;
+    }
+
+    .petroraq-careers .job-card {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 24px 18px !important;
+    }
+
+    .petroraq-careers .job-card h3,
+    .petroraq-job-detail .job-title-main,
+    .petroraq-job-detail .hero-content h1 {
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+        line-height: 1.25 !important;
+    }
+
+    .petroraq-careers .job-meta {
+        gap: 10px !important;
+    }
+
+    .petroraq-careers .job-meta span {
+        max-width: 100% !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .petroraq-careers .btn-apply {
+        float: none !important;
+        width: 100% !important;
+        justify-content: center !important;
+        margin-top: 4px !important;
+    }
+
+    .petroraq-contact .contact-grid {
+        gap: 24px !important;
+    }
+
+    .petroraq-contact .contact-card {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 28px 18px !important;
+        border-radius: 22px !important;
+    }
+
+    .petroraq-contact .card-subtitle {
+        font-size: 14px !important;
+        line-height: 1.65 !important;
+    }
+
+    .petroraq-contact .form-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .petroraq-contact .contact-captcha {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        text-align: center !important;
+        gap: 12px !important;
+        padding: 16px !important;
+    }
+
+    .petroraq-contact .captcha-copy {
+        min-width: 0 !important;
+    }
+
+    .petroraq-contact .captcha-question {
+        display: block !important;
+        font-size: 15px !important;
+        line-height: 1.4 !important;
+    }
+
+    .petroraq-contact .captcha-answer {
+        width: 100% !important;
+    }
+
+    .petroraq-contact .form-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+    }
+
+    .petroraq-contact .btn-send {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 16px 18px !important;
+        white-space: normal !important;
+    }
+
+    .petroraq-contact .secure-note {
+        justify-content: center !important;
+    }
+
+    .petroraq-contact .info-list {
+        gap: 16px !important;
+    }
+
+    .petroraq-contact .info-item {
+        display: grid !important;
+        grid-template-columns: 52px minmax(0, 1fr) !important;
+        gap: 14px !important;
+        align-items: center !important;
+        padding: 18px 14px !important;
+    }
+
+    .petroraq-contact .info-icon {
+        width: 52px !important;
+        height: 52px !important;
+        border-radius: 16px !important;
+    }
+
+    .petroraq-contact .info-text {
+        min-width: 0 !important;
+    }
+
+    .petroraq-contact .info-text h4 {
+        font-size: 15px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .petroraq-contact .info-text p,
+    .petroraq-contact .info-text a,
+    .petroraq-contact .info-text bdi {
+        font-size: 13px !important;
+        line-height: 1.55 !important;
+        max-width: 100% !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .petroraq-contact .info-text bdi {
+        direction: ltr !important;
+        unicode-bidi: isolate !important;
+    }
+
+    .petroraq-contact .assistance-banner {
+        padding: 34px 20px !important;
+        gap: 24px !important;
+        border-radius: 22px !important;
+    }
+
+    .petroraq-contact .assistance-left {
+        width: 100% !important;
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 18px !important;
+    }
+
+    .petroraq-contact .assistance-text h3 {
+        font-size: 23px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .petroraq-contact .assistance-text p {
+        font-size: 14px !important;
+        line-height: 1.55 !important;
+    }
+
+    .petroraq-contact .assistance-buttons,
+    .petroraq-contact .btn-call,
+    .petroraq-contact .btn-email {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .petroraq-about .who-stats {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .petroraq-contact .info-item {
+        grid-template-columns: 46px minmax(0, 1fr) !important;
+        gap: 10px !important;
+        padding: 16px 12px !important;
+    }
+
+    .petroraq-contact .info-icon {
+        width: 46px !important;
+        height: 46px !important;
+    }
+}
