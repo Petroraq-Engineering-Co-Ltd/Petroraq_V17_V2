@@ -49,10 +49,13 @@
                 <filter name="to_approve" string="To Approve"
                         domain="[('state', 'in', ['department_approval', 'accounts_approval', 'md_approval'])]"/>
                 <separator/>
-                <filter name="original_budgets" string="Original Budgets" domain="[('revision_number', '=', 0), ('revision_of_id', '=', False)]"/>
-                <filter name="budget_revisions" string="Revised Budgets" domain="['|', ('revision_number', '>', 0), ('revision_of_id', '!=', False)]"/>
+                <filter name="original_budgets" string="Original Budgets"
+                        domain="[('revision_number', '=', 0), ('revision_of_id', '=', False)]"/>
+                <filter name="budget_revisions" string="Revised Budgets"
+                        domain="['|', ('revision_number', '>', 0), ('revision_of_id', '!=', False)]"/>
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
-                <filter name="accounts_approval" string="Pending Accounts" domain="[('state', '=', 'accounts_approval')]"/>
+                <filter name="accounts_approval" string="Pending Accounts"
+                        domain="[('state', '=', 'accounts_approval')]"/>
                 <filter name="md_approval" string="Pending MD" domain="[('state', '=', 'md_approval')]"/>
                 <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
                 <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
@@ -99,10 +102,12 @@
                     <div class="alert alert-info" role="alert" invisible="revision_number == 0 and not revision_of_id">
                         <strong>Revised Budget</strong>
                         <span>
-                            This requisition is under budget revision. It keeps the same request and updates the budget after approval.
+                            This requisition is under budget revision. It keeps the same request and updates the budget
+                            after approval.
                         </span>
                     </div>
-                    <div class="alert alert-success d-inline-block mb-3" role="alert" invisible="not generated_budget_code">
+                    <div class="alert alert-success d-inline-block mb-3" role="alert"
+                         invisible="not generated_budget_code">
                         <span class="text-muted">Budget Code</span>
                         <h2 class="mb-0">
                             <field name="generated_budget_code" readonly="1" nolabel="1"/>
@@ -181,7 +186,10 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
@@ -214,7 +222,8 @@
             ('department_manager_user_id', '=', uid),
             ('revision_of_id.requested_by_id', '=', uid),
             ('revision_of_id.department_manager_user_id', '=', uid)
-        ]</field>
+            ]
+        </field>
         <field name="context">{}</field>
     </record>
 

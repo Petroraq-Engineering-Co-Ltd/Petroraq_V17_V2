@@ -32,7 +32,7 @@
                         >
                         </button>
                     </div>
-                    <div class="oe_title" >
+                    <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
                         <h1>
                             <field name="name"
@@ -75,14 +75,14 @@
                 <field name="iqama_profession"/>
                 <field name="work_permit_fees"/>
                 <field name="state" widget="badge"
-                    decoration-danger="state == 'draft'"
-                    decoration-warning="state == 'approved'"
-                    decoration-success="state == 'issued'"
+                       decoration-danger="state == 'draft'"
+                       decoration-warning="state == 'approved'"
+                       decoration-success="state == 'issued'"
                 />
                 <field name="payment_state" widget="badge"
-                    decoration-danger="payment_state == 'draft'"
-                    decoration-warning="payment_state == 'pending'"
-                    decoration-success="payment_state == 'paid'"/>
+                       decoration-danger="payment_state == 'draft'"
+                       decoration-warning="payment_state == 'pending'"
+                       decoration-success="payment_state == 'paid'"/>
             </tree>
         </field>
     </record>

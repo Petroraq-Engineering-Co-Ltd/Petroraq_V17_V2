@@ -1,6 +1,7 @@
 import pytz
 from datetime import timedelta, datetime, time
 from odoo import api, fields, models
+from odoo.osv import expression
 from odoo.tools import format_date
 
 
@@ -171,8 +172,17 @@ class HrLeaveDashboardOverride(models.Model):
         return '%02d:%02d' % (hours, minutes)
 
     @api.model
+    def _get_employee_absentee_calendar(self, employee):
+        return (
+            employee.resource_calendar_id
+            or employee.contract_id.resource_calendar_id
+            or employee.company_id.resource_calendar_id
+            or self.env.company.resource_calendar_id
+        )
+
+    @api.model
     def _get_employee_absentee_shift_label(self, employee, absent_date):
-        calendar = employee.resource_calendar_id
+        calendar = self._get_employee_absentee_calendar(employee)
         if not calendar:
             return ''
         attendance_lines = calendar.attendance_ids.filtered(
@@ -189,7 +199,7 @@ class HrLeaveDashboardOverride(models.Model):
 
     @api.model
     def _get_absentee_timezone_name(self, employee):
-        calendar = employee.resource_calendar_id
+        calendar = self._get_employee_absentee_calendar(employee)
         return (
             (calendar and calendar.tz)
             or employee.user_id.tz
@@ -238,6 +248,76 @@ class HrLeaveDashboardOverride(models.Model):
         return local_check_in.strftime('%H:%M:%S') if local_check_in else ''
 
     @api.model
+    def _add_absentee_date_range(self, dates, range_start, range_end, limit_start, limit_end):
+        first_day = max(fields.Date.to_date(range_start), limit_start)
+        last_day = min(fields.Date.to_date(range_end), limit_end)
+        current = first_day
+        while current <= last_day:
+            dates.add(current)
+            current += timedelta(days=1)
+
+    @api.model
+    def _get_employee_public_holiday_dates(self, employee, start, end):
+        public_holiday_dates = set()
+
+        holidays = self.env['hr.public.holiday'].sudo().search([
+            ('state', '=', 'active'),
+            ('date_from', '<=', end),
+            ('date_to', '>=', start),
+        ])
+        for holiday in holidays:
+            self._add_absentee_date_range(
+                public_holiday_dates,
+                holiday.date_from,
+                holiday.date_to,
+                start,
+                end,
+            )
+
+        CalendarLeave = self.env['resource.calendar.leaves'].sudo()
+        range_start_dt, _range_start_end_dt = self._get_absentee_day_bounds_utc(employee, start)
+        _range_end_start_dt, range_end_dt = self._get_absentee_day_bounds_utc(employee, end)
+        domain = [
+            ('date_from', '<', fields.Datetime.to_string(range_end_dt)),
+            ('date_to', '>', fields.Datetime.to_string(range_start_dt)),
+        ]
+
+        calendar = self._get_employee_absentee_calendar(employee)
+        if 'calendar_id' in CalendarLeave._fields:
+            calendar_domain = [('calendar_id', '=', False)]
+            if calendar:
+                calendar_domain = ['|', ('calendar_id', '=', False), ('calendar_id', '=', calendar.id)]
+            domain = expression.AND([domain, calendar_domain])
+
+        if 'resource_id' in CalendarLeave._fields:
+            resource_domain = [('resource_id', '=', False)]
+            if employee.resource_id:
+                resource_domain = ['|', ('resource_id', '=', False), ('resource_id', '=', employee.resource_id.id)]
+            domain = expression.AND([domain, resource_domain])
+
+        if 'company_id' in CalendarLeave._fields:
+            company_ids = list(filter(None, {employee.company_id.id, self.env.company.id}))
+            company_domain = [('company_id', '=', False)]
+            if company_ids:
+                company_domain = ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            domain = expression.AND([domain, company_domain])
+
+        for leave in CalendarLeave.search(domain):
+            local_start = self._to_absentee_local_datetime(employee, leave.date_from)
+            local_end = self._to_absentee_local_datetime(employee, leave.date_to)
+            if not local_start or not local_end or local_end <= local_start:
+                continue
+            local_end = local_end - timedelta(microseconds=1)
+            self._add_absentee_date_range(
+                public_holiday_dates,
+                local_start.date(),
+                local_end.date(),
+                start,
+                end,
+            )
+        return public_holiday_dates
+
+    @api.model
     def _get_employee_absentee_day_rows(self, employee, start, end):
         """Return one row per absent working day for dashboard drill-down."""
         if not employee or not start or not end or end < start:
@@ -246,25 +326,13 @@ class HrLeaveDashboardOverride(models.Model):
             # Employees without attendance tracking enabled should not be counted as absentees.
             return []
 
-        calendar = employee.resource_calendar_id
+        calendar = self._get_employee_absentee_calendar(employee)
         if calendar and calendar.attendance_ids:
             working_days = {int(att.dayofweek) for att in calendar.attendance_ids}
         else:
             working_days = {0, 1, 2, 3, 4}
 
-        holidays = self.env['hr.public.holiday'].sudo().search([
-            ('state', '=', 'active'),
-            ('date_from', '<=', end),
-            ('date_to', '>=', start),
-        ])
-        public_holiday_dates = set()
-        for holiday in holidays:
-            holiday_start = max(holiday.date_from, start)
-            holiday_end = min(holiday.date_to, end)
-            current = holiday_start
-            while current <= holiday_end:
-                public_holiday_dates.add(current)
-                current += timedelta(days=1)
+        public_holiday_dates = self._get_employee_public_holiday_dates(employee, start, end)
 
         leave_days = set()
         leaves = self.env['hr.leave'].sudo().search([
@@ -513,19 +581,6 @@ class HrLeaveDashboardOverride(models.Model):
             return []
         date_to = min(date_to, today)
         employees = self.env['hr.employee'].sudo().search([('active', '=', True)])
-        holidays = self.env['hr.public.holiday'].sudo().search([
-            ('state', '=', 'active'),
-            ('date_from', '<=', date_to),
-            ('date_to', '>=', date_from),
-        ])
-
-        public_holiday_dates = set()
-        for holiday in holidays:
-            current = max(holiday.date_from, date_from)
-            end = min(holiday.date_to, date_to)
-            while current <= end:
-                public_holiday_dates.add(current)
-                current += timedelta(days=1)
 
         leave_days_map = {employee.id: set() for employee in employees}
         approved_leaves = self.env['hr.leave'].sudo().search([
@@ -566,11 +621,12 @@ class HrLeaveDashboardOverride(models.Model):
         for employee in employees:
             if not getattr(employee, 'compute_attendance', False):
                 continue
-            calendar = employee.resource_calendar_id
+            calendar = self._get_employee_absentee_calendar(employee)
             if calendar and calendar.attendance_ids:
                 working_days = {int(a.dayofweek) for a in calendar.attendance_ids}
             else:
                 working_days = {0, 1, 2, 3, 4}
+            public_holiday_dates = self._get_employee_public_holiday_dates(employee, date_from, date_to)
 
             absent_count = 0
             current = date_from
