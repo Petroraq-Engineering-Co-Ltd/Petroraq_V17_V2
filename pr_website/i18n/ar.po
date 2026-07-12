@@ -18,6 +18,17 @@ msgstr ""
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Human verification"
+msgstr "التحقق البشري"
+
+#. module: pr_website
+#: code:addons/pr_website/models/captcha_challenge.py:0
+#, python-format
+msgid "What is %s + %s?"
+msgstr "ما ناتج %s + %s؟"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
 msgid "+966 13 361 4446"
 msgstr "+966 13 361 4446"
 
