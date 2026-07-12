@@ -41,31 +41,44 @@
                 <field name="expense_bucket_id"/>
                 <field name="cost_center_id"/>
                 <field name="request_type"/>
-                <filter name="my_requests" string="My Requests" domain="['|', ('requested_by_id', '=', uid), ('employee_id.user_id', '=', uid)]"/>
+                <filter name="my_requests" string="My Requests"
+                        domain="['|', ('requested_by_id', '=', uid), ('employee_id.user_id', '=', uid)]"/>
                 <filter name="reimbursement" string="Reimbursements" domain="[('request_type', '=', 'reimbursement')]"/>
                 <filter name="exit_reentry" string="Exit/Re-entry" domain="[('request_type', '=', 'exit_reentry')]"/>
-                <filter name="iqama_new" string="New Iqama &amp; Work Permit" domain="[('request_type', '=', 'iqama_new')]"/>
-                <filter name="iqama_renewal" string="Iqama &amp; Work Permit Renewals" domain="[('request_type', '=', 'iqama_renewal')]"/>
-                <filter name="medical_insurance_new" string="New Medical Insurance" domain="[('request_type', '=', 'medical_insurance_new')]"/>
-                <filter name="medical_insurance_renewal" string="Medical Insurance Renewals" domain="[('request_type', '=', 'medical_insurance_renewal')]"/>
+                <filter name="iqama_new" string="New Iqama &amp; Work Permit"
+                        domain="[('request_type', '=', 'iqama_new')]"/>
+                <filter name="iqama_renewal" string="Iqama &amp; Work Permit Renewals"
+                        domain="[('request_type', '=', 'iqama_renewal')]"/>
+                <filter name="medical_insurance_new" string="New Medical Insurance"
+                        domain="[('request_type', '=', 'medical_insurance_new')]"/>
+                <filter name="medical_insurance_renewal" string="Medical Insurance Renewals"
+                        domain="[('request_type', '=', 'medical_insurance_renewal')]"/>
                 <filter name="self_paid" string="Self Paid" domain="[('payment_responsibility', '=', 'self')]"/>
                 <filter name="company_paid" string="By Company" domain="[('payment_responsibility', '=', 'company')]"/>
                 <filter name="historical_company_exit_reentry" string="Historical Company Exit/Re-entry"
                         domain="[('request_type', '=', 'exit_reentry'), ('exit_reentry_historical_company_paid', '=', True)]"/>
                 <separator/>
-                <filter name="hr_supervisor_approval" string="HR Supervisor" domain="[('state', '=', 'hr_supervisor_approval')]"/>
-                <filter name="employee_manager_approval" string="Dept. Manager" domain="[('state', '=', 'employee_manager_approval')]"/>
-                <filter name="hr_manager_approval" string="HR Manager" domain="[('state', '=', 'hr_manager_approval')]"/>
-                <filter name="accounts_approval" string="Accounts Approval" domain="[('state', '=', 'accounts_approval')]"/>
+                <filter name="hr_supervisor_approval" string="HR Supervisor"
+                        domain="[('state', '=', 'hr_supervisor_approval')]"/>
+                <filter name="employee_manager_approval" string="Dept. Manager"
+                        domain="[('state', '=', 'employee_manager_approval')]"/>
+                <filter name="hr_manager_approval" string="HR Manager"
+                        domain="[('state', '=', 'hr_manager_approval')]"/>
+                <filter name="accounts_approval" string="Accounts Approval"
+                        domain="[('state', '=', 'accounts_approval')]"/>
                 <filter name="md_approval" string="MD Approval" domain="[('state', '=', 'md_approval')]"/>
-                <filter name="finance_approval" string="Finance Approval" domain="[('state', '=', 'finance_approval')]"/>
-                <filter name="payment_approval" string="Voucher Approval" domain="[('state', '=', 'payment_approval')]"/>
+                <filter name="finance_approval" string="Finance Approval"
+                        domain="[('state', '=', 'finance_approval')]"/>
+                <filter name="payment_approval" string="Voucher Approval"
+                        domain="[('state', '=', 'payment_approval')]"/>
                 <filter name="issued" string="Issued" domain="[('state', '=', 'issued')]"/>
                 <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
                 <group expand="0" string="Group By">
                     <filter name="group_type" string="Request Type" context="{'group_by': 'request_type'}"/>
-                    <filter name="group_payment_responsibility" string="Payment Responsibility" context="{'group_by': 'payment_responsibility'}"/>
-                    <filter name="group_exit_reentry_entry_type" string="Exit/Re-entry Type" context="{'group_by': 'exit_reentry_entry_type'}"/>
+                    <filter name="group_payment_responsibility" string="Payment Responsibility"
+                            context="{'group_by': 'payment_responsibility'}"/>
+                    <filter name="group_exit_reentry_entry_type" string="Exit/Re-entry Type"
+                            context="{'group_by': 'exit_reentry_entry_type'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
                     <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
@@ -117,7 +130,8 @@
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
-                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary" invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary"
+                            invisible="state != 'cancelled'"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_attachments"
                                 type="object"
@@ -142,7 +156,8 @@
                                    invisible="request_type not in ('exit_reentry', 'iqama_renewal', 'medical_insurance_renewal')"/>
                             <field name="request_date" readonly="state != 'draft'"/>
                             <field name="requested_by_id" readonly="1"/>
-                            <field name="employee_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="employee_id" readonly="state != 'draft'"
+                                   options="{'no_create': True, 'no_open': True}"/>
                             <field name="department_id" readonly="1"/>
                             <field name="employee_manager_user_id" readonly="1"/>
                         </group>
@@ -170,7 +185,8 @@
 
                     <group string="Exit/Re-entry Details" invisible="request_type != 'exit_reentry'">
                         <group>
-                            <field name="destination_country_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="destination_country_id" readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
                             <field name="travel_date" readonly="state != 'draft'"/>
                             <field name="return_date" readonly="state != 'draft'"/>
                             <field name="duration_days" readonly="1"/>
@@ -187,7 +203,8 @@
                         </group>
                     </group>
 
-                    <group string="Iqama &amp; Work Permit Details" invisible="request_type not in ('iqama_new', 'iqama_renewal')">
+                    <group string="Iqama &amp; Work Permit Details"
+                           invisible="request_type not in ('iqama_new', 'iqama_renewal')">
                         <group>
                             <field name="iqama_id" readonly="1" invisible="not iqama_id"/>
                             <field name="iqama_line_id" readonly="1" invisible="not iqama_line_id"/>
@@ -200,7 +217,8 @@
                         <group>
                             <field name="service_from_date" readonly="state != 'draft'"/>
                             <field name="service_to_date" readonly="state != 'draft'"/>
-                            <field name="issue_date" string="Iqama / Work Permit Issue Date" readonly="state != 'draft'"/>
+                            <field name="issue_date" string="Iqama / Work Permit Issue Date"
+                                   readonly="state != 'draft'"/>
                             <field name="service_expiry_date" string="Iqama Expiry Date" readonly="state != 'draft'"/>
                             <field name="work_permit_expiry_date" readonly="state != 'draft'"/>
                             <field name="moi_fee_amount" readonly="state != 'draft'"
@@ -212,7 +230,8 @@
                         </group>
                     </group>
 
-                    <group string="Medical Insurance Details" invisible="request_type not in ('medical_insurance_new', 'medical_insurance_renewal')">
+                    <group string="Medical Insurance Details"
+                           invisible="request_type not in ('medical_insurance_new', 'medical_insurance_renewal')">
                         <group>
                             <field name="insurance_id" readonly="1" invisible="not insurance_id"/>
                             <field name="insurance_line_id" readonly="1" invisible="not insurance_line_id"/>
@@ -232,8 +251,12 @@
                     <group string="Payment"
                            invisible="request_type in ('iqama_new', 'medical_insurance_new') or payment_responsibility == 'self' or exit_reentry_historical_company_paid">
                         <group>
-                            <field name="expense_bucket_id" readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')" options="{'no_create': True, 'no_create_edit': True}"/>
-                            <field name="cost_center_id" readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="expense_bucket_id"
+                                   readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="cost_center_id"
+                                   readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="approved_amount"
                                    invisible="request_type == 'iqama_renewal'"
                                    readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"/>
@@ -295,7 +318,10 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
@@ -459,7 +485,10 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
@@ -645,7 +674,8 @@
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
         <field name="domain">[('request_type', '=', 'medical_insurance_renewal')]</field>
-        <field name="context">{'default_request_type': 'medical_insurance_renewal', 'search_default_my_requests': 1}</field>
+        <field name="context">{'default_request_type': 'medical_insurance_renewal', 'search_default_my_requests': 1}
+        </field>
     </record>
 
     <record id="action_pr_employee_work_permit_new_my" model="ir.actions.act_window">
@@ -671,7 +701,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'reimbursement'), ('reimbursement_type', '=', 'ticket'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'reimbursement'), ('reimbursement_type', '=', 'ticket'), ('state',
+            'in', ['hr_supervisor_approval', 'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'reimbursement'}</field>
     </record>
 
@@ -680,7 +712,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'exit_reentry'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'exit_reentry'), ('state', 'in', ['hr_supervisor_approval',
+            'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'exit_reentry'}</field>
     </record>
 
@@ -689,7 +723,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'iqama_new'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'iqama_new'), ('state', 'in', ['hr_supervisor_approval',
+            'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'iqama_new'}</field>
     </record>
 
@@ -698,7 +734,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'iqama_renewal'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'iqama_renewal'), ('state', 'in', ['hr_supervisor_approval',
+            'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'iqama_renewal'}</field>
     </record>
 
@@ -707,7 +745,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'medical_insurance_new'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'medical_insurance_new'), ('state', 'in', ['hr_supervisor_approval',
+            'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'medical_insurance_new'}</field>
     </record>
 
@@ -716,7 +756,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'medical_insurance_renewal'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'medical_insurance_renewal'), ('state', 'in',
+            ['hr_supervisor_approval', 'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'medical_insurance_renewal'}</field>
     </record>
 
@@ -725,7 +767,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'iqama_new'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'iqama_new'), ('state', 'in', ['hr_supervisor_approval',
+            'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'iqama_new'}</field>
     </record>
 
@@ -734,7 +778,9 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'iqama_renewal'), ('state', 'in', ['hr_supervisor_approval', 'hr_manager_approval'])]</field>
+        <field name="domain">[('request_type', '=', 'iqama_renewal'), ('state', 'in', ['hr_supervisor_approval',
+            'hr_manager_approval'])]
+        </field>
         <field name="context">{'default_request_type': 'iqama_renewal'}</field>
     </record>
 
@@ -743,7 +789,8 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('employee_manager_user_id', '=', uid), ('state', '=', 'employee_manager_approval')]</field>
+        <field name="domain">[('employee_manager_user_id', '=', uid), ('state', '=', 'employee_manager_approval')]
+        </field>
         <field name="context">{'search_default_employee_manager_approval': 1}</field>
     </record>
 
@@ -973,12 +1020,12 @@
               sequence="6"
               groups="base.group_system,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
-<!--    <menuitem id="menu_pr_employee_payment_tracking"-->
-<!--              name="Employee Payment Requests"-->
-<!--              parent="menu_pr_employee_accounting_approvals"-->
-<!--              action="action_pr_employee_payment_tracking"-->
-<!--              sequence="10"-->
-<!--              groups="base.group_system,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>-->
+    <!--    <menuitem id="menu_pr_employee_payment_tracking"-->
+    <!--              name="Employee Payment Requests"-->
+    <!--              parent="menu_pr_employee_accounting_approvals"-->
+    <!--              action="action_pr_employee_payment_tracking"-->
+    <!--              sequence="10"-->
+    <!--              groups="base.group_system,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>-->
 
     <menuitem id="menu_pr_employee_reimbursement_accounting"
               name="Employee Reimbursements"
@@ -1116,7 +1163,8 @@
                 <field name="employee_service_request_id" readonly="1"/>
                 <field name="employee_payment_request_id" readonly="1" invisible="not employee_payment_request_id"/>
                 <field name="iqama_line_id" readonly="1" invisible="not iqama_line_id" groups="hr.group_hr_user"/>
-                <field name="insurance_line_id" readonly="1" invisible="not insurance_line_id" groups="hr.group_hr_user"/>
+                <field name="insurance_line_id" readonly="1" invisible="not insurance_line_id"
+                       groups="hr.group_hr_user"/>
             </xpath>
         </field>
     </record>

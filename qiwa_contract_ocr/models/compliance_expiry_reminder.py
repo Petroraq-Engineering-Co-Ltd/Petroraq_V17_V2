@@ -12,6 +12,8 @@ class HRComplianceExpiryReminderLog(models.Model):
     _name = 'hr.compliance.expiry.reminder.log'
     _description = 'HR Compliance Expiry Reminder Log'
     _order = 'sent_date desc, id desc'
+    _inherit = ["mail.thread", "mail.activity.mixin"]
+
 
     name = fields.Char(required=True)
     model_name = fields.Char(required=True, index=True)

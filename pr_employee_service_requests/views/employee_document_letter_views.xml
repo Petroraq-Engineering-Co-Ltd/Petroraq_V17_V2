@@ -34,15 +34,19 @@
                 <field name="job_id"/>
                 <field name="requested_by_id"/>
                 <field name="letter_type"/>
-                <filter name="my_letters" string="My Letters" domain="['|', ('requested_by_id', '=', uid), ('employee_id.user_id', '=', uid)]"/>
+                <filter name="my_letters" string="My Letters"
+                        domain="['|', ('requested_by_id', '=', uid), ('employee_id.user_id', '=', uid)]"/>
                 <separator/>
                 <filter name="experience" string="Experience" domain="[('letter_type', '=', 'experience')]"/>
                 <filter name="warning" string="Warning" domain="[('letter_type', '=', 'warning')]"/>
                 <filter name="appraisal" string="Appraisal" domain="[('letter_type', '=', 'appraisal')]"/>
-                <filter name="salary_certificate" string="Salary Certificate" domain="[('letter_type', '=', 'salary_certificate')]"/>
-                <filter name="employment_certificate" string="Employment Certificate" domain="[('letter_type', '=', 'employment_certificate')]"/>
+                <filter name="salary_certificate" string="Salary Certificate"
+                        domain="[('letter_type', '=', 'salary_certificate')]"/>
+                <filter name="employment_certificate" string="Employment Certificate"
+                        domain="[('letter_type', '=', 'employment_certificate')]"/>
                 <separator/>
-                <filter name="pending_hr_manager" string="Pending HR Manager" domain="[('state', '=', 'hr_manager_approval')]"/>
+                <filter name="pending_hr_manager" string="Pending HR Manager"
+                        domain="[('state', '=', 'hr_manager_approval')]"/>
                 <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
                 <filter name="sent" string="Sent" domain="[('state', '=', 'sent')]"/>
                 <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
@@ -84,7 +88,8 @@
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
-                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary" invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary"
+                            invisible="state != 'cancelled'"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_attachments"
                                 type="object"
@@ -98,7 +103,8 @@
                         <group>
                             <field name="name" readonly="1"/>
                             <field name="letter_type" readonly="state != 'draft'"/>
-                            <field name="employee_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="employee_id" readonly="state != 'draft'"
+                                   options="{'no_create': True, 'no_open': True}"/>
                             <field name="employee_email" readonly="1"/>
                             <field name="department_id" readonly="1"/>
                             <field name="job_id" readonly="1"/>
@@ -108,8 +114,10 @@
                             <field name="request_date" readonly="state != 'draft'"/>
                             <field name="issue_date" readonly="state not in ('draft', 'hr_manager_approval')"/>
                             <field name="requested_by_id" readonly="1"/>
-                            <field name="hr_manager_approved_by_id" readonly="1" invisible="not hr_manager_approved_by_id"/>
-                            <field name="hr_manager_approved_date" readonly="1" invisible="not hr_manager_approved_date"/>
+                            <field name="hr_manager_approved_by_id" readonly="1"
+                                   invisible="not hr_manager_approved_by_id"/>
+                            <field name="hr_manager_approved_date" readonly="1"
+                                   invisible="not hr_manager_approved_date"/>
                             <field name="sent_by_id" readonly="1" invisible="not sent_by_id"/>
                             <field name="sent_date" readonly="1" invisible="not sent_date"/>
                             <field name="sent_email_to" readonly="1" invisible="not sent_email_to"/>
@@ -133,7 +141,10 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
