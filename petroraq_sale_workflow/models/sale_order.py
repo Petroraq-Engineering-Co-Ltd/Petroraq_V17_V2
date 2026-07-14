@@ -169,6 +169,60 @@ class SaleOrder(models.Model):
 
             order.can_create_remaining_delivery = remaining_found
 
+    def _copy_sale_attachments_to_moves(self, moves):
+        """Copy quotation/SO attachments to customer invoices created from it."""
+        Attachment = self.env["ir.attachment"].sudo()
+        moves = moves.exists()
+        for order in self:
+            if not moves:
+                continue
+
+            source_attachments = Attachment.search([
+                ("res_model", "=", "sale.order"),
+                ("res_id", "=", order.id),
+                ("res_field", "=", False),
+            ])
+            if "project_attachment_ids" in order._fields:
+                source_attachments |= Attachment.browse(order.project_attachment_ids.ids)
+            source_attachments = source_attachments.filtered(lambda attachment: not attachment.res_field)
+            if not source_attachments:
+                continue
+
+            for move in moves:
+                existing_attachments = Attachment.search([
+                    ("res_model", "=", "account.move"),
+                    ("res_id", "=", move.id),
+                    ("res_field", "=", False),
+                ])
+                for attachment in source_attachments:
+                    duplicate = existing_attachments.filtered(
+                        lambda existing: existing.name == attachment.name
+                        and existing.type == attachment.type
+                        and existing.checksum == attachment.checksum
+                        and existing.url == attachment.url
+                    )
+                    if duplicate:
+                        continue
+
+                    copy_vals = {
+                        "res_model": "account.move",
+                        "res_id": move.id,
+                        "res_field": False,
+                    }
+                    if move.company_id:
+                        copy_vals["company_id"] = move.company_id.id
+                    copied = attachment.copy(copy_vals)
+                    existing_attachments |= copied
+
+    def _create_invoices(self, *args, **kwargs):
+        invoices = super()._create_invoices(*args, **kwargs)
+        for order in self:
+            order_invoices = invoices.filtered(
+                lambda move: order.id in move.invoice_line_ids.sale_line_ids.order_id.ids
+            )
+            order._copy_sale_attachments_to_moves(order_invoices)
+        return invoices
+
     @api.depends(
         "estimation_id",
         "estimation_id.line_ids",
@@ -370,7 +424,7 @@ class SaleOrder(models.Model):
     show_reject_button = fields.Boolean(compute="_compute_show_reject_button")
     dp_percent = fields.Float(string="Down Payment %", copy=False)
     po_date = fields.Date(string="PO Date", copy=False)
-    po_number = fields.Char(string="PO Number", copy=False)
+    po_number = fields.Char(string="PO Name", copy=False)
 
     proforma_dp = fields.Integer(
         string="Down payment Percentage",

@@ -7,6 +7,45 @@ class HrApprovalDashboardService(models.AbstractModel):
     _name = "de.hr.approval.dashboard.service"
     _description = "HR Approval Dashboard Service"
 
+    APPROVAL_SECTIONS = {
+        "hr": {
+            "name": _("HR"),
+            "icon": "fa-users",
+            "tone": "info",
+            "sequence": 10,
+        },
+        "accounts": {
+            "name": _("Accounts"),
+            "icon": "fa-money",
+            "tone": "danger",
+            "sequence": 20,
+        },
+        "purchase": {
+            "name": _("Purchase"),
+            "icon": "fa-shopping-cart",
+            "tone": "primary",
+            "sequence": 30,
+        },
+        "sales": {
+            "name": _("Sales"),
+            "icon": "fa-line-chart",
+            "tone": "success",
+            "sequence": 40,
+        },
+        "payroll": {
+            "name": _("Payroll"),
+            "icon": "fa-credit-card",
+            "tone": "warning",
+            "sequence": 50,
+        },
+        "other": {
+            "name": _("Other"),
+            "icon": "fa-check-square-o",
+            "tone": "primary",
+            "sequence": 99,
+        },
+    }
+
     @api.model
     def _get_visible_approval_menus(self):
         parent = self.env.ref(
@@ -270,26 +309,175 @@ class HrApprovalDashboardService(models.AbstractModel):
         return "fa-check-square-o", "primary"
 
     @api.model
-    def get_tiles(self):
-        tiles = []
+    def _menu_path(self, menu):
+        names = []
+        while menu:
+            if menu.name:
+                names.append(menu.name)
+            menu = menu.parent_id
+        return " / ".join(reversed(names)).lower()
+
+    @api.model
+    def _section_key_for_menu(self, menu, action):
+        name = (menu.name or "").lower()
+        path = self._menu_path(menu)
+        model = (action.res_model or "").lower() if action and action._name == "ir.actions.act_window" else ""
+        text = " ".join([name, path, model])
+
+        if any(token in text for token in ("bank", "cash", "vendor payment", "payment", "account", "finance", "bpv", "cpv")):
+            return "accounts"
+        if any(token in text for token in ("purchase", "rfq", "po ", "quotation comparison", "budget", "requisition")):
+            return "purchase"
+        if any(token in text for token in ("sale", "estimation", "quotation", "work order")):
+            return "sales"
+        if any(token in text for token in ("payroll", "payslip", "salary", "overtime")):
+            return "payroll"
+        if any(token in text for token in (
+            "hr",
+            "employee",
+            "attendance",
+            "leave",
+            "shortage",
+            "recruit",
+            "onboarding",
+            "offboarding",
+            "accommodation",
+            "medical",
+            "iqama",
+            "exit",
+            "reimbursement",
+        )):
+            return "hr"
+        return "other"
+
+    @api.model
+    def _tile_record_payload(self, menu, action):
+        if self._is_work_order_approval_menu(menu, action):
+            model_name = "pr.work.order"
+            if model_name not in self.env:
+                return False
+            domain = self._work_order_pending_domain()
+            records = self.env[model_name].search(domain)
+            return {
+                "res_model": model_name,
+                "view_mode": "list,form",
+                "domain": [("id", "in", records.ids)],
+                "context": {},
+                "ids": set(records.ids),
+            }
+
+        account_payment_model = self._account_payment_approval_model(menu, action)
+        if account_payment_model:
+            if account_payment_model not in self.env:
+                return False
+            domain = self._account_payment_approval_domain()
+            records = self.env[account_payment_model].search(domain)
+            return {
+                "res_model": account_payment_model,
+                "view_mode": "list,form",
+                "domain": [("id", "in", records.ids)],
+                "context": {},
+                "ids": set(records.ids),
+            }
+
+        if action._name != "ir.actions.act_window" or not action.res_model:
+            return False
+        if action.res_model not in self.env:
+            return False
+
+        domain = self._domain_for_menu_action(menu, action)
+        try:
+            records = self.env[action.res_model].search(domain)
+        except Exception:
+            return False
+        return {
+            "res_model": action.res_model,
+            "view_mode": action.view_mode or "list,form",
+            "domain": [("id", "in", records.ids)],
+            "context": self._context_from_action(action),
+            "ids": set(records.ids),
+        }
+
+    @api.model
+    def _dedupe_key_for_tile(self, section_key, menu, action, payload):
+        normalized_name = " ".join((menu.name or _("Approval")).lower().split())
+        if payload and payload.get("res_model"):
+            return "%s|%s|%s" % (section_key, payload["res_model"], normalized_name)
+        return "%s|action|%s|%s" % (section_key, action.id, normalized_name)
+
+    @api.model
+    def _make_tile(self, section_key, menu, action):
+        payload = self._tile_record_payload(menu, action)
+        icon, tone = self._style_for_menu(menu.name)
+        tile = {
+            "key": self._dedupe_key_for_tile(section_key, menu, action, payload),
+            "name": menu.name or _("Approval"),
+            "count": len(payload["ids"]) if payload else self._count_for_action(menu, action),
+            "icon": icon,
+            "tone": tone,
+            "action_id": action.id,
+        }
+        if payload:
+            tile.update({
+                "res_model": payload["res_model"],
+                "view_mode": payload["view_mode"],
+                "domain": payload["domain"],
+                "context": payload["context"],
+                "_ids": payload["ids"],
+            })
+        return tile
+
+    @api.model
+    def _merge_tile(self, existing, tile):
+        existing_ids = existing.get("_ids")
+        tile_ids = tile.get("_ids")
+        if existing_ids is not None and tile_ids is not None:
+            merged_ids = existing_ids | tile_ids
+            existing["_ids"] = merged_ids
+            existing["count"] = len(merged_ids)
+            existing["domain"] = [("id", "in", sorted(merged_ids))]
+            return existing
+
+        existing["count"] = max(existing.get("count", 0), tile.get("count", 0))
+        return existing
+
+    @api.model
+    def get_sections(self):
+        grouped_tiles = {}
         for menu in self._get_visible_approval_menus():
             action = menu.sudo().action
-            count = self._count_for_action(menu, action)
-            icon, tone = self._style_for_menu(menu.name)
-            tile = {
-                "key": f"menu_{menu.id}",
-                "name": menu.name or _("Approval"),
-                "count": count,
-                "icon": icon,
-                "tone": tone,
-                "action_id": action.id,
-            }
-            if action._name == "ir.actions.act_window" and action.res_model:
-                tile.update({
-                    "res_model": action.res_model,
-                    "view_mode": action.view_mode or "list,form",
-                    "domain": self._domain_for_menu_action(menu, action),
-                    "context": self._context_from_action(action),
-                })
-            tiles.append(tile)
-        return tiles
+            section_key = self._section_key_for_menu(menu, action)
+            tile = self._make_tile(section_key, menu, action)
+            section_tiles = grouped_tiles.setdefault(section_key, {})
+            if tile["key"] in section_tiles:
+                self._merge_tile(section_tiles[tile["key"]], tile)
+            else:
+                section_tiles[tile["key"]] = tile
+
+        sections = []
+        for section_key, tiles_by_key in grouped_tiles.items():
+            definition = self.APPROVAL_SECTIONS.get(section_key, self.APPROVAL_SECTIONS["other"])
+            tiles = list(tiles_by_key.values())
+            tiles.sort(key=lambda item: (0 if item.get("count", 0) else 1, item["name"]))
+            for tile in tiles:
+                tile.pop("_ids", None)
+            sections.append({
+                "key": section_key,
+                "name": definition["name"],
+                "icon": definition["icon"],
+                "tone": definition["tone"],
+                "sequence": definition["sequence"],
+                "count": sum(tile.get("count", 0) for tile in tiles),
+                "tiles": tiles,
+            })
+
+        sections.sort(key=lambda section: (section["sequence"], section["name"]))
+        return sections
+
+    @api.model
+    def get_tiles(self):
+        return [
+            tile
+            for section in self.get_sections()
+            for tile in section.get("tiles", [])
+        ]

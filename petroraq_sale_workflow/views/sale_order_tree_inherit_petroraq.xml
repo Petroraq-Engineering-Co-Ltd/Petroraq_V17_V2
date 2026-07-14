@@ -5,6 +5,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_quotation_tree"/>
         <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='name']" position="before">
+                <field name="po_number" string="PO Name" optional="show"/>
+            </xpath>
             <xpath expr="//tree/field[@name='state']" position="before">
                 <field name="approval_state"
                        widget="badge"
@@ -30,6 +33,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='name']" position="before">
+                <field name="po_number" string="PO Name" optional="show"/>
+            </xpath>
             <xpath expr="//tree/field[@name='state']" position="before">
                 <field name="approval_state" widget="badge"
                        decoration-success="approval_state == 'approved'"

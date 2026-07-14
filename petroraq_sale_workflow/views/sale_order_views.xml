@@ -232,6 +232,9 @@
                 <field name="po_number" string="PO Name" invisible="state not in ('sale', 'done')"/>
                 <field name="po_date" string="PO Date" invisible="state not in ('sale', 'done')"/>
             </xpath>
+            <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
+                <xpath expr="//field[@name='po_number']" position="move"/>
+            </xpath>
             <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom'][@optional='show' and @groups='uom.group_uom']"
                    position="attributes">
                 <attribute name="column_invisible">True</attribute>

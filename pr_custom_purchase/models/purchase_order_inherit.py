@@ -14,6 +14,61 @@ class PurchaseOrder(models.Model):
             return f"Request for Quotation - {self.name}"
         return f"Purchase Order - {self.name}"
 
+    def _copy_purchase_attachments_to_moves(self, moves):
+        """Copy PO attachments to vendor bills created from this PO."""
+        Attachment = self.env["ir.attachment"].sudo()
+        moves = moves.exists()
+        for order in self:
+            if not moves:
+                continue
+
+            source_attachments = Attachment.search([
+                ("res_model", "=", "purchase.order"),
+                ("res_id", "=", order.id),
+                ("res_field", "=", False),
+            ])
+            if not source_attachments:
+                continue
+
+            for move in moves:
+                existing_attachments = Attachment.search([
+                    ("res_model", "=", "account.move"),
+                    ("res_id", "=", move.id),
+                    ("res_field", "=", False),
+                ])
+                for attachment in source_attachments:
+                    duplicate = existing_attachments.filtered(
+                        lambda existing: existing.name == attachment.name
+                        and existing.type == attachment.type
+                        and existing.checksum == attachment.checksum
+                        and existing.url == attachment.url
+                    )
+                    if duplicate:
+                        continue
+
+                    copy_vals = {
+                        "res_model": "account.move",
+                        "res_id": move.id,
+                        "res_field": False,
+                    }
+                    if move.company_id:
+                        copy_vals["company_id"] = move.company_id.id
+                    copied = attachment.copy(copy_vals)
+                    existing_attachments |= copied
+
+    def action_create_invoice(self):
+        bills_before = {
+            order.id: order.invoice_ids.ids
+            for order in self
+        }
+        result = super().action_create_invoice()
+        self.invalidate_recordset(["invoice_ids"])
+        for order in self:
+            previous_bills = self.env["account.move"].browse(bills_before.get(order.id, []))
+            new_bills = order.invoice_ids - previous_bills
+            order._copy_purchase_attachments_to_moves(new_bills)
+        return result
+
     def action_send_purchase_order_email(self):
         """Open the standard Compose wizard pre-filled with our custom body and recipients."""
         self.ensure_one()

@@ -187,6 +187,10 @@
                        decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
                        decoration-muted="approval_status == 'not_submitted'"/>
             </xpath>
+            <xpath expr="//tree/field[@name='partner_ref']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="string">Vendor Reference</attribute>
+            </xpath>
             <xpath expr="//tree/field[@name='amount_total']" position="after">
                 <field name="budget_consumed_amount" optional="hide"/>
                 <field name="budget_remaining_amount" optional="show"/>
@@ -205,6 +209,10 @@
                        decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
                        decoration-muted="approval_status == 'not_submitted'"/>
             </xpath>
+            <xpath expr="//tree/field[@name='partner_ref']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="string">Vendor Reference</attribute>
+            </xpath>
             <xpath expr="//tree/field[@name='amount_total']" position="after">
                 <field name="budget_consumed_amount" optional="hide"/>
                 <field name="budget_remaining_amount" optional="show"/>
@@ -222,6 +230,24 @@
                        decoration-danger="approval_status == 'rejected'"
                        decoration-warning="approval_status in ('pending_pe','pending_pm','pending_od','pending_md')"
                        decoration-muted="approval_status == 'not_submitted'"/>
+            </xpath>
+            <xpath expr="//tree/field[@name='partner_ref']" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="string">Vendor Reference</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="purchase_order_form_vendor_reference_first" model="ir.ui.view">
+        <field name="name">purchase.order.form.vendor.reference.first</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="priority">80</field>
+        <field name="arch" type="xml">
+            <xpath expr="//group/field[@name='partner_id']" position="before">
+                <xpath expr="//field[@name='partner_ref']" position="move"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_ref']" position="attributes">
+                <attribute name="string">Vendor Reference</attribute>
             </xpath>
         </field>
     </record>
