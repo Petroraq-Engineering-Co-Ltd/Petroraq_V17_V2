@@ -83,8 +83,8 @@ class PrEmployeeDocumentLetter(models.Model):
             ("warning", "Warning Letter"),
             ("appraisal", "Appraisal Letter"),
             ("salary_certificate", "Salary Certificate"),
-            ("employment_certificate", "Employment Certificate"),
-            ("other", "Other"),
+            # ("employment_certificate", "Employment Certificate"),
+            # ("other", "Other"),
         ],
         string="Letter Type",
         default="experience",
@@ -373,27 +373,9 @@ class PrEmployeeDocumentLetter(models.Model):
 
     def _get_letter_signatory_values(self):
         self.ensure_one()
-        signatory_user = self.env["res.users"]
-        md_group = self.env.ref("pr_custom_purchase.managing_director", raise_if_not_found=False)
-        if md_group:
-            signatory_user = self.env["res.users"].sudo().search(
-                [("groups_id", "in", md_group.id), ("share", "=", False), ("active", "=", True)],
-                limit=1,
-            )
-        signatory_employee = self.env["hr.employee"].sudo()
-        if signatory_user:
-            signatory_employee = signatory_employee.search([("user_id", "=", signatory_user.id)], limit=1)
         return {
-            "name": (
-                signatory_employee.name
-                or signatory_user.name
-                or self.hr_manager_approved_by_id.name
-                or _("Authorized Signatory")
-            ),
-            "designation": (
-                signatory_employee.job_id.name
-                or _("Managing Director")
-            ),
+            "name": "Mustafa Ghulam Abdul Rasheed",
+            "designation": _("Managing Director"),
         }
 
     def _get_salary_certificate_lines(self, contract):
@@ -654,20 +636,28 @@ class PrEmployeeDocumentLetter(models.Model):
                 continue
             if not rec.subject or not rec.body_html:
                 raise UserError(_("Please enter the subject and letter content before submitting."))
-            rec.state = "hr_manager_approval"
-            rec.message_post(body=_("Employee letter submitted for HR Manager approval."))
+            attachment = rec._generate_letter_pdf_attachment()
+            rec.write({"state": "hr_manager_approval"})
+            rec.message_post(
+                body=_("Employee letter submitted for HR Manager approval. Generated PDF is attached for review."),
+                attachment_ids=attachment.ids,
+            )
 
     def action_hr_manager_approve(self):
         self._check_hr_manager()
         for rec in self:
             if rec.state != "hr_manager_approval":
                 continue
+            attachment = rec._generate_letter_pdf_attachment()
             rec.write({
                 "state": "approved",
                 "hr_manager_approved_by_id": self.env.user.id,
                 "hr_manager_approved_date": fields.Datetime.now(),
             })
-            rec.message_post(body=_("Employee letter approved by HR Manager."))
+            rec.message_post(
+                body=_("Employee letter approved by HR Manager. Final approved PDF is attached."),
+                attachment_ids=attachment.ids,
+            )
 
     def action_reject(self):
         self._check_hr_manager()
@@ -697,7 +687,7 @@ class PrEmployeeDocumentLetter(models.Model):
         self.ensure_one()
         if self.state not in ("approved", "sent"):
             raise UserError(_("Only approved letters can be sent."))
-        generated_attachment = self._generate_letter_pdf_attachment()
+        generated_attachment = self._ensure_letter_pdf_attachment()
         return {
             "type": "ir.actions.act_window",
             "name": _("Send Employee Letter"),

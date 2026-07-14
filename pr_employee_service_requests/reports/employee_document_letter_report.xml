@@ -8,7 +8,7 @@
         <field name="page_width">210</field>
         <field name="orientation">Portrait</field>
         <field name="margin_top">48</field>
-        <field name="margin_bottom">22</field>
+        <field name="margin_bottom">18</field>
         <field name="margin_left">0</field>
         <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
@@ -45,7 +45,8 @@
         <div class="footer"
              style="width:111% !important; margin:0 0 0 -5% !important; padding:0 !important; overflow:visible !important; background:#21398e;">
             <div style="width:100%; box-sizing:border-box; margin:0 !important; border-bottom:1px solid #305081; padding:3px 18mm 3px 18mm; text-align:left; color:#000; background:#fff; font-size:12px; font-weight:700; line-height:1.15; white-space:normal;">
-                This is a computer-generated document issued through the Petroraq HR Management System (Odoo). It has been electronically reviewed and approved by the authorized management.
+                This is a computer generated document issued through the Petroraq HR Management System. It has
+                been electronically reviewed and approved by the management.
             </div>
             <div style="width:100%; margin:0 0 -2px 0 !important; padding:0 !important; background:#21398e; line-height:0; font-size:0;">
                 <img src="/pr_custom_purchase/static/src/img/img.png"
@@ -74,7 +75,7 @@
                             font-weight: 700;
                             text-align: center;
                             text-decoration: underline;
-                            margin: 0 0 48px 0;
+                            margin: 16px 0 40px 0;
                             }
                             .employee-letter-page .letter-divider {
                             border: 0;
@@ -163,25 +164,15 @@
                                 future endeavors.
                             </p>
                             <p>Sincerely,</p>
+
                             <p>
                                 <strong>
+                                    <span>HR DEPARTMENT</span>
+                                    <br/>
                                     <span t-out="letter.get('company_name')"/>
                                 </strong>
                             </p>
-                            <hr class="letter-divider"/>
-                            <p style="margin-bottom:20px;">Authorized Signatory</p>
-                            <p style="margin-bottom:0;">
-                                Name:
-                                <strong>
-                                    <span t-out="letter.get('signatory').get('name')"/>
-                                </strong>
-                            </p>
-                            <p>
-                                Designation:
-                                <strong>
-                                    <span t-out="letter.get('signatory').get('designation')"/>
-                                </strong>
-                            </p>
+
                         </t>
 
                         <t t-elif="letter.get('type') == 'salary_certificate'">

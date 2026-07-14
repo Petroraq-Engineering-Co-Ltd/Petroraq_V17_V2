@@ -127,7 +127,7 @@ class PrEmployeeServiceRequest(models.Model):
             (SELF_PAYMENT_RESPONSIBILITY, "Self"),
         ],
         string="Payment Responsibility",
-        default=COMPANY_PAYMENT_RESPONSIBILITY,
+        default=SELF_PAYMENT_RESPONSIBILITY,
         required=True,
         tracking=True,
         help="Self-paid requests do not create employee payment requests or accounting vouchers.",
@@ -471,7 +471,7 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.exit_reentry_historical_company_paid:
                 rec.exit_reentry_company_eligible = False
                 rec.exit_reentry_eligibility_message = _(
-                    "Historical company-paid record: no payment workflow will run, but this consumes the entitlement."
+                    "This record is for already availed exit re-entry service provided by company in current contract period."
                 )
                 continue
             eligible, message, _contract = rec._get_exit_reentry_company_eligibility()
@@ -1186,7 +1186,7 @@ class PrEmployeeServiceRequest(models.Model):
         if not window_end:
             return (
                 False,
-                _("%(category)s employees become company-paid eligible from %(date)s.")
+                _("This Employee will be Eligible for company-paid Exit/Re-entry from %(date)s.")
                 % {"category": benefit_label, "date": window_start},
                 contract,
             )
