@@ -3,8 +3,8 @@
     <data noupdate="1">
         <record id="reason_standard_final_settlement" model="pr.end.service.reason">
             <field name="name">Standard Final Settlement</field>
-            <field name="deserved_after">0.0</field>
-            <field name="zero_message">No end of service benefit is due.</field>
+            <field name="deserved_after">1.0</field>
+            <field name="zero_message">Employee is not eligible for EOSB before completing 1 year of service.</field>
             <field name="is_partial">False</field>
         </record>
         <record id="reason_standard_final_settlement_line_first_five" model="pr.end.service.reason.line">
@@ -24,8 +24,8 @@
 
         <record id="reason_partial_advance" model="pr.end.service.reason">
             <field name="name">Partial End of Service Advance</field>
-            <field name="deserved_after">0.0</field>
-            <field name="zero_message">No end of service advance is available.</field>
+            <field name="deserved_after">1.0</field>
+            <field name="zero_message">Employee is not eligible for EOSB before completing 1 year of service.</field>
             <field name="is_partial">True</field>
         </record>
         <record id="reason_partial_advance_line_first_five" model="pr.end.service.reason.line">

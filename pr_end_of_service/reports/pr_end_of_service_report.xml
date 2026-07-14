@@ -71,6 +71,22 @@
                                     <td class="text-end"><span t-field="doc.previously_disbursed_amount"/></td>
                                 </tr>
                                 <tr>
+                                    <td><strong>Net Settlement</strong></td>
+                                    <td class="text-end"><span t-field="doc.net_settlement_amount"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Available Amount</strong></td>
+                                    <td class="text-end"><span t-field="doc.available_amount"/></td>
+                                </tr>
+                                <tr t-if="doc.employee_recovery_amount">
+                                    <td><strong>Recoverable From Employee</strong></td>
+                                    <td class="text-end"><span t-field="doc.employee_recovery_amount"/></td>
+                                </tr>
+                                <tr t-if="doc.employee_recovery_amount">
+                                    <td><strong>Recovery Status</strong></td>
+                                    <td class="text-end"><span t-field="doc.recovery_state"/></td>
+                                </tr>
+                                <tr>
                                     <td><strong>Requested Amount</strong></td>
                                     <td class="text-end"><span t-field="doc.requested_amount"/></td>
                                 </tr>

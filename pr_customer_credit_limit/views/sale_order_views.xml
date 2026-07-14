@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_pr_customer_credit_limit" model="ir.ui.view">
+        <field name="name">sale.order.form.pr.customer.credit.limit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="pr_is_credit_payment_term" invisible="1"/>
+                <field name="pr_credit_exceeded_amount" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning" role="alert"
+                     invisible="not pr_is_credit_payment_term or pr_credit_exceeded_amount &lt;= 0">
+                    <strong>Credit limit warning:</strong>
+                    this quotation will exceed the approved customer credit facility by
+                    <field name="pr_credit_exceeded_amount" readonly="1"/>.
+                </div>
+                <div class="alert alert-info" role="alert"
+                     invisible="not pr_is_credit_payment_term or pr_credit_exceeded_amount &gt; 0">
+                    <strong>Credit facility:</strong>
+                    projected remaining credit after this quotation is
+                    <field name="pr_credit_remaining_after_order" readonly="1"/>.
+                </div>
+            </xpath>
+
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="pr_credit_company_currency_id" invisible="1"/>
+                <field name="pr_credit_limit_partner_id" readonly="1" invisible="not pr_is_credit_payment_term"/>
+                <field name="pr_approved_credit_limit" readonly="1" invisible="not pr_is_credit_payment_term"/>
+                <field name="pr_credit_exposure_before_order" readonly="1" invisible="not pr_is_credit_payment_term"/>
+                <field name="pr_credit_projected_exposure" readonly="1" invisible="not pr_is_credit_payment_term"/>
+                <field name="pr_credit_remaining_after_order" readonly="1" invisible="not pr_is_credit_payment_term"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

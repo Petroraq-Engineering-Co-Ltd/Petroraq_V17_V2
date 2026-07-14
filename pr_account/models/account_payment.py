@@ -78,12 +78,93 @@ class AccountPayment(models.Model):
             payment.pr_vendor_bill_ids = bills
             payment.pr_vendor_bill_count = len(bills)
 
+    def _pr_should_require_vendor_payment_approval(self):
+        self.ensure_one()
+        is_internal_transfer = (
+            "is_internal_transfer" in self._fields
+            and self.is_internal_transfer
+        )
+        return (
+                (self.state or "draft") == "draft"
+                and self.payment_type == "outbound"
+                and self.partner_type == "supplier"
+                and not is_internal_transfer
+        )
+
+    def _pr_sync_vendor_payment_approval_requirement(self):
+        for payment in self:
+            vals = {}
+            if payment._pr_should_require_vendor_payment_approval():
+                if not payment.pr_requires_vendor_payment_approval:
+                    vals["pr_requires_vendor_payment_approval"] = True
+                if payment.pr_payment_approval_state in (False, "cancel"):
+                    vals["pr_payment_approval_state"] = "draft"
+            elif (
+                    payment.pr_requires_vendor_payment_approval
+                    and not payment.pr_vendor_payment_source_line_ids
+                    and payment.state == "draft"
+                    and payment.pr_payment_approval_state in ("draft", "reject")
+            ):
+                vals.update({
+                    "pr_requires_vendor_payment_approval": False,
+                    "pr_payment_approval_state": "draft",
+                    "pr_vendor_payment_reject_reason": False,
+                })
+
+            if vals:
+                payment.with_context(pr_skip_vendor_payment_approval_sync=True).write(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        payments = super().create(vals_list)
+        payments._pr_sync_vendor_payment_approval_requirement()
+        return payments
+
+    def write(self, vals):
+        result = super().write(vals)
+        watched_fields = {
+            "payment_type",
+            "partner_type",
+            "partner_id",
+            "amount",
+            "state",
+            "is_internal_transfer",
+        }
+        if (
+                not self.env.context.get("pr_skip_vendor_payment_approval_sync")
+                and watched_fields.intersection(vals)
+        ):
+            self._pr_sync_vendor_payment_approval_requirement()
+        return result
+
+    @api.onchange("payment_type", "partner_type", "partner_id", "amount", "is_internal_transfer")
+    def _onchange_pr_vendor_payment_approval_requirement(self):
+        for payment in self:
+            if payment._pr_should_require_vendor_payment_approval():
+                payment.pr_requires_vendor_payment_approval = True
+                if payment.pr_payment_approval_state in (False, "cancel"):
+                    payment.pr_payment_approval_state = "draft"
+            elif (
+                    payment.pr_requires_vendor_payment_approval
+                    and not payment.pr_vendor_payment_source_line_ids
+                    and (payment.state or "draft") == "draft"
+                    and payment.pr_payment_approval_state in ("draft", "reject")
+            ):
+                payment.pr_requires_vendor_payment_approval = False
+                payment.pr_payment_approval_state = "draft"
+                payment.pr_vendor_payment_reject_reason = False
+
     def _pr_is_vendor_payment_approval_payment(self):
         self.ensure_one()
+        is_internal_transfer = (
+            "is_internal_transfer" in self._fields
+            and self.is_internal_transfer
+        )
         return (
                 self.pr_requires_vendor_payment_approval
                 and self.payment_type == "outbound"
                 and self.partner_type == "supplier"
+                and not is_internal_transfer
         )
 
     def _pr_get_current_vendor_payment_approval_domain(self):
@@ -147,6 +228,7 @@ class AccountPayment(models.Model):
 
     def action_pr_vendor_payment_submit(self):
         for payment in self:
+            payment._pr_sync_vendor_payment_approval_requirement()
             if not payment._pr_is_vendor_payment_approval_payment():
                 continue
             if payment.state != "draft":
@@ -219,10 +301,14 @@ class AccountPayment(models.Model):
                     lambda line: not line.reconciled):
                 raise UserError(_("The linked vendor bill lines are already reconciled."))
 
+            has_source_lines = bool(payment.pr_vendor_payment_source_line_ids)
             payment.with_context(pr_vendor_payment_approval_post=True).action_post()
             payment._pr_reconcile_vendor_payment_source_lines()
             payment.pr_payment_approval_state = "posted"
-            payment.message_post(body=_("Vendor payment finally approved, posted, and reconciled."))
+            if has_source_lines:
+                payment.message_post(body=_("Vendor payment finally approved, posted, and reconciled."))
+            else:
+                payment.message_post(body=_("Direct vendor payment finally approved and posted."))
         return True
 
     def _pr_reconcile_vendor_payment_source_lines(self):
@@ -247,11 +333,25 @@ class AccountPayment(models.Model):
 
     def action_post(self):
         blocked_payments = self.filtered(
-            lambda payment: payment._pr_is_vendor_payment_approval_payment()
+            lambda payment: (
+                (
+                    payment._pr_is_vendor_payment_approval_payment()
+                    or payment._pr_should_require_vendor_payment_approval()
+                )
+                and payment.pr_payment_approval_state != "posted"
+            )
                             and not self.env.context.get("pr_vendor_payment_approval_post")
         )
         if blocked_payments:
-            raise UserError(_("Vendor payments registered from bills must be approved before posting."))
+            allowed_payments = self - blocked_payments
+            if allowed_payments:
+                super(AccountPayment, allowed_payments).action_post()
+
+            for payment in blocked_payments:
+                payment._pr_sync_vendor_payment_approval_requirement()
+                if payment.pr_payment_approval_state in ("draft", "reject"):
+                    payment.action_pr_vendor_payment_submit()
+            return True
         return super().action_post()
 
     def action_cancel(self):

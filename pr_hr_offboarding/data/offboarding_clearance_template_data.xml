@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="clearance_template_default" model="pr.hr.offboarding.clearance.template">
+            <field name="name">Default Offboarding Clearance</field>
+            <field name="sequence">10</field>
+            <field name="company_id" eval="False"/>
+            <field name="applies_to">all</field>
+        </record>
+        <record id="clearance_template_line_handover" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">10</field>
+            <field name="category">handover</field>
+            <field name="name">Job handover checklist</field>
+            <field name="description">Confirm responsibilities, files, and open tasks are handed over.</field>
+            <field name="settlement_effect">none</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="clearance_template_line_assets" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">20</field>
+            <field name="category">asset</field>
+            <field name="name">Company assets clearance</field>
+            <field name="description">Laptop, phone, tools, vehicle, access cards, and other assets.</field>
+            <field name="settlement_effect">deduction</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="clearance_template_line_accounts" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">30</field>
+            <field name="category">account</field>
+            <field name="name">Accounts clearance</field>
+            <field name="description">Loans, advances, petty cash, reimbursements, and employee receivables.</field>
+            <field name="settlement_effect">deduction</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="clearance_template_line_payroll" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">40</field>
+            <field name="category">payroll</field>
+            <field name="name">Payroll arrears and deductions review</field>
+            <field name="description">Held salary, unpaid salary, attendance deductions, and payroll attachments.</field>
+            <field name="settlement_effect">addition</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="clearance_template_line_insurance" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">50</field>
+            <field name="category">insurance</field>
+            <field name="name">Insurance cancellation / clearance</field>
+            <field name="description">Medical insurance and related employee obligations.</field>
+            <field name="settlement_effect">deduction</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="clearance_template_line_gosi" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">60</field>
+            <field name="category">gosi</field>
+            <field name="name">Remove employee from GOSI</field>
+            <field name="description">Confirm GOSI removal request is completed.</field>
+            <field name="applies_to">saudi</field>
+            <field name="settlement_effect">none</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="clearance_template_line_final_exit" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">70</field>
+            <field name="category">final_exit</field>
+            <field name="name">Final exit / local transfer clearance</field>
+            <field name="description">Confirm final exit or local transfer approvals are complete.</field>
+            <field name="applies_to">expat</field>
+            <field name="settlement_effect">none</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+        <record id="clearance_template_line_qiwa" model="pr.hr.offboarding.clearance.template.line">
+            <field name="template_id" ref="clearance_template_default"/>
+            <field name="sequence">80</field>
+            <field name="category">qiwa</field>
+            <field name="name">Qiwa acceptance</field>
+            <field name="description">Confirm Qiwa acceptance is completed or no longer required.</field>
+            <field name="applies_to">expat</field>
+            <field name="settlement_effect">none</field>
+            <field name="required" eval="True"/>
+            <field name="reminder_delay_days">1</field>
+            <field name="reminder_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        </record>
+    </data>
+</odoo>

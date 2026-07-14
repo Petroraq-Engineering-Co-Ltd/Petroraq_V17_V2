@@ -9,9 +9,18 @@
                 <field name="employee_id"/>
                 <field name="reason_id"/>
                 <field name="state"/>
+                <filter string="Eligible" name="eligible" domain="[('eligibility_status', '=', 'eligible')]"/>
+                <filter string="Not Eligible" name="not_eligible"
+                        domain="[('eligibility_status', '=', 'not_eligible')]"/>
+                <separator/>
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
                 <filter string="HR Approval" name="hr_approval" domain="[('state', '=', 'hr_approval')]"/>
-                <filter string="Accounts Approval" name="accounts_approval" domain="[('state', '=', 'accounts_approval')]"/>
+                <filter string="Accounts Approval" name="accounts_approval"
+                        domain="[('state', '=', 'accounts_approval')]"/>
+                <filter string="Employee Acceptance" name="employee_acceptance"
+                        domain="[('state', '=', 'employee_acceptance')]"/>
+                <filter string="Employee Rejected" name="employee_rejected"
+                        domain="[('state', '=', 'employee_rejected')]"/>
                 <filter string="Payment" name="payment" domain="[('state', '=', 'payment')]"/>
                 <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
                 <separator/>
@@ -31,19 +40,30 @@
         <field name="name">pr.end.of.service.tree</field>
         <field name="model">pr.end.of.service</field>
         <field name="arch" type="xml">
-            <tree string="End of Service" decoration-success="state == 'done'" decoration-danger="state == 'cancel'" decoration-warning="state in ('hr_approval', 'accounts_approval', 'payment')">
+            <tree string="End of Service" decoration-success="state == 'done'"
+                  decoration-danger="state in ('cancel', 'employee_rejected')"
+                  decoration-warning="state in ('hr_approval', 'accounts_approval', 'employee_acceptance', 'payment')">
                 <field name="name"/>
                 <field name="employee_id"/>
                 <field name="settlement_type"/>
                 <field name="reason_id"/>
                 <field name="service_end_date"/>
-                <field name="service_years"/>
+                <field name="service_period"/>
+                <field name="eligibility_status" widget="badge"
+                       decoration-success="eligibility_status == 'eligible'"
+                       decoration-danger="eligibility_status == 'not_eligible'"/>
+                <field name="net_settlement_amount" widget="monetary"/>
+                <field name="employee_recovery_amount" widget="monetary"/>
                 <field name="requested_amount" widget="monetary"/>
                 <field name="currency_id" column_invisible="1"/>
+                <field name="recovery_state" widget="badge"
+                       decoration-success="recovery_state == 'recovered'"
+                       decoration-warning="recovery_state == 'pending'"
+                       decoration-muted="recovery_state in ('not_required', 'waived')"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'done'"
-                       decoration-danger="state == 'cancel'"
-                       decoration-warning="state in ('hr_approval', 'accounts_approval', 'payment')"
+                       decoration-danger="state in ('cancel', 'employee_rejected')"
+                       decoration-warning="state in ('hr_approval', 'accounts_approval', 'employee_acceptance', 'payment')"
                        decoration-muted="state == 'draft'"/>
             </tree>
         </field>
@@ -59,6 +79,10 @@
                 <field name="requested_amount" type="measure"/>
                 <field name="total_deserved_amount" type="measure"/>
                 <field name="leave_settlement_amount" type="measure"/>
+                <field name="adjustment_addition_amount" type="measure"/>
+                <field name="adjustment_deduction_amount" type="measure"/>
+                <field name="net_settlement_amount" type="measure"/>
+                <field name="employee_recovery_amount" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -73,21 +97,48 @@
                             invisible="state != 'draft'" groups="hr.group_hr_user"/>
                     <button name="action_hr_approve" type="object" string="HR Approve" class="oe_highlight"
                             invisible="state != 'hr_approval'" groups="hr.group_hr_manager"/>
-                    <button name="action_accounting_approve" type="object" string="Create Bank Payment" class="oe_highlight"
+                    <button name="action_sync_payroll_adjustments" type="object" string="Sync Payroll Adjustments"
+                            invisible="state not in ('draft', 'hr_approval')" groups="hr.group_hr_user"/>
+                    <button name="action_accounting_approve" type="object" string="Accounts Approve"
+                            class="oe_highlight"
                             invisible="state != 'accounts_approval'"
                             groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                    <button name="action_employee_accept" type="object" string="Employee Accepted" class="oe_highlight"
+                            invisible="state != 'employee_acceptance'" groups="hr.group_hr_user"/>
+                    <button name="action_employee_reject" type="object" string="Employee Rejected"
+                            invisible="state != 'employee_acceptance'" groups="hr.group_hr_user"/>
                     <button name="action_mark_done" type="object" string="Mark Done" class="oe_highlight"
                             invisible="state != 'payment'"
                             groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                    <button name="action_mark_recovery_collected" type="object" string="Mark Recovery Collected"
+                            class="oe_highlight"
+                            invisible="employee_recovery_amount &lt;= 0 or recovery_state != 'pending'"
+                            groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                    <button name="action_waive_recovery" type="object" string="Waive Recovery"
+                            invisible="employee_recovery_amount &lt;= 0 or recovery_state != 'pending'"
+                            groups="hr.group_hr_manager,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft"
-                            invisible="state not in ('hr_approval', 'accounts_approval', 'payment', 'cancel')"
+                            invisible="state not in ('hr_approval', 'accounts_approval', 'employee_acceptance', 'employee_rejected', 'payment', 'cancel')"
                             groups="hr.group_hr_manager,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
                     <button name="action_cancel" type="object" string="Cancel"
                             invisible="state in ('done', 'cancel')"
                             groups="hr.group_hr_manager,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,hr_approval,accounts_approval,payment,done"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,hr_approval,accounts_approval,employee_acceptance,payment,done"/>
                 </header>
                 <sheet>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="eligibility_status != 'not_eligible'">
+                        <field name="eligibility_message" readonly="1" nolabel="1"/>
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="state != 'employee_rejected'">
+                        Employee rejected this settlement. Reset to draft, revise the amounts, then resubmit.
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="employee_recovery_amount &lt;= 0">
+                        Net settlement is negative. No EOS payment will be created; the recoverable amount must be collected or waived before final offboarding release.
+                    </div>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_bank_payment" type="object" class="oe_stat_button" icon="fa-bank"
                                 invisible="bank_payment_count == 0">
@@ -127,37 +178,97 @@
                             <field name="date_hr_approval" readonly="1"/>
                             <field name="date_accounting_approval" readonly="1"/>
                             <field name="date_payment" readonly="1"/>
+                            <field name="employee_acceptance_state" readonly="1" widget="badge"
+                                   decoration-success="employee_acceptance_state == 'accepted'"
+                                   decoration-warning="employee_acceptance_state == 'sent'"
+                                   decoration-danger="employee_acceptance_state == 'rejected'"/>
+                            <field name="employee_acceptance_date" readonly="1"/>
                         </group>
                     </group>
                     <group string="Service Duration">
+                        <field name="service_period" readonly="1"/>
                         <field name="service_years" readonly="1"/>
-                        <field name="years" readonly="1"/>
-                        <field name="months" readonly="1"/>
-                        <field name="days" readonly="1"/>
+                        <field name="completed_years" readonly="1"/>
+                        <field name="remaining_months" readonly="1"/>
+                        <field name="remaining_days" readonly="1"/>
+                        <field name="eligibility_status" readonly="1" widget="badge"
+                               decoration-success="eligibility_status == 'eligible'"
+                               decoration-danger="eligibility_status == 'not_eligible'"/>
                     </group>
                     <group string="Settlement Amounts">
                         <group>
                             <field name="monthly_base_amount" readonly="1" widget="monetary"/>
                             <field name="daily_base_amount" readonly="1" widget="monetary"/>
-                            <field name="eos_benefit_amount" readonly="1" widget="monetary"/>
+                            <field name="eosb_formula_applied" readonly="1"/>
+                            <field name="eos_benefit_amount" readonly="1" widget="monetary"
+                                   style="color: green; font-size: 20px; font-weight: bold;"/>
                             <field name="annual_leave_type_id" readonly="1"/>
                             <field name="annual_leave_days" readonly="state != 'draft'"/>
                             <field name="leave_settlement_amount" readonly="1" widget="monetary"/>
+                            <field name="adjustment_addition_amount" readonly="1" widget="monetary"/>
                         </group>
                         <group>
                             <field name="other_amount" readonly="state != 'draft'" widget="monetary"/>
                             <field name="deduction_amount" readonly="state != 'draft'" widget="monetary"/>
+                            <field name="adjustment_deduction_amount" readonly="1" widget="monetary"/>
+                            <field name="payroll_adjustment_synced_date" readonly="1"/>
                             <field name="total_deserved_amount" readonly="1" widget="monetary"/>
                             <field name="previously_disbursed_amount" readonly="1" widget="monetary"/>
+                            <field name="net_settlement_amount" readonly="1" widget="monetary"/>
                             <field name="available_amount" readonly="1" widget="monetary"/>
-                            <field name="requested_amount" readonly="state != 'draft' or not is_partial" widget="monetary"/>
+                            <field name="employee_recovery_amount" readonly="1" widget="monetary"
+                                   decoration-danger="employee_recovery_amount &gt; 0"/>
+                            <field name="recovery_state" readonly="1" widget="badge"
+                                   decoration-success="recovery_state == 'recovered'"
+                                   decoration-warning="recovery_state == 'pending'"
+                                   decoration-muted="recovery_state in ('not_required', 'waived')"/>
+                            <field name="requested_amount" readonly="state != 'draft' or not is_partial"
+                                   widget="monetary"/>
                         </group>
                     </group>
                     <notebook>
+                        <page string="Arrears / Deductions">
+                            <field name="adjustment_line_ids" readonly="state not in ('draft', 'hr_approval')">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="category"/>
+                                    <field name="adjustment_type"/>
+                                    <field name="amount" widget="monetary"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="source_ref" readonly="1"/>
+                                    <field name="notes"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="name"/>
+                                        <field name="category"/>
+                                        <field name="adjustment_type"/>
+                                        <field name="amount" widget="monetary"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="source_ref" readonly="1"/>
+                                    </group>
+                                    <field name="notes"/>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Employee Acceptance">
+                            <group>
+                                <field name="employee_acceptance_state" readonly="1"/>
+                                <field name="employee_acceptance_date" readonly="1"/>
+                            </group>
+                            <group string="Rejection Reason" invisible="employee_acceptance_state != 'rejected'">
+                                <field name="employee_rejection_reason" readonly="1" nolabel="1"/>
+                            </group>
+                        </page>
                         <page string="Accounting">
                             <group>
                                 <field name="bank_payment_id" readonly="1"/>
                                 <field name="journal_entry_id" readonly="1"/>
+                                <field name="employee_recovery_amount" readonly="1" widget="monetary"/>
+                                <field name="recovery_state" readonly="1"/>
+                                <field name="recovery_date" readonly="1"/>
+                                <field name="recovery_note" readonly="state == 'cancel'"/>
                             </group>
                         </page>
                         <page string="Notes">
@@ -165,7 +276,10 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
@@ -187,7 +301,9 @@
         <field name="res_model">pr.end.of.service</field>
         <field name="view_mode">tree,form,pivot</field>
         <field name="search_view_id" ref="view_pr_end_of_service_search"/>
-        <field name="domain">[('state', 'in', ['accounts_approval', 'payment', 'done'])]</field>
+        <field name="domain">[('state', 'in', ['accounts_approval', 'employee_acceptance', 'employee_rejected',
+            'payment', 'done'])]
+        </field>
         <field name="context">{'search_default_accounts_approval': 1}</field>
     </record>
 
