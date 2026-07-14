@@ -19,7 +19,7 @@
 
 {
     "name": "Open PDF Reports and PDF Attachments in Browser",
-    "version": "17.0.1.0.1",
+    "version": "17.0.1.0.2",
     "summary": """
     Preview reports and pdf attachments in browser instead of downloading them.
     Open Report or PDF Attachment in new tab instead of downloading.
@@ -30,11 +30,15 @@
     "website": "https://cetmix.com",
     "live_test_url": "https://demo.cetmix.com",
     "depends": ["web"],
+    "data": [
+        "views/ir_attachment_views.xml",
+    ],
     "images": ["static/description/banner.png"],
     "assets": {
         "web.assets_backend": [
             "prt_report_attachment_preview/static/src/js/tools.esm.js",
             "prt_report_attachment_preview/static/src/js/report.esm.js",
+            "prt_report_attachment_preview/static/src/js/attachment_preview.esm.js",
         ],
     },
     "installable": True,

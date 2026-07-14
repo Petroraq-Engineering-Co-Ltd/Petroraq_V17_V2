@@ -7,6 +7,43 @@ from dateutil.relativedelta import relativedelta
 _logger = logging.getLogger(__name__)
 
 
+def _open_attachment_preview_action(record, attachments, title=None):
+    attachments = attachments.exists()
+    if not attachments:
+        raise UserError(_("No attachments found to preview."))
+    if len(attachments) == 1:
+        return attachments.action_preview_inline()
+
+    tree_view = record.env.ref(
+        "prt_report_attachment_preview.view_attachment_preview_tree",
+        raise_if_not_found=False,
+    )
+    form_view = record.env.ref(
+        "prt_report_attachment_preview.view_attachment_preview_form",
+        raise_if_not_found=False,
+    )
+    views = []
+    if tree_view:
+        views.append((tree_view.id, "tree"))
+    if form_view:
+        views.append((form_view.id, "form"))
+    action = {
+        "type": "ir.actions.act_window",
+        "name": title or _("Attachments"),
+        "res_model": "ir.attachment",
+        "view_mode": "tree,form",
+        "domain": [("id", "in", attachments.ids)],
+        "target": "current",
+        "context": {
+            "create": False,
+            "delete": False,
+        },
+    }
+    if views:
+        action["views"] = views
+    return action
+
+
 class PurchaseRequisition(models.Model):
     _name = "purchase.requisition"
     _description = "Purchase Requisition"
@@ -17,14 +54,14 @@ class PurchaseRequisition(models.Model):
         string="PR Number", required=True, copy=False, readonly=True, default="New"
     )
     date_request = fields.Date(
-        string="Date of Request", default=fields.Date.context_today
+        string="PR Date", default=fields.Date.context_today
     )
     requested_by = fields.Char(string="Requested By")
     requested_user_id = fields.Many2one("res.users", string="Requested User", readonly=True)
     department = fields.Char(string="Department")
     supervisor = fields.Char(string="Supervisor")
     supervisor_partner_id = fields.Char(string="supervisor_partner_id")
-    required_date = fields.Date(string="Required Date", readonly=True)
+    required_date = fields.Date(string="Required Date")
     priority = fields.Selection(
         [("low", "Low"), ("medium", "Medium"), ("high", "High"), ("urgent", "Urgent")],
         string="Priority",
@@ -45,7 +82,7 @@ class PurchaseRequisition(models.Model):
             ("approved", "Approved"),
         ],
         default="draft",
-        string="Approval",
+        string="PR Status",
         tracking=True,
     )
     wo_variance_requires_approval = fields.Boolean(
@@ -55,6 +92,16 @@ class PurchaseRequisition(models.Model):
         help="Quantity/unit cost exceeds WO baseline but total requested amount remains within allowed WO amount.",
     )
     comments = fields.Text(string="Comments")
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "purchase_requisition_attachment_rel",
+        "purchase_requisition_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Optional supporting documents copied to Cash PR payment requests and their CPV/BPV.",
+    )
+    attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
     vendor_id = fields.Many2one("res.partner", string="Preferred Vendor")
     total_excl_vat = fields.Float(
         string="Total Amount",
@@ -212,6 +259,27 @@ class PurchaseRequisition(models.Model):
         for rec in self:
             rec.allowed_cost_center_ids = rec.expense_bucket_id.crossovered_budget_line.mapped("analytic_account_id")
 
+    @api.depends("attachment_ids")
+    def _compute_attachment_count(self):
+        for rec in self:
+            rec.attachment_count = len(rec._get_supporting_attachments())
+
+    def _get_supporting_attachments(self):
+        self.ensure_one()
+        chatter_attachments = self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", self._name),
+            ("res_id", "=", self.id),
+        ])
+        return self.attachment_ids.sudo() | chatter_attachments
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return _open_attachment_preview_action(
+            self,
+            self._get_supporting_attachments(),
+            _("Attachments - %s") % self.display_name,
+        )
+
     def _required_date_from_priority(self, priority):
         today = fields.Date.context_today(self)
         offsets = {
@@ -222,6 +290,101 @@ class PurchaseRequisition(models.Model):
         }
         return today + relativedelta(days=offsets.get(priority, 0))
 
+    @api.model
+    def _find_request_employee(self, user=False, requested_by=False):
+        """Find the employee behind a PR even when the employee has no user.
+
+        Some requester employees are maintained in HR without a linked Odoo
+        user.  The PR still stores requester information as text/user fields,
+        so use the linked user first and then fall back to the typed requester
+        name.
+        """
+        Employee = self.env["hr.employee"].sudo().with_context(active_test=False)
+        employee = Employee
+        if user:
+            employee = Employee.search([("user_id", "=", user.id)], limit=1)
+        requester_name = (requested_by or "").strip()
+        if not employee and requester_name:
+            employee = Employee.search([("name", "=ilike", requester_name)], limit=1)
+        return employee
+
+    @api.model
+    def _get_budget_department(self, budget):
+        if not budget:
+            return self.env["hr.department"]
+        budget = budget.sudo()
+        if "department_id" in budget._fields and budget.department_id:
+            return budget.department_id
+        if "pr.budget.requisition" in self.env:
+            budget_requisition = self.env["pr.budget.requisition"].sudo().search([
+                ("generated_budget_id", "=", budget.id),
+            ], limit=1)
+            if budget_requisition.department_id:
+                return budget_requisition.department_id
+        return self.env["hr.department"]
+
+    @api.model
+    def _get_requisition_supervisor_user(self, requester=False, employee=False, budget=False):
+        supervisor_user = requester.supervisor_user_id if requester else False
+        if supervisor_user and supervisor_user.active:
+            return supervisor_user
+
+        employee = employee.sudo() if employee else self.env["hr.employee"]
+        if employee:
+            manager_user = employee.parent_id.user_id
+            if manager_user and manager_user.active:
+                return manager_user
+            department_manager_user = employee.department_id.manager_id.user_id
+            if department_manager_user and department_manager_user.active:
+                return department_manager_user
+
+        budget_department = self._get_budget_department(budget)
+        budget_manager_user = budget_department.manager_id.user_id
+        if budget_manager_user and budget_manager_user.active:
+            return budget_manager_user
+
+        if budget and "department_manager_user_id" in budget._fields and budget.department_manager_user_id:
+            if budget.department_manager_user_id.active:
+                return budget.department_manager_user_id
+        return self.env["res.users"]
+
+    @api.model
+    def _get_requester_context_values(self, requested_user=False, requested_by=False, budget=False):
+        employee = self._find_request_employee(requested_user, requested_by)
+        department = employee.department_id if employee and employee.department_id else self._get_budget_department(budget)
+        supervisor_user = self._get_requisition_supervisor_user(
+            requester=requested_user,
+            employee=employee,
+            budget=budget,
+        )
+        return {
+            "employee": employee,
+            "department": department,
+            "supervisor_user": supervisor_user,
+        }
+
+    def _sync_requester_department_supervisor(self):
+        if self.env.context.get("skip_pr_requester_sync"):
+            return
+        for rec in self:
+            requested_user = rec.requested_user_id.sudo() if rec.requested_user_id else self.env.user.sudo()
+            context_values = rec._get_requester_context_values(
+                requested_user=requested_user,
+                requested_by=rec.requested_by,
+                budget=rec.expense_bucket_id,
+            )
+            values = {}
+            department = context_values["department"]
+            if department and not rec.department:
+                values["department"] = department.name
+            supervisor_user = context_values["supervisor_user"]
+            if supervisor_user and (not rec.supervisor or not rec.supervisor_partner_id):
+                values["supervisor"] = rec.supervisor or supervisor_user.name
+                if supervisor_user.partner_id and not rec.supervisor_partner_id:
+                    values["supervisor_partner_id"] = str(supervisor_user.partner_id.id)
+            if values:
+                rec.with_context(skip_pr_requester_sync=True).sudo().write(values)
+
     @api.onchange("priority")
     def _onchange_priority_set_required_date(self):
         for rec in self:
@@ -229,7 +392,72 @@ class PurchaseRequisition(models.Model):
                 rec.required_date = rec._required_date_from_priority(rec.priority)
 
     @api.model
+    def _to_float(self, value):
+        try:
+            return float(value or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @api.model
+    def _product_from_line_vals(self, vals):
+        product_id = vals.get("description")
+        if not product_id:
+            return self.env["product.product"]
+        try:
+            product_id = int(product_id)
+        except (TypeError, ValueError):
+            return self.env["product.product"]
+        return self.env["product.product"].browse(product_id).exists()
+
+    @api.model
+    def _line_vals_amount(self, vals):
+        quantity = self._to_float(vals.get("quantity"))
+        if "unit_price" in vals:
+            unit_price = self._to_float(vals.get("unit_price"))
+        else:
+            product = self._product_from_line_vals(vals)
+            unit_price = self.env["purchase.requisition.line"]._get_product_purchase_defaults(product)["unit_price"]
+        return quantity * unit_price
+
+    @api.model
+    def _has_positive_line_command(self, commands):
+        for command in commands or []:
+            if not isinstance(command, (list, tuple)) or not command:
+                continue
+            operation = command[0]
+            if operation == 0 and len(command) > 2:
+                if self._line_vals_amount(command[2] or {}) > 0.0:
+                    return True
+            elif operation == 1 and len(command) > 2:
+                line = self.env["purchase.requisition.line"].browse(command[1]).exists()
+                if line:
+                    vals = {
+                        "description": line.description.id,
+                        "quantity": line.quantity,
+                        "unit_price": line.unit_price,
+                    }
+                    vals.update(command[2] or {})
+                    if self._line_vals_amount(vals) > 0.0:
+                        return True
+            elif operation == 4 and len(command) > 1:
+                line = self.env["purchase.requisition.line"].browse(command[1]).exists()
+                if line and line.total_price > 0.0:
+                    return True
+            elif operation == 6 and len(command) > 2:
+                lines = self.env["purchase.requisition.line"].browse(command[2]).exists()
+                if any(line.total_price > 0.0 for line in lines):
+                    return True
+        return False
+
+    @api.model
+    def _check_create_has_positive_line(self, vals):
+        if not self._has_positive_line_command(vals.get("line_ids")):
+            raise ValidationError(_("A purchase requisition requires at least one line item with a positive amount."))
+
+    @api.model
     def create(self, vals):
+        self._check_create_has_positive_line(vals)
+
         if vals.get("priority"):
             vals["required_date"] = self._required_date_from_priority(vals["priority"])
 
@@ -238,18 +466,23 @@ class PurchaseRequisition(models.Model):
 
         requester = self.env["res.users"].sudo().browse(vals.get("requested_user_id")) if vals.get(
             "requested_user_id") else self.env.user
-
-        employee = self.env["hr.employee"].sudo().search([
-            ("user_id", "=", requester.id)
-        ], limit=1) if requester else False
+        budget = self.env["crossovered.budget"].sudo().browse(vals.get("expense_bucket_id")).exists() if vals.get(
+            "expense_bucket_id") else False
+        context_values = self._get_requester_context_values(
+            requested_user=requester,
+            requested_by=vals.get("requested_by"),
+            budget=budget,
+        )
+        employee = context_values["employee"]
 
         if not vals.get("requested_by"):
             vals["requested_by"] = employee.name if employee else (requester.name if requester else self.env.user.name)
 
-        if not vals.get("department") and employee and employee.department_id:
-            vals["department"] = employee.department_id.name
+        department = context_values["department"]
+        if not vals.get("department") and department:
+            vals["department"] = department.name
 
-        supervisor_user = requester.supervisor_user_id if requester else False
+        supervisor_user = context_values["supervisor_user"]
         if supervisor_user:
             vals["supervisor"] = vals.get("supervisor") or supervisor_user.name
             vals["supervisor_partner_id"] = vals.get("supervisor_partner_id") or str(supervisor_user.partner_id.id)
@@ -274,14 +507,16 @@ class PurchaseRequisition(models.Model):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         user = self.env.user
-        employee = self.env["hr.employee"].sudo().search([("user_id", "=", user.id)], limit=1)
-        supervisor_user = user.supervisor_user_id
+        context_values = self._get_requester_context_values(requested_user=user)
+        employee = context_values["employee"]
+        supervisor_user = context_values["supervisor_user"]
+        department = context_values["department"]
 
         if employee:
             res.update({
                 "requested_by": employee.name,
                 "requested_user_id": user.id,
-                "department": employee.department_id.name if employee.department_id else False,
+                "department": department.name if department else False,
                 "supervisor": supervisor_user.name if supervisor_user else (
                     employee.parent_id.name if employee.parent_id else False
                 ),
@@ -346,6 +581,9 @@ class PurchaseRequisition(models.Model):
                     elif new_approval in ("draft", "pending") and custom_pr.approval != "pending":
                         custom_pr.write({"approval": "pending"})
 
+        if any(field in vals for field in ("requested_user_id", "requested_by", "expense_bucket_id")):
+            self._sync_requester_department_supervisor()
+
         return res
 
     @api.depends("line_ids.total_price")
@@ -376,6 +614,19 @@ class PurchaseRequisition(models.Model):
                 continue
             rec.expense_scope = bucket.scope
             rec.expense_type = bucket.expense_type
+            department = rec._get_budget_department(bucket)
+            if department and not rec.department:
+                rec.department = department.name
+            employee = rec._find_request_employee(rec.requested_user_id, rec.requested_by)
+            supervisor_user = rec._get_requisition_supervisor_user(
+                requester=rec.requested_user_id,
+                employee=employee,
+                budget=bucket,
+            )
+            if supervisor_user and (not rec.supervisor or not rec.supervisor_partner_id):
+                rec.supervisor = rec.supervisor or supervisor_user.name
+                if supervisor_user.partner_id and not rec.supervisor_partner_id:
+                    rec.supervisor_partner_id = str(supervisor_user.partner_id.id)
             allowed = bucket.crossovered_budget_line.mapped("analytic_account_id")
             for line in rec.line_ids:
                 if line.cost_center_id and line.cost_center_id not in allowed:
@@ -469,6 +720,16 @@ class PurchaseRequisition(models.Model):
         for rec in self.filtered("expense_bucket_id"):
             rec.expense_bucket_id.sudo()._check_active_for_date(rec._budget_usage_date())
 
+    @api.model
+    def _analytic_distribution_account_ids(self, distribution):
+        account_ids = set()
+        for analytic_key in (distribution or {}):
+            for key_part in str(analytic_key).split(","):
+                key_part = key_part.strip()
+                if key_part.isdigit():
+                    account_ids.add(int(key_part))
+        return account_ids
+
     def _amount_by_cost_center(self, remaining_quantities=False):
         self.ensure_one()
         amount_by_cost_center = {}
@@ -498,9 +759,14 @@ class PurchaseRequisition(models.Model):
         if self.pr_type == "cash":
             return self._amount_by_cost_center()
 
-        return self._amount_by_cost_center(
-            remaining_quantities=self._get_remaining_requisition_line_quantities()
-        )
+        downstream_po_count = self.env["purchase.order.line"].sudo().search_count([
+            ("order_id.requisition_id", "=", self.id),
+            ("order_id.state", "in", ["pending", "purchase", "done"]),
+        ])
+        if downstream_po_count:
+            return {}
+
+        return self._amount_by_cost_center()
 
     def _get_selected_budget_remaining_by_cost_center(self):
         self.ensure_one()
@@ -646,6 +912,66 @@ class PurchaseRequisition(models.Model):
                     % (cc.display_name, remaining, amount)
                 )
 
+    def _resolve_voucher_budget_cost_center(self, voucher_line, raise_if_missing=True):
+        """Return the PR cost center that owns a generated voucher line's budget.
+
+        Voucher analytic distributions can also contain project, employee,
+        asset, department, and section dimensions. Those dimensions are valid
+        for accounting analysis, but they must not each be treated as a budget
+        cost center.
+        """
+        self.ensure_one()
+        explicit_cost_center = (
+            voucher_line.budget_cost_center_id
+            if "budget_cost_center_id" in voucher_line._fields
+            else False
+        )
+        if explicit_cost_center:
+            return explicit_cost_center
+
+        # Compatibility for vouchers generated before budget_cost_center_id
+        # existed: identify the one selected-budget PR cost center present in
+        # the analytic distribution.
+        pr_cost_centers = self.line_ids.mapped("cost_center_id")
+        if self.expense_bucket_id:
+            allowed_cost_centers = self.expense_bucket_id.crossovered_budget_line.mapped(
+                "analytic_account_id"
+            )
+            pr_cost_centers &= allowed_cost_centers
+
+        distribution_ids = set()
+        for analytic_key in (voucher_line.analytic_distribution or {}):
+            for key_part in str(analytic_key).split(","):
+                if key_part.strip().isdigit():
+                    distribution_ids.add(int(key_part))
+        matching_cost_centers = pr_cost_centers.filtered(
+            lambda cost_center: cost_center.id in distribution_ids
+        )
+        if len(matching_cost_centers) == 1:
+            return matching_cost_centers
+        if len(pr_cost_centers) == 1:
+            return pr_cost_centers
+
+        if raise_if_missing:
+            raise UserError(_(
+                "Unable to identify the original PR budget cost center for voucher line '%s'. "
+                "Please recreate the payment voucher from its payment request."
+            ) % (voucher_line.description or _("Unnamed line")))
+        return self.env["account.analytic.account"]
+
+    def _get_voucher_budget_amounts(self, voucher_lines):
+        """Group voucher amounts only by their originating PR cost centers."""
+        self.ensure_one()
+        amount_by_cost_center = {}
+        for line in voucher_lines:
+            cost_center = self._resolve_voucher_budget_cost_center(line)
+            amount_by_cost_center.setdefault(cost_center.id, {
+                "cc": cost_center,
+                "amount": 0.0,
+            })
+            amount_by_cost_center[cost_center.id]["amount"] += line.amount or 0.0
+        return amount_by_cost_center
+
     @api.constrains("expense_type", "expense_bucket_id", "date_request")
     def _check_expense_bucket_period(self):
         for rec in self:
@@ -721,15 +1047,173 @@ class PurchaseRequisition(models.Model):
         return True
 
     def action_reset_to_draft(self):
-        for rec in self:
-            if rec.approval != "rejected":
-                raise UserError(_("Only rejected Purchase Requisitions can be reset to draft."))
-            rec.write({
-                "approval": "draft",
-                "rejection_reason": False,
-            })
-            rec.message_post(body=_("Purchase Requisition reset to draft."))
-        return True
+        self.ensure_one()
+        impact = self._get_reset_to_draft_impact()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reset Purchase Requisition to Draft"),
+            "res_model": "purchase.requisition.reset.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_requisition_id": self.id,
+                "default_warning_message": impact["warning_message"],
+            },
+        }
+
+    def _get_reset_to_draft_impact(self):
+        """Validate reset eligibility and return records that may be deleted."""
+        self.ensure_one()
+        if self.approval not in ("rejected", "approved"):
+            raise UserError(_(
+                "Only rejected or approved Purchase Requisitions can be reset to draft."
+            ))
+
+        if self.pr_type == "cash":
+            payment_requests = self.env[
+                "purchase.requisition.payment.request"
+            ].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            cash_vouchers = self.env["pr.account.cash.payment"].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            bank_vouchers = self.env["pr.account.bank.payment"].sudo().search([
+                ("purchase_requisition_id", "=", self.id),
+            ])
+            cash_vouchers |= self.cash_payment_id.sudo().exists()
+            bank_vouchers |= self.bank_payment_id.sudo().exists()
+            cash_vouchers |= payment_requests.mapped("cash_payment_id").sudo().exists()
+            bank_vouchers |= payment_requests.mapped("bank_payment_id").sudo().exists()
+
+            if cash_vouchers or bank_vouchers:
+                voucher_names = ", ".join(
+                    cash_vouchers.mapped("display_name")
+                    + bank_vouchers.mapped("display_name")
+                )
+                raise UserError(_(
+                    "This Cash PR cannot be reset because CPV/BPV record(s) already exist: %s. "
+                    "Cancel or reverse the downstream voucher process first."
+                ) % (voucher_names or _("Unnamed voucher")))
+
+            advanced_requests = payment_requests.filtered(
+                lambda request: request.state != "requested"
+            )
+            if advanced_requests:
+                request_states = ", ".join(
+                    "%s (%s)" % (
+                        request.display_name,
+                        dict(request._fields["state"].selection).get(
+                            request.state,
+                            request.state,
+                        ),
+                    )
+                    for request in advanced_requests
+                )
+                raise UserError(_(
+                    "This Cash PR cannot be reset because its Payment Request is no longer "
+                    "in the draft/requested stage: %s."
+                ) % request_states)
+
+            if payment_requests:
+                warning_message = _(
+                    "Payment Request %(requests)s is still in the draft/requested stage. "
+                    "Confirming will permanently delete the Payment Request and its owned "
+                    "attachments, then reset this Cash PR to Draft."
+                ) % {"requests": ", ".join(payment_requests.mapped("display_name"))}
+            else:
+                warning_message = _(
+                    "No Payment Request, CPV, or BPV exists. Confirming will reset this "
+                    "Cash PR to Draft."
+                )
+            return {
+                "payment_requests": payment_requests,
+                "rfqs": self.env["purchase.order"],
+                "warning_message": warning_message,
+            }
+
+        rfqs = self.env["purchase.order"].sudo().search([
+            ("requisition_id", "=", self.id),
+        ])
+        non_draft_rfqs = rfqs.filtered(lambda order: order.state != "draft")
+        if non_draft_rfqs:
+            rfq_states = ", ".join(
+                "%s (%s)" % (
+                    order.display_name,
+                    dict(order._fields["state"].selection).get(
+                        order.state,
+                        order.state,
+                    ),
+                )
+                for order in non_draft_rfqs
+            )
+            raise UserError(_(
+                "This Purchase Requisition cannot be reset because these RFQ/PO records "
+                "are no longer in Draft: %s."
+            ) % rfq_states)
+
+        if rfqs:
+            warning_message = _(
+                "Draft RFQ record(s) %(rfqs)s will be permanently deleted before this "
+                "Purchase Requisition is reset to Draft."
+            ) % {"rfqs": ", ".join(rfqs.mapped("display_name"))}
+        else:
+            warning_message = _(
+                "No RFQ or Purchase Order exists. Confirming will reset this Purchase "
+                "Requisition to Draft."
+            )
+        return {
+            "payment_requests": self.env["purchase.requisition.payment.request"],
+            "rfqs": rfqs,
+            "warning_message": warning_message,
+        }
+
+    def _confirm_reset_to_draft(self):
+        self.ensure_one()
+        impact = self._get_reset_to_draft_impact()
+        deleted_documents = []
+
+        for payment_request in impact["payment_requests"]:
+            deleted_documents.append(payment_request.display_name)
+            owned_attachments = payment_request._get_supporting_attachments().filtered(
+                lambda attachment: (
+                    attachment.res_model == payment_request._name
+                    and attachment.res_id == payment_request.id
+                )
+            )
+            payment_request.sudo().unlink()
+            owned_attachments.sudo().exists().unlink()
+
+        if impact["rfqs"]:
+            deleted_documents.extend(impact["rfqs"].mapped("display_name"))
+            impact["rfqs"].sudo().unlink()
+
+        self.sudo().write({
+            "approval": "draft",
+            "status": "pr",
+            "rejection_reason": False,
+            "payment_request_id": False,
+            "cash_payment_id": False,
+            "bank_payment_id": False,
+            "cash_pr_payment_method": False,
+            "cash_pr_payment_account_id": False,
+        })
+        if deleted_documents:
+            self.message_post(
+                body=_(
+                    "Purchase Requisition reset to Draft. Deleted draft downstream "
+                    "record(s): %s"
+                ) % ", ".join(deleted_documents)
+            )
+        else:
+            self.message_post(body=_("Purchase Requisition reset to Draft."))
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": self._name,
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "current",
+        }
 
     def action_supervisor_approve(self):
         for rec in self:
@@ -756,11 +1240,28 @@ class PurchaseRequisition(models.Model):
         for rec in self:
             try:
                 requester = rec.requested_user_id.sudo() if rec.requested_user_id else self.env.user.sudo()
-                supervisor_user = requester.supervisor_user_id if requester else False
+                employee = rec._find_request_employee(requester, rec.requested_by)
+                supervisor_user = rec._get_requisition_supervisor_user(
+                    requester=requester,
+                    employee=employee,
+                    budget=rec.expense_bucket_id,
+                )
 
                 if not supervisor_user:
-                    _logger.warning("No supervisor configured for requester on PR=%s", rec.name)
+                    _logger.warning(
+                        "No supervisor/department manager configured for requester or budget on PR=%s",
+                        rec.name,
+                    )
                     continue
+
+                if not rec.supervisor or not rec.supervisor_partner_id:
+                    rec.with_context(skip_pr_requester_sync=True).sudo().write({
+                        "supervisor": rec.supervisor or supervisor_user.name,
+                        "supervisor_partner_id": (
+                            rec.supervisor_partner_id
+                            or (str(supervisor_user.partner_id.id) if supervisor_user.partner_id else False)
+                        ),
+                    })
 
                 rec.activity_schedule(
                     activity_type_id=self.env.ref("mail.mail_activity_data_todo").id,
@@ -958,8 +1459,7 @@ class PurchaseRequisition(models.Model):
                 quantities[requisition_line.id] += line.product_qty or 0.0
                 continue
 
-            distribution = line.analytic_distribution or {}
-            distribution_cc_ids = {int(key) for key in distribution.keys() if str(key).isdigit()}
+            distribution_cc_ids = self._analytic_distribution_account_ids(line.analytic_distribution)
             candidates = requisition_lines.filtered(
                 lambda req_line: req_line.description.id == line.product_id.id
                 and (
@@ -1087,6 +1587,7 @@ class PurchaseRequisition(models.Model):
                 "account_id": self._get_cash_pr_expense_account(line).id,
                 "description": line._get_document_line_description(),
                 "reference_number": self.name,
+                "budget_cost_center_id": line.cost_center_id.id,
                 "cs_project_id": line.cost_center_id.id if cost_center_is_project else False,
                 "partner_id": self.vendor_id.id if self.vendor_id else False,
                 "amount": amount,
@@ -1478,9 +1979,16 @@ class PurchaseRequisition(models.Model):
             current_user = rec.env.user
             current_partner_id = current_user.partner_id.id if current_user.partner_id else 0
             requester_supervisor = rec.requested_user_id.supervisor_user_id if rec.requested_user_id else False
+            employee = rec._find_request_employee(rec.requested_user_id, rec.requested_by)
+            resolved_supervisor = rec._get_requisition_supervisor_user(
+                requester=rec.requested_user_id,
+                employee=employee,
+                budget=rec.expense_bucket_id,
+            )
 
             rec.is_supervisor = (
                     (requester_supervisor and requester_supervisor.id == current_user.id)
+                    or (resolved_supervisor and resolved_supervisor.id == current_user.id)
                     or (supervisor_partner_id == current_partner_id)
             )
 
@@ -1501,6 +2009,32 @@ class PurchaseRequisitionRejectWizard(models.TransientModel):
             "rejection_reason": self.rejection_reason,
         })
         return {"type": "ir.actions.act_window_close"}
+
+
+class PurchaseRequisitionResetWizard(models.TransientModel):
+    _name = "purchase.requisition.reset.wizard"
+    _description = "Purchase Requisition Reset Wizard"
+
+    requisition_id = fields.Many2one(
+        "purchase.requisition",
+        string="Purchase Requisition",
+        required=True,
+        readonly=True,
+    )
+    warning_message = fields.Text(
+        string="Reset Impact",
+        required=True,
+        readonly=True,
+    )
+    confirm_reset = fields.Boolean(
+        string="I understand that the listed draft records will be permanently deleted.",
+    )
+
+    def action_confirm_reset(self):
+        self.ensure_one()
+        if not self.confirm_reset:
+            raise UserError(_("Please confirm the reset and deletion warning."))
+        return self.requisition_id._confirm_reset_to_draft()
 
 
 class PurchaseRequisitionLine(models.Model):
@@ -1585,9 +2119,14 @@ class PurchaseRequisitionLine(models.Model):
             vals = dict(vals)
             product = self.env["product.product"].browse(vals.get("description")).exists()
             defaults = self._get_product_purchase_defaults(product)
+            product_actually_changed = any(
+                line.description != product
+                for line in self
+            )
             vals["type"] = defaults["type"]
             vals["unit"] = defaults["unit"]
-            vals.setdefault("unit_price", defaults["unit_price"])
+            if product_actually_changed:
+                vals.setdefault("unit_price", defaults["unit_price"])
         return super().write(vals)
 
     @api.depends("description")
@@ -1598,7 +2137,9 @@ class PurchaseRequisitionLine(models.Model):
 
     def _inverse_product_internal_reference(self):
         for line in self:
-            line.description = line.product_internal_reference.product_id
+            product = line.product_internal_reference.product_id
+            if line.description != product:
+                line.description = product
 
     @api.onchange("product_internal_reference")
     def _onchange_product_internal_reference(self):
@@ -1862,35 +2403,14 @@ class AccountCashPayment(models.Model):
     )
 
     def _check_purchase_requisition_voucher_budget(self, line_field):
-        AnalyticAccount = self.env["account.analytic.account"].sudo()
         for voucher in self.filtered("purchase_requisition_id"):
             if voucher.state != "draft":
                 continue
-            amount_by_cost_center = {}
-            for line in voucher[line_field]:
-                distribution = line.analytic_distribution or {}
-                if not distribution:
-                    raise UserError(_("Every Cash PR voucher line must have a cost center."))
-                for analytic_key, percentage in distribution.items():
-                    try:
-                        percentage = float(percentage or 0.0)
-                    except (TypeError, ValueError):
-                        percentage = 0.0
-                    if not percentage:
-                        continue
-                    for key_part in str(analytic_key).split(","):
-                        if not key_part.strip().isdigit():
-                            continue
-                        analytic = AnalyticAccount.browse(int(key_part)).exists()
-                        if not analytic:
-                            continue
-                        amount_by_cost_center.setdefault(analytic.id, {
-                            "cc": analytic,
-                            "amount": 0.0,
-                        })
-                        amount_by_cost_center[analytic.id]["amount"] += (
-                            (line.amount or 0.0) * percentage / 100.0
-                        )
+            amount_by_cost_center = (
+                voucher.purchase_requisition_id._get_voucher_budget_amounts(
+                    voucher[line_field]
+                )
+            )
             for item in amount_by_cost_center.values():
                 if item["amount"] <= 0.0:
                     raise UserError(_("Cash PR voucher lines must have a positive amount."))
@@ -1919,35 +2439,14 @@ class AccountBankPayment(models.Model):
     )
 
     def _check_purchase_requisition_voucher_budget(self, line_field):
-        AnalyticAccount = self.env["account.analytic.account"].sudo()
         for voucher in self.filtered("purchase_requisition_id"):
             if voucher.state != "draft":
                 continue
-            amount_by_cost_center = {}
-            for line in voucher[line_field]:
-                distribution = line.analytic_distribution or {}
-                if not distribution:
-                    raise UserError(_("Every Cash PR voucher line must have a cost center."))
-                for analytic_key, percentage in distribution.items():
-                    try:
-                        percentage = float(percentage or 0.0)
-                    except (TypeError, ValueError):
-                        percentage = 0.0
-                    if not percentage:
-                        continue
-                    for key_part in str(analytic_key).split(","):
-                        if not key_part.strip().isdigit():
-                            continue
-                        analytic = AnalyticAccount.browse(int(key_part)).exists()
-                        if not analytic:
-                            continue
-                        amount_by_cost_center.setdefault(analytic.id, {
-                            "cc": analytic,
-                            "amount": 0.0,
-                        })
-                        amount_by_cost_center[analytic.id]["amount"] += (
-                            (line.amount or 0.0) * percentage / 100.0
-                        )
+            amount_by_cost_center = (
+                voucher.purchase_requisition_id._get_voucher_budget_amounts(
+                    voucher[line_field]
+                )
+            )
             for item in amount_by_cost_center.values():
                 if item["amount"] <= 0.0:
                     raise UserError(_("Cash PR voucher lines must have a positive amount."))
@@ -1963,6 +2462,30 @@ class AccountBankPayment(models.Model):
             "status": "completed",
         })
         return res
+
+
+class AccountCashPaymentLine(models.Model):
+    _inherit = "pr.account.cash.payment.line"
+
+    budget_cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="PR Budget Cost Center",
+        readonly=True,
+        copy=False,
+        help="Original Cash PR cost center used exclusively for budget validation.",
+    )
+
+
+class AccountBankPaymentLine(models.Model):
+    _inherit = "pr.account.bank.payment.line"
+
+    budget_cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="PR Budget Cost Center",
+        readonly=True,
+        copy=False,
+        help="Original Cash PR cost center used exclusively for budget validation.",
+    )
 
 
 class PurchaseQuotation(models.Model):

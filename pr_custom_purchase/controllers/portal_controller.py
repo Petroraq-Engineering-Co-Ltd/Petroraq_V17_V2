@@ -240,6 +240,20 @@ class PortalPR(http.Controller):
             .sudo()
             .search([("user_id", "=", request.env.user.id)], limit=1)
         )
+        cost_center_id = int(post.get("cost_center_id") or 0) or False
+        line_items = []
+        index = 1
+        while f"item_description_{index}" in post:
+            item = {
+                "description": post.get(f"item_description_{index}"),
+                "type": post.get(f"item_type_{index}"),
+                "quantity": float(post.get(f"quantity_{index}") or 0),
+                "unit": post.get(f"unit_{index}"),
+                "unit_price": float(post.get(f"unit_price_{index}") or 0),
+                "cost_center_id": cost_center_id,
+            }
+            line_items.append(item)
+            index += 1
 
         requisition = (
             request.env["purchase.requisition"]
@@ -255,32 +269,17 @@ class PortalPR(http.Controller):
                     ),
                     "required_date": post.get("required_date"),
                     "priority": post.get("priority"),
-                    "cost_center_id": int(post.get("cost_center_id") or 0) or False,
+                    "cost_center_id": cost_center_id,
                     "budget_type": post.get("budget_type_selector"),
                     "budget_details": post.get("budget_input_field"),
                     "notes": post.get("notes"),
                     "pr_type": post.get("pr_type") or "pr",
                     # This HTTP route is itself the portal's explicit Submit action.
                     "approval": "pending",
+                    "line_ids": [(0, 0, item) for item in line_items],
                 }
             )
         )
-
-        line_items = []
-        index = 1
-        while f"item_description_{index}" in post:
-            item = {
-                "description": post.get(f"item_description_{index}"),
-                "type": post.get(f"item_type_{index}"),
-                "quantity": float(post.get(f"quantity_{index}") or 0),
-                "unit": post.get(f"unit_{index}"),
-                "unit_price": float(post.get(f"unit_price_{index}") or 0),
-            }
-            line_items.append(item)
-            request.env["purchase.requisition.line"].sudo().create(
-                {"requisition_id": requisition.id, **item}
-            )
-            index += 1
 
         # Model creation no longer starts approval automatically. The portal form
         # already has an explicit Submit button, so start its approval workflow here.

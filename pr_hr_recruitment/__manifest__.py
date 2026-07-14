@@ -18,7 +18,7 @@
     'category': 'Human Resources/Employees/Recruitment',
     'version': '17.0.1.0.3',
     # any module necessary for this one to work correctly
-    'depends': ['pr_hr_account', 'website_hr_recruitment', 'de_hr_workspace', 'mail', 'pr_tax_Invoice_report_custom'],
+    'depends': ['pr_hr_account', 'website_hr_recruitment', 'de_hr_workspace', 'mail', 'pr_tax_Invoice_report_custom', 'prt_report_attachment_preview'],
 
     # always loaded
     'data': [
