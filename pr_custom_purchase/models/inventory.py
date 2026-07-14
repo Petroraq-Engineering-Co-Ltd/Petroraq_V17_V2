@@ -109,6 +109,8 @@ class GrnSes(models.Model):
 
         existing_draft = self.bill_ids.filtered(lambda b: b.state == "draft")[:1]
         if existing_draft:
+            if self.purchase_order_id:
+                self.purchase_order_id._copy_purchase_attachments_to_moves(existing_draft)
             return {
                 "type": "ir.actions.act_window",
                 "name": _("Vendor Bill"),
@@ -151,6 +153,8 @@ class GrnSes(models.Model):
             "journal_id": purchase_journal.id,
             "company_id": company.id,
         })
+        if self.purchase_order_id:
+            self.purchase_order_id._copy_purchase_attachments_to_moves(bill)
 
         self.message_post(body=_("Vendor Bill %s created from %s.") % (bill.name or bill.id, self.name))
 

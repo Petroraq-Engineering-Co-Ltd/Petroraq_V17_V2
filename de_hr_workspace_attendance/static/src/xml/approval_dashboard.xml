@@ -4,7 +4,6 @@
     <t t-name="de_hr_workspace_attendance.ApprovalDashboard">
         <div class="o_action_manager de-approval-dashboard">
             <div class="o_content">
-                <!-- HERO BANNER -->
                 <div class="de-dashboard-hero">
                     <div class="de-dashboard-hero-overlay"/>
                     <div class="de-dashboard-hero-content">
@@ -17,20 +16,23 @@
                                 Approvals <span class="de-accent">Dashboard</span><span class="de-accent">.</span>
                             </h1>
                             <p class="de-dashboard-subtitle mb-0">
-                                Track pending items across all approval menus and jump directly into action.
+                                Track pending items by business area and jump directly into the right approval list.
                             </p>
                             <div class="de-hero-divider"/>
                         </div>
                         <div class="de-dashboard-hero-right">
+                            <div class="de-dashboard-total-pill">
+                                <span t-esc="totalPendingCount"/>
+                                <small>pending</small>
+                            </div>
                             <button class="btn de-dashboard-refresh" t-on-click="refresh">
                                 <i class="fa fa-refresh me-2"/> Refresh
-                                <span class="de-btn-arrow">→</span>
+                                <i class="fa fa-arrow-right ms-2 de-btn-arrow"/>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- LOADING STATE -->
                 <t t-if="state.loading">
                     <div class="de-loading-wrap">
                         <div class="de-spinner"/>
@@ -38,43 +40,100 @@
                     </div>
                 </t>
 
-                <!-- TILES GRID -->
                 <t t-else="">
-                    <div class="de-section-header">
-                        <h3 class="de-section-title">Pending Approvals</h3>
-                        <div class="de-section-underline"/>
-                    </div>
+                    <t t-if="!selectedSection">
+                        <div class="de-section-header">
+                            <h3 class="de-section-title">Approval Sections</h3>
+                            <div class="de-section-underline"/>
+                        </div>
 
-                    <div class="row g-4 de-dashboard-grid">
-                        <t t-foreach="state.tiles" t-as="tile" t-key="tile.key">
-                            <div class="col-12 col-md-6 col-xl-4">
-                                <button t-att-class="tileClass(tile)"
-                                        t-att-data-tile-key="tile.key"
-                                        t-att-data-action-id="tile.action_id"
-                                        t-on-click="openTile">
-                                    <div class="de-tile-shine"/>
-                                    <t t-if="tile.count &gt; 0">
-                                        <span class="de-dashboard-pending-dot" title="Pending approvals">
-                                            <span class="de-dot-inner"/>
-                                        </span>
-                                    </t>
-                                    <div class="de-dashboard-icon">
-                                        <div t-att-class="iconBoxClass(tile)">
-                                            <i t-att-class="`fa ${tile.icon || 'fa-cubes'}`"/>
+                        <div class="row g-4 de-section-grid">
+                            <t t-foreach="state.sections" t-as="section" t-key="section.key">
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <button t-att-class="sectionClass(section)"
+                                            t-att-data-section-key="section.key"
+                                            t-on-click="openSection">
+                                        <div class="de-tile-shine"/>
+                                        <t t-if="section.count &gt; 0">
+                                            <span class="de-dashboard-pending-dot" title="Pending approvals">
+                                                <span class="de-dot-inner"/>
+                                            </span>
+                                        </t>
+                                        <div class="de-dashboard-icon">
+                                            <div t-att-class="iconBoxClass(section)">
+                                                <i t-att-class="`fa ${section.icon || 'fa-cubes'}`"/>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="de-dashboard-info">
-                                        <div class="de-dashboard-count" t-esc="tile.count"/>
-                                        <div class="de-dashboard-label" t-esc="tile.name"/>
-                                        <div class="de-dashboard-hint">
-                                            <span>Open list view</span>
-                                            <i class="fa fa-arrow-right ms-2 de-hint-arrow"/>
+                                        <div class="de-dashboard-info">
+                                            <div class="de-dashboard-count" t-esc="section.count"/>
+                                            <div class="de-dashboard-label" t-esc="section.name"/>
+                                            <div class="de-dashboard-hint">
+                                                <span t-esc="`${section.tiles.length} approval menu${section.tiles.length === 1 ? '' : 's'}`"/>
+                                                <i class="fa fa-arrow-right ms-2 de-hint-arrow"/>
+                                            </div>
                                         </div>
+                                    </button>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <t t-else="">
+                        <div class="de-section-header de-section-header-drilldown">
+                            <button class="btn de-dashboard-back" t-on-click="backToSections">
+                                <i class="fa fa-arrow-left me-2"/> Sections
+                            </button>
+                            <div>
+                                <h3 class="de-section-title mb-1">
+                                    <span t-esc="selectedSection.name"/>
+                                    <span class="de-section-count-badge" t-esc="selectedSection.count"/>
+                                </h3>
+                                <p class="de-section-subtitle mb-0">
+                                    Open any approval list inside this section.
+                                </p>
+                            </div>
+                            <div class="de-section-underline"/>
+                        </div>
+
+                        <t t-if="selectedTiles.length">
+                            <div class="row g-4 de-dashboard-grid">
+                                <t t-foreach="selectedTiles" t-as="tile" t-key="tile.key">
+                                    <div class="col-12 col-md-6 col-xl-4">
+                                        <button t-att-class="tileClass(tile)"
+                                                t-att-data-tile-key="tile.key"
+                                                t-att-data-action-id="tile.action_id"
+                                                t-on-click="openTile">
+                                            <div class="de-tile-shine"/>
+                                            <t t-if="tile.count &gt; 0">
+                                                <span class="de-dashboard-pending-dot" title="Pending approvals">
+                                                    <span class="de-dot-inner"/>
+                                                </span>
+                                            </t>
+                                            <div class="de-dashboard-icon">
+                                                <div t-att-class="iconBoxClass(tile)">
+                                                    <i t-att-class="`fa ${tile.icon || 'fa-cubes'}`"/>
+                                                </div>
+                                            </div>
+                                            <div class="de-dashboard-info">
+                                                <div class="de-dashboard-count" t-esc="tile.count"/>
+                                                <div class="de-dashboard-label" t-esc="tile.name"/>
+                                                <div class="de-dashboard-hint">
+                                                    <span>Open list view</span>
+                                                    <i class="fa fa-arrow-right ms-2 de-hint-arrow"/>
+                                                </div>
+                                            </div>
+                                        </button>
                                     </div>
-                                </button>
+                                </t>
                             </div>
                         </t>
-                    </div>
+                        <t t-else="">
+                            <div class="de-dashboard-empty">
+                                <i class="fa fa-check-circle"/>
+                                <p>No approval menus available in this section.</p>
+                            </div>
+                        </t>
+                    </t>
                 </t>
             </div>
         </div>

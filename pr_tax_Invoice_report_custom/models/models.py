@@ -46,7 +46,7 @@ class AccountMove(models.Model):
 
     custom_qr_image = fields.Binary("QR Code", compute='_generate_qr_code')
     po_number = fields.Char(
-        string="PO Number",
+        string="PO Name",
         compute="_compute_sale_order_po_details",
         store=True,
     )

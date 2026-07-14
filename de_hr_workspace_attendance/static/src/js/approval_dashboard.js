@@ -12,7 +12,8 @@ class ApprovalDashboard extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.state = useState({
-            tiles: [],
+            sections: [],
+            selectedSectionKey: "",
             loading: true,
             userName: session.user_name || session.name || session.username || "",
         });
@@ -24,14 +25,28 @@ class ApprovalDashboard extends Component {
 
     async loadTiles() {
         this.state.loading = true;
-        const tiles = await this.orm.call("de.hr.approval.dashboard.service", "get_tiles", []);
-        this.state.tiles = tiles;
+        const sections = await this.orm.call("de.hr.approval.dashboard.service", "get_sections", []);
+        this.state.sections = sections;
+        if (
+            this.state.selectedSectionKey &&
+            !sections.some((section) => section.key === this.state.selectedSectionKey)
+        ) {
+            this.state.selectedSectionKey = "";
+        }
         this.state.loading = false;
+    }
+
+    openSection(ev) {
+        this.state.selectedSectionKey = ev.currentTarget.dataset.sectionKey || "";
+    }
+
+    backToSections() {
+        this.state.selectedSectionKey = "";
     }
 
     openTile(ev) {
         const key = ev.currentTarget.dataset.tileKey || "";
-        const tile = this.state.tiles.find((item) => item.key === key);
+        const tile = this.allTiles.find((item) => item.key === key);
         if (tile && tile.res_model) {
             const viewModes = (tile.view_mode || "list,form")
                 .split(",")
@@ -76,10 +91,30 @@ class ApprovalDashboard extends Component {
         return name ? `${this.salutation}, Mr. ${name}` : this.salutation;
     }
 
+    get selectedSection() {
+        return this.state.sections.find((section) => section.key === this.state.selectedSectionKey);
+    }
+
+    get selectedTiles() {
+        return this.selectedSection ? this.selectedSection.tiles || [] : [];
+    }
+
+    get allTiles() {
+        return this.state.sections.flatMap((section) => section.tiles || []);
+    }
+
+    get totalPendingCount() {
+        return this.state.sections.reduce((total, section) => total + (section.count || 0), 0);
+    }
 
     tileClass(tile) {
         const hasPending = (tile.count || 0) > 0 ? "de-dashboard-tile-pending" : "";
         return `de-dashboard-tile de-dashboard-tile-${tile.tone || "primary"} ${hasPending}`.trim();
+    }
+
+    sectionClass(section) {
+        const hasPending = (section.count || 0) > 0 ? "de-dashboard-section-pending" : "";
+        return `de-dashboard-section-card de-dashboard-section-${section.tone || "primary"} ${hasPending}`.trim();
     }
 
     iconBoxClass(tile) {

@@ -2,6 +2,7 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_pr_employee_service_request_user,pr.employee.service.request user,model_pr_employee_service_request,base.group_user,1,1,1,0
 access_pr_employee_service_request_reject_wizard_user,pr.employee.service.request.reject.wizard user,model_pr_employee_service_request_reject_wizard,base.group_user,1,1,1,1
 access_pr_employee_document_letter_user,pr.employee.document.letter user,model_pr_employee_document_letter,base.group_user,1,1,1,0
+access_pr_employee_code_lookup_user,pr.employee.code.lookup user,model_pr_employee_code_lookup,base.group_user,1,0,0,0
 access_pr_employee_letter_send_wizard_user,pr.employee.letter.send.wizard user,model_pr_employee_letter_send_wizard,base.group_user,1,1,1,1
 access_pr_employee_payment_request_user,pr.employee.payment.request user,model_pr_employee_payment_request,base.group_user,1,1,1,0
 access_pr_employee_payment_request_line_user,pr.employee.payment.request.line user,model_pr_employee_payment_request_line,base.group_user,1,1,1,1
