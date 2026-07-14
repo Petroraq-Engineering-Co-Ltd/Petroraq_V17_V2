@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_offboarding_request_user,pr.hr.offboarding.request.user,model_pr_hr_offboarding_request,base.group_user,1,1,0,0
+access_offboarding_request_hr_supervisor,pr.hr.offboarding.request.hr.supervisor,model_pr_hr_offboarding_request,pr_hr_recruitment_request.group_onboarding_supervisor,1,1,1,1
+access_offboarding_request_system,pr.hr.offboarding.request.system,model_pr_hr_offboarding_request,base.group_system,1,1,1,1
+access_offboarding_reject_wizard_user,pr.hr.offboarding.reject.wizard.user,model_pr_hr_offboarding_reject_wizard,base.group_user,1,1,1,1
