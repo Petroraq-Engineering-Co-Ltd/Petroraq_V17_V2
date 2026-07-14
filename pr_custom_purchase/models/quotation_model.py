@@ -395,6 +395,7 @@ class PurchaseOrder(models.Model):
             "partner_id": self.partner_id.id,
             "partner_ref": self.partner_ref,
             "date_planned": self.date_planned or fields.Datetime.now(),
+            "payment_terms_text": self.payment_terms_text,
             "currency_id": self.currency_id.id,
             "company_id": self.company_id.id,
             "pr_name": self.pr_name,
