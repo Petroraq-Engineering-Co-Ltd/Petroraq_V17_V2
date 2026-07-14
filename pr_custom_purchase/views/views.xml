@@ -251,6 +251,20 @@
             </xpath>
         </field>
     </record>
+    <record id="purchase_order_form_payment_terms_text" model="ir.ui.view">
+        <field name="name">purchase.order.form.payment.terms.text</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="priority">82</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="payment_terms_text"
+                       required="state not in ('purchase', 'done', 'cancel')"
+                       placeholder="Example: 30 days from invoice date, 50% advance / 50% after delivery..."
+                       readonly="state in ('purchase', 'done')"/>
+            </xpath>
+        </field>
+    </record>
     <record id="view_purchase_order_form_inherit_grn_ses" model="ir.ui.view">
         <field name="name">purchase.order.form.inherit.grn.ses</field>
         <field name="model">purchase.order</field>
