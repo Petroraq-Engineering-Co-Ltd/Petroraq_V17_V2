@@ -156,7 +156,7 @@
                                 </span>
                             </a>
 
-                            <a class="pr-signin-card" href="/web/login?redirect=/my">
+                            <a class="pr-signin-card" href="/web/login?login_type=vendor&amp;redirect=/my">
                                 <div>
                                     <span class="pr-signin-icon">
                                         <i class="fa fa-briefcase"></i>
@@ -184,6 +184,34 @@
                     </section>
                 </main>
             </t>
+        </template>
+
+        <template id="petroraq_vendor_login_label" inherit_id="web.login" name="Petroraq Vendor Login Label">
+            <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' field-login ')]/label[@for='login']"
+                   position="replace">
+                <label for="login" class="form-label">
+                    <t t-out="'CR. Number' if request.params.get('login_type') == 'vendor' else 'Email'"/>
+                </label>
+            </xpath>
+            <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' field-login ')]/input[@name='login']"
+                   position="replace">
+                <input type="text"
+                       t-att-placeholder="'CR. Number' if request.params.get('login_type') == 'vendor' else 'Email'"
+                       name="login"
+                       t-att-value="login"
+                       id="login"
+                       t-attf-class="form-control #{'form-control-sm' if form_small else ''}"
+                       required="required"
+                       autocomplete="username"
+                       autofocus="autofocus"
+                       autocapitalize="off"/>
+            </xpath>
+            <xpath expr="//input[@name='redirect']" position="before">
+                <input t-if="request.params.get('login_type') == 'vendor'"
+                       type="hidden"
+                       name="login_type"
+                       value="vendor"/>
+            </xpath>
         </template>
     </data>
 </odoo>
