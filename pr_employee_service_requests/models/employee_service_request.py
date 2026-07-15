@@ -376,6 +376,7 @@ class PrEmployeeServiceRequest(models.Model):
     can_accounts_approve = fields.Boolean(compute="_compute_action_flags")
     can_md_approve = fields.Boolean(compute="_compute_action_flags")
     can_finance_approve = fields.Boolean(compute="_compute_action_flags")
+    can_create_payment_request = fields.Boolean(compute="_compute_action_flags")
     can_issue = fields.Boolean(compute="_compute_action_flags")
     can_reject = fields.Boolean(compute="_compute_action_flags")
     can_reset_to_draft = fields.Boolean(compute="_compute_action_flags")
@@ -485,8 +486,11 @@ class PrEmployeeServiceRequest(models.Model):
         "payment_responsibility",
         "requested_by_id",
         "employee_manager_user_id",
+        "payment_request_id",
         "payment_request_id.state",
+        "cash_payment_id",
         "cash_payment_id.state",
+        "bank_payment_id",
         "bank_payment_id.state",
         "cash_payment_id.accounting_manager_state",
         "bank_payment_id.accounting_manager_state",
@@ -520,6 +524,15 @@ class PrEmployeeServiceRequest(models.Model):
             rec.can_accounts_approve = rec.state == "accounts_approval" and (is_accounts or is_admin)
             rec.can_md_approve = rec.state == "md_approval" and (is_md or is_admin)
             rec.can_finance_approve = rec.state == "finance_approval" and (is_finance or is_admin)
+            rec.can_create_payment_request = (
+                rec.state == "payment_approval"
+                and not rec.payment_request_id
+                and not rec.cash_payment_id
+                and not rec.bank_payment_id
+                and not rec._is_self_paid_request()
+                and not rec._is_historical_company_paid_exit_reentry()
+                and (is_accounts or is_admin)
+            )
             rec.can_issue = (
                 rec.request_type in ("exit_reentry",) + HR_COMPLIANCE_REQUEST_TYPES
                 and rec.state == "paid"
@@ -1538,16 +1551,20 @@ class PrEmployeeServiceRequest(models.Model):
                     rec._issue_medical_insurance()
                 continue
             if rec._is_compliance_renewal():
-                voucher = rec._create_renewal_bpv()
                 rec.write({
                     "state": "payment_approval",
                     "approved_amount": rec._get_payment_amount(),
                     "md_approved_by_id": self.env.user.id,
                     "md_approved_date": fields.Datetime.now(),
                 })
+                rec._notify_group(
+                    list(ACCOUNTING_GROUP_XML_IDS),
+                    _("Employee Payment Request Needed"),
+                    _("%s <b>%s</b> is MD approved. Please create the payment request and choose CPV/BPV.")
+                    % (rec._get_type_label(), rec.display_name),
+                )
                 rec.message_post(
-                    body=_("MD approved this renewal and submitted BPV %s for Accounts approval.")
-                    % voucher.display_name
+                    body=_("MD approved this renewal. Accounts can now create the payment request and choose the transfer type.")
                 )
                 continue
             payment_request = rec._create_payment_request()
@@ -1591,6 +1608,17 @@ class PrEmployeeServiceRequest(models.Model):
                 body=_("Finance approved this request and created payment request %s for Accounts.")
                 % payment_request.display_name
             )
+
+    def action_create_payment_request(self):
+        for rec in self:
+            if not rec.can_create_payment_request:
+                raise UserError(_("Only Accounts can create a payment request after final approval."))
+            payment_request = rec._create_payment_request(notify_accounts=False)
+            rec.message_post(
+                body=_("Payment request %s created for Accounts to select transfer type and create CPV/BPV.")
+                % payment_request.display_name
+            )
+        return self[:1].action_open_payment_request() if len(self) == 1 else True
 
     def action_issue(self):
         for rec in self:
