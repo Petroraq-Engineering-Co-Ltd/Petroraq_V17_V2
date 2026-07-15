@@ -32,12 +32,6 @@ class HrApprovalDashboardService(models.AbstractModel):
             "tone": "success",
             "sequence": 40,
         },
-        "payroll": {
-            "name": _("Payroll"),
-            "icon": "fa-credit-card",
-            "tone": "warning",
-            "sequence": 50,
-        },
         "other": {
             "name": _("Other"),
             "icon": "fa-check-square-o",
@@ -330,8 +324,10 @@ class HrApprovalDashboardService(models.AbstractModel):
             return "purchase"
         if any(token in text for token in ("sale", "estimation", "quotation", "work order")):
             return "sales"
+        if model == "sign.request" or any(token in text for token in ("sign", "signature")):
+            return "hr"
         if any(token in text for token in ("payroll", "payslip", "salary", "overtime")):
-            return "payroll"
+            return "hr"
         if any(token in text for token in (
             "hr",
             "employee",

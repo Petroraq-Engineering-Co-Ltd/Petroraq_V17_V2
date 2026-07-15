@@ -66,4 +66,8 @@ class TestVendorPaymentApproval(TransactionCase):
             partner_id=self.customer.id,
         ))
 
+<<<<<<< HEAD
         self.assertFalse(payment.pr_requires_vendor_payment_approval)
+=======
+        self.assertFalse(payment.pr_requires_vendor_payment_approval)
+>>>>>>> e366fa2ac2e48faa35a3655ef3c807b872eabbbb
