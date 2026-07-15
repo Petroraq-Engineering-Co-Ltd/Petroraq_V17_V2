@@ -137,35 +137,35 @@ class PetroraqEstimation(models.Model):
     sale_order_count = fields.Integer(string="Quotations", compute="_compute_linked_document_counts")
     work_order_count = fields.Integer(string="Work Orders", compute="_compute_linked_document_counts")
 
-    material_total = fields.Float(
+    material_total = fields.Monetary(
         string="Material Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         digits="Product Price",
     )
-    labor_total = fields.Float(
+    labor_total = fields.Monetary(
         string="Labor Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         digits="Product Price",
     )
-    equipment_total = fields.Float(
+    equipment_total = fields.Monetary(
         string="Equipment Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         digits="Product Price",
     )
-    subcontract_total = fields.Float(
+    subcontract_total = fields.Monetary(
         string="Sub Contract / TPS Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         digits="Product Price",
     )
-    total_amount = fields.Float(
+    total_amount = fields.Monetary(
         string="Total",
         compute="_compute_totals",
         currency_field="currency_id",
@@ -188,21 +188,21 @@ class PetroraqEstimation(models.Model):
         default=0.0,
         digits=(16, 2),
     )
-    overhead_amount = fields.Float(
+    overhead_amount = fields.Monetary(
         string="Over Head Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         digits="Product Price",
     )
-    risk_amount = fields.Float(
+    risk_amount = fields.Monetary(
         string="Risk Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         digits="Product Price",
     )
-    buffer_total_amount = fields.Float(
+    buffer_total_amount = fields.Monetary(
         string="Computed Total Amount",
         compute="_compute_totals",
         currency_field="currency_id",
@@ -210,14 +210,14 @@ class PetroraqEstimation(models.Model):
         help="Total amount including overhead and risk (no profit).",
         digits="Product Price",
     )
-    profit_amount = fields.Float(
+    profit_amount = fields.Monetary(
         string="Profit Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
         digits="Product Price",
     )
-    total_with_profit = fields.Float(
+    total_with_profit = fields.Monetary(
         string="Total With Profit",
         compute="_compute_totals",
         currency_field="currency_id",
@@ -1025,9 +1025,9 @@ class PetroraqEstimationLine(models.Model):
         readonly=True,
     )
 
-    unit_cost = fields.Float(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
+    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
 
-    subtotal = fields.Float(
+    subtotal = fields.Monetary(
         string="Subtotal",
         currency_field="currency_id",
         compute="_compute_subtotal",
@@ -1160,15 +1160,15 @@ class PetroraqEstimationDisplayLine(models.Model):
         store=True,
         readonly=True,
     )
-    unit_cost = fields.Float(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
-    subtotal = fields.Float(
+    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
+    subtotal = fields.Monetary(
         string="Subtotal",
         currency_field="currency_id",
         compute="_compute_subtotal",
         store=False,
         digits="Product Price",
     )
-    section_subtotal_amount = fields.Float(
+    section_subtotal_amount = fields.Monetary(
         string="Section Subtotal",
         compute="_compute_section_subtotal_amount",
         store=False,

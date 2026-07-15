@@ -8,6 +8,8 @@
                 <style>
                     * { box-sizing: border-box; margin: 0; padding: 0; }
                     body { font-family: 'Arial', sans-serif; color: #222; background: #fff; }
+                    :root { --pr-navbar-height: 110px; }
+                    html { scroll-padding-top: var(--pr-navbar-height); }
                     a { text-decoration: none; color: inherit; }
                     ul { list-style: none; }
                     img { max-width: 100%; display: block; }
@@ -18,12 +20,19 @@
                         display: flex;
                         align-items: center;
                         padding: 15px 40px;
-                        position: sticky;
+                        position: fixed;
                         top: 0;
-                        z-index: 1000;
+                        left: 0;
+                        right: 0;
+                        width: 100%;
+                        z-index: 1040;
                         gap: 30px;
                         box-shadow: 0 4px 20px rgba(0,0,0,0.15);
                         transition: all 0.3s ease;
+                    }
+                    .pr-navbar-spacer {
+                        height: var(--pr-navbar-height);
+                        flex: 0 0 auto;
                     }
                     .navbar.scrolled {
                         padding: 10px 40px;
@@ -381,18 +390,26 @@
                             top: 100%;
                             left: 0;
                             right: 0;
+                            width: 100%;
+                            max-width: 100vw;
                             background: linear-gradient(135deg, #06264B 0%, #0a3d6e 100%);
                             flex-direction: column;
                             align-items: flex-start;
-                            padding: 20px;
-                            gap: 15px;
+                            padding: 0 20px;
+                            gap: 0;
                             max-height: 0;
                             overflow: hidden;
-                            transition: max-height 0.4s ease;
+                            transition: max-height 0.4s ease, padding 0.3s ease, gap 0.3s ease;
                             border-bottom: 3px solid #e9a23e;
                             justify-content: flex-start;
+                            z-index: 1001;
                         }
-                        .navbar-links.open { max-height: 1200px; overflow-y: auto; }
+                        .navbar-links.open {
+                            max-height: calc(100vh - var(--pr-navbar-height));
+                            overflow-y: auto;
+                            padding: 20px;
+                            gap: 15px;
+                        }
                         .navbar-links a,
                         .navbar-links .nav-item { width: 100%; }
 
@@ -621,6 +638,7 @@
                         </a>
                     </nav>
                 </header>
+                <div class="pr-navbar-spacer" aria-hidden="true"></div>
             </xpath>
 
             <xpath expr="//body" position="inside">
@@ -889,17 +907,49 @@
 
                             .navbar-links {
                                 align-items: flex-end;
+                                flex-direction: column;
                                 right: 0;
                                 left: 0;
+                                width: 100%;
+                                max-width: 100vw;
                                 text-align: right;
+                            }
+
+                            .navbar-links > a,
+                            .navbar-links > .nav-item > a {
+                                justify-content: flex-end;
+                                text-align: right;
+                                width: 100%;
+                            }
+
+                            .navbar-links .nav-item {
+                                width: 100%;
                             }
 
                             .services-dropdown {
                                 padding: 10px 20px 10px 0;
+                                width: 100%;
+                            }
+
+                            .services-grid {
+                                width: 100%;
+                                grid-template-columns: 1fr;
+                            }
+
+                            .services-grid a {
+                                justify-content: flex-end;
+                                padding: 10px 0;
                             }
 
                             .mobile-auth-buttons {
                                 align-items: stretch;
+                                width: 100%;
+                            }
+
+                            .mobile-auth-buttons .signin-btn,
+                            .mobile-auth-buttons .logout-btn {
+                                justify-content: center;
+                                width: 100%;
                             }
                         }
 
@@ -929,13 +979,19 @@
 
                         /* Navbar scroll effect */
                         if (navbar) {
-                            window.addEventListener('scroll', function() {
-                                if (window.scrollY > 50) {
+                            var scrollHost = document.getElementById('wrapwrap') || window;
+                            var getScrollTop = function () {
+                                return scrollHost === window ? window.scrollY : scrollHost.scrollTop;
+                            };
+                            var updateNavbarScrollState = function () {
+                                if (getScrollTop() > 50) {
                                     navbar.classList.add('scrolled');
                                 } else {
                                     navbar.classList.remove('scrolled');
                                 }
-                            });
+                            };
+                            scrollHost.addEventListener('scroll', updateNavbarScrollState, {passive: true});
+                            updateNavbarScrollState();
                         }
 
                         var currentLanguageCode = "<t t-esc='request.env.lang or ""'/>";

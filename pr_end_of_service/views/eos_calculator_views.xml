@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_pr_eos_calculator_search" model="ir.ui.view">
+        <field name="name">pr.eos.calculator.search</field>
+        <field name="model">pr.eos.calculator</field>
+        <field name="arch" type="xml">
+            <search string="EOSB Calculator">
+                <field name="employee_id"/>
+                <field name="contract_id"/>
+                <filter string="Eligible" name="eligible" domain="[('eligibility_status', '=', 'eligible')]"/>
+                <filter string="Not Eligible" name="not_eligible" domain="[('eligibility_status', '=', 'not_eligible')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Eligibility" name="group_eligibility" context="{'group_by': 'eligibility_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_pr_eos_calculator_tree" model="ir.ui.view">
+        <field name="name">pr.eos.calculator.tree</field>
+        <field name="model">pr.eos.calculator</field>
+        <field name="arch" type="xml">
+            <tree string="EOSB Calculations" decoration-success="eligibility_status == 'eligible'" decoration-muted="eligibility_status == 'not_eligible'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="contract_start_date"/>
+                <field name="contract_end_date"/>
+                <field name="monthly_salary" widget="monetary"/>
+                <field name="service_period"/>
+                <field name="eligibility_status" widget="badge"
+                       decoration-success="eligibility_status == 'eligible'"
+                       decoration-danger="eligibility_status == 'not_eligible'"/>
+                <field name="final_eosb_amount" widget="monetary" sum="EOSB"/>
+                <field name="currency_id" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_eos_calculator_form" model="ir.ui.view">
+        <field name="name">pr.eos.calculator.form</field>
+        <field name="model">pr.eos.calculator</field>
+        <field name="arch" type="xml">
+            <form string="EOSB Calculator">
+                <sheet>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="eligibility_status != 'not_eligible'">
+                        <field name="eligibility_message" readonly="1" nolabel="1"/>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Inputs">
+                            <field name="employee_id"
+                                   readonly="not context.get('allow_eos_employee_edit')"
+                                   options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="contract_id" readonly="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="contract_start_date"
+                                   readonly="not context.get('allow_eos_employee_edit')"/>
+                            <field name="contract_end_date"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="monthly_salary" widget="monetary"
+                                   readonly="not context.get('allow_eos_employee_edit')"/>
+                        </group>
+                        <group string="Service Period">
+                            <field name="service_period" readonly="1"/>
+                            <field name="service_years" readonly="1"/>
+                            <field name="completed_years" readonly="1"/>
+                            <field name="remaining_months" readonly="1"/>
+                            <field name="remaining_days" readonly="1"/>
+                            <field name="eligibility_status" readonly="1" widget="badge"
+                                   decoration-success="eligibility_status == 'eligible'"
+                                   decoration-danger="eligibility_status == 'not_eligible'"/>
+                        </group>
+                    </group>
+                    <group string="EOSB Result">
+                        <field name="eosb_formula_applied" readonly="1"/>
+                        <field name="final_eosb_amount"
+                               readonly="1"
+                               widget="monetary"
+                               style="color: green; font-size: 20px; font-weight: bold;"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pr_eos_calculator_workspace" model="ir.actions.act_window">
+        <field name="name">EOSB Calculator</field>
+        <field name="res_model">pr.eos.calculator</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_pr_eos_calculator_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_pr_eos_calculator_form')})]"/>
+        <field name="search_view_id" ref="view_pr_eos_calculator_search"/>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'allow_eos_employee_edit': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create an EOSB calculation to estimate your End of Service Benefit.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_pr_eos_calculator_hr" model="ir.actions.act_window">
+        <field name="name">EOSB Calculator</field>
+        <field name="res_model">pr.eos.calculator</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_pr_eos_calculator_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_pr_eos_calculator_form')})]"/>
+        <field name="search_view_id" ref="view_pr_eos_calculator_search"/>
+        <field name="context">{'allow_eos_employee_edit': True}</field>
+    </record>
+
+    <menuitem id="menu_pr_eos_calculator_workspace"
+              name="EOSB Calculator"
+              parent="de_hr_workspace.menu_my_ws_employee"
+              action="action_pr_eos_calculator_workspace"
+              sequence="35"
+              groups="de_hr_workspace.group_hr_employee_workspace"/>
+
+    <menuitem id="menu_pr_eos_calculator_hr"
+              name="EOSB Calculator"
+              parent="menu_pr_end_of_service_root"
+              action="action_pr_eos_calculator_hr"
+              sequence="20"
+              groups="hr.group_hr_user"/>
+</odoo>

@@ -1804,7 +1804,7 @@ class PurchaseRequisition(models.Model):
                     "name": line._get_document_line_description(),
                     "product_id": line.description.id,
                     "product_qty": remaining_qty,
-                    "price_unit": 0.0,
+                    "price_unit": line.unit_price,
                     "date_planned": fields.Datetime.now(),
                     "analytic_distribution": analytic_distribution,
                     "custom_requisition_line_id": line.id,

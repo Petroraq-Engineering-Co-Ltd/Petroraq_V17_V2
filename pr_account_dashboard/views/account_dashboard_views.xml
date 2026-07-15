@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_pr_account_dashboard" model="ir.actions.client">
+        <field name="name">Accounting Dashboard</field>
+        <field name="tag">pr_account_dashboard.account_dashboard</field>
+    </record>
+
+    <menuitem id="menu_pr_account_dashboard"
+              name="Overview"
+              parent="account_accountant.menu_accounting"
+              action="action_pr_account_dashboard"
+              sequence="0"
+              groups="account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+</odoo>

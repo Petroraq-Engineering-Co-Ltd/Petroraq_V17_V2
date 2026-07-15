@@ -1,7 +1,7 @@
 import secrets
 from datetime import timedelta
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 
 class PrWebsiteCaptchaChallenge(models.Model):
@@ -30,7 +30,7 @@ class PrWebsiteCaptchaChallenge(models.Model):
             'expires_at': now + timedelta(seconds=ttl_seconds),
         })
         return {
-            'question': 'What is %s + %s?' % (left, right),
+            'question': _('What is %s + %s?') % (left, right),
             'nonce': challenge.token,
         }
 

@@ -1,7 +1,7 @@
-from dateutil.relativedelta import relativedelta
-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+
+from .eos_calculation import MIN_EOS_SERVICE_YEARS, get_eosb_breakdown, get_service_duration
 
 
 class PrEndOfService(models.Model):
@@ -61,9 +61,29 @@ class PrEndOfService(models.Model):
         compute="_compute_service_duration",
         store=True,
     )
+    service_period = fields.Char(
+        string="Service Period",
+        compute="_compute_service_duration",
+        store=True,
+    )
     years = fields.Integer(string="Years", compute="_compute_service_duration", store=True)
     months = fields.Integer(string="Months", compute="_compute_service_duration", store=True)
     days = fields.Integer(string="Days", compute="_compute_service_duration", store=True)
+    completed_years = fields.Integer(
+        string="Completed Years",
+        compute="_compute_service_duration",
+        store=True,
+    )
+    remaining_months = fields.Integer(
+        string="Remaining Months",
+        compute="_compute_service_duration",
+        store=True,
+    )
+    remaining_days = fields.Integer(
+        string="Remaining Days",
+        compute="_compute_service_duration",
+        store=True,
+    )
     settlement_type = fields.Selection(
         [
             ("final", "Final Settlement"),
@@ -93,6 +113,8 @@ class PrEndOfService(models.Model):
             ("draft", "Draft"),
             ("hr_approval", "HR Approval"),
             ("accounts_approval", "Accounts Approval"),
+            ("employee_acceptance", "Employee Acceptance"),
+            ("employee_rejected", "Employee Rejected"),
             ("payment", "Payment"),
             ("done", "Done"),
             ("cancel", "Cancelled"),
@@ -119,6 +141,30 @@ class PrEndOfService(models.Model):
         store=True,
         currency_field="currency_id",
     )
+    eos_eligible = fields.Boolean(
+        string="EOSB Eligible",
+        compute="_compute_amounts",
+        store=True,
+    )
+    eligibility_status = fields.Selection(
+        [
+            ("eligible", "Eligible"),
+            ("not_eligible", "Not Eligible"),
+        ],
+        string="Eligibility Status",
+        compute="_compute_amounts",
+        store=True,
+    )
+    eligibility_message = fields.Char(
+        string="Eligibility Message",
+        compute="_compute_amounts",
+        store=True,
+    )
+    eosb_formula_applied = fields.Text(
+        string="EOSB Formula Applied",
+        compute="_compute_amounts",
+        store=True,
+    )
     annual_leave_type_id = fields.Many2one(
         "hr.leave.type",
         string="Annual Leave Type",
@@ -144,9 +190,32 @@ class PrEndOfService(models.Model):
         tracking=True,
     )
     deduction_amount = fields.Monetary(
-        string="Deductions",
+        string="Manual Deductions",
         currency_field="currency_id",
         tracking=True,
+    )
+    adjustment_line_ids = fields.One2many(
+        "pr.end.of.service.adjustment",
+        "eos_id",
+        string="Arrears / Deductions",
+        copy=True,
+    )
+    adjustment_addition_amount = fields.Monetary(
+        string="Arrears / Additions",
+        compute="_compute_amounts",
+        store=True,
+        currency_field="currency_id",
+    )
+    adjustment_deduction_amount = fields.Monetary(
+        string="Clearance Deductions",
+        compute="_compute_amounts",
+        store=True,
+        currency_field="currency_id",
+    )
+    payroll_adjustment_synced_date = fields.Datetime(
+        string="Payroll Adjustments Synced On",
+        readonly=True,
+        copy=False,
     )
     total_deserved_amount = fields.Monetary(
         string="Total Deserved",
@@ -160,8 +229,21 @@ class PrEndOfService(models.Model):
         store=True,
         currency_field="currency_id",
     )
+    net_settlement_amount = fields.Monetary(
+        string="Net Settlement",
+        compute="_compute_available_amount",
+        store=True,
+        currency_field="currency_id",
+        help="Signed settlement after previous disbursements. Negative means the employee owes the company.",
+    )
     available_amount = fields.Monetary(
         string="Available Amount",
+        compute="_compute_available_amount",
+        store=True,
+        currency_field="currency_id",
+    )
+    employee_recovery_amount = fields.Monetary(
+        string="Recoverable From Employee",
         compute="_compute_available_amount",
         store=True,
         currency_field="currency_id",
@@ -177,6 +259,45 @@ class PrEndOfService(models.Model):
         store=True,
     )
     notes = fields.Text(string="Notes")
+    employee_acceptance_state = fields.Selection(
+        [
+            ("not_sent", "Not Sent"),
+            ("sent", "Sent"),
+            ("accepted", "Accepted"),
+            ("rejected", "Rejected"),
+        ],
+        string="Employee Acceptance",
+        default="not_sent",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    employee_acceptance_date = fields.Datetime(
+        string="Employee Acceptance Date",
+        readonly=True,
+        copy=False,
+    )
+    employee_rejection_reason = fields.Text(
+        string="Employee Rejection Reason",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    recovery_state = fields.Selection(
+        [
+            ("not_required", "Not Required"),
+            ("pending", "Pending Recovery"),
+            ("recovered", "Recovered"),
+            ("waived", "Waived"),
+        ],
+        string="Recovery Status",
+        default="not_required",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    recovery_date = fields.Date(string="Recovery Date", readonly=True, copy=False)
+    recovery_note = fields.Text(string="Recovery / Waiver Notes", tracking=True)
     bank_payment_id = fields.Many2one(
         "pr.account.bank.payment",
         string="Bank Payment",
@@ -211,16 +332,24 @@ class PrEndOfService(models.Model):
     def _compute_service_duration(self):
         for rec in self:
             rec.service_years = 0.0
+            rec.service_period = "0 years, 0 months, 0 days"
             rec.years = 0
             rec.months = 0
             rec.days = 0
+            rec.completed_years = 0
+            rec.remaining_months = 0
+            rec.remaining_days = 0
             if not rec.joining_date or not rec.service_end_date or rec.service_end_date < rec.joining_date:
                 continue
-            diff = relativedelta(rec.service_end_date, rec.joining_date)
-            rec.years = diff.years
-            rec.months = diff.months
-            rec.days = diff.days
-            rec.service_years = diff.years + (diff.months / 12.0) + (diff.days / 365.0)
+            duration = get_service_duration(rec.joining_date, rec.service_end_date)
+            rec.years = duration["years"]
+            rec.months = duration["months"]
+            rec.days = duration["days"]
+            rec.completed_years = duration["years"]
+            rec.remaining_months = duration["months"]
+            rec.remaining_days = duration["days"]
+            rec.service_years = duration["service_years"]
+            rec.service_period = duration["period_display"]
 
     @api.depends("settlement_type", "reason_id", "reason_id.is_partial")
     def _compute_is_partial(self):
@@ -285,9 +414,11 @@ class PrEndOfService(models.Model):
         self.ensure_one()
         if not self.reason_id:
             return 0.0
-        if self.service_years < (self.reason_id.deserved_after or 0.0):
+        minimum_years = max(self.reason_id.deserved_after or 0.0, MIN_EOS_SERVICE_YEARS)
+        completed_years = int(self.completed_years or 0)
+        if completed_years < minimum_years:
             return 0.0
-        remaining_years = self.service_years
+        remaining_years = completed_years
         amount = 0.0
         for line in self.reason_id.line_ids.sorted(lambda item: (item.sequence, item.id)):
             if remaining_years <= 0.0:
@@ -306,22 +437,42 @@ class PrEndOfService(models.Model):
         "reason_id.line_ids.deserved_for_first",
         "reason_id.line_ids.deserved_month_for_year",
         "service_years",
+        "completed_years",
         "annual_leave_days",
         "other_amount",
         "deduction_amount",
+        "adjustment_line_ids.adjustment_type",
+        "adjustment_line_ids.amount",
     )
     def _compute_amounts(self):
         for rec in self:
             monthly_base = rec._get_monthly_base_amount()
+            eosb_breakdown = get_eosb_breakdown(monthly_base, rec.service_years, rec.completed_years)
             rec.monthly_base_amount = monthly_base
             rec.daily_base_amount = monthly_base / 30.0 if monthly_base else 0.0
             rec.eos_benefit_amount = rec._compute_rule_amount(monthly_base)
+            rec.eos_eligible = eosb_breakdown["eligible"]
+            rec.eligibility_status = eosb_breakdown["status"]
+            rec.eligibility_message = eosb_breakdown["message"]
+            rec.eosb_formula_applied = eosb_breakdown["formula"]
             rec.leave_settlement_amount = rec.annual_leave_days * rec.daily_base_amount
+            rec.adjustment_addition_amount = sum(
+                rec.adjustment_line_ids.filtered(
+                    lambda line: line.adjustment_type == "addition"
+                ).mapped("amount")
+            )
+            rec.adjustment_deduction_amount = sum(
+                rec.adjustment_line_ids.filtered(
+                    lambda line: line.adjustment_type == "deduction"
+                ).mapped("amount")
+            )
             rec.total_deserved_amount = (
                 rec.eos_benefit_amount
                 + rec.leave_settlement_amount
                 + rec.other_amount
+                + rec.adjustment_addition_amount
                 - rec.deduction_amount
+                - rec.adjustment_deduction_amount
             )
 
     @api.depends("employee_id", "reason_id")
@@ -345,20 +496,139 @@ class PrEndOfService(models.Model):
     @api.depends("total_deserved_amount", "previously_disbursed_amount")
     def _compute_available_amount(self):
         for rec in self:
-            rec.available_amount = max(
-                rec.total_deserved_amount - rec.previously_disbursed_amount,
-                0.0,
-            )
+            net_amount = rec.total_deserved_amount - rec.previously_disbursed_amount
+            rec.net_settlement_amount = net_amount
+            rec.available_amount = max(net_amount, 0.0)
+            rec.employee_recovery_amount = abs(min(net_amount, 0.0))
 
     def _compute_bank_payment_count(self):
         for rec in self:
             rec.bank_payment_count = 1 if rec.bank_payment_id else 0
+
+    def _needs_requested_amount_auto_sync(self):
+        self.ensure_one()
+        return not self.is_partial and self.state in ("draft", "hr_approval")
+
+    def _sync_recovery_state_from_amount(self):
+        for rec in self:
+            if rec.employee_recovery_amount > 0.0 and rec.recovery_state == "not_required":
+                rec.recovery_state = "pending"
+            elif rec.employee_recovery_amount <= 0.0 and rec.recovery_state in ("not_required", "pending"):
+                rec.recovery_state = "not_required"
 
     @api.onchange("reason_id", "settlement_type", "available_amount")
     def _onchange_requested_amount(self):
         for rec in self:
             if not rec.is_partial:
                 rec.requested_amount = rec.available_amount
+
+    def _get_payslip_net_amount(self, payslip):
+        net_lines = payslip.line_ids.filtered(lambda line: (line.code or "").upper() == "NET")
+        if net_lines:
+            return sum(net_lines.mapped("total"))
+        for field_name in ("net_wage", "net_amount", "amount_net"):
+            if field_name in payslip._fields:
+                return payslip[field_name] or 0.0
+        return 0.0
+
+    def _get_salary_attachment_remaining_amount(self, attachment):
+        fields_to_try = (
+            "remaining_amount",
+            "amount_residual",
+            "total_amount",
+            "amount",
+            "monthly_amount",
+        )
+        for field_name in fields_to_try:
+            if field_name in attachment._fields and attachment[field_name]:
+                amount = attachment[field_name]
+                if field_name in ("total_amount", "amount") and "paid_amount" in attachment._fields:
+                    amount -= attachment.paid_amount or 0.0
+                return max(amount or 0.0, 0.0)
+        return 0.0
+
+    def _get_salary_attachment_employee_domain(self, Attachment):
+        self.ensure_one()
+        if "employee_id" in Attachment._fields:
+            return [("employee_id", "=", self.employee_id.id)]
+        if "employee_ids" in Attachment._fields:
+            return [("employee_ids", "in", self.employee_id.ids)]
+        return []
+
+    def _get_salary_attachment_state_domain(self, Attachment):
+        state_field = Attachment._fields.get("state")
+        if not state_field:
+            return []
+        selection = state_field.selection
+        available_states = []
+        if isinstance(selection, (list, tuple)):
+            available_states = [item[0] for item in selection]
+        wanted_states = [
+            state
+            for state in ("draft", "open", "running", "active", "in_progress")
+            if not available_states or state in available_states
+        ]
+        return [("state", "in", wanted_states or ["draft", "open"])]
+
+    def action_sync_payroll_adjustments(self):
+        for rec in self:
+            if rec.state not in ("draft", "hr_approval"):
+                raise UserError(_("Payroll adjustments can only be synced before accounts approval."))
+            rec.adjustment_line_ids.filtered(
+                lambda line: (line.source_ref or "").startswith("payroll:")
+            ).unlink()
+            line_commands = []
+            Payslip = self.env["hr.payslip"].sudo()
+            payslip_domain = [
+                ("employee_id", "=", rec.employee_id.id),
+                ("state", "not in", ["paid", "cancel"]),
+            ]
+            if "hold_salary" in Payslip._fields:
+                payslip_domain.append(("hold_salary", "=", True))
+            if rec.service_end_date:
+                payslip_domain.append(("date_to", "<=", rec.service_end_date))
+            for payslip in Payslip.search(payslip_domain):
+                net_amount = rec._get_payslip_net_amount(payslip)
+                if not net_amount:
+                    continue
+                payslip_label = payslip.name or getattr(payslip, "number", False) or payslip.display_name
+                line_commands.append((0, 0, {
+                    "name": _("Held salary arrears: %s") % payslip_label,
+                    "category": "salary_arrears",
+                    "adjustment_type": "addition" if net_amount > 0 else "deduction",
+                    "amount": abs(net_amount),
+                    "source_ref": "payroll:payslip:%s" % payslip.id,
+                    "notes": _("Created from held/unpaid payslip during EOS payroll sync."),
+                }))
+
+            Attachment = self.env["hr.salary.attachment"].sudo()
+            employee_domain = rec._get_salary_attachment_employee_domain(Attachment)
+            if employee_domain:
+                attachment_domain = employee_domain
+                attachment_domain += rec._get_salary_attachment_state_domain(Attachment)
+                if "payment_state" in Attachment._fields:
+                    attachment_domain.append(("payment_state", "!=", "paid"))
+                for attachment in Attachment.search(attachment_domain):
+                    amount = rec._get_salary_attachment_remaining_amount(attachment)
+                    if not amount:
+                        continue
+                    line_commands.append((0, 0, {
+                        "name": _("Open salary attachment: %s") % attachment.display_name,
+                        "category": "loan",
+                        "adjustment_type": "deduction",
+                        "amount": amount,
+                        "source_ref": "payroll:salary_attachment:%s" % attachment.id,
+                        "notes": _("Created from open salary attachment during EOS payroll sync."),
+                    }))
+            if line_commands:
+                rec.write({
+                    "adjustment_line_ids": line_commands,
+                    "payroll_adjustment_synced_date": fields.Datetime.now(),
+                })
+            else:
+                rec.payroll_adjustment_synced_date = fields.Datetime.now()
+            rec.message_post(body=_("Payroll arrears and deduction lines were synced."))
+        return True
 
     @api.constrains("requested_amount", "available_amount")
     def _check_requested_amount(self):
@@ -389,13 +659,37 @@ class PrEndOfService(models.Model):
                 rec.name = self.env["ir.sequence"].next_by_code("pr.end.of.service") or _("New")
             if not rec.is_partial and not rec.requested_amount:
                 rec.requested_amount = rec.available_amount
+            rec._sync_recovery_state_from_amount()
         return records
 
     def write(self, vals):
+        amount_fields = {
+            "reason_id",
+            "settlement_type",
+            "available_amount",
+            "annual_leave_days",
+            "other_amount",
+            "deduction_amount",
+            "adjustment_line_ids",
+        }
+        sync_requested = (
+            not self.env.context.get("skip_requested_amount_auto_sync")
+            and "requested_amount" not in vals
+            and bool(amount_fields.intersection(vals))
+        )
+        records_to_sync = (
+            self.filtered(lambda rec: rec._needs_requested_amount_auto_sync())
+            if sync_requested
+            else self.env[self._name]
+        )
+        if records_to_sync:
+            records_to_sync.with_context(skip_requested_amount_auto_sync=True).write({"requested_amount": 0.0})
         res = super().write(vals)
-        if any(field in vals for field in ("reason_id", "settlement_type", "available_amount")):
-            for rec in self.filtered(lambda item: not item.is_partial and item.state == "draft"):
-                rec.requested_amount = rec.available_amount
+        if sync_requested:
+            for rec in records_to_sync.exists().filtered(lambda item: item._needs_requested_amount_auto_sync()):
+                rec.with_context(skip_requested_amount_auto_sync=True).requested_amount = rec.available_amount
+        if bool(amount_fields.intersection(vals)):
+            self._sync_recovery_state_from_amount()
         return res
 
     def action_submit(self):
@@ -405,7 +699,8 @@ class PrEndOfService(models.Model):
             if not rec.contract_id:
                 raise UserError(_("The employee must have an active contract."))
             if rec.requested_amount <= 0.0:
-                raise UserError(_("Requested amount must be greater than zero."))
+                if rec.available_amount > 0.0:
+                    raise UserError(_("Requested amount must be greater than zero."))
             rec.state = "hr_approval"
             rec.message_post(body=_("End of service request submitted for HR approval."))
 
@@ -476,14 +771,66 @@ class PrEndOfService(models.Model):
         for rec in self:
             if rec.state != "accounts_approval":
                 continue
-            if not rec.bank_payment_id:
-                payment = self.env["pr.account.bank.payment"].sudo().create(rec._prepare_bank_payment_vals())
-                rec.bank_payment_id = payment.id
-                rec.message_post(body=_("Bank Payment %s created for EOS settlement.") % payment.name)
+            if rec.requested_amount <= 0.0:
+                recovery_state = "pending" if rec.employee_recovery_amount > 0.0 else "not_required"
+                rec.write({
+                    "state": "done",
+                    "date_accounting_approval": fields.Date.context_today(rec),
+                    "date_payment": fields.Date.context_today(rec),
+                    "employee_acceptance_state": "accepted",
+                    "employee_acceptance_date": fields.Datetime.now(),
+                    "recovery_state": recovery_state,
+                })
+                if not rec.is_partial:
+                    rec.employee_id.with_context(pr_eos_service_end_date=rec.service_end_date).set_out_of_service()
+                if rec.employee_recovery_amount > 0.0:
+                    rec.message_post(body=_(
+                        "Accounts approved a negative EOS settlement. No payment was created; %s is recoverable from the employee."
+                    ) % rec.employee_recovery_amount)
+                else:
+                    rec.message_post(body=_("Accounts approved a zero-payment EOS settlement. Employee was marked out of service."))
+                continue
+            rec.write({
+                "state": "employee_acceptance",
+                "date_accounting_approval": fields.Date.context_today(rec),
+                "employee_acceptance_state": "sent",
+                "employee_rejection_reason": False,
+            })
+            rec.message_post(body=_("Accounts approved the EOS settlement and sent it for employee acceptance."))
+
+    def _create_bank_payment_if_needed(self):
+        self.ensure_one()
+        if self.requested_amount <= 0.0 or self.bank_payment_id:
+            return self.bank_payment_id
+        payment = self.env["pr.account.bank.payment"].sudo().create(self._prepare_bank_payment_vals())
+        self.bank_payment_id = payment.id
+        self.message_post(body=_("Bank Payment %s created for EOS settlement.") % payment.name)
+        return payment
+
+    def action_employee_accept(self):
+        for rec in self:
+            if rec.state != "employee_acceptance":
+                continue
+            rec._create_bank_payment_if_needed()
             rec.write({
                 "state": "payment",
-                "date_accounting_approval": fields.Date.context_today(rec),
+                "employee_acceptance_state": "accepted",
+                "employee_acceptance_date": fields.Datetime.now(),
+                "employee_rejection_reason": False,
             })
+            rec.message_post(body=_("Employee accepted the EOS settlement."))
+
+    def action_employee_reject(self):
+        for rec in self:
+            if rec.state != "employee_acceptance":
+                continue
+            rec.write({
+                "state": "employee_rejected",
+                "employee_acceptance_state": "rejected",
+                "employee_acceptance_date": fields.Datetime.now(),
+                "employee_rejection_reason": _("Rejected by employee. Revise the settlement and resend for approval."),
+            })
+            rec.message_post(body=_("Employee rejected the EOS settlement. Revise and reset to draft."))
 
     def _mark_done_from_payment(self, payment):
         for rec in self:
@@ -499,11 +846,49 @@ class PrEndOfService(models.Model):
 
     def action_mark_done(self):
         for rec in self:
-            if rec.state != "payment":
+            if rec.state not in ("payment", "employee_acceptance"):
+                continue
+            if rec.requested_amount <= 0.0:
+                recovery_state = "pending" if rec.employee_recovery_amount > 0.0 else "not_required"
+                rec.write({
+                    "state": "done",
+                    "date_payment": fields.Date.context_today(rec),
+                    "recovery_state": recovery_state,
+                })
+                if not rec.is_partial:
+                    rec.employee_id.with_context(pr_eos_service_end_date=rec.service_end_date).set_out_of_service()
+                if rec.employee_recovery_amount > 0.0:
+                    rec.message_post(body=_(
+                        "End of service settlement completed without payment. %s is recoverable from the employee."
+                    ) % rec.employee_recovery_amount)
+                else:
+                    rec.message_post(body=_("End of service settlement completed without payment."))
                 continue
             if not rec.bank_payment_id or rec.bank_payment_id.state != "posted":
                 raise UserError(_("The related bank payment must be posted first."))
             rec._mark_done_from_payment(rec.bank_payment_id)
+
+    def action_mark_recovery_collected(self):
+        for rec in self:
+            if rec.employee_recovery_amount <= 0.0:
+                raise UserError(_("There is no employee recovery amount on this settlement."))
+            rec.write({
+                "recovery_state": "recovered",
+                "recovery_date": fields.Date.context_today(rec),
+            })
+            rec.message_post(body=_("Employee recovery amount %s was marked as collected.") % rec.employee_recovery_amount)
+        return True
+
+    def action_waive_recovery(self):
+        for rec in self:
+            if rec.employee_recovery_amount <= 0.0:
+                raise UserError(_("There is no employee recovery amount on this settlement."))
+            rec.write({
+                "recovery_state": "waived",
+                "recovery_date": fields.Date.context_today(rec),
+            })
+            rec.message_post(body=_("Employee recovery amount %s was waived.") % rec.employee_recovery_amount)
+        return True
 
     def action_cancel(self):
         for rec in self:
@@ -520,7 +905,11 @@ class PrEndOfService(models.Model):
                 "date_hr_approval": False,
                 "date_accounting_approval": False,
                 "date_payment": False,
+                "employee_acceptance_state": "not_sent",
+                "employee_acceptance_date": False,
+                "employee_rejection_reason": False,
             })
+            rec._sync_recovery_state_from_amount()
 
     def action_view_bank_payment(self):
         self.ensure_one()
@@ -545,3 +934,67 @@ class PrEndOfService(models.Model):
             "view_mode": "form",
             "res_id": self.journal_entry_id.id,
         }
+
+
+class PrEndOfServiceAdjustment(models.Model):
+    _name = "pr.end.of.service.adjustment"
+    _description = "End of Service Arrears / Deduction Line"
+    _order = "sequence, id"
+
+    sequence = fields.Integer(default=10)
+    eos_id = fields.Many2one(
+        "pr.end.of.service",
+        string="End of Service",
+        required=True,
+        ondelete="cascade",
+    )
+    company_id = fields.Many2one(
+        "res.company",
+        related="eos_id.company_id",
+        store=True,
+        readonly=True,
+    )
+    currency_id = fields.Many2one(
+        "res.currency",
+        related="eos_id.currency_id",
+        readonly=True,
+    )
+    name = fields.Char(string="Description", required=True)
+    category = fields.Selection(
+        [
+            ("salary_arrears", "Salary Arrears"),
+            ("unpaid_salary", "Unpaid Salary"),
+            ("asset", "Asset / Handover"),
+            ("loan", "Loan / Advance"),
+            ("insurance", "Insurance"),
+            ("account", "Accounts"),
+            ("gosi", "GOSI"),
+            ("clearance", "Clearance"),
+            ("other", "Other"),
+        ],
+        string="Category",
+        default="other",
+        required=True,
+    )
+    adjustment_type = fields.Selection(
+        [
+            ("addition", "Addition / Arrears"),
+            ("deduction", "Deduction"),
+        ],
+        string="Type",
+        default="deduction",
+        required=True,
+    )
+    amount = fields.Monetary(
+        string="Amount",
+        required=True,
+        currency_field="currency_id",
+    )
+    source_ref = fields.Char(string="Source Reference", readonly=True, copy=False)
+    notes = fields.Text(string="Notes")
+
+    @api.constrains("amount")
+    def _check_amount(self):
+        for line in self:
+            if line.amount < 0.0:
+                raise ValidationError(_("Adjustment amount cannot be negative."))

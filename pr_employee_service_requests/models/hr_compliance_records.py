@@ -3,6 +3,7 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 from .employee_service_request import _open_attachment_preview_action
 
@@ -24,6 +25,24 @@ class HrEmployeeIqama(models.Model):
     _inherit = "hr.employee.iqama"
 
     attachment_count = fields.Integer(string="Attachments", compute="_compute_attachment_count")
+
+    @staticmethod
+    def _is_saudi_country(country):
+        return bool(
+            country
+            and (
+                (country.code or "").upper() == "SA"
+                or ("is_homeland" in country._fields and country.is_homeland)
+                or (country.name or "").strip().casefold()
+                in ("saudi", "saudi arabia", "kingdom of saudi arabia")
+            )
+        )
+
+    @api.constrains("employee_id")
+    def _check_not_saudi_employee(self):
+        for rec in self:
+            if rec._is_saudi_country(rec.employee_id.country_id):
+                raise ValidationError(_("Saudi employees do not require Iqama/Work Permit records."))
 
     @api.depends("message_ids")
     def _compute_attachment_count(self):

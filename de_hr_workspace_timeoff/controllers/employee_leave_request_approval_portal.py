@@ -11,7 +11,7 @@ from odoo.addons.portal.controllers.portal import CustomerPortal, pager as porta
 from odoo.addons.de_hr_workspace.controllers.portal_employee import require_current_employee
 from odoo.tools import groupby as groupbyelem
 
-from odoo.osv.expression import OR, AND
+from odoo.osv.expression import AND
 
 
 class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
@@ -27,13 +27,7 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
     def _prepare_my_leave_request_approval_domain(self):
         return AND([
             [("employee_manager_id.user_id", "=", request.env.user.id)],
-            OR([
-                [("state", "=", "draft")],
-                [
-                    ("state", "=", "reject"),
-                    ("rejected_stage", "=", "manager"),
-                ],
-            ]),
+            [("state", "=", "draft")],
         ])
 
     def _prepare_my_leave_request_approval_searchbar_sortings(self):

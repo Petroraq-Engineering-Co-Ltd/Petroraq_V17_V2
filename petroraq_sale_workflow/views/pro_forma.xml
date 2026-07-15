@@ -9,16 +9,12 @@
         <!--        </xpath>-->
 
         <xpath expr="//h2" position="replace">
-            <div class="mt-2">
-                <div>
-                    <h2 class="mt-4">
+            <div class="mt-2 text-center" style="text-align:center; width:100%;">
+                <div style="text-align:center; width:100%;">
+                    <h2 class="mt-4 mb-3" style="text-align:center; width:100%; display:block;">
                         <span t-if="env.context.get('proforma', False) or is_pro_forma">Pro-Forma Invoice</span>
-                        <span t-elif="doc.approval_state == 'approved' and doc.state in ['draft','sent']">Quotation #
-                        </span>
-                        <span t-elif="doc.approval_state != 'approved' and doc.state in ['draft','sent']">Draft
-                            Quotation
-                            #
-                        </span>
+                        <span t-elif="doc.approval_state == 'approved' and doc.state in ['draft','sent']">Quotation #</span>
+                        <span t-elif="doc.approval_state != 'approved' and doc.state in ['draft','sent']">Draft Quotation #</span>
                         <span t-else="">Order #</span>
                         <span t-field="doc.name">SO0000</span>
                     </h2>

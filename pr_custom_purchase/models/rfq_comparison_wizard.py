@@ -262,6 +262,7 @@ class RFQComparisonWizard(models.TransientModel):
                 "partner_ref": source_rfq.partner_ref if source_rfq else False,
                 "date_planned": source_rfq.date_planned if source_rfq else fields.Datetime.now(),
                 "payment_term_id": source_rfq.payment_term_id.id if source_rfq and source_rfq.payment_term_id else False,
+                "payment_terms_text": source_rfq.payment_terms_text if source_rfq else False,
                 "incoterm_id": source_rfq.incoterm_id.id if source_rfq and source_rfq.incoterm_id else False,
                 "notes": source_rfq.notes if source_rfq else False,
                 "requested_by": self.requisition_id.requested_by,

@@ -18,6 +18,9 @@ class CareersController(http.Controller):
     CONTACT_RATE_WINDOW = 10 * 60
     CONTACT_CAPTCHA_TTL = 10 * 60
     _contact_attempts_by_ip = {}
+    JOB_TITLE_AR = {
+        'office receptionist': 'موظف استقبال مكتبي',
+    }
 
     @http.route('/', type='http', auth='public', website=True, sitemap=True)
     def homepage(self, **kwargs):
@@ -228,7 +231,10 @@ class CareersController(http.Controller):
     @http.route('/jobs', type='http', auth='public', website=True, sitemap=True)
     def jobs(self, **kwargs):
         jobs = request.env['hr.job'].sudo().search([('website_published', '=', True)], order='create_date desc')
-        return request.render('pr_website.careers_jobs', {'jobs': jobs})
+        return request.render('pr_website.careers_jobs', {
+            'jobs': jobs,
+            'job_display_names': self._get_job_display_names(jobs),
+        })
 
     @http.route('/job/<int:job_id>', type='http', auth='public', website=True, sitemap=True)
     def job_detail(self, job_id, **kwargs):
@@ -242,11 +248,28 @@ class CareersController(http.Controller):
         return request.render('pr_website.careers_job_detail',
                               {
                                   'job': job,
+                                  'job_display_name': self._get_job_display_name(job),
                                   'degrees': degrees,
                                   'countries': countries,
                                   'skills': skills,
                                   'error_message': error_message,
                               })
+
+    def _is_arabic_request(self):
+        lang = getattr(request, 'lang', None)
+        lang_code = getattr(lang, 'code', None) or request.env.context.get('lang') or ''
+        return lang_code.lower().startswith('ar')
+
+    def _get_job_display_name(self, job):
+        name = (job.with_context(lang=request.env.context.get('lang')).name or '').strip()
+        if not self._is_arabic_request() or not name:
+            return name
+        if re.search(r'[\u0600-\u06FF]', name):
+            return name
+        return self.JOB_TITLE_AR.get(name.lower(), name)
+
+    def _get_job_display_names(self, jobs):
+        return {job.id: self._get_job_display_name(job) for job in jobs}
 
     def _validate_application_payload(self, post):
         validators = [

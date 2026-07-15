@@ -118,7 +118,7 @@
 
                             </tr>
                             <tr t-if="o.partner_ref">
-                                <td style="text-align:left;">Your Order Reference:</td>
+                                <td style="text-align:left;">Your Reference:</td>
                                 <td style="text-align:left">
                                     <span t-esc="o.partner_ref"/>
                                 </td>
@@ -333,6 +333,17 @@
                                         </td>
                                     </tr>
                                 </table>
+                        <table t-if="o.payment_terms_text" class="table table-border"
+                               style="border:1px solid #000000;margin-top:8px;font-size:16px;font-family: 'DroidArabicNaskh';">
+                            <tr>
+                                <td width="25%" style="border:1px solid #000000;font-weight:bold;">
+                                    Payment Terms
+                                </td>
+                                <td width="75%" style="border:1px solid #000000;white-space:pre-line;">
+                                    <span t-field="o.payment_terms_text"/>
+                                </td>
+                            </tr>
+                        </table>
                         <p t-field="o.notes" class="mt-4"/>
                         <br/>
 <!--                        <table class="table table-borderless" style="line-height:0.5;font-family: 'DroidArabicNaskh';position: absolute; bottom: 50px !important;">-->

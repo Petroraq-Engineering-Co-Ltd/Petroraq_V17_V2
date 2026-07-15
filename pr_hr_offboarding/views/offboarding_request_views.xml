@@ -14,10 +14,26 @@
                 <filter string="My Pending Approvals"
                         name="my_pending_approvals"
                         domain="[('department_manager_user_id', '=', uid), ('state', '=', 'submitted')]"/>
+                <filter string="Pending Department Manager Approval"
+                        name="pending_dept_manager_approval"
+                        domain="[('state', '=', 'submitted')]"/>
+                <filter string="Pending HR Manager Approval"
+                        name="pending_hr_manager_approval"
+                        domain="[('state', '=', 'hr_manager_approval')]"/>
+                <filter string="Pending MD Approval"
+                        name="pending_md_approval"
+                        domain="[('state', '=', 'md_approval')]"/>
                 <separator/>
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Department Manager Approval" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="HR Manager Approval" name="hr_manager_approval"
+                        domain="[('state', '=', 'hr_manager_approval')]"/>
+                <filter string="MD Approval" name="md_approval"
+                        domain="[('state', '=', 'md_approval')]"/>
                 <filter string="Accepted" name="accepted" domain="[('state', '=', 'accepted')]"/>
+                <filter string="Clearance" name="clearance" domain="[('state', '=', 'clearance')]"/>
+                <filter string="EOS Settlement" name="eos" domain="[('state', '=', 'eos')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
                 <filter string="Rejected" name="rejected" domain="[('state', '=', 'rejected')]"/>
                 <group expand="0" string="Group By">
                     <filter string="Department"
@@ -42,9 +58,9 @@
         <field name="model">pr.hr.offboarding.request</field>
         <field name="arch" type="xml">
             <tree string="Offboarding Requests"
-                  decoration-success="state == 'accepted'"
-                  decoration-danger="state == 'rejected'"
-                  decoration-warning="state == 'submitted'">
+                  decoration-success="state in ('accepted', 'done', 'continued')"
+                  decoration-danger="state in ('rejected', 'cancel')"
+                  decoration-warning="state in ('submitted', 'hr_manager_approval', 'md_approval', 'clearance', 'eos')">
                 <field name="name"/>
                 <field name="request_type"/>
                 <field name="employee_id"/>
@@ -52,12 +68,16 @@
                 <field name="department_manager_id"/>
                 <field name="request_date"/>
                 <field name="last_working_date"/>
+                <field name="exit_process"/>
+                <field name="clearance_completed" widget="boolean_toggle"/>
+                <field name="eos_id"/>
                 <field name="state"
                        widget="badge"
                        decoration-muted="state == 'draft'"
-                       decoration-warning="state == 'submitted'"
-                       decoration-success="state == 'accepted'"
-                       decoration-danger="state == 'rejected'"/>
+                       decoration-warning="state in ('submitted', 'hr_manager_approval', 'md_approval')"
+                       decoration-success="state in ('accepted', 'done', 'continued')"
+                       decoration-info="state in ('clearance', 'eos')"
+                       decoration-danger="state in ('rejected', 'cancel')"/>
             </tree>
         </field>
     </record>
@@ -70,13 +90,17 @@
                 <header>
                     <field name="is_hr_supervisor" invisible="1"/>
                     <field name="is_department_manager" invisible="1"/>
+                    <field name="is_hr_manager" invisible="1"/>
+                    <field name="is_md_approver" invisible="1"/>
+                    <field name="clearance_completed" invisible="1"/>
+                    <field name="eos_state" invisible="1"/>
                     <button name="action_submit"
                             string="Submit"
                             type="object"
                             class="oe_highlight"
                             invisible="state != 'draft' or not is_hr_supervisor"/>
                     <button name="action_accept"
-                            string="Accept"
+                            string="Dept. Manager Approve"
                             type="object"
                             class="oe_highlight"
                             invisible="state != 'submitted' or not is_department_manager"/>
@@ -84,15 +108,59 @@
                             string="Reject"
                             type="object"
                             class="btn-secondary"
-                            invisible="state != 'submitted' or not is_department_manager"/>
+                            invisible="(state != 'submitted' or not is_department_manager) and (state != 'hr_manager_approval' or not is_hr_manager) and (state != 'md_approval' or not is_md_approver)"/>
+                    <button name="action_hr_manager_approve"
+                            string="HR Manager Approve"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'hr_manager_approval' or not is_hr_manager"/>
+                    <button name="action_md_approve"
+                            string="MD Approve"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'md_approval' or not is_md_approver"/>
+                    <button name="action_start_clearance"
+                            string="Start Clearance"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'accepted' or not is_hr_supervisor"/>
+                    <button name="action_continue_employment"
+                            string="Continue Employment"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state not in ('accepted', 'clearance') or not is_hr_supervisor"/>
+                    <button name="action_complete_clearance"
+                            string="Complete Clearance"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'clearance' or clearance_completed or not is_hr_supervisor"/>
+                    <button name="action_create_eos_settlement"
+                            string="Create EOS Settlement"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'clearance' or not clearance_completed or eos_id or not is_hr_supervisor"/>
+                    <button name="action_view_eos_settlement"
+                            string="Open EOS Settlement"
+                            type="object"
+                            invisible="not eos_id"/>
+                    <button name="action_mark_final_released"
+                            string="Mark Final Released"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'eos' or eos_state != 'done' or not is_hr_supervisor"/>
                     <button name="action_reset_to_draft"
                             string="Reset to Draft"
                             type="object"
                             class="btn-secondary"
-                            invisible="state != 'rejected' or not is_hr_supervisor"/>
+                            invisible="state not in ('rejected', 'cancel') or not is_hr_supervisor"/>
+                    <button name="action_cancel"
+                            string="Cancel"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state in ('done', 'continued', 'cancel', 'rejected') or not is_hr_supervisor"/>
                     <field name="state"
                            widget="statusbar"
-                           statusbar_visible="draft,submitted,accepted,rejected"/>
+                           statusbar_visible="draft,submitted,hr_manager_approval,md_approval,accepted,clearance,eos,done"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon"
@@ -100,9 +168,31 @@
                             bg_color="bg-success"
                             invisible="state != 'accepted'"/>
                     <widget name="web_ribbon"
+                            title="DONE"
+                            bg_color="bg-success"
+                            invisible="state != 'done'"/>
+                    <widget name="web_ribbon"
                             title="REJECTED"
                             bg_color="bg-danger"
                             invisible="state != 'rejected'"/>
+                    <widget name="web_ribbon"
+                            title="CONTINUED"
+                            bg_color="bg-info"
+                            invisible="state != 'continued'"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_eos_settlement"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-calculator"
+                                invisible="not eos_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="eos_requested_amount" widget="monetary"/>
+                                </span>
+                                <span class="o_stat_text">EOS Settlement</span>
+                            </div>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
@@ -121,13 +211,16 @@
                             <field name="company_id"
                                    readonly="1"
                                    groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
                         </group>
                         <group string="Employee">
                             <field name="department_id" readonly="1"/>
                             <field name="job_id" readonly="1"/>
+                            <field name="is_saudi" readonly="1"/>
+                            <field name="is_expat" readonly="1"/>
                             <field name="department_manager_id" readonly="1"/>
                             <field name="department_manager_user_id"
-                                   readonly="1"
+                                   invisible="1"
                                    groups="base.group_no_one"/>
                         </group>
                     </group>
@@ -137,6 +230,114 @@
                                readonly="state != 'draft'"/>
                     </group>
                     <notebook>
+                        <page string="Exit / Transfer">
+                            <group>
+                                <group string="Government / Exit Process">
+                                    <field name="qiwa_acceptance_state"
+                                           readonly="state not in ('draft', 'accepted', 'clearance')"/>
+                                    <field name="exit_process"
+                                           readonly="state not in ('draft', 'accepted', 'clearance')"/>
+                                    <field name="final_exit_state"
+                                           readonly="state not in ('accepted', 'clearance')"
+                                           invisible="exit_process != 'final_exit'"/>
+                                    <field name="local_transfer_state"
+                                           readonly="state not in ('accepted', 'clearance')"
+                                           invisible="exit_process != 'local_transfer'"/>
+                                    <field name="gosi_removal_state"
+                                           readonly="state not in ('accepted', 'clearance')"
+                                           invisible="not is_saudi"/>
+                                </group>
+                                <group string="EOS Link">
+                                    <field name="eos_reason_id"
+                                           readonly="state not in ('draft', 'accepted', 'clearance')"/>
+                                    <field name="eos_id" readonly="1"/>
+                                    <field name="eos_state" readonly="1" widget="badge"
+                                           decoration-success="eos_state == 'done'"
+                                           decoration-warning="eos_state in ('hr_approval', 'accounts_approval', 'employee_acceptance', 'payment')"
+                                           decoration-danger="eos_state == 'cancel'"/>
+                                    <field name="eos_employee_acceptance_state" readonly="1"/>
+                                    <field name="eos_employee_recovery_amount" readonly="1" widget="monetary"
+                                           invisible="eos_employee_recovery_amount &lt;= 0"/>
+                                    <field name="eos_recovery_state" readonly="1" widget="badge"
+                                           invisible="eos_employee_recovery_amount &lt;= 0"
+                                           decoration-success="eos_recovery_state == 'recovered'"
+                                           decoration-warning="eos_recovery_state == 'pending'"
+                                           decoration-muted="eos_recovery_state == 'waived'"/>
+                                    <field name="final_release_date" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Clearance Checklist">
+                            <group>
+                                <group>
+                                    <field name="clearance_completed" readonly="1"/>
+                                    <field name="clearance_completed_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="clearance_addition_amount" readonly="1" widget="monetary"/>
+                                    <field name="clearance_deduction_amount" readonly="1" widget="monetary"/>
+                                </group>
+                            </group>
+                            <field name="clearance_line_ids" readonly="state not in ('accepted', 'clearance')">
+                                <tree editable="bottom"
+                                      decoration-success="state == 'done'"
+                                      decoration-muted="state == 'waived'"
+                                      decoration-warning="state == 'pending'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="category"/>
+                                    <field name="name"/>
+                                    <field name="responsible_user_id"/>
+                                    <field name="deadline_date"/>
+                                    <field name="required"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'done'"
+                                           decoration-muted="state == 'waived'"
+                                           decoration-warning="state == 'pending'"/>
+                                    <field name="settlement_effect"/>
+                                    <field name="amount" widget="monetary"/>
+                                    <field name="reminder_activity_type_id"/>
+                                    <field name="reminder_activity_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="completed_by_id" readonly="1"/>
+                                    <field name="completed_date" readonly="1"/>
+                                    <field name="waiver_reason"/>
+                                    <field name="notes"/>
+                                    <button name="action_done" type="object" string="Done"
+                                            invisible="state == 'done'"/>
+                                    <button name="action_waive" type="object" string="Waive"
+                                            invisible="state == 'waived'"/>
+                                    <button name="action_reset" type="object" string="Reset"
+                                            invisible="state == 'pending'"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="category"/>
+                                        <field name="name"/>
+                                        <field name="responsible_user_id"/>
+                                        <field name="deadline_date"/>
+                                        <field name="reminder_activity_type_id"/>
+                                        <field name="required"/>
+                                        <field name="state"/>
+                                    </group>
+                                    <group>
+                                        <field name="settlement_effect"/>
+                                        <field name="amount" widget="monetary"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="template_line_id" readonly="1"/>
+                                        <field name="reminder_activity_id" readonly="1"/>
+                                    </group>
+                                    <group string="Description">
+                                        <field name="description" nolabel="1"/>
+                                    </group>
+                                    <group string="Waiver Reason" invisible="state != 'waived'">
+                                        <field name="waiver_reason" nolabel="1"/>
+                                    </group>
+                                    <group string="Notes">
+                                        <field name="notes" nolabel="1"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
                         <page string="Approval Audit">
                             <group>
                                 <group string="Submission">
@@ -146,6 +347,14 @@
                                 <group string="Department Manager Decision">
                                     <field name="approved_by_id" readonly="1"/>
                                     <field name="approved_date" readonly="1"/>
+                                </group>
+                                <group string="HR Manager Decision">
+                                    <field name="hr_manager_approved_by_id" readonly="1"/>
+                                    <field name="hr_manager_approved_date" readonly="1"/>
+                                </group>
+                                <group string="MD Decision">
+                                    <field name="md_approved_by_id" readonly="1"/>
+                                    <field name="md_approved_date" readonly="1"/>
                                     <field name="rejected_by_id"
                                            readonly="1"
                                            invisible="state != 'rejected'"/>
@@ -163,7 +372,10 @@
                         </page>
                     </notebook>
                 </sheet>
-                <chatter/>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
             </form>
         </field>
     </record>
@@ -181,15 +393,43 @@
     </record>
 
     <record id="action_my_offboarding_approvals" model="ir.actions.act_window">
-        <field name="name">Offboarding Approvals</field>
+        <field name="name">Department Manager Offboarding Approvals</field>
         <field name="res_model">pr.hr.offboarding.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_offboarding_request_search"/>
-        <field name="domain">[('department_manager_user_id', '=', uid)]</field>
+        <field name="domain">[('department_manager_user_id', '=', uid), ('state', '=', 'submitted')]</field>
         <field name="context">{'create': False, 'search_default_my_pending_approvals': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                There are no offboarding requests waiting for your approval.
+                There are no offboarding requests waiting for department manager approval.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_hr_manager_offboarding_approvals" model="ir.actions.act_window">
+        <field name="name">HR Manager Offboarding Approvals</field>
+        <field name="res_model">pr.hr.offboarding.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_offboarding_request_search"/>
+        <field name="domain">[('state', '=', 'hr_manager_approval')]</field>
+        <field name="context">{'create': False, 'search_default_pending_hr_manager_approval': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                There are no offboarding requests waiting for HR Manager approval.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_md_offboarding_approvals" model="ir.actions.act_window">
+        <field name="name">MD Offboarding Approvals</field>
+        <field name="res_model">pr.hr.offboarding.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_offboarding_request_search"/>
+        <field name="domain">[('state', '=', 'md_approval')]</field>
+        <field name="context">{'create': False, 'search_default_pending_md_approval': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                There are no offboarding requests waiting for MD approval.
             </p>
         </field>
     </record>
@@ -208,9 +448,23 @@
               groups="pr_hr_recruitment_request.group_onboarding_supervisor,base.group_system"/>
 
     <menuitem id="menu_my_offboarding_approvals"
-              name="Offboarding Approvals"
+              name="Department Manager Offboarding Approvals"
               parent="de_hr_workspace.menu_my_employee_approvals"
               action="action_my_offboarding_approvals"
               sequence="15"
               groups="base.group_user"/>
+
+    <menuitem id="menu_hr_manager_offboarding_approvals"
+              name="HR Manager Offboarding Approvals"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_hr_manager_offboarding_approvals"
+              sequence="16"
+              groups="hr.group_hr_manager"/>
+
+    <menuitem id="menu_md_offboarding_approvals"
+              name="MD Offboarding Approvals"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_md_offboarding_approvals"
+              sequence="17"
+              groups="pr_hr_recruitment_request.group_onboarding_md"/>
 </odoo>

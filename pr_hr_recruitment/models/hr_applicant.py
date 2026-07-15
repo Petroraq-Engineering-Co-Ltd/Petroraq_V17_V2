@@ -308,6 +308,17 @@ class HrApplicant(models.Model):
             )
         return "Not Applicable"
 
+    def _get_applicant_country(self):
+        self.ensure_one()
+        country = self.env['res.country']
+        if 'nationality_id' in self._fields and self.nationality_id:
+            return self.nationality_id
+        elif 'country_id' in self._fields and self.country_id:
+            return self.country_id
+        elif self.partner_id.country_id:
+            return self.partner_id.country_id
+        return country
+
     def _get_offer_letter_values(self):
         self.ensure_one()
         offer_date = fields.Date.context_today(self)
@@ -330,13 +341,7 @@ class HrApplicant(models.Model):
             gross_salary += self._get_offer_allowance_amount(
                 food_type, self.offer_food_allowance_amount, food_percentage, basic_salary)
             gross_salary += self.offer_fixed_overtime or 0.0
-        country = self.env['res.country']
-        if 'nationality_id' in self._fields and self.nationality_id:
-            country = self.nationality_id
-        elif 'country_id' in self._fields and self.country_id:
-            country = self.country_id
-        elif self.partner_id.country_id:
-            country = self.partner_id.country_id
+        country = self._get_applicant_country()
         nationality = country.name or ''
         if country and 'nationality' in country._fields and country.nationality:
             nationality = country.nationality
@@ -620,12 +625,16 @@ class HrApplicant(models.Model):
                     raise ValidationError("You can not go to this step directly, please forward the rules")
 
             if rec.stage_id and rec.stage_id.hired_stage and not rec.applicant_onboarding_id:
-                employee_id = self.env["hr.employee"].sudo().create({
+                employee_vals = {
                     "name": rec.partner_name,
                     # "code": "Enter Code Here",
                     "code": self.generate_random_4_char_string(),
                     "company_id": self.env.company.id,
-                })
+                }
+                applicant_country = rec._get_applicant_country()
+                if applicant_country:
+                    employee_vals["country_id"] = applicant_country.id
+                employee_id = self.env["hr.employee"].sudo().create(employee_vals)
                 applicant_onboarding_id = self.env["hr.applicant.onboarding"].create({
                     "name": rec.partner_name,
                     "applicant_id": rec.id,

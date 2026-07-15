@@ -1,4 +1,6 @@
-from odoo import models
+from odoo import _, fields, models
+from odoo.exceptions import UserError
+from odoo.tools import html_escape
 from datetime import datetime, date, timedelta
 import base64
 from io import BytesIO
@@ -8,15 +10,104 @@ from reportlab.lib.units import mm
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
+    payment_terms_text = fields.Text(
+        string="Payment Terms",
+        copy=True,
+        help="Free-text commercial payment terms to print on RFQs and Purchase Orders.",
+    )
+
+    def _require_payment_terms_text(self):
+        missing_orders = self.filtered(
+            lambda order: order.state != "cancel" and not (order.payment_terms_text or "").strip()
+        )
+        if missing_orders:
+            raise UserError(
+                _("Please enter Payment Terms before continuing for: %s")
+                % ", ".join(missing_orders.mapped("display_name"))
+            )
+        return True
+
+    def action_rfq_send(self):
+        self._require_payment_terms_text()
+        return super().action_rfq_send()
+
+    def action_submit_for_approval(self):
+        self._require_payment_terms_text()
+        return super().action_submit_for_approval()
+
+    def button_confirm(self):
+        self._require_payment_terms_text()
+        return super().button_confirm()
+
+    def action_create_po_from_rfq(self):
+        self._require_payment_terms_text()
+        return super().action_create_po_from_rfq()
+
     def _get_report_base_filename(self):
         self.ensure_one()
         if self.state in ("draft", "sent") or getattr(self, "is_rfq_record", False):
             return f"Request for Quotation - {self.name}"
         return f"Purchase Order - {self.name}"
 
+    def _copy_purchase_attachments_to_moves(self, moves):
+        """Copy PO attachments to vendor bills created from this PO."""
+        Attachment = self.env["ir.attachment"].sudo()
+        moves = moves.exists()
+        for order in self:
+            if not moves:
+                continue
+
+            source_attachments = Attachment.search([
+                ("res_model", "=", "purchase.order"),
+                ("res_id", "=", order.id),
+                ("res_field", "=", False),
+            ])
+            if not source_attachments:
+                continue
+
+            for move in moves:
+                existing_attachments = Attachment.search([
+                    ("res_model", "=", "account.move"),
+                    ("res_id", "=", move.id),
+                    ("res_field", "=", False),
+                ])
+                for attachment in source_attachments:
+                    duplicate = existing_attachments.filtered(
+                        lambda existing: existing.name == attachment.name
+                        and existing.type == attachment.type
+                        and existing.checksum == attachment.checksum
+                        and existing.url == attachment.url
+                    )
+                    if duplicate:
+                        continue
+
+                    copy_vals = {
+                        "res_model": "account.move",
+                        "res_id": move.id,
+                        "res_field": False,
+                    }
+                    if move.company_id:
+                        copy_vals["company_id"] = move.company_id.id
+                    copied = attachment.copy(copy_vals)
+                    existing_attachments |= copied
+
+    def action_create_invoice(self):
+        bills_before = {
+            order.id: order.invoice_ids.ids
+            for order in self
+        }
+        result = super().action_create_invoice()
+        self.invalidate_recordset(["invoice_ids"])
+        for order in self:
+            previous_bills = self.env["account.move"].browse(bills_before.get(order.id, []))
+            new_bills = order.invoice_ids - previous_bills
+            order._copy_purchase_attachments_to_moves(new_bills)
+        return result
+
     def action_send_purchase_order_email(self):
         """Open the standard Compose wizard pre-filled with our custom body and recipients."""
         self.ensure_one()
+        self._require_payment_terms_text()
 
         # Header fields (read defensively for custom attrs)
         vendor_name = self.partner_id.display_name or ''
@@ -429,10 +520,27 @@ class PurchaseOrder(models.Model):
     def _get_terms_section(self):
         """Return terms and conditions derived from purchase order fields."""
         items = []
-        if self.payment_term_id:
+        payment_terms = (self.payment_terms_text or "").strip()
+        if payment_terms:
+            items.append(('Payment Terms', payment_terms))
+        elif self.payment_term_id:
             items.append(('Payment Terms', self.payment_term_id.display_name))
         if self.incoterm_id:
             items.append(('Delivery Terms', self.incoterm_id.display_name))
         if self.partner_ref:
             items.append(('Vendor Reference', self.partner_ref))
-        return {'html': '', 'items': items}
+        def _html_value(value):
+            return str(html_escape(value or "")).replace("\n", "<br/>")
+
+        rows = "".join(
+            "<tr><td style='padding:4px 8px;width:25%;'><strong>%s</strong></td>"
+            "<td style='padding:4px 8px;'>%s</td></tr>"
+            % (html_escape(label), _html_value(value))
+            for label, value in items
+        )
+        html = (
+            "<h3 style='margin-top:24px;'>Commercial Terms</h3>"
+            "<table border='1' cellspacing='0' cellpadding='4' "
+            "style='border-collapse:collapse;width:100%;'>%s</table>"
+        ) % rows if rows else ''
+        return {'html': html, 'items': items}

@@ -7,7 +7,17 @@ class IrAttachment(models.Model):
     _inherit = "ir.attachment"
 
     pr_vendor_portal_upload = fields.Boolean(
-        string="Vendor Portal Invoice",
+        string="Vendor Portal Upload",
+        index=True,
+        copy=False,
+    )
+    pr_vendor_portal_document_type = fields.Selection(
+        [
+            ("invoice", "Vendor Invoice"),
+            ("delivery_note", "Delivery Note"),
+            ("ses", "Service Entry Sheet"),
+        ],
+        string="Vendor Portal Document Type",
         index=True,
         copy=False,
     )
@@ -34,6 +44,15 @@ class IrAttachment(models.Model):
     pr_vendor_invoice_currency_id = fields.Many2one(
         "res.currency",
         string="Vendor Invoice Currency",
+        copy=False,
+    )
+    pr_vendor_document_number = fields.Char(
+        string="Vendor Document Number",
+        index=True,
+        copy=False,
+    )
+    pr_vendor_document_date = fields.Date(
+        string="Vendor Document Date",
         copy=False,
     )
     pr_vendor_portal_user_id = fields.Many2one(

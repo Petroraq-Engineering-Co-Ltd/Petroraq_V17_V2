@@ -64,9 +64,9 @@
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-warning" invisible="active == True" />
-                    <widget name="web_ribbon" title="VALID" bg_color="bg-success" invisible="state != 'valid'" />
-                    <widget name="web_ribbon" title="EXPIRED" bg_color="bg-danger" invisible="state != 'expired'" />
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-warning" invisible="active == True"/>
+                    <widget name="web_ribbon" title="VALID" bg_color="bg-success" invisible="state != 'valid'"/>
+                    <widget name="web_ribbon" title="EXPIRED" bg_color="bg-danger" invisible="state != 'expired'"/>
                     <field name="active" invisible="1"/>
                     <div class="oe_title">
                         <label for="name" string="Name" class="oe_edit_only"/>
@@ -77,7 +77,7 @@
                     <group name="main">
                         <group>
                             <field name="employee_id" options="{'no_create': True, 'no_edit': True}"
-                            readonly="state != 'draft'"/>
+                                   readonly="state != 'draft'"/>
                             <field name="identification_id"/>
 
                         </group>
@@ -89,7 +89,8 @@
                         </group>
                     </group>
                     <label for="iqama_line_ids" string="IQAMA RENEWS" invisible="not iqama_line_ids"/>
-                    <field name="iqama_line_ids" string="IQAMA RENEWS" widget="section_and_note_one2many" readonly="1" invisible="not iqama_line_ids">
+                    <field name="iqama_line_ids" string="IQAMA RENEWS" widget="section_and_note_one2many" readonly="1"
+                           invisible="not iqama_line_ids">
                         <tree string="IQAMA RENEWS" editable="bottom">
                             <field name="iqama_id" column_invisible="1"/>
                             <field name="employee_id" column_invisible="1"/>
@@ -104,15 +105,15 @@
                             <field name="expiry_date_hijri"/>
                             <field name="amount"/>
                             <field name="state" widget="badge"
-               decoration-info="state == 'initiated'"
-               decoration-warning="state == 'in_progress'"
-               decoration-success="state == 'issued'"/>
-<!--                            <button-->
-<!--                            name="action_post"-->
-<!--                            string="POST"-->
-<!--                            type="object"-->
-<!--                            class="btn-success"-->
-<!--                            icon="fa-money"/>-->
+                                   decoration-info="state == 'initiated'"
+                                   decoration-warning="state == 'in_progress'"
+                                   decoration-success="state == 'issued'"/>
+                            <!--                            <button-->
+                            <!--                            name="action_post"-->
+                            <!--                            string="POST"-->
+                            <!--                            type="object"-->
+                            <!--                            class="btn-success"-->
+                            <!--                            icon="fa-money"/>-->
 
                         </tree>
                     </field>
@@ -139,27 +140,27 @@
                 <field name="expiry_date"/>
                 <field name="expiry_date_hijri"/>
                 <field name="state" widget="badge"
-               decoration-info="state in ['draft', 'pending_approval']"
-               decoration-warning="state == 'approve'"
-               decoration-success="state == 'valid'"
-               decoration-danger="state == 'expired'"/>
+                       decoration-info="state in ['draft', 'pending_approval']"
+                       decoration-warning="state == 'approve'"
+                       decoration-success="state == 'valid'"
+                       decoration-danger="state == 'expired'"/>
                 <button
-                            name="action_renew"
-                            string="RENEW"
-                            type="object"
-                            class="btn-info"
-                            icon="fa-plus-square"
-                            invisible="check_renews == False"
+                        name="action_renew"
+                        string="RENEW"
+                        type="object"
+                        class="btn-info"
+                        icon="fa-plus-square"
+                        invisible="check_renews == False"
                 />
                 <button
-                            name="action_renew"
-                            string="RELEASE"
-                            type="object"
-                            class="btn-info"
-                            icon="fa-plus-square"
-                            invisible="check_renews == True"
+                        name="action_renew"
+                        string="RELEASE"
+                        type="object"
+                        class="btn-info"
+                        icon="fa-plus-square"
+                        invisible="check_renews == True"
                 />
-<!--                <button name="action_edit" string="Edit" type="object" icon="fa-user" class="oe_highlight"/>-->
+                <!--                <button name="action_edit" string="Edit" type="object" icon="fa-user" class="oe_highlight"/>-->
             </tree>
         </field>
     </record>
@@ -188,7 +189,7 @@
                                 </div>
                             </div>
                             <div class="o_kanban_record_bottom">
-                                 <strong>
+                                <strong>
                                     <field name="identification_id"/>
                                 </strong>
                             </div>

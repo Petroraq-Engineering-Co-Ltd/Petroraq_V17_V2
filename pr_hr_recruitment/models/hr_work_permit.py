@@ -39,6 +39,24 @@ class HRWorkPermit(models.Model):
 
     # endregion [Fields]
 
+    @staticmethod
+    def _is_saudi_country(country):
+        return bool(
+            country
+            and (
+                (country.code or "").upper() == "SA"
+                or ("is_homeland" in country._fields and country.is_homeland)
+                or (country.name or "").strip().casefold()
+                in ("saudi", "saudi arabia", "kingdom of saudi arabia")
+            )
+        )
+
+    @api.constrains("employee_id")
+    def _check_not_saudi_employee(self):
+        for rec in self:
+            if rec._is_saudi_country(rec.employee_id.country_id):
+                raise ValidationError(_("Saudi employees do not require Iqama/Work Permit records."))
+
     @api.onchange("work_permit_expiry_date")
     def _set_work_permit_renewal_date(self):
         for rec in self:
@@ -48,10 +66,12 @@ class HRWorkPermit(models.Model):
 
     def action_submit(self):
         for rec in self:
+            rec._check_not_saudi_employee()
             rec.state = "submit"
 
     def action_approve(self):
         for rec in self:
+            rec._check_not_saudi_employee()
             bank_account_id = self.env["account.account"].sudo().search([("code", "=", "1001.02.00.07")], limit=1)
             account_id = bank_account_id if bank_account_id else self.env["account.account"].sudo().browse(749)
             bank_payment_id = self.env["pr.account.bank.payment"].sudo().create({
@@ -63,7 +83,9 @@ class HRWorkPermit(models.Model):
                 bank_payment_id.work_permit_id = rec.id
             if rec.applicant_onboarding_id:
                 rec.applicant_onboarding_id.work_permit_id = rec.id
-                rec.applicant_onboarding_id.state = "work_permit"
+                if not rec.applicant_onboarding_id.employee_id:
+                    rec.applicant_onboarding_id.employee_id = rec.employee_id.id
+                rec.applicant_onboarding_id._mark_onboarded_after_employee_created()
             rec.state = "approved"
             rec.payment_state = "pending"
 

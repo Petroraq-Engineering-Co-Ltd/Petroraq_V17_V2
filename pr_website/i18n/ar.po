@@ -18,6 +18,17 @@ msgstr ""
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
+msgid "Human verification"
+msgstr "التحقق البشري"
+
+#. module: pr_website
+#: code:addons/pr_website/models/captcha_challenge.py:0
+#, python-format
+msgid "What is %s + %s?"
+msgstr "ما ناتج %s + %s؟"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_contact_us
 msgid "+966 13 361 4446"
 msgstr "+966 13 361 4446"
 
@@ -4814,6 +4825,11 @@ msgstr "سنوات من التميز"
 #: model_terms:ir.ui.view,arch_db:pr_website.service_project_management
 msgid "info@petroraq.com"
 msgstr "info@petroraq.com"
+
+#. module: pr_website
+#: model_terms:ir.ui.view,arch_db:pr_website.petroraq_footer
+msgid "Majd Square, King Faisal (West) Rd,<br/>Al-Jubail, KSA."
+msgstr "ساحة المجد، طريق الملك فيصل (غرب)،<br/>الجبيل، المملكة العربية السعودية."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.service_other_services

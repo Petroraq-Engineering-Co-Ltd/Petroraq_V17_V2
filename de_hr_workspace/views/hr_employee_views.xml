@@ -99,6 +99,7 @@
                     <field name="show_hr_icon_display"/>
                     <field name="image_128" />
                     <field name="company_id"/>
+                    <field name="private_email"/>
                     <templates>
                         <t t-name="kanban-box">
                         <div class="oe_kanban_global_click o_kanban_record_has_image_fill o_hr_kanban_record">
@@ -140,9 +141,9 @@
                                     </div>
                                 </div>
                                 <ul>
-                                    <li t-if="record.work_email.raw_value" class="o_text_overflow">
+                                    <li t-if="record.private_email.raw_value" class="o_text_overflow">
                                         <i class="fa fa-fw me-2 fa-envelope text-primary" title="Email"/>
-                                        <field name="work_email" />
+                                        <field name="private_email" />
                                     </li>
                                     <li t-if="record.work_phone.raw_value" class="o_force_ltr">
                                         <i class="fa fa-fw me-2 fa-phone text-primary" title="Phone"/>

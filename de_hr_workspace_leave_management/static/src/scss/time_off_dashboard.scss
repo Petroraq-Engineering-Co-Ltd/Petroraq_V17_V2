@@ -598,6 +598,37 @@ $de-text-muted:     #5b6b85;
         transition: color 0.3s ease;
     }
 
+    .de-absentee-detail-panel {
+        border: 1px solid $de-border;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 8px 24px rgba(10, 37, 64, 0.10);
+        padding: 14px;
+    }
+
+    .de-absentee-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .de-absentee-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border-radius: 999px;
+        background: $de-amber-soft;
+        color: $de-navy;
+        padding: 6px 12px;
+        font-weight: 700;
+    }
+
+    .de-absentee-detail-table {
+        min-width: 760px;
+    }
+
     .de-leave-metrics {
         width: 86%;
         margin: 12px auto 0;

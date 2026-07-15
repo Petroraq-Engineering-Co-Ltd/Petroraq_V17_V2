@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_employee_document_letter" model="report.paperformat">
+        <field name="name">Petroraq Employee Letter</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">297</field>
+        <field name="page_width">210</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">48</field>
+        <field name="margin_bottom">18</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">48</field>
+        <field name="dpi">95</field>
+    </record>
+
+    <record id="action_report_employee_document_letter" model="ir.actions.report">
+        <field name="name">Employee Letter</field>
+        <field name="model">pr.employee.document.letter</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">pr_employee_service_requests.report_employee_document_letter_document</field>
+        <field name="report_file">pr_employee_service_requests.report_employee_document_letter_document</field>
+        <field name="print_report_name">object._get_letter_pdf_filename()</field>
+        <field name="binding_model_id" ref="model_pr_employee_document_letter"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="pr_employee_service_requests.paperformat_employee_document_letter"/>
+    </record>
+
+    <template id="report_employee_document_letter_layout">
+        <style>
+            .header, .footer {
+            margin: 0 !important;
+            padding: 0 !important;
+            }
+        </style>
+        <div class="header">
+            <img src="/pr_tax_Invoice_report_custom/static/src/img/petroraq_header_new.png"
+                 style="display:block; width:105%; max-width:none !important; margin:0 0 0 -15px !important; padding:0 !important;"/>
+        </div>
+        <div class="article">
+            <t t-raw="0"/>
+        </div>
+        <div class="footer"
+             style="width:111% !important; margin:0 0 0 -5% !important; padding:0 !important; overflow:visible !important; background:#21398e;">
+            <div style="width:100%; box-sizing:border-box; margin:0 !important; border-bottom:1px solid #305081; padding:3px 18mm 3px 18mm; text-align:left; color:#000; background:#fff; font-size:12px; font-weight:700; line-height:1.15; white-space:normal;">
+                This is a computer generated document issued through the Petroraq HR Management System. It has
+                been electronically reviewed and approved by the management.
+            </div>
+            <div style="width:100%; margin:0 0 -2px 0 !important; padding:0 !important; background:#21398e; line-height:0; font-size:0;">
+                <img src="/pr_custom_purchase/static/src/img/img.png"
+                     style="display:block; width:100%; max-width:none !important; margin:0 !important; padding:0 !important;"/>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_employee_document_letter_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="letter" t-value="o._get_employee_letter_report_values()"/>
+                <t t-call="pr_employee_service_requests.report_employee_document_letter_layout">
+                    <div class="page employee-letter-page"
+                         style="font-family:'Times New Roman', serif; color:#000; font-size:16px; line-height:1.22; padding:0 16mm 8mm 16mm !important;">
+                        <style>
+                            .employee-letter-page p {
+                            margin: 0 0 16px 0;
+                            }
+                            .employee-letter-page .body-html p {
+                            margin: 0 0 16px 0;
+                            }
+                            .employee-letter-page .letter-title {
+                            font-family: Arial, sans-serif;
+                            font-size: 18px;
+                            font-weight: 700;
+                            text-align: center;
+                            text-decoration: underline;
+                            margin: 16px 0 40px 0;
+                            }
+                            .employee-letter-page .letter-divider {
+                            border: 0;
+                            margin: 28px 0 24px 0;
+                            }
+                            .employee-letter-page .salary-table {
+                            border-collapse: collapse;
+                            width: 430px;
+                            margin: 20px 0 26px 0;
+                            }
+                            .employee-letter-page .salary-table th,
+                            .employee-letter-page .salary-table td {
+                            border: 2px solid #000;
+                            padding: 3px 6px;
+                            font-size: 15px;
+                            }
+                            .employee-letter-page .salary-table th {
+                            text-align: center;
+                            font-weight: 700;
+                            }
+                            .employee-letter-page .stamp-space {
+                            min-height: 72px;
+                            }
+                        </style>
+
+                        <t t-if="letter.get('type') == 'experience'">
+                            <div class="letter-title">
+                                <span>EXPERIENCE CERTIFICATE</span>
+                                <span style="padding-left:24px;">شهادة خبرة</span>
+                            </div>
+                            <p style="text-align:right; margin-bottom:34px;">
+                                <u>Date:
+                                    <span t-out="letter.get('date_long')"/>
+                                </u>
+                            </p>
+                            <p style="font-weight:700; font-size:17px;">To Whom it may concern</p>
+                            <p>
+                                This is to certify that
+                                <strong>
+                                    <span t-out="letter.get('employee_title')"/>
+                                    <span t-out="letter.get('employee_name')"/>
+                                </strong>
+                                <t t-if="letter.get('iqama_no')">
+                                    holder of
+                                    <strong>Iqama No.
+                                        <span t-out="letter.get('iqama_no')"/>
+                                    </strong>
+                                    ,
+                                </t>
+                                was employed with
+                                <strong>
+                                    <span t-out="letter.get('company_name')"/>
+                                </strong>
+                                <t t-if="letter.get('joining_date_long')">
+                                    from
+                                    <strong>
+                                        <span t-out="letter.get('joining_date_long')"/>
+                                    </strong>
+                                </t>
+                                <t t-if="letter.get('service_end_date_long')">
+                                    to
+                                    <strong>
+                                        <span t-out="letter.get('service_end_date_long')"/>
+                                    </strong>
+                                </t>
+                                <t t-if="letter.get('position')">
+                                    as
+                                    <strong>
+                                        <span t-out="letter.get('position')"/>
+                                    </strong>
+                                    .
+                                </t>
+                            </p>
+                            <div class="body-html">
+                                <t t-raw="letter.get('body_html')"/>
+                            </div>
+                            <p>
+                                We thank
+                                <span t-out="letter.get('pronouns').get('object')"/>
+                                for
+                                <span t-out="letter.get('pronouns').get('possessive')"/>
+                                services and wish
+                                <span t-out="letter.get('pronouns').get('object')"/>
+                                success in
+                                <span t-out="letter.get('pronouns').get('possessive')"/>
+                                future endeavors.
+                            </p>
+                            <p>Sincerely,</p>
+
+                            <p>
+                                <strong>
+                                    <span>HR DEPARTMENT</span>
+                                    <br/>
+                                    <span t-out="letter.get('company_name')"/>
+                                </strong>
+                            </p>
+
+                        </t>
+
+                        <t t-elif="letter.get('type') == 'salary_certificate'">
+                            <div class="letter-title" style="margin-bottom:28px;">SALARY CERTIFICATE</div>
+                            <p style="font-weight:700;">To Whom It May Concern,</p>
+                            <p>
+                                This is to certify that
+                                <strong>
+                                    <span t-out="letter.get('employee_title')"/>
+                                    <span t-out="letter.get('employee_name')"/>
+                                </strong>
+                                ,
+                                <t t-if="letter.get('nationality')">
+                                    holder of
+                                    <strong>
+                                        <span t-out="letter.get('nationality')"/>
+                                        Nationality
+                                    </strong>
+                                    ,
+                                </t>
+                                <t t-if="letter.get('iqama_no')">
+                                    <strong>Iqama (Residence ID) No.
+                                        <span t-out="letter.get('iqama_no')"/>
+                                    </strong>
+                                    ,
+                                </t>
+                                <t t-if="letter.get('passport_no')">
+                                    and
+                                    <strong>Passport No.
+                                        <span t-out="letter.get('passport_no')"/>
+                                    </strong>
+                                    ,
+                                </t>
+                                is employed by
+                                <strong>
+                                    <span t-out="letter.get('company_name')"/>
+                                </strong>
+                                ,
+                                based in the Kingdom of Saudi Arabia.
+                            </p>
+                            <p>
+                                <span t-out="letter.get('pronouns').get('subject')"/>
+                                has been working with us
+                                <t t-if="letter.get('joining_date')">
+                                    since
+                                    <strong>
+                                        <span t-out="letter.get('joining_date')"/>
+                                    </strong>
+                                </t>
+                                <t t-if="letter.get('position')">
+                                    in the position of
+                                    <strong>
+                                        <span t-out="letter.get('position')"/>
+                                    </strong>
+                                    .
+                                </t>
+                                As of the date of this certificate,
+                                <span t-out="letter.get('pronouns').get('possessive')"/>
+                                monthly salary and allowances are as follows:
+                            </p>
+                            <table class="salary-table">
+                                <thead>
+                                    <tr>
+                                        <th>Component</th>
+                                        <th>Amount (<span t-out="letter.get('currency_name') or 'SAR'"/>)
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="letter.get('salary_lines')" t-as="line">
+                                        <td>
+                                            <span t-out="line.get('name')"/>
+                                        </td>
+                                        <td>
+                                            <span t-out="line.get('amount_display')"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Total Monthly Salary</strong>
+                                        </td>
+                                        <td>
+                                            <strong>
+                                                <span t-out="letter.get('total_salary_display')"/>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="body-html">
+                                <t t-raw="letter.get('body_html')"/>
+                            </div>
+                            <p style="margin-top:38px; margin-bottom:0;">Best Regards,</p>
+                            <p>HR DEPARTMENT</p>
+                        </t>
+
+                        <t t-elif="letter.get('type') == 'appraisal'">
+                            <div style="margin-top:18px;">
+                                <p>
+                                    <strong>Date:</strong>
+                                    <span t-out="letter.get('date_long')"/>
+                                </p>
+                                <p style="margin-bottom:0;">
+                                    <strong>To:</strong>
+                                    <span t-out="letter.get('employee_name')"/>
+                                </p>
+                                <p t-if="letter.get('position')" style="margin-bottom:0;">
+                                    <strong>Designation:</strong>
+                                    <span t-out="letter.get('position')"/>
+                                </p>
+                                <p t-if="letter.get('department')">
+                                    <strong>Department:</strong>
+                                    <span t-out="letter.get('department')"/>
+                                </p>
+                                <p style="margin:28px 0 24px 0;">
+                                    <strong>Subject:</strong>
+                                    <span t-out="letter.get('subject')"/>
+                                </p>
+                                <div class="body-html">
+                                    <t t-raw="letter.get('body_html')"/>
+                                </div>
+                                <p style="margin-top:28px;">Sincerely,</p>
+                                <div class="stamp-space"></div>
+                                <p style="margin-bottom:0;">
+                                    <strong>HR Department</strong>
+                                </p>
+                                <p>
+                                    <strong>
+                                        <span t-out="letter.get('company_name')"/>
+                                    </strong>
+                                </p>
+                            </div>
+                        </t>
+
+                        <t t-elif="letter.get('type') == 'warning'">
+                            <p style="text-align:right; margin:20px 0 44px 0;">
+                                Date:
+                                <span t-out="letter.get('date_long')"/>
+                            </p>
+                            <p style="margin-bottom:56px;">
+                                Subject:
+                                <u>
+                                    <span t-out="letter.get('subject')"/>
+                                </u>
+                            </p>
+                            <p>To:
+                                <span t-out="letter.get('employee_title')"/>
+                                <span t-out="letter.get('employee_name')"/>
+                            </p>
+                            <div class="body-html">
+                                <t t-raw="letter.get('body_html')"/>
+                            </div>
+                            <hr class="letter-divider"/>
+                            <p style="margin-bottom:0;">HR Department</p>
+                            <p>
+                                <span t-out="letter.get('company_name')"/>
+                            </p>
+                        </t>
+
+                        <t t-else="">
+                            <div class="letter-title">
+                                <span t-out="letter.get('type_label')"/>
+                            </div>
+                            <p style="text-align:right; margin-bottom:34px;">
+                                Date:
+                                <span t-out="letter.get('date_long')"/>
+                            </p>
+                            <p>
+                                To:
+                                <span t-out="letter.get('employee_title')"/>
+                                <span t-out="letter.get('employee_name')"/>
+                            </p>
+                            <p style="margin:24px 0;">
+                                <strong>Subject:</strong>
+                                <span t-out="letter.get('subject')"/>
+                            </p>
+                            <div class="body-html">
+                                <t t-raw="letter.get('body_html')"/>
+                            </div>
+                            <hr class="letter-divider"/>
+                            <p style="margin-bottom:0;">HR Department</p>
+                            <p>
+                                <span t-out="letter.get('company_name')"/>
+                            </p>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

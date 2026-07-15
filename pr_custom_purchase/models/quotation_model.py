@@ -111,10 +111,11 @@ class PurchaseOrder(models.Model):
         store=False,
     )
     budget_consumed_amount = fields.Monetary(
-        string="PO Budget Consumed",
+        string="PO Actual Expensed",
         currency_field="currency_id",
         compute="_compute_po_budget_info",
         store=False,
+        help="Posted vendor bill analytic expenses linked to this purchase order.",
     )
     budget_remaining_amount = fields.Monetary(
         string="Budget Remaining",
@@ -218,27 +219,20 @@ class PurchaseOrder(models.Model):
     @api.depends(
         "order_line.price_subtotal",
         "order_line.analytic_distribution",
+        "order_line.invoice_lines.move_id.state",
         "state",
         "requisition_id.expense_bucket_id",
     )
     def _compute_po_budget_info(self):
         for order in self:
             analytic_ids = set()
-            consumed = 0.0
             for line in order.order_line:
                 distribution = line.analytic_distribution or {}
-                for analytic_key, percentage in distribution.items():
-                    try:
-                        percentage = float(percentage or 0.0)
-                    except (TypeError, ValueError):
-                        percentage = 0.0
-                    if not percentage:
-                        continue
+                for analytic_key in distribution:
                     for key_part in str(analytic_key).split(","):
                         if not key_part.strip().isdigit():
                             continue
                         analytic_ids.add(int(key_part))
-                        consumed += (line.price_subtotal or 0.0) * (percentage / 100.0)
 
             usage_date = fields.Date.to_date(order.date_order or order.date_planned or fields.Date.context_today(order))
             budgets = order._get_linked_budgets(analytic_ids, usage_date)
@@ -252,11 +246,60 @@ class PurchaseOrder(models.Model):
                         order.currency_id,
                         budget.company_id or order.company_id,
                         order.date_order or fields.Date.context_today(order),
-                    )
+                )
                 remaining += budget_remaining
-            order.budget_consumed_amount = consumed
+            budget_analytic_ids = set(budgets.crossovered_budget_line.mapped("analytic_account_id").ids)
+            order.budget_consumed_amount = order._get_po_actual_expensed_amount(
+                analytic_ids or budget_analytic_ids
+            )
             order.budget_remaining_amount = remaining
             order.budget_count = len(budgets)
+
+    def _get_po_actual_expensed_amount(self, analytic_ids):
+        self.ensure_one()
+        if not analytic_ids:
+            return 0.0
+
+        AnalyticLine = self.env["account.analytic.line"].sudo()
+        MoveLine = self.env["account.move.line"].sudo()
+        if "move_line_id" not in AnalyticLine._fields or "purchase_line_id" not in MoveLine._fields:
+            return 0.0
+
+        company = self.company_id or self.env.company
+        company_currency = company.currency_id
+        order_currency = self.currency_id or company_currency
+        actual_amount = 0.0
+
+        analytics = self.env["account.analytic.account"].sudo().browse(list(analytic_ids)).exists()
+        analytics_by_plan_field = {}
+        for analytic in analytics:
+            plan_field = analytic.plan_id._column_name()
+            analytics_by_plan_field[plan_field] = (
+                analytics_by_plan_field.get(plan_field, self.env["account.analytic.account"])
+                | analytic
+            )
+
+        for plan_field, plan_analytics in analytics_by_plan_field.items():
+            domain = [
+                (plan_field, "in", plan_analytics.ids),
+                ("move_line_id.move_id.state", "=", "posted"),
+                ("move_line_id.purchase_line_id.order_id", "=", self.id),
+            ]
+            for line in AnalyticLine.search(domain):
+                move = line.move_line_id.move_id
+                line_amount = abs(line.amount or 0.0)
+                if move.move_type == "in_refund":
+                    line_amount = -line_amount
+                if company_currency and order_currency and company_currency != order_currency:
+                    line_amount = company_currency._convert(
+                        line_amount,
+                        order_currency,
+                        company,
+                        line.date or fields.Date.context_today(self),
+                    )
+                actual_amount += line_amount
+
+        return actual_amount
 
     def action_view_related_budgets(self):
         self.ensure_one()
@@ -395,6 +438,7 @@ class PurchaseOrder(models.Model):
             "partner_id": self.partner_id.id,
             "partner_ref": self.partner_ref,
             "date_planned": self.date_planned or fields.Datetime.now(),
+            "payment_terms_text": self.payment_terms_text,
             "currency_id": self.currency_id.id,
             "company_id": self.company_id.id,
             "pr_name": self.pr_name,

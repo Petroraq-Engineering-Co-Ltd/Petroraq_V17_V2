@@ -12,6 +12,7 @@
                 <field name="origin"/>
                 <field name="pr_name"/>
                 <field name="amount_total"/>
+                <field name="payment_terms_text" optional="hide"/>
                 <field name="currency_id" optional="hide"/>
                 <field name="state" widget="badge"
                        decoration-success="state in ('purchase', 'done')"
@@ -94,6 +95,10 @@
                             <field name="date_order" readonly="state in ('purchase', 'done')"/>
                             <field name="date_planned" readonly="state in ('purchase', 'done')"/>
                             <field name="payment_term_id" readonly="state in ('purchase', 'done')"/>
+                            <field name="payment_terms_text"
+                                   required="state not in ('purchase', 'done', 'cancel')"
+                                   placeholder="Example: 30 days from invoice date, 50% advance / 50% after delivery..."
+                                   readonly="state in ('purchase', 'done')"/>
                             <field name="fiscal_position_id" readonly="state in ('purchase', 'done')"/>
                             <field name="incoterm_id" readonly="state in ('purchase', 'done')"/>
                             <field name="user_id" string="Buyer" readonly="state in ('purchase', 'done')"/>
@@ -164,7 +169,14 @@
         <field name="name">RFQs</field>
         <field name="res_model">purchase.order</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('state','in',['draft','sent','cancel']),('name','ilike','RFQ')]</field>
+        <field name="domain">[('state','in',['draft','sent']),('name','ilike','RFQ')]</field>
+    </record>
+
+    <record id="action_custom_purchase_cancelled_order" model="ir.actions.act_window">
+        <field name="name">Cancelled Orders</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state','=','cancel')]</field>
     </record>
 
     <menuitem id="menu_custom_purchase_rfq_root"
@@ -178,6 +190,13 @@
               parent="menu_custom_purchase_rfq_root"
               action="action_custom_purchase_rfq"
               sequence="10"
+              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
+
+    <menuitem id="menu_custom_purchase_cancelled_order"
+              name="Cancelled Orders"
+              parent="purchase.menu_procurement_management"
+              action="action_custom_purchase_cancelled_order"
+              sequence="20"
               groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
 
 

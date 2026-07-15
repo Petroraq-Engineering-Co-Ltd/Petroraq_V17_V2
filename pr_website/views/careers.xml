@@ -1031,9 +1031,10 @@
                         <div class="jobs-grid">
                             <t t-if="jobs">
                                 <t t-foreach="jobs" t-as="job">
+                                    <t t-set="job_display_name" t-value="job_display_names.get(job.id, job.name)"/>
                                     <div class="job-card prq-job-card animate-scale-up"
-                                         t-att-data-search="'%s %s %s %s' % (job.name or '', job.department_id.name if job.department_id else '', job.address_id.city if job.address_id and job.address_id.city else '', job.contract_type_id.name if job._fields.get('contract_type_id') and job.contract_type_id else '')">
-                                        <h3 class="prq-job-title" t-esc="job.name"/>
+                                         t-att-data-search="'%s %s %s %s %s' % (job.name or '', job_display_name or '', job.department_id.name if job.department_id else '', job.address_id.city if job.address_id and job.address_id.city else '', job.contract_type_id.name if job._fields.get('contract_type_id') and job.contract_type_id else '')">
+                                        <h3 class="prq-job-title" t-esc="job_display_name"/>
                                         <div class="job-meta">
                                             <span class="prq-job-company">
                                                 <i class="fa fa-briefcase"></i>
@@ -2295,7 +2296,7 @@
                                 <i class="fa fa-arrow-left"></i>
                                 Back to Jobs
                             </a>
-                            <h1 t-esc="job.name"/>
+                            <h1 t-esc="job_display_name"/>
                             <div class="job-meta">
                                 <span>
                                     <i class="fa fa-building"></i>
@@ -2320,7 +2321,7 @@
                                     <i class="fa fa-briefcase"></i>
                                 </div>
                                 <div>
-                                    <h2 class="job-title-main" t-esc="job.name"/>
+                                    <h2 class="job-title-main" t-esc="job_display_name"/>
                                     <div class="job-company-meta">
                                         <t t-esc="request.website.name"/>
                                         <t t-if="job.address_id and job.address_id.city">•
