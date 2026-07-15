@@ -23,6 +23,7 @@
     "data": [
         "security/groups.xml",
         "security/ir.model.access.csv",
+        "security/record_rules.xml",
         "report/work_order_report.xml",
         "views/work_order_views.xml",
         "views/job_costing_report_views.xml",

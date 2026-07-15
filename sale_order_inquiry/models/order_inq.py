@@ -20,7 +20,7 @@ class OrderInquiry(models.Model):
     )
     designation = fields.Char(string="Designation")
     user_id = fields.Many2one('res.users', string='Inquiry By',
-                              domain=lambda self: self._get_salesperson_domain(), required=True)
+                              required=True)
     partner_id = fields.Many2one(
         'res.partner',
         string='Customer',
@@ -310,9 +310,9 @@ class OrderInquiry(models.Model):
     def _check_contact_partner_parent(self):
         for rec in self:
             if (
-                rec.partner_id
-                and rec.contact_partner_id
-                and rec.contact_partner_id.parent_id != rec.partner_id
+                    rec.partner_id
+                    and rec.contact_partner_id
+                    and rec.contact_partner_id.parent_id != rec.partner_id
             ):
                 raise ValidationError(
                     _("Contact Person must be one of the contacts under the selected Customer.")
