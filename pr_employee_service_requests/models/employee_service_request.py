@@ -531,7 +531,6 @@ class PrEmployeeServiceRequest(models.Model):
                 and not rec.bank_payment_id
                 and not rec._is_self_paid_request()
                 and not rec._is_historical_company_paid_exit_reentry()
-                and (is_accounts or is_admin)
             )
             rec.can_issue = (
                 rec.request_type in ("exit_reentry",) + HR_COMPLIANCE_REQUEST_TYPES
@@ -1612,7 +1611,7 @@ class PrEmployeeServiceRequest(models.Model):
     def action_create_payment_request(self):
         for rec in self:
             if not rec.can_create_payment_request:
-                raise UserError(_("Only Accounts can create a payment request after final approval."))
+                raise UserError(_("A payment request can only be created after final approval and before any payment request or voucher exists."))
             payment_request = rec._create_payment_request(notify_accounts=False)
             rec.message_post(
                 body=_("Payment request %s created for Accounts to select transfer type and create CPV/BPV.")
