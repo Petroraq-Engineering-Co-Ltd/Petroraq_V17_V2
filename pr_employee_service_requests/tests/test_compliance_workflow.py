@@ -248,7 +248,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertEqual(request._get_payment_amount(), 100.0)
         self.assertFalse(request.hr_supervisor_approved_by_id)
 
-    def test_md_approval_uses_automatic_renewal_bpv(self):
+    def test_md_approval_waits_for_accounts_payment_request_on_renewal(self):
         request = self._create_request(
             "iqama_renewal",
             state="md_approval",
@@ -266,12 +266,18 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
                 autospec=True,
                 return_value=request,
             ) as create_bpv,
+            patch.object(type(request), "_notify_group", autospec=True),
         ):
             request.action_md_approve()
 
         self.assertEqual(request.state, "payment_approval")
         self.assertEqual(request.md_approved_by_id, self.env.user)
-        create_bpv.assert_called_once()
+        self.assertEqual(request.approved_amount, 100.0)
+        self.assertFalse(request.payment_request_id)
+        self.assertFalse(request.cash_payment_id)
+        self.assertFalse(request.bank_payment_id)
+        self.assertTrue(request.can_create_payment_request)
+        create_bpv.assert_not_called()
 
     def test_company_exit_reentry_without_current_contract_switches_to_self(self):
         country = self._get_destination_country()

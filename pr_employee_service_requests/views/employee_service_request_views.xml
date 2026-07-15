@@ -99,6 +99,7 @@
                     <field name="can_accounts_approve" invisible="1"/>
                     <field name="can_md_approve" invisible="1"/>
                     <field name="can_finance_approve" invisible="1"/>
+                    <field name="can_create_payment_request" invisible="1"/>
                     <field name="can_issue" invisible="1"/>
                     <field name="can_reject" invisible="1"/>
                     <field name="can_reset_to_draft" invisible="1"/>
@@ -117,6 +118,8 @@
                             class="btn-primary" invisible="not can_md_approve"/>
                     <button name="action_finance_approve" type="object" string="Finance Approve"
                             class="btn-primary" invisible="not can_finance_approve"/>
+                    <button name="action_create_payment_request" type="object" string="Create Payment Request"
+                            class="btn-primary" invisible="not can_create_payment_request"/>
                     <button name="action_issue" type="object" string="Issue"
                             class="btn-primary" invisible="not can_issue"/>
                     <button name="action_reject" type="object" string="Reject"
