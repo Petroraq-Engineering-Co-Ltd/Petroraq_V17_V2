@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pr_customer_credit_limit_request_user,pr.customer.credit.limit.request user,model_pr_customer_credit_limit_request,base.group_user,1,1,1,0
+access_pr_customer_credit_limit_request_sales,pr.customer.credit.limit.request sales,model_pr_customer_credit_limit_request,petroraq_sale_workflow.group_sale_approval_sales,1,1,1,0
+access_pr_customer_credit_limit_request_manager,pr.customer.credit.limit.request manager,model_pr_customer_credit_limit_request,petroraq_sale_workflow.group_sale_approval_manager,1,1,1,1
+access_pr_customer_credit_limit_request_md,pr.customer.credit.limit.request md,model_pr_customer_credit_limit_request,petroraq_sale_workflow.group_sale_approval_md,1,1,1,1

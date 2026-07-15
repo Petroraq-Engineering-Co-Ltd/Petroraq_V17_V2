@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pr_customer_credit_limit_request_tree" model="ir.ui.view">
+        <field name="name">pr.customer.credit.limit.request.tree</field>
+        <field name="model">pr.customer.credit.limit.request</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="state == 'approved'" decoration-danger="state == 'rejected'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="request_type"/>
+                <field name="credit_facility_type"/>
+                <field name="current_limit_amount"/>
+                <field name="requested_limit_amount"/>
+                <field name="change_amount"/>
+                <field name="payment_term_id"/>
+                <field name="requested_by_id"/>
+                <field name="state" widget="badge"
+                       decoration-info="state in ('sale_manager_approval', 'sales_md_approval')"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"
+                       decoration-muted="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_customer_credit_limit_request_form" model="ir.ui.view">
+        <field name="name">pr.customer.credit.limit.request.form</field>
+        <field name="model">pr.customer.credit.limit.request</field>
+        <field name="arch" type="xml">
+            <form string="Customer Credit Limit Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_sale_manager_approve" string="Approve" type="object" class="btn-primary"
+                            groups="petroraq_sale_workflow.group_sale_approval_manager"
+                            invisible="state != 'sale_manager_approval'"/>
+                    <button name="action_md_approve" string="Approve" type="object" class="btn-primary"
+                            groups="petroraq_sale_workflow.group_sale_approval_md"
+                            invisible="state != 'sales_md_approval'"/>
+                    <button name="action_reject" string="Reject" type="object" class="btn-danger"
+                            groups="petroraq_sale_workflow.group_sale_approval_manager,petroraq_sale_workflow.group_sale_approval_md"
+                            invisible="state not in ('sale_manager_approval', 'sales_md_approval')"/>
+                    <button name="action_cancel" string="Cancel" type="object" class="btn-secondary"
+                            invisible="state not in ('draft', 'sale_manager_approval', 'sales_md_approval', 'rejected')"/>
+                    <button name="action_reset_to_draft" string="Reset to Draft" type="object" class="btn-secondary"
+                            invisible="state not in ('rejected', 'cancelled')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,sale_manager_approval,sales_md_approval,approved"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Approved" bg_color="bg-success" invisible="state != 'approved'"/>
+                    <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary" invisible="state != 'cancelled'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Customer">
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="company_id" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="requested_by_id"/>
+                            <field name="submitted_date"/>
+                        </group>
+                        <group string="Facility">
+                            <field name="request_type" readonly="state != 'draft'"/>
+                            <field name="credit_facility_type" readonly="state != 'draft'"/>
+                            <field name="payment_term_id" readonly="state != 'draft'"/>
+                            <field name="validity_start" readonly="state != 'draft'"/>
+                            <field name="validity_end" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group string="Credit Amounts">
+                        <group>
+                            <field name="current_limit_amount"/>
+                            <field name="requested_limit_amount" readonly="state != 'draft'"/>
+                            <field name="change_amount"/>
+                        </group>
+                        <group>
+                            <field name="sale_manager_approved_by_id"/>
+                            <field name="sale_manager_approved_date"/>
+                            <field name="md_approved_by_id"/>
+                            <field name="md_approved_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Justification">
+                            <field name="reason" placeholder="Add business justification, payment history, customer commitment, or credit facility notes."
+                                   readonly="state != 'draft'"/>
+                        </page>
+                        <page string="Attachments">
+                            <field name="attachment_ids" widget="many2many_binary"
+                                   readonly="state not in ('draft', 'sale_manager_approval', 'sales_md_approval')"/>
+                        </page>
+                        <page string="Rejection" invisible="state != 'rejected'">
+                            <group>
+                                <field name="rejected_by_id"/>
+                                <field name="rejected_date"/>
+                                <field name="rejection_reason"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pr_customer_credit_limit_request_search" model="ir.ui.view">
+        <field name="name">pr.customer.credit.limit.request.search</field>
+        <field name="model">pr.customer.credit.limit.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="requested_by_id"/>
+                <field name="request_type"/>
+                <filter name="pending_manager" string="Sales Manager Approval" domain="[('state', '=', 'sale_manager_approval')]"/>
+                <filter name="pending_md" string="Sales MD Approval" domain="[('state', '=', 'sales_md_approval')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="my_requests" string="My Requests" domain="[('requested_by_id', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_request_type" string="Request Type" context="{'group_by': 'request_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pr_customer_credit_limit_request" model="ir.actions.act_window">
+        <field name="name">Customer Credit Limit Requests</field>
+        <field name="res_model">pr.customer.credit.limit.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_customer_credit_limit_request_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a customer credit limit request
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_pr_customer_credit_limit_root"
+              name="Credit Limits"
+              parent="sale.sale_menu_root"
+              sequence="82"/>
+    <menuitem id="menu_pr_customer_credit_limit_requests"
+              name="Credit Limit Requests"
+              parent="menu_pr_customer_credit_limit_root"
+              action="action_pr_customer_credit_limit_request"
+              sequence="10"/>
+</odoo>

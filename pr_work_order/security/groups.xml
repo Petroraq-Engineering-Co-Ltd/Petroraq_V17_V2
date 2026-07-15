@@ -29,4 +29,32 @@
         </record>
 
     </data>
+
+    <data>
+        <record id="custom_group_work_order_own_documents" model="res.groups">
+            <field name="name">Own Documents Only</field>
+            <field name="category_id" ref="module_category_work_order"/>
+        </record>
+
+        <record id="custom_group_work_order_all_documents" model="res.groups">
+            <field name="name">All Documents</field>
+            <field name="category_id" ref="module_category_work_order"/>
+        </record>
+
+        <record id="custom_group_work_order_user" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('custom_group_work_order_own_documents'))]"/>
+        </record>
+
+        <record id="custom_group_work_order_operations" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('custom_group_work_order_all_documents'))]"/>
+        </record>
+
+        <record id="custom_group_work_order_accounts" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('custom_group_work_order_all_documents'))]"/>
+        </record>
+
+        <record id="custom_group_work_order_management" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('custom_group_work_order_all_documents'))]"/>
+        </record>
+    </data>
 </odoo>

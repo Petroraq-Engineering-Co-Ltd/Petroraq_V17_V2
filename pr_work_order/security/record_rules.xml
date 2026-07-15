@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="rule_pr_work_order_own_documents" model="ir.rule">
+        <field name="name">Work Order: own documents only</field>
+        <field name="model_id" ref="model_pr_work_order"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_own_documents'))]"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_all_documents" model="ir.rule">
+        <field name="name">Work Order: all documents</field>
+        <field name="model_id" ref="model_pr_work_order"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_all_documents'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_boq_own_documents" model="ir.rule">
+        <field name="name">Work Order BOQ: own documents only</field>
+        <field name="model_id" ref="model_pr_work_order_boq"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_own_documents'))]"/>
+        <field name="domain_force">[('work_order_id.create_uid', '=', user.id)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_boq_all_documents" model="ir.rule">
+        <field name="name">Work Order BOQ: all documents</field>
+        <field name="model_id" ref="model_pr_work_order_boq"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_all_documents'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_cost_center_own_documents" model="ir.rule">
+        <field name="name">Work Order Cost Center: own documents only</field>
+        <field name="model_id" ref="model_pr_work_order_cost_center"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_own_documents'))]"/>
+        <field name="domain_force">[('work_order_id.create_uid', '=', user.id)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_cost_center_all_documents" model="ir.rule">
+        <field name="name">Work Order Cost Center: all documents</field>
+        <field name="model_id" ref="model_pr_work_order_cost_center"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_all_documents'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_costing_report_own_documents" model="ir.rule">
+        <field name="name">Work Order Costing Report: own documents only</field>
+        <field name="model_id" ref="model_pr_work_order_costing_report"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_own_documents'))]"/>
+        <field name="domain_force">[('work_order_id.create_uid', '=', user.id)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_costing_report_all_documents" model="ir.rule">
+        <field name="name">Work Order Costing Report: all documents</field>
+        <field name="model_id" ref="model_pr_work_order_costing_report"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_all_documents'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_costing_section_report_own_documents" model="ir.rule">
+        <field name="name">Work Order Costing Section Report: own documents only</field>
+        <field name="model_id" ref="model_pr_work_order_costing_section_report"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_own_documents'))]"/>
+        <field name="domain_force">[('work_order_id.create_uid', '=', user.id)]</field>
+    </record>
+
+    <record id="rule_pr_work_order_costing_section_report_all_documents" model="ir.rule">
+        <field name="name">Work Order Costing Section Report: all documents</field>
+        <field name="model_id" ref="model_pr_work_order_costing_section_report"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_all_documents'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>

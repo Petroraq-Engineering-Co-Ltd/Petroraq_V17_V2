@@ -22,11 +22,81 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
+        <record id="rule_offboarding_request_hr_manager" model="ir.rule">
+            <field name="name">Offboarding Request: HR Manager sees approvals</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_request"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_offboarding_request_md" model="ir.rule">
+            <field name="name">Offboarding Request: MD sees approvals</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_request"/>
+            <field name="groups" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
         <record id="rule_offboarding_request_system" model="ir.rule">
             <field name="name">Offboarding Request: system administrator sees all</field>
             <field name="model_id" ref="model_pr_hr_offboarding_request"/>
             <field name="groups" eval="[(4, ref('base.group_system'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_line_department_manager" model="ir.rule">
+            <field name="name">Offboarding Clearance: assigned department manager</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_line"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('request_id.department_manager_user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_line_responsible" model="ir.rule">
+            <field name="name">Offboarding Clearance: assigned responsible user</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_line"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[('responsible_user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_line_hr_supervisor" model="ir.rule">
+            <field name="name">Offboarding Clearance: HR Supervisor sees all</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_line"/>
+            <field name="groups" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_supervisor'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_line_hr_manager" model="ir.rule">
+            <field name="name">Offboarding Clearance: HR Manager sees all</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_line"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_line_md" model="ir.rule">
+            <field name="name">Offboarding Clearance: MD sees all</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_line"/>
+            <field name="groups" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_line_system" model="ir.rule">
+            <field name="name">Offboarding Clearance: system administrator sees all</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_line"/>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_template_company" model="ir.rule">
+            <field name="name">Offboarding Clearance Template: multi-company</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_template"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_offboarding_clearance_template_line_company" model="ir.rule">
+            <field name="name">Offboarding Clearance Template Line: multi-company</field>
+            <field name="model_id" ref="model_pr_hr_offboarding_clearance_template_line"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
         </record>
     </data>
 </odoo>

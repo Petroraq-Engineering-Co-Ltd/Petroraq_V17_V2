@@ -169,7 +169,14 @@
         <field name="name">RFQs</field>
         <field name="res_model">purchase.order</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('state','in',['draft','sent','cancel']),('name','ilike','RFQ')]</field>
+        <field name="domain">[('state','in',['draft','sent']),('name','ilike','RFQ')]</field>
+    </record>
+
+    <record id="action_custom_purchase_cancelled_order" model="ir.actions.act_window">
+        <field name="name">Cancelled Orders</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state','=','cancel')]</field>
     </record>
 
     <menuitem id="menu_custom_purchase_rfq_root"
@@ -183,6 +190,13 @@
               parent="menu_custom_purchase_rfq_root"
               action="action_custom_purchase_rfq"
               sequence="10"
+              groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
+
+    <menuitem id="menu_custom_purchase_cancelled_order"
+              name="Cancelled Orders"
+              parent="menu_custom_purchase_rfq_root"
+              action="action_custom_purchase_cancelled_order"
+              sequence="20"
               groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager"/>
 
 

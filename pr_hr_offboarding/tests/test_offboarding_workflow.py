@@ -11,6 +11,8 @@ class TestOffboardingWorkflow(TransactionCase):
         supervisor_group = cls.env.ref(
             "pr_hr_recruitment_request.group_onboarding_supervisor"
         )
+        hr_manager_group = cls.env.ref("hr.group_hr_manager")
+        md_group = cls.env.ref("pr_hr_recruitment_request.group_onboarding_md")
 
         cls.supervisor_user = users.create(
             {
@@ -26,6 +28,22 @@ class TestOffboardingWorkflow(TransactionCase):
                 "login": "offboarding.department.manager",
                 "email": "offboarding.department.manager@example.com",
                 "groups_id": [(6, 0, [base_user_group.id])],
+            }
+        )
+        cls.hr_manager_user = users.create(
+            {
+                "name": "Offboarding HR Manager",
+                "login": "offboarding.hr.manager",
+                "email": "offboarding.hr.manager@example.com",
+                "groups_id": [(6, 0, [base_user_group.id, hr_manager_group.id])],
+            }
+        )
+        cls.md_user = users.create(
+            {
+                "name": "Offboarding MD",
+                "login": "offboarding.md",
+                "email": "offboarding.md@example.com",
+                "groups_id": [(6, 0, [base_user_group.id, md_group.id])],
             }
         )
         cls.other_user = users.create(
@@ -80,9 +98,23 @@ class TestOffboardingWorkflow(TransactionCase):
         )
 
         request.with_user(self.manager_user).action_accept()
-        self.assertEqual(request.state, "accepted")
+        self.assertEqual(request.state, "hr_manager_approval")
         self.assertEqual(request.approved_by_id, self.manager_user)
         self.assertTrue(request.approved_date)
+
+        request.with_user(self.hr_manager_user).action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+        self.assertEqual(
+            request.hr_manager_approved_by_id, self.hr_manager_user
+        )
+        self.assertTrue(request.hr_manager_approved_date)
+
+        request.with_user(self.md_user).action_md_approve()
+        self.assertEqual(request.state, "accepted")
+        self.assertEqual(
+            request.md_approved_by_id, self.md_user
+        )
+        self.assertTrue(request.md_approved_date)
 
     def test_rejection_requires_reason_and_can_reset(self):
         request = self._create_request()
@@ -102,6 +134,37 @@ class TestOffboardingWorkflow(TransactionCase):
         self.assertEqual(request.state, "draft")
         self.assertFalse(request.rejection_reason)
         self.assertFalse(request.rejected_by_id)
+
+    def test_hr_manager_can_reject_after_department_acceptance(self):
+        request = self._create_request()
+        request.action_submit()
+        request.with_user(self.manager_user).action_accept()
+
+        request.with_user(self.hr_manager_user)._action_reject(
+            "HR needs revised final working date confirmation."
+        )
+
+        self.assertEqual(request.state, "rejected")
+        self.assertEqual(request.approved_by_id, self.manager_user)
+        self.assertEqual(request.rejected_by_id, self.hr_manager_user)
+        self.assertTrue(request.rejection_reason)
+
+    def test_md_can_reject_after_hr_manager_approval(self):
+        request = self._create_request()
+        request.action_submit()
+        request.with_user(self.manager_user).action_accept()
+        request.with_user(self.hr_manager_user).action_hr_manager_approve()
+
+        request.with_user(self.md_user)._action_reject(
+            "MD requested a revised offboarding plan."
+        )
+
+        self.assertEqual(request.state, "rejected")
+        self.assertEqual(request.approved_by_id, self.manager_user)
+        self.assertEqual(request.hr_manager_approved_by_id, self.hr_manager_user)
+        self.assertEqual(request.rejected_by_id, self.md_user)
+        self.assertFalse(request.md_approved_by_id)
+        self.assertTrue(request.rejection_reason)
 
     def test_only_assigned_manager_can_decide(self):
         request = self._create_request()
@@ -161,3 +224,18 @@ class TestOffboardingWorkflow(TransactionCase):
 
         with self.assertRaises(UserError):
             request.action_submit()
+
+    def test_clearance_line_responsible_creates_activity(self):
+        request = self._create_request()
+        line = self.env["pr.hr.offboarding.clearance.line"].create(
+            {
+                "request_id": request.id,
+                "category": "handover",
+                "name": "Handover test activity",
+                "responsible_user_id": self.other_user.id,
+                "state": "pending",
+            }
+        )
+
+        self.assertTrue(line.reminder_activity_id)
+        self.assertEqual(line.reminder_activity_id.user_id, self.other_user)

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="rule_pr_eos_calculator_employee_own" model="ir.rule">
+        <field name="name">EOSB Calculator: Employee Own Records</field>
+        <field name="model_id" ref="model_pr_eos_calculator"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('de_hr_workspace.group_hr_employee_workspace'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_pr_eos_calculator_hr_all" model="ir.rule">
+        <field name="name">EOSB Calculator: HR All Records</field>
+        <field name="model_id" ref="model_pr_eos_calculator"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>
