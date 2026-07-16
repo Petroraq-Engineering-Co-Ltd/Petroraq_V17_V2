@@ -11,6 +11,7 @@
                     <field name="partner_id"/>
                     <field name="currency_id" invisible="1"/>
                     <field name="remaining_amount" readonly="1"/>
+                    <field name="percentage"/>
                     <field name="amount"/>
                     <field name="payment_date"/>
                     <field name="memo"/>

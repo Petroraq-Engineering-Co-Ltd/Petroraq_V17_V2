@@ -16,6 +16,7 @@
         'security/record_rules.xml',
         'security/ir.ui.menu.xml',
         'security/purchase_requisition_security.xml',
+        'security/purchase_order_advance_payment_security.xml',
         'security/ir.model.access.csv',
         # 'security/user_portal_ir.model.access.csv',
         'views/custom_pr_views.xml',

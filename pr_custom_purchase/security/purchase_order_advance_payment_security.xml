@@ -1,0 +1,34 @@
+<odoo>
+    <record id="purchase_user_po_advance_payment_read_rule" model="ir.rule">
+        <field name="name">PO Advance Payments: purchase users can read linked payments</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="domain_force">[('purchase_order_id', '!=', False)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="purchase_user_po_advance_payment_move_read_rule" model="ir.rule">
+        <field name="name">PO Advance Payments: purchase users can read linked journal entries</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="domain_force">[('payment_ids.purchase_order_id', '!=', False)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <record id="purchase_user_po_advance_payment_move_line_read_rule" model="ir.rule">
+        <field name="name">PO Advance Payments: purchase users can read linked journal items</field>
+        <field name="model_id" ref="account.model_account_move_line"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="domain_force">[('move_id.payment_ids.purchase_order_id', '!=', False)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+</odoo>
