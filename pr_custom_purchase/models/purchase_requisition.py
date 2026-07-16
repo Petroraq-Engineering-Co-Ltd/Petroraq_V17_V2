@@ -2,6 +2,7 @@ import logging
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.exceptions import UserError
+from odoo.tools import float_compare
 from dateutil.relativedelta import relativedelta
 
 _logger = logging.getLogger(__name__)
@@ -792,6 +793,40 @@ class PurchaseRequisition(models.Model):
         if not bucket:
             return []
 
+        def _normalized_price(value):
+            return round(value or 0.0, 8)
+
+        def _normalized_description(value):
+            return (value or "").strip()
+
+        def _source_key(cost_center, product, unit_name, unit_price, line_description):
+            return (
+                cost_center.id,
+                product.id,
+                unit_name or "",
+                _normalized_price(unit_price),
+                _normalized_description(line_description),
+            )
+
+        def _requested_quantities_by_product(keys):
+            quantities = {key: 0.0 for key in keys}
+            if not keys:
+                return quantities
+            domain = [
+                ("id", "not in", self.line_ids.ids),
+                ("requisition_id.expense_bucket_id", "=", bucket.id),
+                ("requisition_id.approval", "in", ("pending", "approved")),
+                ("cost_center_id", "in", list({key[0] for key in keys})),
+                ("description", "in", list({key[1] for key in keys})),
+            ]
+            if isinstance(self.id, int):
+                domain.append(("requisition_id", "!=", self.id))
+            for line in self.env["purchase.requisition.line"].sudo().search(domain):
+                key = (line.cost_center_id.id, line.description.id)
+                if key in quantities:
+                    quantities[key] += line.quantity or 0.0
+            return quantities
+
         def _remaining_quantity(cost_center, product, allowed_qty):
             if not cost_center or not product:
                 return 0.0
@@ -810,17 +845,18 @@ class PurchaseRequisition(models.Model):
 
         grouped = {}
 
-        def _add_line(cost_center, product, quantity, unit, unit_price):
+        def _add_line(cost_center, product, quantity, unit, unit_price, line_description=None):
             if not cost_center or not product or quantity <= 0.0:
                 return
             unit_name = unit.name if unit else product.uom_id.name
-            key = (cost_center.id, product.id, unit_name)
+            key = _source_key(cost_center, product, unit_name, unit_price, line_description)
             data = grouped.setdefault(key, {
                 "cost_center_id": cost_center.id,
                 "description": product.id,
                 "quantity": 0.0,
                 "unit": unit_name,
                 "unit_price": unit_price or product.standard_price or 0.0,
+                "line_description": _normalized_description(line_description) or product.display_name,
             })
             data["quantity"] += quantity
             if unit_price:
@@ -834,18 +870,61 @@ class PurchaseRequisition(models.Model):
                 cc.section_name: cc.analytic_account_id
                 for cc in work_order.cost_center_ids.filtered("analytic_account_id")
             }
+            boq_items = []
+            allowed_qty_by_product = {}
             for boq_line in work_order.boq_line_ids.sorted(key=lambda line: (line.sequence, line.id)):
                 if boq_line.display_type in ("line_section", "line_note") or not boq_line.product_id:
                     continue
                 cost_center = cost_centers_by_section.get(boq_line.section_name)
-                remaining_qty = _remaining_quantity(cost_center, boq_line.product_id, boq_line.qty or 0.0)
-                _add_line(
-                    cost_center,
-                    boq_line.product_id,
-                    remaining_qty,
-                    boq_line.uom_id or boq_line.product_id.uom_id,
-                    boq_line.unit_cost or boq_line.product_id.standard_price,
+                if not cost_center:
+                    continue
+                product_key = (cost_center.id, boq_line.product_id.id)
+                allowed_qty_by_product[product_key] = (
+                    allowed_qty_by_product.get(product_key, 0.0) + (boq_line.qty or 0.0)
                 )
+                boq_items.append((boq_line, cost_center))
+
+            requested_qty_by_product = _requested_quantities_by_product(allowed_qty_by_product.keys())
+            remaining_qty_by_product = {
+                key: max((allowed_qty or 0.0) - requested_qty_by_product.get(key, 0.0), 0.0)
+                for key, allowed_qty in allowed_qty_by_product.items()
+            }
+            existing_keys = {
+                _source_key(
+                    line.cost_center_id,
+                    line.description,
+                    line.unit,
+                    line.unit_price,
+                    line.line_description,
+                )
+                for line in self.line_ids
+                if line.cost_center_id and line.description
+            }
+            line_values = []
+            for boq_line, cost_center in boq_items:
+                product = boq_line.product_id
+                product_key = (cost_center.id, product.id)
+                remaining_for_product = remaining_qty_by_product.get(product_key, 0.0)
+                quantity = min(boq_line.qty or 0.0, remaining_for_product)
+                remaining_qty_by_product[product_key] = max(remaining_for_product - quantity, 0.0)
+                if quantity <= 0.0:
+                    continue
+                unit = boq_line.uom_id or product.uom_id
+                unit_name = unit.name if unit else product.uom_id.name
+                unit_price = boq_line.unit_cost or product.standard_price or 0.0
+                line_description = _normalized_description(boq_line.name) or product.display_name
+                key = _source_key(cost_center, product, unit_name, unit_price, line_description)
+                if key in existing_keys:
+                    continue
+                line_values.append({
+                    "cost_center_id": cost_center.id,
+                    "description": product.id,
+                    "line_description": line_description,
+                    "quantity": quantity,
+                    "unit": unit_name,
+                    "unit_price": unit_price,
+                })
+            return line_values
         elif sale_order:
             budget_cost_centers = bucket.crossovered_budget_line.mapped("analytic_account_id")
             default_cost_center = budget_cost_centers[:1]
@@ -869,11 +948,19 @@ class PurchaseRequisition(models.Model):
                         remaining_qty,
                         sale_line.product_uom or sale_line.product_id.uom_id,
                         unit_price,
+                        sale_line.name or sale_line.product_id.display_name,
                     )
 
         existing_keys = {
-            (line.cost_center_id.id, line.description.id, line.unit)
+            _source_key(
+                line.cost_center_id,
+                line.description,
+                line.unit,
+                line.unit_price,
+                line.line_description,
+            )
             for line in self.line_ids
+            if line.cost_center_id and line.description
         }
         return [vals for key, vals in grouped.items() if key not in existing_keys and vals["quantity"] > 0.0]
 
@@ -2070,9 +2157,9 @@ class PurchaseRequisitionLine(models.Model):
     )
 
     type = fields.Char(string="Type")
-    quantity = fields.Float(string="Quantity")
+    quantity = fields.Float(string="Quantity", digits="Product Unit of Measure")
     unit = fields.Char(string="Unit")
-    unit_price = fields.Float(string="Unit Cost")
+    unit_price = fields.Float(string="Unit Cost", digits="Product Price")
     cost_center_id = fields.Many2one(
         "account.analytic.account", string="Cost Center", required=True,
         domain="[('id', 'in', requisition_id.allowed_cost_center_ids)]",
@@ -2174,7 +2261,7 @@ class PurchaseRequisitionLine(models.Model):
             if rec.cost_center_id and bucket and rec.cost_center_id not in allowed:
                 raise ValidationError(_("Selected cost center must belong to the selected expense bucket."))
 
-    total_price = fields.Float(string="Total", compute="_compute_total", store=True)
+    total_price = fields.Float(string="Total", compute="_compute_total", store=True, digits="Product Price")
 
     @api.depends("quantity", "unit_price")
     def _compute_total(self):
@@ -2312,7 +2399,7 @@ class PurchaseRequisitionLine(models.Model):
             ])
             total_requested_amount = current_req_amount + sum(other_pr_lines.mapped("total_price"))
 
-            if total_requested_amount > caps["allowed_amount"]:
+            if float_compare(total_requested_amount, caps["allowed_amount"], precision_digits=2) > 0:
                 raise ValidationError(_(
                     "Requested amount for '%(product)s' exceeds Work Order amount for cost center '%(cc)s'. Allowed: %(allowed)s, Requested (including other PRs): %(requested)s."
                 ) % {
@@ -2358,7 +2445,7 @@ class PurchaseRequisitionLine(models.Model):
             total_requested_qty = current_req_qty + sum(other_pr_lines.mapped("quantity"))
             total_requested_amount = current_req_amount + sum(other_pr_lines.mapped("total_price"))
 
-            if total_requested_qty > caps["allowed_qty"]:
+            if float_compare(total_requested_qty, caps["allowed_qty"], precision_digits=6) > 0:
                 raise ValidationError(_(
                     "Requested quantity for '%(product)s' exceeds Sale Order '%(so)s' quantity for cost center '%(cc)s'. Allowed: %(allowed)s, Requested (including other PRs): %(requested)s."
                 ) % {
@@ -2369,7 +2456,7 @@ class PurchaseRequisitionLine(models.Model):
                     "requested": total_requested_qty,
                 })
 
-            if rec.unit_price > caps["allowed_unit_price"]:
+            if float_compare(rec.unit_price, caps["allowed_unit_price"], precision_digits=6) > 0:
                 raise ValidationError(_(
                     "Unit cost for '%(product)s' cannot exceed Sale Order '%(so)s' unit price for cost center '%(cc)s'. Allowed max: %(allowed)s, Entered: %(entered)s."
                 ) % {
@@ -2380,7 +2467,7 @@ class PurchaseRequisitionLine(models.Model):
                     "entered": rec.unit_price,
                 })
 
-            if total_requested_amount > caps["allowed_amount"]:
+            if float_compare(total_requested_amount, caps["allowed_amount"], precision_digits=2) > 0:
                 raise ValidationError(_(
                     "Requested amount for '%(product)s' exceeds Sale Order '%(so)s' amount for cost center '%(cc)s'. Allowed: %(allowed)s, Requested (including other PRs): %(requested)s."
                 ) % {
@@ -2507,7 +2594,7 @@ class PurchaseOrderCustomLine(models.Model):
         "purchase.order", string="Purchase Order", ondelete="cascade"
     )
     name = fields.Char(string="Description")
-    quantity = fields.Float(string="Quantity")
+    quantity = fields.Float(string="Quantity", digits="Product Unit of Measure")
     unit = fields.Char(string="Unit")
     type = fields.Selection(
         [
@@ -2518,9 +2605,9 @@ class PurchaseOrderCustomLine(models.Model):
         default='material',
         required=True
     )
-    price_unit = fields.Float(string="Unit Price")
+    price_unit = fields.Float(string="Unit Price", digits="Product Price")
     cost_center_id = fields.Many2one("account.analytic.account", string="Cost Center", required=True)
-    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True)
+    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True, digits="Product Price")
 
     @api.depends("quantity", "price_unit")
     def _compute_subtotal(self):

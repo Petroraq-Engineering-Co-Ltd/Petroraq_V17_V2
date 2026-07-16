@@ -62,7 +62,7 @@ class CustomPRQuotationLine(models.Model):
 
     quotation_id = fields.Many2one('custom.pr.quotation', string="Quotation", ondelete="cascade")
     description = fields.Char(string="Description")
-    quantity = fields.Float(string="Quantity", default=1.0)
+    quantity = fields.Float(string="Quantity", default=1.0, digits="Product Unit of Measure")
     unit = fields.Selection(
         [
             ('Kilogram', 'Kilogram'),
@@ -75,8 +75,8 @@ class CustomPRQuotationLine(models.Model):
         string="Unit",
         required=True,
     )
-    unit_price = fields.Float(string="Unit Price")
-    price_subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True)
+    unit_price = fields.Float(string="Unit Price", digits="Product Price")
+    price_subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True, digits="Product Price")
 
     @api.depends('quantity', 'unit_price')
     def _compute_subtotal(self):

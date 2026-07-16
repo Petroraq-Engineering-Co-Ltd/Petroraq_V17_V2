@@ -50,6 +50,7 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                     {
                         "selected": False,
                         "product_name": self.env["product.product"].browse(line["description"]).display_name,
+                        "line_description": line.get("line_description"),
                         "product_id": line["description"],
                         "cost_center_id": line["cost_center_id"],
                         "quantity": line["quantity"],
@@ -82,6 +83,7 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                     {
                         "selected": False,
                         "product_name": boq_line.product_id.display_name,
+                        "line_description": boq_line.name or boq_line.product_id.display_name,
                         "boq_line_db_id": boq_line.id,
                         "product_id": boq_line.product_id.id,
                         "cost_center_id": cc.analytic_account_id.id if cc and cc.analytic_account_id else False,
@@ -167,6 +169,7 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                     0,
                     {
                         "description": product.id,
+                        "line_description": line.line_description or product.display_name,
                         "cost_center_id": line.cost_center_id.id,
                         "quantity": line.quantity,
                         "type": "service" if product.detailed_type == "service" else "material",
@@ -216,11 +219,12 @@ class WorkOrderCreatePRWizardLine(models.TransientModel):
     boq_line_db_id = fields.Integer(string="BOQ Line ID", readonly=True)
     boq_line_id = fields.Many2one("pr.work.order.boq", string="BOQ Line", readonly=True)
     product_name = fields.Char(string="Product", readonly=True)
+    line_description = fields.Text(string="Description", readonly=True)
     product_id = fields.Many2one("product.product", string="Product")
     cost_center_id = fields.Many2one("account.analytic.account", string="Cost Center", required=True)
-    quantity = fields.Float(string="Quantity", required=True)
+    quantity = fields.Float(string="Quantity", required=True, digits="Product Unit of Measure")
     unit_id = fields.Many2one("uom.uom", string="Unit", required=True)
-    unit_price = fields.Float(string="Unit Cost", required=True)
+    unit_price = fields.Float(string="Unit Cost", required=True, digits="Product Price")
 
     def _ensure_product_link(self):
         """Keep product_id populated even if the editable grid drops readonly values."""

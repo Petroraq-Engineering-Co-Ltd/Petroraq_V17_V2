@@ -2164,16 +2164,18 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_employee_account(self):
         self.ensure_one()
-        if "employee_account_id" in self.employee_id._fields and self.employee_id.employee_account_id:
-            return self.employee_id.employee_account_id
+        employee = self.employee_id.sudo()
+        if "employee_account_id" in employee._fields and employee.employee_account_id:
+            return employee.employee_account_id
         return self.env["account.account"]
 
     def _get_employee_cost_center(self):
         self.ensure_one()
         if self.cost_center_id:
             return self.cost_center_id
-        if "employee_cost_center_id" in self.employee_id._fields and self.employee_id.employee_cost_center_id:
-            return self.employee_id.employee_cost_center_id
+        employee = self.employee_id.sudo()
+        if "employee_cost_center_id" in employee._fields and employee.employee_cost_center_id:
+            return employee.employee_cost_center_id
         return self.env["account.analytic.account"]
 
     def _get_employee_analytic_distribution(self):
@@ -2193,10 +2195,11 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_employee_partner(self):
         self.ensure_one()
-        if "work_contact_id" in self.employee_id._fields and self.employee_id.work_contact_id:
-            return self.employee_id.work_contact_id
-        if "address_home_id" in self.employee_id._fields and self.employee_id.address_home_id:
-            return self.employee_id.address_home_id
+        employee = self.employee_id.sudo()
+        if "work_contact_id" in employee._fields and employee.work_contact_id:
+            return employee.work_contact_id
+        if "address_home_id" in employee._fields and employee.address_home_id:
+            return employee.address_home_id
         return self.env["res.partner"]
 
     def _get_default_payment_account(self):
@@ -2225,7 +2228,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_default_hr_cost_center(self):
         self.ensure_one()
-        employee = self.employee_id
+        employee = self.employee_id.sudo()
         for field_name in (
             "employee_cost_center_id",
             "project_cost_center_id",
@@ -2662,7 +2665,7 @@ class PrEmployeePaymentRequest(models.Model):
 
     def _get_employee_partner(self):
         self.ensure_one()
-        employee = self.employee_id
+        employee = self.employee_id.sudo()
         if "work_contact_id" in employee._fields and employee.work_contact_id:
             return employee.work_contact_id
         if "address_home_id" in employee._fields and employee.address_home_id:
@@ -2730,7 +2733,7 @@ class PrEmployeePaymentRequest(models.Model):
                 })
                 rec.cash_payment_id = voucher.id
                 if rec.service_request_id:
-                    rec.service_request_id.cash_payment_id = voucher.id
+                    rec.service_request_id.sudo().cash_payment_id = voucher.id
             else:
                 voucher_model = "pr.account.bank.payment"
                 voucher_vals = rec._filter_model_vals(voucher_model, common_vals)
@@ -2743,16 +2746,16 @@ class PrEmployeePaymentRequest(models.Model):
                 })
                 rec.bank_payment_id = voucher.id
                 if rec.service_request_id:
-                    rec.service_request_id.bank_payment_id = voucher.id
+                    rec.service_request_id.sudo().bank_payment_id = voucher.id
                 if rec.iqama_line_id and "bank_payment_id" in rec.iqama_line_id._fields:
-                    rec.iqama_line_id.bank_payment_id = voucher.id
+                    rec.iqama_line_id.sudo().bank_payment_id = voucher.id
                 if rec.insurance_line_id and "bank_payment_id" in rec.insurance_line_id._fields:
-                    rec.insurance_line_id.bank_payment_id = voucher.id
+                    rec.insurance_line_id.sudo().bank_payment_id = voucher.id
 
             rec.state = "voucher_created"
             rec._copy_attachments_to(voucher)
             if rec.service_request_id:
-                rec.service_request_id.payment_reference = voucher.name
+                rec.service_request_id.sudo().payment_reference = voucher.name
             rec.message_post(
                 body=_("%s %s created in Draft.")
                 % ("CPV" if rec.transfer_type == "cash" else "BPV", voucher.name),
@@ -2974,7 +2977,7 @@ class HREmployeeIqamaLineAddWizard(models.Model):
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
-        employee = self.env["hr.employee"].browse(values.get("employee_id") or self.env.context.get("default_employee_id"))
+        employee = self.env["hr.employee"].sudo().browse(values.get("employee_id") or self.env.context.get("default_employee_id"))
         cost_center = self._get_default_hr_cost_center(employee)
         if cost_center and "cost_center_id" in fields_list:
             values["cost_center_id"] = cost_center.id
@@ -2993,6 +2996,7 @@ class HREmployeeIqamaLineAddWizard(models.Model):
                 rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
 
     def _get_default_hr_cost_center(self, employee):
+        employee = employee.sudo()
         for field_name in (
             "employee_cost_center_id",
             "project_cost_center_id",
@@ -3039,7 +3043,7 @@ class HREmployeeMedicalInsuranceLineAddWizard(models.Model):
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
-        employee = self.env["hr.employee"].browse(values.get("employee_id") or self.env.context.get("default_employee_id"))
+        employee = self.env["hr.employee"].sudo().browse(values.get("employee_id") or self.env.context.get("default_employee_id"))
         cost_center = self._get_default_hr_cost_center(employee)
         if cost_center and "cost_center_id" in fields_list:
             values["cost_center_id"] = cost_center.id
@@ -3058,6 +3062,7 @@ class HREmployeeMedicalInsuranceLineAddWizard(models.Model):
                 rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
 
     def _get_default_hr_cost_center(self, employee):
+        employee = employee.sudo()
         for field_name in (
             "employee_cost_center_id",
             "project_cost_center_id",

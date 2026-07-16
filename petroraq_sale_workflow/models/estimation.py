@@ -992,11 +992,13 @@ class PetroraqEstimationLine(models.Model):
         compute="_compute_quantity_hours",
         store=False,
         readonly=True,
+        digits="Product Unit of Measure",
     )
 
     quantity = fields.Float(
         string="Quantity",
         default=1.0,
+        digits="Product Unit of Measure",
         help="Used for Material/Subcontract. For Labor/Equipment the quantity is computed as Total Hours.",
     )
 
@@ -1151,8 +1153,8 @@ class PetroraqEstimationDisplayLine(models.Model):
     section_type = fields.Selection(SECTION_TYPES, string="Section")
     product_id = fields.Many2one("product.product", string="Product")
     name = fields.Char(string="Description")
-    quantity = fields.Float(string="Quantity")
-    quantity_hours = fields.Float(string="Total Hours")
+    quantity = fields.Float(string="Quantity", digits="Product Unit of Measure")
+    quantity_hours = fields.Float(string="Total Hours", digits="Product Unit of Measure")
     uom_id = fields.Many2one("uom.uom", string="Unit of Measure")
     currency_id = fields.Many2one(
         "res.currency",

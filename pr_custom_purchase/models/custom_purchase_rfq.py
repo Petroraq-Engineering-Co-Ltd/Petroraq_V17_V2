@@ -192,11 +192,11 @@ class CustomPurchaseRFQLine(models.Model):
         default="material",
         required=True,
     )
-    quantity = fields.Float(string="Quantity", default=1.0)
+    quantity = fields.Float(string="Quantity", default=1.0, digits="Product Unit of Measure")
     unit = fields.Char(string="Unit")
-    price_unit = fields.Float(string="Estimated Unit Price")
+    price_unit = fields.Float(string="Estimated Unit Price", digits="Product Price")
     cost_center_id = fields.Many2one("account.analytic.account", string="Cost Center", required=True)
-    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True)
+    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True, digits="Product Price")
 
     @api.depends("quantity", "price_unit")
     def _compute_subtotal(self):

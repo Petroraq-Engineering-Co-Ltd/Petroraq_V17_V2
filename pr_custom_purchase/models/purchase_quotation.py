@@ -283,7 +283,7 @@ class PurchaseQuotationLine(models.Model):
         "purchase.quotation", string="Quotation", ondelete="cascade"
     )
     name = fields.Char(string="Description")
-    quantity = fields.Float(string="Quantity")
+    quantity = fields.Float(string="Quantity", digits="Product Unit of Measure")
     unit = fields.Char(string="Unit")
     type = fields.Selection(
         [
@@ -294,12 +294,12 @@ class PurchaseQuotationLine(models.Model):
         default='material',
         required=True
     )
-    price_unit = fields.Float(string="Unit Cost")
+    price_unit = fields.Float(string="Unit Cost", digits="Product Price")
     cost_center_id = fields.Many2one("account.analytic.account", string="Cost Center", required=True)
-    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True)
-    tax_15 = fields.Float(string="15% Tax", compute="_compute_subtotal", store=True)
+    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True, digits="Product Price")
+    tax_15 = fields.Float(string="15% Tax", compute="_compute_subtotal", store=True, digits="Product Price")
     grand_total = fields.Float(
-        string="Grand Total", compute="_compute_subtotal", store=True
+        string="Grand Total", compute="_compute_subtotal", store=True, digits="Product Price"
     )
     description = fields.Char(string="Description")
 
