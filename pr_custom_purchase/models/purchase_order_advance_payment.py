@@ -245,8 +245,6 @@ class PurchaseOrderAdvancePaymentWizard(models.TransientModel):
             raise UserError(_("Advance payments cannot be created because a vendor bill already exists for this purchase order."))
         self._check_amount()
         payment = self.env["account.payment"].create(order._prepare_advance_payment_vals(self))
-        if hasattr(payment, "action_pr_vendor_payment_submit"):
-            payment.action_pr_vendor_payment_submit()
         payment.message_post(body=_("Advance payment initiated from Purchase Order %s.") % order.name)
         order.message_post(body=_("Advance payment %s was initiated from this purchase order.") % payment.display_name)
         return {
