@@ -43,7 +43,7 @@ class PurchaseOrder(models.Model):
     )
     def _compute_advance_payment_summary(self):
         for order in self:
-            active_payments = order.advance_payment_ids.filtered(
+            active_payments = order.sudo().advance_payment_ids.filtered(
                 lambda payment: payment.state != "cancel"
             )
             paid_amount = 0.0
@@ -62,7 +62,7 @@ class PurchaseOrder(models.Model):
 
     def _get_advance_payment_blocking_bills(self):
         self.ensure_one()
-        return self.invoice_ids.filtered(
+        return self.sudo().invoice_ids.filtered(
             lambda move: move.state != "cancel" and move.move_type in ("in_invoice", "in_refund")
         )
 
@@ -93,7 +93,7 @@ class PurchaseOrder(models.Model):
 
     def action_view_advance_payments(self):
         self.ensure_one()
-        payments = self.advance_payment_ids.filtered(lambda payment: payment.state != "cancel")
+        payments = self.sudo().advance_payment_ids.filtered(lambda payment: payment.state != "cancel")
         action = {
             "name": _("Advance Payments"),
             "type": "ir.actions.act_window",
@@ -202,6 +202,10 @@ class PurchaseOrderAdvancePaymentWizard(models.TransientModel):
         required=True,
         currency_field="currency_id",
     )
+    percentage = fields.Float(
+        string="Advance %",
+        default=100.0,
+    )
     payment_date = fields.Date(
         string="Payment Date",
         default=fields.Date.context_today,
@@ -217,12 +221,45 @@ class PurchaseOrderAdvancePaymentWizard(models.TransientModel):
         order = self.env["purchase.order"].browse(values.get("purchase_order_id")).exists()
         if order:
             values.setdefault("amount", order.advance_payment_remaining_amount)
+            values.setdefault("percentage", 100.0)
             values.setdefault("memo", _("Advance Payment for %s") % order.name)
         return values
 
-    @api.constrains("amount")
+    @api.onchange("percentage")
+    def _onchange_percentage(self):
+        for wizard in self:
+            remaining = wizard.remaining_amount or 0.0
+            if not wizard.currency_id or not remaining:
+                wizard.amount = 0.0
+                continue
+            wizard.amount = wizard.currency_id.round(
+                remaining * (wizard.percentage or 0.0) / 100.0
+            )
+
+    @api.onchange("amount")
+    def _onchange_amount(self):
+        for wizard in self:
+            remaining = wizard.remaining_amount or 0.0
+            if not remaining:
+                wizard.percentage = 0.0
+                continue
+            wizard.percentage = (wizard.amount or 0.0) / remaining * 100.0
+
+    @api.constrains("amount", "percentage")
     def _check_amount(self):
         for wizard in self:
+            if float_compare(
+                wizard.percentage,
+                0.0,
+                precision_digits=6,
+            ) <= 0:
+                raise ValidationError(_("Advance percentage must be greater than zero."))
+            if float_compare(
+                wizard.percentage,
+                100.0,
+                precision_digits=6,
+            ) > 0:
+                raise ValidationError(_("Advance percentage cannot exceed 100%."))
             if float_compare(
                 wizard.amount,
                 0.0,
@@ -244,7 +281,8 @@ class PurchaseOrderAdvancePaymentWizard(models.TransientModel):
         if order._get_advance_payment_blocking_bills():
             raise UserError(_("Advance payments cannot be created because a vendor bill already exists for this purchase order."))
         self._check_amount()
-        payment = self.env["account.payment"].create(order._prepare_advance_payment_vals(self))
+        payment_vals = order.sudo()._prepare_advance_payment_vals(self)
+        payment = self.env["account.payment"].sudo().with_company(order.company_id).create(payment_vals)
         payment.message_post(body=_("Advance payment initiated from Purchase Order %s.") % order.name)
         order.message_post(body=_("Advance payment %s was initiated from this purchase order.") % payment.display_name)
         return {
