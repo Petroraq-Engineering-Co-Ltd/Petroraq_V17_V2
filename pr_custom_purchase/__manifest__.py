@@ -41,6 +41,7 @@
         'views/rfq_vendor.xml',
         'views/portal_quotation.xml',
         'views/purchase_order_inherit.xml',
+        'views/purchase_order_advance_payment_views.xml',
         'views/rfq_comparison_wizard.xml',
         'views/res_users_supervisor.xml',
         'views/stock_picking_approval_views.xml',

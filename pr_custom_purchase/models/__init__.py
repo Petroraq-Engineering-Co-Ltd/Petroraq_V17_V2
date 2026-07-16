@@ -9,6 +9,7 @@ from . import project
 from . import expense_bucket
 from . import cost_center_budget
 from . import purchase_order_inherit
+from . import purchase_order_advance_payment
 from . import res_users
 
 from . import budget_increase_request
