@@ -818,11 +818,11 @@ class WorkOrderBOQ(models.Model):
         readonly=False,
     )
     uom_id = fields.Many2one("uom.uom", string="Unit")
-    qty = fields.Float("Qty")
+    qty = fields.Float("Qty", digits="Product Unit of Measure")
 
-    unit_cost = fields.Float("Unit Cost")
+    unit_cost = fields.Float("Unit Cost", digits="Product Price")
 
-    total = fields.Float("Total", compute="_compute_total", store=True)
+    total = fields.Float("Total", compute="_compute_total", store=True, digits="Product Price")
 
     can_edit_boq = fields.Boolean(
         compute="_compute_can_edit_boq",
