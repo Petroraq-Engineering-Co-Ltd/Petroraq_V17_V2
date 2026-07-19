@@ -102,9 +102,7 @@
 
         <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]" position="attributes">
             <attribute name="class">page o_petroraq_delivery_note</attribute>
-            <attribute name="style">font-family:'DroidArabicNaskh', sans-serif; position:relative; min-height:214mm;
-                padding:0 10mm 22mm 10mm !important;
-            </attribute>
+            <attribute name="t-att-style">'font-family:&quot;DroidArabicNaskh&quot;, sans-serif; position:relative; min-height:%smm; padding:0 10mm 42mm 10mm !important;' % (272 * max(1, (len((o.move_ids_without_package if &quot;move_ids_without_package&quot; in o._fields else o.move_lines).filtered(lambda m: m.product_uom_qty)) + 35) // 28))</attribute>
         </xpath>
 
         <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' page ')]" position="inside">
@@ -192,7 +190,11 @@
                 white-space: nowrap;
                 }
                 .o_petroraq_delivery_note .o_delivery_bottom_block {
-                margin-top: 10mm;
+                position: absolute;
+                right: 10mm;
+                bottom: 1mm;
+                left: 10mm;
+                margin: 0;
                 font-family: 'DroidArabicNaskh', sans-serif;
                 color: #000;
                 page-break-inside: avoid;
