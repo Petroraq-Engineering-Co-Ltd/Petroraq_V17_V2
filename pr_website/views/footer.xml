@@ -410,7 +410,7 @@
 <!--                            www.petroraq.com-->
 <!--                        </div>-->
                     </div>
-                    <div class="footer-col footer-quote">
+                    <div t-if="not request.session.uid" class="footer-col footer-quote">
                         <h4>Request a Quote</h4>
                         <p>Tell us about your project and our team will get back to you within 24 hours.</p>
                         <a href="/contact-us">
