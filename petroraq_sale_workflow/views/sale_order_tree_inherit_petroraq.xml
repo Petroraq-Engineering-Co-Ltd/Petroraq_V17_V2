@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="sale.view_quotation_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//tree/field[@name='name']" position="before">
-                <field name="po_number" string="PO Name" optional="show"/>
+                <field name="po_number" string="PO Number" optional="show"/>
             </xpath>
             <xpath expr="//tree/field[@name='state']" position="before">
                 <field name="approval_state"
@@ -34,7 +34,7 @@
         <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//tree/field[@name='name']" position="before">
-                <field name="po_number" string="PO Name" optional="show"/>
+                <field name="po_number" string="PO Number" optional="show"/>
             </xpath>
             <xpath expr="//tree/field[@name='state']" position="before">
                 <field name="approval_state" widget="badge"

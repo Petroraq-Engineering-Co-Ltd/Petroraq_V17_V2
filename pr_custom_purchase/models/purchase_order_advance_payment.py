@@ -123,6 +123,7 @@ class PurchaseOrder(models.Model):
             "date": wizard.payment_date,
             "ref": wizard.memo or _("Advance Payment for %s") % self.name,
             "purchase_order_id": self.id,
+            "advance_payment_percentage": wizard.percentage,
         }
         Payment = self.env["account.payment"]
         if "destination_account_id" in Payment._fields:
@@ -140,6 +141,21 @@ class AccountPayment(models.Model):
         string="Purchase Order",
         copy=False,
         index=True,
+        readonly=True,
+    )
+    purchase_order_number = fields.Char(
+        related="purchase_order_id.name",
+        string="Purchase Order Number",
+        readonly=True,
+    )
+    purchase_order_reference = fields.Char(
+        related="purchase_order_id.partner_ref",
+        string="Vendor Reference",
+        readonly=True,
+    )
+    advance_payment_percentage = fields.Float(
+        string="Advance Payment %",
+        copy=False,
         readonly=True,
     )
     purchase_order_count = fields.Integer(

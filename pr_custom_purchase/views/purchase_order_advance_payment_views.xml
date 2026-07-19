@@ -70,7 +70,10 @@
                 </button>
             </xpath>
             <xpath expr="//group[@name='group2']/field[@name='payment_method_line_id']" position="after">
-                <field name="purchase_order_id" readonly="1" invisible="not purchase_order_id"/>
+                <field name="purchase_order_id" invisible="1"/>
+                <field name="purchase_order_number" readonly="1" invisible="not purchase_order_id"/>
+                <field name="purchase_order_reference" readonly="1" invisible="not purchase_order_reference"/>
+                <field name="advance_payment_percentage" readonly="1" invisible="not purchase_order_id"/>
             </xpath>
             <xpath expr="//field[@name='pr_vendor_bill_ids']" position="attributes">
                 <attribute name="invisible">purchase_order_id</attribute>
@@ -87,7 +90,9 @@
         <field name="inherit_id" ref="account.view_account_payment_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="purchase_order_id" optional="show"/>
+                <field name="purchase_order_number" optional="show"/>
+                <field name="purchase_order_reference" optional="show"/>
+                <field name="advance_payment_percentage" optional="show"/>
             </xpath>
         </field>
     </record>
@@ -98,7 +103,9 @@
         <field name="inherit_id" ref="pr_account.view_account_vendor_payment_approval_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="purchase_order_id" string="Purchase Order" optional="show"/>
+                <field name="purchase_order_number" optional="show"/>
+                <field name="purchase_order_reference" optional="show"/>
+                <field name="advance_payment_percentage" optional="show"/>
             </xpath>
         </field>
     </record>

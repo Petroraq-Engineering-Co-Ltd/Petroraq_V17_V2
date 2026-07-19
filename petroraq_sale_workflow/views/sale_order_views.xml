@@ -229,7 +229,7 @@
                 <field name="proforma_dp"
                        groups="petroraq_sale_workflow.group_sale_approval_manager,account.group_account_manager"
                        invisible="state != 'sale'"/>
-                <field name="po_number" string="PO Name" invisible="state not in ('sale', 'done')"/>
+                <field name="po_number" string="PO Number" required="state in ('sale', 'done')"/>
                 <field name="po_date" string="PO Date" invisible="state not in ('sale', 'done')"/>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
