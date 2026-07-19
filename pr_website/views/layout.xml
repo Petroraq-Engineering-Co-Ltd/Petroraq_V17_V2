@@ -9,6 +9,9 @@
                     * { box-sizing: border-box; margin: 0; padding: 0; }
                     body { font-family: 'Arial', sans-serif; color: #222; background: #fff; }
                     :root { --pr-navbar-height: 110px; }
+                    @media (min-width: 993px) and (max-width: 1420px) {
+                        :root { --pr-navbar-height: 170px; }
+                    }
                     html { scroll-padding-top: var(--pr-navbar-height); }
                     a { text-decoration: none; color: inherit; }
                     ul { list-style: none; }
@@ -33,6 +36,11 @@
                     .pr-navbar-spacer {
                         height: var(--pr-navbar-height);
                         flex: 0 0 auto;
+                    }
+                    .o_portal_navbar {
+                        position: static !important;
+                        top: auto !important;
+                        z-index: auto !important;
                     }
                     .navbar.scrolled {
                         padding: 10px 40px;
@@ -632,10 +640,12 @@
                             </div>
                         </t>
 
-                        <a href="/contact-us" class="quote-btn">
-                            Request a Quote
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
+                        <t t-if="not request.session.uid">
+                            <a href="/contact-us" class="quote-btn">
+                                Request a Quote
+                                <i class="fa fa-arrow-right"></i>
+                            </a>
+                        </t>
                     </nav>
                 </header>
                 <div class="pr-navbar-spacer" aria-hidden="true"></div>

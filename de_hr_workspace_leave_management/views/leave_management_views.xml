@@ -6,16 +6,16 @@
         <field name="context">{'show_all_leave_dashboard': True}</field>
     </record>
 
-    <menuitem id="menu_workspace_leave_management_root"
-              name="Leave Management"
-              parent="de_hr_workspace.menu_my_employee_approvals"
-              sequence="25"
-              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals"/>
+<!--    <menuitem id="menu_workspace_leave_management_root"-->
+<!--              name="Leave Management"-->
+<!--              parent="de_hr_workspace.menu_my_employee_approvals"-->
+<!--              sequence="25"-->
+<!--              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals"/>-->
 
     <menuitem id="menu_workspace_advanced_leave_dashboard"
               name="Leave Dashboard"
-              parent="menu_workspace_leave_management_root"
+              parent="hr_holidays.menu_hr_holidays_my_leaves"
               action="action_workspace_advanced_leave_dashboard_client"
-              sequence="5"
+              sequence="0"
               groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals"/>
 </odoo>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_purchase_order_advance_payment_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.order.advance.payment.wizard.form</field>
+        <field name="model">purchase.order.advance.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create PO Advance Payment">
+                <group>
+                    <field name="purchase_order_id"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="partner_id"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="remaining_amount" readonly="1"/>
+                    <field name="percentage"/>
+                    <field name="amount"/>
+                    <field name="payment_date"/>
+                    <field name="memo"/>
+                </group>
+                <footer>
+                    <button name="action_create_payment" string="Create Payment" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_form_advance_payment" model="ir.ui.view">
+        <field name="name">purchase.order.form.advance.payment</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/header" position="inside">
+                <button name="action_open_advance_payment_wizard"
+                        string="Create Advance Payment"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state not in ('purchase', 'done') or advance_payment_remaining_amount &lt;= 0 or advance_payment_has_vendor_bill"/>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <field name="advance_payment_count" invisible="1"/>
+                <field name="advance_payment_amount" invisible="1"/>
+                <field name="advance_payment_remaining_amount" invisible="1"/>
+                <field name="advance_payment_has_vendor_bill" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet/div[@name='button_box']" position="inside">
+                <button name="action_view_advance_payments"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-money"
+                        invisible="advance_payment_count == 0">
+                    <field name="advance_payment_count" widget="statinfo" string="Advance Payments"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_payment_form_purchase_order_advance" model="ir.ui.view">
+        <field name="name">account.payment.form.purchase.order.advance</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="pr_account.view_account_payment_form_vendor_approval"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_purchase_order"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart"
+                        invisible="not purchase_order_id">
+                    <field name="purchase_order_count" widget="statinfo" string="Purchase Order"/>
+                </button>
+            </xpath>
+            <xpath expr="//group[@name='group2']/field[@name='payment_method_line_id']" position="after">
+                <field name="purchase_order_id" invisible="1"/>
+                <field name="purchase_order_number" readonly="1" invisible="not purchase_order_id"/>
+                <field name="purchase_order_reference" readonly="1" invisible="not purchase_order_reference"/>
+                <field name="advance_payment_percentage" readonly="1" invisible="not purchase_order_id"/>
+            </xpath>
+            <xpath expr="//field[@name='pr_vendor_bill_ids']" position="attributes">
+                <attribute name="invisible">purchase_order_id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='pr_vendor_payment_source_line_ids']" position="attributes">
+                <attribute name="invisible">purchase_order_id</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_payment_tree_purchase_order_advance" model="ir.ui.view">
+        <field name="name">account.payment.tree.purchase.order.advance</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="purchase_order_number" optional="show"/>
+                <field name="purchase_order_reference" optional="show"/>
+                <field name="advance_payment_percentage" optional="show"/>
+                <field name="pr_payment_approval_state" optional="show" widget="badge"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_vendor_payment_approval_tree_purchase_order_advance" model="ir.ui.view">
+        <field name="name">account.vendor.payment.approval.tree.purchase.order.advance</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="pr_account.view_account_vendor_payment_approval_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="purchase_order_number" optional="show"/>
+                <field name="purchase_order_reference" optional="show"/>
+                <field name="advance_payment_percentage" optional="show"/>
+                <field name="pr_payment_approval_state" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

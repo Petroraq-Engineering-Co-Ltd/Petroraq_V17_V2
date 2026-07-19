@@ -1,5 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <!--
+        A Work Order view reads the display name of its linked quotation. Sales
+        users restricted to "Own Documents Only" must therefore be able to
+        read the quotation behind each Work Order they are allowed to read.
+        These rules grant read access only; they do not widen quotation write,
+        create, or delete permissions.
+    -->
+    <record id="rule_sale_order_linked_work_order_own_documents_read" model="ir.rule">
+        <field name="name">Quotation: linked to own Work Orders (read only)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_own_documents'))]"/>
+        <field name="domain_force">[('work_order_id.create_uid', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sale_order_linked_work_order_all_documents_read" model="ir.rule">
+        <field name="name">Quotation: linked to accessible Work Orders (read only)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_all_documents'))]"/>
+        <field name="domain_force">[('work_order_id', '!=', False)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="rule_pr_work_order_own_documents" model="ir.rule">
         <field name="name">Work Order: own documents only</field>
         <field name="model_id" ref="model_pr_work_order"/>

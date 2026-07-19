@@ -424,7 +424,7 @@ class SaleOrder(models.Model):
     show_reject_button = fields.Boolean(compute="_compute_show_reject_button")
     dp_percent = fields.Float(string="Down Payment %", copy=False)
     po_date = fields.Date(string="PO Date", copy=False)
-    po_number = fields.Char(string="PO Name", copy=False)
+    po_number = fields.Char(string="PO Number", copy=False)
 
     proforma_dp = fields.Integer(
         string="Down payment Percentage",
@@ -1011,6 +1011,8 @@ class SaleOrder(models.Model):
                 raise UserError(_("Please add at least one line item to the quotation."))
             if order.approval_state != "approved":
                 raise UserError(_("You cannot confirm the order before final approval."))
+            if not order.po_number or not order.po_number.strip():
+                raise ValidationError(_("Please enter the customer PO Number before confirming the quotation."))
 
         locked_orders = self.filtered("locked")
         if locked_orders:

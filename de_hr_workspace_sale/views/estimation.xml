@@ -33,10 +33,10 @@
               sequence="3"
               groups="petroraq_sale_workflow.group_sale_approval_manager"/>
 
-    <menuitem id="estimation_md_approvals_view_menu"
-              parent="menu_my_sales_approvals"
-              name="Estimations"
-              action="pr_sale_estimation_md_approvals_action"
-              sequence="4"
-              groups="petroraq_sale_workflow.group_sale_approval_md"/>
+<!--    <menuitem id="estimation_md_approvals_view_menu"-->
+<!--              parent="menu_my_sales_approvals"-->
+<!--              name="Estimations"-->
+<!--              action="pr_sale_estimation_md_approvals_action"-->
+<!--              sequence="4"-->
+<!--              groups="petroraq_sale_workflow.group_sale_approval_md"/>-->
 </odoo>

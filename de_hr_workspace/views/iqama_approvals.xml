@@ -13,11 +13,11 @@
         </field>
     </record>
 
-    <menuitem id="de_hr_workspace_hr_employee_iqama_approvals_menu"
-              parent="de_hr_workspace.hr_approvals_menu_root"
-              name="Employee Accommodations"
-              action="de_hr_workspace_hr_employee_iqama_approvals_view_action"
-              sequence="1"
-              groups="hr.group_hr_manager"
-        />
+<!--    <menuitem id="de_hr_workspace_hr_employee_iqama_approvals_menu"-->
+<!--              parent="de_hr_workspace.hr_approvals_menu_root"-->
+<!--              name="Employee Accommodations"-->
+<!--              action="de_hr_workspace_hr_employee_iqama_approvals_view_action"-->
+<!--              sequence="1"-->
+<!--              groups="hr.group_hr_manager"-->
+<!--        />-->
 </odoo>

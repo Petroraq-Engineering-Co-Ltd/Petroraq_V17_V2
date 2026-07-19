@@ -29,3 +29,7 @@ access_rfq_comparison_selection_wizard_procurement_admin,access.rfq.comparison.s
 access_rfq_comparison_wizard_quote_procurement_admin,access.rfq.comparison.wizard.quote.procurement.admin,model_rfq_comparison_wizard_quote,pr_custom_purchase.procurement_admin,1,1,1,1
 access_stock_picking_reject_wizard_inventory_admin,stock.picking.reject.wizard inventory admin,model_stock_picking_reject_wizard,pr_custom_purchase.inventory_admin,1,1,1,1
 access_purchase_order_reject_wizard_user,purchase.order.reject.wizard user,model_purchase_order_reject_wizard,base.group_user,1,1,1,1
+access_purchase_order_advance_payment_wizard_user,purchase.order.advance.payment.wizard user,model_purchase_order_advance_payment_wizard,base.group_user,1,1,1,1
+access_purchase_order_advance_account_payment_read,purchase.order.advance.account.payment read,account.model_account_payment,purchase.group_purchase_user,1,0,0,0
+access_purchase_order_advance_account_move_read,purchase.order.advance.account.move read,account.model_account_move,purchase.group_purchase_user,1,0,0,0
+access_purchase_order_advance_account_move_line_read,purchase.order.advance.account.move.line read,account.model_account_move_line,purchase.group_purchase_user,1,0,0,0

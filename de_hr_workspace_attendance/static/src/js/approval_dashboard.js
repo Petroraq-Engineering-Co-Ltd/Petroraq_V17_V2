@@ -5,6 +5,8 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { session } from "@web/session";
 
+const SELECTED_SECTION_STORAGE_KEY = "de_hr_workspace_attendance.approval_dashboard.section";
+
 class ApprovalDashboard extends Component {
     static template = "de_hr_workspace_attendance.ApprovalDashboard";
 
@@ -13,7 +15,7 @@ class ApprovalDashboard extends Component {
         this.action = useService("action");
         this.state = useState({
             sections: [],
-            selectedSectionKey: "",
+            selectedSectionKey: this.getStoredSectionKey(),
             loading: true,
             userName: session.user_name || session.name || session.username || "",
         });
@@ -32,16 +34,40 @@ class ApprovalDashboard extends Component {
             !sections.some((section) => section.key === this.state.selectedSectionKey)
         ) {
             this.state.selectedSectionKey = "";
+            this.storeSectionKey("");
         }
         this.state.loading = false;
     }
 
     openSection(ev) {
-        this.state.selectedSectionKey = ev.currentTarget.dataset.sectionKey || "";
+        const sectionKey = ev.currentTarget.dataset.sectionKey || "";
+        this.state.selectedSectionKey = sectionKey;
+        this.storeSectionKey(sectionKey);
     }
 
     backToSections() {
         this.state.selectedSectionKey = "";
+        this.storeSectionKey("");
+    }
+
+    getStoredSectionKey() {
+        try {
+            return window.sessionStorage.getItem(SELECTED_SECTION_STORAGE_KEY) || "";
+        } catch {
+            return "";
+        }
+    }
+
+    storeSectionKey(sectionKey) {
+        try {
+            if (sectionKey) {
+                window.sessionStorage.setItem(SELECTED_SECTION_STORAGE_KEY, sectionKey);
+            } else {
+                window.sessionStorage.removeItem(SELECTED_SECTION_STORAGE_KEY);
+            }
+        } catch {
+            // Storage can be unavailable in privacy-restricted browser contexts.
+        }
     }
 
     openTile(ev) {
