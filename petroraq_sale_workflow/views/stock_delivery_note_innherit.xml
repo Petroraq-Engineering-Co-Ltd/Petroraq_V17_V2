@@ -35,7 +35,7 @@
                       invisible="picking_type_code != 'outgoing' or sale_state not in ('sale', 'done')">
                     <group>
                         <group string="Sale PO">
-                            <field name="delivery_note_po_number" string="PO Name"/>
+                            <field name="delivery_note_po_number" string="PO Number"/>
                             <field name="delivery_note_po_date" string="PO Date"/>
                         </group>
                         <group string="Contact Person">
@@ -284,7 +284,7 @@
                     </td>
                 </tr>
                 <tr t-if="o.delivery_note_po_number or o.delivery_note_po_date">
-                    <td class="o_label">PO Name</td>
+                    <td class="o_label">PO Number</td>
                     <td>
                         <span t-esc="o.delivery_note_po_number or ''"/>
                     </td>

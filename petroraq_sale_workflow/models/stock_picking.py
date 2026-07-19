@@ -7,7 +7,7 @@ class StockPicking(models.Model):
     _inherit = "stock.picking"
 
     sale_state = fields.Selection(related="sale_id.state", string="Sale Order Status", readonly=True)
-    delivery_note_po_number = fields.Char(related="sale_id.po_number", string="PO Name", readonly=True)
+    delivery_note_po_number = fields.Char(related="sale_id.po_number", string="PO Number", readonly=True)
     delivery_note_po_date = fields.Date(related="sale_id.po_date", string="PO Date", readonly=True)
     delivery_note_ship_to_partner_id = fields.Many2one("res.partner", string="Ship To")
     delivery_note_ship_to_address = fields.Text(string="Ship To Address")
