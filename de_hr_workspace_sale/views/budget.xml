@@ -8,11 +8,11 @@
         <field name="context">{'create': False, 'edit': False}</field>
     </record>
 
-    <menuitem id="budget_increase_request_approvals_view_menu"
-              parent="menu_my_purchase_approvals"
-              name="Budget Requests"
-              action="pr_sale_budget_increase_request_action"
-              sequence="3"
-              groups="pr_custom_purchase.project_manager,account.group_account_manager,account.group_account_user,pr_custom_purchase.managing_director"/>
+<!--    <menuitem id="budget_increase_request_approvals_view_menu"-->
+<!--              parent="menu_my_purchase_approvals"-->
+<!--              name="Budget Requests"-->
+<!--              action="pr_sale_budget_increase_request_action"-->
+<!--              sequence="3"-->
+<!--              groups="pr_custom_purchase.project_manager,account.group_account_manager,account.group_account_user,pr_custom_purchase.managing_director"/>-->
 
 </odoo>

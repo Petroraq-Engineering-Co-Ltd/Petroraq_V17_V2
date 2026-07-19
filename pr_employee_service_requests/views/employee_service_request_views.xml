@@ -60,7 +60,7 @@
                 <separator/>
                 <filter name="hr_supervisor_approval" string="HR Supervisor"
                         domain="[('state', '=', 'hr_supervisor_approval')]"/>
-                <filter name="employee_manager_approval" string="Dept. Manager"
+                <filter name="employee_manager_approval" string="Employee Manager"
                         domain="[('state', '=', 'employee_manager_approval')]"/>
                 <filter name="hr_manager_approval" string="HR Manager"
                         domain="[('state', '=', 'hr_manager_approval')]"/>
@@ -108,7 +108,7 @@
                             class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_hr_supervisor_approve" type="object" string="HR Supervisor Approve"
                             class="btn-primary" invisible="not can_hr_supervisor_approve"/>
-                    <button name="action_employee_manager_approve" type="object" string="Dept. Manager Approve"
+                    <button name="action_employee_manager_approve" type="object" string="Employee Manager Approve"
                             class="btn-primary" invisible="not can_employee_manager_approve"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary" invisible="not can_hr_manager_approve"/>
@@ -722,14 +722,14 @@
     </record>
 
     <record id="action_pr_employee_iqama_new_hr_approvals" model="ir.actions.act_window">
-        <field name="name">New Iqama &amp; Work Permit Requests</field>
+        <field name="name">Iqama &amp; Work Permit Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'iqama_new'), ('state', 'in', ['hr_supervisor_approval',
+        <field name="domain">[('request_type', 'in', ['iqama_new', 'iqama_renewal']), ('state', 'in', ['hr_supervisor_approval',
             'hr_manager_approval'])]
         </field>
-        <field name="context">{'default_request_type': 'iqama_new'}</field>
+        <field name="context">{}</field>
     </record>
 
     <record id="action_pr_employee_iqama_renewal_hr_approvals" model="ir.actions.act_window">
@@ -744,14 +744,14 @@
     </record>
 
     <record id="action_pr_employee_medical_insurance_new_hr_approvals" model="ir.actions.act_window">
-        <field name="name">New Medical Insurance Requests</field>
+        <field name="name">Medical Insurance Requests</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'medical_insurance_new'), ('state', 'in', ['hr_supervisor_approval',
+        <field name="domain">[('request_type', 'in', ['medical_insurance_new', 'medical_insurance_renewal']), ('state', 'in', ['hr_supervisor_approval',
             'hr_manager_approval'])]
         </field>
-        <field name="context">{'default_request_type': 'medical_insurance_new'}</field>
+        <field name="context">{}</field>
     </record>
 
     <record id="action_pr_employee_medical_insurance_hr_approvals" model="ir.actions.act_window">
@@ -788,13 +788,12 @@
     </record>
 
     <record id="action_pr_employee_manager_approvals" model="ir.actions.act_window">
-        <field name="name">Dept. Manager Approvals</field>
+        <field name="name">Employee Service Request Approvals</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('employee_manager_user_id', '=', uid), ('state', '=', 'employee_manager_approval')]
-        </field>
-        <field name="context">{'search_default_employee_manager_approval': 1}</field>
+        <field name="domain">[('is_current_user_service_request_approver', '=', True)]</field>
+        <field name="context">{}</field>
     </record>
 
     <record id="action_pr_employee_md_approvals" model="ir.actions.act_window">
@@ -807,12 +806,12 @@
     </record>
 
     <record id="action_pr_employee_accounts_approvals" model="ir.actions.act_window">
-        <field name="name">Employee Request Accounts Approvals</field>
+        <field name="name">Employee Service Request Financial Approvals</field>
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('state', '=', 'accounts_approval')]</field>
-        <field name="context">{'search_default_accounts_approval': 1}</field>
+        <field name="domain">[('is_current_user_financial_approver', '=', True)]</field>
+        <field name="context">{}</field>
     </record>
 
     <record id="action_pr_employee_finance_approvals" model="ir.actions.act_window">
@@ -946,7 +945,7 @@
               groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
 
     <menuitem id="menu_pr_employee_iqama_new_hr_approvals"
-              name="New Iqama &amp; Work Permit Requests"
+              name="Iqama &amp; Work Permit Requests"
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_iqama_new_hr_approvals"
               sequence="22"
@@ -957,10 +956,11 @@
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_iqama_renewal_hr_approvals"
               sequence="23"
-              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
+              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"
+              active="False"/>
 
     <menuitem id="menu_pr_employee_medical_insurance_new_hr_approvals"
-              name="New Medical Insurance Requests"
+              name="Medical Insurance Requests"
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_medical_insurance_new_hr_approvals"
               sequence="24"
@@ -971,7 +971,8 @@
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_medical_insurance_hr_approvals"
               sequence="25"
-              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
+              groups="hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"
+              active="False"/>
 
     <menuitem id="menu_pr_employee_work_permit_new_hr_approvals"
               name="New Iqama &amp; Work Permit Requests"
@@ -990,7 +991,7 @@
               active="False"/>
 
     <menuitem id="menu_pr_employee_manager_approvals"
-              name="Dept. Manager Approvals"
+              name="Employee Service Requests"
               parent="de_hr_workspace.menu_my_employee_approvals"
               action="action_pr_employee_manager_approvals"
               sequence="44"
@@ -1001,7 +1002,8 @@
               parent="de_hr_workspace.menu_my_employee_approvals"
               action="action_pr_employee_md_approvals"
               sequence="45"
-              groups="pr_custom_purchase.managing_director,pr_hr_recruitment_request.group_onboarding_md"/>
+              groups="pr_custom_purchase.managing_director,pr_hr_recruitment_request.group_onboarding_md"
+              active="False"/>
 
     <menuitem id="menu_pr_employee_accounting_approvals"
               name="Employee Accounting"
@@ -1010,7 +1012,7 @@
               groups="base.group_system,account.group_account_invoice,account.group_account_user,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
 
     <menuitem id="menu_pr_employee_accounts_approvals"
-              name="Employee Request Accounts Approvals"
+              name="Employee Service Request Financial Approvals"
               parent="menu_pr_employee_accounting_approvals"
               action="action_pr_employee_accounts_approvals"
               sequence="5"
@@ -1021,7 +1023,8 @@
               parent="menu_pr_employee_accounting_approvals"
               action="action_pr_employee_finance_approvals"
               sequence="6"
-              groups="base.group_system,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"/>
+              groups="base.group_system,account.group_account_manager,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor"
+              active="False"/>
 
     <!--    <menuitem id="menu_pr_employee_payment_tracking"-->
     <!--              name="Employee Payment Requests"-->
@@ -1144,6 +1147,10 @@
 
     <record id="pr_hr_recruitment.hr_work_permit_approvals_view_menu" model="ir.ui.menu">
         <field name="active" eval="False"/>
+    </record>
+
+    <record id="de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_menu" model="ir.ui.menu">
+        <field name="name">Medical Insurance</field>
     </record>
 
     <record id="view_hr_contract_form_exit_reentry_benefit" model="ir.ui.view">
