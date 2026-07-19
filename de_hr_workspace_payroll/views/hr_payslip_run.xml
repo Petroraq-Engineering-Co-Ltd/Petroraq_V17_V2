@@ -43,7 +43,7 @@
 
     <menuitem id="hr_payslip_run_approvals_view_menu"
               parent="de_hr_workspace.menu_my_employee_approvals"
-              name="Payslip Batches"
+              name="Employee Payroll"
               action="hr_payslip_run_approvals_view_action"
               sequence="50"
               groups="pr_account.custom_group_accounting_manager"

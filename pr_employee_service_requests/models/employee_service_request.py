@@ -177,7 +177,7 @@ class PrEmployeeServiceRequest(models.Model):
         [
             ("draft", "Draft"),
             ("hr_supervisor_approval", "HR Supervisor"),
-            ("employee_manager_approval", "Dept. Manager"),
+            ("employee_manager_approval", "Employee Manager"),
             ("hr_manager_approval", "HR Manager"),
             ("accounts_approval", "Accounts"),
             ("md_approval", "Managing Director"),
@@ -381,6 +381,93 @@ class PrEmployeeServiceRequest(models.Model):
     can_reject = fields.Boolean(compute="_compute_action_flags")
     can_reset_to_draft = fields.Boolean(compute="_compute_action_flags")
     can_cancel = fields.Boolean(compute="_compute_action_flags")
+    is_current_user_service_request_approver = fields.Boolean(
+        compute="_compute_is_current_user_service_request_approver",
+        search="_search_is_current_user_service_request_approver",
+    )
+    is_current_user_financial_approver = fields.Boolean(
+        compute="_compute_is_current_user_financial_approver",
+        search="_search_is_current_user_financial_approver",
+    )
+
+    @api.depends("can_employee_manager_approve", "can_md_approve")
+    def _compute_is_current_user_service_request_approver(self):
+        for rec in self:
+            rec.is_current_user_service_request_approver = (
+                rec.can_employee_manager_approve or rec.can_md_approve
+            )
+
+    @api.model
+    def _search_is_current_user_service_request_approver(self, operator, value):
+        if operator not in ("=", "!="):
+            raise NotImplementedError(
+                "Employee service request approver search only supports '=' and '!='."
+            )
+
+        user = self.env.user
+        is_admin = user.has_group("base.group_system")
+        is_md = (
+            user.has_group("pr_custom_purchase.managing_director")
+            or user.has_group("pr_hr_recruitment_request.group_onboarding_md")
+        )
+        manager_domain = (
+            [("state", "=", "employee_manager_approval")]
+            if is_admin
+            else [
+                "&",
+                ("state", "=", "employee_manager_approval"),
+                ("employee_manager_user_id", "=", user.id),
+            ]
+        )
+        md_domain = (
+            [("state", "=", "md_approval")]
+            if is_md or is_admin
+            else [("id", "=", 0)]
+        )
+        approver_domain = ["|"] + manager_domain + md_domain
+        positive_search = (operator == "=" and bool(value)) or (
+            operator == "!=" and not bool(value)
+        )
+        return approver_domain if positive_search else ["!"] + approver_domain
+
+    @api.depends("can_accounts_approve", "can_finance_approve")
+    def _compute_is_current_user_financial_approver(self):
+        for rec in self:
+            rec.is_current_user_financial_approver = (
+                rec.can_accounts_approve or rec.can_finance_approve
+            )
+
+    @api.model
+    def _search_is_current_user_financial_approver(self, operator, value):
+        if operator not in ("=", "!="):
+            raise NotImplementedError(
+                "Employee service request financial approver search only supports '=' and '!='."
+            )
+
+        user = self.env.user
+        is_admin = user.has_group("base.group_system")
+        is_accounts = is_admin or any(
+            user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS
+        )
+        is_finance = is_admin or (
+            user.has_group("pr_account.custom_group_accounting_manager")
+            or user.has_group("account.group_account_manager")
+        )
+        accounts_domain = (
+            [("state", "=", "accounts_approval")]
+            if is_accounts
+            else [("id", "=", 0)]
+        )
+        finance_domain = (
+            [("state", "=", "finance_approval")]
+            if is_finance
+            else [("id", "=", 0)]
+        )
+        approver_domain = ["|"] + accounts_domain + finance_domain
+        positive_search = (operator == "=" and bool(value)) or (
+            operator == "!=" and not bool(value)
+        )
+        return approver_domain if positive_search else ["!"] + approver_domain
 
     @api.model
     def _default_employee_id(self):
