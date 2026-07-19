@@ -93,6 +93,7 @@
                 <field name="purchase_order_number" optional="show"/>
                 <field name="purchase_order_reference" optional="show"/>
                 <field name="advance_payment_percentage" optional="show"/>
+                <field name="pr_payment_approval_state" optional="show" widget="badge"/>
             </xpath>
         </field>
     </record>
@@ -106,6 +107,7 @@
                 <field name="purchase_order_number" optional="show"/>
                 <field name="purchase_order_reference" optional="show"/>
                 <field name="advance_payment_percentage" optional="show"/>
+                <field name="pr_payment_approval_state" optional="show"/>
             </xpath>
         </field>
     </record>
