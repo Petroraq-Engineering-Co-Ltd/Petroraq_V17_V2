@@ -16,6 +16,7 @@
         "pr_hr_holidays",
         "pr_hr_account",
         "de_hr_workspace",
+        "pr_hr_recruitment_request",
         "mail",
     ],
     "data": [

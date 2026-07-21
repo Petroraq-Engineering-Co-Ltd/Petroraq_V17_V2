@@ -14,6 +14,22 @@ class PurchaseOrder(models.Model):
         string="Vendor Documents",
         compute="_compute_pr_vendor_portal_document_count",
     )
+    pr_vendor_portal_attachment_ids = fields.Many2many(
+        "ir.attachment",
+        string="Vendor Portal Documents",
+        compute="_compute_pr_vendor_portal_attachment_ids",
+    )
+
+    def _compute_pr_vendor_portal_attachment_ids(self):
+        Attachment = self.env["ir.attachment"].sudo()
+        for order in self:
+            order.pr_vendor_portal_attachment_ids = Attachment.search([
+                ("res_model", "=", order._name),
+                ("res_id", "=", order.id),
+                "|",
+                ("pr_vendor_portal_upload", "=", True),
+                ("pr_vendor_portal_visible", "=", True),
+            ])
 
     @api.depends("message_ids.attachment_ids")
     def _compute_pr_vendor_portal_invoice_count(self):
@@ -36,7 +52,7 @@ class PurchaseOrder(models.Model):
                 ("res_model", "=", order._name),
                 ("res_id", "=", order.id),
                 ("pr_vendor_portal_upload", "=", True),
-                ("pr_vendor_portal_document_type", "in", ("delivery_note", "ses")),
+                ("pr_vendor_portal_document_type", "in", ("po_acceptance", "gdn", "delivery_note", "ses")),
             ])
 
     def action_open_pr_vendor_portal_invoices(self):
@@ -89,7 +105,7 @@ class PurchaseOrder(models.Model):
                 ("res_model", "=", self._name),
                 ("res_id", "=", self.id),
                 ("pr_vendor_portal_upload", "=", True),
-                ("pr_vendor_portal_document_type", "in", ("delivery_note", "ses")),
+                ("pr_vendor_portal_document_type", "in", ("po_acceptance", "gdn", "delivery_note", "ses")),
             ],
             "context": {
                 "create": False,

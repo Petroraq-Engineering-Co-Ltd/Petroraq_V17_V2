@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from dateutil.relativedelta import relativedelta
 
 
@@ -17,7 +19,7 @@ def get_service_duration(start_date, end_date):
             "period_display": "0 years, 0 months, 0 days",
         }
 
-    diff = relativedelta(end_date, start_date)
+    diff = relativedelta(end_date + timedelta(days=1), start_date)
     service_years = diff.years + (diff.months / 12.0) + (diff.days / 365.0)
     return {
         "years": diff.years,

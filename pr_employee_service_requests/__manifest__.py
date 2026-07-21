@@ -11,7 +11,7 @@ budget-controlled BPVs.
     "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",
     "category": "Human Resources",
-    "version": "17.0.1.0.9",
+    "version": "17.0.1.0.10",
     "license": "LGPL-3",
     "depends": [
         "de_hr_workspace",

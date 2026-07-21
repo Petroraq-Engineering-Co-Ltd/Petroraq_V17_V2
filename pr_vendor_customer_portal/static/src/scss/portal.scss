@@ -7,6 +7,36 @@ $pr-portal-border: #d8e0ea;
 $pr-portal-surface: #ffffff;
 $pr-portal-background: #f4f7fb;
 
+// Odoo 17 list pages do not consistently keep the table under
+// `.o_portal_wrap`. Target the portal table classes themselves so the public
+// website theme cannot turn PO, RFQ, PIV, invoice, or delivery links white.
+#wrapwrap {
+    .o_portal_my_doc_table,
+    .o_portal_table {
+        tbody td {
+            color: $pr-portal-text !important;
+
+            a:not(.btn):not(.badge) {
+                color: $pr-portal-navy !important;
+                -webkit-text-fill-color: $pr-portal-navy !important;
+                text-decoration-color: rgba($pr-portal-navy, 0.35) !important;
+
+                &:visited {
+                    color: $pr-portal-navy !important;
+                    -webkit-text-fill-color: $pr-portal-navy !important;
+                }
+
+                &:hover,
+                &:focus {
+                    color: $pr-portal-gold !important;
+                    -webkit-text-fill-color: $pr-portal-gold !important;
+                    text-decoration-color: currentColor !important;
+                }
+            }
+        }
+    }
+}
+
 // Portal breadcrumbs are rendered outside `.o_portal_wrap` on document detail
 // pages. Keep every PO/SO/delivery/invoice/bill breadcrumb readable against
 // the white submenu bar, regardless of the public website theme.

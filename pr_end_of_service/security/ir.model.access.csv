@@ -2,9 +2,11 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_pr_end_service_reason_hr_user,pr.end.service.reason.hr.user,model_pr_end_service_reason,hr.group_hr_user,1,1,1,1
 access_pr_end_service_reason_line_hr_user,pr.end.service.reason.line.hr.user,model_pr_end_service_reason_line,hr.group_hr_user,1,1,1,1
 access_pr_end_of_service_hr_user,pr.end.of.service.hr.user,model_pr_end_of_service,hr.group_hr_user,1,1,1,1
+access_pr_end_of_service_md,pr.end.of.service.md,model_pr_end_of_service,pr_hr_recruitment_request.group_onboarding_md,1,1,0,0
 access_pr_end_of_service_account_manager,pr.end.of.service.account.manager,model_pr_end_of_service,account.group_account_manager,1,1,0,0
 access_pr_end_of_service_custom_account_manager,pr.end.of.service.custom.account.manager,model_pr_end_of_service,pr_account.custom_group_accounting_manager,1,1,0,0
 access_pr_end_of_service_adjustment_hr_user,pr.end.of.service.adjustment.hr.user,model_pr_end_of_service_adjustment,hr.group_hr_user,1,1,1,1
+access_pr_end_of_service_adjustment_md,pr.end.of.service.adjustment.md,model_pr_end_of_service_adjustment,pr_hr_recruitment_request.group_onboarding_md,1,0,0,0
 access_pr_end_of_service_adjustment_account_manager,pr.end.of.service.adjustment.account.manager,model_pr_end_of_service_adjustment,account.group_account_manager,1,1,0,0
 access_pr_end_of_service_adjustment_custom_account_manager,pr.end.of.service.adjustment.custom.account.manager,model_pr_end_of_service_adjustment,pr_account.custom_group_accounting_manager,1,1,0,0
 access_pr_eos_calculator_workspace_user,pr.eos.calculator.workspace.user,model_pr_eos_calculator,de_hr_workspace.group_hr_employee_workspace,1,1,1,1

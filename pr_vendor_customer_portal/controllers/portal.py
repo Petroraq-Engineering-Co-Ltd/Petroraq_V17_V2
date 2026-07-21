@@ -305,12 +305,36 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             limit=self._items_per_page,
             offset=pager["offset"],
         )
+        delivery_rows = []
+        status_labels = {
+            "pending": _("Pending"),
+            "partial": _("Partially Received"),
+            "received": _("Received"),
+            "cancel": _("Cancelled"),
+        }
+        for delivery in deliveries:
+            moves = delivery.move_ids_without_package
+            demanded_quantity = sum(moves.mapped("product_uom_qty"))
+            delivered_quantity = sum(
+                move.quantity if "quantity" in move._fields else move.quantity_done
+                for move in moves
+            )
+            status = delivery._pr_portal_delivery_status_from_quantities(
+                delivery.state, demanded_quantity, delivered_quantity
+            )
+            delivery_rows.append({
+                "delivery": delivery,
+                "delivered_quantity": delivered_quantity,
+                "pending_quantity": max(demanded_quantity - delivered_quantity, 0.0),
+                "status": status_labels[status],
+            })
         request.session["vendor_delivery_notes_history"] = deliveries.ids[:100]
 
         values.update({
             "date": date_begin,
             "date_end": date_end,
             "delivery_notes": deliveries,
+            "delivery_rows": delivery_rows,
             "picking": False,
             "page_name": "vendor_delivery",
             "default_url": "/vendor/delivery-notes",
@@ -464,6 +488,18 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
     def _vendor_document_type_options(self):
         return {
+            "po_acceptance": {
+                "label": _("PO Acceptance"),
+                "number_label": _("PO Acceptance Reference"),
+                "file_label": _("PO Acceptance File"),
+                "activity_summary": _("Review Vendor PO Acceptance"),
+            },
+            "gdn": {
+                "label": _("Goods Delivery Note"),
+                "number_label": _("GDN Number"),
+                "file_label": _("GDN File"),
+                "activity_summary": _("Review Vendor GDN"),
+            },
             "delivery_note": {
                 "label": _("Delivery Note"),
                 "number_label": _("Delivery Note Number"),
@@ -486,6 +522,10 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             selected_po_id = int(form_data.get("po_id") or 0)
         except ValueError:
             selected_po_id = 0
+        try:
+            selected_delivery_id = int(form_data.get("delivery_id") or 0)
+        except ValueError:
+            selected_delivery_id = 0
         selected_document_type = form_data.get("document_type")
         if selected_document_type not in document_types:
             selected_document_type = "delivery_note"
@@ -501,6 +541,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             "selected_document_type_meta": document_types[selected_document_type],
             "form_data": form_data,
             "selected_po_id": selected_po_id,
+            "selected_delivery_id": selected_delivery_id,
             "error_message": error_message or [],
         })
         return values
@@ -554,6 +595,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         error_message = []
         form_data = dict(post)
         po_id = post.get("po_id")
+        delivery_id = post.get("delivery_id")
         document_type = post.get("document_type")
         if document_type not in document_types:
             document_type = "delivery_note"
@@ -580,6 +622,16 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 )
         if not po:
             error_message.append(_("Please select a valid purchase order."))
+        delivery = request.env["stock.picking"].sudo().browse()
+        if delivery_id:
+            try:
+                delivery_id = int(delivery_id)
+            except ValueError:
+                delivery_id = 0
+            if delivery_id:
+                delivery = self._get_accessible_vendor_delivery(delivery_id)
+                if not delivery or delivery.purchase_id != po:
+                    error_message.append(_("Please select a valid delivery note for this purchase order."))
         if not document_number:
             error_message.append(_("Please enter the %(document)s number.", document=document_meta["label"]))
         if not document_date:
@@ -614,12 +666,13 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
         try:
             vendor = self._commercial_partner().sudo()
+            target = delivery or po
             attachment = request.env["ir.attachment"].sudo().create({
                 "name": document_file.filename or ("%s-%s" % (document_type, document_number)),
                 "type": "binary",
                 "datas": base64.b64encode(document_file_content).decode(),
-                "res_model": "purchase.order",
-                "res_id": po.id,
+                "res_model": target._name,
+                "res_id": target.id,
                 "mimetype": document_file.mimetype,
                 "description": _(
                     "Vendor %(document)s %(number)s uploaded through the portal.",
@@ -627,6 +680,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     number=document_number,
                 ),
                 "pr_vendor_portal_upload": True,
+                "pr_vendor_portal_visible": True,
                 "pr_vendor_portal_document_type": document_type,
                 "pr_vendor_id": vendor.id,
                 "pr_vendor_document_number": document_number,
@@ -654,7 +708,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     escape(note)
                 ) if note else Markup(""),
             )
-            po.sudo().message_post(
+            target.sudo().message_post(
                 body=message_body,
                 attachment_ids=attachment.ids,
                 author_id=request.env.user.partner_id.id,
@@ -691,9 +745,43 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 ),
             )
 
-        return request.redirect(
-            po.get_portal_url(query_string="&vendor_document_uploaded=1")
-        )
+        if delivery:
+            return request.redirect("/vendor/delivery-notes/%s?document_uploaded=1" % delivery.id)
+        return request.redirect(po.get_portal_url(query_string="&vendor_document_uploaded=1"))
+
+    @http.route(
+        ["/vendor/attachment/<int:attachment_id>/download"],
+        type="http",
+        auth="user",
+        website=True,
+    )
+    def portal_vendor_attachment_download(self, attachment_id, **kw):
+        if not self._is_vendor_portal_partner():
+            return request.redirect("/my")
+
+        attachment = request.env["ir.attachment"].sudo().browse(attachment_id).exists()
+        if not attachment or not (attachment.pr_vendor_portal_upload or attachment.pr_vendor_portal_visible):
+            raise MissingError(_("This attachment is not available in the vendor portal."))
+
+        allowed = False
+        if attachment.res_model == "purchase.order":
+            allowed = bool(request.env["purchase.order"].sudo().search_count(
+                expression.AND([
+                    self._prepare_purchase_order_domain(),
+                    [("id", "=", attachment.res_id)],
+                ])
+            ))
+        elif attachment.res_model == "stock.picking":
+            allowed = bool(self._get_accessible_vendor_delivery(attachment.res_id))
+        if not allowed:
+            raise MissingError(_("This attachment does not exist or you do not have access to it."))
+
+        content = attachment.raw or b""
+        return request.make_response(content, [
+            ("Content-Type", attachment.mimetype or "application/octet-stream"),
+            ("Content-Length", str(len(content))),
+            ("Content-Disposition", content_disposition(attachment.name or "document")),
+        ])
 
     @http.route(
         ["/vendor/invoice/upload"],
@@ -813,6 +901,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 "mimetype": "application/pdf",
                 "description": _("Vendor invoice %(number)s uploaded through the portal.", number=vendor_invoice_number),
                 "pr_vendor_portal_upload": True,
+                "pr_vendor_portal_visible": True,
                 "pr_vendor_portal_document_type": "invoice",
                 "pr_vendor_id": vendor.id,
                 "pr_vendor_invoice_number": vendor_invoice_number,

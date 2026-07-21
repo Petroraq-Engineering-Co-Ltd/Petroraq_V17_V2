@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
+from odoo.osv import expression
 
 
 HR_SUPERVISOR_GROUP = "pr_hr_recruitment_request.group_onboarding_supervisor"
@@ -137,6 +138,76 @@ class PrHrOffboardingClearanceTemplateLine(models.Model):
     )
 
 
+class PrHrOffboardingEmployeeCodeLookup(models.Model):
+    _name = "pr.hr.offboarding.employee.code.lookup"
+    _description = "Offboarding Employee Code Lookup"
+    _rec_name = "code"
+    _order = "code, employee_name"
+
+    employee_id = fields.Many2one(
+        "hr.employee",
+        string="Employee",
+        required=True,
+        ondelete="cascade",
+        index=True,
+    )
+    code = fields.Char(related="employee_id.code", store=True, readonly=True)
+    employee_name = fields.Char(related="employee_id.name", store=True, readonly=True)
+
+    _sql_constraints = [
+        (
+            "employee_unique",
+            "unique(employee_id)",
+            "Each employee can only have one offboarding code lookup record.",
+        ),
+    ]
+
+    @api.model
+    def _get_or_create_for_employee(self, employee):
+        employee = employee.exists()
+        if not employee:
+            return self
+        lookup = self.sudo().search([("employee_id", "=", employee.id)], limit=1)
+        if lookup:
+            return lookup
+        return self.sudo().create({"employee_id": employee.id})
+
+    @api.model
+    def _get_or_create_for_employees(self, employees):
+        lookups = self.sudo()
+        for employee in employees.exists():
+            lookups |= self._get_or_create_for_employee(employee)
+        return lookups
+
+    def name_get(self):
+        return [(lookup.id, lookup.code or "") for lookup in self]
+
+    @api.depends("code")
+    def _compute_display_name(self):
+        for lookup in self:
+            lookup.display_name = lookup.code or ""
+
+    @api.model
+    def name_search(self, name="", args=None, operator="ilike", limit=100):
+        args = list(args or [])
+        if name:
+            employee_domain = expression.OR([
+                [("code", operator, name)],
+                [("name", operator, name)],
+            ])
+            employees = self.env["hr.employee"].search(employee_domain, limit=limit)
+            lookups = self._get_or_create_for_employees(employees)
+            if args:
+                lookups = lookups.filtered_domain(args)
+            return lookups.name_get()
+
+        lookups = self.search(args, limit=limit)
+        if not lookups and not args:
+            employees = self.env["hr.employee"].search([], limit=limit)
+            lookups = self._get_or_create_for_employees(employees)
+        return lookups.name_get()
+
+
 class PrHrOffboardingRequest(models.Model):
     _name = "pr.hr.offboarding.request"
     _description = "Termination / Resignation Request"
@@ -166,6 +237,14 @@ class PrHrOffboardingRequest(models.Model):
         string="Employee",
         required=True,
         tracking=True,
+    )
+    employee_code_id = fields.Many2one(
+        "pr.hr.offboarding.employee.code.lookup",
+        string="Employee ID",
+        compute="_compute_employee_code_id",
+        inverse="_inverse_employee_code_id",
+        store=True,
+        help="Search and select the employee by internal employee code.",
     )
     requested_by_id = fields.Many2one(
         "res.users",
@@ -471,6 +550,17 @@ class PrHrOffboardingRequest(models.Model):
             request.department_manager_id = manager
             request.department_manager_user_id = manager.user_id
 
+    @api.depends("employee_id")
+    def _compute_employee_code_id(self):
+        for request in self:
+            request.employee_code_id = self.env[
+                "pr.hr.offboarding.employee.code.lookup"
+            ]._get_or_create_for_employee(request.employee_id)
+
+    def _inverse_employee_code_id(self):
+        for request in self:
+            request.employee_id = request.employee_code_id.employee_id
+
     @api.depends("employee_id", "employee_id.country_id", "employee_id.country_id.is_homeland")
     def _compute_employee_exit_flags(self):
         for request in self:
@@ -563,6 +653,102 @@ class PrHrOffboardingRequest(models.Model):
                 _("Only MD can perform this action.")
             )
 
+    def _user_can_approve_state(self, user):
+        self.ensure_one()
+        if user.has_group("base.group_system"):
+            return True
+        if self.state == "submitted":
+            return self.department_manager_user_id == user
+        if self.state == "hr_manager_approval":
+            return user.has_group(HR_MANAGER_GROUP)
+        if self.state == "md_approval":
+            return user.has_group(MD_GROUP)
+        return False
+
+    def _approve_department_manager_step(self, approver_user, automatic=False):
+        self.ensure_one()
+        self.sudo().write(
+            {
+                "state": "hr_manager_approval",
+                "approved_by_id": approver_user.id,
+                "approved_date": fields.Datetime.now(),
+                "hr_manager_approved_by_id": False,
+                "hr_manager_approved_date": False,
+                "md_approved_by_id": False,
+                "md_approved_date": False,
+                "rejected_by_id": False,
+                "rejected_date": False,
+                "rejection_reason": False,
+            }
+        )
+        if automatic:
+            body = _(
+                "Department Manager approval was automatically completed because %s also holds that approval authority."
+            ) % approver_user.display_name
+        else:
+            body = _(
+                "Offboarding request accepted by the department manager and sent for HR Manager approval."
+            )
+        self.message_post(body=body)
+
+    def _approve_hr_manager_step(self, approver_user, automatic=False):
+        self.ensure_one()
+        self.sudo().write(
+            {
+                "state": "md_approval",
+                "hr_manager_approved_by_id": approver_user.id,
+                "hr_manager_approved_date": fields.Datetime.now(),
+                "md_approved_by_id": False,
+                "md_approved_date": False,
+                "rejected_by_id": False,
+                "rejected_date": False,
+                "rejection_reason": False,
+            }
+        )
+        if automatic:
+            body = _(
+                "HR Manager approval was automatically completed because %s also holds that approval authority."
+            ) % approver_user.display_name
+        else:
+            body = _("Offboarding request approved by the HR Manager and sent for MD approval.")
+        self.message_post(body=body)
+
+    def _approve_md_step(self, approver_user, automatic=False):
+        self.ensure_one()
+        self.sudo().write(
+            {
+                "state": "accepted",
+                "md_approved_by_id": approver_user.id,
+                "md_approved_date": fields.Datetime.now(),
+                "rejected_by_id": False,
+                "rejected_date": False,
+                "rejection_reason": False,
+            }
+        )
+        if automatic:
+            body = _(
+                "MD approval was automatically completed because %s also holds that approval authority."
+            ) % approver_user.display_name
+        else:
+            body = _("Offboarding request approved by MD and accepted.")
+        self.message_post(body=body)
+
+    def _auto_approve_same_user_steps(self, approver_user):
+        for request in self:
+            guard = 0
+            while (
+                request.state in ("submitted", "hr_manager_approval", "md_approval")
+                and request._user_can_approve_state(approver_user)
+                and guard < 3
+            ):
+                guard += 1
+                if request.state == "submitted":
+                    request._approve_department_manager_step(approver_user, automatic=True)
+                elif request.state == "hr_manager_approval":
+                    request._approve_hr_manager_step(approver_user, automatic=True)
+                elif request.state == "md_approval":
+                    request._approve_md_step(approver_user, automatic=True)
+
     def _sync_exit_defaults(self, vals):
         employee = self.env["hr.employee"].browse(vals.get("employee_id")).exists()
         if not employee:
@@ -579,6 +765,9 @@ class PrHrOffboardingRequest(models.Model):
     @api.onchange("employee_id")
     def _onchange_employee_id_exit_defaults(self):
         for request in self:
+            request.employee_code_id = self.env[
+                "pr.hr.offboarding.employee.code.lookup"
+            ]._get_or_create_for_employee(request.employee_id)
             if not request.employee_id:
                 continue
             if request.is_saudi:
@@ -594,6 +783,11 @@ class PrHrOffboardingRequest(models.Model):
                 request.local_transfer_state = "not_required"
                 request.gosi_removal_state = "not_required"
 
+    @api.onchange("employee_code_id")
+    def _onchange_employee_code_id(self):
+        for request in self:
+            request.employee_id = request.employee_code_id.employee_id
+
     @api.model_create_multi
     def create(self, vals_list):
         if not self._current_user_can_manage():
@@ -603,6 +797,11 @@ class PrHrOffboardingRequest(models.Model):
         prepared_vals_list = []
         for incoming_vals in vals_list:
             vals = dict(incoming_vals)
+            if "employee_code_id" in vals:
+                lookup = self.env["pr.hr.offboarding.employee.code.lookup"].browse(
+                    vals.pop("employee_code_id")
+                )
+                vals["employee_id"] = lookup.employee_id.id if lookup else False
             vals.update(
                 {
                     "name": self.env["ir.sequence"].next_by_code(
@@ -629,6 +828,12 @@ class PrHrOffboardingRequest(models.Model):
         return super().create(prepared_vals_list)
 
     def write(self, vals):
+        if "employee_code_id" in vals:
+            vals = dict(vals)
+            lookup = self.env["pr.hr.offboarding.employee.code.lookup"].browse(
+                vals.pop("employee_code_id")
+            )
+            vals["employee_id"] = lookup.employee_id.id if lookup else False
         if not self.env.su:
             if WORKFLOW_CONTROLLED_FIELDS.intersection(vals):
                 raise AccessError(
@@ -704,6 +909,7 @@ class PrHrOffboardingRequest(models.Model):
                 )
                 % request.department_manager_id.display_name
             )
+            request._auto_approve_same_user_steps(self.env.user)
         return True
 
     def action_accept(self):
@@ -713,26 +919,8 @@ class PrHrOffboardingRequest(models.Model):
                 raise UserError(
                     _("Only a request pending Department Manager approval can be approved.")
                 )
-            request.sudo().write(
-                {
-                    "state": "hr_manager_approval",
-                    "approved_by_id": self.env.user.id,
-                    "approved_date": fields.Datetime.now(),
-                    "hr_manager_approved_by_id": False,
-                    "hr_manager_approved_date": False,
-                    "md_approved_by_id": False,
-                    "md_approved_date": False,
-                    "rejected_by_id": False,
-                    "rejected_date": False,
-                    "rejection_reason": False,
-                }
-            )
-            request.message_post(
-                body=_(
-                    "Offboarding request accepted by the department manager "
-                    "and sent for HR Manager approval."
-                )
-            )
+            request._approve_department_manager_step(self.env.user)
+            request._auto_approve_same_user_steps(self.env.user)
         return True
 
     def action_hr_manager_approve(self):
@@ -742,21 +930,8 @@ class PrHrOffboardingRequest(models.Model):
                 raise UserError(
                     _("Only a request pending HR Manager approval can be approved.")
                 )
-            request.sudo().write(
-                {
-                    "state": "md_approval",
-                    "hr_manager_approved_by_id": self.env.user.id,
-                    "hr_manager_approved_date": fields.Datetime.now(),
-                    "md_approved_by_id": False,
-                    "md_approved_date": False,
-                    "rejected_by_id": False,
-                    "rejected_date": False,
-                    "rejection_reason": False,
-                }
-            )
-            request.message_post(
-                body=_("Offboarding request approved by the HR Manager and sent for MD approval.")
-            )
+            request._approve_hr_manager_step(self.env.user)
+            request._auto_approve_same_user_steps(self.env.user)
         return True
 
     def action_md_approve(self):
@@ -766,19 +941,7 @@ class PrHrOffboardingRequest(models.Model):
                 raise UserError(
                     _("Only a request pending MD approval can be approved.")
                 )
-            request.sudo().write(
-                {
-                    "state": "accepted",
-                    "md_approved_by_id": self.env.user.id,
-                    "md_approved_date": fields.Datetime.now(),
-                    "rejected_by_id": False,
-                    "rejected_date": False,
-                    "rejection_reason": False,
-                }
-            )
-            request.message_post(
-                body=_("Offboarding request approved by MD and accepted.")
-            )
+            request._approve_md_step(self.env.user)
         return True
 
     def _get_clearance_template_lines(self):
@@ -1178,7 +1341,7 @@ class PrHrOffboardingClearanceLine(models.Model):
     )
     completed_by_id = fields.Many2one("res.users", readonly=True, copy=False)
     completed_date = fields.Datetime(readonly=True, copy=False)
-    waiver_reason = fields.Text()
+    waiver_reason = fields.Text(string="Waive Off Reason")
     notes = fields.Text()
 
     def _current_user_can_manage_clearance(self):

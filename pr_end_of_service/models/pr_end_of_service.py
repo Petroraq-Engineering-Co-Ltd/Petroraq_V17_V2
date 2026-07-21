@@ -1,7 +1,11 @@
+import base64
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 
 from .eos_calculation import MIN_EOS_SERVICE_YEARS, get_eosb_breakdown, get_service_duration
+
+MD_GROUP = "pr_hr_recruitment_request.group_onboarding_md"
 
 
 class PrEndOfService(models.Model):
@@ -106,12 +110,20 @@ class PrEndOfService(models.Model):
         tracking=True,
     )
     date_hr_approval = fields.Date(string="HR Approval Date", readonly=True, copy=False)
+    date_md_approval = fields.Date(string="MD Approval Date", readonly=True, copy=False)
+    md_approved_by_id = fields.Many2one(
+        "res.users",
+        string="MD Approved By",
+        readonly=True,
+        copy=False,
+    )
     date_accounting_approval = fields.Date(string="Accounting Approval Date", readonly=True, copy=False)
     date_payment = fields.Date(string="Payment Date", readonly=True, copy=False)
     state = fields.Selection(
         [
             ("draft", "Draft"),
             ("hr_approval", "HR Approval"),
+            ("md_approval", "MD Approval"),
             ("accounts_approval", "Accounts Approval"),
             ("employee_acceptance", "Employee Acceptance"),
             ("employee_rejected", "Employee Rejected"),
@@ -167,13 +179,13 @@ class PrEndOfService(models.Model):
     )
     annual_leave_type_id = fields.Many2one(
         "hr.leave.type",
-        string="Annual Leave Type",
+        string="Leave Type",
         compute="_compute_annual_leave",
         store=True,
         readonly=False,
     )
     annual_leave_days = fields.Float(
-        string="Annual Leave Days",
+        string="Unused Annual Leave Days",
         compute="_compute_annual_leave",
         store=True,
         readonly=False,
@@ -185,7 +197,7 @@ class PrEndOfService(models.Model):
         currency_field="currency_id",
     )
     other_amount = fields.Monetary(
-        string="Other Additions",
+        string="Manual Addition",
         currency_field="currency_id",
         tracking=True,
     )
@@ -213,12 +225,12 @@ class PrEndOfService(models.Model):
         currency_field="currency_id",
     )
     payroll_adjustment_synced_date = fields.Datetime(
-        string="Payroll Adjustments Synced On",
+        string="Recoveries Synced On",
         readonly=True,
         copy=False,
     )
     total_deserved_amount = fields.Monetary(
-        string="Total Deserved",
+        string="Total Payable",
         compute="_compute_amounts",
         store=True,
         currency_field="currency_id",
@@ -507,7 +519,7 @@ class PrEndOfService(models.Model):
 
     def _needs_requested_amount_auto_sync(self):
         self.ensure_one()
-        return not self.is_partial and self.state in ("draft", "hr_approval")
+        return not self.is_partial and self.state in ("draft", "hr_approval", "md_approval")
 
     def _sync_recovery_state_from_amount(self):
         for rec in self:
@@ -570,12 +582,67 @@ class PrEndOfService(models.Model):
         ]
         return [("state", "in", wanted_states or ["draft", "open"])]
 
+    def _get_employee_partner(self):
+        self.ensure_one()
+        employee = self.employee_id.sudo()
+        if "work_contact_id" in employee._fields and employee.work_contact_id:
+            return employee.work_contact_id
+        if "address_home_id" in employee._fields and employee.address_home_id:
+            return employee.address_home_id
+        return self.env["res.partner"]
+
+    def _get_employee_account_recovery_amount(self):
+        self.ensure_one()
+        employee = self.employee_id.sudo()
+        account = employee.employee_account_id if "employee_account_id" in employee._fields else False
+        posted_domain = [("move_id.state", "=", "posted")]
+        MoveLine = self.env["account.move.line"].sudo()
+        recovery_lines = MoveLine
+        if account:
+            recovery_lines |= MoveLine.search(posted_domain + [("account_id", "=", account.id)])
+
+        Account = self.env["account.account"].sudo()
+        employee_advance_accounts = Account
+        if "accounts_receivable_subcategory" in Account._fields:
+            employee_advance_accounts = Account.search([
+                ("accounts_receivable_subcategory", "=", "employee_advances"),
+            ])
+        else:
+            employee_advance_accounts = Account.browse()
+
+        if employee_advance_accounts:
+            partner = self._get_employee_partner()
+            if partner:
+                recovery_lines |= MoveLine.search(
+                    posted_domain
+                    + [
+                        ("partner_id", "=", partner.id),
+                        ("account_id", "in", employee_advance_accounts.ids),
+                    ]
+                )
+            employee_cost_center = (
+                employee.employee_cost_center_id
+                if "employee_cost_center_id" in employee._fields
+                else False
+            )
+            if employee_cost_center and "cs_employee_id" in MoveLine._fields:
+                recovery_lines |= MoveLine.search(
+                    posted_domain
+                    + [
+                        ("cs_employee_id", "=", employee_cost_center.id),
+                        ("account_id", "in", employee_advance_accounts.ids),
+                    ]
+                )
+
+        balance = sum(recovery_lines.mapped("balance"))
+        return max(balance, 0.0)
+
     def action_sync_payroll_adjustments(self):
         for rec in self:
-            if rec.state not in ("draft", "hr_approval"):
-                raise UserError(_("Payroll adjustments can only be synced before accounts approval."))
-            rec.adjustment_line_ids.filtered(
-                lambda line: (line.source_ref or "").startswith("payroll:")
+            if rec.state not in ("draft", "hr_approval", "md_approval"):
+                raise UserError(_("Recoveries can only be synced before accounts approval."))
+            rec.sudo().adjustment_line_ids.filtered(
+                lambda line: (line.source_ref or "").startswith(("payroll:", "accounts:"))
             ).unlink()
             line_commands = []
             Payslip = self.env["hr.payslip"].sudo()
@@ -620,14 +687,31 @@ class PrEndOfService(models.Model):
                         "source_ref": "payroll:salary_attachment:%s" % attachment.id,
                         "notes": _("Created from open salary attachment during EOS payroll sync."),
                     }))
+            employee_account_recovery = rec._get_employee_account_recovery_amount()
+            if employee_account_recovery:
+                employee_account = (
+                    rec.employee_id.sudo().employee_account_id
+                    if "employee_account_id" in rec.employee_id._fields
+                    else False
+                )
+                line_commands.append((0, 0, {
+                    "name": _("Outstanding employee account balance%s") % (
+                        ": %s" % employee_account.display_name if employee_account else ""
+                    ),
+                    "category": "account",
+                    "adjustment_type": "deduction",
+                    "amount": employee_account_recovery,
+                    "source_ref": "accounts:employee_account:%s" % (employee_account.id if employee_account else rec.employee_id.id),
+                    "notes": _("Created from posted Accounts balance during EOS recovery sync."),
+                }))
             if line_commands:
-                rec.write({
+                rec.sudo().write({
                     "adjustment_line_ids": line_commands,
                     "payroll_adjustment_synced_date": fields.Datetime.now(),
                 })
             else:
-                rec.payroll_adjustment_synced_date = fields.Datetime.now()
-            rec.message_post(body=_("Payroll arrears and deduction lines were synced."))
+                rec.sudo().payroll_adjustment_synced_date = fields.Datetime.now()
+            rec.message_post(body=_("Payroll arrears and employee recovery deduction lines were synced."))
         return True
 
     @api.constrains("requested_amount", "available_amount")
@@ -709,10 +793,30 @@ class PrEndOfService(models.Model):
             if rec.state != "hr_approval":
                 continue
             rec.write({
-                "state": "accounts_approval",
+                "state": "md_approval",
                 "date_hr_approval": fields.Date.context_today(rec),
+                "md_approved_by_id": False,
+                "date_md_approval": False,
             })
-            rec.message_post(body=_("HR approved the end of service request."))
+            rec.message_post(body=_("HR approved the end of service request and sent it for MD approval."))
+
+    def action_md_approve(self):
+        if not (
+            self.env.su
+            or self.env.user.has_group(MD_GROUP)
+            or self.env.user.has_group("base.group_system")
+        ):
+            raise UserError(_("Only MD can approve this end of service settlement."))
+        for rec in self:
+            if rec.state != "md_approval":
+                continue
+            rec.action_sync_payroll_adjustments()
+            rec.write({
+                "state": "accounts_approval",
+                "md_approved_by_id": self.env.user.id,
+                "date_md_approval": fields.Date.context_today(rec),
+            })
+            rec.message_post(body=_("MD approved the end of service request and sent it for Accounts approval."))
 
     def _get_config_account(self, key, label):
         value = self.env["ir.config_parameter"].sudo().get_param(key)
@@ -781,14 +885,18 @@ class PrEndOfService(models.Model):
                     "employee_acceptance_date": fields.Datetime.now(),
                     "recovery_state": recovery_state,
                 })
+                attachment = rec._generate_final_settlement_pdf_attachment()
                 if not rec.is_partial:
                     rec.employee_id.with_context(pr_eos_service_end_date=rec.service_end_date).set_out_of_service()
                 if rec.employee_recovery_amount > 0.0:
                     rec.message_post(body=_(
                         "Accounts approved a negative EOS settlement. No payment was created; %s is recoverable from the employee."
-                    ) % rec.employee_recovery_amount)
+                    ) % rec.employee_recovery_amount, attachment_ids=attachment.ids if attachment else [])
                 else:
-                    rec.message_post(body=_("Accounts approved a zero-payment EOS settlement. Employee was marked out of service."))
+                    rec.message_post(
+                        body=_("Accounts approved a zero-payment EOS settlement. Employee was marked out of service. Final settlement PDF is attached."),
+                        attachment_ids=attachment.ids if attachment else [],
+                    )
                 continue
             rec.write({
                 "state": "employee_acceptance",
@@ -806,6 +914,38 @@ class PrEndOfService(models.Model):
         self.bank_payment_id = payment.id
         self.message_post(body=_("Bank Payment %s created for EOS settlement.") % payment.name)
         return payment
+
+    def _get_final_settlement_pdf_filename(self):
+        self.ensure_one()
+        return ("Final Settlement - %s.pdf" % (self.name or self.employee_id.display_name)).replace("/", "-")
+
+    def _generate_final_settlement_pdf_attachment(self):
+        self.ensure_one()
+        existing = self.env["ir.attachment"].sudo().search([
+            ("res_model", "=", self._name),
+            ("res_id", "=", self.id),
+            ("name", "=", self._get_final_settlement_pdf_filename()),
+        ], limit=1)
+        if existing:
+            return existing
+        report = self.env.ref(
+            "pr_end_of_service.action_report_pr_end_of_service",
+            raise_if_not_found=False,
+        )
+        if not report:
+            return self.env["ir.attachment"]
+        pdf_content, _content_type = self.env["ir.actions.report"].sudo()._render_qweb_pdf(
+            report.report_name,
+            [self.id],
+        )
+        return self.env["ir.attachment"].sudo().create({
+            "name": self._get_final_settlement_pdf_filename(),
+            "type": "binary",
+            "datas": base64.b64encode(pdf_content),
+            "res_model": self._name,
+            "res_id": self.id,
+            "mimetype": "application/pdf",
+        })
 
     def action_employee_accept(self):
         for rec in self:
@@ -840,9 +980,13 @@ class PrEndOfService(models.Model):
                 "state": "done",
                 "date_payment": fields.Date.context_today(rec),
             })
+            attachment = rec._generate_final_settlement_pdf_attachment()
             if not rec.is_partial:
                 rec.employee_id.with_context(pr_eos_service_end_date=rec.service_end_date).set_out_of_service()
-            rec.message_post(body=_("End of service settlement completed from posted bank payment %s.") % payment.name)
+            rec.message_post(
+                body=_("End of service settlement completed from posted bank payment %s. Final settlement PDF is attached.") % payment.name,
+                attachment_ids=attachment.ids if attachment else [],
+            )
 
     def action_mark_done(self):
         for rec in self:
@@ -855,14 +999,18 @@ class PrEndOfService(models.Model):
                     "date_payment": fields.Date.context_today(rec),
                     "recovery_state": recovery_state,
                 })
+                attachment = rec._generate_final_settlement_pdf_attachment()
                 if not rec.is_partial:
                     rec.employee_id.with_context(pr_eos_service_end_date=rec.service_end_date).set_out_of_service()
                 if rec.employee_recovery_amount > 0.0:
                     rec.message_post(body=_(
                         "End of service settlement completed without payment. %s is recoverable from the employee."
-                    ) % rec.employee_recovery_amount)
+                    ) % rec.employee_recovery_amount, attachment_ids=attachment.ids if attachment else [])
                 else:
-                    rec.message_post(body=_("End of service settlement completed without payment."))
+                    rec.message_post(
+                        body=_("End of service settlement completed without payment. Final settlement PDF is attached."),
+                        attachment_ids=attachment.ids if attachment else [],
+                    )
                 continue
             if not rec.bank_payment_id or rec.bank_payment_id.state != "posted":
                 raise UserError(_("The related bank payment must be posted first."))
@@ -903,6 +1051,8 @@ class PrEndOfService(models.Model):
             rec.write({
                 "state": "draft",
                 "date_hr_approval": False,
+                "date_md_approval": False,
+                "md_approved_by_id": False,
                 "date_accounting_approval": False,
                 "date_payment": False,
                 "employee_acceptance_state": "not_sent",
