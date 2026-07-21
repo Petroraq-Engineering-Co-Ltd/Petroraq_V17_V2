@@ -1149,10 +1149,6 @@
         <field name="active" eval="False"/>
     </record>
 
-    <record id="de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_menu" model="ir.ui.menu">
-        <field name="name">Medical Insurance</field>
-    </record>
-
     <record id="view_hr_contract_form_exit_reentry_benefit" model="ir.ui.view">
         <field name="name">hr.contract.form.exit.reentry.benefit</field>
         <field name="model">hr.contract</field>
