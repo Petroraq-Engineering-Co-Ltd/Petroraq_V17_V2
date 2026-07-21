@@ -5,7 +5,7 @@
             <t t-foreach="docs" t-as="doc">
                 <t t-call="web.external_layout">
                     <div class="page">
-                        <h2 style="text-align:center;">End of Service Settlement</h2>
+                        <h2 style="text-align:center;">Final Settlement</h2>
                         <table class="table table-sm o_main_table" style="width:100%; margin-top:16px;">
                             <tbody>
                                 <tr>
@@ -47,7 +47,7 @@
                                     <td class="text-end"><span t-field="doc.eos_benefit_amount"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Annual Leave Days</strong></td>
+                                    <td><strong>Unused Annual Leave Days</strong></td>
                                     <td class="text-end"><span t-field="doc.annual_leave_days"/></td>
                                 </tr>
                                 <tr>
@@ -55,7 +55,7 @@
                                     <td class="text-end"><span t-field="doc.leave_settlement_amount"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Other Additions</strong></td>
+                                    <td><strong>Manual Addition</strong></td>
                                     <td class="text-end"><span t-field="doc.other_amount"/></td>
                                 </tr>
                                 <tr>
@@ -63,7 +63,7 @@
                                     <td class="text-end"><span t-field="doc.deduction_amount"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Deserved</strong></td>
+                                    <td><strong>Total Payable</strong></td>
                                     <td class="text-end"><span t-field="doc.total_deserved_amount"/></td>
                                 </tr>
                                 <tr>
@@ -103,12 +103,14 @@
     </template>
 
     <record id="action_report_pr_end_of_service" model="ir.actions.report">
-        <field name="name">End of Service Settlement</field>
+        <field name="name">Final Settlement</field>
         <field name="model">pr.end.of.service</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">pr_end_of_service.report_pr_end_of_service</field>
         <field name="report_file">pr_end_of_service.report_pr_end_of_service</field>
-        <field name="print_report_name">'End_of_Service_%s' % (object.name)</field>
+        <field name="print_report_name">'Final_Settlement_%s' % (object.name)</field>
+        <field name="attachment">'Final_Settlement_%s.pdf' % (object.name)</field>
+        <field name="attachment_use">True</field>
         <field name="binding_model_id" ref="model_pr_end_of_service"/>
         <field name="binding_type">report</field>
     </record>
