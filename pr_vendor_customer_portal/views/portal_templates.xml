@@ -93,7 +93,7 @@
                 Upload Invoice
             </li>
             <li t-if="page_name == 'vendor_document_upload'" class="breadcrumb-item active">
-                Upload DN / SES
+                Upload PO Document
             </li>
             <li t-if="page_name == 'vendor_delivery'" t-attf-class="breadcrumb-item #{'active ' if not picking else ''}">
                 <a t-if="picking" href="/vendor/delivery-notes">Delivery Notes</a>
@@ -112,20 +112,21 @@
         </xpath>
     </template>
 
-    <template id="portal_my_home_vendor_customer" inherit_id="portal.portal_my_home" customize_show="True" priority="35">
+    <template id="portal_my_home_vendor_customer" inherit_id="purchase.portal_my_home_purchase" priority="200">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
             <t t-set="portal_client_category_enable"
                t-value="False"/>
             <t t-set="portal_vendor_category_enable"
                t-value="request.env.user.partner_id.commercial_partner_id.supplier_rank &gt; 0"/>
         </xpath>
-        <div id="portal_vendor_category" position="inside">
-            <t t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank">
+        <div id="portal_vendor_category" position="replace">
+            <div id="portal_vendor_category" t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank">
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
-                    <t t-set="title">RFQs</t>
+                    <t t-set="title">Requests for Quotation</t>
                     <t t-set="url" t-value="'/my/rfq'"/>
                     <t t-set="text">View requests for quotation</t>
+                    <t t-set="placeholder_count" t-value="'rfq_count'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
@@ -164,12 +165,12 @@
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
-                    <t t-set="title">Upload DN / SES</t>
+                    <t t-set="title">Upload PO Documents</t>
                     <t t-set="url" t-value="'/vendor/document/upload'"/>
-                    <t t-set="text">Submit delivery note or service entry sheet against a PO</t>
+                    <t t-set="text">Submit PO acceptance, GDN, delivery note, or service entry sheet</t>
                     <t t-set="config_card" t-value="True"/>
                 </t>
-            </t>
+            </div>
         </div>
     </template>
 
@@ -211,6 +212,10 @@
     <template id="portal_purchase_rfqs_vendor_reference"
               inherit_id="purchase.portal_my_purchase_rfqs"
               priority="80">
+        <xpath expr="//t[@t-foreach='rfqs']/tr/td[1]/a" position="attributes">
+            <attribute name="class" add="o_pr_portal_record_link" separator=" "/>
+            <attribute name="style">color: #17326f !important; -webkit-text-fill-color: #17326f !important;</attribute>
+        </xpath>
         <xpath expr="//thead/tr/th[1]" position="before">
             <th>Vendor Reference</th>
         </xpath>
@@ -224,24 +229,126 @@
     <template id="portal_purchase_orders_vendor_reference"
               inherit_id="purchase.portal_my_purchase_orders"
               priority="80">
-        <xpath expr="//thead/tr/th[1]" position="before">
-            <th>Vendor Reference</th>
+        <xpath expr="//thead/tr" position="replace">
+            <tr class="active">
+                <th>Purchase Order #</th>
+                <th>Vendor Reference</th>
+                <th>PO Issuance Date</th>
+                <th>PO Status</th>
+                <th>Expected Delivery Date</th>
+                <th>Delivery Location / Project</th>
+                <th class="text-end">PO Amount</th>
+                <th>Payment Terms</th>
+                <th>Incoterms / Delivery Terms</th>
+            </tr>
         </xpath>
-        <xpath expr="//t[@t-foreach='orders']/tr/td[1]" position="before">
-            <td>
-                <t t-out="order.partner_ref or '-'"/>
-            </td>
+        <xpath expr="//t[@t-foreach='orders']/tr" position="replace">
+            <tr>
+                <td><a class="o_pr_portal_record_link" t-att-href="order.get_portal_url()" style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;"><t t-out="order.name"/></a></td>
+                <td><t t-out="order.partner_ref or '-'"/></td>
+                <td><span t-field="order.date_order" t-options="{'widget': 'date'}"/></td>
+                <td>
+                    <span t-if="order.state == 'cancel'" class="badge rounded-pill text-bg-danger">Cancelled</span>
+                    <span t-elif="order.state in ('purchase', 'done')" class="badge rounded-pill text-bg-success">Approved</span>
+                    <span t-else="" class="badge rounded-pill text-bg-secondary">Draft</span>
+                </td>
+                <td><span t-field="order.date_planned" t-options="{'widget': 'date'}"/></td>
+                <td><t t-out="order.project_id.display_name if order.project_id else order.dest_address_id.display_name if order.dest_address_id else '-'"/></td>
+                <td class="text-end"><span t-field="order.amount_total"/></td>
+                <td><t t-out="order.payment_term_id.display_name if order.payment_term_id else '-'"/></td>
+                <td><t t-out="order.incoterm_id.display_name if order.incoterm_id else '-'"/></td>
+            </tr>
         </xpath>
     </template>
 
     <template id="portal_purchase_order_detail_vendor_reference"
               inherit_id="purchase.purchase_order_portal_content"
               priority="80">
+        <xpath expr="//t[@t-set='report_url']" position="attributes">
+            <attribute name="t-value">i.get_portal_url()</attribute>
+        </xpath>
+        <xpath expr="//div[@id='informations']/div[.//strong[normalize-space()='Invoices']]" position="after">
+            <t t-set="deliveries"
+               t-value="order.picking_ids.filtered(lambda picking: picking.picking_type_code == 'incoming' and picking.state not in ('draft', 'cancel'))"/>
+            <div t-if="order.state in ('purchase', 'done')" class="row" id="po_vendor_deliveries">
+                <div class="col">
+                    <strong class="d-block mb-1">Deliveries</strong>
+                    <ul t-if="deliveries" class="list-group mb-4">
+                        <li t-foreach="deliveries" t-as="delivery"
+                            class="list-group-item px-0 d-flex flex-wrap align-items-center justify-content-between">
+                            <div>
+                                <a class="o_pr_portal_record_link"
+                                   t-att-href="'/vendor/delivery-notes/%s' % delivery.id"
+                                   style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;">
+                                    <t t-out="delivery.name"/>
+                                </a>
+                                <div class="small text-muted" t-if="delivery.scheduled_date">
+                                    Scheduled: <span t-field="delivery.scheduled_date" t-options="{'widget': 'date'}"/>
+                                </div>
+                            </div>
+                            <span t-if="delivery.state == 'done'" class="badge rounded-pill text-bg-success">Received</span>
+                            <span t-elif="delivery.state == 'assigned'" class="badge rounded-pill text-bg-primary">Ready</span>
+                            <span t-else="" class="badge rounded-pill text-bg-secondary">Pending</span>
+                        </li>
+                    </ul>
+                    <p t-else="" class="text-muted mb-4">No delivery receipts are available for this purchase order yet.</p>
+                </div>
+            </div>
+        </xpath>
         <xpath expr="//div[@id='informations']/div[@id='po_date']" position="before">
             <div t-if="order.partner_ref" class="row" id="po_vendor_reference">
                 <div class="mb-3 col-6">
                     <strong>Vendor Reference:</strong>
                     <span t-field="order.partner_ref"/>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='informations']" position="inside">
+            <div class="row" id="po_vendor_dates_terms">
+                <div class="mb-3 col-6 col-lg-3">
+                    <strong>PO Issuance Date:</strong>
+                    <span t-field="order.date_order" t-options="{'widget': 'date'}"/>
+                </div>
+                <div class="mb-3 col-6 col-lg-3">
+                    <strong>Expected Delivery Date:</strong>
+                    <span t-field="order.date_planned" t-options="{'widget': 'date'}"/>
+                </div>
+                <div class="mb-3 col-6 col-lg-3">
+                    <strong>Delivery Location / Project:</strong>
+                    <span t-out="order.project_id.display_name if order.project_id else order.dest_address_id.display_name if order.dest_address_id else '-'"/>
+                </div>
+                <div class="mb-3 col-6 col-lg-3">
+                    <strong>PO Amount:</strong>
+                    <span t-field="order.amount_total"/>
+                </div>
+                <div class="mb-3 col-6 col-lg-3">
+                    <strong>Payment Terms:</strong>
+                    <span t-out="order.payment_term_id.display_name if order.payment_term_id else '-'"/>
+                </div>
+                <div class="mb-3 col-6 col-lg-3">
+                    <strong>Incoterms / Delivery Terms:</strong>
+                    <span t-out="order.incoterm_id.display_name if order.incoterm_id else '-'"/>
+                </div>
+            </div>
+            <div class="card mb-3" id="po_vendor_documents">
+                <div class="card-header"><strong>PO Documents</strong></div>
+                <div class="card-body">
+                    <p class="text-muted mb-2">PO Acceptance, GDN, and vendor invoice documents shared by Petroraq or uploaded by your company.</p>
+                    <ul t-if="order.pr_vendor_portal_attachment_ids" class="list-group list-group-flush">
+                        <li t-foreach="order.pr_vendor_portal_attachment_ids" t-as="attachment" class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <span>
+                                <t t-if="attachment.pr_vendor_portal_document_type == 'po_acceptance'">PO Acceptance</t>
+                                <t t-elif="attachment.pr_vendor_portal_document_type == 'gdn'">Goods Delivery Note</t>
+                                <t t-elif="attachment.pr_vendor_portal_document_type == 'invoice'">Vendor Invoice</t>
+                                <t t-elif="attachment.pr_vendor_portal_document_type == 'delivery_note'">Delivery Note</t>
+                                <t t-elif="attachment.pr_vendor_portal_document_type == 'ses'">Service Entry Sheet</t>
+                                <t t-else="">Document</t>
+                                - <t t-out="attachment.name"/>
+                            </span>
+                            <a class="btn btn-sm btn-outline-secondary" t-att-href="'/vendor/attachment/%s/download' % attachment.id">Download</a>
+                        </li>
+                    </ul>
+                    <p t-else="" class="mb-0">No portal documents are available yet.</p>
                 </div>
             </div>
         </xpath>
@@ -259,28 +366,31 @@
             <t t-if="delivery_notes" t-call="portal.portal_table">
                 <thead>
                     <tr>
-                        <th>Delivery Note</th>
+                        <th>Vendor Delivery Note</th>
                         <th>Purchase Order</th>
-                        <th class="text-end">Scheduled Date</th>
-                        <th class="text-end">Status</th>
+                        <th>GRN No.</th>
+                        <th>Delivery Status</th>
+                        <th>Delivery Location / Project</th>
+                        <th class="text-end">Delivered Quantity</th>
+                        <th class="text-end">Pending Quantity</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr t-foreach="delivery_notes" t-as="delivery">
+                    <tr t-foreach="delivery_rows" t-as="delivery_row">
+                        <t t-set="delivery" t-value="delivery_row['delivery']"/>
                         <td>
-                            <a t-att-href="'/vendor/delivery-notes/%s' % delivery.id">
-                                <t t-out="delivery.name"/>
+                            <a class="o_pr_portal_record_link" t-att-href="'/vendor/delivery-notes/%s' % delivery.id" style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;">
+                                <t t-out="delivery.purchase_id.partner_ref or delivery.name"/>
                             </a>
                         </td>
                         <td>
                             <t t-out="delivery.purchase_id.name or delivery.origin or ''"/>
                         </td>
-                        <td class="text-end">
-                            <span t-field="delivery.scheduled_date"/>
-                        </td>
-                        <td class="text-end">
-                            <span t-field="delivery.state"/>
-                        </td>
+                        <td><t t-out="delivery.name"/></td>
+                        <td><t t-out="delivery_row['status']"/></td>
+                        <td><t t-out="delivery.purchase_id.project_id.display_name if delivery.purchase_id and delivery.purchase_id.project_id else delivery.location_dest_id.display_name or '-'"/></td>
+                        <td class="text-end"><t t-out="delivery_row['delivered_quantity']"/></td>
+                        <td class="text-end"><t t-out="delivery_row['pending_quantity']"/></td>
                     </tr>
                 </tbody>
             </t>
@@ -293,6 +403,10 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Delivery Note Details</t>
             </t>
+            <div t-if="request.params.get('document_uploaded')" class="alert alert-success d-print-none" role="alert">
+                <strong>Document attached successfully.</strong>
+                The file is now attached directly to this GDN and the internal receiving team has been notified.
+            </div>
             <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-3">
                 <div>
                     <h3 class="mb-1">
@@ -305,6 +419,10 @@
                 <a class="btn btn-secondary" t-att-href="'/vendor/delivery-notes/%s/download' % picking.id">
                     <i class="fa fa-download me-1"/>
                     Download
+                </a>
+                <a class="btn btn-primary" t-att-href="'/vendor/document/upload?po_id=%s&amp;delivery_id=%s' % (picking.purchase_id.id, picking.id)">
+                    <i class="fa fa-paperclip me-1"/>
+                    Attach Document to GDN
                 </a>
             </div>
 
@@ -359,6 +477,16 @@
                     </tr>
                 </tbody>
             </t>
+            <div class="card mt-4">
+                <div class="card-header"><strong>GDN Documents</strong></div>
+                <ul t-if="picking.pr_vendor_portal_attachment_ids" class="list-group list-group-flush">
+                    <li t-foreach="picking.pr_vendor_portal_attachment_ids" t-as="attachment" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><t t-out="attachment.name"/></span>
+                        <a class="btn btn-sm btn-outline-secondary" t-att-href="'/vendor/attachment/%s/download' % attachment.id">Download</a>
+                    </li>
+                </ul>
+                <div t-else="" class="card-body text-muted">No GDN documents are available yet.</div>
+            </div>
         </t>
     </template>
 
@@ -384,7 +512,7 @@
                 <tbody>
                     <tr t-foreach="srns" t-as="receipt">
                         <td>
-                            <a t-att-href="'/vendor/srns/%s' % receipt.id">
+                            <a class="o_pr_portal_record_link" t-att-href="'/vendor/srns/%s' % receipt.id" style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;">
                                 <t t-out="receipt.name"/>
                             </a>
                         </td>
@@ -504,7 +632,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-xl-7">
                     <div class="o_pr_portal_workflow">
-                        <strong>Attach a delivery note or SES to a purchase order</strong>
+                        <strong>Attach a PO document</strong>
                         <ul>
                             <li>Select the confirmed purchase order this document belongs to.</li>
                             <li>Attach a PDF, JPG, or PNG no larger than 10 MB.</li>
@@ -518,6 +646,7 @@
                     </div>
                     <form action="/vendor/document/upload" method="post" enctype="multipart/form-data" class="o_portal_form">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input t-if="selected_delivery_id" type="hidden" name="delivery_id" t-att-value="selected_delivery_id"/>
                         <div class="mb-3">
                             <label class="form-label" for="document_type">Document Type</label>
                             <select id="document_type" name="document_type" class="form-select" required="required">
@@ -543,7 +672,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label" for="document_number">Document Number</label>
+                                <label class="form-label" for="document_number" t-out="selected_document_type_meta['number_label']"/>
                                 <input id="document_number" name="document_number" type="text" class="form-control" required="required" t-att-value="form_data.get('document_number')"/>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -552,7 +681,7 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="document_file">Document File</label>
+                            <label class="form-label" for="document_file" t-out="selected_document_type_meta['file_label']"/>
                             <input id="document_file"
                                    name="document_file"
                                    type="file"
@@ -573,7 +702,7 @@
                             </a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-upload me-1"/>
-                                Attach to Purchase Order
+                                <t t-out="'Attach to GDN' if selected_delivery_id else 'Attach to Purchase Order'"/>
                             </button>
                         </div>
                     </form>

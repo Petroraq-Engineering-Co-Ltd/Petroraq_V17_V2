@@ -116,6 +116,71 @@ class TestOffboardingWorkflow(TransactionCase):
         )
         self.assertTrue(request.md_approved_date)
 
+    def test_same_user_authorities_auto_approve(self):
+        users = self.env["res.users"].with_context(no_reset_password=True)
+        base_user_group = self.env.ref("base.group_user")
+        supervisor_group = self.env.ref(
+            "pr_hr_recruitment_request.group_onboarding_supervisor"
+        )
+        hr_manager_group = self.env.ref("hr.group_hr_manager")
+        md_group = self.env.ref("pr_hr_recruitment_request.group_onboarding_md")
+        all_approver_user = users.create(
+            {
+                "name": "Offboarding All Approver",
+                "login": "offboarding.all.approver",
+                "email": "offboarding.all.approver@example.com",
+                "groups_id": [
+                    (
+                        6,
+                        0,
+                        [
+                            base_user_group.id,
+                            supervisor_group.id,
+                            hr_manager_group.id,
+                            md_group.id,
+                        ],
+                    )
+                ],
+            }
+        )
+        department = self.env["hr.department"].create(
+            {"name": "Offboarding Auto Approval Department"}
+        )
+        manager_employee = self.env["hr.employee"].create(
+            {
+                "name": "All Approval Department Manager",
+                "user_id": all_approver_user.id,
+                "department_id": department.id,
+                "company_id": self.env.company.id,
+            }
+        )
+        department.manager_id = manager_employee
+        employee = self.env["hr.employee"].create(
+            {
+                "name": "Auto Approval Departing Employee",
+                "department_id": department.id,
+                "company_id": self.env.company.id,
+            }
+        )
+
+        request = self.env["pr.hr.offboarding.request"].with_user(
+            all_approver_user
+        ).create(
+            {
+                "request_type": "resignation",
+                "employee_id": employee.id,
+                "request_date": "2026-07-02",
+                "last_working_date": "2026-07-31",
+                "request_reason": "Same user holds all approval authorities.",
+            }
+        )
+        request.with_user(all_approver_user).action_submit()
+
+        self.assertEqual(request.state, "accepted")
+        self.assertEqual(request.approved_by_id, all_approver_user)
+        self.assertEqual(request.hr_manager_approved_by_id, all_approver_user)
+        self.assertEqual(request.md_approved_by_id, all_approver_user)
+
     def test_rejection_requires_reason_and_can_reset(self):
         request = self._create_request()
         request.action_submit()

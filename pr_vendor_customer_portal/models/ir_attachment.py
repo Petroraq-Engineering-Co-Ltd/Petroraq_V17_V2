@@ -13,11 +13,19 @@ class IrAttachment(models.Model):
     )
     pr_vendor_portal_document_type = fields.Selection(
         [
+            ("po_acceptance", "PO Acceptance"),
+            ("gdn", "Goods Delivery Note"),
             ("invoice", "Vendor Invoice"),
             ("delivery_note", "Delivery Note"),
             ("ses", "Service Entry Sheet"),
         ],
         string="Vendor Portal Document Type",
+        index=True,
+        copy=False,
+    )
+    pr_vendor_portal_visible = fields.Boolean(
+        string="Visible in Vendor Portal",
+        help="Expose this attachment to the vendor on the related portal document.",
         index=True,
         copy=False,
     )

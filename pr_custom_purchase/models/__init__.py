@@ -1,5 +1,6 @@
 from . import custom_pr_models
 from . import custom_pr_quotations
+from . import purchase_quotation
 from . import inventory
 from . import purchase_requisition
 from . import payment_request
