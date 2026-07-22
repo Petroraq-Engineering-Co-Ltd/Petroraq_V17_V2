@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="pr_account_dashboard.AccountDashboardAction" owl="1">
-        <div class="o_pr_account_dashboard">
+        <div class="o_pr_account_dashboard" t-ref="dashboardRoot">
             <t t-if="state.loading">
                 <div class="pr-account-loading">
                     <span class="pr-account-loader"><i/></span>
@@ -18,7 +18,6 @@
                 <t t-set="mainHeads" t-value="state.data.main_heads || {}"/>
                 <t t-set="analytics" t-value="state.data.analytics || {}"/>
                 <t t-set="vat" t-value="state.data.vat || {}"/>
-                <t t-set="forecast" t-value="state.data.cash_forecast || {}"/>
                 <t t-set="profitability" t-value="state.data.profitability || {}"/>
 
                 <header class="pr-account-hero">
@@ -147,18 +146,20 @@
                             outstanding bills
                         </small>
                     </button>
-                    <article class="pr-account-kpi is-green">
+                    <button type="button" class="pr-account-kpi is-green"
+                            t-on-click="() => this.openCashDetails('in')">
                         <span class="pr-account-kpi-icon"><i class="fa fa-arrow-down"/></span>
                         <span class="pr-account-kpi-label">Total Cash In</span>
                         <strong t-esc="this.formatMoney(summary.cash_in || 0)"/>
                         <small>Registered receipts + BRV + CRV</small>
-                    </article>
-                    <article class="pr-account-kpi is-red">
+                    </button>
+                    <button type="button" class="pr-account-kpi is-red"
+                            t-on-click="() => this.openCashDetails('out')">
                         <span class="pr-account-kpi-icon"><i class="fa fa-arrow-up"/></span>
                         <span class="pr-account-kpi-label">Total Cash Out</span>
                         <strong t-esc="this.formatMoney(summary.cash_out || 0)"/>
                         <small>Registered payments + BPV + CPV</small>
-                    </article>
+                    </button>
                 </section>
 
                 <section class="pr-account-net-strip"
@@ -176,104 +177,6 @@
                         <span>Out <b t-esc="this.formatMoney(summary.cash_out || 0)"/></span>
                     </div>
                 </section>
-
-                <section class="pr-account-section-title">
-                    <div>
-                        <span>Accounting Control Center</span>
-                        <h2>Close Readiness, Exceptions &amp; Cash Forecast</h2>
-                    </div>
-                    <p>Fast checks for period close, approval delays, branch/shared-journal issues, and 30-day liquidity.</p>
-                </section>
-
-                <div class="pr-account-grid">
-                    <section class="pr-account-card pr-span-4 pr-account-control-card">
-                        <div class="pr-account-card-heading">
-                            <div>
-                                <span class="pr-account-section-kicker">Period Close</span>
-                                <h2>Close Checklist</h2>
-                            </div>
-                        </div>
-                        <div class="pr-account-issue-list">
-                            <button type="button"
-                                    t-foreach="state.data.close_checklist || []"
-                                    t-as="check"
-                                    t-key="check.label"
-                                    t-att-class="this.severityClass(check.severity)"
-                                    t-att-style="'--issue-color:' + check.color"
-                                    t-on-click="() => this.openRecords(check.model, check.domain, check.label)">
-                                <i t-att-class="'fa ' + check.icon"/>
-                                <span>
-                                    <strong t-esc="check.label"/>
-                                    <small t-esc="check.description"/>
-                                    <em t-esc="this.formatMoney(check.amount || 0)"/>
-                                </span>
-                                <b t-esc="this.formatNumber(check.count || 0)"/>
-                            </button>
-                        </div>
-                    </section>
-
-                    <section class="pr-account-card pr-span-4 pr-account-control-card">
-                        <div class="pr-account-card-heading">
-                            <div>
-                                <span class="pr-account-section-kicker">Control Monitor</span>
-                                <h2>Accounting Exceptions</h2>
-                            </div>
-                        </div>
-                        <div class="pr-account-issue-list">
-                            <button type="button"
-                                    t-foreach="state.data.exceptions || []"
-                                    t-as="issue"
-                                    t-key="issue.label"
-                                    t-att-class="this.severityClass(issue.severity)"
-                                    t-att-style="'--issue-color:' + issue.color"
-                                    t-on-click="() => this.openRecords(issue.model, issue.domain, issue.label)">
-                                <i t-att-class="'fa ' + issue.icon"/>
-                                <span>
-                                    <strong t-esc="issue.label"/>
-                                    <small t-esc="issue.description"/>
-                                    <em t-esc="this.formatMoney(issue.amount || 0)"/>
-                                </span>
-                                <b t-esc="this.formatNumber(issue.count || 0)"/>
-                            </button>
-                        </div>
-                    </section>
-
-                    <section class="pr-account-card pr-span-4 pr-account-forecast-card">
-                        <div class="pr-account-card-heading">
-                            <div>
-                                <span class="pr-account-section-kicker">Liquidity</span>
-                                <h2>30-Day Cash Forecast</h2>
-                            </div>
-                        </div>
-                        <div class="pr-account-forecast-main">
-                            <span>Projected Cash</span>
-                            <strong t-att-class="this.amountClass(forecast.projected_30 || 0)"
-                                    t-esc="this.formatMoney(forecast.projected_30 || 0)"/>
-                            <small>
-                                Current cash
-                                <b t-esc="this.formatMoney(forecast.current_cash || 0)"/>
-                            </small>
-                        </div>
-                        <div class="pr-account-forecast-split">
-                            <button type="button"
-                                    t-on-click="() => this.openRecords('account.move', forecast.receivable_domain, 'Receivables Due in 30 Days')">
-                                <span>Expected Receipts</span>
-                                <strong t-esc="this.formatMoney(forecast.expected_receipts_30 || 0)"/>
-                            </button>
-                            <button type="button"
-                                    t-on-click="() => this.openRecords('account.move', forecast.payable_domain, 'Payables Due in 30 Days')">
-                                <span>Expected Payments</span>
-                                <strong t-esc="this.formatMoney(forecast.expected_payments_30 || 0)"/>
-                            </button>
-                        </div>
-                        <div class="pr-account-forecast-buckets">
-                            <span>AR overdue <b t-esc="this.formatMoney((forecast.receivable || {}).overdue || 0)"/></span>
-                            <span>AP overdue <b t-esc="this.formatMoney((forecast.payable || {}).overdue || 0)"/></span>
-                            <span>AR 30d <b t-esc="this.formatMoney(((forecast.receivable || {}).next_7 || 0) + ((forecast.receivable || {}).next_15 || 0) + ((forecast.receivable || {}).next_30 || 0))"/></span>
-                            <span>AP 30d <b t-esc="this.formatMoney(((forecast.payable || {}).next_7 || 0) + ((forecast.payable || {}).next_15 || 0) + ((forecast.payable || {}).next_30 || 0))"/></span>
-                        </div>
-                    </section>
-                </div>
 
                 <div class="pr-account-grid">
                     <section class="pr-account-card pr-span-8">
@@ -908,6 +811,78 @@
                     </section>
                 </div>
             </t>
+
+            <div t-if="state.cashDetails" class="pr-account-cash-overlay" t-on-click="closeCashDetails">
+                <section class="pr-account-cash-dialog" t-on-click.stop="() => {}">
+                    <header>
+                        <div>
+                            <span>Cash Movement Drill-down</span>
+                            <h2 t-esc="state.cashDetails.title"/>
+                            <small>
+                                <t t-esc="this.formatDate(state.filters.date_from)"/> &#8212;
+                                <t t-esc="this.formatDate(state.filters.date_to)"/>
+                            </small>
+                        </div>
+                        <button type="button" class="pr-account-cash-close" t-on-click="closeCashDetails" aria-label="Close">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </header>
+
+                    <div class="pr-account-cash-loading" t-if="state.cashDetailsLoading">
+                        <i class="fa fa-spinner fa-spin"/> Loading cash entries&#8230;
+                    </div>
+                    <t t-else="">
+                        <div class="pr-account-cash-summary">
+                            <div class="pr-account-cash-total">
+                                <span>Total</span>
+                                <strong t-esc="this.formatMoney(state.cashDetails.total || 0)"/>
+                                <small t-esc="this.formatNumber(state.cashDetails.count || 0) + ' entries'"/>
+                            </div>
+                            <div t-foreach="state.cashDetails.sources || []" t-as="source" t-key="source.code">
+                                <span t-esc="source.label"/>
+                                <strong t-esc="this.formatMoney(source.amount || 0)"/>
+                                <small t-esc="this.formatNumber(source.count || 0) + ' entries'"/>
+                            </div>
+                        </div>
+                        <div class="pr-account-cash-toolbar">
+                            <label>
+                                <i class="fa fa-search"/>
+                                <input type="search" placeholder="Search reference, partner, journal or statusâ€¦"
+                                       t-att-value="state.cashDetailsSearch"
+                                       t-on-input="onCashDetailsSearch"/>
+                            </label>
+                            <div>
+                                <span t-esc="this.formatNumber(this.cashDetailRows.length) + ' shown'"/>
+                                <button type="button" class="pr-account-cash-export" t-on-click="exportCashDetails">
+                                    <i class="fa fa-file-excel-o"/>
+                                    Export Excel
+                                </button>
+                            </div>
+                        </div>
+                        <div class="pr-account-cash-table-wrap">
+                            <div class="pr-account-cash-table-head">
+                                <span>Date</span><span>Source / Reference</span><span>Partner / Memo</span>
+                                <span>Journal / Account</span><span>Status</span><span>Amount</span><span/>
+                            </div>
+                            <button type="button" class="pr-account-cash-row"
+                                    t-foreach="this.cashDetailRows" t-as="row"
+                                    t-key="row.model + '-' + row.id"
+                                    t-on-click="() => this.openRecord(row.model, row.id)">
+                                <span t-esc="this.formatDate(row.date)"/>
+                                <span><b t-esc="row.source"/><strong t-esc="row.reference"/></span>
+                                <span><strong t-esc="row.partner || '—'"/><small t-esc="row.memo"/></span>
+                                <span t-esc="row.journal || '—'"/>
+                                <span><em t-att-class="this.statusClass(row.state)" t-esc="row.state"/></span>
+                                <span t-esc="this.formatMoney(row.amount || 0)"/>
+                                <i class="fa fa-chevron-right"/>
+                            </button>
+                            <div class="pr-account-empty" t-if="!this.cashDetailRows.length">
+                                No matching cash entries found.
+                            </div>
+                        </div>
+                    </t>
+                </section>
+            </div>
         </div>
     </t>
 </templates>
