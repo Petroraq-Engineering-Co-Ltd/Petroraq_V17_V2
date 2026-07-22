@@ -1,0 +1,752 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr_holidays
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-14 06:34+0000\n"
+"PO-Revision-Date: 2026-07-14 06:34+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid "%(user)s reset the rejection and reopened the %(stage)s decision."
+msgstr "قام %(user)s بإعادة تعيين الرفض وإعادة فتح قرار %(stage)s."
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"                        <strong>Advance Allocation: There is no Leave Allocation to Cover this request.</strong>"
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"                        <strong>تخصيص مسبق: لا يوجد رصيد إجازات يغطي هذا الطلب.</strong>"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid ""
+"<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"Arrow icon\" title=\"Arrow\"/>\n"
+"                                <span>\n"
+"                                    <strong>-</strong>\n"
+"                                </span>"
+msgstr ""
+"<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"Arrow icon\" title=\"Arrow\"/>\n"
+"                                <span>\n"
+"                                    <strong>-</strong>\n"
+"                                </span>"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "APPROVE"
+msgstr "اعتماد"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "APPROVE CANCELLATION"
+msgstr "اعتماد الإلغاء"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_res_groups
+msgid "Access Groups"
+msgstr "مجموعات الصلاحيات"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_needaction
+msgid "Action Needed"
+msgstr "إجراء مطلوب"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "مؤشر استثناء النشاط"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid ""
+"Advance allocation: this leave was approved without available allocation."
+msgstr "تخصيص مسبق: تمت الموافقة على هذه الإجازة دون توفر رصيد إجازات."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__allocation_bypassed
+msgid "Allocation Bypassed"
+msgstr "تم تجاوز التخصيص"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave__allocation_override_applied
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__allocation_override_applied
+msgid "Allocation Override Applied"
+msgstr "تم تطبيق تجاوز التخصيص"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave__allocation_override_note
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__allocation_override_note
+msgid "Allocation Override Note"
+msgstr "ملاحظة تجاوز التخصيص"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave__leave_amount
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__hr_leave_type__leave_type__annual_leave
+msgid "Annual Leave"
+msgstr "إجازة سنوية"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave.py:0
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid "Annual Leave requests must start from tomorrow onward."
+msgstr "يجب أن تبدأ طلبات الإجازة السنوية اعتبارًا من الغد."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__approval_state
+msgid "Approval Status"
+msgstr "حالة الموافقة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__approval_state__hr_approve
+msgid "Approved"
+msgstr "تمت الموافقة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_hr_holidays
+#: model:hr.leave.type,name:pr_hr_holidays.holiday_status_business_trip
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__hr_leave_type__leave_type__business_leave
+msgid "Business Trip"
+msgstr "رحلة عمل"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__can_reset_rejection
+msgid "Can Reset Rejection"
+msgstr "يمكن إعادة تعيين الرفض"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__state__cancel_request
+msgid "Cancellation Requested"
+msgstr "تم طلب الإلغاء"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__approval_state__cancelled
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__state__cancelled
+msgid "Cancelled"
+msgstr "ملغى"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid ""
+"Cannot request leave on non-working date(s) (weekend/public holiday): "
+"%(dates)s"
+msgstr "لا يمكن طلب إجازة في أيام غير العمل (عطلة نهاية الأسبوع/العطلات الرسمية): %(dates)s"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave_allocation__pr_carryover_origin_allocation_id
+msgid "Carryover Origin Allocation"
+msgstr "التخصيص الأصلي للرصيد المرحّل"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.pr_hr_holidays_view_employee_form_inherit
+msgid "Check Balance"
+msgstr "التحقق من الرصيد"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_hr_leave__allocation_override_applied
+msgid "Checked when this leave was approved using allocation-limit override."
+msgstr "يتم تحديده عند الموافقة على هذه الإجازة باستخدام تجاوز حد التخصيص."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__company_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__date_from
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+msgid "Date From"
+msgstr "من تاريخ"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__date_to
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+msgid "Date To"
+msgstr "إلى تاريخ"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid "Date To must be greater than or equal to Date From."
+msgstr "يجب أن يكون تاريخ الانتهاء أكبر من أو يساوي تاريخ البداية."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__rejected_stage__manager
+msgid "Department Manager"
+msgstr "مدير القسم"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_hr_employee
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__employee_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_hr_contract
+msgid "Employee Contract"
+msgstr "عقد الموظف"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "Employee Leave"
+msgstr "إجازة الموظف"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__employee_manager_check
+msgid "Employee Manager Check"
+msgstr "تحقق مدير الموظف"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__employee_user_check
+msgid "Employee User Check"
+msgstr "تحقق المستخدم الموظف"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome مثل fa-tasks"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_hr_holidays
+#: model:res.groups,name:pr_hr_holidays.custom_group_hr_holidays_supervisor
+msgid "HR Holidays Supervisor"
+msgstr "مشرف إجازات الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__rejected_stage__hr_manager
+msgid "HR Manager"
+msgstr "مدير الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__state__hr_approve
+msgid "HR Manager Approved"
+msgstr "تمت الموافقة من مدير الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__hr_manager_ids
+msgid "HR Managers"
+msgstr "مديرو الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__rejected_stage__hr_supervisor
+msgid "HR Supervisor"
+msgstr "مشرف الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__state__hr_supervisor
+msgid "HR Supervisor Approved"
+msgstr "تمت الموافقة من مشرف الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__hr_supervisor_approved_user_id
+msgid "HR Supervisor Approved By"
+msgstr "تمت الموافقة بواسطة مشرف الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__hr_supervisor_ids
+msgid "HR Supervisors"
+msgstr "مشرفو الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسائل"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_pr_hr_leave_request
+msgid "Hr Leave Request"
+msgstr "طلب إجازة الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__hr_manager_check
+msgid "Hr Manager Check"
+msgstr "تحقق مدير الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__hr_supervisor_check
+msgid "Hr Supervisor Check"
+msgstr "تحقق مشرف الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فهناك رسائل جديدة تتطلب انتباهك."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__message_has_error
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فبعض الرسائل بها خطأ في التسليم."
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/reject_record_wizard.py:0
+#, python-format
+msgid "Invalid leave-request rejection stage."
+msgstr "مرحلة رفض طلب الإجازة غير صالحة."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave__is_paid
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave_type__is_paid
+msgid "Is Paid ?"
+msgstr "مدفوعة الأجر؟"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__leave_id
+msgid "Leave"
+msgstr "الإجازة"
+
+#. module: pr_hr_holidays
+#: model:res.groups,name:pr_hr_holidays.group_leave_allocation_limit_override
+msgid "Leave Allocation Limit Override"
+msgstr "تجاوز حد تخصيص الإجازات"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave__leave_request_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_tree_view
+msgid "Leave Request"
+msgstr "طلب إجازة"
+
+#. module: pr_hr_holidays
+#: model:ir.actions.act_window,name:pr_hr_holidays.action_hr_leave_request_action
+#: model:ir.ui.menu,name:pr_hr_holidays.menu_hr_hr_leave_request
+msgid "Leave Requests"
+msgstr "طلبات الإجازة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__leave_type_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "Leave Type"
+msgstr "نوع الإجازة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__employee_manager_id
+msgid "Manager"
+msgstr "المدير"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__state__manager_approve
+msgid "Manager Approved"
+msgstr "تمت الموافقة من المدير"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__manager_approved_user_id
+msgid "Manager Approved By"
+msgstr "تمت الموافقة بواسطة المدير"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__note
+msgid "Note"
+msgstr "ملاحظة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid ""
+"Only an authorized approver from the rejecting stage can reset this "
+"decision."
+msgstr "يمكن فقط للمعتمد المخول في مرحلة الرفض إعادة تعيين هذا القرار."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave_allocation__pr_is_carryover_allocation
+msgid "PR Carryover Allocation"
+msgstr "ترحيل رصيد الإجازة"
+
+#. module: pr_hr_holidays
+#: model:ir.actions.server,name:pr_hr_holidays.cron_pr_sync_yearly_annual_leave_allocations_ir_actions_server
+msgid "PR HR Holidays: Carry Forward and Create Next Annual Leave Allocation"
+msgstr "الموارد البشرية - الإجازات: ترحيل الرصيد وإنشاء تخصيص الإجازة السنوية التالية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__approval_state__draft
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__approval_state__hr_supervisor
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__approval_state__manager_approve
+msgid "Pending Approval"
+msgstr "بانتظار الموافقة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__approval_state__cancel_request
+msgid "Pending Cancellation Approval"
+msgstr "بانتظار الموافقة على الإلغاء"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "Period"
+msgstr "الفترة"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "REJECT"
+msgstr "رفض"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid "REQUEST CANCELLATION"
+msgstr "طلب إلغاء"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_rejection_reset_form_view
+msgid "RESET REJECTION"
+msgstr "إعادة تعيين الرفض"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_pr_reject_record_wizard
+msgid "Reject Record"
+msgstr "رفض السجل"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__approval_state__reject
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__state__reject
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__rejected_stage
+msgid "Rejected At"
+msgstr "تم الرفض في"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__rejected_by_user_id
+msgid "Rejected By"
+msgstr "تم الرفض بواسطة"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/reject_record_wizard.py:0
+#, python-format
+msgid "Rejected Successfully"
+msgstr "تم الرفض بنجاح"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__reject_reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__requested_days
+msgid "Requested Days"
+msgstr "الأيام المطلوبة"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_form_view
+msgid ""
+"Requested days exceed allocation. Approval will use advance allocation "
+"override."
+msgstr "الأيام المطلوبة تتجاوز الرصيد المخصص. ستتم الموافقة باستخدام تجاوز حد تخصيص الإجازة."
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_rejection_reset_form_view
+msgid "Reset this rejection and reopen your decision stage?"
+msgstr "هل تريد إعادة تعيين هذا الرفض وإعادة فتح مرحلة اتخاذ القرار؟"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__hr_leave_type__leave_type__sick_leave
+msgid "Sick Leave"
+msgstr "إجازة مرضية"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__state
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields.selection,name:pr_hr_holidays.selection__pr_hr_leave_request__state__draft
+msgid "Submitted"
+msgstr "تم التقديم"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_hr_leave
+msgid "Time Off"
+msgstr "الإجازات"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_hr_leave_allocation
+msgid "Time Off Allocation"
+msgstr "تخصيص الإجازات"
+
+#. module: pr_hr_holidays
+#: model:ir.model,name:pr_hr_holidays.model_hr_leave_type
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave__holiday_status_id
+msgid "Time Off Type"
+msgstr "نوع الإجازة"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_contract.py:0
+#, python-format
+msgid ""
+"Time off exists after the proposed Last Working Day for %(employee)s: "
+"%(leaves)s. Refuse or adjust it before setting the cutoff."
+msgstr ""
+"توجد إجازات للموظف %(employee)s بعد آخر يوم عمل المقترح: %(leaves)s. "
+"يرجى رفضها أو تعديلها قبل تحديد تاريخ الإيقاف."
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave.py:0
+#, python-format
+msgid ""
+"Time off for %(employee)s cannot extend beyond the Last Working Day "
+"(%(date)s)."
+msgstr ""
+"لا يمكن أن تمتد إجازة %(employee)s بعد آخر يوم عمل (%(date)s)."
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+msgid "To HR Manager Approve"
+msgstr "بانتظار موافقة مدير الموارد البشرية"
+
+#. module: pr_hr_holidays
+#: model_terms:ir.ui.view,arch_db:pr_hr_holidays.hr_leave_request_filter_view
+msgid "To Manager Approve"
+msgstr "بانتظار موافقة المدير"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_hr_leave_type__leave_type
+msgid "Type"
+msgstr "النوع"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,field_description:pr_hr_holidays.field_pr_hr_leave_request__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: pr_hr_holidays
+#: model:ir.model.fields,help:pr_hr_holidays.field_pr_hr_leave_request__website_message_ids
+msgid "Website communication history"
+msgstr "سجل التواصل عبر الموقع"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid "Weekend Date Selected"
+msgstr "تم اختيار تاريخ في عطلة نهاية الأسبوع"
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid "You are not allowed to reject this leave request at the current stage."
+msgstr "غير مسموح لك برفض طلب الإجازة في المرحلة الحالية."
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid ""
+"You cannot request %(requested).2f day(s) for %(leave_type)s. Only "
+"%(available).2f day(s) are available."
+msgstr ""
+"لا يمكنك طلب %(requested).2f يومًا من %(leave_type)s. "
+"المتاح فقط %(available).2f يومًا."
+
+#. module: pr_hr_holidays
+#. odoo-python
+#: code:addons/pr_hr_holidays/models/hr_leave_request.py:0
+#, python-format
+msgid "You cannot request leave on weekend/non-working date(s): %(dates)s."
+msgstr "لا يمكنك طلب إجازة في أيام عطلة نهاية الأسبوع أو أيام غير العمل: %(dates)s."

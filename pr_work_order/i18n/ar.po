@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-24 14:30+0000\n"
-"PO-Revision-Date: 2025-12-24 14:30+0000\n"
+"POT-Creation-Date: 2026-07-15 11:19+0000\n"
+"PO-Revision-Date: 2026-07-15 11:19+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,9 +16,90 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_order_form_inherit_pr_work_order
-msgid "/&gt;"
-msgstr "/>"
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "%s - CAPEX Budget"
+msgstr "%s - ميزانية النفقات الرأسمالية"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "%s - Material Issue"
+msgstr "%s - صرف مواد"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/sale_order_inherit.py:0
+#, python-format
+msgid "%s - Trading"
+msgstr "%s - تجارة"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/sale_order_inherit.py:0
+#, python-format
+msgid "%s - Trading Budget"
+msgstr "%s - ميزانية التجارة"
+
+#. module: pr_work_order
+#: model:ir.actions.report,print_report_name:pr_work_order.action_report_pr_work_order_pdf
+#: model:ir.actions.report,print_report_name:pr_work_order.action_report_pr_work_order_xlsx
+msgid "'Work Order - %s' % (object.name)"
+msgstr "'أمر العمل - %s' % (object.name)"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "<b>Work Order Rejected</b><br/><b>Reason:</b> %s"
+msgstr "<b>تم رفض أمر العمل</b><br/><b>السبب:</b> %s"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid ""
+"<p>Dear Approver,</p><p>Work Order <b>%s</b> requires Accounts "
+"approval.</p><p><a href=\"%s\">Open Work Order</a></p>"
+msgstr ""
+"<p>عزيزي المُعتمد،</p><p>يتطلب أمر العمل <b>%s</b> موافقة قسم الحسابات.</p>"
+"<p><a href=\"%s\">فتح أمر العمل</a></p>"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid ""
+"<p>Dear Approver,</p><p>Work Order <b>%s</b> requires Management final "
+"approval.</p><p><a href=\"%s\">Open Work Order</a></p>"
+msgstr ""
+"<p>عزيزي المُعتمد،</p><p>يتطلب أمر العمل <b>%s</b> الموافقة النهائية من الإدارة.</p>"
+"<p><a href=\"%s\">فتح أمر العمل</a></p>"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid ""
+"<p>Dear Approver,</p><p>Work Order <b>%s</b> requires Operations "
+"approval.</p><p><a href=\"%s\">Open Work Order</a></p>"
+msgstr ""
+"<p>عزيزي المُعتمد،</p><p>يتطلب أمر العمل <b>%s</b> موافقة قسم العمليات.</p>"
+"<p><a href=\"%s\">فتح أمر العمل</a></p>"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid ""
+"<strong>❗ Rejected</strong>\n"
+"                        —\n"
+"                        <span>Reason:</span>"
+msgstr ""
+"<strong>❗ مرفوض</strong>\n"
+"                        —\n"
+"                        <span>السبب:</span>"
 
 #. module: pr_work_order
 #: model:res.groups,name:pr_work_order.custom_group_work_order_accounts
@@ -29,7 +110,7 @@ msgstr "الحسابات"
 #. module: pr_work_order
 #: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__acc_approval
 msgid "Accounts Approval"
-msgstr "اعتماد الحسابات"
+msgstr "موافقة الحسابات"
 
 #. module: pr_work_order
 #: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
@@ -59,7 +140,7 @@ msgstr "الأنشطة"
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "تنبيه استثناء النشاط"
+msgstr "تمييز استثناء النشاط"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__activity_state
@@ -73,36 +154,79 @@ msgstr "أيقونة نوع النشاط"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__actual_cost
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__actual_cost
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__actual_cost
 msgid "Actual Cost"
 msgstr "التكلفة الفعلية"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__actual_margin
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__actual_margin
 msgid "Actual Margin"
 msgstr "الهامش الفعلي"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__actual_revenue
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__actual_revenue
 msgid "Actual Revenue"
 msgstr "الإيراد الفعلي"
 
 #. module: pr_work_order
 #. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "All BOQ material quantities are already issued."
+msgstr "تم صرف جميع كميات مواد جدول الكميات بالفعل."
+
+#. module: pr_work_order
+#: model:res.groups,name:pr_work_order.custom_group_work_order_all_documents
+msgid "All Documents"
+msgstr "جميع المستندات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_project_project__analytic_account_id
+msgid "Analytic Account"
+msgstr "الحساب التحليلي"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_account_analytic_line
+msgid "Analytic Line"
+msgstr "البند التحليلي"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_project_project__analytic_account_id
 msgid ""
-"Analytic account %s is linked to multiple Work Orders.\n"
-"Please fix configuration."
+"Analytic account to which this project, its tasks and its timesheets are linked. \n"
+"Track the costs and revenues of your project by setting this analytic account on your related documents (e.g. sales orders, invoices, purchase orders, vendor bills, expenses etc.).\n"
+"This analytic account can be changed on each task individually if necessary.\n"
+"An analytic account is required in order to use timesheets."
 msgstr ""
-"الحساب التحليلي %s مرتبط بأكثر من أمر عمل.\n"
-"يرجى تصحيح الإعدادات."
+"الحساب التحليلي المرتبط بهذا المشروع ومهامه وسجلات الدوام الخاصة به.\n"
+"يمكنك تتبع تكاليف وإيرادات المشروع من خلال تعيين هذا الحساب التحليلي في المستندات ذات الصلة (مثل أوامر البيع، الفواتير، أوامر الشراء، فواتير الموردين، المصروفات، وغيرها).\n"
+"يمكن تغيير هذا الحساب التحليلي لكل مهمة على حدة عند الحاجة.\n"
+"يتطلب استخدام سجلات الدوام وجود حساب تحليلي."
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_expense_bucket__scope
+msgid "Applies To"
+msgstr "ينطبق على"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Approvals"
+msgstr "الموافقات"
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__approved
+msgid "Approved"
+msgstr "معتمد"
 
 #. module: pr_work_order
 #. odoo-python
-msgid ""
-"Analytic account %s is not linked to any Work Order Cost Center.\n"
-"PO Line: %s"
-msgstr ""
-"الحساب التحليلي %s غير مرتبط بأي مركز تكلفة لأمر العمل.\n"
-"بند أمر الشراء: %s"
+#: code:addons/pr_work_order/models/expense_bucket_inherit.py:0
+#, python-format
+msgid "Approved expense bucket cannot be edited."
+msgstr "لا يمكن تعديل بند المصروفات بعد اعتماده."
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__message_attachment_count
@@ -110,35 +234,94 @@ msgid "Attachment Count"
 msgstr "عدد المرفقات"
 
 #. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Attachments"
+msgstr "المرفقات"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "BOQ"
+msgstr "جدول الكميات"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__boq_line_ids
 msgid "BOQ / Budget Lines"
 msgstr "بنود جدول الكميات / الميزانية"
 
 #. module: pr_work_order
-#. odoo-python
-msgid ""
-"Budget exceeded for section '%s' (WO: %s).\n"
-"Remaining: %s\n"
-"Trying to reserve: %s"
-msgstr ""
-"تم تجاوز الميزانية للقسم '%s' (أمر العمل: %s).\n"
-"المتبقي: %s\n"
-"محاولة حجز: %s"
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__boq_attachment_ids
+msgid "BOQ Attachments"
+msgstr "مرفقات جدول الكميات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__boq_line_id
+msgid "BOQ Line"
+msgstr "بند جدول الكميات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__boq_line_db_id
+msgid "BOQ Line ID"
+msgstr "معرف بند جدول الكميات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_pr_work_order__boq_attachment_ids
+msgid "BOQ documents required for this work order."
+msgstr "مستندات جدول الكميات المطلوبة لأمر العمل هذا."
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Bills"
+msgstr "الفواتير"
 
 #. module: pr_work_order
 #. odoo-python
+#: code:addons/pr_work_order/models/expense_bucket_inherit.py:0
+#, python-format
+msgid "Bucket budget (%s) cannot exceed source amount (%s)."
+msgstr "لا يمكن أن تتجاوز ميزانية البند (%s) المبلغ الأصلي (%s)."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/sale_order_inherit.py:0
+#: code:addons/pr_work_order/models/work_order.py:0
+#: model:ir.model,name:pr_work_order.model_crossovered_budget
+#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__expense_bucket_id
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_order_form_inherit_pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+#, python-format
+msgid "Budget"
+msgstr "الميزانية"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/account_inherit.py:0
+#, python-format
 msgid "Budget exceeded for section '%s'. Remaining: %s, trying to spend: %s"
-msgstr "تم تجاوز الميزانية للقسم '%s'. المتبقي: %s، محاولة صرف: %s"
+msgstr "تم تجاوز الميزانية للقسم '%s'. المتبقي: %s، والمبلغ المطلوب إنفاقه: %s."
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__budgeted_cost
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__budgeted_cost
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Budgeted Cost"
-msgstr "التكلفة المقدرة"
+msgstr "التكلفة المدرجة في الميزانية"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__budgeted_margin
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__budgeted_margin
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Budgeted Margin"
-msgstr "الهامش المقدر"
+msgstr "الهامش المدرج في الميزانية"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_pr_work_order__total_expected_cost
+msgid "Budgeted cost plus overhead and risk buffers."
+msgstr "التكلفة المدرجة في الميزانية بالإضافة إلى مخصصات المصاريف العامة والمخاطر."
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Budgets"
+msgstr "الميزانيات"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__can_edit_boq
@@ -146,37 +329,170 @@ msgid "Can Edit Boq"
 msgstr "يمكن تعديل جدول الكميات"
 
 #. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_work_order_create_pr_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__cancel
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid ""
+"Cannot delete expense bucket %s because it is already linked to Purchase "
+"Requisitions."
+msgstr "لا يمكن حذف حاوية المصروفات %s لأنها مرتبطة بالفعل بطلبات الشراء."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/sale_order_inherit.py:0
+#, python-format
+msgid ""
+"Cannot delete trading expense bucket %s because it is already linked to "
+"Purchase Requisitions."
+msgstr "لا يمكن حذف حاوية مصروفات التجارة %s لأنها مرتبطة بالفعل بطلبات الشراء."
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_work_order_create_pr_wizard_form
+msgid "Clear All"
+msgstr "مسح الكل"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__company_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__company_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__company_id
 msgid "Company"
 msgstr "الشركة"
 
 #. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Confirm"
+msgstr "تأكيد"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_reject_wizard_form
+msgid "Confirm Reject"
+msgstr "تأكيد الرفض"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__project_id
+#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__project_id
 msgid "Construction Project"
-msgstr "مشروع إنشائي"
+msgstr "المشروع الإنشائي"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_work_order
+msgid "Construction Work Order"
+msgstr "أمر عمل إنشائي"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__contract_amount
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__contract_amount
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Contract Amount"
 msgstr "قيمة العقد"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__analytic_account_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__analytic_account_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__analytic_account_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__cost_center_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__cost_center_id
+#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__analytic_account_id
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Cost Center"
+msgstr "مركز التكلفة"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__analytic_account_id
+msgid "Cost Center Account"
+msgstr "حساب مركز التكلفة"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__cost_center_ids
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Cost Centers"
+msgstr "مراكز التكلفة"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_sale_order__analytic_account_id
+msgid "Cost center linked to this project / work order."
+msgstr "مركز التكلفة المرتبط بهذا المشروع / أمر العمل."
+
+#. module: pr_work_order
+#: model:ir.actions.act_window,name:pr_work_order.action_pr_work_order_costing_section_report
+#: model:ir.ui.menu,name:pr_work_order.menu_pr_work_order_costing_section_report
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_costing_section_graph
+msgid "Costing Breakdown"
+msgstr "تفصيل التكاليف"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_work_order_create_pr_wizard_form
+#, python-format
+msgid "Create PR"
+msgstr "إنشاء طلب شراء"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_work_order_create_pr_wizard
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_work_order_create_pr_wizard_form
+msgid "Create PR from Work Order"
+msgstr "إنشاء طلب شراء من أمر العمل"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_work_order_create_pr_wizard_line
+msgid "Create PR from Work Order Line"
+msgstr "إنشاء طلب شراء من بند أمر العمل"
+
+#. module: pr_work_order
+#: model_terms:ir.actions.act_window,help:pr_work_order.action_pr_work_order
+msgid ""
+"Create and manage construction work orders linked with Sales, Projects, "
+"Accounting and Inventory."
+msgstr "إنشاء وإدارة أوامر العمل الإنشائية المرتبطة بالمبيعات والمشاريع والمحاسبة والمخزون."
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__create_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__create_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__create_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__create_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__create_uid
 msgid "Created by"
 msgstr "أنشئ بواسطة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__create_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__create_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__create_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__create_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__create_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__create_date
 msgid "Created on"
-msgstr "أنشئ في"
+msgstr "تاريخ الإنشاء"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_crossovered_budget__company_currency_id
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__currency_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__currency_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__currency_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__currency_id
 msgid "Currency"
 msgstr "العملة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__partner_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__partner_id
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Customer"
 msgstr "العميل"
 
@@ -197,11 +513,19 @@ msgstr "القسم"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__name
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Description"
 msgstr "الوصف"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__display_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__display_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__display_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__display_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__display_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__display_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__display_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__display_name
 msgid "Display Name"
 msgstr "الاسم المعروض"
 
@@ -211,9 +535,75 @@ msgid "Display Type"
 msgstr "نوع العرض"
 
 #. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__done
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Drawings"
+msgstr "الرسومات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__drawings_attachment_ids
+msgid "Drawings Attachments"
+msgstr "مرفقات الرسومات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_pr_work_order__drawings_attachment_ids
+msgid "Drawings required for this work order."
+msgstr "الرسومات المطلوبة لهذا أمر العمل."
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_reject_wizard_form
+msgid "Enter rejection reason..."
+msgstr "أدخل سبب الرفض..."
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__equipment_note
 msgid "Equipment / Machinery Notes"
-msgstr "ملاحظات المعدات / الآليات"
+msgstr "ملاحظات المعدات / الآلات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__estimated_cost
+msgid "Estimated Cost"
+msgstr "التكلفة التقديرية"
+
+#. module: pr_work_order
+#: model:res.groups,name:pr_work_order.custom_group_work_order_user
+msgid "Estimation"
+msgstr "التقدير"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__expense_bucket_id
+msgid "Expense Bucket"
+msgstr "حاوية المصروفات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__expense_bucket_count
+#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__expense_bucket_count
+msgid "Expense Bucket Count"
+msgstr "عدد حاويات المصروفات"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Final"
+msgstr "نهائي"
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__final_approval
+msgid "Final Approval"
+msgstr "الموافقة النهائية"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Final Approve"
+msgstr "اعتماد نهائي"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__final_approved_date
@@ -238,7 +628,16 @@ msgstr "المتابعون (الشركاء)"
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
-msgstr "أيقونة Font Awesome مثل fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/native_budget_inherit.py:0
+#: code:addons/pr_work_order/models/native_budget_inherit.py:0
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "General"
+msgstr "عام"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__has_message
@@ -246,29 +645,52 @@ msgid "Has Message"
 msgstr "يحتوي على رسالة"
 
 #. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_create_pr_wizard__priority__high
+msgid "High"
+msgstr "عالية"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__id
 msgid "ID"
-msgstr "المعرّف"
+msgstr "المعرف"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__activity_exception_icon
 msgid "Icon"
-msgstr "أيقونة"
+msgstr "الأيقونة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "أيقونة تشير إلى نشاط استثنائي"
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
 
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__message_needaction
 msgid "If checked, new messages require your attention."
-msgstr "عند التحديد، توجد رسائل جديدة تتطلب انتباهك"
+msgstr "إذا تم تحديده، فإن الرسائل الجديدة تتطلب انتباهك."
 
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__message_has_error
+#: model:ir.model.fields,help:pr_work_order.field_pr_work_order__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "عند التحديد، بعض الرسائل بها خطأ في التسليم"
+msgstr "إذا تم تحديده، فإن بعض الرسائل تحتوي على خطأ في التسليم."
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__in_progress
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__inquiry_type
+msgid "Inquiry Type"
+msgstr "نوع الاستفسار"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__note
@@ -276,9 +698,19 @@ msgid "Internal Notes"
 msgstr "ملاحظات داخلية"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_project_milestone__petroraq_invoice_amount
+msgid "Invoice Amount"
+msgstr "قيمة الفاتورة"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__message_is_follower
 msgid "Is Follower"
 msgstr "متابع"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Issue Materials"
+msgstr "صرف المواد"
 
 #. module: pr_work_order
 #: model:ir.model,name:pr_work_order.model_account_move
@@ -288,21 +720,32 @@ msgstr "قيد اليومية"
 #. module: pr_work_order
 #: model:ir.model,name:pr_work_order.model_account_move_line
 msgid "Journal Item"
-msgstr "عنصر اليومية"
+msgstr "بند القيد"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__write_uid
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__write_uid
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__write_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__write_uid
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__write_uid
 msgid "Last Updated by"
-msgstr "آخر تعديل بواسطة"
+msgstr "آخر تحديث بواسطة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__write_date
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__write_date
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__write_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__write_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__write_date
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__write_date
 msgid "Last Updated on"
-msgstr "آخر تعديل في"
+msgstr "آخر تحديث في"
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_create_pr_wizard__priority__low
+msgid "Low"
+msgstr "منخفضة"
 
 #. module: pr_work_order
 #: model:res.groups,name:pr_work_order.custom_group_work_order_management
@@ -312,7 +755,14 @@ msgstr "الإدارة"
 #. module: pr_work_order
 #: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
 msgid "Mark Done"
-msgstr "تحديد كمكتمل"
+msgstr "تعيين كمكتمل"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Material Issue"
+msgstr "صرف المواد"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__stock_move_ids
@@ -321,9 +771,28 @@ msgid "Material Movements"
 msgstr "حركات المواد"
 
 #. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Material issue is allowed only after Work Order approval."
+msgstr "يسمح بصرف المواد فقط بعد اعتماد أمر العمل."
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__materials_note
 msgid "Materials Notes"
 msgstr "ملاحظات المواد"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_pr_expense_bucket__source_budget_limit
+msgid ""
+"Maximum budget amount allowed based on the originating Work Order/Sale "
+"Order."
+msgstr "الحد الأقصى للميزانية المسموح به بناءً على أمر العمل أو أمر البيع المصدر."
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_create_pr_wizard__priority__medium
+msgid "Medium"
+msgstr "متوسطة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__message_has_error
@@ -336,9 +805,25 @@ msgid "Messages"
 msgstr "الرسائل"
 
 #. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/project_milestone.py:0
+#, python-format
+msgid "Milestone invoice amount cannot be negative."
+msgstr "لا يمكن أن تكون قيمة فاتورة المرحلة سالبة."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order_pr_wizard.py:0
+#, python-format
+msgid ""
+"Missing expense bucket on Work Order. Please submit/approve the Work Order "
+"budget setup first."
+msgstr "حاوية المصروفات غير موجودة في أمر العمل. يرجى إرسال أو اعتماد إعداد ميزانية أمر العمل أولاً."
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__my_activity_date_deadline
 msgid "My Activity Deadline"
-msgstr "موعد نشاطي"
+msgstr "الموعد النهائي لنشاطي"
 
 #. module: pr_work_order
 #. odoo-python
@@ -358,7 +843,7 @@ msgstr "حدث التقويم للنشاط التالي"
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "موعد النشاط التالي"
+msgstr "الموعد النهائي للنشاط التالي"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__activity_summary
@@ -371,11 +856,40 @@ msgid "Next Activity Type"
 msgstr "نوع النشاط التالي"
 
 #. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "No BOQ product lines found to create PR."
+msgstr "لم يتم العثور على بنود منتجات في جدول الكميات لإنشاء طلب شراء."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "No internal transfer operation type was found for this company."
+msgstr "لم يتم العثور على نوع عملية تحويل داخلي لهذه الشركة."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/native_budget_inherit.py:0
+#, python-format
+msgid "No source products found from Sale Order / Work Order."
+msgstr "لم يتم العثور على منتجات مصدر من أمر البيع أو أمر العمل."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "No stockable/consumable BOQ lines are available for material issue."
+msgstr "لا توجد بنود مخزنية أو استهلاكية في جدول الكميات متاحة لصرف المواد."
+
+#. module: pr_work_order
 #: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_boq__display_type__line_note
 msgid "Note"
 msgstr "ملاحظة"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__notes
 #: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
 msgid "Notes"
 msgstr "ملاحظات"
@@ -393,12 +907,27 @@ msgstr "عدد الأخطاء"
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__message_needaction_counter
 msgid "Number of messages requiring action"
-msgstr "عدد الرسائل التي تتطلب إجراء"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
 
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__message_has_error_counter
 msgid "Number of messages with delivery error"
-msgstr "عدد الرسائل التي فشل تسليمها"
+msgstr "عدد الرسائل التي تحتوي على خطأ في التسليم"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#: code:addons/pr_work_order/models/work_order_pr_wizard.py:0
+#, python-format
+msgid "Only End Users can create PR from Work Order."
+msgstr "يمكن فقط للمستخدمين النهائيين إنشاء طلب شراء من أمر العمل."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Only draft work orders can be submitted for approval"
+msgstr "يمكن فقط إرسال أوامر العمل في حالة المسودة لاعتمادها."
 
 #. module: pr_work_order
 #: model:res.groups,name:pr_work_order.custom_group_work_order_operations
@@ -427,81 +956,231 @@ msgid "Operations Approver"
 msgstr "معتمد العمليات"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__overhead_percent
+msgid "Overhead (%)"
+msgstr "المصاريف العامة (%)"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__overhead_amount
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__overhead_amount
+msgid "Overhead Amount"
+msgstr "قيمة المصاريف العامة"
+
+#. module: pr_work_order
+#: model:res.groups,name:pr_work_order.custom_group_work_order_own_documents
+msgid "Own Documents Only"
+msgstr "المستندات الخاصة فقط"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_expense_bucket__po_reference
+msgid "PO Reference"
+msgstr "مرجع أمر الشراء"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_expense_bucket
+msgid "PR Expense "
+msgstr "مصروفات طلب الشراء"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#: code:addons/pr_work_order/models/work_order_pr_wizard.py:0
+#, python-format
+msgid "PR can be created only after Operations approval."
+msgstr "يمكن إنشاء طلب الشراء فقط بعد اعتماد العمليات."
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__partner_id
 msgid "Partner"
 msgstr "الشريك"
 
 #. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_project_milestone__quantity_percentage
+msgid ""
+"Percentage of the ordered quantity that will automatically be delivered once "
+"the milestone is reached."
+msgstr "النسبة المئوية من الكمية المطلوبة التي سيتم تسليمها تلقائيًا عند الوصول إلى المرحلة."
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_project_milestone__petroraq_currency_id
+msgid "Petroraq Currency"
+msgstr "عملة بيتروراق"
+
+#. module: pr_work_order
 #: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Planned"
 msgstr "مخطط"
 
-
 #. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Cost Center"
-msgstr "مركز تكلفة"
-
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__analytic_account_id
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__analytic_account_id
-#: model:ir.model.fields,field_description:pr_work_order.field_project_project__analytic_account_id
-#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__analytic_account_id
-msgid "Cost Center"
-msgstr "الحساب التحليلي"
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__cost_center_ids
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Cost Centers"
-msgstr "مراكز التكلفة"
-
-
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__section_name
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__section_id
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__section_name
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_boq__display_type__line_section
-msgid "Section"
-msgstr "قسم"
-
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Planned End"
+msgstr "النهاية المخططة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__date_end
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__date_end
 msgid "Planned End Date"
 msgstr "تاريخ الانتهاء المخطط"
 
 #. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Planned Start"
+msgstr "البداية المخططة"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__date_start
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__date_start
 msgid "Planned Start Date"
 msgstr "تاريخ البدء المخطط"
 
 #. module: pr_work_order
 #. odoo-python
-#: code:addons/pr_work_order/models/purchase_inherit.py:0
+#: code:addons/pr_work_order/models/work_order.py:0
 #, python-format
-msgid "Please set Analytic Distribution on all PO lines."
-msgstr "يرجى تعيين التوزيع التحليلي على جميع بنود أوامر الشراء."
+msgid "Please configure destination location on the internal operation type."
+msgstr "يرجى إعداد موقع الوجهة في نوع العملية الداخلية."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Please configure source location on the internal operation type."
+msgstr "يرجى إعداد موقع المصدر في نوع العملية الداخلية."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/project_milestone.py:0
+#, python-format
+msgid ""
+"Please select a sales order item before entering a milestone invoice amount."
+msgstr "يرجى اختيار بند من أمر البيع قبل إدخال قيمة فاتورة المرحلة."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order_pr_wizard.py:0
+#, python-format
+msgid "Please select at least one product to create PR."
+msgstr "يرجى اختيار منتج واحد على الأقل لإنشاء طلب شراء."
 
 #. module: pr_work_order
 #. odoo-python
 #: code:addons/pr_work_order/models/account_inherit.py:0
 #, python-format
 msgid "Please set WO Cost Center on all bill lines."
-msgstr "يرجى تعيين مركز تكلفة أمر العمل على جميع بنود الفواتير."
+msgstr "يرجى تحديد مركز تكلفة أمر العمل في جميع بنود الفاتورة."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order_pr_wizard.py:0
+#, python-format
+msgid "Please set a Cost Center for product '%s'."
+msgstr "يرجى تحديد مركز تكلفة للمنتج '%s'."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Please upload at least one BOQ attachment."
+msgstr "يرجى رفع مرفق واحد على الأقل لجدول الكميات."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Please upload at least one Scope of Work attachment."
+msgstr "يرجى رفع مرفق واحد على الأقل لنطاق العمل."
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__priority
+msgid "Priority"
+msgstr "الأولوية"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__product_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__product_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__product_name
 #: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_boq__display_type__product
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Product"
 msgstr "المنتج"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__product_internal_reference
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Product Code"
+msgstr "رمز المنتج"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__line_ids
+msgid "Products"
+msgstr "المنتجات"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_budget_form_inherit_work_order_source_products
+msgid "Products Detail"
+msgstr "تفاصيل المنتجات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__profit_percent
+msgid "Profit (%)"
+msgstr "الربح (%)"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__profit_amount
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__profit_amount
+msgid "Profit Amount"
+msgstr "قيمة الربح"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_project_project
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__project_id
+#: model:ir.model.fields.selection,name:pr_work_order.selection__sale_order__inquiry_type__construction
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Project"
+msgstr "المشروع"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_project_milestone
+msgid "Project Milestone"
+msgstr "مرحلة المشروع"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_purchase_order
+msgid "Purchase Order"
+msgstr "أمر شراء"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order_pr_wizard.py:0
+#, python-format
+msgid "Purchase Requisition"
+msgstr "طلب شراء"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__qty
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Qty"
 msgstr "الكمية"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__quantity
+#: model:ir.model.fields,field_description:pr_work_order.field_project_milestone__product_uom_qty
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_project_milestone__quantity_percentage
+msgid "Quantity (%)"
+msgstr "الكمية (%)"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/sale_order_inherit.py:0
+#: model:ir.model,name:pr_work_order.model_sale_order
+#, python-format
+msgid "Quotation"
+msgstr "عرض السعر"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__rating_ids
@@ -509,9 +1188,45 @@ msgid "Ratings"
 msgstr "التقييمات"
 
 #. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#: model:ir.model,name:pr_work_order.model_pr_work_order_reject_wizard
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_reject_wizard_form
+#, python-format
+msgid "Reject Work Order"
+msgstr "رفض أمر العمل"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__rejected_by
+msgid "Rejected By"
+msgstr "تم الرفض بواسطة"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__rejected_date
+msgid "Rejected On"
+msgstr "تاريخ الرفض"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__rejection_reason
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__remaining_amount
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Remaining"
 msgstr "المتبقي"
+
+#. module: pr_work_order
+#: model:ir.ui.menu,name:pr_work_order.menu_pr_work_order_reporting
+msgid "Reporting"
+msgstr "التقارير"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__activity_user_id
@@ -519,24 +1234,83 @@ msgid "Responsible User"
 msgstr "المستخدم المسؤول"
 
 #. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__message_has_sms_error
-msgid "SMS Delivery error"
-msgstr "خطأ في تسليم الرسالة النصية"
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__risk_percent
+msgid "Risk (%)"
+msgstr "المخاطر (%)"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__risk_amount
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__risk_amount
+msgid "Risk Amount"
+msgstr "قيمة المخاطر"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_crossovered_budget__sale_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_expense_bucket__sale_order_id
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__sale_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__sale_order_id
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Sale Order"
 msgstr "أمر البيع"
 
 #. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__name
-msgid "Work Order"
-msgstr "أوامر العمل"
+#. odoo-python
+#: code:addons/pr_work_order/models/expense_bucket_inherit.py:0
+#, python-format
+msgid "Sale Order is required when scope is Trading."
+msgstr "أمر البيع مطلوب عندما يكون النطاق تجاريًا."
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Scope of Work"
+msgstr "نطاق العمل"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__scope_attachment_ids
+msgid "Scope of Work Attachments"
+msgstr "مرفقات نطاق العمل"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_pr_work_order__scope_attachment_ids
+msgid "Scope of work documents required for this work order."
+msgstr "مستندات نطاق العمل المطلوبة لأمر العمل هذا."
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__section_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__section_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__section_name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__section_name
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_boq__display_type__line_section
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Section"
+msgstr "القسم"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__selected
+msgid "Select"
+msgstr "تحديد"
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_work_order_create_pr_wizard_form
+msgid "Select All"
+msgstr "تحديد الكل"
 
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_sale_order__project_id
 msgid "Select a non billable project on which tasks can be created."
-msgstr "اختر مشروعًا غير قابل للفوترة لإنشاء المهام عليه."
+msgstr "اختر مشروعًا غير قابل للفوترة يمكن إنشاء المهام عليه."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order_pr_wizard.py:0
+#, python-format
+msgid "Selected line has no product. Please refresh and try again."
+msgstr "السطر المحدد لا يحتوي على منتج. يرجى تحديث الصفحة والمحاولة مرة أخرى."
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__sequence
@@ -545,12 +1319,35 @@ msgid "Sequence"
 msgstr "التسلسل"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_expense_bucket__source_budget_limit
+msgid "Source Budget Limit"
+msgstr "حد الميزانية المصدر"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_crossovered_budget__source_products_html
+msgid "Source Products"
+msgstr "المنتجات المصدر"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__spent_amount
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Spent"
 msgstr "المصروف"
 
 #. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Start Operations"
+msgstr "بدء العمليات"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__state
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__state
+msgid "State"
+msgstr "الحالة"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__state
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Status"
 msgstr "الحالة"
 
@@ -565,17 +1362,57 @@ msgstr ""
 "الحالة بناءً على الأنشطة\n"
 "متأخر: تاريخ الاستحقاق قد مضى\n"
 "اليوم: تاريخ النشاط هو اليوم\n"
-"مخطط: أنشطة مستقبلية"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_stock_move
+msgid "Stock Move"
+msgstr "حركة مخزون"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_project_task
+msgid "Task"
+msgstr "المهمة"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__task_ids
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+msgid "Tasks"
+msgstr "المهام"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/project_milestone.py:0
+#, python-format
+msgid ""
+"The selected sales order item has no subtotal to calculate a milestone "
+"percentage from."
+msgstr "بند أمر البيع المحدد لا يحتوي على إجمالي فرعي لحساب نسبة المرحلة."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/project_milestone.py:0
+#, python-format
+msgid ""
+"The total milestone percentage for the sales order item '%(line)s' cannot "
+"exceed 100%%. Current total: %(total).6f%%."
+msgstr "لا يمكن أن يتجاوز إجمالي نسبة المراحل لبند أمر البيع '%(line)s' نسبة 100%%. الإجمالي الحالي: %(total).6f%%."
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__labour_ids
 msgid "Timesheets / Labour"
-msgstr "الجداول الزمنية / العمالة"
+msgstr "سجلات الدوام / العمالة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__total
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Total"
 msgstr "الإجمالي"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_crossovered_budget__source_products_total
+msgid "Total Amount"
+msgstr "إجمالي المبلغ"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__estimated_cost
@@ -583,24 +1420,82 @@ msgid "Total Cost"
 msgstr "إجمالي التكلفة"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__total_expected_cost
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__total_expected_cost
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Total Expected Cost"
+msgstr "إجمالي التكلفة المتوقعة"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__total_with_profit
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__total_with_profit
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "Total With Profit"
+msgstr "الإجمالي مع الربح"
+
+#. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__contract_amount
 msgid "Total selling value (from SO)."
 msgstr "إجمالي قيمة البيع (من أمر البيع)."
 
 #. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/sale_order_inherit.py:0
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_expense_bucket__scope__trading
+#: model:ir.model.fields.selection,name:pr_work_order.selection__sale_order__inquiry_type__trading
+#, python-format
+msgid "Trading"
+msgstr "تجاري"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__trading_expense_bucket_id
+msgid "Trading Budget"
+msgstr "ميزانية التجارة"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_stock_picking
+msgid "Transfer"
+msgstr "تحويل"
+
+#. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "نوع النشاط الاستثنائي المسجل"
+msgstr "نوع نشاط الاستثناء في السجل."
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__uom_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__unit_id
 msgid "Unit"
 msgstr "الوحدة"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__unit_cost
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__unit_price
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
 msgid "Unit Cost"
 msgstr "تكلفة الوحدة"
+
+#. module: pr_work_order
+#: model:ir.model.fields,help:pr_work_order.field_project_milestone__petroraq_invoice_amount
+msgid ""
+"Untaxed milestone amount. When entered, the milestone quantity and "
+"percentage are calculated from the sales order line subtotal."
+msgstr "قيمة المرحلة قبل الضريبة. عند إدخالها، يتم احتساب كمية المرحلة ونسبتها من الإجمالي الفرعي لبند أمر البيع."
+
+#. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "UoM"
+msgstr "وحدة القياس"
+
+#. module: pr_work_order
+#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order_create_pr_wizard__priority__urgent
+msgid "Urgent"
+msgstr "عاجل"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__variance
+msgid "Variance"
+msgstr "الانحراف"
 
 #. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__vendor_bill_ids
@@ -608,19 +1503,144 @@ msgid "Vendor Bill"
 msgstr "فاتورة المورد"
 
 #. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_stock_move__work_order_boq_line_id
+msgid "WO BOQ Line"
+msgstr "بند BOQ لأمر العمل"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_account_move_line__wo_cost_center_id
 msgid "WO Cost Center"
 msgstr "مركز تكلفة أمر العمل"
 
 #. module: pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+msgid "WORK ORDER"
+msgstr "أمر العمل"
+
+#. module: pr_work_order
 #: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__website_message_ids
 msgid "Website Messages"
-msgstr "رسائل الموقع الإلكتروني"
+msgstr "رسائل الموقع"
 
 #. module: pr_work_order
 #: model:ir.model.fields,help:pr_work_order.field_pr_work_order__website_message_ids
 msgid "Website communication history"
-msgstr "سجل مراسلات الموقع الإلكتروني"
+msgstr "سجل المراسلات عبر الموقع"
+
+#. module: pr_work_order
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard_line__wizard_id
+msgid "Wizard"
+msgstr "المعالج"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#: model:ir.model.fields,field_description:pr_work_order.field_account_analytic_line__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_account_bank_statement_line__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_account_move__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_account_payment__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_crossovered_budget__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_expense_bucket__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__name
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_report__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_costing_section_report__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_create_pr_wizard__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_reject_wizard__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_project_task__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_stock_move__work_order_id
+#: model:ir.model.fields,field_description:pr_work_order.field_stock_picking__work_order_id
+#: model:ir.module.category,name:pr_work_order.module_category_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_order_form_inherit_pr_work_order
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
+#: model_terms:ir.ui.view,arch_db:pr_work_order.work_order_pdf
+#, python-format
+msgid "Work Order"
+msgstr "أمر العمل"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Work Order %s waiting for accounts approval"
+msgstr "أمر العمل %s بانتظار موافقة قسم الحسابات"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Work Order %s waiting for final approval"
+msgstr "أمر العمل %s بانتظار الموافقة النهائية"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Work Order %s waiting for operations approval"
+msgstr "أمر العمل %s بانتظار موافقة العمليات"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_work_order_boq
+msgid "Work Order BOQ / Budget Lines"
+msgstr "بنود جدول الكميات / الميزانية لأمر العمل"
+
+#. module: pr_work_order
+#: model:ir.actions.act_window,name:pr_work_order.action_pr_work_order_costing_report
+#: model:ir.ui.menu,name:pr_work_order.menu_pr_work_order_costing_report
+#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_costing_report_graph
+msgid "Work Order Costing"
+msgstr "تكاليف أمر العمل"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_work_order_costing_report
+msgid "Work Order Costing Report"
+msgstr "تقرير تكاليف أمر العمل"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_work_order_costing_section_report
+msgid "Work Order Costing Section Report"
+msgstr "تقرير تكاليف أقسام أمر العمل"
+
+#. module: pr_work_order
+#: model:ir.module.category,description:pr_work_order.module_category_work_order
+msgid "Work Order Custom Access Groups"
+msgstr "مجموعات صلاحيات أمر العمل المخصصة"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_pr_work_order_cost_center
+msgid "Work Order Dynamic Cost Centers"
+msgstr "مراكز التكلفة الديناميكية لأمر العمل"
+
+#. module: pr_work_order
+#: model:ir.actions.report,name:pr_work_order.action_report_pr_work_order_xlsx
+msgid "Work Order Excel"
+msgstr "أمر العمل (Excel)"
+
+#. module: pr_work_order
+#: model:ir.actions.report,name:pr_work_order.action_report_pr_work_order_pdf
+msgid "Work Order PDF"
+msgstr "أمر العمل (PDF)"
+
+#. module: pr_work_order
+#: model:ir.model,name:pr_work_order.model_report_pr_work_order_work_order_xlsx_report
+msgid "Work Order XLSX Report"
+msgstr "تقرير أمر العمل بصيغة XLSX"
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "Work Order has been reset to draft."
+msgstr "تمت إعادة أمر العمل إلى حالة المسودة."
+
+#. module: pr_work_order
+#. odoo-python
+#: code:addons/pr_work_order/models/expense_bucket_inherit.py:0
+#, python-format
+msgid "Work Order is required when scope is Project."
+msgstr "أمر العمل مطلوب عندما يكون النطاق مشروعًا."
 
 #. module: pr_work_order
 #. odoo-python
@@ -643,189 +1663,18 @@ msgid "Work Orders"
 msgstr "أوامر العمل"
 
 #. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "BOQ"
-msgstr "جدول الكميات"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Budgets"
-msgstr "الميزانيات"
+#. odoo-python
+#: code:addons/pr_work_order/models/work_order.py:0
+#: code:addons/pr_work_order/models/work_order.py:0
+#, python-format
+msgid "You cannot reject a completed or cancelled Work Order."
+msgstr "لا يمكنك رفض أمر عمل مكتمل أو ملغى."
 
 #. module: pr_work_order
 #: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Final"
-msgstr "نهائي"
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__task_ids
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Tasks"
-msgstr "المهام"
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Bills"
-msgstr "فواتير الموردين"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Approvals"
-msgstr "الاعتمادات"
-
-#. module: pr_work_order
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__draft
-msgid "Draft"
-msgstr "مسودة"
-
-#. module: pr_work_order
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__final_approval
-msgid "Final Approval"
-msgstr "الاعتماد النهائي"
-
-
-#. module: pr_work_order
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__approved
-msgid "Approved"
-msgstr "معتمد"
-
-
-#. module: pr_work_order
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__in_progress
-msgid "In Progress"
-msgstr "قيد التنفيذ"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Mark Done"
-msgstr "تحديد كمكتمل"
-
-
-#. module: pr_work_order
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__done
-msgid "Done"
-msgstr "مكتمل"
-
-
-#. module: pr_work_order
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__cancel
-msgid "Cancelled"
-msgstr "ملغي"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Confirm"
-msgstr "تأكيد"
-
-#. module: pr_work_order
-#: model:ir.model,name:pr_work_order.model_pr_work_order
-msgid "Construction Work Order"
-msgstr "أمر عمل إنشائي"
-
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__analytic_account_id
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__analytic_account_id
-#: model:ir.model.fields,field_description:pr_work_order.field_project_project__analytic_account_id
-#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__analytic_account_id
-msgid "Cost Center"
-msgstr "الحساب التحليلي"
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__cost_center_ids
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Cost Centers"
-msgstr "مراكز التكلفة"
-
-#. module: pr_work_order
-#: model:ir.model.fields,help:pr_work_order.field_sale_order__analytic_account_id
-msgid "Cost center linked to this project / work order."
-msgstr "مركز التكلفة المرتبط بهذا المشروع / أمر العمل."
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_order_form_inherit_pr_work_order
-msgid "Create Work Order"
-msgstr "إنشاء أمر عمل"
-
-#. module: pr_work_order
-#: model_terms:ir.actions.act_window,help:pr_work_order.action_pr_work_order
 msgid ""
-"Create and manage construction work orders linked with Sales, Projects, "
-"Accounting and Inventory."
+"|\n"
+"                        <span>By:</span>"
 msgstr ""
-"إنشاء وإدارة أوامر العمل الإنشائية المرتبطة بالمبيعات والمشاريع والحسابات "
-"والمخزون."
-
-
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__cost_center_ids
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Cost Centers"
-msgstr "مراكز التكلفة"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_order_form_inherit_pr_work_order
-msgid "Create Work Order"
-msgstr "إنشاء أمر عمل"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Cancel"
-msgstr "إلغاء"
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Reject"
-msgstr "رفض"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Final"
-msgstr "نهائي"
-
-#. module: pr_work_order
-#: model:ir.model.fields.selection,name:pr_work_order.selection__pr_work_order__state__final_approval
-msgid "Final Approval"
-msgstr "الاعتماد النهائي"
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Final Approve"
-msgstr "اعتماد نهائي"
-
-
-#. module: pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Start Operations"
-msgstr "بدء العمليات"
-
-
-#. module: pr_work_order
-#: model:res.groups,name:pr_work_order.custom_group_work_order_user
-msgid "Estimation"
-msgstr "التقدير"
-
-#. module: pr_work_order
-#: model:ir.model.fields,field_description:pr_work_order.field_account_analytic_line__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_account_bank_statement_line__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_account_move__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_account_payment__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order__name
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_boq__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_pr_work_order_cost_center__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_project_task__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_sale_order__work_order_id
-#: model:ir.model.fields,field_description:pr_work_order.field_stock_move__work_order_id
-#: model:ir.module.category,name:pr_work_order.module_category_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_order_form_inherit_pr_work_order
-#: model_terms:ir.ui.view,arch_db:pr_work_order.view_pr_work_order_form
-msgid "Work Order"
-msgstr "أمر عمل"
+"|\n"
+"                        <span>بواسطة:</span>"

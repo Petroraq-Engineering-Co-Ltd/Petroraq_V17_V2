@@ -1,0 +1,1012 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr_payroll
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-14 06:42+0000\n"
+"PO-Revision-Date: 2026-07-14 06:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_rule_form_inherit
+msgid ""
+"<span>\n"
+"                                    <strong>Account Name</strong>\n"
+"                                </span>"
+msgstr ""
+"<span>\n"
+"                                    <strong>اسم الحساب</strong>\n"
+"                                </span>"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_salary_attachment_pay_wizard_wizard_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_attachment_type_view_form_inherit
+msgid "<span><strong>Account Name</strong></span>"
+msgstr "<span><strong>اسم الحساب</strong></span>"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip.py:0
+#, python-format
+msgid "A payslip cannot start after the Last Working Day (%s) for %s."
+msgstr "لا يمكن أن يبدأ كشف الراتب بعد آخر يوم عمل (%s) للموظف %s."
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "ACT/IN"
+msgstr "دخول فعلي"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "ACT/OUT"
+msgstr "خروج فعلي"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Absence"
+msgstr "الغياب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_payslip__carry_forward_absence_amount
+msgid "Absence-only amount carried from prior projected periods."
+msgstr "مبلغ الغياب المرحّل من الفترات التقديرية السابقة."
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__account_id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_type__account_id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_rule__account_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_salary_attachment_pay_wizard_wizard_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_attachment_type_view_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_rule_form_inherit
+msgid "Account Code"
+msgstr "رمز الحساب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__account_name
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_type__account_name
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_rule__account_name
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_salary_attachment_pay_wizard_wizard_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_attachment_type_view_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_rule_form_inherit
+msgid "Account Name"
+msgstr "اسم الحساب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__accounting_date
+msgid "Accounting Date"
+msgstr "التاريخ المحاسبي"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_rule_form_inherit
+msgid "Accounting Settings"
+msgstr "إعدادات المحاسبة"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/bank_payment.py:0
+#, python-format
+msgid "Advance Allowances"
+msgstr "السلف والبدلات"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_salary_attachment_pay_wizard_wizard_view
+msgid "Advance Allowances Payment"
+msgstr "سداد السلف والبدلات"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_pr_account_bank_payment_view_form_inherit
+msgid "Advance Payment Request"
+msgstr "طلب دفعة مقدمة"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__total_alw_amount
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__allowance_amount
+msgid "Allowance Amount"
+msgstr "مبلغ البدلات"
+
+#. module: pr_hr_payroll
+#: model_terms:hr.salary.rule,note:pr_hr_payroll.hr_salary_rule_saudi_gosi_allow
+msgid "Allowance Of GOSI"
+msgstr "بدل التأمينات الاجتماعية"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_rule__attendance_based_eligibility
+msgid "Apply Attendance Eligibility"
+msgstr "تطبيق استحقاق الحضور"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "Approval"
+msgstr "الموافقة"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__approval_state
+msgid "Approval Status"
+msgstr "حالة الموافقة"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_payslip_run__approval_state__approved
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__approved_overtime_amount
+msgid "Approved Overtime Amount"
+msgstr "مبلغ العمل الإضافي المعتمد"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__approved_overtime_hours
+msgid "Approved Overtime Hours"
+msgstr "ساعات العمل الإضافي المعتمدة"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Attendance Data"
+msgstr "بيانات الحضور"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_rule_form_inherit
+msgid "Attendance Eligibility"
+msgstr "استحقاق الحضور"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__attendance_sheet_line_ids
+msgid "Attendance Lines"
+msgstr "بنود الحضور"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Attendance Sheet"
+msgstr "كشف الحضور"
+
+#. module: pr_hr_payroll
+#: model:hr.work.entry.type,name:pr_hr_payroll.work_entry_type_attendance_sheet_saudi_gosi
+msgid "Attendance Sheet Sadui GOSI"
+msgstr "كشف حضور التأمينات الاجتماعية - سعودي"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_pr_account_bank_payment
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment__bank_payment_id
+msgid "Bank Payment"
+msgstr "دفعة بنكية"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__total_basic_amount
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__basic_amount
+msgid "Basic Amount"
+msgstr "المبلغ الأساسي"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__payslip_run_id
+msgid "Batch"
+msgstr "دفعة"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_salary_attachment_pay_wizard_wizard_view
+msgid "CANCEL"
+msgstr "إلغاء"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.view_payslip_run_reject_wizard
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_salary_attachment__state__cancel
+msgid "Cancelled"
+msgstr "ملغى"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Cannot pay the payslip if not confirmed."
+msgstr "لا يمكن دفع كشف الراتب قبل تأكيده."
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Carry Forward"
+msgstr "ترحيل"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__carry_forward_absence_amount
+msgid "Carry Forward Absence"
+msgstr "ترحيل الغياب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__carry_forward_deduction
+msgid "Carry Forward Deduction"
+msgstr "ترحيل الخصومات"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__carry_forward_diff_amount
+msgid "Carry Forward Diff"
+msgstr "ترحيل الفروقات"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__carry_forward_early_checkout_amount
+msgid "Carry Forward Early Checkout"
+msgstr "ترحيل الانصراف المبكر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__carry_forward_late_amount
+msgid "Carry Forward Late"
+msgstr "ترحيل التأخير"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__carry_forward_overtime_amount
+msgid "Carry Forward Overtime"
+msgstr "ترحيل العمل الإضافي"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__category_id
+msgid "Category"
+msgstr "الفئة"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_salary_attachment_pay_wizard_wizard_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_attachment_type_view_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_rule_form_inherit
+msgid "Code"
+msgstr "الرمز"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_salary_attachment__state__close
+msgid "Completed"
+msgstr "مكتمل"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid ""
+"Could not find ANB account (code 1001.02.00.07) for the payroll bank "
+"charges."
+msgstr "تعذر العثور على حساب البنك العربي الوطني (الرمز 1001.02.00.07) لرسوم البنك الخاصة بالرواتب."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid ""
+"Could not find ANB balancing account (code 1001.02.00.07) for final payroll "
+"move balancing."
+msgstr "تعذر العثور على حساب الموازنة للبنك العربي الوطني (الرمز 1001.02.00.07) لموازنة القيد النهائي للرواتب."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid ""
+"Could not find ANB balancing account (code 1001.02.00.07) to balance payroll "
+"journal entry."
+msgstr "تعذر العثور على حساب الموازنة للبنك العربي الوطني (الرمز 1001.02.00.07) لموازنة قيد يومية الرواتب."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid ""
+"Could not find an account classified or named as VAT Receivable for the "
+"payroll journal entry."
+msgstr "تعذر العثور على حساب مصنف أو مسمى «ضريبة القيمة المضافة المستحقة القبض» لقيد يومية الرواتب."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid ""
+"Could not find the Bank Charges account (code 5001.03.01.02) for the payroll "
+"journal entry."
+msgstr "تعذر العثور على حساب رسوم البنك (الرمز 5001.03.01.02) لقيد يومية الرواتب."
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__create_uid
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__create_uid
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__create_date
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__create_date
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__create_date
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Day"
+msgstr "اليوم"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__total_ded_amount
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__deduction_amount
+msgid "Deduction Amount"
+msgstr "قيمة الاستقطاعات"
+
+#. module: pr_hr_payroll
+#: model_terms:hr.salary.rule,note:pr_hr_payroll.hr_salary_rule_saudi_gosi
+msgid "Deduction Of Saudi GOSI"
+msgstr "استقطاع التأمينات الاجتماعية للسعوديين"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_payslip__carry_forward_diff_amount
+msgid "Difference-time amount carried from prior projected periods."
+msgstr "قيمة فرق الوقت المرحلة من الفترات التقديرية السابقة."
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Diffrenece Time"
+msgstr "فرق الوقت"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__display_name
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__display_name
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__display_name
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_salary_attachment__payment_state__draft
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_salary_attachment__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Early Check Out"
+msgstr "انصراف مبكر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_payslip__carry_forward_early_checkout_amount
+msgid "Early checkout amount carried from prior projected periods."
+msgstr "قيمة الانصراف المبكر المرحلة من الفترات التقديرية السابقة."
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_employee
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__employee_id
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_contract
+msgid "Employee Contract"
+msgstr "عقد الموظف"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "Employee ID"
+msgstr "رقم الموظف"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "Employee Name"
+msgstr "اسم الموظف"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "Employee Summary"
+msgstr "ملخص الموظف"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_employee__exclude_transportation_from_attendance_gross
+msgid "Exclude Transportation in Attendance Gross"
+msgstr "استبعاد بدل النقل من إجمالي الحضور"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "For the Period"
+msgstr "للفترة"
+
+#. module: pr_hr_payroll
+#: model:hr.salary.rule,name:pr_hr_payroll.hr_salary_rule_saudi_gosi
+#: model:hr.salary.rule,name:pr_hr_payroll.hr_salary_rule_saudi_gosi_allow
+msgid "GOSI"
+msgstr "التأمينات الاجتماعية"
+
+#. module: pr_hr_payroll
+#: model:hr.salary.rule,account_name:pr_hr_payroll.hr_salary_rule_saudi_gosi_allow
+msgid "GOSI Expenses "
+msgstr "مصروفات التأمينات الاجتماعية"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_payslip_employees
+msgid "Generate payslips for all selected employees"
+msgstr "إنشاء مسيرات الرواتب لجميع الموظفين المحددين"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__total_gross_amount
+msgid "Gross Amount"
+msgstr "إجمالي المبلغ"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__hold_date
+msgid "Hold Date"
+msgstr "تاريخ الإيقاف"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__hold_reason
+msgid "Hold Reason"
+msgstr "سبب الإيقاف"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__hold_salary
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_payslip_form_hold_salary_inherit
+msgid "Hold Salary"
+msgstr "إيقاف الراتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_payslip_run_employee
+msgid "Hr Payslip Run Employee"
+msgstr "موظف دفعة مسير الرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_payslip_run_summary
+msgid "Hr Payslip Run Summary"
+msgstr "ملخص دفعة مسير الرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_salary_rule__attendance_require_presence
+msgid "If enabled, absent days are never eligible for this rule amount."
+msgstr "عند التفعيل، لا تكون أيام الغياب مؤهلة للحصول على قيمة هذا البند."
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_employee__exclude_transportation_from_attendance_gross
+msgid ""
+"If enabled, transportation allowance is excluded from attendance gross "
+"calculations."
+msgstr "عند التفعيل، يتم استبعاد بدل النقل من حسابات إجمالي الحضور."
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment__paid_move_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "Journal Entry"
+msgstr "القيد المحاسبي"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__write_uid
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__write_uid
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__write_date
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__write_date
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__write_date
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Late In"
+msgstr "تأخر في الحضور"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_payslip__carry_forward_late_amount
+msgid "Late-only amount carried from prior projected periods."
+msgstr "قيمة التأخير المرحلة من الفترات التقديرية السابقة."
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "Loading payroll matrix..."
+msgstr "جارٍ تحميل مصفوفة الرواتب..."
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_rule__attendance_min_worked_hours
+msgid "Min Worked Hours"
+msgstr "الحد الأدنى لساعات العمل"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_salary_rule__attendance_min_worked_hours
+msgid ""
+"Minimum worked hours per day required to be eligible for this rule amount."
+msgstr "الحد الأدنى لساعات العمل اليومية المطلوبة للاستحقاق وفق هذا البند."
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__total_net_amount
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__net_amount
+msgid "Net Amount"
+msgstr "صافي المبلغ"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_payslip_run__approval_state__draft
+msgid "New"
+msgstr "جديد"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__no_absence
+msgid "No of Absence Days"
+msgstr "عدد أيام الغياب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__no_difftime
+msgid "No of Diff Times"
+msgstr "عدد فروقات الوقت"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__no_early_checkout
+msgid "No of Early Check Out"
+msgstr "عدد مرات الانصراف المبكر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__no_late
+msgid "No of Lates"
+msgstr "عدد مرات التأخير"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__no_overtime
+msgid "No of overtimes"
+msgstr "عدد ساعات العمل الإضافي"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "No payslips found in this batch yet."
+msgstr "لم يتم العثور على أي مسيرات رواتب في هذه الدفعة حتى الآن."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid "Only batches in 'New' state can be submitted to HR."
+msgstr "يمكن إرسال الدفعات إلى الموارد البشرية فقط إذا كانت في حالة «جديد»."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid "Only submitted batches can be approved."
+msgstr "يمكن اعتماد الدفعات التي تم إرسالها فقط."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid "Only submitted batches can be rejected."
+msgstr "يمكن رفض دفعات الرواتب المقدمة فقط."
+
+#. module: pr_hr_payroll
+#: model:hr.salary.rule,account_name:pr_hr_payroll.hr_salary_rule_other_payments
+msgid "Other Allowance"
+msgstr "بدل آخر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__other_amount
+msgid "Other Amount"
+msgstr "مبلغ آخر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_contract__other_first_payslip
+msgid "Other First Payslip"
+msgstr "أول مسير راتب آخر"
+
+#. module: pr_hr_payroll
+#: model_terms:hr.salary.rule,note:pr_hr_payroll.hr_salary_rule_other_payments
+msgid "Other Payment"
+msgstr "دفعة أخرى"
+
+#. module: pr_hr_payroll
+#: model:hr.salary.rule,name:pr_hr_payroll.hr_salary_rule_other_payments
+msgid "Other Payments"
+msgstr "دفعات أخرى"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Over Time"
+msgstr "العمل الإضافي"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_payslip__carry_forward_overtime_amount
+msgid "Overtime amount carried from prior projected periods."
+msgstr "مبلغ العمل الإضافي المرحّل من الفترات التقديرية السابقة."
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_salary_attachment_pay_wizard_wizard_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "PAY"
+msgstr "دفع"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "PL/IN"
+msgstr "الوقت المخطط للدخول"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "PL/OUT"
+msgstr "الوقت المخطط للخروج"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_salary_attachment__payment_state__paid
+msgid "Paid"
+msgstr "مدفوع"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__paid_date
+msgid "Paid Date"
+msgstr "تاريخ الدفع"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_payslip
+msgid "Pay Slip"
+msgstr "مسير الراتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment__payment_state
+msgid "Payment Status"
+msgstr "حالة الدفع"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_employee_form_inherit
+msgid "Payroll Attendance"
+msgstr "حضور الرواتب"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "Payroll Month"
+msgstr "شهر الرواتب"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid "Payroll bank charges (%s employees)"
+msgstr "رسوم البنك الخاصة بالرواتب (%s موظفًا)"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid "Payroll bank charges including VAT"
+msgstr "رسوم البنك الخاصة بالرواتب شاملة ضريبة القيمة المضافة"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "Payroll matrix error:"
+msgstr "خطأ في مصفوفة الرواتب:"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_employee__payslip_batch_id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__payslip_batch_id
+msgid "Payslip Batch"
+msgstr "دفعة مسيرات الرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__batch_employee_ids
+msgid "Payslip Batch Employees"
+msgstr "موظفو دفعة مسيرات الرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__batch_summary_ids
+msgid "Payslip Batch Summary"
+msgstr "ملخص دفعة مسيرات الرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_payslip_run
+msgid "Payslip Batches"
+msgstr "دفعات مسيرات الرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_payslip_run_reject_wizard
+msgid "Payslip Run Reject Wizard"
+msgstr "معالج رفض دفعة مسيرات الرواتب"
+
+#. module: pr_hr_payroll
+#: model:hr.salary.rule,account_name:pr_hr_payroll.hr_salary_rule_saudi_gosi
+msgid "Provision For GOSI Expenses"
+msgstr "مخصص مصروفات التأمينات الاجتماعية"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_hr_salary_attachment_view_form_inherit
+msgid "REQUEST"
+msgstr "طلب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_payslip_run_reject_wizard__reason
+msgid "Reason"
+msgstr "السبب"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.view_payslip_run_reject_wizard
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.view_payslip_run_reject_wizard
+#, python-format
+msgid "Reject Batch"
+msgstr "رفض دفعة الرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_payslip_run__approval_state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__rejection_reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__release_date
+msgid "Release Date"
+msgstr "تاريخ الإفراج"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_payslip_form_hold_salary_inherit
+msgid "Release Salary"
+msgstr "إفراج عن الراتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_rule__attendance_require_presence
+msgid "Require Presence"
+msgstr "يتطلب الحضور"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__salary_rule_id
+msgid "Rule"
+msgstr "القاعدة"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_salary_attachment__state__open
+msgid "Running"
+msgstr "قيد التنفيذ"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_salary_attachment
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment_pay_wizard__salary_attachment_id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_pr_account_bank_payment__salary_attachment_id
+msgid "Salary Attachment"
+msgstr "استقطاع الراتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_salary_attachment_type
+msgid "Salary Attachment Type"
+msgstr "نوع استقطاع الراتب"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_payslip_form_hold_salary_inherit
+msgid "Salary Hold"
+msgstr "إيقاف الراتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__salary_journal_entry_id
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run__salary_journal_entry_id
+msgid "Salary Journal Entry"
+msgstr "قيد اليومية للرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_salary_rule
+msgid "Salary Rule"
+msgstr "قاعدة الراتب"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "Salary Rules Summary"
+msgstr "ملخص قواعد الرواتب"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.hr_payslip_form_hold_salary_inherit
+msgid ""
+"Salary is on HOLD. This payslip will not be included in salary voucher payment."
+msgstr ""
+"الراتب موقوف. لن يتم تضمين مسير الراتب هذا في سند صرف الرواتب."
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_salary_attachment__state
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "Submit to HRM"
+msgstr "إرسال إلى إدارة الموارد البشرية"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields.selection,name:pr_hr_payroll.selection__hr_payslip_run__approval_state__submitted
+msgid "Submitted to HR"
+msgstr "تم الإرسال إلى الموارد البشرية"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid "Summary"
+msgstr "الملخص"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip.py:0
+#, python-format
+msgid "The payslip must end on or before the Last Working Day (%s) for %s."
+msgstr "يجب أن ينتهي مسير الراتب في أو قبل آخر يوم عمل (%s) للموظف %s."
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip.py:0
+#, python-format
+msgid "The payslip period for %s starts after the Last Working Day (%s)."
+msgstr "تبدأ فترة مسير الراتب للموظف %s بعد آخر يوم عمل (%s)."
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#, python-format
+msgid "To"
+msgstr "إلى"
+
+#. module: pr_hr_payroll
+#. odoo-javascript
+#: code:addons/pr_hr_payroll/static/src/components/payroll_batch_xlsx_report/payroll_batch_xlsx_report.xml:0
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip_run_summary__total_amount
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+#, python-format
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_absence_amount
+msgid "Total Absence Amount"
+msgstr "إجمالي مبلغ الغياب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_difftime_amount
+msgid "Total Diff Amount"
+msgstr "إجمالي مبلغ فرق الوقت"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_difftime
+msgid "Total Diff time Hours"
+msgstr "إجمالي ساعات فرق الوقت"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Total ECO. Amount"
+msgstr "إجمالي مبلغ الخروج المبكر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_early_checkout
+msgid "Total Early Check Out"
+msgstr "إجمالي الخروج المبكر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_early_checkout_amount
+msgid "Total Early Check Out Amount"
+msgstr "إجمالي مبلغ الخروج المبكر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__early_check_out_minutes
+msgid "Total Early Checkout Minutes"
+msgstr "إجمالي دقائق الخروج المبكر"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_late
+msgid "Total Late In"
+msgstr "إجمالي التأخير في الحضور"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_late_amount
+msgid "Total Late In Amount"
+msgstr "إجمالي مبلغ التأخير في الحضور"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_late_in_minutes
+msgid "Total Late In Minutes"
+msgstr "إجمالي دقائق التأخير في الحضور"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_overtime
+msgid "Total Over Time"
+msgstr "إجمالي العمل الإضافي"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_overtime_amount
+msgid "Total Overtime Amount"
+msgstr "إجمالي مبلغ العمل الإضافي"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,field_description:pr_hr_payroll.field_hr_payslip__tot_absence
+msgid "Total absence Hours"
+msgstr "إجمالي ساعات الغياب"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip_run.py:0
+#, python-format
+msgid "VAT on payroll bank charges"
+msgstr "ضريبة القيمة المضافة على الرسوم البنكية للرواتب"
+
+#. module: pr_hr_payroll
+#: model:ir.model.fields,help:pr_hr_payroll.field_hr_salary_rule__attendance_based_eligibility
+msgid ""
+"When enabled, this rule amount is prorated by eligible attendance days in "
+"the payslip period."
+msgstr ""
+"عند التفعيل، يتم احتساب مبلغ هذه القاعدة بنسبة أيام الحضور المؤهلة خلال فترة مسير الراتب."
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_form_inherit
+msgid "Worked/H"
+msgstr "ساعات العمل"
+
+#. module: pr_hr_payroll
+#. odoo-python
+#: code:addons/pr_hr_payroll/models/hr_payslip.py:0
+#, python-format
+msgid "You cannot hold a payslip that is already Paid/Cancelled."
+msgstr "لا يمكنك إيقاف مسير راتب تم دفعه أو إلغاؤه بالفعل."
+
+#. module: pr_hr_payroll
+#: model:ir.model,name:pr_hr_payroll.model_hr_salary_attachment_pay_wizard
+msgid "hr.salary.attachment.pay.wizard"
+msgstr "معالج دفع استقطاع الراتب"
+
+#. module: pr_hr_payroll
+#: model_terms:ir.ui.view,arch_db:pr_hr_payroll.pr_hr_payroll_view_hr_payslip_run_form_inherit
+msgid ""
+"❗\n"
+"                    <strong>Batch was rejected by HRM</strong>\n"
+"                    <br/>\n"
+"                    Rejection Reason :"
+msgstr ""
+"❗\n"
+"                    <strong>تم رفض دفعة الرواتب من قبل إدارة الموارد البشرية</strong>\n"
+"                    <br/>\n"
+"                    سبب الرفض:"
+

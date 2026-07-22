@@ -1,6 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import format_amount, format_date, html_escape
+from odoo.tools import format_amount, format_date, html_escape, is_html_empty
 from odoo.tools.float_utils import float_round, float_compare
 
 
@@ -1013,6 +1013,8 @@ class SaleOrder(models.Model):
                 raise UserError(_("You cannot confirm the order before final approval."))
             if not order.po_number or not order.po_number.strip():
                 raise ValidationError(_("Please enter the customer PO Number before confirming the quotation."))
+            if is_html_empty(order.note):
+                raise ValidationError(_("Please enter the Terms & Conditions before confirming the Sales Order."))
 
         locked_orders = self.filtered("locked")
         if locked_orders:

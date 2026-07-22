@@ -1,0 +1,354 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* de_hr_workspace_payroll
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 08:39+0000\n"
+"PO-Revision-Date: 2026-07-13 08:39+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid ""
+"<i class=\"fa fa-chevron-left\"/>\n"
+"                    Back to Payslips"
+msgstr ""
+"<i class=\"fa fa-chevron-left\"/>\n"
+"                    العودة إلى كشوف الرواتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid ""
+"<i class=\"fa fa-download\"/>\n"
+"                                        Download"
+msgstr ""
+"<i class=\"fa fa-download\"/>\n"
+"                                        تنزيل"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid ""
+"<i class=\"fa fa-download\"/>\n"
+"                    Download"
+msgstr ""
+"<i class=\"fa fa-download\"/>\n"
+"                    تنزيل"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid ""
+"<i class=\"fa fa-eye\"/>\n"
+"                                        Details"
+msgstr ""
+"<i class=\"fa fa-eye\"/>\n"
+"                                        التفاصيل"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid ""
+"<i class=\"fa fa-file-pdf-o\"/>\n"
+"                                        Preview PDF"
+msgstr ""
+"<i class=\"fa fa-file-pdf-o\"/>\n"
+"                                        معاينة PDF"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid ""
+"<i class=\"fa fa-file-pdf-o\"/>\n"
+"                    Preview PDF"
+msgstr ""
+"<i class=\"fa fa-file-pdf-o\"/>\n"
+"                    معاينة PDF"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Bank Account No."
+msgstr "رقم الحساب البنكي"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid "Category"
+msgstr "الفئة"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Date of Joining"
+msgstr "تاريخ الالتحاق"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Deductions"
+msgstr "الاستقطاعات"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Department"
+msgstr "القسم"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_my_workspace_form_view
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Employee ID"
+msgstr "رقم الموظف"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Employee Name"
+msgstr "اسم الموظف"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_employee_payslip
+msgid "Follow your payslips"
+msgstr "تابع كشوف الرواتب الخاصة بك"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid "From"
+msgstr "من"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Gross Deductions"
+msgstr "إجمالي الاستقطاعات"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Gross Payments"
+msgstr "إجمالي المدفوعات"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "HR Department"
+msgstr "قسم الموارد البشرية"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Job Position"
+msgstr "المسمى الوظيفي"
+
+#. module: de_hr_workspace_payroll
+#: model:ir.model.fields,field_description:de_hr_workspace_payroll.field_hr_payslip__line_ids_filtered
+msgid "Line Ids Filtered"
+msgstr "معرفات البنود المفلترة"
+
+#. module: de_hr_workspace_payroll
+#: model:ir.actions.act_window,name:de_hr_workspace_payroll.action_my_payslips
+msgid "My Payslips"
+msgstr "كشوف رواتبي"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid "Name"
+msgstr "الاسم"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid "Net"
+msgstr "الصافي"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Net Pay"
+msgstr "صافي الراتب"
+
+#. module: de_hr_workspace_payroll
+#. odoo-python
+#: code:addons/de_hr_workspace_payroll/controllers/employee_payslip_portal.py:0
+#, python-format
+msgid "Newest"
+msgstr "الأحدث"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_payroll.action_my_payslips
+msgid "No payslip records to display"
+msgstr "لا توجد سجلات كشوف رواتب لعرضها"
+
+#. module: de_hr_workspace_payroll
+#. odoo-python
+#: code:addons/de_hr_workspace_payroll/controllers/employee_payslip_portal.py:0
+#, python-format
+msgid "No payslip report is available for download."
+msgstr "لا يتوفر تقرير كشف راتب للتنزيل."
+
+#. module: de_hr_workspace_payroll
+#. odoo-python
+#: code:addons/de_hr_workspace_payroll/controllers/employee_payslip_portal.py:0
+#, python-format
+msgid "Oldest"
+msgstr "الأقدم"
+
+#. module: de_hr_workspace_payroll
+#: model:ir.model,name:de_hr_workspace_payroll.model_hr_payslip
+msgid "Pay Slip"
+msgstr "كشف الراتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Payments"
+msgstr "المدفوعات"
+
+#. module: de_hr_workspace_payroll
+#. odoo-python
+#: code:addons/de_hr_workspace_payroll/models/models.py:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_my_workspace_form_view
+#, python-format
+msgid "Payslip"
+msgstr "كشف الراتب"
+
+#. module: de_hr_workspace_payroll
+#: model:ir.actions.act_window,name:de_hr_workspace_payroll.hr_payslip_run_approvals_view_action
+#: model:ir.ui.menu,name:de_hr_workspace_payroll.hr_payslip_run_approvals_view_menu
+msgid "Payslip Batches"
+msgstr "دفعات كشوف الرواتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid "Payslip Details"
+msgstr "تفاصيل كشف الراتب"
+
+#. module: de_hr_workspace_payroll
+#. odoo-python
+#: code:addons/de_hr_workspace_payroll/models/models.py:0
+#, python-format
+msgid "Payslip Line"
+msgstr "بند كشف الراتب"
+
+#. module: de_hr_workspace_payroll
+#: model:ir.ui.menu,name:de_hr_workspace_payroll.main_menu_my_payslips
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_employee_payslip
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid "Payslips"
+msgstr "كشوف الرواتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_run_approvals_view_tree
+msgid "Payslips Batches"
+msgstr "دفعات كشوف الرواتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_run_approvals_view_tree
+msgid "Payslips Count"
+msgstr "عدد كشوف الرواتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_my_workspace_form_view
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Period"
+msgstr "الفترة"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Prepared By"
+msgstr "تم الإعداد بواسطة"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_my_workspace_form_view
+msgid "Print"
+msgstr "طباعة"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Reference"
+msgstr "المرجع"
+
+#. module: de_hr_workspace_payroll
+#: model:ir.model,name:de_hr_workspace_payroll.model_ir_actions_report
+msgid "Report Action"
+msgstr "إجراء التقرير"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid "Rule"
+msgstr "القاعدة"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_my_workspace_form_view
+msgid "Salary Computation"
+msgstr "احتساب الراتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.report_payslip_use_invoice_header_footer
+msgid "Salary Slip"
+msgstr "كشف الراتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_my_workspace_form_view
+msgid "Salary Structure"
+msgstr "هيكل الراتب"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid "Status"
+msgstr "الحالة"
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_payroll.action_my_payslips
+msgid "The payslip records of your employees will be displayed here."
+msgstr "سيتم عرض سجلات كشوف الرواتب الخاصة بموظفيك هنا."
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_payroll.hr_payslip_run_approvals_view_action
+msgid "There Is No Payslip Batches To Approve"
+msgstr "لا توجد دفعات كشوف رواتب بانتظار الموافقة."
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.employee_payslip_info_portal
+msgid "There are no payslip lines to display."
+msgstr "لا توجد بنود في كشف الراتب لعرضها."
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid "There are no payslips."
+msgstr "لا توجد كشوف رواتب."
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.petroraq_payslip_footer_layout
+msgid ""
+"This is a computer generated salary slip and does not require signature or "
+"stamp."
+msgstr ""
+"تم إنشاء كشف الراتب هذا إلكترونيًا ولا يتطلب توقيعًا أو ختمًا."
+
+#. module: de_hr_workspace_payroll
+#. odoo-python
+#: code:addons/de_hr_workspace_payroll/controllers/employee_payslip_portal.py:0
+#, python-format
+msgid "This payslip does not exist or you do not have access to it."
+msgstr "كشف الراتب هذا غير موجود أو ليس لديك صلاحية للوصول إليه."
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.portal_my_payslips
+msgid "To"
+msgstr "إلى"
+
+#. module: de_hr_workspace_payroll
+#. odoo-python
+#: code:addons/de_hr_workspace_payroll/models/models.py:0
+#, python-format
+msgid "You can only print your own payslips."
+msgstr "يمكنك طباعة كشوف الرواتب الخاصة بك فقط."
+
+#. module: de_hr_workspace_payroll
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_payroll.hr_payslip_run_approvals_view_tree
+msgid "status"
+msgstr "الحالة"

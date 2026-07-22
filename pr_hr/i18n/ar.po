@@ -1,0 +1,1527 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 13:27+0000\n"
+"PO-Revision-Date: 2026-07-13 13:27+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_department_subrule_view_kanban
+msgid "<i class=\"fa fa-building-o\" role=\"img\" aria-label=\"Company\" title=\"Company\"/>"
+msgstr "<i class=\"fa fa-building-o\" role=\"img\" aria-label=\"الشركة\" title=\"الشركة\"/>"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_kanban_view_employees_inherit_code
+msgid ""
+"<i class=\"fa fa-fw me-2 fa-address-card text-primary\" title=\"Employee "
+"Code\"/>"
+msgstr ""
+"<i class=\"fa fa-fw me-2 fa-address-card text-primary\" title=\"رمز "
+"الموظف\"/>"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_kanban_view_employees_inherit_code
+msgid "<i class=\"fa fa-fw me-2 fa-briefcase text-primary\" title=\"Employee Job\"/>"
+msgstr "<i class=\"fa fa-fw me-2 fa-briefcase text-primary\" title=\"الوظيفة\"/>"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_form
+msgid ""
+"<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"Arrow "
+"icon\" title=\"Arrow\"/>"
+msgstr ""
+"<i class=\"fa fa-long-arrow-right mx-2 oe_edit_only\" aria-label=\"أيقونة "
+"السهم\" title=\"سهم\"/>"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_res_config_settings_view_form_inherit
+msgid ""
+"<span class=\"fa fa-lg fa-address-book\" title=\"Saudi Employee LC "
+"Percentage.\" role=\"img\" aria-label=\"Saudi Employee LC Percentage.\"/>"
+msgstr ""
+"<span class=\"fa fa-lg fa-address-book\" title=\"نسبة السعوديين في تكلفة "
+"العمالة.\" role=\"img\" aria-label=\"نسبة السعوديين في تكلفة العمالة.\"/>"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_department_subrule_view_kanban
+msgid "<span class=\"fw-bolder\">Reporting</span>"
+msgstr "<span class=\"fw-bolder\">التقارير</span>"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_res_groups
+msgid "Access Groups"
+msgstr "مجموعات الصلاحيات"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_needaction
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_needaction
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_needaction
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_needaction
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_needaction
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_needaction
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_needaction
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__active
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__active
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_hr
+#: model_terms:ir.actions.act_window,help:pr_hr.act_employee_from_department_subrule
+msgid "Add a new employee"
+msgstr "إضافة موظف جديد"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__age
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__age
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__age
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__age
+msgid "Age"
+msgstr "العمر"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__amount
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__amount
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__amount
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__amount
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_hr
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_analysis
+msgid "Analysis"
+msgstr "التحليلات"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_line_wizard_view_form
+msgid "Apply"
+msgstr "تطبيق"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama__state__approve
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance__state__approve
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_filter
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_form
+msgid "Archived"
+msgstr "مؤرشف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_line_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_add_wizard_view_form
+msgid "CANCEL"
+msgstr "إلغاء"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__check_renews
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__check_renews
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__check_renews
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__check_renews
+msgid "Check Renews"
+msgstr "التحقق من التجديدات"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__check_self_relation
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__check_self_relation
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__check_self_relation
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__check_self_relation
+msgid "Check Self Relation"
+msgstr "التحقق من علاقة الموظف بنفسه"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__child_ids
+msgid "Child Subrule Departments"
+msgstr "الأقسام الفرعية التابعة"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_hr_employee_search_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_tree_inherit
+msgid "Code"
+msgstr "الرمز"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_department_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_tree
+msgid "Color"
+msgstr "اللون"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__color
+msgid "Color Index"
+msgstr "مؤشر اللون"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_res_company
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_tree
+msgid "Companies"
+msgstr "الشركات"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__company_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__company_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__company_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__company_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__company_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__company_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_filter
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__complete_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__complete_name
+msgid "Complete Name"
+msgstr "الاسم الكامل"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_res_config_settings
+msgid "Config Settings"
+msgstr "إعدادات التهيئة"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_department_subrule_view_kanban
+msgid "Configuration"
+msgstr "الإعدادات"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_res_country
+msgid "Country"
+msgstr "الدولة"
+
+#. module: pr_hr
+#: model_terms:ir.actions.act_window,help:pr_hr.hr_department_subrule_kanban_action
+msgid "Create a new subrule"
+msgstr "إنشاء قاعدة فرعية جديدة"
+
+#. module: pr_hr
+#: model_terms:ir.actions.act_window,help:pr_hr.hr_department_subrule_tree_action
+msgid "Create a new subrules"
+msgstr "إنشاء قواعد فرعية جديدة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__create_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__create_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_employee__state
+msgid ""
+"Current Status Of Company Employee\n"
+"New: Draft Employee, Not Yet in Service ,\n"
+"In-Service: Already In Service\n"
+"In-Leave: Employee in Vacation (already in service)\n"
+"Hold: in Case of Holding Employee Contract\n"
+"Out-Service: Employee Leave Company (Resign)\n"
+"Escaped: Employee has Escape Report, Can Reset to In-Service or Out_Service\n"
+msgstr ""
+"الحالة الحالية لموظف الشركة\n"
+"جديد: موظف مسودة، لم يباشر العمل بعد\n"
+"على رأس العمل: الموظف على رأس العمل\n"
+"في إجازة: الموظف في إجازة (بعد المباشرة)\n"
+"معلّق: في حالة تعليق عقد الموظف\n"
+"منتهي الخدمة: غادر الموظف الشركة (استقالة)\n"
+"هروب: تم تسجيل بلاغ هروب على الموظف، ويمكن إعادته إلى على رأس العمل أو منتهي الخدمة\n"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__birthday
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__birthday
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__birthday
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__birthday
+msgid "Date Of Birth"
+msgstr "تاريخ الميلاد"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_form
+msgid "Date Range"
+msgstr "نطاق التاريخ"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_department
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__department_id
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_hr
+#: model:ir.ui.menu,name:pr_hr.menu_hr_dependent_config_seperator
+msgid "Dependent"
+msgstr "التابع"
+
+#. module: pr_hr
+#: model:ir.actions.act_window,name:pr_hr.hr_dependent_type_action
+msgid "Dependent Type"
+msgstr "نوع التابع"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__name
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_wizard_view_form
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__display_name
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+msgid "EXPIRED"
+msgstr "منتهي الصلاحية"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "Emergency"
+msgstr "الطوارئ"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__employee_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__employee_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__employee_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__employee_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__employee_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__employee_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__employee_id
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_analysis_separator
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_separator
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_hr_employee_search_inherit
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__code
+msgid "Employee Code"
+msgstr "رمز الموظف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__insurance_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_tree
+msgid "Employee Insurance"
+msgstr "تأمين الموظف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__iqama_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_tree
+msgid "Employee Iqama"
+msgstr "إقامة الموظف"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_iqama_line
+msgid "Employee Iqama Lines"
+msgstr "بنود إقامة الموظف"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_iqama
+msgid "Employee Iqamas"
+msgstr "إقامات الموظفين"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_medical_insurance
+msgid "Employee Medical Insurance"
+msgstr "التأمين الطبي للموظف"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_medical_insurance_line
+msgid "Employee Medical Insurance Lines"
+msgstr "بنود التأمين الطبي للموظف"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "Employee's Code"
+msgstr "رمز الموظف"
+
+#. module: pr_hr
+#: model:ir.actions.act_window,name:pr_hr.act_employee_from_department_subrule
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_department_subrule_view_kanban
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_job_view_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_tree
+msgid "Employees"
+msgstr "الموظفون"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_job__employees_count
+msgid "Employees Count"
+msgstr "عدد الموظفين"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee__state__escaped
+msgid "Escaped"
+msgstr "هروب"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama__state__expired
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama_check_line_wizard__state__expired
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance__state__expired
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+msgid "Expired"
+msgstr "منتهي الصلاحية"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__expiry_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__expiry_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__expiry_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__expiry_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__expiry_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__expiry_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__expiry_date
+msgid "Expiry Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__expiry_date_hijri
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__expiry_date_hijri
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__expiry_date_hijri
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__expiry_date_hijri
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__expiry_date_hijri
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__expiry_date_hijri
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__expiry_date_hijri
+msgid "Expiry Date Hijri"
+msgstr "تاريخ الانتهاء (هجري)"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_res_config_settings__favicon
+msgid "Favicon"
+msgstr "أيقونة الموقع"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__activity_type_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__activity_type_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__activity_type_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__activity_type_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_type_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__activity_type_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__activity_type_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثال: fa-tasks"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__from_date
+msgid "From"
+msgstr "من"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__from_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__from_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__from_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__from_date
+msgid "From Date"
+msgstr "من تاريخ"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_filter
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_hr
+#: model:res.groups,name:pr_hr.group_user_has_signature
+msgid "Has Authorized Signature"
+msgstr "يملك توقيعًا معتمدًا"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__has_message
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__has_message
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__has_message
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__has_message
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__has_message
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__has_message
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__has_message
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department__has_subrules
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__has_subrules
+msgid "Has Subrules ?"
+msgstr "يحتوي على قواعد فرعية؟"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee__state__hold
+msgid "Hold"
+msgstr "معلّق"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_res_country__is_homeland
+msgid "Homeland"
+msgstr "الوطن"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_res_country__is_homeland
+msgid "Homeland Is for the saudi nationality employees"
+msgstr "الوطن مخصص للموظفين من الجنسية السعودية"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__iqama_count
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "IQAMA"
+msgstr "الإقامة"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+msgid "IQAMA RENEWS"
+msgstr "تجديدات الإقامة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+msgid "Identification"
+msgstr "رقم الهوية"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__message_needaction
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__message_needaction
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__message_needaction
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__message_needaction
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__message_needaction
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__message_needaction
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__message_needaction
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محدداً، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_has_error
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محدداً، فإن بعض الرسائل تحتوي على خطأ في التسليم."
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama_line__state__in_progress
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance_line__state__in_progress
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee__state__in_leave
+msgid "In-Leave"
+msgstr "في إجازة"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee__state__in_service
+msgid "In-Service"
+msgstr "على رأس العمل"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama__state__draft
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama_line__state__initiated
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance__state__draft
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance_line__state__initiated
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+msgid "Initiated"
+msgstr "تم البدء"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__insurance_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_add_wizard_view_form
+msgid "Insurance"
+msgstr "التأمين"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__insurance_category
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__insurance_category
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__insurance_category
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+msgid "Insurance Category"
+msgstr "فئة التأمين"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__insurance_company
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__insurance_company
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__insurance_company
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+msgid "Insurance Company"
+msgstr "شركة التأمين"
+
+#. module: pr_hr
+#: model:ir.actions.act_window,name:pr_hr.action_hr_employee_medical_insurance
+msgid "Insurance Details"
+msgstr "تفاصيل التأمين"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__insurance_line_ids
+msgid "Insurance Lines"
+msgstr "بنود التأمين"
+
+#. module: pr_hr
+#: model:ir.actions.act_window,name:pr_hr.action_hr_employee_medical_insurance_line
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_medical_insurance_line
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+msgid "Insurance Renews"
+msgstr "تجديدات التأمين"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_employee__code
+msgid "Internal Employee Code"
+msgstr "رمز الموظف الداخلي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__iqama_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__iqama_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_add_wizard_view_form
+msgid "Iqama"
+msgstr "الإقامة"
+
+#. module: pr_hr
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_dependent
+msgid "Iqama & Work Permits"
+msgstr "الإقامة وتصاريح العمل"
+
+#. module: pr_hr
+#. odoo-python
+#: code:addons/pr_hr/wizards/hr_employee_iqama_expiry_check_wizard.py:0
+#: code:addons/pr_hr/wizards/hr_employee_iqama_expiry_check_wizard.py:0
+#: model:ir.actions.act_window,name:pr_hr.hr_employee_iqama_check_expiry_view_action
+#: model:ir.model,name:pr_hr.model_hr_employee_iqama_check_wizard
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_iqama_check_expiry
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_wizard_view_form
+#, python-format
+msgid "Iqama Check Expiry"
+msgstr "التحقق من انتهاء صلاحية الإقامة"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_line_wizard_view_form
+msgid "Iqama Check Expiry Editing"
+msgstr "تعديل التحقق من انتهاء صلاحية الإقامة"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_iqama_check_line_wizard
+msgid "Iqama Check Expiry Line"
+msgstr "سطر التحقق من انتهاء صلاحية الإقامة"
+
+#. module: pr_hr
+#: model:ir.actions.act_window,name:pr_hr.action_hr_employee_iqama
+msgid "Iqama Details"
+msgstr "تفاصيل الإقامة"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_iqama_line_add_wizard
+msgid "Iqama Line Add"
+msgstr "إضافة سطر إقامة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__iqama_line_ids
+msgid "Iqama Lines"
+msgstr "بنود الإقامة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__identification_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__identification_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__identification_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__identification_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__identification_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__identification_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__identification_id
+msgid "Iqama No."
+msgstr "رقم الإقامة"
+
+#. module: pr_hr
+#: model:ir.actions.act_window,name:pr_hr.action_hr_employee_iqama_line
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_iqama_line
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_form
+msgid "Iqama Renews"
+msgstr "تجديدات الإقامة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama_line__state__issued
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance_line__state__issued
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+msgid "Issued"
+msgstr "تم الإصدار"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_job
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "Job Position"
+msgstr "المنصب الوظيفي"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_job_view_form_inherit
+msgid "Job Type"
+msgstr "نوع الوظيفة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__jobs_ids
+msgid "Jobs"
+msgstr "الوظائف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_res_company__lc_employee_percentage
+#: model:ir.model.fields,field_description:pr_hr.field_res_config_settings__lc_employee_percentage
+msgid "LC"
+msgstr "نسبة LC"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_job_view_form_inherit
+msgid "LOCKED"
+msgstr "مقفل"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__write_uid
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__write_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__line_ids
+msgid "Line"
+msgstr "السطر"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_job__locked
+msgid "Locked"
+msgstr "مقفل"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__manager_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_filter
+msgid "Manager"
+msgstr "المدير"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__master_department_id
+msgid "Master Subrule"
+msgstr "القاعدة الفرعية الرئيسية"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_job__position_count
+msgid "Max Position Count"
+msgstr "الحد الأقصى لعدد الوظائف"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_job__position_count
+msgid "Max. No. Of Employees for This Job, Zero for Unlimited"
+msgstr "الحد الأقصى لعدد الموظفين لهذه الوظيفة، وصفر يعني غير محدود"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__insurance_count
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_medical_insurance
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "Medical Insurance"
+msgstr "التأمين الطبي"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_medical_insurance_line_add_wizard
+msgid "Medical Insurance Line Add"
+msgstr "إضافة سطر تأمين طبي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__member_ids
+msgid "Members"
+msgstr "الأعضاء"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_has_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_has_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_has_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_has_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_has_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_has_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_has_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_dependent_relation__name
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_job__nationality_ids
+msgid "Nationalities"
+msgstr "الجنسيات"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__country_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__country_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__country_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__country_id
+msgid "Nationality"
+msgstr "الجنسية"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee__state__new
+msgid "New"
+msgstr "جديد"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_summary
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_summary
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_summary
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_summary
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_summary
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_summary
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_summary
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__sequence_ref
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__sequence_ref
+msgid "No"
+msgstr "الرقم"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__note
+msgid "Note"
+msgstr "ملاحظة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee__state__out_service
+msgid "Out-Service"
+msgstr "خارج الخدمة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__parent_path
+msgid "Parent Path"
+msgstr "مسار الأصل"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__parent_id
+msgid "Parent Subrule"
+msgstr "القاعدة الفرعية الأصل"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama__state__pending_approval
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance__state__pending_approval
+msgid "Pending Approval"
+msgstr "بانتظار الموافقة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__phone
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__phone
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__phone
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__phone
+msgid "Phone"
+msgstr "الهاتف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__place_of_issue
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__place_of_issue
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__place_of_issue
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__place_of_issue
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+msgid "Place Of Issue"
+msgstr "مكان الإصدار"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_tree
+msgid "RELEASE"
+msgstr "إصدار"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_add_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_tree
+msgid "RENEW"
+msgstr "تجديد"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__rating_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__rating_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__rating_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__rating_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__rating_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__rating_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__rating_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__relation_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__relation_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__relation_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__relation_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__relation_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+msgid "Relation"
+msgstr "صلة القرابة"
+
+#. module: pr_hr
+#: model:ir.ui.menu,name:pr_hr.menu_hr_employee_dependent_type
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_dependent_type_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_dependent_type_view_tree
+msgid "Relation Type"
+msgstr "نوع صلة القرابة"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+msgid "Request Approval"
+msgstr "طلب الموافقة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__state
+msgid "Request Status"
+msgstr "حالة الطلب"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_check_expiry_wizard_view_form
+msgid "SEARCH"
+msgstr "بحث"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "SET IN SERVICE"
+msgstr "تعيين كموظف على رأس العمل"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_res_company__lc_employee_percentage
+#: model:ir.model.fields,help:pr_hr.field_res_config_settings__lc_employee_percentage
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_res_config_settings_view_form_inherit
+msgid "Saudi Employee LC Percentage"
+msgstr "نسبة الموظفين السعوديين (LC)"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_res_config_settings_view_form_inherit
+msgid "Saudi Employees Lc Percentage"
+msgstr "نسبة الموظفين السعوديين (LC)"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__search_notes
+msgid "Search Notes"
+msgstr "ملاحظات البحث"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "Show IQAMAS linked to this Employee"
+msgstr "عرض الإقامات المرتبطة بهذا الموظف"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_employee_form_inherit
+msgid "Show Medical Insurance linked to this Employee"
+msgstr "عرض التأمين الطبي المرتبط بهذا الموظف"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__signature
+msgid "Signature"
+msgstr "التوقيع"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__signature_password
+msgid "Signature Password"
+msgstr "كلمة مرور التوقيع"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_hr_employee_search_inherit
+msgid "State"
+msgstr "الحالة"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__state
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__state
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_line_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__activity_state
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__activity_state
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__activity_state
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__activity_state
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_state
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__activity_state
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__activity_state
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__subrule_department_id
+#: model:ir.model.fields,field_description:pr_hr.field_hr_job__subrule_department_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_hr_employee_search_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_filter
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_form
+msgid "Subrule"
+msgstr "القسم الفرعي"
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_department_subrule
+msgid "Subrule Department"
+msgstr "القسم الفرعي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__subrule_department_domain
+msgid "Subrule Department Domain"
+msgstr "نطاق القسم الفرعي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee__subrule_parent_id
+msgid "Subrule Manager"
+msgstr "مدير القسم الفرعي"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__name
+msgid "Subrule Name"
+msgstr "اسم القسم الفرعي"
+
+#. module: pr_hr
+#: model:ir.actions.act_window,name:pr_hr.hr_department_subrule_kanban_action
+#: model:ir.actions.act_window,name:pr_hr.hr_department_subrule_tree_action
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department__subrule_department_ids
+#: model:ir.ui.menu,name:pr_hr.menu_hr_department_subrule_kanban
+#: model:ir.ui.menu,name:pr_hr.menu_hr_department_subrule_tree
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_filter
+msgid "Subrules"
+msgstr "الأقسام الفرعية"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_job__nationality_ids
+msgid "This Job accept only employee from specified nationalities, open if empty"
+msgstr "تقبل هذه الوظيفة الموظفين من الجنسيات المحددة فقط، وتكون متاحة للجميع إذا تُرك الحقل فارغًا."
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_res_config_settings__favicon
+msgid "This field holds the image used to display a favicon on the website."
+msgstr "يحتوي هذا الحقل على الصورة المستخدمة كأيقونة مفضلة (Favicon) للموقع الإلكتروني."
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__to_date
+msgid "To"
+msgstr "إلى"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__to_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__to_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__to_date
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__to_date
+msgid "To Date"
+msgstr "إلى تاريخ"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__total_employee
+msgid "Total Employee"
+msgstr "إجمالي الموظفين"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع نشاط الاستثناء الموجود في السجل."
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.view_department_subrule_filter
+msgid "Unread Messages"
+msgstr "الرسائل غير المقروءة"
+
+#. module: pr_hr
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_form
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_form
+msgid "VALID"
+msgstr "ساري"
+
+#. module: pr_hr
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama__state__valid
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_iqama_check_line_wizard__state__valid
+#: model:ir.model.fields.selection,name:pr_hr.selection__hr_employee_medical_insurance__state__valid
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_iqama_view_search
+#: model_terms:ir.ui.view,arch_db:pr_hr.hr_employee_medical_insurance_view_search
+msgid "Valid"
+msgstr "ساري"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department_subrule__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_wizard__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_line_add_wizard__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: pr_hr
+#: model:ir.model.fields,help:pr_hr.field_hr_department_subrule__website_message_ids
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama__website_message_ids
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_check_wizard__website_message_ids
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line__website_message_ids
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_iqama_line_add_wizard__website_message_ids
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance__website_message_ids
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line__website_message_ids
+#: model:ir.model.fields,help:pr_hr.field_hr_employee_medical_insurance_line_add_wizard__website_message_ids
+msgid "Website communication history"
+msgstr "سجل مراسلات الموقع الإلكتروني"
+
+#. module: pr_hr
+#: model_terms:ir.actions.act_window,help:pr_hr.act_employee_from_department_subrule
+msgid ""
+"With just a quick glance on the Odoo employee screen, you\n"
+"                    can easily find all the information you need for each person;\n"
+"                    contact data, job position, availability, etc."
+msgstr ""
+"بمجرد إلقاء نظرة سريعة على شاشة الموظفين في أودو،\n"
+"                    يمكنك بسهولة العثور على جميع المعلومات التي تحتاجها لكل موظف،\n"
+"                    مثل بيانات الاتصال، والمسمى الوظيفي، والتوفر، وغير ذلك."
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_employee_iqama_check_line_wizard__wizard_id
+msgid "Wizard"
+msgstr "المعالج"
+
+#. module: pr_hr
+#: model:ir.model.fields,field_description:pr_hr.field_hr_department__resource_calendar_id
+#: model_terms:ir.ui.view,arch_db:pr_hr.pr_hr_view_department_form_inherit
+msgid "Working Schedule"
+msgstr "جدول العمل"
+
+#. module: pr_hr
+#. odoo-python
+#: code:addons/pr_hr/models/hr_department_subrule.py:0
+#, python-format
+msgid "You cannot create recursive departments."
+msgstr "لا يمكن إنشاء أقسام متداخلة بشكل دائري."
+
+#. module: pr_hr
+#: model:ir.model,name:pr_hr.model_hr_employee_dependent_relation
+msgid "hr.employee.dependent.relation"
+msgstr "علاقة المعالين للموظف"

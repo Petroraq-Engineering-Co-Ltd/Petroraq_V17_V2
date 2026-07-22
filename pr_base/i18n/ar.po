@@ -1,0 +1,300 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 06:56+0000\n"
+"PO-Revision-Date: 2026-07-15 06:56+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/res_partner.py:0
+#, python-format
+msgid ""
+"%(customers)s customer(s) resequenced from 1001. %(vendors)s vendor(s) "
+"resequenced from 2001. %(cleared)s non-customer/vendor code(s) cleared."
+msgstr "تمت إعادة ترقيم %(customers)s عميلًا بدءًا من 1001، وإعادة ترقيم %(vendors)s موردًا بدءًا من 2001، وتمت إزالة %(cleared)s رمزًا غير خاص بالعملاء أو الموردين."
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/product_template.py:0
+#, python-format
+msgid "%s product internal reference(s) were reassigned."
+msgstr "تمت إعادة تعيين المرجع الداخلي لـ %s منتج(ات)."
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/product_template.py:0
+#, python-format
+msgid ""
+"%s product internal reference(s) were reassigned. New products will continue"
+" from the next sequence number."
+msgstr "تمت إعادة تعيين المرجع الداخلي لـ %s منتج(ات). وستستمر المنتجات الجديدة من رقم التسلسل التالي."
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/product_template.py:0
+#, python-format
+msgid "All Internal References Reassigned"
+msgstr "تمت إعادة تعيين جميع المراجع الداخلية"
+
+#. module: pr_base
+#: model_terms:ir.ui.view,arch_db:pr_base.pr_base_res_partner_view_form_inherit
+msgid "Arabic Address"
+msgstr "العنوان بالعربية"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_res_partner__arabic_name
+#: model:ir.model.fields,field_description:pr_base.field_res_users__arabic_name
+msgid "Arabic Name"
+msgstr "الاسم بالعربية"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_res_partner__arabic_street
+#: model:ir.model.fields,field_description:pr_base.field_res_partner__arabic_street2
+#: model:ir.model.fields,field_description:pr_base.field_res_users__arabic_street
+#: model:ir.model.fields,field_description:pr_base.field_res_users__arabic_street2
+msgid "Arabic Street"
+msgstr "الشارع بالعربية"
+
+#. module: pr_base
+#: model_terms:ir.ui.view,arch_db:pr_base.pr_base_res_partner_view_form_inherit
+msgid "Arabic Street 2..."
+msgstr "الشارع بالعربية 2..."
+
+#. module: pr_base
+#: model_terms:ir.ui.view,arch_db:pr_base.pr_base_res_partner_view_form_inherit
+msgid "Arabic Street..."
+msgstr "الشارع بالعربية..."
+
+#. module: pr_base
+#: model_terms:ir.ui.view,arch_db:pr_base.pr_reject_record_wizard_view_form
+msgid "CANCEL"
+msgstr "إلغاء"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_res_partner__partner_code
+#: model:ir.model.fields,field_description:pr_base.field_res_users__partner_code
+msgid "Code"
+msgstr "الرمز"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_base
+#: model:ir.model,name:pr_base.model_res_partner
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/product_template.py:0
+#, python-format
+msgid ""
+"Could not generate a unique product internal reference. Please check the "
+"product sequence."
+msgstr "تعذر إنشاء مرجع داخلي فريد للمنتج. يرجى التحقق من تسلسل المنتجات."
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/res_partner.py:0
+#, python-format
+msgid "Customer/Vendor codes resequenced"
+msgstr "تمت إعادة ترقيم أكواد العملاء/الموردين"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__detailed_type
+msgid "Detailed Type"
+msgstr "النوع التفصيلي"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__display_name
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_base
+#: model:ir.model,name:pr_base.model_hr_employee
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__id
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/hr_employee.py:0
+#, python-format
+msgid ""
+"Identification No '%(id_no)s' is already used by employee '%(employee)s'."
+msgstr "رقم الهوية '%(id_no)s' مستخدم بالفعل من قبل الموظف '%(employee)s'."
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/hr_employee.py:0
+#, python-format
+msgid "Identification No is required for employees."
+msgstr "رقم الهوية مطلوب للموظفين."
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__default_code
+msgid "Internal Reference"
+msgstr "المرجع الداخلي"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/product_template.py:0
+#, python-format
+msgid "Internal Reference %s is already used by %s."
+msgstr "المرجع الداخلي %s مستخدم بالفعل بواسطة %s."
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/product_template.py:0
+#, python-format
+msgid "Internal References Reassigned"
+msgstr "تمت إعادة تعيين المراجع الداخلية"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/res_partner.py:0
+#, python-format
+msgid "Only Settings users can resequence customer/vendor codes."
+msgstr "يمكن فقط لمستخدمي الإعدادات إعادة ترقيم أكواد العملاء والموردين."
+
+#. module: pr_base
+#: model:ir.model,name:pr_base.model_product_template
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__product_id
+msgid "Product"
+msgstr "المنتج"
+
+#. module: pr_base
+#: model:ir.model,name:pr_base.model_product_internal_reference_lookup
+msgid "Product Internal Reference Lookup"
+msgstr "البحث عن المرجع الداخلي للمنتج"
+
+#. module: pr_base
+#: model:ir.model,name:pr_base.model_product_product
+msgid "Product Variant"
+msgstr "متغير المنتج"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__purchase_ok
+msgid "Purchase Ok"
+msgstr "متاح للشراء"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/res_partner.py:0
+#, python-format
+msgid ""
+"Quick create is disabled for customers and vendors. Use Create and Edit, "
+"then fill VAT / Tax ID for companies."
+msgstr "تم تعطيل الإنشاء السريع للعملاء والموردين. استخدم \"إنشاء وتحرير\" ثم أدخل الرقم الضريبي / رقم ضريبة القيمة المضافة للشركات."
+
+#. module: pr_base
+#: model_terms:ir.ui.view,arch_db:pr_base.pr_reject_record_wizard_view_form
+msgid "REJECT"
+msgstr "رفض"
+
+#. module: pr_base
+#: model:ir.actions.server,name:pr_base.action_product_template_reassign_all_internal_references
+#: model:ir.actions.server,name:pr_base.action_product_variant_reassign_all_internal_references
+msgid "Reassign ALL Product Internal References"
+msgstr "إعادة تعيين جميع المراجع الداخلية للمنتجات"
+
+#. module: pr_base
+#: model:ir.actions.server,name:pr_base.action_product_template_reassign_selected_internal_references
+#: model:ir.actions.server,name:pr_base.action_product_variant_reassign_selected_internal_references
+msgid "Reassign Selected Internal References"
+msgstr "إعادة تعيين المراجع الداخلية المحددة"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__record_id
+msgid "Record"
+msgstr "السجل"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_pr_reject_record_wizard__reject_reason
+msgid "Reject Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_base
+#: model:ir.model,name:pr_base.model_pr_reject_record_wizard
+msgid "Reject Record"
+msgstr "رفض السجل"
+
+#. module: pr_base
+#: model_terms:ir.ui.view,arch_db:pr_base.pr_reject_record_wizard_view_form
+msgid "Rejection"
+msgstr "الرفض"
+
+#. module: pr_base
+#: model:ir.actions.server,name:pr_base.action_pr_resequence_partner_codes
+msgid "Resequence All Customer/Vendor Codes"
+msgstr "إعادة ترقيم جميع أكواد العملاء والموردين"
+
+#. module: pr_base
+#: model:ir.model.fields,field_description:pr_base.field_product_internal_reference_lookup__sale_ok
+msgid "Sale Ok"
+msgstr "متاح للبيع"
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/product_template.py:0
+#, python-format
+msgid "The same Internal Reference cannot be assigned to multiple products."
+msgstr "لا يمكن تعيين نفس المرجع الداخلي لأكثر من منتج."
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/res_partner.py:0
+#, python-format
+msgid "VAT / Tax ID '%(vat)s' is already used by '%(partner)s'."
+msgstr "الرقم الضريبي '%(vat)s' مستخدم بالفعل بواسطة '%(partner)s'."
+
+#. module: pr_base
+#. odoo-python
+#: code:addons/pr_base/models/res_partner.py:0
+#, python-format
+msgid "VAT / Tax ID is required for companies."
+msgstr "الرقم الضريبي مطلوب للشركات."

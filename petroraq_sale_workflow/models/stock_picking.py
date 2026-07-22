@@ -3,6 +3,31 @@ from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_compare
 
 
+class StockMove(models.Model):
+    _inherit = "stock.move"
+
+    def _pr_get_delivery_line_description(self):
+        """Return the entered line description without Odoo's product heading."""
+        self.ensure_one()
+        lines = (self.description_picking or "").strip().splitlines()
+        if not lines:
+            return ""
+
+        product = self.product_id
+        product_headings = {
+            (product.name or "").strip(),
+            (product.display_name or "").strip(),
+        }
+        if product.default_code:
+            product_headings.add(
+                "[%s] %s" % (product.default_code, product.name or "")
+            )
+
+        if lines[0].strip() in product_headings:
+            lines = lines[1:]
+        return "\n".join(lines).strip()
+
+
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 

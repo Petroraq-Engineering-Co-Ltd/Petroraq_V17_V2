@@ -1,0 +1,327 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* de_hr_workspace
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-06 07:32+0000\n"
+"PO-Revision-Date: 2026-07-06 07:32+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "/ month"
+msgstr "/ شهر"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_kanban_view_employees_workspace
+msgid ""
+"<i class=\"fa fa-fw me-2 fa-address-card text-primary\" title=\"Employee "
+"Code\"/>"
+msgstr ""
+"<i class=\"fa fa-fw me-2 fa-address-card text-primary\" title=\"رمز الموظف\"/>"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_kanban_view_employees_workspace
+msgid "<i class=\"fa fa-fw me-2 fa-envelope text-primary\" title=\"Email\"/>"
+msgstr "<i class=\"fa fa-fw me-2 fa-envelope text-primary\" title=\"البريد الإلكتروني\"/>"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_kanban_view_employees_workspace
+msgid "<i class=\"fa fa-fw me-2 fa-phone text-primary\" title=\"Phone\"/>"
+msgstr "<i class=\"fa fa-fw me-2 fa-phone text-primary\" title=\"الهاتف\"/>"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "<span>Km</span>"
+msgstr "<span>كم</span>"
+
+#. module: de_hr_workspace
+#: model:ir.ui.menu,name:de_hr_workspace.menu_my_employee_approvals
+msgid "Approvals"
+msgstr "الموافقات"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Archived"
+msgstr "مؤرشف"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Basic Salary"
+msgstr "الراتب الأساسي"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Citizenship"
+msgstr "الجنسية"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Contract Details"
+msgstr "تفاصيل العقد"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Contract Reference"
+msgstr "مرجع العقد"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Contract Rules"
+msgstr "قواعد العقد"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_tree_view
+msgid "Contracts"
+msgstr "العقود"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Current Contract"
+msgstr "العقد الحالي"
+
+#. module: de_hr_workspace
+#: model:ir.ui.menu,name:de_hr_workspace.menu_hr_workspace_dashboard
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Education"
+msgstr "التعليم"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Emergency"
+msgstr "الطوارئ"
+
+#. module: de_hr_workspace
+#: model:ir.ui.menu,name:de_hr_workspace.menu_my_ws_employee
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: de_hr_workspace
+#: model:ir.actions.act_window,name:de_hr_workspace.de_hr_workspace_hr_employee_iqama_approvals_view_action
+#: model:ir.ui.menu,name:de_hr_workspace.de_hr_workspace_hr_employee_iqama_approvals_menu
+#: model_terms:ir.actions.act_window,help:de_hr_workspace.de_hr_workspace_hr_employee_iqama_approvals_view_action
+msgid "Employee Accommodations"
+msgstr "سكن الموظفين"
+
+#. module: de_hr_workspace
+#: model:res.groups,name:de_hr_workspace.group_hr_employee_approvals
+msgid "Employee Approvals"
+msgstr "موافقات الموظفين"
+
+#. module: de_hr_workspace
+#: model:ir.actions.act_window,name:de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_view_action
+#: model:ir.ui.menu,name:de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_menu
+#: model_terms:ir.actions.act_window,help:de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_view_action
+msgid "Employee Medical Insurance"
+msgstr "التأمين الطبي للموظفين"
+
+#. module: de_hr_workspace
+#: model:ir.module.category,name:de_hr_workspace.module_category_hr_employee_workspace
+#: model:res.groups,name:de_hr_workspace.group_hr_employee_workspace
+msgid "Employee Workspace"
+msgstr "مساحة عمل الموظف"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Employee's Code"
+msgstr "رمز الموظف"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_kanban_view_employees_workspace
+msgid "Employee's Name"
+msgstr "اسم الموظف"
+
+#. module: de_hr_workspace
+#: model:ir.actions.act_window,name:de_hr_workspace.hr_employee_action_from_user
+msgid "Employees"
+msgstr "الموظفون"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Family Status"
+msgstr "الحالة الاجتماعية"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "GOSI"
+msgstr "التأمينات الاجتماعية"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Gross Salary"
+msgstr "إجمالي الراتب"
+
+#. module: de_hr_workspace
+#: model:ir.ui.menu,name:de_hr_workspace.hr_approvals_menu_root
+msgid "HR"
+msgstr "الموارد البشرية"
+
+#. module: de_hr_workspace
+#: model:ir.model,name:de_hr_workspace.model_de_hr_workspace_dashboard_service
+msgid "HR Workspace Dashboard Service"
+msgstr "خدمة لوحة تحكم مساحة عمل الموارد البشرية"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Joining Date"
+msgstr "تاريخ الالتحاق"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Language"
+msgstr "اللغة"
+
+#. module: de_hr_workspace
+#. odoo-javascript
+#: code:addons/de_hr_workspace/static/src/xml/workspace_dashboard.xml:0
+#, python-format
+msgid "Loading your workspace..."
+msgstr "جارٍ تحميل مساحة العمل..."
+
+#. module: de_hr_workspace
+#. odoo-javascript
+#: code:addons/de_hr_workspace/static/src/xml/workspace_dashboard.xml:0
+#, python-format
+msgid "My"
+msgstr "خاصتي"
+
+#. module: de_hr_workspace
+#: model:ir.actions.act_window,name:de_hr_workspace.action_my_contracts
+#: model:ir.ui.menu,name:de_hr_workspace.menu_my_contracts
+msgid "My Contracts"
+msgstr "عقودي"
+
+#. module: de_hr_workspace
+#: model:ir.actions.act_window,name:de_hr_workspace.action_my_profile
+#: model:ir.ui.menu,name:de_hr_workspace.menu_my_ws_employee_profile
+msgid "My Profile"
+msgstr "ملفي الشخصي"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "NET Salary"
+msgstr "صافي الراتب"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Notes"
+msgstr "الملاحظات"
+
+#. module: de_hr_workspace
+#. odoo-javascript
+#: code:addons/de_hr_workspace/static/src/xml/workspace_dashboard.xml:0
+#, python-format
+msgid ""
+"Open your employee tools quickly for leaves, attendance, contracts, "
+"payslips, and more."
+msgstr ""
+"افتح أدوات الموظف بسرعة للإجازات والحضور والعقود وكشوف الرواتب والمزيد."
+
+#. module: de_hr_workspace
+#: model:ir.actions.act_window,name:de_hr_workspace.de_hr_workspace_overtime_approvals_view_action
+#: model:ir.ui.menu,name:de_hr_workspace.de_hr_workspace_overtime_approvals_menu
+msgid "Overtime Approvals"
+msgstr "موافقات العمل الإضافي"
+
+#. module: de_hr_workspace
+#: model_terms:ir.actions.act_window,help:de_hr_workspace.de_hr_workspace_overtime_approvals_view_action
+msgid "Pending overtime approvals."
+msgstr "موافقات العمل الإضافي المعلقة."
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Private Contact"
+msgstr "جهة الاتصال الخاصة"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid "Private Information"
+msgstr "المعلومات الخاصة"
+
+#. module: de_hr_workspace
+#. odoo-javascript
+#: code:addons/de_hr_workspace/static/src/xml/workspace_dashboard.xml:0
+#, python-format
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Salary Information"
+msgstr "معلومات الراتب"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Salary Rules"
+msgstr "قواعد الراتب"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.hr_my_contract_form_view
+msgid "Type in notes about this contract..."
+msgstr "اكتب ملاحظات حول هذا العقد..."
+
+#. module: de_hr_workspace
+#. odoo-javascript
+#: code:addons/de_hr_workspace/static/src/xml/workspace_dashboard.xml:0
+#: model:ir.ui.menu,name:de_hr_workspace.menu_my_workspace
+#, python-format
+msgid "Workspace"
+msgstr "مساحة العمل"
+
+#. module: de_hr_workspace
+#: model:ir.actions.client,name:de_hr_workspace.action_hr_workspace_dashboard
+msgid "Workspace Dashboard"
+msgstr "لوحة تحكم مساحة العمل"
+
+#. module: de_hr_workspace
+#. odoo-python
+#: code:addons/de_hr_workspace/models/workspace_dashboard.py:0
+#, python-format
+msgid "Workspace Item"
+msgstr "عنصر مساحة العمل"
+
+#. module: de_hr_workspace
+#. odoo-javascript
+#: code:addons/de_hr_workspace/static/src/xml/workspace_dashboard.xml:0
+#, python-format
+msgid "Workspace Items"
+msgstr "عناصر مساحة العمل"
+
+#. module: de_hr_workspace
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace.employee_workspace_form_view
+msgid ""
+"context=\"{\n"
+"                                                'show_address': 1,\n"
+"                                                'default_type': 'private',\n"
+"                                                'form_view_ref': 'base.res_partner_view_form_private'}\"\n"
+"                                            options='{\"always_reload\": True, \"highlight_first_line\": True}'/&gt;"
+msgstr ""
+"context=\"{\n"
+"                                                'show_address': 1,\n"
+"                                                'default_type': 'private',\n"
+"                                                'form_view_ref': 'base.res_partner_view_form_private'}\"\n"
+"                                            options='{\"always_reload\": True, \"highlight_first_line\": True}'/&gt;"

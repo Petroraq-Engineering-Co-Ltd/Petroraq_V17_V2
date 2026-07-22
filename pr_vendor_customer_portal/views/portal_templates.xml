@@ -121,6 +121,9 @@
         </xpath>
         <div id="portal_vendor_category" position="replace">
             <div id="portal_vendor_category" t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank">
+                <!--
+                    RFQ / Quotations portal entry intentionally hidden.
+                    Keep this block commented so it can be restored later.
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
                     <t t-set="title">Requests for Quotation</t>
@@ -128,6 +131,7 @@
                     <t t-set="text">View requests for quotation</t>
                     <t t-set="placeholder_count" t-value="'rfq_count'"/>
                 </t>
+                -->
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
                     <t t-set="title">Purchase Orders</t>

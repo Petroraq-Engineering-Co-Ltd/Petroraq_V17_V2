@@ -141,6 +141,9 @@
                 <attribute name="domain">payment_term_domain</attribute>
                 <attribute name="readonly">locked</attribute>
             </xpath>
+            <xpath expr="//field[@name='note']" position="attributes">
+                <attribute name="required">approval_state == 'approved' and state in ('draft', 'sent')</attribute>
+            </xpath>
             <xpath expr="//sheet//group" position="inside">
                 <field name="dp_remaining_amount_ui" readonly="1"
                        invisible="dp_remaining_amount_ui == 0"/>

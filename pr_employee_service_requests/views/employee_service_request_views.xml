@@ -213,6 +213,11 @@
                             <field name="iqama_line_id" readonly="1" invisible="not iqama_line_id"/>
                             <field name="work_permit_id" readonly="1" invisible="not work_permit_id"/>
                             <field name="iqama_no" readonly="state != 'draft'"/>
+                            <field name="qiwa_renewal_reference"
+                                   placeholder="Enter the reference received from Qiwa"
+                                   readonly="state in ('issued', 'rejected', 'cancelled')"
+                                   required="request_type == 'iqama_renewal' and state == 'paid'"
+                                   invisible="request_type != 'iqama_renewal'"/>
                             <field name="place_of_issue" readonly="state != 'draft'"/>
                             <field name="visa_number" string="Work Permit / Visa Number" readonly="state != 'draft'"/>
                             <field name="iqama_profession" readonly="state != 'draft'"/>

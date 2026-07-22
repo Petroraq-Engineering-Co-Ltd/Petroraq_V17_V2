@@ -1,0 +1,211 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr_account
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 13:56+0000\n"
+"PO-Revision-Date: 2026-07-13 13:56+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr_account
+#: model_terms:ir.ui.view,arch_db:pr_hr_account.pr_hr_account_view_employee_form_inherit
+msgid "Accounting Settings"
+msgstr "إعدادات المحاسبة"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_account_analytic_account
+msgid "Analytic Account"
+msgstr "الحساب التحليلي"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_pr_account_bank_payment
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee_iqama_line__bank_payment_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee_medical_insurance_line__bank_payment_id
+msgid "Bank Payment"
+msgstr "دفعة بنكية"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_pr_account_bank_payment_line
+msgid "Bank Payment Line"
+msgstr "بند الدفعة البنكية"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_pr_account_bank_receipt_line
+msgid "Bank Receipt Line"
+msgstr "بند سند القبض البنكي"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_pr_account_cash_payment_line
+msgid "Cash Payment Line"
+msgstr "بند الدفعة النقدية"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_pr_account_cash_receipt_line
+msgid "Cash Receipt Line"
+msgstr "بند سند القبض النقدي"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_payment_receipt__credit_cs_employee_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_transaction_payment__credit_cs_employee_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_account.pr_hr_account_pr_payment_receipt_view_search_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_account.pr_hr_account_pr_transaction_payment_view_search_inherit
+msgid "Credit Employee"
+msgstr "الموظف الدائن"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_payment_receipt__debit_cs_employee_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_transaction_payment__debit_cs_employee_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_account.pr_hr_account_pr_payment_receipt_view_search_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_account.pr_hr_account_pr_transaction_payment_view_search_inherit
+msgid "Debit Employee"
+msgstr "الموظف المدين"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_hr_department
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_department__department_cost_center_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee__department_cost_center_id
+msgid "Department Cost Center"
+msgstr "مركز تكلفة القسم"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_hr_employee
+#: model:ir.model.fields,field_description:pr_hr_account.field_account_analytic_account__employee_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_account_move_line__cs_employee_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_account_bank_payment_line__cs_employee_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_account_bank_receipt_line__cs_employee_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_account_cash_payment_line__cs_employee_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_account_cash_receipt_line__cs_employee_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_account.pr_hr_account_pr_payment_receipt_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_account.pr_hr_account_pr_transaction_payment_form_inherit
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee__employee_account_id
+msgid "Employee Account"
+msgstr "حساب الموظف"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee__employee_cost_center_id
+msgid "Employee Cost Center"
+msgstr "مركز تكلفة الموظف"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_hr_employee_iqama_line
+msgid "Employee Iqama Lines"
+msgstr "سجلات إقامة الموظف"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_hr_employee_medical_insurance_line
+msgid "Employee Medical Insurance Lines"
+msgstr "سجلات التأمين الطبي للموظف"
+
+#. module: pr_hr_account
+#: model:account.analytic.plan,name:pr_hr_account.pr_account_analytic_plan_employee
+msgid "Employees"
+msgstr "الموظفون"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_account_bank_payment__insurance_line_id
+msgid "Insurance"
+msgstr "التأمين"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_pr_account_bank_payment__iqama_line_id
+msgid "Iqama"
+msgstr "الإقامة"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_hr_employee_iqama_line_add_wizard
+msgid "Iqama Line Add"
+msgstr "إضافة سجل إقامة"
+
+#. module: pr_hr_account
+#. odoo-python
+#: code:addons/pr_hr_account/wizards/hr_employee_iqama_line_add_wizard.py:0
+#, python-format
+msgid "Iqama renewal - %s"
+msgstr "تجديد الإقامة - %s"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee_iqama_line__paid_move_id
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee_medical_insurance_line__paid_move_id
+msgid "Journal Entry"
+msgstr "قيد اليومية"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_account_move_line
+msgid "Journal Item"
+msgstr "بند اليومية"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_hr_employee_medical_insurance_line_add_wizard
+msgid "Medical Insurance Line Add"
+msgstr "إضافة سجل تأمين طبي"
+
+#. module: pr_hr_account
+#. odoo-python
+#: code:addons/pr_hr_account/wizards/hr_employee_insurance_line_add_wizard.py:0
+#, python-format
+msgid "Medical insurance renewal - %s"
+msgstr "تجديد التأمين الطبي - %s"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_pr_payment_receipt
+msgid "Payment Receipt"
+msgstr "سند القبض"
+
+#. module: pr_hr_account
+#. odoo-python
+#: code:addons/pr_hr_account/wizards/hr_employee_iqama_line_add_wizard.py:0
+#, python-format
+msgid "Please select the Cost Center for this Iqama request."
+msgstr "يرجى اختيار مركز التكلفة لطلب الإقامة هذا."
+
+#. module: pr_hr_account
+#. odoo-python
+#: code:addons/pr_hr_account/wizards/hr_employee_insurance_line_add_wizard.py:0
+#, python-format
+msgid "Please select the Cost Center for this medical insurance request."
+msgstr "يرجى اختيار مركز التكلفة لطلب التأمين الطبي هذا."
+
+#. module: pr_hr_account
+#. odoo-python
+#: code:addons/pr_hr_account/wizards/hr_employee_iqama_line_add_wizard.py:0
+#, python-format
+msgid "Please select the approved Budget for this Iqama request."
+msgstr "يرجى اختيار الميزانية المعتمدة لطلب الإقامة هذا."
+
+#. module: pr_hr_account
+#. odoo-python
+#: code:addons/pr_hr_account/wizards/hr_employee_insurance_line_add_wizard.py:0
+#, python-format
+msgid "Please select the approved Budget for this medical insurance request."
+msgstr "يرجى اختيار الميزانية المعتمدة لطلب التأمين الطبي هذا."
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee__project_cost_center_id
+msgid "Project Cost Center"
+msgstr "مركز تكلفة المشروع"
+
+#. module: pr_hr_account
+#: model:ir.model.fields,field_description:pr_hr_account.field_hr_employee__section_cost_center_id
+msgid "Section Cost Center"
+msgstr "مركز تكلفة القسم الفرعي"
+
+#. module: pr_hr_account
+#: model:ir.model,name:pr_hr_account.model_pr_transaction_payment
+msgid "Transaction Payment"
+msgstr "دفعة معاملة"
