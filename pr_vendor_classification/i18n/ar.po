@@ -1,0 +1,275 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_vendor_classification
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 06:58+0000\n"
+"PO-Revision-Date: 2026-07-15 06:58+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_partner__pr_vendor_category_ids
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_users__pr_vendor_category_ids
+msgid "Additional Vendor Categories"
+msgstr "تصنيفات المورد الإضافية"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,help:pr_vendor_classification.field_res_partner__pr_vendor_category_ids
+#: model:ir.model.fields,help:pr_vendor_classification.field_res_users__pr_vendor_category_ids
+msgid ""
+"Additional business categories when the vendor operates in more than one "
+"role."
+msgstr ""
+"تصنيفات أعمال إضافية عندما يعمل المورد في أكثر من نشاط أو دور."
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_pr_vendor_category_search
+msgid "Archived"
+msgstr "مؤرشف"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__code
+msgid "Code"
+msgstr "الرمز"
+
+#. module: pr_vendor_classification
+#: model:ir.model,name:pr_vendor_classification.model_res_partner
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.actions.act_window,help:pr_vendor_classification.action_pr_vendor_category
+msgid "Create vendor categories"
+msgstr "إنشاء تصنيفات الموردين"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_pr_vendor_category_form
+msgid "Describe this vendor category..."
+msgstr "أدخل وصفًا لتصنيف المورد..."
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__description
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Lead Time"
+msgstr "مدة التوريد"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,help:pr_vendor_classification.field_product_supplierinfo__pr_vendor_category_id
+#: model:ir.model.fields,help:pr_vendor_classification.field_purchase_order__pr_vendor_category_id
+#: model:ir.model.fields,help:pr_vendor_classification.field_purchase_order_line__pr_vendor_category_id
+#: model:ir.model.fields,help:pr_vendor_classification.field_res_partner__pr_vendor_category_id
+#: model:ir.model.fields,help:pr_vendor_classification.field_res_users__pr_vendor_category_id
+msgid ""
+"Main business nature of this vendor, such as manufacturer, wholesaler, "
+"distributor, or service provider."
+msgstr ""
+"طبيعة النشاط الرئيسية لهذا المورد، مثل مصنع، أو تاجر جملة، أو موزع، أو مقدم خدمات."
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.actions.act_window,help:pr_vendor_classification.action_pr_vendor_products
+msgid "No vendor products yet"
+msgstr "لا توجد منتجات للمورد حتى الآن"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_partner__pr_vendor_category_id
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_users__pr_vendor_category_id
+msgid "Primary Vendor Category"
+msgstr "تصنيف المورد الرئيسي"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Product"
+msgstr "المنتج"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Product and Price"
+msgstr "المنتج والسعر"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Products"
+msgstr "المنتجات"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Provided Product"
+msgstr "المنتج المورَّد"
+
+#. module: pr_vendor_classification
+#. odoo-python
+#: code:addons/pr_vendor_classification/models/res_partner.py:0
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_partner__pr_supplied_product_count
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_partner__pr_supplierinfo_ids
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_users__pr_supplied_product_count
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_users__pr_supplierinfo_ids
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+#, python-format
+msgid "Provided Products"
+msgstr "المنتجات الموردة"
+
+#. module: pr_vendor_classification
+#. odoo-python
+#: code:addons/pr_vendor_classification/models/res_partner.py:0
+#, python-format
+msgid "Purchase History"
+msgstr "سجل المشتريات"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Purchase Lines"
+msgstr "بنود الشراء"
+
+#. module: pr_vendor_classification
+#: model:ir.model,name:pr_vendor_classification.model_purchase_order
+msgid "Purchase Order"
+msgstr "أمر شراء"
+
+#. module: pr_vendor_classification
+#: model:ir.model,name:pr_vendor_classification.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "بند أمر الشراء"
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_partner__pr_purchase_line_count
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_res_users__pr_purchase_line_count
+msgid "Purchased Lines"
+msgstr "بنود الشراء"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.actions.act_window,help:pr_vendor_classification.action_pr_vendor_products
+msgid ""
+"Register which products each vendor can provide, along with vendor codes, "
+"lead time, quantity, and price."
+msgstr ""
+"سجّل المنتجات التي يمكن لكل مورد توفيرها، مع رموز المورد، ومدة التوريد، والكمية، والسعر."
+
+#. module: pr_vendor_classification
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_pr_vendor_category__sequence
+msgid "Sequence"
+msgstr "التسلسل"
+
+#. module: pr_vendor_classification
+#: model:ir.model,name:pr_vendor_classification.model_product_supplierinfo
+msgid "Supplier Pricelist"
+msgstr "قائمة أسعار المورد"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Unit Price"
+msgstr "سعر الوحدة"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.actions.act_window,help:pr_vendor_classification.action_pr_vendor_category
+msgid ""
+"Use categories such as Manufacturer, Distributor, Wholesaler, Retailer, "
+"Contractor, or Service Provider."
+msgstr ""
+"استخدم تصنيفات مثل: مصنع، موزع، تاجر جملة، بائع تجزئة، مقاول، أو مقدم خدمات."
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Validity"
+msgstr "الصلاحية"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Vendor"
+msgstr "المورد"
+
+#. module: pr_vendor_classification
+#: model:ir.actions.act_window,name:pr_vendor_classification.action_pr_vendor_category
+#: model:ir.ui.menu,name:pr_vendor_classification.menu_pr_vendor_category
+msgid "Vendor Categories"
+msgstr "تصنيفات الموردين"
+
+#. module: pr_vendor_classification
+#: model:ir.model,name:pr_vendor_classification.model_pr_vendor_category
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_product_supplierinfo__pr_vendor_category_id
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_purchase_order__pr_vendor_category_id
+#: model:ir.model.fields,field_description:pr_vendor_classification.field_purchase_order_line__pr_vendor_category_id
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_product_supplierinfo_search_vendor_category
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_purchase_order_line_search_vendor_category
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_purchase_order_search_vendor_category
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_purchase_rfq_search_vendor_category
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_res_partner_filter_vendor_classification
+msgid "Vendor Category"
+msgstr "تصنيف المورد"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "Vendor Classification"
+msgstr "تصنيف المورد"
+
+#. module: pr_vendor_classification
+#: model:ir.actions.act_window,name:pr_vendor_classification.action_pr_vendor_products
+#: model:ir.ui.menu,name:pr_vendor_classification.menu_pr_vendor_products
+msgid "Vendor Products"
+msgstr "منتجات المورد"
+
+#. module: pr_vendor_classification
+#: model:ir.model.constraint,message:pr_vendor_classification.constraint_pr_vendor_category_name_unique
+msgid "Vendor category name must be unique."
+msgstr "يجب أن يكون اسم تصنيف المورد فريدًا."
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "days"
+msgstr "أيام"
+
+#. module: pr_vendor_classification
+#: model_terms:ir.ui.view,arch_db:pr_vendor_classification.view_partner_form_vendor_classification
+msgid "to"
+msgstr "إلى"

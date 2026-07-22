@@ -1,0 +1,1263 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_vendor_customer_portal
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 06:58+0000\n"
+"PO-Revision-Date: 2026-07-15 06:58+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.actions.report,print_report_name:pr_vendor_customer_portal.action_portal_statement_pdf
+msgid "'Statement of Account - %s' % (object.name or '')"
+msgstr "'كشف الحساب - %s' % (object.name or '')"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid ""
+"<i class=\"fa fa-check me-1\"/>\n"
+"                            Paid"
+msgstr ""
+"<i class=\"fa fa-check me-1\"/>\n"
+"                            مدفوع"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid ""
+"<i class=\"fa fa-download me-1\"/>\n"
+"                            Download PDF"
+msgstr ""
+"<i class=\"fa fa-download me-1\"/>\n"
+"                            تنزيل PDF"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid ""
+"<i class=\"fa fa-download me-1\"/>\n"
+"                    Download"
+msgstr ""
+"<i class=\"fa fa-download me-1\"/>\n"
+"                    تنزيل"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid ""
+"<i class=\"fa fa-download me-1\"/>\n"
+"                Tax Invoice PDF"
+msgstr ""
+"<i class=\"fa fa-download me-1\"/>\n"
+"                فاتورة ضريبية PDF"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid ""
+"<i class=\"fa fa-file-pdf-o me-1\"/>\n"
+"                        Download Invoice"
+msgstr ""
+"<i class=\"fa fa-file-pdf-o me-1\"/>\n"
+"                        تنزيل الفاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_sales_order_status_column
+msgid ""
+"<i class=\"fa fa-fw fa-check\" role=\"img\" aria-label=\"Done\" title=\"Done\"/>\n"
+"                    Done"
+msgstr ""
+"<i class=\"fa fa-fw fa-check\" role=\"img\" aria-label=\"Done\" title=\"Done\"/>\n"
+"                    مكتمل"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_sales_order_status_column
+msgid ""
+"<i class=\"fa fa-fw fa-check-circle\" role=\"img\" aria-label=\"Confirmed\" title=\"Confirmed\"/>\n"
+"                    Confirmed"
+msgstr ""
+"<i class=\"fa fa-fw fa-check-circle\" role=\"img\" aria-label=\"Confirmed\" title=\"Confirmed\"/>\n"
+"                    مؤكد"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_sales_order_status_column
+msgid ""
+"<i class=\"fa fa-fw fa-file-o\" role=\"img\" aria-label=\"Draft\" title=\"Draft\"/>\n"
+"                    Draft"
+msgstr ""
+"<i class=\"fa fa-fw fa-file-o\" role=\"img\" aria-label=\"Draft\" title=\"Draft\"/>\n"
+"                    مسودة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_sales_order_status_column
+msgid ""
+"<i class=\"fa fa-fw fa-paper-plane\" role=\"img\" aria-label=\"Sent\" title=\"Sent\"/>\n"
+"                    Sent"
+msgstr ""
+"<i class=\"fa fa-fw fa-paper-plane\" role=\"img\" aria-label=\"Sent\" title=\"Sent\"/>\n"
+"                    تم الإرسال"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_sales_order_status_column
+msgid ""
+"<i class=\"fa fa-fw fa-times\" role=\"img\" aria-label=\"Cancelled\" title=\"Cancelled\"/>\n"
+"                    Cancelled"
+msgstr ""
+"<i class=\"fa fa-fw fa-times\" role=\"img\" aria-label=\"Cancelled\" title=\"Cancelled\"/>\n"
+"                    ملغي"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid ""
+"<i class=\"fa fa-upload me-1\"/>\n"
+"                                Attach to Purchase Order"
+msgstr ""
+"<i class=\"fa fa-upload me-1\"/>\n"
+"                                إرفاق بأمر الشراء"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_purchase_order_vendor_invoice_upload
+msgid ""
+"<i class=\"fa fa-upload me-1\"/>\n"
+"                    Upload Invoice"
+msgstr ""
+"<i class=\"fa fa-upload me-1\"/>\n"
+"                    رفع الفاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "<option value=\"\">Select a purchase order</option>"
+msgstr "<option value=\"\">اختر أمر شراء</option>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid ""
+"<small>\n"
+"                        Includes complete DP, retention, VAT, bilingual details, and QR information.\n"
+"                    </small>"
+msgstr ""
+"<small>\n"
+"                        يتضمن الدفعة المقدمة كاملة، والاستقطاع، وضريبة القيمة المضافة، والتفاصيل باللغتين، ومعلومات رمز QR.\n"
+"                    </small>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "<small>Amount due to Petroraq</small>"
+msgstr "<small>المبلغ المستحق لشركة بتروراق</small>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "<small>Amount payable to you</small>"
+msgstr "<small>المبلغ المستحق لكم</small>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid ""
+"<span>\n"
+"                            Total Before Advance\n"
+"                        </span>"
+msgstr ""
+"<span>\n"
+"                            الإجمالي قبل الدفعة المقدمة\n"
+"                        </span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Currency</span>"
+msgstr "<span>العملة</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Due Date</span>"
+msgstr "<span>تاريخ الاستحقاق</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Invoice Date</span>"
+msgstr "<span>تاريخ الفاتورة</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "<span>Net Balance</span>"
+msgstr "<span>الرصيد الصافي</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Outstanding Balance</span>"
+msgstr "<span>الرصيد المستحق</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>PO Date</span>"
+msgstr "<span>تاريخ أمر الشراء</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>PO Number</span>"
+msgstr "<span>رقم أمر الشراء</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "<span>Payable</span>"
+msgstr "<span>الدائن</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Payment Terms</span>"
+msgstr "<span>شروط الدفع</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "<span>Receivable</span>"
+msgstr "<span>المدين</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Reference</span>"
+msgstr "<span>المرجع</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Taxable Amount</span>"
+msgstr "<span>المبلغ الخاضع للضريبة</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Total Due After Retention</span>"
+msgstr "<span>إجمالي المستحق بعد الاستقطاع</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>Total Taxed Amount</span>"
+msgstr "<span>إجمالي المبلغ شامل الضريبة</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "<span>VAT</span>"
+msgstr "<span>ضريبة القيمة المضافة</span>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "<strong>Attach your invoice to the purchase order</strong>"
+msgstr "<strong>أرفق فاتورتك بأمر الشراء</strong>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "<strong>Currency:</strong>"
+msgstr "<strong>العملة:</strong>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "<strong>Delivery Address</strong>"
+msgstr "<strong>عنوان التسليم</strong>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_purchase_order_vendor_invoice_upload
+msgid ""
+"<strong>Invoice attached successfully.</strong>\n"
+"                The PDF is now attached to this purchase order and Accounts has been notified."
+msgstr ""
+"<strong>تم إرفاق الفاتورة بنجاح.</strong>\n"
+"                تم إرفاق ملف PDF بأمر الشراء هذا، وتم إشعار قسم الحسابات."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "<strong>Ledger Account:</strong>"
+msgstr "<strong>حساب الأستاذ:</strong>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "<strong>Partner:</strong>"
+msgstr "<strong>الشريك:</strong>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "<strong>Period:</strong>"
+msgstr "<strong>الفترة:</strong>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "<strong>Scheduled Date:</strong>"
+msgstr "<strong>التاريخ المجدول:</strong>"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "<strong>Status:</strong>"
+msgstr "<strong>الحالة:</strong>"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/models/vendor_invoice.py:0
+#, python-format
+msgid ""
+"A new vendor invoice has been uploaded from the portal and requires review."
+msgstr "تم رفع فاتورة مورد جديدة من البوابة وتتطلب المراجعة."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__amount_total
+msgid "Amount Total"
+msgstr "إجمالي المبلغ"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields.selection,name:pr_vendor_customer_portal.selection__pr_portal_vendor_invoice__state__approved
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid ""
+"Attach a valid PDF no larger than 10 MB and enter an amount greater than "
+"zero."
+msgstr ""
+"أرفق ملف PDF صالحًا لا يتجاوز حجمه 10 ميجابايت، وأدخل مبلغًا أكبر من صفر."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model,name:pr_vendor_customer_portal.model_ir_attachment
+msgid "Attachment"
+msgstr "مرفق"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Balance"
+msgstr "الرصيد"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Bills"
+msgstr "الفواتير"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "Closing:"
+msgstr "الرصيد الختامي:"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model,name:pr_vendor_customer_portal.model_res_partner
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Credit"
+msgstr "دائن"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Debit"
+msgstr "مدين"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_breadcrumbs_delivery_vendor_invoice
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_deliveries
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Deliveries"
+msgstr "عمليات التسليم"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_deliveries
+msgid "Delivery"
+msgstr "التسليم"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "Delivery Details"
+msgstr "تفاصيل التسليم"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "Delivery Note"
+msgstr "إشعار التسليم"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "Demand"
+msgstr "الكمية المطلوبة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Document"
+msgstr "المستند"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Down Payment"
+msgstr "الدفعة المقدمة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Download Custom Tax Invoice"
+msgstr "تنزيل الفاتورة الضريبية المخصصة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Download Invoice"
+msgstr "تنزيل الفاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "From"
+msgstr "من"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__has_attachment
+msgid "Has Attachment"
+msgstr "يحتوي على مرفق"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى وجود نشاط استثنائي."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فهذا يعني أن هناك رسائل جديدة تتطلب انتباهك."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_has_error
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فهذا يعني أن بعض الرسائل واجهت خطأ في التسليم."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__internal_notes
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Internal Notes"
+msgstr "ملاحظات داخلية"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Invoice Amount"
+msgstr "مبلغ الفاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__invoice_date
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Invoice Date"
+msgstr "تاريخ الفاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__attachment_id
+msgid "Invoice Document"
+msgstr "مستند الفاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Invoice Number"
+msgstr "رقم الفاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_po_vendor_invoice_attachment_tree
+msgid "Invoice PDF"
+msgstr "فاتورة PDF"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Invoice number %(number)s has already been uploaded for this vendor."
+msgstr "تم رفع الفاتورة رقم %(number)s لهذا المورد مسبقًا."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Invoices"
+msgstr "الفواتير"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.ui.menu,name:pr_vendor_customer_portal.menu_pr_portal_vendor_invoice
+msgid "Legacy Vendor Portal Invoices"
+msgstr "فواتير بوابة الموردين القديمة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Mark Under Review"
+msgstr "وضع قيد المراجعة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Net Balance"
+msgstr "الرصيد الصافي"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/models/vendor_invoice.py:0
+#, python-format
+msgid "New Vendor Invoice Submitted"
+msgstr "تم تقديم فاتورة مورد جديدة"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Newest"
+msgstr "الأحدث"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/models/vendor_invoice.py:0
+#, python-format
+msgid "No attachment found to download."
+msgstr "لم يتم العثور على مرفق للتنزيل."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "No posted account entries were found for this statement."
+msgstr "لم يتم العثور على قيود محاسبية مُرحّلة لهذا الكشف."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.actions.act_window,help:pr_vendor_customer_portal.action_pr_portal_vendor_invoice
+msgid "No vendor invoices submitted from the portal yet."
+msgstr "لم يتم تقديم أي فواتير موردين عبر البوابة حتى الآن."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Notes submitted by the vendor."
+msgstr "الملاحظات المقدمة من المورد."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي حدث بها خطأ في التسليم"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Opening Balance"
+msgstr "الرصيد الافتتاحي"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "PDF only, maximum 10 MB."
+msgstr "ملف PDF فقط، بحد أقصى 10 ميجابايت."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Payable"
+msgstr "دائن"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Please attach the invoice PDF."
+msgstr "يرجى إرفاق فاتورة بصيغة PDF."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Please enter a valid invoice amount."
+msgstr "يرجى إدخال مبلغ فاتورة صالح."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Please enter a valid invoice date."
+msgstr "يرجى إدخال تاريخ فاتورة صالح."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Please enter the vendor invoice number."
+msgstr "يرجى إدخال رقم فاتورة المورد."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Please select a valid purchase order."
+msgstr "يرجى اختيار أمر شراء صالح."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Please select the invoice date."
+msgstr "يرجى اختيار تاريخ الفاتورة."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Please upload a valid PDF invoice."
+msgstr "يرجى رفع فاتورة PDF صالحة."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__portal_user_id
+msgid "Portal User"
+msgstr "مستخدم البوابة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "Product"
+msgstr "المنتج"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model,name:pr_vendor_customer_portal.model_purchase_order
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+msgid "Purchase Order"
+msgstr "أمر الشراء"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Purchase Orders"
+msgstr "أوامر الشراء"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid ""
+"Quantities and status come from the linked warehouse delivery. Use Download "
+"to obtain the branded Delivery Note PDF."
+msgstr ""
+"تُستمد الكميات والحالة من عملية التسليم المرتبطة بالمستودع. استخدم زر "
+"«تنزيل» للحصول على إشعار التسليم بصيغة PDF."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Quotations"
+msgstr "عروض الأسعار"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "RFQs"
+msgstr "طلبات عروض الأسعار"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Receivable"
+msgstr "مدين"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+#, python-format
+msgid "Reference"
+msgstr "المرجع"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields.selection,name:pr_vendor_customer_portal.selection__pr_portal_vendor_invoice__state__rejected
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__po_id
+msgid "Related Purchase Order"
+msgstr "أمر الشراء المرتبط"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Retention"
+msgstr "الاستقطاع"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Reversed"
+msgstr "معكوس"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Review Vendor Invoice %(number)s"
+msgstr "مراجعة فاتورة المورد %(number)s"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Review payable balance and ledger activity"
+msgstr "مراجعة الرصيد الدائن وحركة الأستاذ العام"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Review receivable, payable, and ledger activity"
+msgstr "مراجعة الأرصدة المدينة والدائنة وحركة الأستاذ العام"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Sale Orders"
+msgstr "أوامر البيع"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_deliveries
+msgid "Scheduled Date"
+msgstr "التاريخ المجدول"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Select the confirmed purchase order this invoice belongs to."
+msgstr "اختر أمر الشراء المؤكد الذي تتبع له هذه الفاتورة."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_deliveries
+msgid "Source"
+msgstr "المصدر"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Source:"
+msgstr "المصدر:"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__state
+msgid "State"
+msgstr "الحالة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.actions.report,name:pr_vendor_customer_portal.action_portal_statement_pdf
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_breadcrumbs_delivery_vendor_invoice
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Statement of Account"
+msgstr "كشف الحساب"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_deliveries
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_sales_order_status_column
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+#, python-format
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "Submit an invoice against a purchase order"
+msgstr "إرسال فاتورة مرتبطة بأمر شراء"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields.selection,name:pr_vendor_customer_portal.selection__pr_portal_vendor_invoice__state__submitted
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+msgid "Submitted"
+msgstr "تم الإرسال"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Subtotal"
+msgstr "الإجمالي الفرعي"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid ""
+"The PDF and invoice details will be stored directly on the purchase order "
+"and Accounts will be notified."
+msgstr ""
+"سيتم حفظ ملف PDF وبيانات الفاتورة مباشرةً في أمر الشراء، وسيتم إشعار قسم "
+"الحسابات."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "The date range was reversed and has been corrected."
+msgstr "كان نطاق التاريخ معكوسًا وتم تصحيحه."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "The invoice PDF must be 10 MB or smaller."
+msgstr "يجب ألا يتجاوز حجم ملف PDF الخاص بالفاتورة 10 ميجابايت."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#: code:addons/pr_vendor_customer_portal/models/vendor_invoice.py:0
+#, python-format
+msgid "The invoice amount must be greater than zero."
+msgstr "يجب أن يكون مبلغ الفاتورة أكبر من صفر."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid ""
+"The invoice could not be attached to the purchase order. Please try again or"
+" contact Accounts."
+msgstr ""
+"تعذر إرفاق الفاتورة بأمر الشراء. يرجى المحاولة مرة أخرى أو التواصل مع قسم "
+"الحسابات."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "The statement end date was invalid and has been reset."
+msgstr "كان تاريخ نهاية كشف الحساب غير صالح وتمت إعادة تعيينه."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "The statement start date was invalid and has been reset."
+msgstr "كان تاريخ بداية كشف الحساب غير صالح وتمت إعادة تعيينه."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_deliveries
+msgid "There are currently no deliveries for your account."
+msgstr "لا توجد عمليات تسليم لحسابك حاليًا."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "There are no posted account entries for the selected period."
+msgstr "لا توجد قيود محاسبية مُرحّلة للفترة المحددة."
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "This delivery does not exist or you do not have access to it."
+msgstr "عملية التسليم هذه غير موجودة أو ليس لديك صلاحية للوصول إليها."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid ""
+"This statement includes posted accounting entries only. Please contact "
+"Accounts if any transaction requires clarification."
+msgstr ""
+"يتضمن هذا الكشف القيود المحاسبية المُرحّلة فقط. يرجى التواصل مع قسم الحسابات "
+"إذا كانت أي معاملة تحتاج إلى توضيح."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.constraint,message:pr_vendor_customer_portal.constraint_pr_portal_vendor_invoice_unique_vendor_invoice_number
+msgid "This vendor invoice number already exists for this vendor."
+msgstr "رقم فاتورة المورد هذا موجود بالفعل لهذا المورد."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "To"
+msgstr "إلى"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_statement_pdf
+msgid "Total / Closing Balance"
+msgstr "الإجمالي / الرصيد الختامي"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields.selection,name:pr_vendor_customer_portal.selection__pr_portal_vendor_invoice__state__review
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+msgid "Under Review"
+msgstr "قيد المراجعة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Unit Price"
+msgstr "سعر الوحدة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_delivery_page
+msgid "UoM"
+msgstr "وحدة القياس"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_breadcrumbs_delivery_vendor_invoice
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Upload Invoice"
+msgstr "رفع فاتورة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_ir_attachment__pr_vendor_portal_user_id
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_product_document__pr_vendor_portal_user_id
+msgid "Uploaded By Portal User"
+msgstr "تم الرفع بواسطة مستخدم البوابة"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_vendor_invoice_upload
+msgid "Use your supplier invoice number; it must be unique for your company."
+msgstr "استخدم رقم فاتورة المورد الخاص بك؛ ويجب أن يكون فريدًا لشركتك."
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_ir_attachment__pr_vendor_id
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__partner_id
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_product_document__pr_vendor_id
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+msgid "Vendor"
+msgstr "المورد"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_ir_attachment__pr_vendor_invoice_amount
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_product_document__pr_vendor_invoice_amount
+msgid "Vendor Invoice Amount"
+msgstr "مبلغ فاتورة المورد"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_ir_attachment__pr_vendor_invoice_currency_id
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_product_document__pr_vendor_invoice_currency_id
+msgid "Vendor Invoice Currency"
+msgstr "عملة فاتورة المورد"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_ir_attachment__pr_vendor_invoice_date
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_product_document__pr_vendor_invoice_date
+msgid "Vendor Invoice Date"
+msgstr "تاريخ فاتورة المورد"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_ir_attachment__pr_vendor_invoice_number
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__vendor_invoice_number
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_product_document__pr_vendor_invoice_number
+msgid "Vendor Invoice Number"
+msgstr "رقم فاتورة المورد"
+
+#. module: pr_vendor_customer_portal
+#: model:res.groups,name:pr_vendor_customer_portal.group_vendor_invoice_reviewer
+msgid "Vendor Invoice Reviewer"
+msgstr "مراجع فواتير الموردين"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_custom_purchase_rfq__pr_vendor_portal_invoice_count
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_purchase_order__pr_vendor_portal_invoice_count
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.purchase_order_form_vendor_portal_invoices
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_po_vendor_invoice_attachment_tree
+msgid "Vendor Invoices"
+msgstr "فواتير الموردين"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/models/purchase_order.py:0
+#, python-format
+msgid "Vendor Invoices - %s"
+msgstr "فواتير الموردين - %s"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__notes
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Vendor Notes"
+msgstr "ملاحظات المورد"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model,name:pr_vendor_customer_portal.model_pr_portal_vendor_invoice
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_ir_attachment__pr_vendor_portal_upload
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_product_document__pr_vendor_portal_upload
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_form
+msgid "Vendor Portal Invoice"
+msgstr "فاتورة المورد عبر البوابة"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.actions.act_window,name:pr_vendor_customer_portal.action_pr_portal_vendor_invoice
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_search
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.view_pr_portal_vendor_invoice_tree
+msgid "Vendor Portal Invoices"
+msgstr "فواتير الموردين عبر البوابة"
+
+#. module: pr_vendor_customer_portal
+#. odoo-python
+#: code:addons/pr_vendor_customer_portal/controllers/portal.py:0
+#, python-format
+msgid "Vendor invoice %(number)s uploaded through the portal."
+msgstr "تم رفع فاتورة المورد %(number)s عبر البوابة."
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "View and download your invoices"
+msgstr "عرض وتنزيل فواتيرك"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "View purchase orders issued to you"
+msgstr "عرض أوامر الشراء الصادرة إليك"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "View requests for quotation"
+msgstr "عرض طلبات عروض الأسعار"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "View vendor bills"
+msgstr "عرض فواتير المورد"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "View your confirmed sale orders"
+msgstr "عرض أوامر البيع المؤكدة الخاصة بك"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "View your delivery orders"
+msgstr "عرض أوامر التسليم الخاصة بك"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_home_vendor_customer
+msgid "View your quotations"
+msgstr "عرض عروض الأسعار الخاصة بك"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_invoice_page_form_summary
+msgid "Waiting for Payment"
+msgstr "بانتظار السداد"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,field_description:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: pr_vendor_customer_portal
+#: model:ir.model.fields,help:pr_vendor_customer_portal.field_pr_portal_vendor_invoice__website_message_ids
+msgid "Website communication history"
+msgstr "سجل التواصل عبر الموقع الإلكتروني"
+
+#. module: pr_vendor_customer_portal
+#: model_terms:ir.ui.view,arch_db:pr_vendor_customer_portal.portal_my_statement
+msgid "transaction(s) in this period"
+msgstr "معاملة/معاملات خلال هذه الفترة"

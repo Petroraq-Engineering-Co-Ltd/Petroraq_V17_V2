@@ -1,0 +1,857 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* de_hr_workspace_leave_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 07:51+0000\n"
+"PO-Revision-Date: 2026-07-13 07:51+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Absent Days"
+msgstr "أيام الغياب"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Absentee Details"
+msgstr "تفاصيل الغياب"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+msgid "Absentees"
+msgstr "المتغيبون"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "All Leave Types"
+msgstr "جميع أنواع الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Annual"
+msgstr "سنوية"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+msgid "Annual Leaves"
+msgstr "الإجازات السنوية"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/approval_status_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/approval_status_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Approved Days"
+msgstr "الأيام المعتمدة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Availed"
+msgstr "المستخدمة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Balance"
+msgstr "الرصيد"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.view_dashboard_export_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Clear"
+msgstr "مسح"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Company"
+msgstr "الشركة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Current Contract"
+msgstr "العقد الحالي"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Current Contract Start:"
+msgstr "بداية العقد الحالي:"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_department_card_templates.xml:0
+#, python-format
+msgid "Current Shift"
+msgstr "الوردية الحالية"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Custom"
+msgstr "مخصص"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Custom Export"
+msgstr "تصدير مخصص"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "DOJ:"
+msgstr "تاريخ الالتحاق:"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.actions.act_window,name:de_hr_workspace_leave_management.action_dashboard_export_wizard
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.view_dashboard_export_wizard_form
+msgid "Dashboard Export"
+msgstr "تصدير لوحة التحكم"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Date of Joining"
+msgstr "تاريخ الالتحاق"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Day"
+msgstr "يوم"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Days"
+msgstr "أيام"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Department"
+msgstr "القسم"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "Direct subordinates"
+msgstr "المرؤوسون المباشرون"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__duration
+msgid "Duration"
+msgstr "المدة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model:ir.model,name:de_hr_workspace_leave_management.model_hr_employee
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+msgid "Employee Absentees"
+msgstr "الموظفون المتغيبون"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Employee ID"
+msgstr "رقم الموظف"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Expected Shift"
+msgstr "الوردية المتوقعة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.view_dashboard_export_wizard_form
+#, python-format
+msgid "Export Excel"
+msgstr "تصدير إلى إكسل"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.view_dashboard_export_wizard_form
+#, python-format
+msgid "Export PDF"
+msgstr "تصدير إلى PDF"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Filter by period, employee and leave type"
+msgstr "تصفية حسب الفترة والموظف ونوع الإجازة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "First Check In"
+msgstr "أول تسجيل دخول"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "From"
+msgstr "من"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "In order to get an organigram, set a manager and save the record."
+msgstr "للحصول على الهيكل التنظيمي، قم بتعيين مدير ثم احفظ السجل."
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__include_absentees
+msgid "Include Absentees"
+msgstr "تضمين المتغيبين"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__include_annual_leaves
+msgid "Include Annual Leaves"
+msgstr "تضمين الإجازات السنوية"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__include_leave_availability
+msgid "Include Leave Availability"
+msgstr "تضمين رصيد الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__include_leave_type_metrics
+msgid "Include Leave Type Metrics"
+msgstr "تضمين مؤشرات أنواع الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__include_other_leaves
+msgid "Include Other Leaves"
+msgstr "تضمين الإجازات الأخرى"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__include_sick_leaves
+msgid "Include Sick Leaves"
+msgstr "تضمين الإجازات المرضية"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "Indirect subordinates"
+msgstr "المرؤوسون غير المباشرين"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Job Position"
+msgstr "المنصب الوظيفي"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model.fields,field_description:de_hr_workspace_leave_management.field_de_hr_leave_dashboard_export_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+msgid "Leave Availability"
+msgstr "رصيد الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Leave Availability (Remaining)"
+msgstr "رصيد الإجازات (المتبقي)"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.actions.client,name:de_hr_workspace_leave_management.action_workspace_advanced_leave_dashboard_client
+#: model:ir.ui.menu,name:de_hr_workspace_leave_management.menu_workspace_advanced_leave_dashboard
+msgid "Leave Dashboard"
+msgstr "لوحة تحكم الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model,name:de_hr_workspace_leave_management.model_de_hr_leave_dashboard_export_wizard
+msgid "Leave Dashboard Export Wizard"
+msgstr "معالج تصدير لوحة تحكم الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.ui.menu,name:de_hr_workspace_leave_management.menu_workspace_leave_management_root
+msgid "Leave Management"
+msgstr "إدارة الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Leave Request Analytics"
+msgstr "تحليلات طلبات الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Leave Requests"
+msgstr "طلبات الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Leave Type"
+msgstr "نوع الإجازة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Leave Type Metrics"
+msgstr "مؤشرات أنواع الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Loading absentee dates..."
+msgstr "جارٍ تحميل تواريخ الغياب..."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "More managers"
+msgstr "المزيد من المديرين"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "My Remaining Leaves"
+msgstr "رصيد إجازاتي المتبقي"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/approval_status_card_templates.xml:0
+#, python-format
+msgid "Name"
+msgstr "الاسم"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No absent days found for this range."
+msgstr "لم يتم العثور على أيام غياب ضمن هذه الفترة."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No absentees in selected period."
+msgstr "لا يوجد متغيبون في الفترة المحددة."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No data found."
+msgstr "لم يتم العثور على بيانات."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_department_card_templates.xml:0
+#, python-format
+msgid "No employees on leave"
+msgstr "لا يوجد موظفون في إجازة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "No hierarchy position."
+msgstr "لا يوجد موقع في الهيكل التنظيمي."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No leave allocation data found."
+msgstr "لم يتم العثور على بيانات مخصصات الإجازات."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No leave balance data found."
+msgstr "لم يتم العثور على بيانات رصيد الإجازات."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No leave records in selected period."
+msgstr "لا توجد سجلات إجازات في الفترة المحددة."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No leave type metrics in selected period."
+msgstr "لا توجد مؤشرات لأنواع الإجازات في الفترة المحددة."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No matching employee ID found."
+msgstr "لم يتم العثور على رقم موظف مطابق."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "No matching employee name found."
+msgstr "لم يتم العثور على اسم موظف مطابق."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_department_card_templates.xml:0
+#, python-format
+msgid "No upcoming holidays"
+msgstr "لا توجد إجازات قادمة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_department_card_templates.xml:0
+#, python-format
+msgid "On Leave"
+msgstr "في إجازة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Other"
+msgstr "أخرى"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+msgid "Other Leaves"
+msgstr "الإجازات الأخرى"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Overall summary for"
+msgstr "الملخص العام لـ"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Period"
+msgstr "الفترة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Period Absentees"
+msgstr "المتغيبون خلال الفترة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.actions.report,name:de_hr_workspace_leave_management.period_absentees_pdf_report_action
+msgid "Period Absentees PDF"
+msgstr "تقرير PDF للمتغيبين خلال الفترة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model,name:de_hr_workspace_leave_management.model_report_de_hr_workspace_leave_management_period_absentees_pdf
+msgid "Period Absentees PDF Report"
+msgstr "تقرير PDF للمتغيبين خلال الفترة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.actions.report,name:de_hr_workspace_leave_management.period_absentees_xlsx_report_action
+msgid "Period Absentees XLSX"
+msgstr "تقرير XLSX للمتغيبين خلال الفترة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model,name:de_hr_workspace_leave_management.model_report_de_hr_workspace_leave_management_period_absentees_xlsx
+msgid "Period Absentees XLSX Report"
+msgstr "تقرير XLSX للمتغيبين خلال الفترة"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+msgid "Period:"
+msgstr "الفترة:"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Phone"
+msgstr "الهاتف"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Reason"
+msgstr "السبب"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "Redirect"
+msgstr "إعادة التوجيه"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/approval_status_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/approval_status_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Refused"
+msgstr "مرفوض"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Search Employee"
+msgstr "البحث عن موظف"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Search by Employee ID..."
+msgstr "البحث برقم الموظف..."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Search by Employee Name..."
+msgstr "البحث باسم الموظف..."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Search employee by name or ID..."
+msgstr "ابحث عن موظف بالاسم أو رقم الموظف..."
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.view_dashboard_export_wizard_form
+msgid "Sections to Export"
+msgstr "الأقسام المراد تصديرها"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "See All"
+msgstr "عرض الكل"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Sick"
+msgstr "مرضية"
+
+#. module: de_hr_workspace_leave_management
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+msgid "Sick Leaves"
+msgstr "الإجازات المرضية"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "State"
+msgstr "الحالة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "This Month"
+msgstr "هذا الشهر"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "This Year"
+msgstr "هذه السنة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#, python-format
+msgid "This employee has no manager or subordinate."
+msgstr "لا يوجد لهذا الموظف مدير أو مرؤوسون."
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model:ir.model.fields.selection,name:de_hr_workspace_leave_management.selection__de_hr_leave_dashboard_export_wizard__duration__this_month
+#, python-format
+msgid "This month"
+msgstr "هذا الشهر"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model:ir.model.fields.selection,name:de_hr_workspace_leave_management.selection__de_hr_leave_dashboard_export_wizard__duration__this_week
+#, python-format
+msgid "This week"
+msgstr "هذا الأسبوع"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model:ir.model.fields.selection,name:de_hr_workspace_leave_management.selection__de_hr_leave_dashboard_export_wizard__duration__this_year
+#, python-format
+msgid "This year"
+msgstr "هذه السنة"
+
+#. module: de_hr_workspace_leave_management
+#: model:ir.model,name:de_hr_workspace_leave_management.model_hr_leave
+msgid "Time Off"
+msgstr "الإجازات"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "To"
+msgstr "إلى"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/approval_status_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/approval_status_card_templates.xml:0
+#, python-format
+msgid "To Approve"
+msgstr "بانتظار الموافقة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model:ir.model.fields.selection,name:de_hr_workspace_leave_management.selection__de_hr_leave_dashboard_export_wizard__duration__today
+#, python-format
+msgid "Today"
+msgstr "اليوم"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_org_chart_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_leave_management.period_absentees_pdf
+#, python-format
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Total Days Availed"
+msgstr "إجمالي الأيام المستخدمة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "Type"
+msgstr "النوع"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/emp_department_card_templates.xml:0
+#, python-format
+msgid "Upcoming Holidays"
+msgstr "الإجازات القادمة"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/time_off_emp_card_templates.xml:0
+#, python-format
+msgid "Working Hours"
+msgstr "ساعات العمل"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "absent day"
+msgstr "يوم غياب"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "days"
+msgstr "أيام"
+
+#. module: de_hr_workspace_leave_management
+#. odoo-javascript
+#: code:addons/de_hr_workspace_leave_management/static/src/xml/period_absentees_card_templates.xml:0
+#, python-format
+msgid "s"
+msgstr ""

@@ -1,0 +1,1669 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_budget_requisition
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 06:56+0000\n"
+"PO-Revision-Date: 2026-07-15 06:56+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "%(user)s approved this budget requisition for: %(roles)s."
+msgstr "وافق %(user)s على طلب الميزانية هذا بصفته: %(roles)s."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "%s - %s Budget"
+msgstr "ميزانية %s - %s"
+
+#. module: pr_budget_requisition
+#: model:ir.actions.report,print_report_name:pr_budget_requisition.action_report_pr_budget_analysis_pdf
+#: model:ir.actions.report,print_report_name:pr_budget_requisition.action_report_pr_budget_analysis_xlsx
+msgid "'Budget Analysis Report - %s to %s' % (object.date_from, object.date_to)"
+msgstr "'تقرير تحليل الميزانية - %s إلى %s' % (object.date_from, object.date_to)"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_period_months__12
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__budget_period_months__12
+msgid "12 Months"
+msgstr "12 شهرًا"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_period_months__3
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__budget_period_months__3
+msgid "3 Months"
+msgstr "3 أشهر"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_period_months__6
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__budget_period_months__6
+msgid "6 Months"
+msgstr "6 أشهر"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid ""
+"<span class=\"o_stat_text\">Generated</span>\n"
+"                                <span class=\"o_stat_text\">Budget</span>"
+msgstr ""
+"<span class=\"o_stat_text\">الميزانية</span>\n"
+"                                <span class=\"o_stat_text\">المنشأة</span>"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "<span class=\"text-muted\">Budget Code</span>"
+msgstr "<span class=\"text-muted\">رمز الميزانية</span>"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid ""
+"<strong>Revised Budget</strong>\n"
+"                        <span>\n"
+"                            This requisition is under budget revision. It keeps the same request and updates the budget\n"
+"                            after approval.\n"
+"                        </span>"
+msgstr ""
+"<strong>ميزانية معدلة</strong>\n"
+"                        <span>\n"
+"                            هذا الطلب قيد مراجعة الميزانية. يحتفظ بنفس الطلب ويقوم بتحديث الميزانية\n"
+"                            بعد الموافقة.\n"
+"                        </span>"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Accounts"
+msgstr "الحسابات"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Accounts Approve"
+msgstr "موافقة الحسابات"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__accounts_approved
+msgid "Accounts Approved"
+msgstr "تمت موافقة الحسابات"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__accounts_approved_by_id
+msgid "Accounts Approved By"
+msgstr "تمت الموافقة بواسطة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Add at least one budget item line."
+msgstr "أضف بند ميزانية واحدًا على الأقل."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#, python-format
+msgid "All"
+msgstr "الكل"
+
+#. module: pr_budget_requisition
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_all_global
+msgid "All Budget Requisitions"
+msgstr "جميع طلبات الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_wizard__budget_state__all
+msgid "All Budgets"
+msgstr "جميع الميزانيات"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "All required roles approved this request and generated budget %s."
+msgstr "وافقت جميع الأدوار المطلوبة على هذا الطلب وتم إنشاء الميزانية %s."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "All required roles approved this revision and updated budget %s."
+msgstr "وافقت جميع الأدوار المطلوبة على هذا التعديل وتم تحديث الميزانية %s."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__scope
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__scope
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__scope
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Applies To"
+msgstr "ينطبق على"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Approval"
+msgstr "الموافقة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__approval_state
+msgid "Approval Stage"
+msgstr "مرحلة الموافقة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__approval_state__approved
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__state__approved
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_wizard__budget_state__approved
+msgid "Approved / Active"
+msgstr "معتمد / نشط"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#, python-format
+msgid "Approved PR Reservation"
+msgstr "حجز طلب الشراء المعتمد"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Approved budget requisitions cannot be rejected."
+msgstr "لا يمكن رفض طلبات الميزانية المعتمدة."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "Avg Utilization"
+msgstr "متوسط الاستخدام"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "BPV"
+msgstr "سند صرف بنكي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__bank_voucher_count
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "BPV Count"
+msgstr "عدد سندات الصرف البنكية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__bank_spent_amount
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "BPV Spend"
+msgstr "مصروفات سندات الصرف البنكية"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "BUDGET ANALYSIS REPORT"
+msgstr "تقرير تحليل الميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#, python-format
+msgid "Bank Payment Voucher"
+msgstr "سند صرف بنكي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__budget_id
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Budget"
+msgstr "الميزانية"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_graph
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_pivot
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Budget Analysis"
+msgstr "تحليل الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.actions.report,name:pr_budget_requisition.action_report_pr_budget_analysis_xlsx
+msgid "Budget Analysis Excel"
+msgstr "تحليل الميزانية - إكسل"
+
+#. module: pr_budget_requisition
+#: model:ir.actions.report,name:pr_budget_requisition.action_report_pr_budget_analysis_pdf
+msgid "Budget Analysis PDF"
+msgstr "تحليل الميزانية - PDF"
+
+#. module: pr_budget_requisition
+#: model:ir.model,name:pr_budget_requisition.model_report_pr_budget_requisition_budget_analysis_pdf
+msgid "Budget Analysis PDF Report"
+msgstr "تقرير تحليل الميزانية (PDF)"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#: model:ir.actions.act_window,name:pr_budget_requisition.action_pr_budget_report_wizard
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_report
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_wizard_form
+#, python-format
+msgid "Budget Analysis Report"
+msgstr "تقرير تحليل الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model,name:pr_budget_requisition.model_pr_budget_report_line
+msgid "Budget Analysis Report Line"
+msgstr "بند تقرير تحليل الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model,name:pr_budget_requisition.model_pr_budget_report_wizard
+msgid "Budget Analysis Report Wizard"
+msgstr "معالج تقرير تحليل الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model,name:pr_budget_requisition.model_report_pr_budget_requisition_budget_analysis_xlsx_report
+msgid "Budget Analysis XLSX Report"
+msgstr "تقرير تحليل الميزانية (XLSX)"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__generated_budget_code
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__budget_code
+msgid "Budget Code"
+msgstr "رمز الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__planned_amount
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "Budget Created"
+msgstr "الميزانية المُنشأة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__period_date_to
+msgid "Budget End Date"
+msgstr "تاريخ انتهاء الميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget End Date cannot be before Budget Start Date."
+msgstr "لا يمكن أن يكون تاريخ انتهاء الميزانية قبل تاريخ بدايتها."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__date_from
+msgid "Budget From"
+msgstr "الميزانية من"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Budget Items"
+msgstr "بنود الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__budget_left
+msgid "Budget Left"
+msgstr "المتبقي من الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__budget_line_id
+msgid "Budget Line"
+msgstr "بند الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__line_ids
+msgid "Budget Lines"
+msgstr "بنود الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__budget_period_months
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__budget_period_months
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Budget Period"
+msgstr "فترة الميزانية"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Budget Position"
+msgstr "بند الموازنة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__remaining_amount
+msgid "Budget Remaining"
+msgstr "المتبقي من الميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__requisition_id
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_new
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+#, python-format
+msgid "Budget Requisition"
+msgstr "طلب ميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget Requisition Approval Needed"
+msgstr "يتطلب طلب الميزانية الموافقة"
+
+#. module: pr_budget_requisition
+#: model:ir.actions.act_window,name:pr_budget_requisition.action_pr_budget_requisition_pending_approvals
+msgid "Budget Requisition Approvals"
+msgstr "موافقات طلبات الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model,name:pr_budget_requisition.model_pr_budget_requisition_reject_wizard
+msgid "Budget Requisition Reject Wizard"
+msgstr "معالج رفض طلب الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.actions.act_window,name:pr_budget_requisition.action_pr_budget_requisition_all
+#: model:ir.actions.act_window,name:pr_budget_requisition.action_pr_budget_requisition_my
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_approval
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_pending_approvals_workspace
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_root
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_tree
+msgid "Budget Requisitions"
+msgstr "طلبات الميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget Revision"
+msgstr "مراجعة الميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget Revisions"
+msgstr "مراجعات الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__period_date_from
+msgid "Budget Start Date"
+msgstr "تاريخ بدء الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__budget_state
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__budget_state
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Budget Status"
+msgstr "حالة الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__date_to
+msgid "Budget To"
+msgstr "الميزانية إلى"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Budget Utilization By Cost Center"
+msgstr "استخدام الميزانية حسب مركز التكلفة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__budget_version_label
+msgid "Budget Version"
+msgstr "إصدار الميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Budget for cost center %(cost_center)s cannot be %(planned).2f because "
+"%(spent).2f is already spent/committed in this period."
+msgstr ""
+"لا يمكن أن تكون ميزانية مركز التكلفة %(cost_center)s بقيمة %(planned).2f لأن "
+"مبلغ %(spent).2f قد تم إنفاقه أو الالتزام به بالفعل خلال هذه الفترة."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget requisition <b>%s</b> is waiting for Accounts approval."
+msgstr "طلب الميزانية <b>%s</b> بانتظار موافقة الحسابات."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Budget requisition <b>%s</b> is waiting for Department Manager approval."
+msgstr "طلب الميزانية <b>%s</b> بانتظار موافقة مدير القسم."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Budget requisition <b>%s</b> is waiting for Managing Director approval."
+msgstr "طلب الميزانية <b>%s</b> بانتظار موافقة المدير العام."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget requisition has been reset to draft."
+msgstr "تمت إعادة طلب الميزانية إلى مسودة."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget requisition rejected: %s"
+msgstr "تم رفض طلب الميزانية: %s"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Budget requisition submitted for Department Manager approval."
+msgstr "تم إرسال طلب الميزانية لاعتماد مدير القسم."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Budget revision R%s started. Edit the existing lines, then submit for "
+"approval again."
+msgstr ""
+"تم بدء مراجعة الميزانية R%s. قم بتعديل البنود الحالية ثم أعد إرسالها للموافقة."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Budget revisions keep the original department, period, and Opex/Capex type. "
+"Edit the budget lines only, or create a new budget for a different "
+"period/type."
+msgstr ""
+"تحافظ مراجعات الميزانية على القسم الأصلي والفترة ونوع المصروف (تشغيلي/رأسمالي). "
+"عدّل بنود الميزانية فقط، أو أنشئ ميزانية جديدة لفترة أو نوع مختلف."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Budgets"
+msgstr "الميزانيات"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "CPV"
+msgstr "سند صرف نقدي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__cash_voucher_count
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "CPV Count"
+msgstr "عدد سندات الصرف النقدية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__cash_spent_amount
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "CPV Spend"
+msgstr "مصروفات سندات الصرف النقدية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__can_accounts_approve
+msgid "Can Accounts Approve"
+msgstr "يمكن للحسابات الاعتماد"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__can_department_approve
+msgid "Can Department Approve"
+msgstr "يمكن للقسم الاعتماد"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__can_md_approve
+msgid "Can Md Approve"
+msgstr "يمكن للمدير العام الاعتماد"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__can_reject
+msgid "Can Reject"
+msgstr "يمكن الرفض"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__can_request_revision
+msgid "Can Request Revision"
+msgstr "يمكن طلب مراجعة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__can_reset_to_draft
+msgid "Can Reset To Draft"
+msgstr "يمكن الإرجاع إلى مسودة"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_wizard_form
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_reject_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_state__cancel
+msgid "Cancelled"
+msgstr "ملغاة"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Cannot revise budget line %(cost_center)s below already spent/committed "
+"amount. Proposed: %(planned).2f, spent: %(spent).2f."
+msgstr ""
+"لا يمكن تعديل ميزانية مركز التكلفة %(cost_center)s إلى أقل من المبلغ الذي تم "
+"إنفاقه أو الالتزام به. المقترح: %(planned).2f، المنفق: %(spent).2f."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__expense_type__capex
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_wizard__expense_type__capex
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__expense_type__capex
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Capex"
+msgstr "مصروفات رأسمالية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#, python-format
+msgid "Cash Payment Voucher"
+msgstr "سند صرف نقدي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__company_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__company_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__company_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_state__confirm
+msgid "Confirmed"
+msgstr "مؤكد"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__cost_center_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__cost_center_id
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Cost Center"
+msgstr "مركز التكلفة"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Cost Centers"
+msgstr "مراكز التكلفة"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Created Budget"
+msgstr "الميزانية المُنشأة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__create_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__create_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__create_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__create_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__create_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__create_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__create_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__currency_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__currency_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__currency_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__total_budget_amount
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__current_budget
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_tree
+msgid "Current Budget"
+msgstr "الميزانية الحالية"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__department_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__department_id
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__scope__department
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_wizard__scope__department
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__scope__department
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Department Approve"
+msgstr "اعتماد القسم"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__department_approved
+msgid "Department Approved"
+msgstr "تم اعتماد القسم"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__department_approved_by_id
+msgid "Department Approved By"
+msgstr "تم الاعتماد بواسطة"
+
+#. module: pr_budget_requisition
+#: model:ir.actions.act_window,name:pr_budget_requisition.action_pr_budget_requisition_department_approvals
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_department_approvals
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_department_approvals_global
+msgid "Department Budget Approvals"
+msgstr "اعتمادات ميزانية الأقسام"
+
+#. module: pr_budget_requisition
+#: model:ir.model,name:pr_budget_requisition.model_pr_budget_requisition
+msgid "Department Budget Requisition"
+msgstr "طلب ميزانية القسم"
+
+#. module: pr_budget_requisition
+#: model:ir.model,name:pr_budget_requisition.model_pr_budget_requisition_line
+msgid "Department Budget Requisition Line"
+msgstr "بند طلب ميزانية القسم"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__department_manager_user_id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__department_manager_user_id
+#, python-format
+msgid "Department Manager"
+msgstr "مدير القسم"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__department_ids
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Departments"
+msgstr "الأقسام"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition_line__item_name
+msgid ""
+"Detailed item being requested, such as coffee, tea, stationery, or pantry "
+"supplies."
+msgstr "تفاصيل الصنف المطلوب، مثل القهوة أو الشاي أو القرطاسية أو مستلزمات التموين."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__display_name
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__display_name
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__display_name
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__display_name
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Document"
+msgstr "المستند"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_state__done
+msgid "Done"
+msgstr "منجز"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__approval_state__draft
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_state__draft
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__state__draft
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__date_to
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Every budget item line must have a line total greater than zero."
+msgstr "يجب أن يكون إجمالي كل بند في الميزانية أكبر من صفر."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__expense_type
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__expense_type
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__expense_type
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Expense Type"
+msgstr "نوع المصروف"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Explain why this department budget is needed..."
+msgstr "اشرح سبب الحاجة إلى ميزانية هذا القسم..."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_wizard_form
+msgid "Export Excel"
+msgstr "تصدير إلى Excel"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_wizard_form
+msgid "Export PDF"
+msgstr "تصدير إلى PDF"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (جهات الاتصال)"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل fa-tasks"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_wizard_form
+msgid "Generate Report"
+msgstr "إنشاء التقرير"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__generated_budget_id
+#, python-format
+msgid "Generated Budget"
+msgstr "الميزانية المُنشأة"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Generated On"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Generated budget could not be validated. Current status: %s"
+msgstr "تعذر اعتماد الميزانية المُنشأة. الحالة الحالية: %s"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Generated from department budget requisition %s."
+msgstr "تم إنشاؤها من طلب ميزانية القسم %s."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسائل"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__id
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فإن هناك رسائل جديدة تتطلب انتباهك."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__message_has_error
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فإن بعض الرسائل تحتوي على أخطاء في التسليم."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Item"
+msgstr "البند"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__item_name
+msgid "Item Description"
+msgstr "وصف البند"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__reason
+msgid "Justification"
+msgstr "المبرر"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__write_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__write_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__write_uid
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__write_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__write_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__write_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__write_date
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition_line__budget_code
+msgid ""
+"Legacy alias kept for older purchase/portal flows. It mirrors the official "
+"Cost Center Code."
+msgstr "اسم مستعار قديم تم الاحتفاظ به لدعم عمليات الشراء/البوابة القديمة. وهو يعكس رمز مركز التكلفة الرسمي."
+
+#. module: pr_budget_requisition
+#: model:ir.model.constraint,message:pr_budget_requisition.constraint_pr_budget_requisition_line_pr_budget_requisition_amount_positive
+msgid "Line total must be greater than zero."
+msgstr "يجب أن يكون إجمالي البند أكبر من صفر."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "MD Approve"
+msgstr "اعتماد المدير العام"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__md_approved_by_id
+msgid "MD Approved By"
+msgstr "اعتمد بواسطة المدير العام"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Manager"
+msgstr "المدير"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Managing Director"
+msgstr "المدير العام"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__md_approved
+msgid "Md Approved"
+msgstr "تم اعتماد المدير العام"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_budget_requisition
+#: model:ir.ui.menu,name:pr_budget_requisition.menu_pr_budget_requisition_my_global
+msgid "My Budget Requisitions"
+msgstr "طلبات الميزانية الخاصة بي"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "My Department Approvals"
+msgstr "اعتمادات قسمي"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "My Requests"
+msgstr "طلباتي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#, python-format
+msgid "No Budget"
+msgstr "لا توجد ميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "No approved backend budget is available to revise."
+msgstr "لا توجد ميزانية معتمدة في النظام الخلفي متاحة للمراجعة."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "No backend budget has been generated yet."
+msgstr "لم يتم إنشاء أي ميزانية في النظام الخلفي بعد."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "No budget data found for the selected filters."
+msgstr "لم يتم العثور على بيانات ميزانية للفلاتر المحددة."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.actions.act_window,help:pr_budget_requisition.action_pr_budget_requisition_pending_approvals
+msgid "No budget requisitions are pending your approval."
+msgstr "لا توجد طلبات ميزانية بانتظار موافقتك."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي حدث بها خطأ في التسليم"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Only Accounts can approve this stage."
+msgstr "يمكن لقسم الحسابات فقط اعتماد هذه المرحلة."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Only Managing Director can approve this stage."
+msgstr "يمكن للمدير العام فقط اعتماد هذه المرحلة."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Only draft or rejected budget requisitions can be deleted."
+msgstr "يمكن حذف طلبات الميزانية الموجودة في حالة المسودة أو المرفوضة فقط."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Only the selected Department Manager can approve this stage."
+msgstr "يمكن لمدير القسم المحدد فقط اعتماد هذه المرحلة."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__expense_type__opex
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_wizard__expense_type__opex
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__expense_type__opex
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Opex"
+msgstr "المصروفات التشغيلية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition_line__product_id
+msgid ""
+"Optional product reference. You can also type a custom item description."
+msgstr "مرجع المنتج اختياري. يمكنك أيضًا إدخال وصف مخصص للبند."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Original"
+msgstr "أصلي"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Original - Revised"
+msgstr "أصلي - مُعدّل"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Original Budgets"
+msgstr "الميزانيات الأصلية"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Over Spent"
+msgstr "تجاوز الميزانية"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "PO"
+msgstr "أمر شراء"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__po_count
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "PR/PO Count"
+msgstr "عدد طلبات الشراء/أوامر الشراء"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__po_spent_amount
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "PR/PO Spend"
+msgstr "إنفاق طلبات الشراء/أوامر الشراء"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Partner"
+msgstr "الشريك"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__approval_state__accounts_approval
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__state__accounts_approval
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Pending Accounts"
+msgstr "بانتظار موافقة الحسابات"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__state__department_approval
+msgid "Pending Department Manager"
+msgstr "بانتظار موافقة مدير القسم"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__approval_state__pm_approval
+msgid "Pending Department/Project Manager"
+msgstr "بانتظار موافقة مدير القسم/المشروع"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Pending MD"
+msgstr "بانتظار موافقة المدير العام"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__approval_state__md_approval
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__state__md_approval
+msgid "Pending Managing Director"
+msgstr "بانتظار موافقة المدير العام"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Period"
+msgstr "الفترة"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Please enter an item description for every budget line."
+msgstr "يرجى إدخال وصف للصنف لكل بند في الميزانية."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_reject_wizard_form
+msgid "Please provide rejection reason..."
+msgstr "يرجى إدخال سبب الرفض..."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Please set a Department Manager user on the selected department before "
+"submitting."
+msgstr "يرجى تعيين مستخدم كمدير للقسم في القسم المحدد قبل الإرسال."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__product_id
+msgid "Product/Item"
+msgstr "المنتج / الصنف"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__scope__project
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_wizard__scope__project
+msgid "Project"
+msgstr "المشروع"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#, python-format
+msgid "Purchase Order"
+msgstr "أمر شراء"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_report.py:0
+#, python-format
+msgid "Purchase Requisition"
+msgstr "طلب شراء"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Qty"
+msgstr "الكمية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__quantity
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_reject_wizard_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_reject_wizard_form
+#, python-format
+msgid "Reject Budget Requisition"
+msgstr "رفض طلب الميزانية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__approval_state__rejected
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_requisition__state__rejected
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__rejection_reason
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_reject_wizard__rejection_reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__department_manager_user_id
+msgid "Related user name for the resource to manage its access."
+msgstr "اسم المستخدم المرتبط بالموظف لإدارة صلاحيات الوصول."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_tree
+msgid "Remaining"
+msgstr "المتبقي"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Remaining After"
+msgstr "المتبقي بعد"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__remaining_after_request
+msgid "Remaining After Approval"
+msgstr "المتبقي بعد الموافقة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__total_remaining_amount
+msgid "Remaining Amount"
+msgstr "المبلغ المتبقي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__remarks
+msgid "Remarks"
+msgstr "ملاحظات"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_wizard__line_ids
+msgid "Report Lines"
+msgstr "بنود التقرير"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__request_date
+msgid "Request Date"
+msgstr "تاريخ الطلب"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__name
+msgid "Request Number"
+msgstr "رقم الطلب"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+msgid "Requested"
+msgstr "المطلوب"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__requested_amount
+msgid "Requested Amount"
+msgstr "المبلغ المطلوب"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Requested Budget Items"
+msgstr "بنود الميزانية المطلوبة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__requested_by_id
+msgid "Requested By"
+msgstr "مقدم الطلب"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__requisition_id
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Requisition"
+msgstr "الطلب"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Requisitions"
+msgstr "الطلبات"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Reset to Draft"
+msgstr "إعادة إلى المسودة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Revise Budget"
+msgstr "مراجعة الميزانية"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Revised Budget"
+msgstr "الميزانية المعدلة"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Revised Budget R%s"
+msgstr "الميزانية المعدلة R%s"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Revised Budgets"
+msgstr "الميزانيات المعدلة"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Revised from department budget requisition %s."
+msgstr "تمت المراجعة من طلب ميزانية القسم %s."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__is_revision
+msgid "Revision"
+msgstr "مراجعة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__revision_number
+msgid "Revision No."
+msgstr "رقم المراجعة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__revision_of_id
+msgid "Revision Of"
+msgstr "مراجعة لـ"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__revision_count
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__revision_ids
+msgid "Revisions"
+msgstr "المراجعات"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Source"
+msgstr "المصدر"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__source_requisition_id
+msgid "Source Requisition"
+msgstr "طلب المصدر"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Spend Sources"
+msgstr "مصادر الصرف"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_tree
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_tree
+msgid "Spent"
+msgstr "المنصرف"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__total_spent_amount
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__budget_spent
+msgid "Spent Amount"
+msgstr "المبلغ المنصرف"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__date_from
+msgid "Start Date"
+msgstr "تاريخ البداية"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__state
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Submitted budget requisition lines cannot be deleted."
+msgstr "لا يمكن حذف بنود طلب الميزانية بعد إرسالها."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Submitted budget requisition lines cannot be edited."
+msgstr "لا يمكن تعديل بنود طلب الميزانية بعد إرسالها."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"Submitted budget requisitions cannot be edited. Reject and reset it first."
+msgstr "لا يمكن تعديل طلبات الميزانية بعد إرسالها. قم برفضها ثم أعدها إلى المسودة أولاً."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"The original requisition does not have an approved backend budget to revise."
+msgstr "لا يحتوي الطلب الأصلي على ميزانية معتمدة يمكن مراجعتها."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid ""
+"This requisition already generated a backend budget and cannot be deleted."
+msgstr "تم إنشاء ميزانية لهذا الطلب بالفعل، لذلك لا يمكن حذفه."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_search
+msgid "To Approve"
+msgstr "بانتظار الموافقة"
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_tree
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__requested_amount
+msgid "Total Amount"
+msgstr "إجمالي المبلغ"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__total_requested_amount
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_requisition_form
+msgid "Total Requested"
+msgstr "إجمالي المبلغ المطلوب"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__spent_amount
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Total Spent"
+msgstr "إجمالي المصروف"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Total requested amount must be greater than zero."
+msgstr "يجب أن يكون إجمالي المبلغ المطلوب أكبر من صفر."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__scope__trading
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_wizard__scope__trading
+msgid "Trading"
+msgstr "التجارة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__unit
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Unit"
+msgstr "الوحدة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition_line__unit_price
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Unit Price"
+msgstr "سعر الوحدة"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__utilization_rate
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "Utilization %"
+msgstr "نسبة الاستخدام %"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields.selection,name:pr_budget_requisition.selection__pr_budget_report_line__budget_state__validate
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.view_pr_budget_report_line_search
+msgid "Validated"
+msgstr "معتمد"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_requisition__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,help:pr_budget_requisition.field_pr_budget_requisition__website_message_ids
+msgid "Website communication history"
+msgstr "سجل مراسلات الموقع"
+
+#. module: pr_budget_requisition
+#: model:ir.model.fields,field_description:pr_budget_requisition.field_pr_budget_report_line__wizard_id
+msgid "Wizard"
+msgstr "المعالج"
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "You cannot reject this requisition at the current stage."
+msgstr "لا يمكنك رفض هذا الطلب في المرحلة الحالية."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "You cannot request a revision for this budget."
+msgstr "لا يمكنك طلب مراجعة لهذه الميزانية."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "You cannot reset this requisition to draft."
+msgstr "لا يمكنك إعادة هذا الطلب إلى حالة المسودة."
+
+#. module: pr_budget_requisition
+#. odoo-python
+#: code:addons/pr_budget_requisition/models/budget_requisition.py:0
+#, python-format
+msgid "Your approval role has already been recorded for this requisition."
+msgstr "تم تسجيل موافقتك على هذا الطلب بالفعل."
+
+#. module: pr_budget_requisition
+#: model_terms:ir.ui.view,arch_db:pr_budget_requisition.budget_analysis_pdf
+msgid "to"
+msgstr "إلى"

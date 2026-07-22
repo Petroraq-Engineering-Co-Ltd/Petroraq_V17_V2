@@ -1,0 +1,111 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* petro_retention
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 11:16+0000\n"
+"PO-Revision-Date: 2026-07-15 11:16+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: petro_retention
+#: model:ir.model,name:petro_retention.model_res_config_settings
+msgid "Config Settings"
+msgstr "إعدادات التهيئة"
+
+#. module: petro_retention
+#: model:ir.model.fields,field_description:petro_retention.field_sale_order_line__is_retention
+msgid "Is Retention Line"
+msgstr "هل هو بند احتجاز"
+
+#. module: petro_retention
+#: model:ir.model,name:petro_retention.model_account_move
+msgid "Journal Entry"
+msgstr "قيد اليومية"
+
+#. module: petro_retention
+#: model_terms:ir.ui.view,arch_db:petro_retention.view_res_config_settings_petro_retention
+msgid "Product used for the negative retention line on invoices."
+msgstr "المنتج المستخدم لبند الاحتجاز السالب في الفواتير."
+
+#. module: petro_retention
+#: model:ir.model.fields,help:petro_retention.field_res_config_settings__retention_product_id
+msgid ""
+"Product used to create the negative retention deduction line on invoices."
+msgstr "المنتج المستخدم لإنشاء بند خصم الاحتجاز السالب في الفواتير."
+
+#. module: petro_retention
+#: model:ir.model,name:petro_retention.model_sale_order
+msgid "Quotation"
+msgstr "عرض السعر"
+
+#. module: petro_retention
+#: model_terms:ir.ui.view,arch_db:petro_retention.view_res_config_settings_petro_retention
+#: model_terms:ir.ui.view,arch_db:petro_retention.view_sale_order_form_petro_retention
+msgid "Retention"
+msgstr "الاحتجاز"
+
+#. module: petro_retention
+#: model:ir.model.fields,field_description:petro_retention.field_sale_order__retention_percent
+msgid "Retention (%)"
+msgstr "نسبة الاحتجاز (%)"
+
+#. module: petro_retention
+#: model:ir.model.fields,field_description:petro_retention.field_sale_order__retention_amount_total
+msgid "Retention Amount"
+msgstr "مبلغ الاحتجاز"
+
+#. module: petro_retention
+#: model:ir.model.fields,field_description:petro_retention.field_account_bank_statement_line__retention_deduct_amount
+#: model:ir.model.fields,field_description:petro_retention.field_account_move__retention_deduct_amount
+#: model:ir.model.fields,field_description:petro_retention.field_account_payment__retention_deduct_amount
+#: model:product.template,name:petro_retention.product_retention_deduction_product_template
+msgid "Retention Deduction"
+msgstr "خصم الاحتجاز"
+
+#. module: petro_retention
+#: model:ir.model.fields,field_description:petro_retention.field_res_config_settings__retention_product_id
+msgid "Retention Product"
+msgstr "منتج الاحتجاز"
+
+#. module: petro_retention
+#: model:ir.model.fields,field_description:petro_retention.field_sale_order__retention_remaining
+msgid "Retention Remaining"
+msgstr "الاحتجاز المتبقي"
+
+#. module: petro_retention
+#: model:ir.model.fields,field_description:petro_retention.field_sale_order__retention_withheld_total
+msgid "Retention Withheld"
+msgstr "الاحتجاز المستقطع"
+
+#. module: petro_retention
+#: model:ir.model.fields,help:petro_retention.field_sale_order__retention_percent
+msgid ""
+"Retention percentage withheld from each invoice (based on invoice base)."
+msgstr "نسبة الاحتجاز التي تُستقطع من كل فاتورة (استنادًا إلى أساس الفاتورة)."
+
+#. module: petro_retention
+#: model:ir.model,name:petro_retention.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "بند أمر البيع"
+
+#. module: petro_retention
+#: model:ir.model.fields,help:petro_retention.field_sale_order_line__is_retention
+msgid "Technical line used to generate retention deduction on invoices."
+msgstr "بند تقني يُستخدم لإنشاء خصم الاحتجاز في الفواتير."
+
+#. module: petro_retention
+#: model:ir.model.fields,help:petro_retention.field_sale_order__retention_amount_total
+msgid ""
+"Total retention to be withheld across all invoices (computed from %). You "
+"can edit it; % will be recalculated."
+msgstr ""
+"إجمالي مبلغ الاحتجاز الذي سيتم استقطاعه عبر جميع الفواتير (يُحسب بناءً على "
+"النسبة المئوية). يمكنك تعديل المبلغ، وسيتم إعادة احتساب النسبة المئوية."

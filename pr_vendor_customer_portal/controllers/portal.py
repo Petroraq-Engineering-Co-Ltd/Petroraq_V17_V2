@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
+import logging
 from math import isfinite
 from markupsafe import Markup, escape
 
@@ -8,7 +9,7 @@ from odoo import _, fields, http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import content_disposition, request
 from odoo.osv import expression
-from odoo.tools import format_amount
+from odoo.tools import config, format_amount
 
 from odoo.addons.account.controllers.portal import PortalAccount
 from odoo.addons.portal.controllers.portal import pager as portal_pager
@@ -16,9 +17,25 @@ from odoo.addons.purchase.controllers.portal import CustomerPortal as PurchasePo
 from odoo.addons.sale.controllers.portal import CustomerPortal as SalePortal
 
 
+_logger = logging.getLogger(__name__)
+
+
 class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
     _vendor_invoice_max_file_size = 10 * 1024 * 1024
     _vendor_document_max_file_size = 10 * 1024 * 1024
+
+    def _vendor_upload_error(self, message, exception):
+        """Keep production errors private, but make local --dev failures actionable."""
+        errors = [message]
+        if config.get("dev_mode"):
+            errors.append(
+                _(
+                    "Development details: %(error_type)s: %(error)s",
+                    error_type=type(exception).__name__,
+                    error=str(exception),
+                )
+            )
+        return errors
 
     def _commercial_partner(self):
         return request.env.user.partner_id.commercial_partner_id
@@ -708,34 +725,56 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     escape(note)
                 ) if note else Markup(""),
             )
-            target.sudo().message_post(
-                body=message_body,
-                attachment_ids=attachment.ids,
-                author_id=request.env.user.partner_id.id,
-                subtype_xmlid="mail.mt_note",
-            )
+            try:
+                with request.env.cr.savepoint():
+                    target.sudo().message_post(
+                        body=message_body,
+                        attachment_ids=attachment.ids,
+                        author_id=request.env.user.partner_id.id,
+                        subtype_xmlid="mail.mt_note",
+                    )
+            except Exception:
+                _logger.exception(
+                    "Vendor document %s was attached to PO %s, but chatter posting failed",
+                    attachment.id,
+                    po.id,
+                )
 
-            reviewers = self._vendor_upload_reviewers(
-                po,
-                (
-                    "pr_custom_purchase.inventory_qc",
-                    "pr_custom_purchase.inventory_admin",
-                ),
+            try:
+                with request.env.cr.savepoint():
+                    reviewers = self._vendor_upload_reviewers(
+                        po,
+                        (
+                            "pr_custom_purchase.inventory_qc",
+                            "pr_custom_purchase.inventory_admin",
+                        ),
+                    )
+                    self._schedule_vendor_upload_reviewers(
+                        po,
+                        reviewers,
+                        _(
+                            "%(summary)s %(number)s",
+                            summary=document_meta["activity_summary"],
+                            number=document_number,
+                        ),
+                        message_body,
+                    )
+            except Exception:
+                _logger.exception(
+                    "Vendor document %s was attached to PO %s, but reviewer notification failed",
+                    attachment.id,
+                    po.id,
+                )
+        except Exception as exception:
+            _logger.exception(
+                "Vendor portal document upload failed for PO %s and document %s",
+                po.id,
+                document_number,
             )
-            self._schedule_vendor_upload_reviewers(
-                po,
-                reviewers,
-                _(
-                    "%(summary)s %(number)s",
-                    summary=document_meta["activity_summary"],
-                    number=document_number,
-                ),
-                message_body,
-            )
-        except Exception:
             request.env.cr.rollback()
-            error_message.append(_(
-                "The document could not be attached to the purchase order. Please try again or contact Procurement."
+            error_message.extend(self._vendor_upload_error(
+                _("The document could not be attached to the purchase order. Please try again or contact Procurement."),
+                exception,
             ))
             return request.render(
                 "pr_vendor_customer_portal.portal_vendor_document_upload",
@@ -932,43 +971,65 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     escape(note)
                 ) if note else Markup(""),
             )
-            po.sudo().message_post(
-                body=message_body,
-                attachment_ids=attachment.ids,
-                author_id=request.env.user.partner_id.id,
-                subtype_xmlid="mail.mt_note",
-            )
+            try:
+                with request.env.cr.savepoint():
+                    po.sudo().message_post(
+                        body=message_body,
+                        attachment_ids=attachment.ids,
+                        author_id=request.env.user.partner_id.id,
+                        subtype_xmlid="mail.mt_note",
+                    )
+            except Exception:
+                _logger.exception(
+                    "Vendor invoice %s was attached to PO %s, but chatter posting failed",
+                    attachment.id,
+                    po.id,
+                )
 
-            reviewer_group = request.env.ref(
-                "pr_vendor_customer_portal.group_vendor_invoice_reviewer",
-                raise_if_not_found=False,
+            try:
+                with request.env.cr.savepoint():
+                    reviewer_group = request.env.ref(
+                        "pr_vendor_customer_portal.group_vendor_invoice_reviewer",
+                        raise_if_not_found=False,
+                    )
+                    reviewers = reviewer_group.users.filtered("active") if reviewer_group else request.env["res.users"]
+                    reviewers = reviewers.filtered(
+                        lambda user: po.company_id in user.company_ids
+                    )
+                    if not reviewers:
+                        accounting_group = request.env.ref(
+                            "account.group_account_manager",
+                            raise_if_not_found=False,
+                        )
+                        reviewers = accounting_group.users.filtered("active") if accounting_group else request.env["res.users"]
+                        reviewers = reviewers.filtered(
+                            lambda user: po.company_id in user.company_ids
+                        )
+                    if not reviewers and po.user_id and po.user_id.active:
+                        reviewers = po.user_id
+                    for reviewer in reviewers:
+                        po.sudo().activity_schedule(
+                            "mail.mail_activity_data_todo",
+                            user_id=reviewer.id,
+                            summary=_("Review Vendor Invoice %(number)s", number=vendor_invoice_number),
+                            note=message_body,
+                        )
+            except Exception:
+                _logger.exception(
+                    "Vendor invoice %s was attached to PO %s, but reviewer notification failed",
+                    attachment.id,
+                    po.id,
+                )
+        except Exception as exception:
+            _logger.exception(
+                "Vendor portal invoice upload failed for PO %s and invoice %s",
+                po.id,
+                vendor_invoice_number,
             )
-            reviewers = reviewer_group.users.filtered("active") if reviewer_group else request.env["res.users"]
-            reviewers = reviewers.filtered(
-                lambda user: po.company_id in user.company_ids
-            )
-            if not reviewers:
-                accounting_group = request.env.ref(
-                    "account.group_account_manager",
-                    raise_if_not_found=False,
-                )
-                reviewers = accounting_group.users.filtered("active") if accounting_group else request.env["res.users"]
-                reviewers = reviewers.filtered(
-                    lambda user: po.company_id in user.company_ids
-                )
-            if not reviewers and po.user_id and po.user_id.active:
-                reviewers = po.user_id
-            for reviewer in reviewers:
-                po.sudo().activity_schedule(
-                    "mail.mail_activity_data_todo",
-                    user_id=reviewer.id,
-                    summary=_("Review Vendor Invoice %(number)s", number=vendor_invoice_number),
-                    note=message_body,
-                )
-        except Exception:
             request.env.cr.rollback()
-            error_message.append(_(
-                "The invoice could not be attached to the purchase order. Please try again or contact Accounts."
+            error_message.extend(self._vendor_upload_error(
+                _("The invoice could not be attached to the purchase order. Please try again or contact Accounts."),
+                exception,
             ))
             return request.render(
                 "pr_vendor_customer_portal.portal_vendor_invoice_upload",

@@ -6,14 +6,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-24 14:39+0000\n"
-"PO-Revision-Date: 2025-12-24 14:39+0000\n"
+"POT-Creation-Date: 2026-07-15 11:21+0000\n"
+"PO-Revision-Date: 2026-07-15 11:21+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: sale_order_inquiry
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Accept"
+msgstr "قبول"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__accept
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Accepted"
+msgstr "تم القبول"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__message_needaction
@@ -28,7 +39,7 @@ msgstr "الأنشطة"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__activity_exception_decoration
 msgid "Activity Exception Decoration"
-msgstr "تنبيه استثناء النشاط"
+msgstr "تمييز استثناء النشاط"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__activity_state
@@ -47,9 +58,22 @@ msgstr "عدد المرفقات"
 
 #. module: sale_order_inquiry
 #: model_terms:ir.ui.view,arch_db:sale_order_inquiry.order_inq_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_extend_deadline_wizard_form
 #: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
 msgid "Cancel"
 msgstr "إلغاء"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__cancel
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__closed
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Closed"
+msgstr "مغلق"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__company_id
@@ -57,9 +81,9 @@ msgid "Company"
 msgstr "الشركة"
 
 #. module: sale_order_inquiry
-#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
-msgid "Confirm"
-msgstr "تأكيد"
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_extend_deadline_wizard_form
+msgid "Confirm Deadline"
+msgstr "تأكيد الموعد النهائي"
 
 #. module: sale_order_inquiry
 #: model_terms:ir.ui.view,arch_db:sale_order_inquiry.order_inq_reject_wizard_form
@@ -67,24 +91,61 @@ msgid "Confirm Reject"
 msgstr "تأكيد الرفض"
 
 #. module: sale_order_inquiry
-#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
-msgid "Confirmed"
-msgstr "مؤكد"
+#: model:ir.model,name:sale_order_inquiry.model_res_partner
+msgid "Contact"
+msgstr "جهة الاتصال"
 
 #. module: sale_order_inquiry
-#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__contact_person
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__contact_partner_id
 msgid "Contact Person"
 msgstr "الشخص المسؤول"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__contact_person_email
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_sale_order__inquiry_contact_person_email
 msgid "Contact Person Email"
 msgstr "البريد الإلكتروني للشخص المسؤول"
 
 #. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__contact_person
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_sale_order__inquiry_contact_person
+msgid "Contact Person Name"
+msgstr "اسم الشخص المسؤول"
+
+#. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__contact_person_phone
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_sale_order__inquiry_contact_person_phone
 msgid "Contact Person Phone"
-msgstr "رقم هاتف الشخص المسؤول"
+msgstr "هاتف الشخص المسؤول"
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid ""
+"Contact Person must be one of the contacts under the selected Customer."
+msgstr "يجب أن يكون الشخص المسؤول أحد جهات الاتصال التابعة للعميل المحدد."
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid ""
+"Contact Person name must contain letters only (no numbers or special "
+"characters)."
+msgstr "يجب أن يحتوي اسم الشخص المسؤول على أحرف فقط (بدون أرقام أو رموز خاصة)."
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__contact_partner_id
+msgid ""
+"Contact person under the selected customer. New contacts are created below "
+"that customer."
+msgstr "الشخص المسؤول التابع للعميل المحدد. سيتم إنشاء جهات اتصال جديدة ضمن هذا العميل."
+
+#. module: sale_order_inquiry
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Create Estimation"
+msgstr "إنشاء تقدير"
 
 #. module: sale_order_inquiry
 #: model_terms:ir.actions.act_window,help:sale_order_inquiry.action_order_inquiry
@@ -98,15 +159,27 @@ msgstr "إنشاء عرض سعر"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__create_uid
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__create_uid
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__create_uid
 msgid "Created by"
 msgstr "أنشئ بواسطة"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__create_date
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__create_date
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__create_date
 msgid "Created on"
-msgstr "أنشئ في"
+msgstr "تاريخ الإنشاء"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__current_deadline
+msgid "Current Deadline"
+msgstr "الموعد النهائي الحالي"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__partner_id
@@ -120,26 +193,93 @@ msgstr "البريد الإلكتروني للعميل"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__deadline_submission
-msgid "Deadline of Submission"
-msgstr "آخر موعد للتقديم"
+msgid "Deadline"
+msgstr "الموعد النهائي"
 
 #. module: sale_order_inquiry
 #. odoo-python
 #: code:addons/sale_order_inquiry/models/order_inq.py:0
 #, python-format
-msgid "Deadline of Submission must be at least 5 days after the Inquiry Date."
-msgstr "يجب أن يكون آخر موعد للتقديم بعد تاريخ الاستفسار بخمسة أيام على الأقل."
+msgid "Deadline of Submission cannot be before the Inquiry Date."
+msgstr "لا يمكن أن يكون موعد التقديم النهائي قبل تاريخ الاستفسار."
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "Deadline of Submission cannot exceed 30 days from the Inquiry Date."
+msgstr "لا يمكن أن يتجاوز موعد التقديم النهائي 30 يومًا من تاريخ الاستفسار."
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__designation
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_res_partner__designation
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_res_users__designation
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_sale_order__inquiry_contact_person_designation
 msgid "Designation"
 msgstr "المسمى الوظيفي"
 
 #. module: sale_order_inquiry
+#: model:ir.model.fields,help:sale_order_inquiry.field_res_partner__designation
+#: model:ir.model.fields,help:sale_order_inquiry.field_res_users__designation
+msgid "Designation/title used for customer contact persons in sale inquiries."
+msgstr "المسمى الوظيفي/اللقب المستخدم لجهات اتصال العملاء في استفسارات المبيعات."
+
+#. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__display_name
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__display_name
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__display_name
 msgid "Display Name"
 msgstr "الاسم المعروض"
+
+#. module: sale_order_inquiry
+#: model:ir.model,name:sale_order_inquiry.model_petroraq_estimation
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__estimation_id
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Estimation"
+msgstr "التقدير"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__estimation_count
+msgid "Estimation Count"
+msgstr "عدد التقديرات"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__estimation_created
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Estimation Created"
+msgstr "تم إنشاء التقدير"
+
+#. module: sale_order_inquiry
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Estimation Status"
+msgstr "حالة التقدير"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__estimation_ids
+msgid "Estimations"
+msgstr "التقديرات"
+
+#. module: sale_order_inquiry
+#: model:ir.actions.server,name:sale_order_inquiry.cron_expire_order_inquiry_ir_actions_server
+msgid "Expire Order Inquiry Without Quotation"
+msgstr "إنهاء صلاحية استفسار الطلب بدون عرض سعر"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__expire
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Expired"
+msgstr "منتهي الصلاحية"
+
+#. module: sale_order_inquiry
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_extend_deadline_wizard_form
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Extend Deadline"
+msgstr "تمديد الموعد النهائي"
+
+#. module: sale_order_inquiry
+#: model:ir.model,name:sale_order_inquiry.model_order_inq_extend_deadline_wizard
+msgid "Extend Inquiry Deadline"
+msgstr "تمديد الموعد النهائي للاستفسار"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__message_follower_ids
@@ -154,39 +294,45 @@ msgstr "المتابعون (الشركاء)"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
-msgstr "أيقونة Font Awesome مثل fa-tasks"
+msgstr "أيقونة Font Awesome مثل: fa-tasks"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__quotation_amount_total
+msgid "Grand total including profit (no VAT)."
+msgstr "الإجمالي شاملاً الربح (بدون ضريبة القيمة المضافة)."
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__has_message
 msgid "Has Message"
-msgstr "يحتوي على رسالة"
+msgstr "يحتوي على رسائل"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__id
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__id
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__id
 msgid "ID"
-msgstr "المعرّف"
+msgstr "المعرف"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__activity_exception_icon
 msgid "Icon"
-msgstr "أيقونة"
+msgstr "الأيقونة"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__activity_exception_icon
 msgid "Icon to indicate an exception activity."
-msgstr "أيقونة تشير إلى نشاط استثنائي"
+msgstr "أيقونة تشير إلى وجود نشاط استثنائي."
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__message_needaction
 msgid "If checked, new messages require your attention."
-msgstr "عند التحديد، توجد رسائل جديدة تتطلب انتباهك"
+msgstr "إذا تم تحديده، فهذا يعني أن هناك رسائل جديدة تتطلب انتباهك."
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__message_has_error
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
-msgstr "عند التحديد، بعض الرسائل بها خطأ في التسليم"
+msgstr "إذا تم تحديده، فهذا يعني أن بعض الرسائل تعذر تسليمها."
 
 #. module: sale_order_inquiry
 #: model:ir.ui.menu,name:sale_order_inquiry.menu_action_order_inquiry
@@ -194,14 +340,23 @@ msgid "Inquiries"
 msgstr "الاستفسارات"
 
 #. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__inquiry_id
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__inquiry_id
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_petroraq_estimation__order_inquiry_id
 msgid "Inquiry"
 msgstr "الاستفسار"
 
 #. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "Inquiry %s requires review"
+msgstr "الاستفسار %s يتطلب المراجعة."
+
+#. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__user_id
-msgid "Inquiry BY"
-msgstr "الاستفسار بواسطة"
+msgid "Inquiry By"
+msgstr "مقدم الاستفسار"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__date_order
@@ -216,24 +371,37 @@ msgstr "وصف الاستفسار"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__name
-msgid "Inquiry No."
+msgid "Inquiry No"
 msgstr "رقم الاستفسار"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__inquiry_type
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_sale_order__inquiry_type
+msgid "Inquiry Type"
+msgstr "نوع الاستفسار"
 
 #. module: sale_order_inquiry
 #. odoo-python
 #: code:addons/sale_order_inquiry/models/order_inq.py:0
 #, python-format
 msgid "Invalid email format. Example: name@example.com"
-msgstr "صيغة البريد الإلكتروني غير صحيحة. مثال: name@example.com"
+msgstr "تنسيق البريد الإلكتروني غير صالح. مثال: name@example.com"
 
 #. module: sale_order_inquiry
 #. odoo-python
 #: code:addons/sale_order_inquiry/models/order_inq.py:0
 #, python-format
 msgid ""
-"Invalid phone number. Use digits only, minimum 9 digits, optionally starting"
-" with +"
-msgstr "رقم الهاتف غير صالح. استخدم أرقامًا فقط بحد أدنى 9 أرقام ويمكن أن يبدأ بـ +"
+"Invalid phone number. Use digits only, minimum 9 digits, optionally starting "
+"with +"
+msgstr "رقم الهاتف غير صالح. استخدم أرقامًا فقط، بحد أدنى 9 أرقام، ويمكن أن يبدأ بعلامة +."
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "Invalid section line."
+msgstr "سطر القسم غير صالح."
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__message_is_follower
@@ -241,16 +409,28 @@ msgid "Is Follower"
 msgstr "متابع"
 
 #. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_sale_order_line__is_locked_section
+msgid "Is Locked Section"
+msgstr "قسم مقفل"
+
+#. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__write_uid
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__write_uid
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__write_uid
 msgid "Last Updated by"
-msgstr "آخر تعديل بواسطة"
+msgstr "آخر تحديث بواسطة"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__write_date
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__write_date
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__write_date
 msgid "Last Updated on"
-msgstr "آخر تعديل في"
+msgstr "آخر تحديث في"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__quotation_main_id
+msgid "Main Quotation"
+msgstr "عرض السعر الرئيسي"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__message_has_error
@@ -275,7 +455,26 @@ msgstr "طلبات متعددة"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__my_activity_date_deadline
 msgid "My Activity Deadline"
-msgstr "موعد نشاطي"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_extend_deadline_wizard__new_deadline
+msgid "New Deadline"
+msgstr "الموعد النهائي الجديد"
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "New Note"
+msgstr "ملاحظة جديدة"
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "New Section"
+msgstr "قسم جديد"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__activity_calendar_event_id
@@ -285,7 +484,7 @@ msgstr "حدث التقويم للنشاط التالي"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__activity_date_deadline
 msgid "Next Activity Deadline"
-msgstr "موعد النشاط التالي"
+msgstr "الموعد النهائي للنشاط التالي"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__activity_summary
@@ -310,12 +509,12 @@ msgstr "عدد الأخطاء"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__message_needaction_counter
 msgid "Number of messages requiring action"
-msgstr "عدد الرسائل التي تتطلب إجراء"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__message_has_error_counter
 msgid "Number of messages with delivery error"
-msgstr "عدد الرسائل التي فشل تسليمها"
+msgstr "عدد الرسائل التي تعذر تسليمها"
 
 #. module: sale_order_inquiry
 #: model:ir.actions.act_window,name:sale_order_inquiry.action_order_inquiry
@@ -334,20 +533,56 @@ msgid "Pending"
 msgstr "قيد الانتظار"
 
 #. module: sale_order_inquiry
-#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.order_inq_reject_wizard_form
-msgid "Please enter the reason for rejection"
-msgstr "يرجى إدخال سبب الرفض"
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "Please attach at least one file."
+msgstr "يرجى إرفاق ملف واحد على الأقل."
 
 #. module: sale_order_inquiry
-#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__confirm
-msgid "Posted"
-msgstr "مرحّل"
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.order_inq_reject_wizard_form
+msgid "Please enter the reason for rejection"
+msgstr "يرجى إدخال سبب الرفض."
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "Please review inquiry %s and take the needed approval action."
+msgstr "يرجى مراجعة الاستفسار %s واتخاذ إجراء الموافقة المطلوب."
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__inquiry_type__construction
+msgid "Project"
+msgstr "مشروع"
 
 #. module: sale_order_inquiry
 #: model:ir.model,name:sale_order_inquiry.model_sale_order
 #: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
 msgid "Quotation"
-msgstr "أمر البيع"
+msgstr "عرض سعر"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__quotation_approval_state
+msgid "Quotation Approval Status"
+msgstr "حالة اعتماد عرض السعر"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__quotation_created
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Quotation Created"
+msgstr "تم إنشاء عرض السعر"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__quotation_state
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Quotation Status"
+msgstr "حالة عرض السعر"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__quotation_amount_total
+msgid "Quotation Total"
+msgstr "إجمالي عرض السعر"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__rating_ids
@@ -373,13 +608,23 @@ msgstr "معالج سبب الرفض"
 #: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__reject
 #: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
 msgid "Rejected"
-msgstr "ملغي"
+msgstr "مرفوض"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__rejection_reason
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq_reject_reason_wizard__reason
 msgid "Rejection Reason"
 msgstr "سبب الرفض"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__required_attachment_ids
+msgid "Required Attachments"
+msgstr "المرفقات المطلوبة"
+
+#. module: sale_order_inquiry
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Reset Draft"
+msgstr "إعادة إلى المسودة"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__activity_user_id
@@ -389,7 +634,7 @@ msgstr "المستخدم المسؤول"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__message_has_sms_error
 msgid "SMS Delivery error"
-msgstr "خطأ في تسليم الرسالة النصية"
+msgstr "خطأ في تسليم الرسائل النصية"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__sale_count
@@ -404,7 +649,7 @@ msgstr "استفسارات المبيعات"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__sale_order_id
 msgid "Sale Order"
-msgstr "أمر البيع"
+msgstr "أمر بيع"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__sale_order_ids
@@ -412,9 +657,28 @@ msgid "Sale Order's"
 msgstr "أوامر البيع"
 
 #. module: sale_order_inquiry
+#: model:ir.model,name:sale_order_inquiry.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "بند أمر البيع"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__partner_id
+msgid ""
+"Select the main customer/company only; child contacts are selected in "
+"Contact Person."
+msgstr ""
+"حدد العميل أو الشركة الرئيسية فقط؛ أما جهات الاتصال التابعة فيتم اختيارها "
+"من حقل «جهة الاتصال»."
+
+#. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__sequence
 msgid "Sequence"
 msgstr "التسلسل"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__state
+msgid "State"
+msgstr "الحالة"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__activity_state
@@ -424,20 +688,66 @@ msgid ""
 "Today: Activity date is today\n"
 "Planned: Future activities."
 msgstr ""
-"الحالة بناءً على الأنشطة\n"
-"متأخر: تاريخ الاستحقاق قد مضى\n"
-"اليوم: تاريخ النشاط هو اليوم\n"
-"مخطط: أنشطة مستقبلية"
+"الحالة بناءً على الأنشطة.\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق.\n"
+"اليوم: تاريخ النشاط هو اليوم.\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__contact_person
+#: model:ir.model.fields,help:sale_order_inquiry.field_sale_order__inquiry_contact_person
+msgid ""
+"Stored display name of the selected contact person for reporting and legacy "
+"integrations."
+msgstr ""
+"اسم العرض المخزن لجهة الاتصال المحددة، ويستخدم لأغراض التقارير والتكامل مع "
+"الأنظمة القديمة."
+
+#. module: sale_order_inquiry
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__confirm
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "Submitted"
+msgstr "تم الإرسال"
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "Target is not a section."
+msgstr "العنصر المستهدف ليس قسمًا."
+
+#. module: sale_order_inquiry
+#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__inquiry_type__trading
+msgid "Trading"
+msgstr "تجاري"
+
+#. module: sale_order_inquiry
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "Trading inquiry type is temporarily disabled for new selections."
+msgstr "تم تعطيل نوع الاستفسار التجاري مؤقتًا للاختيارات الجديدة."
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "نوع النشاط الاستثنائي المسجل"
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: sale_order_inquiry
+#: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
+msgid "View Estimation"
+msgstr "عرض التقدير"
 
 #. module: sale_order_inquiry
 #: model_terms:ir.ui.view,arch_db:sale_order_inquiry.view_order_inq_form
 msgid "View Sales"
-msgstr "عرض المبيعات"
+msgstr "عرض أوامر البيع"
 
 #. module: sale_order_inquiry
 #: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__website_message_ids
@@ -447,19 +757,16 @@ msgstr "رسائل الموقع الإلكتروني"
 #. module: sale_order_inquiry
 #: model:ir.model.fields,help:sale_order_inquiry.field_order_inq__website_message_ids
 msgid "Website communication history"
-msgstr "سجل مراسلات الموقع الإلكتروني"
+msgstr "سجل المراسلات عبر الموقع الإلكتروني"
 
 #. module: sale_order_inquiry
-#: model:ir.model.fields.selection,name:sale_order_inquiry.selection__order_inq__state__cancel
-msgid "cancel"
-msgstr "ملغي"
+#. odoo-python
+#: code:addons/sale_order_inquiry/models/order_inq.py:0
+#, python-format
+msgid "You cannot delete default sections."
+msgstr "لا يمكنك حذف الأقسام الافتراضية."
 
 #. module: sale_order_inquiry
 #: model:ir.model,name:sale_order_inquiry.model_order_inq
 msgid "order.inq"
 msgstr "استفسار طلب"
-
-#. module: sale_order_inquiry
-#: model:ir.model.fields,field_description:sale_order_inquiry.field_order_inq__state
-msgid "state"
-msgstr "الحالة"

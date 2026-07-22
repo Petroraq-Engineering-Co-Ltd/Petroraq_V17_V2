@@ -1,0 +1,574 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* de_hr_workspace_timeoff
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 08:51+0000\n"
+"PO-Revision-Date: 2026-07-13 08:51+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.thanks_template
+msgid ""
+"<i class=\"fa fa-home\"/>\n"
+"                Home"
+msgstr ""
+"<i class=\"fa fa-home\"/>\n"
+"                الرئيسية"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+msgid "<strong>Rejected:</strong>"
+msgstr "<strong>مرفوض:</strong>"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+msgid "<strong>There Are No Leave Types</strong>"
+msgstr "<strong>لا توجد أنواع إجازات</strong>"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_timeoff.action_my_leave
+msgid ""
+"A great way to keep track on your time off requests, sick days, and approval"
+" status."
+msgstr ""
+"طريقة رائعة لمتابعة طلبات الإجازة، والإجازات المرضية، وحالة الموافقة."
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+msgid "Action"
+msgstr "الإجراء"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "Analytics & Requests"
+msgstr "التحليلات والطلبات"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+msgid "Apply For Leave Request"
+msgstr "تقديم طلب إجازة"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model.fields,field_description:de_hr_workspace_timeoff.field_hr_public_holiday__approval_state
+msgid "Approval Status"
+msgstr "حالة الموافقة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.de_hr_workspace_hr_public_holiday_form_inherit_approval
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+msgid "Approve"
+msgstr "موافقة"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model.fields.selection,name:de_hr_workspace_timeoff.selection__hr_public_holiday__approval_state__approved
+msgid "Approved"
+msgstr "تمت الموافقة"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model.fields,field_description:de_hr_workspace_timeoff.field_hr_public_holiday__approved_by_id
+msgid "Approved By"
+msgstr "تمت الموافقة بواسطة"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model.fields,field_description:de_hr_workspace_timeoff.field_hr_public_holiday__approved_on
+msgid "Approved On"
+msgstr "تاريخ الموافقة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.leave_request_template
+msgid "Attachments"
+msgstr "المرفقات"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Available:"
+msgstr "المتاح:"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+msgid "Chatter feature"
+msgstr "ميزة المحادثات"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Consumed:"
+msgstr "المستخدم:"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "Dashboard"
+msgstr "لوحة المعلومات"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.leave_request_template
+msgid "Date From"
+msgstr "من تاريخ"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.leave_request_template
+msgid "Date To"
+msgstr "إلى تاريخ"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Days"
+msgstr "الأيام"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+msgid "Description"
+msgstr "الوصف"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model.fields.selection,name:de_hr_workspace_timeoff.selection__hr_public_holiday__approval_state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+msgid "Duration"
+msgstr "المدة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+msgid "Employee Image"
+msgstr "صورة الموظف"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leave_requests_approvals
+msgid "Follow your employee's leave requests"
+msgstr "تابع طلبات إجازات موظفيك"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leave_requests
+msgid "Follow your leave requests"
+msgstr "تابع طلبات إجازاتك"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leaves
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leaves_dashboard
+msgid "Follow your leaves"
+msgstr "تابع إجازاتك"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "From"
+msgstr "من"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+msgid "From Date"
+msgstr "من تاريخ"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model,name:de_hr_workspace_timeoff.model_pr_hr_leave_request
+msgid "Hr Leave Request"
+msgstr "طلب إجازة الموارد البشرية"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_timeoff.action_my_leave
+msgid "Keep track of your PTOs."
+msgstr "تابع رصيد وإجازاتك."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "Leave"
+msgstr "إجازة"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "Leave Balances"
+msgstr "أرصدة الإجازات"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model:ir.actions.client,name:de_hr_workspace_timeoff.action_custom_leave_dashboard
+#, python-format
+msgid "Leave Dashboard"
+msgstr "لوحة الإجازات"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Leave History"
+msgstr "سجل الإجازات"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.leave_request_template
+msgid "Leave Request"
+msgstr "طلب إجازة"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.actions.act_window,name:de_hr_workspace_timeoff.action_my_leave_request
+#: model:ir.actions.act_window,name:de_hr_workspace_timeoff.action_my_leave_request_approvals
+#: model:ir.ui.menu,name:de_hr_workspace_timeoff.menu_my_leave_request
+#: model:ir.ui.menu,name:de_hr_workspace_timeoff.menu_my_leave_request_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.hr_leave_request_approvals_tree_view
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leave_requests
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+msgid "Leave Requests"
+msgstr "طلبات الإجازة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leave_requests_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+msgid "Leave Requests Approvals"
+msgstr "الموافقة على طلبات الإجازة"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.leave_request_template
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Leave Type"
+msgstr "نوع الإجازة"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.ui.menu,name:de_hr_workspace_timeoff.menu_my_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leaves
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+msgid "Leaves"
+msgstr "الإجازات"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_employee_leaves_dashboard
+msgid "Leaves Dashboard"
+msgstr "لوحة الإجازات"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.ui.menu,name:de_hr_workspace_timeoff.menu_my_timeoff_leave
+msgid "My Leaves"
+msgstr "إجازاتي"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.actions.act_window,name:de_hr_workspace_timeoff.action_my_leave
+msgid "My Time Off"
+msgstr "إجازاتي"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.leave_request_template
+msgid "Name"
+msgstr "الاسم"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leave_request_approval_portal.py:0
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leave_request_portal.py:0
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leaves_portal.py:0
+#, python-format
+msgid "Newest"
+msgstr "الأحدث"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+msgid "No Pending Leaves."
+msgstr "لا توجد إجازات معلقة."
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+msgid "No Taken Leaves Founded."
+msgstr "لم يتم العثور على أي إجازات مأخوذة."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "No leave history found"
+msgstr "لم يتم العثور على سجل للإجازات"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_timeoff.action_my_leave_request
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_timeoff.action_my_leave_request_approvals
+msgid "No leave requests to display"
+msgstr "لا توجد طلبات إجازة لعرضها"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "No leave types configured"
+msgstr "لم يتم إعداد أي أنواع إجازات"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "No pending leaves"
+msgstr "لا توجد إجازات معلقة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_timeoff.de_hr_workspace_public_holiday_approvals_action
+msgid "No public holidays are pending approval."
+msgstr "لا توجد عطلات رسمية بانتظار الموافقة."
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.leave_request_template
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+msgid "Notes"
+msgstr "الملاحظات"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leave_request_approval_portal.py:0
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leave_request_portal.py:0
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leaves_portal.py:0
+#, python-format
+msgid "Oldest"
+msgstr "الأقدم"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/models/hr_public_holiday.py:0
+#, python-format
+msgid "Only HR Managers can approve public holidays."
+msgstr "يمكن لمديري الموارد البشرية فقط اعتماد العطلات الرسمية."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/models/hr_public_holiday.py:0
+#, python-format
+msgid "Only HR Managers can change holiday approval status."
+msgstr "يمكن لمديري الموارد البشرية فقط تغيير حالة اعتماد العطلات."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/models/hr_public_holiday.py:0
+#, python-format
+msgid "Only HR Managers can reject public holidays."
+msgstr "يمكن لمديري الموارد البشرية فقط رفض العطلات الرسمية."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "Overview of your leave balances, history & pending requests"
+msgstr "نظرة عامة على أرصدة إجازاتك وسجلها والطلبات المعلقة"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "Past Leave Records"
+msgstr "سجلات الإجازات السابقة"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Pending Leaves"
+msgstr "الإجازات المعلقة"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.ui.menu,name:de_hr_workspace_timeoff.menu_my_timeoff_leave_request
+msgid "Personal Leave Dashboard"
+msgstr "لوحة متابعة الإجازات الشخصية"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.actions.act_window,name:de_hr_workspace_timeoff.de_hr_workspace_public_holiday_approvals_action
+msgid "Public Holiday Approvals"
+msgstr "اعتمادات العطلات الرسمية"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.ui.menu,name:de_hr_workspace_timeoff.de_hr_workspace_public_holiday_approvals_menu
+msgid "Public Holidays"
+msgstr "العطلات الرسمية"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+msgid "Reason"
+msgstr "السبب"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.de_hr_workspace_hr_public_holiday_form_inherit_approval
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+msgid "Reject"
+msgstr "رفض"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model.fields.selection,name:de_hr_workspace_timeoff.selection__hr_public_holiday__approval_state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leave_request_approval_portal.py:0
+#, python-format
+msgid "Rejected from the employee portal."
+msgstr "تم الرفض من بوابة الموظف."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_request_button.xml:0
+#, python-format
+msgid "Request"
+msgstr "طلب"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+msgid "Reset Rejection and Decide Again"
+msgstr "إعادة تعيين الرفض واتخاذ القرار مرة أخرى"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Status"
+msgstr "الحالة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.de_hr_workspace_hr_public_holiday_form_inherit_approval
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#, python-format
+msgid "Taken Leaves"
+msgstr "الإجازات المأخوذة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.thanks_template
+msgid "Thank You"
+msgstr "شكرًا لك"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_timeoff.action_my_leave_request
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_timeoff.action_my_leave_request_approvals
+msgid "The leave requests of your employees will be displayed here."
+msgstr "سيتم عرض طلبات الإجازة الخاصة بموظفيك هنا."
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+msgid "There are no leave requests needing approval."
+msgstr "لا توجد طلبات إجازة بحاجة إلى موافقة."
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+msgid "There are no leave requests."
+msgstr "لا توجد طلبات إجازة."
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+msgid "There are no leaves."
+msgstr "لا توجد إجازات."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leave_request_approval_portal.py:0
+#, python-format
+msgid "This leave request does not exist or you do not have access to it."
+msgstr "طلب الإجازة هذا غير موجود أو ليس لديك صلاحية الوصول إليه."
+
+#. module: de_hr_workspace_timeoff
+#. odoo-python
+#: code:addons/de_hr_workspace_timeoff/controllers/employee_leave_request_approval_portal.py:0
+#, python-format
+msgid "This leave request is not awaiting your approval."
+msgstr "طلب الإجازة هذا لا ينتظر موافقتك."
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model,name:de_hr_workspace_timeoff.model_hr_leave
+msgid "Time Off"
+msgstr "الإجازات"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.employee_leave_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "To"
+msgstr "إلى"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model.fields.selection,name:de_hr_workspace_timeoff.selection__hr_public_holiday__approval_state__to_approve
+msgid "To Approve"
+msgstr "بانتظار الموافقة"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leave_requests
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves
+msgid "To Date"
+msgstr "إلى تاريخ"
+
+#. module: de_hr_workspace_timeoff
+#. odoo-javascript
+#: code:addons/de_hr_workspace_timeoff/static/src/xml/leave_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.portal_my_leaves_dashboard
+#, python-format
+msgid "Total:"
+msgstr "الإجمالي:"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.thanks_template
+msgid "We will get back to you soon with any update on this"
+msgstr "سنعود إليك قريبًا بأي تحديث بخصوص هذا الطلب"
+
+#. module: de_hr_workspace_timeoff
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_timeoff.thanks_template
+msgid "Your request has been sent"
+msgstr "تم إرسال طلبك"
+
+#. module: de_hr_workspace_timeoff
+#: model:ir.model,name:de_hr_workspace_timeoff.model_hr_public_holiday
+msgid "hr.public.holiday"
+msgstr "hr.public.holiday"

@@ -1,0 +1,602 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* de_hr_workspace_attendance
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 07:39+0000\n"
+"PO-Revision-Date: 2026-07-13 07:39+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/models/attendance_management_dashboard.py:0
+#, python-format
+msgid "%s hour%s"
+msgstr "%s ساعة%s"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/models/attendance_management_dashboard.py:0
+#, python-format
+msgid "%s min%s"
+msgstr "%s دقيقة%s"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Absent"
+msgstr "غائب"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Absent, shortage, leave"
+msgstr "غياب، نقص، إجازة"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+msgid "Action"
+msgstr "الإجراء"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/controllers/employee_attendance_portal.py:0
+#, python-format
+msgid "All"
+msgstr "الكل"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "All Departments"
+msgstr "جميع الأقسام"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_attendances
+msgid "Apply For Shortage Request"
+msgstr "تقديم طلب نقص"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/models/approval_dashboard.py:0
+#, python-format
+msgid "Approval"
+msgstr "موافقة"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#, python-format
+msgid "Approvals"
+msgstr "الموافقات"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.actions.client,name:de_hr_workspace_attendance.action_hr_approval_dashboard
+msgid "Approvals Dashboard"
+msgstr "لوحة تحكم الموافقات"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "Attachments"
+msgstr "المرفقات"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.model,name:de_hr_workspace_attendance.model_hr_attendance
+#: model:ir.ui.menu,name:de_hr_workspace_attendance.menu_my_attendance
+msgid "Attendance"
+msgstr "الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.actions.client,name:de_hr_workspace_attendance.action_attendance_management_dashboard
+msgid "Attendance Dashboard"
+msgstr "لوحة تحكم الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.ui.menu,name:de_hr_workspace_attendance.menu_attendance_management_dashboard
+msgid "Attendance Dashboard Center"
+msgstr "مركز لوحة تحكم الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.model,name:de_hr_workspace_attendance.model_de_hr_attendance_management_dashboard
+msgid "Attendance Management Dashboard Service"
+msgstr "خدمة لوحة تحكم إدارة الحضور"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Attendance, absences, leaves, and missing checkouts by hour"
+msgstr "الحضور والغياب والإجازات وحالات عدم تسجيل الانصراف حسب الساعة"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.actions.act_window,name:de_hr_workspace_attendance.action_my_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.hr_attendance_workspace_search_view
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_employee_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_attendances
+msgid "Attendances"
+msgstr "سجلات الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+msgid "Chatter feature"
+msgstr "ميزة المحادثات"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_attendances
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+msgid "Check In"
+msgstr "تسجيل الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_attendances
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+msgid "Check Out"
+msgstr "تسجيل الانصراف"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Check in"
+msgstr "تسجيل الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "Check-In"
+msgstr "تسجيل الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "Check-Out"
+msgstr "تسجيل الانصراف"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Checked In"
+msgstr "تم تسجيل الحضور"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Checked in"
+msgstr "تم تسجيل الحضور"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.actions.server,name:de_hr_workspace_attendance.ir_cron_cleanup_late_machine_attendance_ir_actions_server
+msgid "Cleanup late machine attendance"
+msgstr "تنظيف سجلات الحضور المتأخرة من جهاز البصمة"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.hr_attendance_workspace_search_view
+msgid "Daily"
+msgstr "يومي"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Daily Attendance Chart"
+msgstr "مخطط الحضور اليومي"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#: model:ir.ui.menu,name:de_hr_workspace_attendance.menu_hr_approval_dashboard
+#: model:ir.ui.menu,name:de_hr_workspace_attendance.menu_hr_attendance_root_dashboard
+#, python-format
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_attendances
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Department Wise Status"
+msgstr "الحالة حسب القسم"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "E-mail"
+msgstr "البريد الإلكتروني"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+#, python-format
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Employee Daily Attendance Data"
+msgstr "بيانات الحضور اليومية للموظف"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+msgid "Employee Image"
+msgstr "صورة الموظف"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+msgid "Employee Reason"
+msgstr "سبب الموظف"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Employee Status"
+msgstr "حالة الموظف"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.hr_attendance_workspace_form_view
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.hr_attendance_workspace_tree_view
+msgid "Employee attendances"
+msgstr "سجلات حضور الموظف"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Employee's Attendance Dashboard"
+msgstr "لوحة تحكم حضور الموظف"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_employee_attendance
+msgid "Follow your attendance"
+msgstr "تابع حضورك"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_employee_shortage_requests_approvals
+msgid "Follow your employee's shortage requests"
+msgstr "تابع طلبات النقص الخاصة بموظفيك"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.model,name:de_hr_workspace_attendance.model_de_hr_approval_dashboard_service
+msgid "HR Approval Dashboard Service"
+msgstr "خدمة لوحة تحكم الموافقات للموارد البشرية"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.model,name:de_hr_workspace_attendance.model_pr_hr_shortage_request
+msgid "Hr Shortage Request"
+msgstr "طلب نقص الموارد البشرية"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Last 7 days"
+msgstr "آخر 7 أيام"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Leave"
+msgstr "إجازة"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Loading attendance dashboard..."
+msgstr "جارٍ تحميل لوحة تحكم الحضور..."
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#, python-format
+msgid "Loading your dashboard..."
+msgstr "جارٍ تحميل لوحة التحكم..."
+
+#. module: de_hr_workspace_attendance
+#: model:ir.model.fields,field_description:de_hr_workspace_attendance.field_hr_attendance__minute_rate
+msgid "Minute Rate"
+msgstr "معدل الدقيقة"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Missing Checkout"
+msgstr "عدم تسجيل الانصراف"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.ui.menu,name:de_hr_workspace_attendance.menu_my_attendance_attendance
+msgid "My Attendance"
+msgstr "حضوري"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "Name"
+msgstr "الاسم"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/controllers/employee_attendance_portal.py:0
+#: code:addons/de_hr_workspace_attendance/controllers/employee_shortage_request_approval_portal.py:0
+#: code:addons/de_hr_workspace_attendance/controllers/employee_shortage_request_portal.py:0
+#, python-format
+msgid "Newest"
+msgstr "الأحدث"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Next day"
+msgstr "اليوم التالي"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/models/attendance_management_dashboard.py:0
+#, python-format
+msgid "No Department"
+msgstr "بدون قسم"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "No active employees found."
+msgstr "لم يتم العثور على موظفين نشطين."
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_attendance.action_my_attendance
+msgid "No attendance records to display"
+msgstr "لا توجد سجلات حضور للعرض"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "No department data."
+msgstr "لا توجد بيانات للأقسام."
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/models/attendance_management_dashboard.py:0
+#, python-format
+msgid "No shift"
+msgstr "لا توجد وردية"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_attendance.action_my_shortage_request
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_attendance.action_my_shortage_request_approvals
+msgid "No shortage requests to display"
+msgstr "لا توجد طلبات نقص للعرض"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/controllers/employee_attendance_portal.py:0
+#: code:addons/de_hr_workspace_attendance/controllers/employee_shortage_request_approval_portal.py:0
+#: code:addons/de_hr_workspace_attendance/controllers/employee_shortage_request_portal.py:0
+#, python-format
+msgid "Oldest"
+msgstr "الأقدم"
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/models/attendance_management_dashboard.py:0
+#, python-format
+msgid "Open"
+msgstr "مفتوح"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#, python-format
+msgid "Open list view"
+msgstr "فتح عرض القائمة"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#, python-format
+msgid "Pending Approvals"
+msgstr "الموافقات المعلقة"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#, python-format
+msgid "Pending approvals"
+msgstr "الموافقات المعلقة"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Present"
+msgstr "حاضر"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Previous day"
+msgstr "اليوم السابق"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "Reason"
+msgstr "السبب"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+msgid "Reject"
+msgstr "رفض"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/request_button.xml:0
+#, python-format
+msgid "Request"
+msgstr "طلب"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.hr_attendance_workspace_form_view
+msgid "SHORTAGE REQUEST"
+msgstr "طلب نقص"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#, python-format
+msgid "Scheduled:"
+msgstr "المجدول:"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_attendances
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+#, python-format
+msgid "Shortage"
+msgstr "النقص"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.shortage_request_template
+msgid "Shortage Request"
+msgstr "طلب نقص"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.actions.act_window,name:de_hr_workspace_attendance.action_my_shortage_request
+#: model:ir.actions.act_window,name:de_hr_workspace_attendance.action_my_shortage_request_approvals
+#: model:ir.ui.menu,name:de_hr_workspace_attendance.menu_my_shortage_request
+#: model:ir.ui.menu,name:de_hr_workspace_attendance.menu_my_shortage_request_approvals
+msgid "Shortage Requests"
+msgstr "طلبات النقص"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_employee_shortage_requests_approvals
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+msgid "Shortage Requests Approvals"
+msgstr "موافقات طلبات النقص"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.model.fields,field_description:de_hr_workspace_attendance.field_hr_attendance__shortage_time
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.employee_shortage_request_approval_info_portal
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+msgid "Shortage Time"
+msgstr "وقت النقص"
+
+#. module: de_hr_workspace_attendance
+#: model:ir.model.fields,field_description:de_hr_workspace_attendance.field_hr_attendance__show_shortage_button
+msgid "Show Shortage Button"
+msgstr "إظهار زر طلب النقص"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+#, python-format
+msgid "Status"
+msgstr "الحالة"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.thanks_template
+msgid "Thank You"
+msgstr "شكرًا لك"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_attendance.action_my_attendance
+msgid "The attendance records of your employees will be displayed here."
+msgstr "سيتم عرض سجلات حضور موظفيك هنا."
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_attendance.action_my_shortage_request
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_attendance.action_my_shortage_request_approvals
+msgid "The shortage requests of your employees will be displayed here."
+msgstr "سيتم عرض طلبات النقص الخاصة بموظفيك هنا."
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_attendances
+msgid "There are no attendances."
+msgstr "لا توجد سجلات حضور."
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.portal_my_shortage_requests_approvals
+msgid "There are no shortage requests needing approval."
+msgstr "لا توجد طلبات نقص بانتظار الموافقة."
+
+#. module: de_hr_workspace_attendance
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/controllers/employee_shortage_request_approval_portal.py:0
+#, python-format
+msgid "This shortage request does not exist or you do not have access to it."
+msgstr "طلب النقص هذا غير موجود أو ليس لديك صلاحية للوصول إليه."
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#. odoo-python
+#: code:addons/de_hr_workspace_attendance/controllers/employee_attendance_portal.py:0
+#: code:addons/de_hr_workspace_attendance/static/src/xml/attendance_management_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.hr_attendance_workspace_search_view
+#, python-format
+msgid "Today"
+msgstr "اليوم"
+
+#. module: de_hr_workspace_attendance
+#. odoo-javascript
+#: code:addons/de_hr_workspace_attendance/static/src/xml/approval_dashboard.xml:0
+#, python-format
+msgid ""
+"Track pending items across all approval menus and jump directly into action."
+msgstr "تابع العناصر المعلقة عبر جميع قوائم الموافقات وانتقل مباشرةً لاتخاذ الإجراء."
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.thanks_template
+msgid "We will get back to you soon with any update on this"
+msgstr "سنعاود التواصل معك قريبًا لإبلاغك بأي تحديث."
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.hr_attendance_workspace_tree_view
+msgid "Work Hours"
+msgstr "ساعات العمل"
+
+#. module: de_hr_workspace_attendance
+#: model_terms:ir.ui.view,arch_db:de_hr_workspace_attendance.thanks_template
+msgid "Your request has been sent"
+msgstr "تم إرسال طلبك"

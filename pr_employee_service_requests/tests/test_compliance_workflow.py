@@ -2,7 +2,7 @@ import base64
 from datetime import date
 from unittest.mock import patch
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -398,6 +398,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             work_permit_expiry_date=date(2099, 12, 31),
             iqama_profession="Engineer",
             issue_date=date(2099, 1, 1),
+            qiwa_renewal_reference="QIWA-RENEW-2099-001",
         )
 
         with patch.object(type(request), "_notify_group", autospec=True):
@@ -409,3 +410,18 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertEqual(request.iqama_line_id.amount, 0.0)
         self.assertFalse(request.payment_request_id)
         self.assertFalse(request.bank_payment_id)
+
+    def test_iqama_renewal_cannot_be_issued_without_qiwa_reference(self):
+        request = self._create_request(
+            "iqama_renewal",
+            state="paid",
+            iqama_profession="Engineer",
+            issue_date=date(2099, 1, 1),
+            service_expiry_date=date(2099, 12, 31),
+            work_permit_expiry_date=date(2099, 12, 31),
+        )
+
+        with self.assertRaisesRegex(UserError, "Qiwa Renewal Reference"):
+            request.action_issue()
+
+        self.assertEqual(request.state, "paid")

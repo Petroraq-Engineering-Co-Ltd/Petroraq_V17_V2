@@ -1,0 +1,2403 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* qiwa_contract_ocr
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-14 07:37+0000\n"
+"PO-Revision-Date: 2026-07-14 07:37+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "%(document)s expiry reminder: %(employee)s - %(days)s days left"
+msgstr "تذكير بانتهاء صلاحية %(document)s: %(employee)s - متبقي %(days)s يومًا"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "%(request)s - %(employee)s - %(ref)s"
+msgstr "%(request)s - %(employee)s - %(ref)s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "%s Supporting File"
+msgstr "ملف داعم %s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "%s day(s)"
+msgstr "%s يوم"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "<p><a href=\"%s\">Open Onboarding Record</a></p>"
+msgstr "<p><a href=\"%s\">فتح سجل التهيئة</a></p>"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid ""
+"<p>Dear HR Supervisor,</p><p><strong>%(document)s</strong> for "
+"<strong>%(employee)s</strong> will expire in <strong>%(days)s "
+"day(s)</strong>.</p><p>Record: %(record)s<br/>Expiry Date: "
+"%(expiry_date)s</p><p>Please review and start the renewal process if it has "
+"not already been completed.</p>"
+msgstr ""
+"<p>عزيزي مشرف الموارد البشرية،</p>"
+"<p>ستنتهي صلاحية <strong>%(document)s</strong> الخاصة بالموظف "
+"<strong>%(employee)s</strong> خلال <strong>%(days)s يومًا</strong>.</p>"
+"<p>السجل: %(record)s<br/>تاريخ الانتهاء: %(expiry_date)s</p>"
+"<p>يرجى المراجعة وبدء إجراءات التجديد إذا لم تكن قد اكتملت بالفعل.</p>"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"<p>Please complete onboarding task <strong>%(task)s</strong> for "
+"%(employee)s.</p><p>Status: %(status)s<br/>Due Date: %(due_date)s</p>"
+msgstr ""
+"<p>يرجى إكمال مهمة التهيئة <strong>%(task)s</strong> الخاصة بالموظف "
+"%(employee)s.</p><p>الحالة: %(status)s<br/>تاريخ الاستحقاق: %(due_date)s</p>"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "A payment voucher already exists for compliance request %s."
+msgstr "يوجد بالفعل سند صرف لطلب الامتثال %s."
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_work_permit_form_two_step_approval
+msgid "APPROVE (HR MANAGER)"
+msgstr "اعتماد (مدير الموارد البشرية)"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_work_permit_form_two_step_approval
+msgid "APPROVE (MD)"
+msgstr "اعتماد (المدير العام)"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Accounting"
+msgstr "المحاسبة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_needaction
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_ids
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Activity"
+msgstr "النشاط"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_exception_decoration
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_state
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_type_icon
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__annual_leave_days
+msgid "Annual Leave Days"
+msgstr "أيام الإجازة السنوية"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant.py:0
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_applicant
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__applicant_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__applicant_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__applicant_id
+#, python-format
+msgid "Applicant"
+msgstr "المتقدم"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__onboarding_id
+msgid "Applicant Onboarding"
+msgstr "تهيئة المتقدم"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_employee_iqama_form_two_step_approval
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_employee_medical_insurance_form_two_step_approval
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Approval"
+msgstr "الاعتماد"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_employee_iqama_form_two_step_approval
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_employee_medical_insurance_form_two_step_approval
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Approve (HR Manager)"
+msgstr "اعتماد (مدير الموارد البشرية)"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_employee_iqama_form_two_step_approval
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_employee_medical_insurance_form_two_step_approval
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Approve (MD)"
+msgstr "اعتماد (المدير العام)"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__state__approved
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Approved requests already sent to accounting."
+msgstr "تم إرسال الطلبات المعتمدة إلى قسم المحاسبة بالفعل."
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__assigned_user_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+#, python-format
+msgid "Assigned To"
+msgstr "مُسند إلى"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_attachment_count
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__bank_iban
+msgid "Bank IBAN Confirmation"
+msgstr "تأكيد رقم الآيبان البنكي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__bank_name
+msgid "Bank Name"
+msgstr "اسم البنك"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model:ir.model,name:qiwa_contract_ocr.model_pr_account_bank_payment
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__bank_payment_id
+#, python-format
+msgid "Bank Payment"
+msgstr "دفعة بنكية"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Bank: %s"
+msgstr "البنك: %s"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__basic_salary
+msgid "Basic Salary"
+msgstr "الراتب الأساسي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__birth_date
+msgid "Birth Date"
+msgstr "تاريخ الميلاد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__expense_bucket_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Budget"
+msgstr "الميزانية"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_onboarding_form_view_compliance
+msgid "CREATE COMPLIANCE REQUEST"
+msgstr "إنشاء طلب امتثال"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_contract_ocr_wizard_form
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_form_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_state__cancelled
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__payment_state__cancelled
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__state__cancelled
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_pr_account_cash_payment
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__cash_payment_id
+msgid "Cash Payment"
+msgstr "دفعة نقدية"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Checklist Task"
+msgstr "مهمة قائمة التحقق"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__commencement_date
+msgid "Commencement Date"
+msgstr "تاريخ بدء العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__company_car_assignment
+msgid "Company Car Assignment"
+msgstr "تخصيص سيارة الشركة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__needs_company_car
+msgid "Company Car Required"
+msgstr "يتطلب سيارة شركة"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_onboarding_form_view_compliance
+msgid "Compliance"
+msgstr "الامتثال"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Compliance Details"
+msgstr "تفاصيل الامتثال"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__compliance_request_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_pr_account_bank_payment_form_onboarding_compliance
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_pr_account_cash_payment_form_onboarding_compliance
+msgid "Compliance Request"
+msgstr "طلب الامتثال"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__compliance_request_count
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__compliance_request_ids
+#: model:ir.ui.menu,name:qiwa_contract_ocr.menu_hr_onboarding_compliance_request
+msgid "Compliance Requests"
+msgstr "طلبات الامتثال"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Compliance documents inside the renewal window."
+msgstr "مستندات الامتثال الواقعة ضمن فترة التجديد."
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Compliance expiries, onboarding tasks, approvals, and activities"
+msgstr "انتهاء صلاحية مستندات الامتثال، ومهام التهيئة، وطلبات الاعتماد، والأنشطة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Compliance requests waiting for HR Manager or MD."
+msgstr "طلبات الامتثال بانتظار اعتماد مدير الموارد البشرية أو المدير العام."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__contract_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+#, python-format
+msgid "Contract"
+msgstr "العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_period_text
+msgid "Contract Duration"
+msgstr "مدة العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_end
+msgid "Contract End"
+msgstr "نهاية العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_execution_date
+msgid "Contract Execution Date"
+msgstr "تاريخ توقيع العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_execution_location
+msgid "Contract Execution Location"
+msgstr "مكان توقيع العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_period_months
+msgid "Contract Period (Months)"
+msgstr "مدة العقد (بالأشهر)"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_start
+msgid "Contract Start"
+msgstr "بداية العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_type
+msgid "Contract Type"
+msgstr "نوع العقد"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Contract Type: %s"
+msgstr "نوع العقد: %s"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__cost_center_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Cost Center"
+msgstr "مركز التكلفة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Cost Center %(cc)s is not included in Budget %(budget)s."
+msgstr "مركز التكلفة %(cc)s غير مدرج ضمن الميزانية %(budget)s."
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Create Payment Request"
+msgstr "إنشاء طلب دفع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_id
+msgid "Created Contract"
+msgstr "العقد المُنشأ"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employee_id
+msgid "Created Employee"
+msgstr "الموظف المُنشأ"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__create_uid
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__create_uid
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__create_uid
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__create_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__create_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__create_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Critical 10 Days"
+msgstr "حرج - خلال 10 أيام"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Deadline"
+msgstr "الموعد النهائي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__description
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Description"
+msgstr "الوصف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__display_name
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__display_name
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__display_name
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Document"
+msgstr "المستند"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Documents that need urgent follow-up."
+msgstr "المستندات التي تتطلب متابعة عاجلة."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_state__done
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__state__done
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_onboarding_form_view_compliance
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_tree_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__checklist_done_count
+msgid "Done Tasks"
+msgstr "المهام المكتملة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__state__draft
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__qiwa_contract_processor__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Due"
+msgstr "مستحق"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__due_date
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+msgid "Due Date"
+msgstr "تاريخ الاستحقاق"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__education_level
+msgid "Education Level"
+msgstr "المؤهل العلمي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__email
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__emergency_contact
+msgid "Emergency Contact Details"
+msgstr "بيانات جهة الاتصال في حالات الطوارئ"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__employee_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__employee_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+#, python-format
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__employee_id_assignment
+msgid "Employee ID Assignment"
+msgstr "تخصيص الرقم الوظيفي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_employee_iqama
+msgid "Employee Iqamas"
+msgstr "إقامات الموظفين"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_employee_medical_insurance
+msgid "Employee Medical Insurance"
+msgstr "التأمين الطبي للموظفين"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employee_name
+msgid "Employee Name"
+msgstr "اسم الموظف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employee_national_address
+msgid "Employee National Address"
+msgstr "العنوان الوطني للموظف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_pr_employee_payment_request
+msgid "Employee Payment Request"
+msgstr "طلب دفع للموظف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__employee_category
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__employee_category
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Employee Type"
+msgstr "نوع الموظف"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Employee name could not be extracted from the Qiwa contract."
+msgstr "تعذر استخراج اسم الموظف من عقد قوى."
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+msgid "Employer"
+msgstr "صاحب العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employer_email
+msgid "Employer Email"
+msgstr "البريد الإلكتروني لصاحب العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employer_mobile
+msgid "Employer Mobile"
+msgstr "جوال صاحب العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employer_name
+msgid "Employer Name"
+msgstr "اسم صاحب العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employer_national_address
+msgid "Employer National Address"
+msgstr "العنوان الوطني لصاحب العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employer_phone
+msgid "Employer Phone"
+msgstr "هاتف صاحب العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__qiwa_contract_processor__state__error
+msgid "Error"
+msgstr "خطأ"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__establishment_type
+msgid "Establishment Type"
+msgstr "نوع المنشأة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding__employee_category__expat
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__employee_category__expat
+msgid "Expat"
+msgstr "وافد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__amount
+msgid "Expected Fees / Amount"
+msgstr "الرسوم / المبلغ المتوقع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__payment_expense_account_id
+msgid "Expense Account"
+msgstr "حساب المصروفات"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Expired"
+msgstr "منتهي الصلاحية"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Expired Documents"
+msgstr "المستندات منتهية الصلاحية"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Expired and next 30 days"
+msgstr "المنتهية الصلاحية وخلال الثلاثين يومًا القادمة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Expiring in 30 Days"
+msgstr "تنتهي صلاحيتها خلال 30 يومًا"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Expiry"
+msgstr "تاريخ الانتهاء"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__expiry_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__expiry_date
+msgid "Expiry Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__expiry_field
+msgid "Expiry Field"
+msgstr "حقل تاريخ الانتهاء"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Expiry Watch"
+msgstr "متابعة تواريخ الانتهاء"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Expiry reminders sent during this month."
+msgstr "تم إرسال تذكيرات الانتهاء خلال هذا الشهر."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__raw_text
+msgid "Extracted Text"
+msgstr "النص المستخرج"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__attachment_filename
+msgid "File Name"
+msgstr "اسم الملف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__filename
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__filename
+msgid "Filename"
+msgstr "اسم الملف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__reminder_date
+msgid "First Reminder Date"
+msgstr "تاريخ التذكير الأول"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_follower_ids
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_partner_ids
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_type_icon
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "GOSI"
+msgstr "التأمينات الاجتماعية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__gosi_number
+msgid "GOSI Number"
+msgstr "رقم التأمينات الاجتماعية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__request_type__gosi_registration
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__gosi_registration
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__request_type__gosi_registration
+msgid "GOSI Registration"
+msgstr "التسجيل في التأمينات الاجتماعية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__gosi_registration_date
+msgid "GOSI Registration Date"
+msgstr "تاريخ التسجيل في التأمينات الاجتماعية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__gender
+msgid "Gender"
+msgstr "الجنس"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__government_reference
+msgid "Government Reference"
+msgstr "المرجع الحكومي"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_applicant_onboarding
+msgid "HR Applicant Onboarding"
+msgstr "تهيئة موظف الموارد البشرية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_applicant_onboarding_checklist
+msgid "HR Applicant Onboarding Checklist"
+msgstr "قائمة التحقق لتهيئة الموظف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_compliance_expiry_reminder_log
+msgid "HR Compliance Expiry Reminder Log"
+msgstr "سجل تذكيرات انتهاء صلاحية الامتثال"
+
+#. module: qiwa_contract_ocr
+#: model:ir.actions.server,name:qiwa_contract_ocr.cron_hr_compliance_expiry_reminders_ir_actions_server
+msgid "HR Compliance Expiry Reminders"
+msgstr "تذكيرات انتهاء صلاحية الامتثال"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__hr_laptop_assignment
+msgid "HR Laptop Assignment"
+msgstr "تسليم جهاز الحاسب المحمول"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__needs_hr_laptop
+msgid "HR Laptop Required"
+msgstr "يتطلب حاسبًا محمولًا"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_employee_iqama__state__hr_manager_approval
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_employee_medical_insurance__state__hr_manager_approval
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__state__hr_manager_approval
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_work_permit__state__hr_manager_approval
+msgid "HR Manager Approval"
+msgstr "موافقة مدير الموارد البشرية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_iqama__hr_manager_approved_by_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_medical_insurance__hr_manager_approved_by_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__hr_manager_approved_by_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_work_permit__hr_manager_approved_by_id
+msgid "HR Manager Approved By"
+msgstr "اعتمد بواسطة مدير الموارد البشرية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_iqama__hr_manager_approved_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_medical_insurance__hr_manager_approved_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__hr_manager_approved_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_work_permit__hr_manager_approved_date
+msgid "HR Manager Approved On"
+msgstr "تاريخ اعتماد مدير الموارد البشرية"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "HR Reminders Dashboard"
+msgstr "لوحة تذكيرات الموارد البشرية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_work_permit
+msgid "HR Work Permit/Iqama Flow"
+msgstr "إجراءات تصريح العمل / الإقامة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__has_bank_payment
+msgid "Has Bank Payment"
+msgstr "يوجد دفعة بنكية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__has_message
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__has_payment_request
+msgid "Has Payment Request"
+msgstr "يوجد طلب دفع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__has_payment_voucher
+msgid "Has Payment Voucher"
+msgstr "يوجد سند صرف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__housing_allowance
+msgid "Housing Allowance"
+msgstr "بدل السكن"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__iban
+msgid "IBAN"
+msgstr "رقم الآيبان"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "IBAN: %s"
+msgstr "رقم الآيبان: %s"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__id_type
+msgid "ID Type"
+msgstr "نوع الهوية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_exception_icon
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_exception_icon
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى وجود نشاط استثنائي."
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Identity / Work Permit"
+msgstr "الهوية / تصريح العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_needaction
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا تم تحديده، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_has_error
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_has_sms_error
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__message_has_error
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا تم تحديده، فهذا يعني أن بعض الرسائل بها خطأ في التسليم."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_state__in_progress
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: "
+"%(amount).2f"
+msgstr "الميزانية غير كافية لمركز التكلفة %(cc)s. المتبقي: %(remaining).2f، المطلوب: %(amount).2f"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Insurance"
+msgstr "التأمين"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__insurance_category
+msgid "Insurance Category"
+msgstr "فئة التأمين"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__insurance_company
+msgid "Insurance Company"
+msgstr "شركة التأمين"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__iqama_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+#, python-format
+msgid "Iqama"
+msgstr "الإقامة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__iqama_no
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__iqama_no
+msgid "Iqama / ID No."
+msgstr "رقم الإقامة / الهوية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__iqama_copy
+msgid "Iqama Copy"
+msgstr "نسخة من الإقامة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__request_type__iqama_renewal
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__request_type__iqama_renewal
+msgid "Iqama Renewal"
+msgstr "تجديد الإقامة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__iqama_transfer_completion
+msgid "Iqama Transfer Completion"
+msgstr "إكمال نقل الإقامة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__request_type__iqama_transfer
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__request_type__iqama_transfer
+msgid "Iqama Transfer Request"
+msgstr "طلب نقل الإقامة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Iqama, work permit, and insurance records already past expiry."
+msgstr "انتهت بالفعل صلاحية سجلات الإقامة وتصريح العمل والتأمين."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_is_follower
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__is_onboarding_manager
+msgid "Is Onboarding Manager"
+msgstr "مدير التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__is_onboarding_md
+msgid "Is Onboarding Md"
+msgstr "المدير العام للتهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__is_onboarding_supervisor
+msgid "Is Onboarding Supervisor"
+msgstr "مشرف التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__issue_date
+msgid "Issue Date"
+msgstr "تاريخ الإصدار"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+msgid "Job"
+msgstr "الوظيفة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__job_title
+msgid "Job Title"
+msgstr "المسمى الوظيفي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__last_reminder_date
+msgid "Last Reminder Date"
+msgstr "تاريخ آخر تذكير"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__write_uid
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__write_uid
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__write_uid
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__write_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__write_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__write_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__payment_account_id
+msgid "Legacy field kept for older direct BPV compliance requests."
+msgstr "حقل قديم تم الاحتفاظ به لدعم طلبات الامتثال المباشرة القديمة."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__payment_expense_account_id
+msgid ""
+"Legacy/default field. Accounts can set the final expense account on the "
+"payment request line."
+msgstr "حقل افتراضي/قديم. يمكن للحسابات تحديد حساب المصروف النهائي في سطر طلب الدفع."
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Linked Records"
+msgstr "السجلات المرتبطة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant.py:0
+#: model:ir.actions.act_window,name:qiwa_contract_ocr.action_contract_ocr_wizard
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_contract_ocr_wizard_form
+#, python-format
+msgid "Load Qiwa Contract"
+msgstr "تحميل عقد قوى"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Loading reminders..."
+msgstr "جارٍ تحميل التذكيرات..."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_employee_iqama__state__md_approval
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_employee_medical_insurance__state__md_approval
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__state__md_approval
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_work_permit__state__md_approval
+msgid "MD Approval"
+msgstr "موافقة المدير العام"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_iqama__md_approved_by_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_medical_insurance__md_approved_by_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__md_approved_by_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_work_permit__md_approved_by_id
+msgid "MD Approved By"
+msgstr "اعتمد بواسطة المدير العام"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_iqama__md_approved_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_medical_insurance__md_approved_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__md_approved_date
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_work_permit__md_approved_date
+msgid "MD Approved On"
+msgstr "تاريخ اعتماد المدير العام"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__marital_status
+msgid "Marital Status"
+msgstr "الحالة الاجتماعية"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_form_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Mark Done"
+msgstr "تعيين كمكتمل"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__medical_insurance_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+#, python-format
+msgid "Medical Insurance"
+msgstr "التأمين الطبي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__request_type__medical_insurance_activation
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__medical_insurance_activation
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__request_type__medical_insurance_activation
+msgid "Medical Insurance Activation"
+msgstr "تفعيل التأمين الطبي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__needs_medical_insurance
+msgid "Medical Insurance Required"
+msgstr "يتطلب تأمينًا طبيًا"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_has_error
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_ids
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__mobile_number
+msgid "Mobile Number"
+msgstr "رقم الجوال"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__model_name
+msgid "Model Name"
+msgstr "اسم النموذج"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__my_activity_date_deadline
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "My Due Activities"
+msgstr "أنشطتي المستحقة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__national_id_copy
+msgid "National ID Copy"
+msgstr "نسخة من الهوية الوطنية"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__nationality
+msgid "Nationality"
+msgstr "الجنسية"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "New Compliance Request"
+msgstr "طلب امتثال جديد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_calendar_event_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_date_deadline
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_summary
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_type_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant.py:0
+#, python-format
+msgid "No Qiwa contract has been loaded for this applicant yet."
+msgstr "لم يتم تحميل عقد قوى لهذا المتقدم بعد."
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "No due reminder activities."
+msgstr "لا توجد أنشطة تذكير مستحقة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "No embedded PDF text was found, and OCR dependencies are missing: %s"
+msgstr "لم يتم العثور على نص مضمن في ملف PDF، كما أن تبعيات التعرف الضوئي على الحروف (OCR) مفقودة: %s"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "No expiry reminders found."
+msgstr "لم يتم العثور على تذكيرات انتهاء صلاحية."
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "No open onboarding tasks."
+msgstr "لا توجد مهام تهيئة مفتوحة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "No text could be extracted from the uploaded contract."
+msgstr "تعذر استخراج أي نص من العقد المرفوع."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__payment_state__not_required
+msgid "Not Required"
+msgstr "غير مطلوب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__payment_state__draft
+msgid "Not Sent"
+msgstr "لم يتم الإرسال"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Not required for Saudi employees"
+msgstr "غير مطلوب للموظفين السعوديين"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__notice_period_days
+msgid "Notice Period (Days)"
+msgstr "مدة الإشعار (بالأيام)"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_needaction_counter
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_has_error_counter
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_needaction_counter
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_has_error_counter
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي حدث بها خطأ في التسليم"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__occupation
+msgid "Occupation"
+msgstr "المهنة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Occupation: %s"
+msgstr "المهنة: %s"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__official_email_creation
+msgid "Official Email ID Creation"
+msgstr "إنشاء البريد الإلكتروني الرسمي"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__needs_official_email
+msgid "Official Email Required"
+msgstr "البريد الإلكتروني الرسمي مطلوب"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+msgid "Onboarding"
+msgstr "التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.ui.menu,name:qiwa_contract_ocr.menu_hr_onboarding_compliance_request_approvals
+msgid "Onboarding Compliance"
+msgstr "امتثال التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.actions.act_window,name:qiwa_contract_ocr.action_hr_onboarding_compliance_request_approvals
+msgid "Onboarding Compliance Approvals"
+msgstr "موافقات امتثال التهيئة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model:ir.model,name:qiwa_contract_ocr.model_hr_onboarding_compliance_request
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_iqama__onboarding_compliance_request_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_medical_insurance__onboarding_compliance_request_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_work_permit__onboarding_compliance_request_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_pr_account_bank_payment__onboarding_compliance_request_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_pr_account_cash_payment__onboarding_compliance_request_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_pr_employee_payment_request__onboarding_compliance_request_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+#, python-format
+msgid "Onboarding Compliance Request"
+msgstr "طلب امتثال التهيئة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model:ir.actions.act_window,name:qiwa_contract_ocr.action_hr_onboarding_compliance_request
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_tree
+#, python-format
+msgid "Onboarding Compliance Requests"
+msgstr "طلبات امتثال التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.actions.act_window,name:qiwa_contract_ocr.action_hr_applicant_onboarding_tasks
+#: model:ir.ui.menu,name:qiwa_contract_ocr.menu_hr_applicant_onboarding_tasks
+msgid "Onboarding Reminders"
+msgstr "تذكيرات التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__onboarding_start_date
+msgid "Onboarding Start Date"
+msgstr "تاريخ بدء التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_form_reminders
+msgid "Onboarding Task"
+msgstr "مهمة التهيئة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.actions.server,name:qiwa_contract_ocr.cron_onboarding_task_reminders_ir_actions_server
+msgid "Onboarding Task Reminders"
+msgstr "تذكيرات مهام التهيئة"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_tree_reminders
+#, python-format
+msgid "Onboarding Tasks"
+msgstr "مهام التهيئة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Onboarding checklist reminders have been refreshed.Onboarding checklist reminders have been started."
+msgstr "تم تحديث تذكيرات قائمة التحقق الخاصة بالتهيئة. وتم بدء تذكيرات قائمة التحقق الخاصة بالتهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Onboarding reminder tasks past their due date."
+msgstr "مهام تذكير التهيئة تجاوزت تاريخ استحقاقها."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Onboarding: %s"
+msgstr "التهيئة: %s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only HR Manager can approve Iqama requests."
+msgstr "يمكن لمدير الموارد البشرية فقط الموافقة على طلبات الإقامة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only HR Manager can approve medical insurance requests."
+msgstr "يمكن لمدير الموارد البشرية فقط الموافقة على طلبات التأمين الطبي."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only HR Manager can approve onboarding compliance requests."
+msgstr "يمكن لمدير الموارد البشرية فقط الموافقة على طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only HR Manager can approve work permits."
+msgstr "يمكن لمدير الموارد البشرية فقط الموافقة على تصاريح العمل."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only HR Manager can reject onboarding compliance requests."
+msgstr "يمكن لمدير الموارد البشرية فقط رفض طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only HR Manager can reject work permits."
+msgstr "يمكن لمدير الموارد البشرية فقط رفض تصاريح العمل."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding MD can approve Iqama requests."
+msgstr "يمكن للمدير العام للتهيئة فقط الموافقة على طلبات الإقامة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding MD can approve medical insurance requests."
+msgstr "يمكن للمدير العام للتهيئة فقط الموافقة على طلبات التأمين الطبي."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding MD can approve onboarding compliance requests."
+msgstr "يمكن للمدير العام للتهيئة فقط الموافقة على طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding MD can approve work permits."
+msgstr "يمكن للمدير العام للتهيئة فقط الموافقة على تصاريح العمل."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding MD can reject onboarding compliance requests."
+msgstr "يمكن للمدير العام للتهيئة فقط رفض طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding MD can reject work permits."
+msgstr "يمكن فقط للمدير التنفيذي للتوظيف رفض تصاريح العمل."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding Supervisor can cancel onboarding compliance requests."
+msgstr "يمكن فقط لمشرف التهيئة إلغاء طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Only Onboarding Supervisor can complete onboarding compliance requests."
+msgstr "يمكن فقط لمشرف التهيئة إكمال طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Only Onboarding Supervisor can initiate onboarding compliance requests."
+msgstr "يمكن فقط لمشرف التهيئة بدء طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding Supervisor can reset onboarding compliance requests."
+msgstr "يمكن فقط لمشرف التهيئة إعادة تعيين طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding Supervisor can submit onboarding compliance requests."
+msgstr "يمكن فقط لمشرف التهيئة إرسال طلبات امتثال التهيئة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Only Onboarding Supervisor or MD can send requests to Accounting."
+msgstr "يمكن فقط لمشرف التهيئة أو المدير التنفيذي للتوظيف إرسال الطلبات إلى المحاسبة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Only approved onboarding compliance requests can be sent to Accounting."
+msgstr "يمكن فقط إرسال طلبات امتثال التهيئة المعتمدة إلى المحاسبة."
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+msgid "Open"
+msgstr "مفتوح"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Open Activities"
+msgstr "الأنشطة المفتوحة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Open onboarding tasks due in the next 7 days."
+msgstr "مهام التهيئة المفتوحة المستحقة خلال الأيام السبعة القادمة."
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Open required tasks"
+msgstr "المهام المطلوبة المفتوحة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__other
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Other"
+msgstr "أخرى"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__request_type__other
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__request_type__other
+msgid "Other Compliance Requirement"
+msgstr "متطلب امتثال آخر"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_state__overdue
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+msgid "Overdue"
+msgstr "متأخر"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__checklist_overdue_count
+#, python-format
+msgid "Overdue Tasks"
+msgstr "المهام المتأخرة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__pdf_file
+msgid "PDF File"
+msgstr "ملف PDF"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__payment_state__paid
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Paid"
+msgstr "مدفوع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__paid_move_id
+msgid "Paid Journal Entry"
+msgstr "قيد اليومية المدفوع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__passport_copy
+msgid "Passport Copy"
+msgstr "نسخة جواز السفر"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__passport_no
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__passport_no
+msgid "Passport No."
+msgstr "رقم جواز السفر"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__payment_account_id
+msgid "Payment Account"
+msgstr "حساب الدفع"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Payment For Work Permit of Visa Number %s"
+msgstr "دفع رسوم تصريح العمل للتأشيرة رقم %s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__payment_request_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+#, python-format
+msgid "Payment Request"
+msgstr "طلب دفع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__payment_request_state
+msgid "Payment Request Status"
+msgstr "حالة طلب الدفع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__payment_state
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Payment Status"
+msgstr "حالة الدفع"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+#, python-format
+msgid "Payment Voucher"
+msgstr "سند صرف"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Payment voucher %s was fully approved. Compliance request marked as paid."
+msgstr "تم اعتماد سند الصرف %s بالكامل. وتم تعليم طلب الامتثال كمدفوع."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_state__pending
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__payment_state__pending
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Pending Accounting"
+msgstr "بانتظار المحاسبة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Pending Approvals"
+msgstr "الموافقات المعلقة"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Pending HR Manager"
+msgstr "بانتظار موافقة مدير الموارد البشرية"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Pending MD Approval"
+msgstr "بانتظار موافقة المدير التنفيذي"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Pending Payments"
+msgstr "المدفوعات المعلقة"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Please select the Cost Center before approval."
+msgstr "يرجى اختيار مركز التكلفة قبل الاعتماد."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Please select the approved Budget before approval."
+msgstr "يرجى اختيار الميزانية المعتمدة قبل الاعتماد."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Please set Iqama / ID No. before approving this request."
+msgstr "يرجى إدخال رقم الإقامة / الهوية قبل اعتماد هذا الطلب."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Please set a positive amount before sending this request to Accounting."
+msgstr "يرجى إدخال مبلغ أكبر من صفر قبل إرسال هذا الطلب إلى المحاسبة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "Please set an employee before creating a compliance request."
+msgstr "يرجى تحديد الموظف قبل إنشاء طلب الامتثال."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Please upload a PDF contract before processing."
+msgstr "يرجى رفع عقد بصيغة PDF قبل المعالجة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/wizards/contract_ocr_wizard.py:0
+#, python-format
+msgid "Please upload a Qiwa PDF contract."
+msgstr "يرجى رفع عقد قوى بصيغة PDF."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__probation_period_days
+msgid "Probation Period (Days)"
+msgstr "مدة التجربة (بالأيام)"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_contract_ocr_wizard_form
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+msgid "Process Contract"
+msgstr "معالجة العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__qiwa_contract_processor__state__processed
+msgid "Processed"
+msgstr "تمت المعالجة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__processed_at
+msgid "Processed On"
+msgstr "تاريخ المعالجة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__qiwa_contract_processor__state__processing
+msgid "Processing"
+msgstr "قيد المعالجة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__error_message
+msgid "Processing Error"
+msgstr "خطأ في المعالجة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__profession
+msgid "Profession"
+msgstr "المهنة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__checklist_progress
+msgid "Progress"
+msgstr "التقدم"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#: code:addons/qiwa_contract_ocr/wizards/contract_ocr_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_view_form_qiwa_contract
+#, python-format
+msgid "Qiwa Contract"
+msgstr "عقد قوى"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Qiwa Contract %(number)s - %(employee)s"
+msgstr "عقد قوى %(number)s - %(employee)s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Qiwa Contract - %s"
+msgstr "عقد قوى - %s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant.py:0
+#, python-format
+msgid "Qiwa Contract - %s.pdf"
+msgstr "عقد قوى - %s.pdf"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__contract_number
+msgid "Qiwa Contract Number"
+msgstr "رقم عقد قوى"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Qiwa Contract Number: %s"
+msgstr "رقم عقد قوى: %s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant__qiwa_contract_processor_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+#, python-format
+msgid "Qiwa Contract OCR"
+msgstr "استخراج بيانات عقد قوى (OCR)"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_qiwa_contract_processor
+msgid "Qiwa Contract OCR Processor"
+msgstr "معالج OCR لعقد قوى"
+
+#. module: qiwa_contract_ocr
+#: model:ir.actions.act_window,name:qiwa_contract_ocr.action_qiwa_contract_processor
+#: model:ir.ui.menu,name:qiwa_contract_ocr.menu_qiwa_ocr_root
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_tree
+msgid "Qiwa Contracts"
+msgstr "عقود قوى"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+msgid "Qiwa Details"
+msgstr "بيانات قوى"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid ""
+"Qiwa contract %(contract)s processed. Employee %(employee)s and HR contract "
+"%(hr_contract)s are linked."
+msgstr "تمت معالجة عقد قوى %(contract)s. وتم ربط الموظف %(employee)s بعقد الموارد البشرية %(hr_contract)s."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Qiwa contract processed successfully."
+msgstr "تمت معالجة عقد قوى بنجاح."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__rating_ids
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+msgid "Raw Text"
+msgstr "النص الخام"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__recipient_user_ids
+msgid "Recipients"
+msgstr "المستلمون"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Record"
+msgstr "السجل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__name
+msgid "Reference"
+msgstr "المرجع"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__activity_ids
+msgid "Reminder Activities"
+msgstr "أنشطة التذكير"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__reminder_days
+msgid "Reminder Days"
+msgstr "أيام التذكير"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__onboarding_task_initialized
+msgid "Reminder Tasks Started"
+msgstr "تم بدء مهام التذكير"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Reminder activities assigned to you."
+msgstr "تم تعيين أنشطة التذكير إليك."
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Reminder activities due today or overdue"
+msgstr "أنشطة التذكير المستحقة اليوم أو المتأخرة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.ui.menu,name:qiwa_contract_ocr.menu_hr_reminder_dashboard
+msgid "Reminders"
+msgstr "التذكيرات"
+
+#. module: qiwa_contract_ocr
+#: model:ir.actions.client,name:qiwa_contract_ocr.action_hr_reminder_dashboard_client
+msgid "Reminders Dashboard"
+msgstr "لوحة التذكيرات"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__reminder_count
+#, python-format
+msgid "Reminders Sent"
+msgstr "التذكيرات المرسلة"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Request"
+msgstr "الطلب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__name
+msgid "Request Reference"
+msgstr "مرجع الطلب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__request_type
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__request_type
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+msgid "Request Type"
+msgstr "نوع الطلب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__requested_by_id
+msgid "Requested By"
+msgstr "مقدم الطلب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__is_required
+msgid "Required"
+msgstr "مطلوب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__required_date
+msgid "Required Date"
+msgstr "التاريخ المطلوب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__requires_payment
+msgid "Requires Payment"
+msgstr "يتطلب دفعًا"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__res_id
+msgid "Res"
+msgstr "المورد"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_onboarding_form_view_compliance
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_form_reminders
+msgid "Reset"
+msgstr "إعادة تعيين"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Reset to Draft"
+msgstr "إعادة إلى المسودة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__responsible_group_id
+msgid "Responsible Group"
+msgstr "المجموعة المسؤولة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_user_id
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__message_has_sms_error
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_onboarding_form_view_compliance
+msgid "START REMINDERS"
+msgstr "بدء التذكيرات"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+msgid "Salary"
+msgstr "الراتب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding__employee_category__saudi
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__employee_category__saudi
+msgid "Saudi"
+msgstr "سعودي"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid ""
+"Saudi employees do not require Iqama or Work Permit onboarding compliance "
+"requests."
+msgstr "لا يحتاج الموظفون السعوديون إلى طلبات امتثال التهيئة الخاصة بالإقامة أو تصريح العمل."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_compliance_expiry_reminder_log__sent_date
+msgid "Sent Date"
+msgstr "تاريخ الإرسال"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant__show_load_qiwa_contract
+msgid "Show Load Qiwa Contract"
+msgstr "إظهار خيار تحميل عقد قوى"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__signatory_capacity
+msgid "Signatory Capacity"
+msgstr "صفة الموقّع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__signatory_id_no
+msgid "Signatory ID No."
+msgstr "رقم هوية الموقّع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__signatory_representative
+msgid "Signatory Representative"
+msgstr "ممثل الموقّع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__signed_contract
+msgid "Signed Contract"
+msgstr "العقد الموقّع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__speciality
+msgid "Speciality"
+msgstr "التخصص"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_onboarding_form_view_compliance
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_form_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_tree_reminders
+msgid "Start"
+msgstr "بدء"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__state
+msgid "State"
+msgstr "الحالة"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_iqama__state
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_employee_medical_insurance__state
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__state
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_work_permit__state
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_applicant_onboarding_checklist_search_reminders
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_search
+#, python-format
+msgid "Status"
+msgstr "الحالة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_state
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__attachment_id
+msgid "Stored PDF"
+msgstr "ملف PDF المحفوظ"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__attachment_file
+msgid "Supporting File"
+msgstr "الملف الداعم"
+
+#. module: qiwa_contract_ocr
+#. odoo-javascript
+#: code:addons/qiwa_contract_ocr/static/src/xml/reminder_dashboard_action_templates.xml:0
+#, python-format
+msgid "Task"
+msgstr "المهمة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__task_state
+msgid "Task Status"
+msgstr "حالة المهمة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding_checklist__task_type
+msgid "Task Type"
+msgstr "نوع المهمة"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_qiwa_contract_processor_form
+msgid "Terms"
+msgstr "الشروط"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.actions.act_window,help:qiwa_contract_ocr.action_hr_onboarding_compliance_request_approvals
+msgid "There are no onboarding compliance requests to approve."
+msgstr "لا توجد طلبات امتثال لتهيئة الموظفين بانتظار الموافقة."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.constraint,message:qiwa_contract_ocr.constraint_hr_compliance_expiry_reminder_log_unique_expiry_reminder
+msgid "This expiry reminder has already been sent."
+msgstr "تم إرسال تذكير الانتهاء هذا مسبقًا."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "This request cannot be marked done until Accounting posts the payment."
+msgstr "لا يمكن اعتبار هذا الطلب مكتملًا حتى يقوم قسم المحاسبة بترحيل الدفعة."
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#, python-format
+msgid "To Be Confirmed"
+msgstr "بانتظار التأكيد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__total_salary
+msgid "Total Salary"
+msgstr "إجمالي الراتب"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_applicant_onboarding__checklist_total_count
+msgid "Total Tasks"
+msgstr "إجمالي المهام"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Total Wage: %s"
+msgstr "إجمالي الأجر: %s"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__transport_allowance
+msgid "Transportation Allowance"
+msgstr "بدل النقل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__activity_exception_decoration
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع نشاط الاستثناء في السجل."
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__employer_cr
+msgid "Unified National No."
+msgstr "الرقم الوطني الموحد"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Unknown Employee"
+msgstr "موظف غير معروف"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Upcoming Tasks"
+msgstr "المهام القادمة"
+
+#. module: qiwa_contract_ocr
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.hr_applicant_view_form_qiwa_contract
+msgid "Upload Contract"
+msgstr "رفع العقد"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model,name:qiwa_contract_ocr.model_contract_ocr_wizard
+msgid "Upload Qiwa Contract for OCR"
+msgstr "رفع عقد قوى لاستخراج البيانات (OCR)"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_contract_ocr_wizard__pdf_file
+msgid "Upload Qiwa PDF Contract"
+msgstr "رفع عقد قوى بصيغة PDF"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__visa_number
+msgid "Visa Number"
+msgstr "رقم التأشيرة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__due_date
+msgid "Wage Due Date"
+msgstr "تاريخ استحقاق الأجر"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Wage Due Date: %s"
+msgstr "تاريخ استحقاق الأجر: %s"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__website_message_ids
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_hr_onboarding_compliance_request__website_message_ids
+#: model:ir.model.fields,help:qiwa_contract_ocr.field_qiwa_contract_processor__website_message_ids
+msgid "Website communication history"
+msgstr "سجل التواصل عبر الموقع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__work_domain
+msgid "Work Domain"
+msgstr "مجال العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__work_location
+msgid "Work Location"
+msgstr "موقع العمل"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Work Location: %s"
+msgstr "موقع العمل: %s"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#: code:addons/qiwa_contract_ocr/models/hr_applicant_onboarding.py:0
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_hr_onboarding_compliance_request__work_permit_id
+#: model_terms:ir.ui.view,arch_db:qiwa_contract_ocr.view_hr_onboarding_compliance_request_form
+#, python-format
+msgid "Work Permit"
+msgstr "رخصة العمل"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/compliance_expiry_reminder.py:0
+#, python-format
+msgid "Work Permit Iqama"
+msgstr "رخصة العمل والإقامة"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__request_type__work_permit_issuance
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__task_type__work_permit_issuance
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__request_type__work_permit_issuance
+msgid "Work Permit Issuance"
+msgstr "إصدار رخصة عمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_applicant_onboarding_checklist__request_type__work_permit_renewal
+#: model:ir.model.fields.selection,name:qiwa_contract_ocr.selection__hr_onboarding_compliance_request__request_type__work_permit_renewal
+msgid "Work Permit Renewal"
+msgstr "تجديد رخصة العمل"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__work_type
+msgid "Work Type"
+msgstr "نوع العمل"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/qiwa_processor.py:0
+#, python-format
+msgid "Work Type: %s"
+msgstr "نوع العمل: %s"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__working_days_per_week
+msgid "Working Days / Week"
+msgstr "أيام العمل / الأسبوع"
+
+#. module: qiwa_contract_ocr
+#: model:ir.model.fields,field_description:qiwa_contract_ocr.field_qiwa_contract_processor__working_hours_per_week
+msgid "Working Hours / Week"
+msgstr "ساعات العمل / الأسبوع"
+
+#. module: qiwa_contract_ocr
+#. odoo-python
+#: code:addons/qiwa_contract_ocr/models/hr_applicant.py:0
+#, python-format
+msgid "You can not go to this step directly, please forward the rules"
+msgstr "لا يمكنك الانتقال إلى هذه المرحلة مباشرة، يرجى اتباع تسلسل الإجراءات."
