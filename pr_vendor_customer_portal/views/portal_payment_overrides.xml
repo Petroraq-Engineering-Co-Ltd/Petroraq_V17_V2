@@ -265,6 +265,24 @@
                         Includes complete DP, retention, VAT, bilingual details, and QR information.
                     </small>
                 </footer>
+                <div class="card mt-4" id="vendor_bill_attachments">
+                    <div class="card-header"><strong>Bill Attachments</strong></div>
+                    <ul t-if="invoice.pr_vendor_portal_attachment_ids"
+                        class="list-group list-group-flush">
+                        <li t-foreach="invoice.pr_vendor_portal_attachment_ids"
+                            t-as="attachment"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            <span t-out="attachment.name"/>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               t-att-href="'/vendor/attachment/%s/download' % attachment.id">
+                                Download
+                            </a>
+                        </li>
+                    </ul>
+                    <div t-else="" class="card-body text-muted">
+                        No attachments are available yet.
+                    </div>
+                </div>
             </section>
 
             <!--

@@ -240,7 +240,6 @@
                 <th>PO Issuance Date</th>
                 <th>PO Status</th>
                 <th>Expected Delivery Date</th>
-                <th>Delivery Location / Project</th>
                 <th class="text-end">PO Amount</th>
                 <th>Payment Terms</th>
                 <th>Incoterms / Delivery Terms</th>
@@ -257,7 +256,6 @@
                     <span t-else="" class="badge rounded-pill text-bg-secondary">Draft</span>
                 </td>
                 <td><span t-field="order.date_planned" t-options="{'widget': 'date'}"/></td>
-                <td><t t-out="order.project_id.display_name if order.project_id else order.dest_address_id.display_name if order.dest_address_id else '-'"/></td>
                 <td class="text-end"><span t-field="order.amount_total"/></td>
                 <td><t t-out="order.payment_term_id.display_name if order.payment_term_id else '-'"/></td>
                 <td><t t-out="order.incoterm_id.display_name if order.incoterm_id else '-'"/></td>
@@ -318,10 +316,6 @@
                     <span t-field="order.date_planned" t-options="{'widget': 'date'}"/>
                 </div>
                 <div class="mb-3 col-6 col-lg-3">
-                    <strong>Delivery Location / Project:</strong>
-                    <span t-out="order.project_id.display_name if order.project_id else order.dest_address_id.display_name if order.dest_address_id else '-'"/>
-                </div>
-                <div class="mb-3 col-6 col-lg-3">
                     <strong>PO Amount:</strong>
                     <span t-field="order.amount_total"/>
                 </div>
@@ -337,7 +331,7 @@
             <div class="card mb-3" id="po_vendor_documents">
                 <div class="card-header"><strong>PO Documents</strong></div>
                 <div class="card-body">
-                    <p class="text-muted mb-2">PO Acceptance, GDN, and vendor invoice documents shared by Petroraq or uploaded by your company.</p>
+                    <p class="text-muted mb-2">All files attached to this purchase order by Petroraq or your company.</p>
                     <ul t-if="order.pr_vendor_portal_attachment_ids" class="list-group list-group-flush">
                         <li t-foreach="order.pr_vendor_portal_attachment_ids" t-as="attachment" class="list-group-item px-0 d-flex justify-content-between align-items-center">
                             <span>
@@ -352,7 +346,7 @@
                             <a class="btn btn-sm btn-outline-secondary" t-att-href="'/vendor/attachment/%s/download' % attachment.id">Download</a>
                         </li>
                     </ul>
-                    <p t-else="" class="mb-0">No portal documents are available yet.</p>
+                    <p t-else="" class="mb-0">No documents are attached yet.</p>
                 </div>
             </div>
         </xpath>
@@ -370,11 +364,10 @@
             <t t-if="delivery_notes" t-call="portal.portal_table">
                 <thead>
                     <tr>
-                        <th>Vendor Delivery Note</th>
+                        <th>Vendor GDN No.</th>
                         <th>Purchase Order</th>
                         <th>GRN No.</th>
                         <th>Delivery Status</th>
-                        <th>Delivery Location / Project</th>
                         <th class="text-end">Delivered Quantity</th>
                         <th class="text-end">Pending Quantity</th>
                     </tr>
@@ -384,7 +377,7 @@
                         <t t-set="delivery" t-value="delivery_row['delivery']"/>
                         <td>
                             <a class="o_pr_portal_record_link" t-att-href="'/vendor/delivery-notes/%s' % delivery.id" style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;">
-                                <t t-out="delivery.purchase_id.partner_ref or delivery.name"/>
+                                <t t-out="delivery.vendor_gdn_number or '-'"/>
                             </a>
                         </td>
                         <td>
@@ -392,7 +385,6 @@
                         </td>
                         <td><t t-out="delivery.name"/></td>
                         <td><t t-out="delivery_row['status']"/></td>
-                        <td><t t-out="delivery.purchase_id.project_id.display_name if delivery.purchase_id and delivery.purchase_id.project_id else delivery.location_dest_id.display_name or '-'"/></td>
                         <td class="text-end"><t t-out="delivery_row['delivered_quantity']"/></td>
                         <td class="text-end"><t t-out="delivery_row['pending_quantity']"/></td>
                     </tr>
@@ -436,6 +428,10 @@
                     <div t-if="picking.partner_id" t-field="picking.partner_id" t-options="{'widget': 'contact', 'fields': ['address', 'name'], 'no_marker': True}"/>
                 </div>
                 <div class="col-md-6 text-md-end">
+                    <div>
+                        <strong>Vendor GDN No.:</strong>
+                        <span t-out="picking.vendor_gdn_number or '-'"/>
+                    </div>
                     <div>
                         <strong>Scheduled Date:</strong>
                         <span t-field="picking.scheduled_date"/>
@@ -482,14 +478,14 @@
                 </tbody>
             </t>
             <div class="card mt-4">
-                <div class="card-header"><strong>GDN Documents</strong></div>
+                <div class="card-header"><strong>Receipt Attachments</strong></div>
                 <ul t-if="picking.pr_vendor_portal_attachment_ids" class="list-group list-group-flush">
                     <li t-foreach="picking.pr_vendor_portal_attachment_ids" t-as="attachment" class="list-group-item d-flex justify-content-between align-items-center">
                         <span><t t-out="attachment.name"/></span>
                         <a class="btn btn-sm btn-outline-secondary" t-att-href="'/vendor/attachment/%s/download' % attachment.id">Download</a>
                     </li>
                 </ul>
-                <div t-else="" class="card-body text-muted">No GDN documents are available yet.</div>
+                <div t-else="" class="card-body text-muted">No attachments are available yet.</div>
             </div>
         </t>
     </template>
@@ -624,6 +620,24 @@
                     </tr>
                 </tbody>
             </t>
+            <div class="card mt-4">
+                <div class="card-header"><strong>SRN Attachments</strong></div>
+                <ul t-if="srn.pr_vendor_portal_attachment_ids"
+                    class="list-group list-group-flush">
+                    <li t-foreach="srn.pr_vendor_portal_attachment_ids"
+                        t-as="attachment"
+                        class="list-group-item d-flex justify-content-between align-items-center">
+                        <span t-out="attachment.name"/>
+                        <a class="btn btn-sm btn-outline-secondary"
+                           t-att-href="'/vendor/attachment/%s/download' % attachment.id">
+                            Download
+                        </a>
+                    </li>
+                </ul>
+                <div t-else="" class="card-body text-muted">
+                    No attachments are available yet.
+                </div>
+            </div>
         </t>
     </template>
 
