@@ -441,9 +441,10 @@
 
     <menuitem id="menu_hr_offboarding_root"
               name="Offboarding"
-              parent="hr.menu_hr_root"
               sequence="5"
-              groups="pr_hr_recruitment_request.group_onboarding_supervisor,base.group_system"/>
+              groups="pr_hr_recruitment_request.group_onboarding_supervisor,base.group_system"
+              web_icon="pr_hr_offboarding,static/src/description/icon.png"
+    />
 
     <menuitem id="menu_offboarding_requests"
               name="Termination / Resignation Requests"
