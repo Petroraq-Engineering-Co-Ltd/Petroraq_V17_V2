@@ -443,7 +443,7 @@
               name="Offboarding"
               sequence="5"
               groups="pr_hr_recruitment_request.group_onboarding_supervisor,base.group_system"
-              web_icon="pr_hr_offboarding,static/src/description/icon.png"
+              web_icon="pr_hr_offboarding,static/description/icon.png"
     />
 
     <menuitem id="menu_offboarding_requests"
