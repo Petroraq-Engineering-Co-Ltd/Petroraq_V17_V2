@@ -143,6 +143,12 @@
                         Net settlement is negative. No EOS payment will be created; the recoverable amount must be collected or waived before final offboarding release.
                     </div>
                     <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payment_request" type="object" class="oe_stat_button"
+                                icon="fa-money" invisible="not payment_request_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Payment Request</span>
+                            </div>
+                        </button>
                         <button name="action_view_bank_payment" type="object" class="oe_stat_button" icon="fa-bank"
                                 invisible="bank_payment_count == 0">
                             <field name="bank_payment_count" widget="statinfo" string="Bank Payment"/>
@@ -268,6 +274,12 @@
                         </page>
                         <page string="Accounting">
                             <group>
+                                <field name="expense_bucket_id"
+                                       readonly="state not in ('draft', 'hr_approval', 'md_approval', 'accounts_approval')"/>
+                                <field name="cost_center_id"
+                                       readonly="state not in ('draft', 'hr_approval', 'md_approval', 'accounts_approval')"/>
+                                <field name="payment_request_id" readonly="1"/>
+                                <field name="cash_payment_id" readonly="1"/>
                                 <field name="bank_payment_id" readonly="1"/>
                                 <field name="journal_entry_id" readonly="1"/>
                                 <field name="employee_recovery_amount" readonly="1" widget="monetary"/>
@@ -325,6 +337,22 @@
             </p>
         </field>
     </record>
+
+    <record id="action_pr_end_of_service_approvals" model="ir.actions.act_window">
+        <field name="name">End of Service</field>
+        <field name="res_model">pr.end.of.service</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_end_of_service_search"/>
+        <field name="domain">[('state', 'in', ['draft', 'hr_approval', 'md_approval', 'accounts_approval', 'employee_acceptance'])]</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <menuitem id="menu_pr_end_of_service_approvals"
+              name="End of Service"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_pr_end_of_service_approvals"
+              sequence="45"
+              groups="hr.group_hr_user,pr_hr_recruitment_request.group_onboarding_md,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
 
     <menuitem id="menu_pr_end_of_service_root"
               name="End of Service"

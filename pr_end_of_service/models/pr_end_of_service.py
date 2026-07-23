@@ -310,6 +310,30 @@ class PrEndOfService(models.Model):
     )
     recovery_date = fields.Date(string="Recovery Date", readonly=True, copy=False)
     recovery_note = fields.Text(string="Recovery / Waiver Notes", tracking=True)
+    expense_bucket_id = fields.Many2one(
+        "crossovered.budget",
+        string="Budget",
+        tracking=True,
+        domain="[('state', 'in', ['validate', 'done']), ('pr_under_revision', '=', False)]",
+    )
+    cost_center_id = fields.Many2one(
+        "account.analytic.account",
+        string="Cost Center",
+        tracking=True,
+    )
+    payment_request_id = fields.Many2one(
+        "pr.employee.payment.request",
+        string="Payment Request",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    cash_payment_id = fields.Many2one(
+        "pr.account.cash.payment",
+        string="Cash Payment",
+        readonly=True,
+        copy=False,
+    )
     bank_payment_id = fields.Many2one(
         "pr.account.bank.payment",
         string="Bank Payment",
@@ -332,6 +356,9 @@ class PrEndOfService(models.Model):
     def _onchange_employee_last_working_day(self):
         if self.employee_id and self.employee_id.last_working_date:
             self.service_end_date = self.employee_id.last_working_date
+        if self.employee_id:
+            self.cost_center_id = self._get_default_cost_center()
+            self.expense_bucket_id = self._get_default_budget(self.cost_center_id)
 
     @api.depends("employee_id", "employee_id.contract_id", "employee_id.contract_id.joining_date", "employee_id.contract_id.date_start")
     def _compute_contract_data(self):
@@ -743,6 +770,10 @@ class PrEndOfService(models.Model):
                 rec.name = self.env["ir.sequence"].next_by_code("pr.end.of.service") or _("New")
             if not rec.is_partial and not rec.requested_amount:
                 rec.requested_amount = rec.available_amount
+            if not rec.cost_center_id:
+                rec.cost_center_id = rec._get_default_cost_center()
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_budget(rec.cost_center_id)
             rec._sync_recovery_state_from_amount()
         return records
 
@@ -844,6 +875,68 @@ class PrEndOfService(models.Model):
                     distribution[str(account.id)] = 100.0
         return distribution
 
+    def _get_default_cost_center(self):
+        self.ensure_one()
+        employee = self.employee_id.sudo()
+        for field_name in (
+            "employee_cost_center_id",
+            "project_cost_center_id",
+            "section_cost_center_id",
+            "department_cost_center_id",
+        ):
+            if field_name in employee._fields and employee[field_name]:
+                return employee[field_name]
+        department = employee.department_id
+        if (
+            department
+            and "department_cost_center_id" in department._fields
+            and department.department_cost_center_id
+        ):
+            return department.department_cost_center_id
+        return self.env["account.analytic.account"]
+
+    def _get_default_budget(self, cost_center=False):
+        self.ensure_one()
+        cost_center = cost_center or self.cost_center_id
+        if not cost_center:
+            return self.env["crossovered.budget"]
+        target_date = self.date_request or fields.Date.context_today(self)
+        return self.env["crossovered.budget"].sudo().search([
+            ("state", "in", ["validate", "done"]),
+            ("date_from", "<=", target_date),
+            ("date_to", ">=", target_date),
+            ("crossovered_budget_line.analytic_account_id", "=", cost_center.id),
+            ("pr_under_revision", "=", False),
+        ], order="date_from desc, id desc", limit=1)
+
+    def _check_payment_request_budget(self):
+        self.ensure_one()
+        if not self.cost_center_id:
+            raise UserError(_("Please select the Cost Center before creating the payment request."))
+        if not self.expense_bucket_id:
+            raise UserError(_("Please select the approved Budget before creating the payment request."))
+        self.expense_bucket_id._check_active_for_date(
+            self.date_request or fields.Date.context_today(self)
+        )
+        remaining = self.expense_bucket_id._get_remaining_by_cost_center()
+        if self.cost_center_id.id not in remaining:
+            raise UserError(
+                _("Cost Center %(cc)s is not included in Budget %(budget)s.")
+                % {
+                    "cc": self.cost_center_id.display_name,
+                    "budget": self.expense_bucket_id.display_name,
+                }
+            )
+        if self.requested_amount > remaining.get(self.cost_center_id.id, 0.0):
+            raise UserError(
+                _("Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: %(amount).2f")
+                % {
+                    "cc": self.cost_center_id.display_name,
+                    "remaining": remaining.get(self.cost_center_id.id, 0.0),
+                    "amount": self.requested_amount,
+                }
+            )
+
     def _prepare_bank_payment_vals(self):
         self.ensure_one()
         expense_account = self._get_config_account(
@@ -898,6 +991,7 @@ class PrEndOfService(models.Model):
                         attachment_ids=attachment.ids if attachment else [],
                     )
                 continue
+            rec._check_payment_request_budget()
             rec.write({
                 "state": "employee_acceptance",
                 "date_accounting_approval": fields.Date.context_today(rec),
@@ -906,14 +1000,38 @@ class PrEndOfService(models.Model):
             })
             rec.message_post(body=_("Accounts approved the EOS settlement and sent it for employee acceptance."))
 
-    def _create_bank_payment_if_needed(self):
+    def _create_payment_request_if_needed(self):
         self.ensure_one()
-        if self.requested_amount <= 0.0 or self.bank_payment_id:
-            return self.bank_payment_id
-        payment = self.env["pr.account.bank.payment"].sudo().create(self._prepare_bank_payment_vals())
-        self.bank_payment_id = payment.id
-        self.message_post(body=_("Bank Payment %s created for EOS settlement.") % payment.name)
-        return payment
+        if self.requested_amount <= 0.0 or self.payment_request_id:
+            return self.payment_request_id
+        if self.cash_payment_id or self.bank_payment_id:
+            raise UserError(_("A payment voucher already exists for this EOS settlement."))
+        self._check_payment_request_budget()
+        expense_account = self._get_config_account(
+            "pr_end_of_service.expense_account_id",
+            _("EOS Expense Account"),
+        )
+        payment_request = self.env["pr.employee.payment.request"].sudo().create({
+            "eos_id": self.id,
+            "requested_user_id": self.env.user.id,
+            "employee_id": self.employee_id.id,
+            "company_id": self.company_id.id,
+            "expense_bucket_id": self.expense_bucket_id.id,
+            "cost_center_id": self.cost_center_id.id,
+            "line_ids": [(0, 0, {
+                "description": _("End of Service settlement for %s (%s)")
+                % (self.employee_id.display_name, self.name),
+                "amount": self.requested_amount,
+                "expense_account_id": expense_account.id,
+            })],
+        })
+        self.payment_request_id = payment_request.id
+        payment_request._notify_accounts()
+        self.message_post(
+            body=_("Payment Request %s created for EOS settlement. Accounts can create its CPV/BPV.")
+            % payment_request.name
+        )
+        return payment_request
 
     def _get_final_settlement_pdf_filename(self):
         self.ensure_one()
@@ -951,7 +1069,7 @@ class PrEndOfService(models.Model):
         for rec in self:
             if rec.state != "employee_acceptance":
                 continue
-            rec._create_bank_payment_if_needed()
+            rec._create_payment_request_if_needed()
             rec.write({
                 "state": "payment",
                 "employee_acceptance_state": "accepted",
@@ -974,7 +1092,7 @@ class PrEndOfService(models.Model):
 
     def _mark_done_from_payment(self, payment):
         for rec in self:
-            if rec.bank_payment_id != payment or rec.state == "done":
+            if payment not in (rec.cash_payment_id, rec.bank_payment_id) or rec.state == "done":
                 continue
             rec.write({
                 "state": "done",
@@ -1012,9 +1130,10 @@ class PrEndOfService(models.Model):
                         attachment_ids=attachment.ids if attachment else [],
                     )
                 continue
-            if not rec.bank_payment_id or rec.bank_payment_id.state != "posted":
-                raise UserError(_("The related bank payment must be posted first."))
-            rec._mark_done_from_payment(rec.bank_payment_id)
+            payment = rec.cash_payment_id or rec.bank_payment_id
+            if not payment or payment.state != "posted":
+                raise UserError(_("The CPV/BPV created from the related Payment Request must be posted first."))
+            rec._mark_done_from_payment(payment)
 
     def action_mark_recovery_collected(self):
         for rec in self:
@@ -1071,6 +1190,18 @@ class PrEndOfService(models.Model):
             "res_model": "pr.account.bank.payment",
             "view_mode": "form",
             "res_id": self.bank_payment_id.id,
+        }
+
+    def action_view_payment_request(self):
+        self.ensure_one()
+        if not self.payment_request_id:
+            return False
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Payment Request"),
+            "res_model": "pr.employee.payment.request",
+            "view_mode": "form",
+            "res_id": self.payment_request_id.id,
         }
 
     def action_view_journal_entry(self):
