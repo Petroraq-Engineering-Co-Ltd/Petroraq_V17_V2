@@ -108,6 +108,10 @@
                             groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
                     <button name="action_employee_accept" type="object" string="Employee Accepted" class="oe_highlight"
                             invisible="state != 'employee_acceptance'" groups="hr.group_hr_user"/>
+                    <button name="action_send_employee_acceptance_email" type="object"
+                            string="Send / Resend Settlement"
+                            invisible="state != 'employee_acceptance'"
+                            groups="hr.group_hr_user,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
                     <button name="action_employee_reject" type="object" string="Employee Rejected"
                             invisible="state != 'employee_acceptance'" groups="hr.group_hr_user"/>
                     <button name="action_mark_done" type="object" string="Mark Done" class="oe_highlight"
@@ -265,6 +269,8 @@
                             <group>
                                 <field name="employee_acceptance_state" readonly="1"/>
                                 <field name="employee_acceptance_date" readonly="1"/>
+                                <field name="employee_acceptance_email" readonly="1"/>
+                                <field name="employee_acceptance_email_sent_at" readonly="1"/>
                             </group>
                             <group string="Rejection Reason" invisible="employee_acceptance_state != 'rejected'">
                                 <field name="employee_rejection_reason" readonly="1" nolabel="1"/>

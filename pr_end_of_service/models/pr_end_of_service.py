@@ -289,6 +289,18 @@ class PrEndOfService(models.Model):
         readonly=True,
         copy=False,
     )
+    employee_acceptance_email = fields.Char(
+        string="Settlement Sent To",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+    employee_acceptance_email_sent_at = fields.Datetime(
+        string="Settlement Email Sent On",
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
     employee_rejection_reason = fields.Text(
         string="Employee Rejection Reason",
         readonly=True,
@@ -998,7 +1010,7 @@ class PrEndOfService(models.Model):
                 "employee_acceptance_state": "sent",
                 "employee_rejection_reason": False,
             })
-            rec.message_post(body=_("Accounts approved the EOS settlement and sent it for employee acceptance."))
+            rec.action_send_employee_acceptance_email()
 
     def _create_payment_request_if_needed(self):
         self.ensure_one()
@@ -1044,8 +1056,6 @@ class PrEndOfService(models.Model):
             ("res_id", "=", self.id),
             ("name", "=", self._get_final_settlement_pdf_filename()),
         ], limit=1)
-        if existing:
-            return existing
         report = self.env.ref(
             "pr_end_of_service.action_report_pr_end_of_service",
             raise_if_not_found=False,
@@ -1056,19 +1066,89 @@ class PrEndOfService(models.Model):
             report.report_name,
             [self.id],
         )
-        return self.env["ir.attachment"].sudo().create({
+        attachment_vals = {
             "name": self._get_final_settlement_pdf_filename(),
             "type": "binary",
             "datas": base64.b64encode(pdf_content),
             "res_model": self._name,
             "res_id": self.id,
             "mimetype": "application/pdf",
-        })
+        }
+        if existing:
+            existing.write(attachment_vals)
+            return existing
+        return self.env["ir.attachment"].sudo().create(attachment_vals)
+
+    def _get_employee_acceptance_email(self):
+        self.ensure_one()
+        employee = self.employee_id.sudo()
+        candidates = [
+            employee.work_email,
+            employee.user_id.email if employee.user_id else False,
+            employee.work_contact_id.email
+            if "work_contact_id" in employee._fields and employee.work_contact_id
+            else False,
+            employee.private_email if "private_email" in employee._fields else False,
+            employee.address_home_id.email
+            if "address_home_id" in employee._fields and employee.address_home_id
+            else False,
+        ]
+        return next((email.strip() for email in candidates if email and email.strip()), False)
+
+    def action_send_employee_acceptance_email(self):
+        for rec in self:
+            if rec.state != "employee_acceptance":
+                raise UserError(
+                    _("The settlement can only be emailed while waiting for Employee Acceptance.")
+                )
+            email_to = rec._get_employee_acceptance_email()
+            if not email_to:
+                raise UserError(
+                    _(
+                        "Employee %s has no email address. Add a Work Email or Private Email before continuing."
+                    )
+                    % rec.employee_id.display_name
+                )
+            template = self.env.ref(
+                "pr_end_of_service.mail_template_eos_employee_acceptance",
+                raise_if_not_found=False,
+            )
+            if not template:
+                raise UserError(_("The EOS employee acceptance email template is not configured."))
+            attachment = rec._generate_final_settlement_pdf_attachment()
+            if not attachment:
+                raise UserError(_("The EOS settlement PDF could not be generated."))
+            mail_id = template.sudo().send_mail(
+                rec.id,
+                force_send=True,
+                email_values={
+                    "email_to": email_to,
+                    "attachment_ids": [(6, 0, attachment.ids)],
+                },
+            )
+            if not mail_id:
+                raise UserError(_("The EOS settlement email could not be created or sent."))
+            sent_at = fields.Datetime.now()
+            rec.write({
+                "employee_acceptance_email": email_to,
+                "employee_acceptance_email_sent_at": sent_at,
+                "employee_acceptance_state": "sent",
+            })
+            rec.message_post(
+                body=_("EOS settlement document emailed to %s for employee acceptance.") % email_to,
+                attachment_ids=attachment.ids,
+                message_type="notification",
+            )
+        return True
 
     def action_employee_accept(self):
         for rec in self:
             if rec.state != "employee_acceptance":
                 continue
+            if not rec.employee_acceptance_email_sent_at:
+                raise UserError(
+                    _("Send the EOS settlement document to the employee before recording acceptance.")
+                )
             rec._create_payment_request_if_needed()
             rec.write({
                 "state": "payment",
@@ -1176,6 +1256,8 @@ class PrEndOfService(models.Model):
                 "date_payment": False,
                 "employee_acceptance_state": "not_sent",
                 "employee_acceptance_date": False,
+                "employee_acceptance_email": False,
+                "employee_acceptance_email_sent_at": False,
                 "employee_rejection_reason": False,
             })
             rec._sync_recovery_state_from_amount()
@@ -1298,7 +1380,11 @@ class PrEndOfService(models.Model):
             clearance_rows = [
                 {
                     "name": line.name,
-                    "status": dict(line._fields["state"].selection).get(line.state, line.state),
+                    "status": (
+                        _("Cleared")
+                        if line.state == "done"
+                        else dict(line._fields["state"].selection).get(line.state, line.state)
+                    ),
                 }
                 for line in offboarding.clearance_line_ids.sorted(
                     lambda line: (line.sequence, line.id)
@@ -1368,7 +1454,7 @@ class PrEndOfService(models.Model):
             "other_recoveries": other_recoveries,
             "total_deductions": total_deductions,
             "gross_settlement": gross_settlement,
-            "net_settlement": gross_settlement - total_deductions,
+            "net_settlement": employee_payables - total_deductions,
             "clearance_rows": clearance_rows,
             "payment_method": (
                 "Cash"

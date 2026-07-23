@@ -33,6 +33,7 @@
         "views/payment_request_views.xml",
         "views/res_config_settings_views.xml",
         "reports/pr_end_of_service_report.xml",
+        "data/eos_mail_template.xml",
     ],
     "installable": True,
     "application": True,
