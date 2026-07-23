@@ -1,5 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="portal_vendor_invoice_list_columns"
+              inherit_id="account.portal_my_invoices"
+              priority="90">
+        <xpath expr="//thead/tr" position="replace">
+            <tr class="active">
+                <th>Purchase Order Reference</th>
+                <th>Vendor Invoice No.</th>
+                <th>Invoice Date</th>
+                <th class="d-none d-md-table-cell">Due Date</th>
+                <th class="text-end">Invoice Amount</th>
+                <th class="text-end">Amount Paid</th>
+                <th class="text-end">Amount Due</th>
+                <th>Payment Status</th>
+                <th class="d-none d-lg-table-cell">Payment Date</th>
+            </tr>
+        </xpath>
+        <xpath expr="//t[@t-foreach='invoices']/tr" position="replace">
+            <tr>
+                <t t-set="purchase_orders" t-value="invoice.invoice_line_ids.mapped('purchase_line_id.order_id')"/>
+                <td><t t-out="', '.join(purchase_orders.mapped('name')) or invoice.invoice_origin or '-'"/></td>
+                <td>
+                    <a class="o_pr_portal_record_link"
+                       t-att-href="invoice.get_portal_url()"
+                       t-att-title="invoice.ref or invoice.name"
+                       style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;">
+                        <t t-out="invoice.ref or invoice.name" t-if="(invoice.ref or invoice.name) != '/'"/>
+                        <em t-else="">Draft Invoice</em>
+                    </a>
+                </td>
+                <td><span t-field="invoice.invoice_date"/></td>
+                <td class="d-none d-md-table-cell"><span t-field="invoice.invoice_date_due"/></td>
+                <td class="text-end"><span t-field="invoice.amount_total"/></td>
+                <td class="text-end"><span t-field="invoice.pr_portal_amount_paid"/></td>
+                <td class="text-end"><span t-field="invoice.amount_residual"/></td>
+                <td>
+                    <span t-if="invoice.payment_state == 'paid'" class="badge rounded-pill text-bg-success">Paid</span>
+                    <span t-elif="invoice.payment_state == 'in_payment'" class="badge rounded-pill text-bg-primary">In Payment</span>
+                    <span t-elif="invoice.payment_state == 'reversed'" class="badge rounded-pill text-bg-secondary">Reversed</span>
+                    <span t-elif="invoice.state == 'cancel'" class="badge rounded-pill text-bg-warning">Cancelled</span>
+                    <span t-else="" class="badge rounded-pill text-bg-info">Waiting for Payment</span>
+                </td>
+                <td class="d-none d-lg-table-cell"><span t-field="invoice.pr_portal_payment_date"/></td>
+            </tr>
+        </xpath>
+    </template>
+
     <!-- Online payment is intentionally unavailable in the Petroraq portal. -->
     <template id="portal_invoice_list_hide_online_payment"
               inherit_id="account_payment.portal_my_invoices_payment"
@@ -20,7 +66,9 @@
               priority="110">
         <xpath expr="//a[hasclass('o_download_btn')]" position="replace">
             <a class="btn btn-secondary d-block o_download_btn"
-               t-att-href="invoice.get_portal_url(report_type='pdf', download=True)"
+               t-att-href="invoice.get_portal_url(report_type='pdf')"
+               target="_blank"
+               rel="noopener noreferrer"
                title="Download Custom Tax Invoice">
                 <i class="fa fa-download me-1"/>
                 Tax Invoice PDF
@@ -211,7 +259,9 @@
 
                 <footer class="o_pr_invoice_portal_actions">
                     <a class="btn btn-primary"
-                       t-att-href="invoice.get_portal_url(report_type='pdf', download=True)">
+                       t-att-href="invoice.get_portal_url(report_type='pdf')"
+                       target="_blank"
+                       rel="noopener noreferrer">
                         <i class="fa fa-file-pdf-o me-1"/>
                         Download Invoice
                     </a>
@@ -219,6 +269,26 @@
                         Includes complete DP, retention, VAT, bilingual details, and QR information.
                     </small>
                 </footer>
+                <div class="card mt-4" id="vendor_bill_attachments">
+                    <div class="card-header"><strong>Bill Attachments</strong></div>
+                    <ul t-if="invoice.pr_vendor_portal_attachment_ids"
+                        class="list-group list-group-flush">
+                        <li t-foreach="invoice.pr_vendor_portal_attachment_ids"
+                            t-as="attachment"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            <span t-out="attachment.name"/>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               t-att-href="'/vendor/attachment/%s/download' % attachment.id"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                Download
+                            </a>
+                        </li>
+                    </ul>
+                    <div t-else="" class="card-body text-muted">
+                        No attachments are available yet.
+                    </div>
+                </div>
             </section>
 
             <!--

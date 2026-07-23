@@ -1,0 +1,772 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr_recruitment_request
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-14 07:03+0000\n"
+"PO-Revision-Date: 2026-07-14 07:03+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__hired_ratio
+msgid "(Hired / Requested) * 100"
+msgstr "(المعينون / المطلوبون) × 100"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "<span class=\"o_stat_text\">Job Position</span>"
+msgstr "<span class=\"o_stat_text\">المنصب الوظيفي</span>"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_needaction
+msgid "Action Needed"
+msgstr "إجراء مطلوب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model,name:pr_hr_recruitment_request.model_hr_applicant
+msgid "Applicant"
+msgstr "المتقدم"
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__applicant_count
+#, python-format
+msgid "Applicants"
+msgstr "المتقدمون"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Approvals"
+msgstr "الموافقات"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Approve (HR Manager)"
+msgstr "اعتماد (مدير الموارد البشرية)"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Approve (HR Supervisor)"
+msgstr "اعتماد (مشرف الموارد البشرية)"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Approve (MD)"
+msgstr "اعتماد (المدير العام)"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__approved
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_search
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__cancelled
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model,name:pr_hr_recruitment_request.model_hr_career_level
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job__career_level_id
+msgid "Career Level"
+msgstr "المستوى الوظيفي"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.actions.act_window,help:pr_hr_recruitment_request.action_hr_recruitment_request
+msgid "Create recruitment requests for new or existing job positions."
+msgstr "أنشئ طلبات توظيف للمناصب الوظيفية الجديدة أو الحالية."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__created_job_id
+msgid "Created Job (from request)"
+msgstr "الوظيفة المُنشأة (من الطلب)"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_career_level__create_uid
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job_shift__create_uid
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_career_level__create_date
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job_shift__create_date
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__department_id
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__department_manager_user_id
+msgid "Department Manager"
+msgstr "مدير القسم"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Describe the job requirements, responsibilities, and expectations..."
+msgstr "صف متطلبات الوظيفة والمسؤوليات والتوقعات..."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_career_level__display_name
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job_shift__display_name
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__done
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job__education_level_id
+msgid "Education Level"
+msgstr "المستوى التعليمي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__employee_id
+msgid "Employee who required this request"
+msgstr "الموظف الذي طلب هذا الطلب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__contract_type_id
+msgid "Employment Type"
+msgstr "نوع التوظيف"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__job_id
+msgid "Existing Job Position"
+msgstr "المنصب الوظيفي الحالي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__expected_start_date
+msgid "Expected Start Date"
+msgstr "تاريخ البدء المتوقع"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__experience_years
+msgid "Experience (Years)"
+msgstr "الخبرة (بالسنوات)"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__experience
+msgid "Experience In Years"
+msgstr "الخبرة بالسنوات"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_job__preferred_gender__female
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__preferred_gender__female
+msgid "Female"
+msgstr "أنثى"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome مثل fa-tasks"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__job_salary
+msgid "Gross Salary"
+msgstr "الراتب الإجمالي"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_search
+msgid "HR Approval"
+msgstr "موافقة الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "HR Manager"
+msgstr "مدير الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__hrm_approval
+msgid "HR Manager Approval"
+msgstr "موافقة مدير الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__hrm_approved_by_id
+msgid "HR Manager Approved By"
+msgstr "تمت الموافقة بواسطة مدير الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__hrm_approved_date
+msgid "HR Manager Approved On"
+msgstr "تاريخ موافقة مدير الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model,name:pr_hr_recruitment_request.model_hr_recruitment_request
+msgid "HR Recruitment Request"
+msgstr "طلب توظيف الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "HR Supervisor"
+msgstr "مشرف الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__hr_approval
+msgid "HR Supervisor Approval"
+msgstr "موافقة مشرف الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__hr_approved_by_id
+msgid "HR Supervisor Approved By"
+msgstr "تمت الموافقة بواسطة مشرف الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__hr_approved_date
+msgid "HR Supervisor Approved On"
+msgstr "تاريخ موافقة مشرف الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__legally_required
+msgid "Has National ID / Iqama"
+msgstr "لديه هوية وطنية / إقامة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__hired_count
+msgid "Hired Employees"
+msgstr "الموظفون المعينون"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__hired_ratio
+msgid "Hiring % vs Requested"
+msgstr "نسبة التعيين إلى المطلوب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.module.category,description:pr_hr_recruitment_request.module_category_onboarding
+msgid "Hr custom Groups for Onboarding and Offboarding"
+msgstr "مجموعات مخصصة للموارد البشرية لعمليات التهيئة وإنهاء الخدمة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_career_level__id
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job_shift__id
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى وجود نشاط استثنائي."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فإن هناك رسائل جديدة تتطلب انتباهك."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__message_has_error
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فإن بعض الرسائل تحتوي على خطأ في التسليم."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__is_hr_supervisor_approver
+msgid "Is Hr Supervisor Approver"
+msgstr "مخوّل بالموافقة كمشرف الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__is_hrm_approver
+msgid "Is Hrm Approver"
+msgstr "مخوّل بالموافقة كمدير الموارد البشرية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__is_md_approver
+msgid "Is Md Approver"
+msgstr "مخوّل بالموافقة كالمدير العام"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model,name:pr_hr_recruitment_request.model_hr_job
+msgid "Job Position"
+msgstr "المنصب الوظيفي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model,name:pr_hr_recruitment_request.model_hr_job_shift
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job__job_shift_id
+msgid "Job Shift"
+msgstr "وردية العمل"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__job_summary
+msgid "Job Summary / Description"
+msgstr "ملخص / وصف الوظيفة"
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Job position is required"
+msgstr "المنصب الوظيفي مطلوب."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__availability
+msgid "Joining Availability"
+msgstr "تاريخ التوفر للالتحاق"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Justification"
+msgstr "المبررات"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__justification
+msgid "Justification/Description"
+msgstr "المبررات / الوصف"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "KPIs"
+msgstr "مؤشرات الأداء الرئيسية"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_career_level__write_uid
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job_shift__write_uid
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_career_level__write_date
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job_shift__write_date
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__partner_location
+msgid "Location"
+msgstr "الموقع"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "MD"
+msgstr "المدير العام"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__md_approval
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_search
+msgid "MD Approval"
+msgstr "موافقة المدير العام"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__md_approved_by_id
+msgid "MD Approved By"
+msgstr "تمت الموافقة بواسطة المدير العام"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__md_approved_date
+msgid "MD Approved On"
+msgstr "تاريخ موافقة المدير العام"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_job__preferred_gender__male
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__preferred_gender__male
+msgid "Male"
+msgstr "ذكر"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_career_level__name
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job_shift__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__national_id_iqama
+msgid "National ID / Iqama Number"
+msgstr "رقم الهوية الوطنية / الإقامة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__nationality_id
+msgid "Nationality"
+msgstr "الجنسية"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "New Job Details"
+msgstr "تفاصيل الوظيفة الجديدة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__new_job_name
+msgid "New Job Name"
+msgstr "اسم الوظيفة الجديدة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__is_new_position
+msgid "New Position"
+msgstr "منصب جديد"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_search
+msgid "New Positions"
+msgstr "المناصب الجديدة"
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "New job name is required"
+msgstr "اسم الوظيفة الجديدة مطلوب."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_applicant__legally_required__no
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_applicant__will_relocate__no
+msgid "No"
+msgstr "لا"
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "No job position is configured for this request"
+msgstr "لم يتم تعيين أي منصب وظيفي لهذا الطلب."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__notice_period
+msgid "Notice Period"
+msgstr "مدة الإشعار"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__requested_employees
+msgid "Number of Employees Required"
+msgstr "عدد الموظفين المطلوبين"
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Number of employees must be greater than 0"
+msgstr "يجب أن يكون عدد الموظفين أكبر من صفر."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي تحتوي على خطأ في التسليم"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.module.category,name:pr_hr_recruitment_request.module_category_onboarding
+msgid "Onboarding"
+msgstr "تهيئة الموظف"
+
+#. module: pr_hr_recruitment_request
+#: model:res.groups,name:pr_hr_recruitment_request.group_onboarding_md
+msgid "Onboarding MD"
+msgstr "المدير العام لتهيئة الموظفين"
+
+#. module: pr_hr_recruitment_request
+#: model:res.groups,name:pr_hr_recruitment_request.group_onboarding_manager
+msgid "Onboarding Manager"
+msgstr "مدير تهيئة الموظفين"
+
+#. module: pr_hr_recruitment_request
+#: model:res.groups,name:pr_hr_recruitment_request.group_onboarding_supervisor
+msgid "Onboarding Supervisor"
+msgstr "مشرف تهيئة الموظفين"
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Only HR Manager can perform this approval."
+msgstr "فقط مدير الموارد البشرية يمكنه تنفيذ هذه الموافقة."
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Only HR Supervisor can perform this approval."
+msgstr "فقط مشرف الموارد البشرية يمكنه تنفيذ هذه الموافقة."
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Only MD can perform this approval."
+msgstr "فقط المدير العام يمكنه تنفيذ هذه الموافقة."
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Position Details"
+msgstr "تفاصيل المنصب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_job__preferred_gender
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__preferred_gender
+msgid "Preferred Gender"
+msgstr "الجنس المفضل"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__preferred_nationalities
+msgid "Preferred Nationalities"
+msgstr "الجنسيات المفضلة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__hiring_request_type__ramp
+msgid "Ramp"
+msgstr "توسع"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__hiring_request_type
+msgid "Ramp or Replacement"
+msgstr "توسع أو إحلال"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Recruitment Request"
+msgstr "طلب توظيف"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.actions.act_window,name:pr_hr_recruitment_request.action_hr_recruitment_request
+#: model:ir.actions.act_window,name:pr_hr_recruitment_request.hr_recruitment_request_approvals_view_action
+#: model:ir.ui.menu,name:pr_hr_recruitment_request.hr_recruitment_request_approvals_view_menu
+#: model:ir.ui.menu,name:pr_hr_recruitment_request.menu_hr_recruitment_request_root
+msgid "Recruitment Requests"
+msgstr "طلبات التوظيف"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_recruitment_request__hiring_request_type__replacement
+msgid "Replacement"
+msgstr "إحلال"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Request Info"
+msgstr "معلومات الطلب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__name
+msgid "Request Reference"
+msgstr "مرجع الطلب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__requested_by_id
+msgid "Requested By"
+msgstr "مقدم الطلب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__employee_id
+msgid "Requester Manager"
+msgstr "مدير مقدم الطلب"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Reset to Draft"
+msgstr "إعادة إلى المسودة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.hr_applicant_view_inherit_salary_info
+msgid "Salary Info"
+msgstr "معلومات الراتب"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__state
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: النشاط مستحق اليوم\n"
+"مجدول: أنشطة مستقبلية."
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_recruitment_request.view_hr_recruitment_request_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: pr_hr_recruitment_request
+#: model_terms:ir.actions.act_window,help:pr_hr_recruitment_request.hr_recruitment_request_approvals_view_action
+msgid "There Is No Recruitment Requests To Approve"
+msgstr "لا توجد طلبات توظيف بانتظار الموافقة"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_recruitment_request__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,help:pr_hr_recruitment_request.field_hr_recruitment_request__website_message_ids
+msgid "Website communication history"
+msgstr "سجل التواصل عبر الموقع الإلكتروني"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields,field_description:pr_hr_recruitment_request.field_hr_applicant__will_relocate
+msgid "Willing to Relocate"
+msgstr "مستعد للانتقال"
+
+#. module: pr_hr_recruitment_request
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_applicant__legally_required__yes
+#: model:ir.model.fields.selection,name:pr_hr_recruitment_request.selection__hr_applicant__will_relocate__yes
+msgid "Yes"
+msgstr "نعم"
+
+#. module: pr_hr_recruitment_request
+#. odoo-python
+#: code:addons/pr_hr_recruitment_request/models/hr_recruitment_request.py:0
+#, python-format
+msgid "no job position is configured for this request"
+msgstr "لم يتم إعداد أي منصب وظيفي لهذا الطلب"
+
+

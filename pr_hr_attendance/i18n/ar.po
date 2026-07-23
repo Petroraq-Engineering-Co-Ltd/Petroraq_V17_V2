@@ -1,0 +1,1422 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr_attendance
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 14:00+0000\n"
+"PO-Revision-Date: 2026-07-13 14:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "%s cannot be processed by the selected automated attendance source."
+msgstr "لا يمكن معالجة %s بواسطة مصدر الحضور الآلي المحدد."
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_form_view
+msgid "APPROVE"
+msgstr "اعتماد"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_res_groups
+msgid "Access Groups"
+msgstr "مجموعات الصلاحيات"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_needaction
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_needaction
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_needaction
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_state
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_state
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_state
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "An open attendance mode request already exists for %s."
+msgstr "يوجد بالفعل طلب مفتوح لتغيير وضع تسجيل الحضور لـ %s."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__approval_state
+msgid "Approval Status"
+msgstr "حالة الاعتماد"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+msgid "Approve Sheets"
+msgstr "اعتماد كشوف الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__state__approved
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__approval_state__hr_approve
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance__attendance_entry_source__approved_leave
+msgid "Approved Leave Cleanup"
+msgstr "تسوية الإجازة المعتمدة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance__attendance_entry_source__approved_shortage
+msgid "Approved Shortage Correction"
+msgstr "تصحيح النقص المعتمد"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Approved by HR Manager and Managing Director."
+msgstr "تم الاعتماد من قبل مدير الموارد البشرية والمدير العام."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Approved by HR Manager."
+msgstr "تم الاعتماد من قبل مدير الموارد البشرية."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Approved by the Managing Director."
+msgstr "تم الاعتماد من قبل المدير العام."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet_batch__att_sheet_ids_count
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__att_sheet_ids_count
+msgid "Att Sheet Ids Count"
+msgstr "عدد كشوف الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance__attachment_ids
+msgid "Attachments"
+msgstr "المرفقات"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_hr_attendance
+msgid "Attendance"
+msgstr "الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_employee__attendance_email_enabled
+msgid "Attendance Email Alerts"
+msgstr "تنبيهات الحضور عبر البريد الإلكتروني"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_employee__attendance_entry_mode
+msgid "Attendance Entry Mode"
+msgstr "وضع تسجيل الحضور"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_employee.py:0
+#, python-format
+msgid ""
+"Attendance Entry Mode can only be changed through an approved Attendance "
+"Mode Change request."
+msgstr "لا يمكن تغيير وضع تسجيل الحضور إلا من خلال طلب تغيير وضع الحضور معتمد."
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_view_employee_form_inherit
+msgid "Attendance Entry Policy"
+msgstr "سياسة تسجيل الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.act_window,name:pr_hr_attendance.hr_attendance_import_wizard_view_action
+#: model:ir.ui.menu,name:pr_hr_attendance.menu_hr_attendance_import_wizard
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_attendance_import_wizard_view_form
+msgid "Attendance Import"
+msgstr "استيراد الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_hr_attendance_mode_change_request
+msgid "Attendance Mode Change Request"
+msgstr "طلب تغيير وضع تسجيل الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.act_window,name:pr_hr_attendance.action_attendance_mode_change_request_all
+msgid "Attendance Mode Change Requests"
+msgstr "طلبات تغيير وضع تسجيل الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.act_window,name:pr_hr_attendance.action_attendance_mode_change_request_pending
+#: model:ir.ui.menu,name:pr_hr_attendance.menu_attendance_mode_change_request_approval
+msgid "Attendance Mode Changes"
+msgstr "طلبات تغيير وضع تسجيل الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_employee__attendance_mode_change_request_count
+#: model:ir.ui.menu,name:pr_hr_attendance.menu_attendance_mode_change_request_history
+msgid "Attendance Mode Requests"
+msgstr "طلبات وضع تسجيل الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet__att_notification_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+msgid "Attendance Notification"
+msgstr "إشعار الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.act_window,name:pr_hr_attendance.action_attendance_notification_action
+#: model:ir.ui.menu,name:pr_hr_attendance.menu_hr_attendance_notification
+#: model:ir.ui.menu,name:pr_hr_attendance.menu_main_hr_attendance_notification
+msgid "Attendance Notifications"
+msgstr "إشعارات الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_employee__add_overtime
+msgid "Attendance Overtime"
+msgstr "احتساب العمل الإضافي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__file_attachment
+msgid "Attendance Sheet"
+msgstr "كشف الحضور"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_notification.py:0
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet_batch.py:0
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__att_sheet_ids
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_batch_form_view_inherit
+#, python-format
+msgid "Attendance Sheets"
+msgstr "كشوف الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance__attendance_entry_source
+msgid "Attendance Source"
+msgstr "مصدر الحضور"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "Attendance Source is immutable audit information."
+msgstr "مصدر الحضور هو معلومة تدقيقية ثابتة لا يمكن تعديلها."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid ""
+"Attendance for automated employees cannot be manually %s. Biometric or "
+"scheduled processes must manage it. Employees: %s"
+msgstr "لا يمكن %s حضور الموظفين ذوي التسجيل الآلي يدويًا. يجب أن تتم إدارته من خلال أجهزة البصمة أو العمليات المجدولة. الموظفون: %s"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Attendance mode change approval"
+msgstr "اعتماد تغيير وضع تسجيل الحضور"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Attendance mode requests are retained for audit history."
+msgstr "يتم الاحتفاظ بطلبات تغيير وضع تسجيل الحضور لأغراض سجل التدقيق."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Attendance mode requests can only be changed through workflow actions."
+msgstr "لا يمكن تعديل طلبات تغيير وضع تسجيل الحضور إلا من خلال إجراءات سير العمل."
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_form
+msgid "Audit"
+msgstr "التدقيق"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance__auto_generated_attendance
+msgid "Auto Generated"
+msgstr "تم إنشاؤه تلقائيًا"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.server,name:pr_hr_attendance.ir_cron_auto_management_attendance_ir_actions_server
+msgid "Auto Management Attendance Check In"
+msgstr "تسجيل دخول الحضور التلقائي"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.server,name:pr_hr_attendance.ir_cron_auto_management_attendance_checkout_ir_actions_server
+msgid "Auto Management Attendance Check Out"
+msgstr "تسجيل خروج الحضور التلقائي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__current_mode__automated
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__requested_mode__automated
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_employee__attendance_entry_mode__automated
+msgid "Automated Attendance"
+msgstr "حضور آلي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_employee__attendance_entry_mode
+msgid ""
+"Automated employees are controlled by biometric or scheduled processes. Only"
+" Manual / Site employees can have attendance entered by HR."
+msgstr "يتم التحكم في الموظفين ذوي الحضور الآلي بواسطة أجهزة البصمة أو العمليات المجدولة. ولا يمكن لموظفي الموارد البشرية تسجيل الحضور إلا للموظفين اليدويين أو موظفي المواقع."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance__attendance_entry_source__biometric
+msgid "Biometric Device"
+msgstr "جهاز البصمة"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_attendance_import_wizard_view_form
+msgid "CANCEL"
+msgstr "إلغاء"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_form
+msgid "Cancel Request"
+msgstr "إلغاء الطلب"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__state__cancelled
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Cancelled by HR."
+msgstr "تم الإلغاء من قبل الموارد البشرية."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__check_in
+msgid "Check In"
+msgstr "تسجيل الدخول"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__check_out
+msgid "Check Out"
+msgstr "تسجيل الخروج"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__company_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__company_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__company_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_form_view
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__create_uid
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__create_uid
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__create_date
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__create_date
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__create_date
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__current_mode
+msgid "Current Mode"
+msgstr "الوضع الحالي"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.server,name:pr_hr_attendance.ir_cron_daily_attendance_notification_email_ir_actions_server
+msgid "Daily Attendance Notification Emails"
+msgstr "رسائل إشعارات الحضور اليومية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__date
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__date
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_form_view
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__decision_by_id
+msgid "Decision By"
+msgstr "اتخذ القرار"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__decision_date
+msgid "Decision Date"
+msgstr "تاريخ القرار"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__display_name
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__display_name
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__display_name
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__state__draft
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_attendance_notification__state__draft
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_form_view_inherit
+msgid "Early Check Out"
+msgstr "انصراف مبكر"
+
+#. module: pr_hr_attendance
+#: model:hr.salary.rule,name:pr_hr_attendance.hr_salary_rule_att_early_check_out
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet_line__early_check_out
+msgid "Early Checkout"
+msgstr "الانصراف المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet_line__early_check_out_amount
+msgid "Early Checkout Amount"
+msgstr "قيمة الانصراف المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet_line__early_check_out_minutes
+msgid "Early Checkout Minutes"
+msgstr "دقائق الانصراف المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_hr_employee
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__employee_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__employee_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_form_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet__employee_code
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_batch_form_view_inherit
+msgid "Employee ID"
+msgstr "رقم الموظف"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__employee_manager_check
+msgid "Employee Manager Check"
+msgstr "مراجعة مدير الموظف"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_batch_form_view_inherit
+msgid "Employee Payslip"
+msgstr "مسير راتب الموظف"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Enter a reason for the attendance mode change."
+msgstr "يرجى إدخال سبب تغيير وضع تسجيل الحضور."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "Every attendance entry requires an employee."
+msgstr "يجب أن يكون لكل سجل حضور موظف."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__attachment_file_name
+msgid "File Name"
+msgstr "اسم الملف"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__activity_type_icon
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_type_icon
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__activity_type_icon
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+msgid "Generate Sheets"
+msgstr "إنشاء الكشوف"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_hr_attendance_import_wizard
+msgid "HR Attendance Import Wizard"
+msgstr "معالج استيراد الحضور"
+
+#. module: pr_hr_attendance
+#: model:res.groups,name:pr_hr_attendance.custom_group_hr_attendance_supervisor
+msgid "HR Attendance Supervisor"
+msgstr "مشرف حضور الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__state__hr_manager_approval
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "HR Manager Approval"
+msgstr "اعتماد مدير الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_form
+msgid "HR Manager Approve"
+msgstr "اعتماد مدير الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__state__hr_approve
+msgid "HR Manager Approved"
+msgstr "تم الاعتماد من مدير الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__hr_manager_approved_by_id
+msgid "HR Manager Approved By"
+msgstr "اعتمد بواسطة مدير الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__hr_manager_approved_date
+msgid "HR Manager Approved On"
+msgstr "تاريخ اعتماد مدير الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__hr_manager_ids
+msgid "HR Managers"
+msgstr "مديرو الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__state__hr_supervisor
+msgid "HR Supervisor Approved"
+msgstr "تم الاعتماد من مشرف الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__hr_supervisor_ids
+msgid "HR Supervisors"
+msgstr "مشرفو الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__has_message
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__has_message
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__has_message
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_pr_hr_attendance_notification
+msgid "Hr Attendance Notification"
+msgstr "إشعار الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_attendance_sheet
+msgid "Hr Attendance Sheet"
+msgstr "كشف الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__hr_manager_check
+msgid "Hr Manager Check"
+msgstr "مراجعة مدير الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_pr_hr_shortage_request
+msgid "Hr Shortage Request"
+msgstr "طلب تصحيح نقص الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__hr_supervisor_check
+msgid "Hr Supervisor Check"
+msgstr "مراجعة مشرف الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_attendance_import_wizard_view_form
+msgid "IMPORT"
+msgstr "استيراد"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة تشير إلى وجود نشاط استثنائي."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__message_needaction
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__message_needaction
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__message_needaction
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا تم تحديده، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__message_has_error
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__message_has_error
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__message_has_error
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__message_has_error
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا تم تحديده، فهذا يعني أن بعض الرسائل واجهت خطأ في التسليم."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_attendance_sheet__employee_code
+msgid "Internal Employee Code"
+msgstr "الرقم الداخلي للموظف"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__write_uid
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__write_uid
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__write_date
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__write_date
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__write_date
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet_line__late_in_minutes
+msgid "Late In Minutes"
+msgstr "دقائق التأخير"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__state__md_approval
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "MD Approval"
+msgstr "اعتماد المدير العام"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_form
+msgid "MD Approve"
+msgstr "اعتماد المدير العام"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__md_approved_by_id
+msgid "MD Approved By"
+msgstr "تم الاعتماد بواسطة المدير العام"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__md_approved_date
+msgid "MD Approved On"
+msgstr "تاريخ اعتماد المدير العام"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__employee_manager_id
+msgid "Manager"
+msgstr "المدير"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__state__manager_approve
+msgid "Manager Approved"
+msgstr "تم الاعتماد من المدير"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__current_mode__manual
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__requested_mode__manual
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_employee__attendance_entry_mode__manual
+msgid "Manual / Site Attendance"
+msgstr "الحضور اليدوي / الموقعي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance__attendance_entry_source__manual
+msgid "Manual HR Entry"
+msgstr "إدخال يدوي بواسطة الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_has_error
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_has_error
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_has_error
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_view_employee_form_inherit
+msgid "Mode Requests"
+msgstr "طلبات تغيير وضع الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__name
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__name
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_batch_form_view_inherit
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "New"
+msgstr "جديد"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_employee.py:0
+#, python-format
+msgid ""
+"New employees must start with Automated Attendance. Use an approved "
+"Attendance Mode Change request to switch modes."
+msgstr "يجب أن يبدأ الموظفون الجدد بوضع الحضور الآلي. وللتبديل إلى وضع آخر، استخدم طلب تغيير وضع الحضور بعد اعتماده."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_summary
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_summary
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_summary
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.actions.act_window,help:pr_hr_attendance.action_attendance_mode_change_request_pending
+msgid "No attendance mode changes await approval."
+msgstr "لا توجد طلبات تغيير لوضع الحضور بانتظار الاعتماد."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet__no_early_checkout
+msgid "No of Early Check Out"
+msgstr "عدد حالات الخروج المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_attendance_notification__state__gen
+msgid "Notifications Generated"
+msgstr "تم إنشاء الإشعارات"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_attendance_notification__state__sub
+msgid "Notifications Submitted"
+msgstr "تم إرسال الإشعارات"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي تحتوي على خطأ في التسليم"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "Only HR attendance staff can manage Manual / Site attendance."
+msgstr "يقتصر إدارة الحضور اليدوي / الموقعي على موظفي حضور الموارد البشرية."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Only HR can request an attendance mode change."
+msgstr "يحق لقسم الموارد البشرية فقط طلب تغيير وضع الحضور."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Only HR can submit an attendance mode change request."
+msgstr "يحق لقسم الموارد البشرية فقط إرسال طلب تغيير وضع الحضور."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Only the HR Manager can approve this stage."
+msgstr "يحق لمدير الموارد البشرية فقط اعتماد هذه المرحلة."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Only the Managing Director can decide this request."
+msgstr "فقط المدير العام يمكنه اتخاذ القرار بشأن هذا الطلب."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Only the requester or HR can cancel this request."
+msgstr "فقط مقدم الطلب أو قسم الموارد البشرية يمكنه إلغاء هذا الطلب."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance__attachment_ids
+msgid "Optional supporting attachments for this attendance/overtime entry."
+msgstr "مرفقات داعمة اختيارية لهذا السجل الخاص بالحضور أو العمل الإضافي."
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_view_hr_attendance_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_view_hr_attendance_tree_inherit
+msgid "Over Time"
+msgstr "العمل الإضافي"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_view_employee_form_inherit
+msgid "Overtime"
+msgstr "العمل الإضافي"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_hr_payslip
+msgid "Pay Slip"
+msgstr "قسيمة الراتب"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet_batch.py:0
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_batch_form_view_inherit
+#, python-format
+msgid "Payslip Batch"
+msgstr "دفعة قسائم الرواتب"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet_batch.py:0
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_batch_form_view_inherit
+#, python-format
+msgid "Payslips"
+msgstr "قسائم الرواتب"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__approval_state__draft
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__approval_state__hr_supervisor
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__approval_state__manager_approve
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "Pending Approval"
+msgstr "بانتظار الموافقة"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet.py:0
+#, python-format
+msgid ""
+"Please Add Work Entry Type For Attendance Sheet Absence With Code ATTSHAB"
+msgstr "يرجى إضافة نوع إدخال العمل لغياب كشف الحضور بالرمز ATTSHAB"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet.py:0
+#, python-format
+msgid ""
+"Please Add Work Entry Type For Attendance Sheet Diff Time With Code ATTSHDT"
+msgstr "يرجى إضافة نوع إدخال العمل لفارق الوقت في كشف الحضور بالرمز ATTSHDT"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet.py:0
+#, python-format
+msgid ""
+"Please Add Work Entry Type For Attendance Sheet Early Check Out With Code "
+"ATTSHECO"
+msgstr "يرجى إضافة نوع إدخال العمل للمغادرة المبكرة في كشف الحضور بالرمز ATTSHECO"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet.py:0
+#, python-format
+msgid ""
+"Please Add Work Entry Type For Attendance Sheet Late In With Code ATTSHLI"
+msgstr "يرجى إضافة نوع إدخال العمل للتأخير في الحضور في كشف الحضور بالرمز ATTSHLI"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_sheet.py:0
+#, python-format
+msgid ""
+"Please Add Work Entry Type For Attendance Sheet Overtime With Code ATTSHOT"
+msgstr "يرجى إضافة نوع إدخال العمل للعمل الإضافي في كشف الحضور بالرمز ATTSHOT"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_form_view
+msgid "REJECT"
+msgstr "رفض"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__rating_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__rating_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__rating_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__reason
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__employee_reason
+msgid "Reason"
+msgstr "السبب"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__name
+msgid "Reference"
+msgstr "المرجع"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance_mode_change_request__state__rejected
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__approval_state__reject
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__state__reject
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Rejected by HR Manager."
+msgstr "تم الرفض من قبل مدير الموارد البشرية."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Rejected by the Managing Director."
+msgstr "تم الرفض من قبل المدير العام."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__reject_reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_employee.py:0
+#, python-format
+msgid "Request Attendance Mode Change"
+msgstr "طلب تغيير وضع الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__request_date
+msgid "Request Date"
+msgstr "تاريخ الطلب"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_view_employee_form_inherit
+msgid "Request Mode Change"
+msgstr "طلب تغيير الوضع"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__requested_by_id
+msgid "Requested By"
+msgstr "مقدم الطلب"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__requested_mode
+msgid "Requested Mode"
+msgstr "الوضع المطلوب"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Review attendance mode change for %s as HR Manager."
+msgstr "مراجعة طلب تغيير وضع الحضور للموظف %s بصفة مدير الموارد البشرية."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Review attendance mode change for %s as Managing Director."
+msgstr "مراجعة طلب تغيير وضع الحضور للموظف %s بصفة المدير العام."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/wizards/hr_attendance_import_wizard.py:0
+#, python-format
+msgid ""
+"Row %s: %s uses Automated Attendance. Submit and approve an Attendance Mode "
+"Change request before importing site attendance."
+msgstr "الصف %s: يستخدم %s نظام الحضور الآلي. يرجى تقديم واعتماد طلب تغيير وضع الحضور قبل استيراد حضور الموقع."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/wizards/hr_attendance_import_wizard.py:0
+#, python-format
+msgid "Row %s: employee '%s' does not exist."
+msgstr "الصف %s: الموظف '%s' غير موجود."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__hr_attendance__attendance_entry_source__scheduled
+msgid "Scheduled Attendance"
+msgstr "الحضور المجدول"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "Select a valid employee for every attendance entry."
+msgstr "يرجى اختيار موظف صالح لكل سجل حضور."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Select a valid employee for every request."
+msgstr "يرجى اختيار موظف صالح لكل طلب."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "Select a valid employee for the attendance entry."
+msgstr "يرجى اختيار موظف صالح لسجل الحضور."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "Select a valid requested attendance mode."
+msgstr "يرجى اختيار وضع حضور مطلوب صالح."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_attendance_notification__state__done
+msgid "Sent"
+msgstr "تم الإرسال"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_form_view
+msgid "Shortage Request"
+msgstr "طلب معالجة النقص"
+
+#. module: pr_hr_attendance
+#: model:ir.actions.act_window,name:pr_hr_attendance.action_hr_shortage_request_action
+#: model:ir.ui.menu,name:pr_hr_attendance.menu_hr_hr_shortage_request
+msgid "Shortage Requests"
+msgstr "طلبات معالجة النقص"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__shortage_time
+msgid "Shortage Time"
+msgstr "مدة النقص"
+
+#. module: pr_hr_attendance
+#: model:hr.salary.rule,account_name:pr_hr_attendance.hr_salary_rule_att_early_check_out
+msgid "Staff Salary Expenses"
+msgstr "مصروفات رواتب الموظفين"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__state
+msgid "State"
+msgstr "الحالة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__state
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__state
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__activity_state
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_state
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__activity_state
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تاريخ الاستحقاق قد مضى\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.view_attendance_mode_change_request_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+msgid "Submit Sheets"
+msgstr "إرسال كشوف الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields.selection,name:pr_hr_attendance.selection__pr_hr_shortage_request__state__draft
+msgid "Submitted"
+msgstr "تم الإرسال"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "System attendance source markers cannot be used manually."
+msgstr "لا يمكن استخدام مؤشرات مصدر الحضور الخاصة بالنظام يدويًا."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid ""
+"The employee's attendance mode changed after this request was created. "
+"Cancel it and create a new request."
+msgstr ""
+"تم تغيير وضع حضور الموظف بعد إنشاء هذا الطلب. "
+"يرجى إلغاؤه وإنشاء طلب جديد."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid ""
+"The employee's attendance mode changed after this request was submitted. "
+"Cancel it and create a new request."
+msgstr ""
+"تم تغيير وضع حضور الموظف بعد إرسال هذا الطلب. "
+"يرجى إلغاؤه وإنشاء طلب جديد."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "The requested mode must be different from the employee's current mode."
+msgstr "يجب أن يكون الوضع المطلوب مختلفًا عن وضع الحضور الحالي للموظف."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_notification.py:0
+#, python-format
+msgid "There is no  Employees In This Company"
+msgstr "لا يوجد موظفون في هذه الشركة."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance_notification.py:0
+#, python-format
+msgid "There is no  Running contracts for :%s "
+msgstr "لا توجد عقود سارية لـ: %s"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "This request cannot be approved in its current state."
+msgstr "لا يمكن اعتماد هذا الطلب في حالته الحالية."
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/attendance_mode_change_request.py:0
+#, python-format
+msgid "This request cannot be processed in its current state."
+msgstr "لا يمكن معالجة هذا الطلب في حالته الحالية."
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_hr_leave
+msgid "Time Off"
+msgstr "الإجازات"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+msgid "To HR Manager Approve"
+msgstr "بانتظار اعتماد مدير الموارد البشرية"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.hr_shortage_request_filter_view
+msgid "To Manager Approve"
+msgstr "بانتظار اعتماد المدير"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_form_view_inherit
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_hr_attendance
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.attendance_notification_form_view
+#: model_terms:ir.ui.view,arch_db:pr_hr_attendance.pr_hr_attendance_attendance_sheet_form_view_inherit
+msgid "Total ECO. Amount"
+msgstr "إجمالي مبلغ الخصم للخروج المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet__tot_early_checkout
+msgid "Total Early Check Out"
+msgstr "إجمالي مرات الخروج المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet__tot_early_checkout_amount
+msgid "Total Early Check Out Amount"
+msgstr "إجمالي مبلغ خصم الخروج المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet__early_check_out_minutes
+msgid "Total Early Checkout Minutes"
+msgstr "إجمالي دقائق الخروج المبكر"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_attendance_sheet__tot_late_in_minutes
+msgid "Total Late In Minutes"
+msgstr "إجمالي دقائق التأخير"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_import_wizard__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_hr_attendance_mode_change_request__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_attendance_notification__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr_attendance.field_pr_hr_shortage_request__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_import_wizard__website_message_ids
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_attendance_mode_change_request__website_message_ids
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_attendance_notification__website_message_ids
+#: model:ir.model.fields,help:pr_hr_attendance.field_pr_hr_shortage_request__website_message_ids
+msgid "Website communication history"
+msgstr "سجل تواصل الموقع"
+
+#. module: pr_hr_attendance
+#: model:ir.model.fields,help:pr_hr_attendance.field_hr_employee__attendance_email_enabled
+msgid ""
+"When enabled, daily attendance alert emails are sent for late, early check-"
+"out, or absence."
+msgstr ""
+"عند التفعيل، سيتم إرسال رسائل تنبيه يومية عبر البريد الإلكتروني في حالات "
+"التأخر أو الخروج المبكر أو الغياب."
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_attendance_sheet_batch
+msgid "attendance.sheet.batch"
+msgstr "دفعة كشوف الحضور"
+
+#. module: pr_hr_attendance
+#: model:ir.model,name:pr_hr_attendance.model_attendance_sheet_line
+msgid "attendance.sheet.line"
+msgstr "سطر كشف الحضور"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/wizards/hr_attendance_import_wizard.py:0
+#, python-format
+msgid "blank"
+msgstr "فارغ"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "created"
+msgstr "تم الإنشاء"
+
+#. module: pr_hr_attendance
+#: model_terms:hr.salary.rule,note:pr_hr_attendance.hr_salary_rule_att_early_check_out
+msgid "deduction of early check out"
+msgstr "خصم الخروج المبكر"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "deleted"
+msgstr "تم الحذف"
+
+#. module: pr_hr_attendance
+#. odoo-python
+#: code:addons/pr_hr_attendance/models/hr_attendance.py:0
+#, python-format
+msgid "modified"
+msgstr "تم التعديل"

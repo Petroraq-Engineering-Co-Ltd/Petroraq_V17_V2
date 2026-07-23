@@ -3,7 +3,7 @@
     <record id="seq_pr_hr_offboarding_request" model="ir.sequence">
         <field name="name">Offboarding Request</field>
         <field name="code">pr.hr.offboarding.request</field>
-        <field name="prefix">OFF/%(year)s/</field>
+        <field name="prefix">PEC-OFB/%(year)s/</field>
         <field name="padding">5</field>
         <field name="company_id" eval="False"/>
     </record>

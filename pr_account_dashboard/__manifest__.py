@@ -2,14 +2,15 @@
 {
     "name": "Petroraq Accounting Dashboard",
     "summary": "Executive accounting dashboard for invoices, bills, vouchers, cash, journals, aging, VAT, and approvals.",
-    "version": "17.0.1.0.3",
+    "version": "17.0.1.0.7",
     "category": "Accounting/Accounting",
     "author": "Petroraq",
     "website": "https://www.petroraq.com",
     "license": "LGPL-3",
-    "depends": ["account_accountant", "pr_account", "account_ledger"],
+    "depends": ["account_accountant", "pr_account", "account_ledger", "report_xlsx"],
     "data": [
         "views/account_dashboard_views.xml",
+        "report/cash_movement_xlsx.xml",
     ],
     "assets": {
         "web.assets_backend": [

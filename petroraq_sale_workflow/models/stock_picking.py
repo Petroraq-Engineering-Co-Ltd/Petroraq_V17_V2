@@ -3,6 +3,46 @@ from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_compare
 
 
+class StockMove(models.Model):
+    _inherit = "stock.move"
+
+    def _pr_get_delivery_line_description(self):
+        """Return a useful DN description for both sales and purchase moves."""
+        self.ensure_one()
+        product = self.product_id
+        product_headings = {
+            (product.name or "").strip(),
+            (product.display_name or "").strip(),
+        }
+        if product.default_code:
+            product_headings.add(
+                "[%s] %s" % (product.default_code, product.name or "")
+            )
+
+        def clean_description(value):
+            lines = (value or "").strip().splitlines()
+            while lines and lines[0].strip() in product_headings:
+                lines = lines[1:]
+            return "\n".join(lines).strip()
+
+        # Purchase receipts normally carry their entered text directly on the
+        # move. Sales deliveries can contain only the auto-generated product
+        # heading there, so fall back to the originating SO line description.
+        candidates = [self.description_picking]
+        if self.sale_line_id:
+            candidates.append(self.sale_line_id.name)
+        if self.purchase_line_id:
+            candidates.append(self.purchase_line_id.name)
+        candidates.append(self.name)
+
+        for candidate in candidates:
+            description = clean_description(candidate)
+            if description:
+                return description
+
+        return (product.name or product.display_name or "").strip()
+
+
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 

@@ -71,8 +71,8 @@
                             <field name="service_period" readonly="1"/>
                             <field name="service_years" readonly="1"/>
                             <field name="completed_years" readonly="1"/>
-                            <field name="remaining_months" readonly="1"/>
-                            <field name="remaining_days" readonly="1"/>
+                            <field name="remaining_months" readonly="1" invisible="1"/>
+                            <field name="remaining_days" readonly="1" invisible="1"/>
                             <field name="eligibility_status" readonly="1" widget="badge"
                                    decoration-success="eligibility_status == 'eligible'"
                                    decoration-danger="eligibility_status == 'not_eligible'"/>

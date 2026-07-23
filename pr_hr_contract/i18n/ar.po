@@ -1,0 +1,847 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr_contract
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 14:17+0000\n"
+"PO-Revision-Date: 2026-07-13 14:17+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "/ month"
+msgstr "/ شهر"
+
+#. module: pr_hr_contract
+#: model:hr.salary.rule,name:pr_hr_contract.default_accommodation_salary_rule
+msgid "Accom"
+msgstr "بدل السكن"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_needaction
+msgid "Action Needed"
+msgstr "إجراء مطلوب"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز النشاط الاستثنائي"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__amount
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__gosi_amount
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__gross_amount
+msgid "Amount Deducted from Saudi Employees based on GOSI Configuration"
+msgstr "المبلغ المقتطع من الموظفين السعوديين بناءً على إعدادات التأمينات الاجتماعية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__amount_type
+msgid "Amount Type"
+msgstr "نوع المبلغ"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__employee_portion
+msgid "Amount paid to GOSI by Saudi Employee based on GOSI Configuration"
+msgstr "المبلغ الذي يدفعه الموظف السعودي للتأمينات الاجتماعية وفقًا للإعدادات"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__company_portion
+msgid "Amount paid to GOSI by company based on GOSI Configuration"
+msgstr "المبلغ الذي تدفعه الشركة للتأمينات الاجتماعية وفقًا للإعدادات"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid ""
+"Are you sure you want to convert this contract to Running Mode, This action "
+"can not be un done"
+msgstr ""
+"هل أنت متأكد من تحويل هذا العقد إلى وضع التشغيل؟ "
+"لا يمكن التراجع عن هذا الإجراء."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Basic Salary"
+msgstr "الراتب الأساسي"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__citizen_company_portion
+msgid "Citizen Company Portion"
+msgstr "حصة الشركة للمواطن"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__citizen_employee_portion
+msgid "Citizen Employee Portion"
+msgstr "حصة الموظف المواطن"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "Citizen Portion"
+msgstr "حصة المواطن"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__company_portion
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "Company Portion"
+msgstr "حصة الشركة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__contract_id
+#: model:ir.ui.menu,name:pr_hr_contract.bof_hr_contract_single_menu
+#: model:ir.ui.menu,name:pr_hr_contract.menu_hr_employee_contract_separator
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_salary_rule_view_tree
+msgid "Contract"
+msgstr "العقد"
+
+#. module: pr_hr_contract
+#: model:ir.ui.menu,name:pr_hr_contract.menu_hr_contract_analysis_separator
+msgid "Contract Analysis"
+msgstr "تحليل العقود"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_employee_view_form3_inherit
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Contract Details"
+msgstr "تفاصيل العقد"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_employee__contract_employment_type
+msgid "Contract Employment Type"
+msgstr "نوع التوظيف في العقد"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Contract Info"
+msgstr "معلومات العقد"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_salary_rule__contract_id
+msgid "Contract Of Employee"
+msgstr "عقد الموظف"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Contract Period"
+msgstr "مدة العقد"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__contract_period
+msgid "Contract Period For This Employee In Months"
+msgstr "مدة عقد هذا الموظف بالأشهر"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Contract Rules"
+msgstr "قواعد العقد"
+
+#. module: pr_hr_contract
+#: model:ir.actions.act_window,name:pr_hr_contract.action_hr_contract_salary_rule
+msgid "Contract Salary Rules"
+msgstr "قواعد راتب العقد"
+
+#. module: pr_hr_contract
+#: model_terms:ir.actions.act_window,help:pr_hr_contract.hr_contract_gosi_view_action
+msgid "Create a new contract gosi configuration"
+msgstr "إنشاء إعداد جديد للتأمينات الاجتماعية للعقود"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__create_uid
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__create_date
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__display_name
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: pr_hr_contract
+#. odoo-python
+#: code:addons/pr_hr_contract/models/res_bank.py:0
+#: model:ir.model,name:pr_hr_contract.model_hr_employee
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__employee_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_view_search_payroll_inherit
+#, python-format
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_hr_contract
+#: model:ir.model,name:pr_hr_contract.model_hr_contract
+msgid "Employee Contract"
+msgstr "عقد الموظف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__employee_portion
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "Employee Portion"
+msgstr "حصة الموظف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__gosi_salary
+msgid ""
+"Employee Salary as recorded in GOSI, it may different from actual salary, it"
+" may added manually"
+msgstr ""
+"راتب الموظف المسجل في التأمينات الاجتماعية، وقد يختلف عن الراتب الفعلي، "
+"ويمكن إدخاله يدويًا."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields.selection,name:pr_hr_contract.selection__hr_contract__contract_employment_type__employment
+msgid "Employment"
+msgstr "توظيف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__contract_employment_type
+msgid "Employment Type"
+msgstr "نوع التوظيف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__is_special_gosi
+msgid "Enable special company GOSI rate for this employee"
+msgstr "تفعيل نسبة خاصة للشركة في التأمينات الاجتماعية لهذا الموظف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__is_special_employee_gosi
+msgid "Enable special employee GOSI rate for this employee"
+msgstr "تفعيل نسبة خاصة للموظف في التأمينات الاجتماعية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__expected_end_date
+msgid "Expected End Date"
+msgstr "تاريخ الانتهاء المتوقع"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__expected_end_date
+msgid "Expected End Date For This Employee Contract"
+msgstr "تاريخ الانتهاء المتوقع لعقد هذا الموظف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_employee__last_working_date
+msgid ""
+"Final day included in payroll and attendance. The employee stays active "
+"until final clearance and End of Service are completed."
+msgstr ""
+"آخر يوم يتم احتسابه في الرواتب والحضور. يبقى الموظف نشطًا حتى إتمام المخالصة "
+"النهائية وإنهاء الخدمة."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields.selection,name:pr_hr_contract.selection__hr_contract_salary_rule__amount_type__fixed
+msgid "Fixed"
+msgstr "ثابت"
+
+#. module: pr_hr_contract
+#: model:hr.salary.rule,name:pr_hr_contract.default_food_salary_rule
+msgid "Fo"
+msgstr "بدل الطعام"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome مثل fa-tasks"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "GOSI"
+msgstr "التأمينات الاجتماعية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__gosi_amount
+msgid "GOSI Amount"
+msgstr "مبلغ التأمينات الاجتماعية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__is_automatic_gosi
+msgid "GOSI Automatic"
+msgstr "احتساب التأمينات تلقائيًا"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__gosi_salary
+msgid "GOSI Salary"
+msgstr "راتب التأمينات الاجتماعية"
+
+#. module: pr_hr_contract
+#: model:ir.actions.act_window,name:pr_hr_contract.hr_contract_gosi_view_action
+#: model:ir.ui.menu,name:pr_hr_contract.hr_contract_gosi_menu
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "Gosi Configuration"
+msgstr "إعدادات التأمينات الاجتماعية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__gross_amount
+msgid "Gross Amount"
+msgstr "إجمالي المبلغ"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Gross Salary"
+msgstr "إجمالي الراتب"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسائل"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_salary_rule__amount_type
+msgid ""
+"How to calculate line amount:\n"
+"Fixed: Fixed Calculation\n"
+"Percentage: Calculated as a percentage from basic (wage)"
+msgstr ""
+"كيفية احتساب قيمة البند:\n"
+"ثابت: قيمة ثابتة.\n"
+"نسبة مئوية: تُحتسب كنسبة من الراتب الأساسي."
+
+#. module: pr_hr_contract
+#: model:ir.model,name:pr_hr_contract.model_hr_contract_gosi
+msgid "Hr Contract Gosi"
+msgstr "إعدادات التأمينات الاجتماعية للعقد"
+
+#. module: pr_hr_contract
+#: model:ir.actions.server,name:pr_hr_contract.cron_hr_contract_periods_check_ir_actions_server
+msgid "Hr Contract Periods Check"
+msgstr "التحقق من مدد العقود"
+
+#. module: pr_hr_contract
+#: model:ir.model,name:pr_hr_contract.model_hr_contract_salary_rule
+msgid "Hr Employee Salary Rule"
+msgstr "قاعدة راتب الموظف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__id
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__lock
+msgid ""
+"If Lock Is True: All Fields Will Be Readonly And You Can Not EditIf Lock Is "
+"False: All Field Not Readonly And You Can Edit"
+msgstr ""
+"إذا كان القفل مفعّلًا، فستكون جميع الحقول للقراءة فقط ولا يمكن تعديلها. "
+"أما إذا كان غير مفعّل، فيمكن تعديل جميع الحقول."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__is_automatic_gosi
+msgid ""
+"If True: GOSI Salary Will be Calculated AutomaticIf False: GOSI Salary Will "
+"Be Manually Added"
+msgstr ""
+"إذا كان مفعّلًا، سيتم احتساب راتب التأمينات الاجتماعية تلقائيًا. "
+"وإذا لم يكن مفعّلًا، فيجب إدخاله يدويًا."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فهناك رسائل جديدة تتطلب انتباهك."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__message_has_error
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فهناك رسائل تعذر تسليمها."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_salary_rule__amount_value
+msgid ""
+"In case of percent will compute from basic salary,\n"
+" In Case of fixed amount ampunt will be same as value "
+msgstr ""
+"في حالة اختيار النسبة المئوية، سيتم الاحتساب من الراتب الأساسي.\n"
+"وفي حالة اختيار مبلغ ثابت، ستكون القيمة مساوية للمبلغ المحدد."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__joining_date
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_employee__joining_date
+msgid "Joining Date"
+msgstr "تاريخ الالتحاق"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "LOCK"
+msgstr "قفل"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "LOCKED"
+msgstr "مقفل"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__write_uid
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__write_date
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__date_end
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_employee__last_working_date
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Last Working Day"
+msgstr "آخر يوم عمل"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__lock
+msgid "Lock"
+msgstr "قفل"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "NET Salary"
+msgstr "صافي الراتب"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__net_amount
+msgid "Net Amount"
+msgstr "صافي المبلغ"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__sequence_ref
+msgid "No"
+msgstr "الرقم"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__notice_period
+msgid "Notice Period"
+msgstr "مدة الإشعار"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__notice_end_date
+msgid "Notice Period End Date"
+msgstr "تاريخ انتهاء مدة الإشعار"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__notice_end_date
+msgid "Notice Period End Date For This Employee Contract"
+msgstr "تاريخ انتهاء مدة الإشعار لهذا العقد."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__notice_period
+msgid "Notice Period For This Employee Contract In Months"
+msgstr "مدة الإشعار لهذا العقد بالأشهر."
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Notice Period Info"
+msgstr "معلومات مدة الإشعار"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي تعذر تسليمها."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__pay_in_payslip
+msgid "Pay Payslip"
+msgstr "إدراج في مسير الرواتب"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields.selection,name:pr_hr_contract.selection__hr_contract_salary_rule__amount_type__percentage
+msgid "Percentage"
+msgstr "نسبة مئوية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__contract_period
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Period"
+msgstr "المدة"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Period End Date"
+msgstr "تاريخ انتهاء المدة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields.selection,name:pr_hr_contract.selection__hr_contract__contract_employment_type__recruitment
+msgid "Recruitment"
+msgstr "استقدام"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__resident_company_portion
+msgid "Resident Company Portion"
+msgstr "حصة الشركة للمقيم"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__resident_employee_portion
+msgid "Resident Employee Portion"
+msgstr "حصة الموظف المقيم"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "Resident Portion"
+msgstr "حصة المقيم"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "SET TO RUNNING"
+msgstr "تفعيل العقد"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Salary Information"
+msgstr "معلومات الراتب"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__contract_salary_rule_ids
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__salary_rule_id
+#: model:ir.ui.menu,name:pr_hr_contract.pr_hr_contract_salary_rule_menu
+msgid "Salary Rule"
+msgstr "قاعدة الراتب"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__salary_rule_domain
+msgid "Salary Rule Domain"
+msgstr "نطاق قاعدة الراتب"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Salary Rules"
+msgstr "قواعد الراتب"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__is_saudi_employee
+msgid "Saudi Employee"
+msgstr "موظف سعودي"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Set To Draft"
+msgstr "إعادة إلى المسودة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__special_company_gosi_rate
+msgid "Special Company GOSI %"
+msgstr "نسبة التأمينات الخاصة بالشركة (%)"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__is_special_employee_gosi
+msgid "Special Employee GOSI"
+msgstr "تأمينات الموظف الخاصة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__special_employee_gosi_rate
+msgid "Special Employee GOSI %"
+msgstr "نسبة التأمينات الخاصة بالموظف (%)"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__is_special_gosi
+msgid "Special GOSI (12.75%)"
+msgstr "تأمينات خاصة (12.75%)"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Start Date"
+msgstr "تاريخ البداية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة:\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق.\n"
+"اليوم: النشاط مستحق اليوم.\n"
+"مخطط: نشاط مستقبلي."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__net_amount
+msgid ""
+"Sum of Wage + all amounts of salary rules - GOSI\n"
+"NET means total package of the employee, whatever it is paid or company paid"
+msgstr ""
+"إجمالي الراتب الأساسي + جميع مبالغ قواعد الراتب - التأمينات الاجتماعية.\n"
+"يمثل صافي الراتب إجمالي حزمة الموظف سواء كانت مدفوعة للموظف أو تتحملها الشركة."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__is_saudi_employee
+msgid "Technical flag used to show Saudi-only GOSI controls."
+msgstr "حقل تقني يُستخدم لإظهار إعدادات التأمينات الاجتماعية الخاصة بالموظفين السعوديين فقط."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__citizen_company_portion
+msgid "The Default Citizen Company Portion"
+msgstr "الحصة الافتراضية للشركة للمواطن"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__citizen_employee_portion
+msgid "The Default Citizen Employee Portion"
+msgstr "الحصة الافتراضية للموظف المواطن"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__resident_company_portion
+msgid "The Default Resident Company Portion"
+msgstr "الحصة الافتراضية للشركة للمقيم"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__resident_employee_portion
+msgid "The Default Resident Employee Portion"
+msgstr "الحصة الافتراضية للموظف المقيم"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_employee__contract_employment_type
+msgid "The Type Of Contract Employment\n"
+msgstr "نوع التوظيف في العقد.\n"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__contract_employment_type
+msgid ""
+"The Type Of Contract Employment\n"
+"Employment: Employee Join Company Directly\n"
+"Recruitment: Employee Join Company through a recruitment process\n"
+"Transfer: Employee Join Company by transferring his kafala"
+msgstr ""
+"نوع التوظيف في العقد:\n"
+"توظيف: ينضم الموظف إلى الشركة مباشرة.\n"
+"استقدام: ينضم الموظف إلى الشركة عبر عملية استقدام.\n"
+"نقل: ينضم الموظف إلى الشركة عن طريق نقل الكفالة."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__date_end
+msgid ""
+"The employee remains active for clearance and End of Service, but payroll, "
+"work entries, attendance, and time-off eligibility stop on this date."
+msgstr ""
+"يبقى الموظف نشطًا لإجراءات المخالصة ونهاية الخدمة، لكن تتوقف الرواتب وسجلات العمل "
+"والحضور وأهلية الإجازات اعتبارًا من هذا التاريخ."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_salary_rule__amount
+msgid "Total Paid Amount"
+msgstr "إجمالي المبلغ المدفوع"
+
+#. module: pr_hr_contract
+#: model:hr.salary.rule,name:pr_hr_contract.default_transportation_salary_rule
+msgid "Trans"
+msgstr "بدل النقل"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields.selection,name:pr_hr_contract.selection__hr_contract__contract_employment_type__transfer
+msgid "Transfer"
+msgstr "نقل"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__trial_end_date
+msgid "Trial End Date"
+msgstr "تاريخ انتهاء فترة التجربة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__trial_end_date
+msgid "Trial End Date For This Employee Contract"
+msgstr "تاريخ انتهاء فترة التجربة لهذا العقد."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract__trial_period
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Trial Period"
+msgstr "فترة التجربة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract__trial_period
+msgid "Trial Period For This Employee Contract In Months"
+msgstr "مدة فترة التجربة لهذا العقد بالأشهر."
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Trial Period Info"
+msgstr "بيانات فترة التجربة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_salary_rule__pay_in_payslip
+msgid ""
+"True: Money will be paid to the employee\n"
+"False: Money will not be paid to the employee (as a package)"
+msgstr ""
+"صحيح: سيتم صرف المبلغ للموظف.\n"
+"خطأ: لن يتم صرف المبلغ للموظف (يُحتسب ضمن الحزمة فقط)."
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "Type in notes about this contract..."
+msgstr "اكتب ملاحظات حول هذا العقد..."
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "UNLOCK"
+msgstr "إلغاء القفل"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "UNLOCKED"
+msgstr "غير مقفل"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.hr_contract_gosi_view_form
+msgid "Update Gosi"
+msgstr "تحديث التأمينات الاجتماعية"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_salary_rule__amount_value
+msgid "Value"
+msgstr "القيمة"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,field_description:pr_hr_contract.field_hr_contract_gosi__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: pr_hr_contract
+#: model:ir.model.fields,help:pr_hr_contract.field_hr_contract_gosi__website_message_ids
+msgid "Website communication history"
+msgstr "سجل المراسلات عبر الموقع"
+
+#. module: pr_hr_contract
+#: model_terms:ir.ui.view,arch_db:pr_hr_contract.pr_hr_contract_view_form_inherit
+msgid "months"
+msgstr "أشهر"

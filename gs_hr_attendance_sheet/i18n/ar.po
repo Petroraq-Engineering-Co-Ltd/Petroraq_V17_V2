@@ -1,0 +1,2136 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* gs_hr_attendance_sheet
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 11:10+0000\n"
+"PO-Revision-Date: 2026-07-13 11:10+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__state
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet_line__state
+msgid ""
+" * The 'Draft' status is used when a HR user is creating a new  attendance sheet. \n"
+"* The 'Confirmed' status is used when  attendance sheet is confirmed by HR user.\n"
+"* The 'Approved' status is used when  attendance sheet is accepted by the HR Manager."
+msgstr ""
+" * تُستخدم حالة 'مسودة' عندما يقوم مستخدم الموارد البشرية بإنشاء كشف حضور جديد. \n"
+"* تُستخدم حالة 'مؤكد' عندما يتم تأكيد كشف الحضور بواسطة مستخدم الموارد البشرية.\n"
+"* تُستخدم حالة 'معتمد' عندما يتم اعتماد كشف الحضور بواسطة مدير الموارد البشرية."
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid " Missing payslips: %s."
+msgstr "قسائم الرواتب المفقودة: %s."
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid "%s payslip(s) are now linked to this batch."
+msgstr "تم الآن ربط %s من قسائم الرواتب بهذه الدفعة."
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "ACT/IN"
+msgstr "دخول/فعلي"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "ACT/OUT"
+msgstr "خروج/فعلي"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_absence
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.hr_salary_rule_att_absence
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__status__ab
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Absence"
+msgstr "الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__absence_amount
+msgid "Absence Amount"
+msgstr "قيمة الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_payslip__absence_num
+msgid "Absence Num"
+msgstr "عدد أيام الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__absence_rule_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_attendance_policy_form_view
+msgid "Absence Rule"
+msgstr "قاعدة الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_absence_rule_line
+msgid "Absence Rule Lines"
+msgstr "بنود قاعدة الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_hr_absence_rule
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_absence_rule
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_absence_rule
+msgid "Absence Rules"
+msgstr "قواعد الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_absence_rule_form_view
+msgid "Absence Times"
+msgstr "مرات الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_absence_amount
+msgid "Absence-only amount carried from prior projected periods."
+msgstr "قيمة الغياب فقط المرحّلة من الفترات التقديرية السابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_needaction
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_needaction
+msgid "Action Needed"
+msgstr "إجراء مطلوب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_public_holiday__state__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__act_diff_time
+msgid "Actual Diff Time"
+msgstr "فرق الوقت الفعلي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__act_late_in
+msgid "Actual Late In"
+msgstr "التأخير الفعلي في الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__act_overtime
+msgid "Actual Overtime"
+msgstr "العمل الإضافي الفعلي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__ac_sign_in
+msgid "Actual sign in"
+msgstr "وقت الدخول الفعلي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__ac_sign_out
+msgid "Actual sign out"
+msgstr "وقت الخروج الفعلي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_overtime_rule__active_after
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_policy_overtime_line__active_after
+msgid "After this time the overtime will be calculated"
+msgstr "بعد هذا الوقت سيتم احتساب العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet_batch__predictive_cutoff_date
+msgid ""
+"All working days after this date are projected as present with no "
+"late/absence deduction."
+msgstr ""
+"سيتم اعتبار جميع أيام العمل بعد هذا التاريخ حضورًا متوقعًا دون أي خصم بسبب "
+"التأخير أو الغياب."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__amount
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__amount
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__amount
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_paid_leave
+msgid "Annual Time Off"
+msgstr "الإجازة السنوية"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_paid_leave_DED
+msgid "Annual Time Off DED"
+msgstr "خصم الإجازة السنوية"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_public_holiday_view_form
+msgid "Apply On"
+msgstr "يُطبق على"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__active_after
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__active_after
+msgid "Apply after"
+msgstr "يُطبق بعد"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_tree
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.gs_hr_attendance_view_tree
+msgid "Approve OT"
+msgstr "اعتماد العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_form
+msgid "Approve Overtime"
+msgstr "اعتماد العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+msgid "Approve Sheets"
+msgstr "اعتماد الكشوف"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet__overtime_approval_state__approved
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet__state__done
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__overtime_approval_state__approved
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__overtime_approval_state__approved
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__approved_overtime_amount
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__approved_overtime_amount
+msgid "Approved Overtime Amount"
+msgstr "قيمة العمل الإضافي المعتمد"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__approved_overtime_hours
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__approved_overtime_hours
+msgid "Approved Overtime Hours"
+msgstr "ساعات العمل الإضافي المعتمدة"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.view_rm_hr_attendance_sheet_filter
+msgid "Approved Sheets"
+msgstr "الكشوف المعتمدة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__att_line_id
+msgid "Att Line"
+msgstr "سطر الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_attachment_count
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_tree_view
+msgid "Attednance Sheets"
+msgstr "كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_attendance
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__attendance_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_form
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.gs_hr_attendance_view_employee_form_inherit
+msgid "Attendance"
+msgstr "الحضور"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid "Attendance Batch of %s  Company for %s"
+msgstr "دفعة الحضور لشركة %s عن %s"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid "Attendance Batch of %s  Department for %s"
+msgstr "دفعة الحضور لقسم %s عن %s"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Attendance Data"
+msgstr "بيانات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_attendance_overtime_reject_wizard
+msgid "Attendance Overtime Rejection Wizard"
+msgstr "معالج رفض العمل الإضافي للحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_hr_attendance_policy
+msgid "Attendance Policies"
+msgstr "سياسات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_contract__att_policy_id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__attendance_policy_id
+msgid "Attendance Policy"
+msgstr "سياسة الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__att_policy_id
+msgid "Attendance Policy "
+msgstr "سياسة الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_attendance_rules
+msgid "Attendance Rules"
+msgstr "قواعد الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__att_sheet_id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_payslip__attendance_sheet_id
+#: model:ir.module.category,name:gs_hr_attendance_sheet.module_category_human_resources_attendances_sheet
+msgid "Attendance Sheet"
+msgstr "كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.work.entry.type,name:gs_hr_attendance_sheet.work_entry_type_attendance_sheet_absence
+msgid "Attendance Sheet Absence"
+msgstr "غياب كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__batch_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+msgid "Attendance Sheet Batch"
+msgstr "دفعة كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_attendance_sheet_batch_action
+msgid "Attendance Sheet Batches"
+msgstr "دفعات كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.work.entry.type,name:gs_hr_attendance_sheet.work_entry_type_attendance_sheet_difftime
+msgid "Attendance Sheet Diff Time"
+msgstr "فرق الوقت في كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.work.entry.type,name:gs_hr_attendance_sheet.work_entry_type_attendance_sheet_early_check_out
+msgid "Attendance Sheet Early Check Out"
+msgstr "مغادرة مبكرة في كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.work.entry.type,name:gs_hr_attendance_sheet.work_entry_type_attendance_sheet_late_in
+msgid "Attendance Sheet Late In"
+msgstr "تأخير الحضور في كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_form
+msgid "Attendance Sheet Line"
+msgstr "سطر كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.work.entry.type,name:gs_hr_attendance_sheet.work_entry_type_attendance_sheet_overtime
+msgid "Attendance Sheet Overtime"
+msgstr "العمل الإضافي في كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_attendance_policy
+msgid "Attendance Sheet Policies"
+msgstr "سياسات كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_attendance_sheet_setting
+msgid "Attendance Sheet Setting"
+msgstr "إعدادات كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__att_sheet_ids
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.attendance_sheet_menu
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Attendance Sheets"
+msgstr "كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_batch__state__att_gen
+msgid "Attendance Sheets Generated"
+msgstr "تم إنشاء كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_batch__state__att_sub
+msgid "Attendance Sheets Submitted"
+msgstr "تم إرسال كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_attendance_sheet_batch
+msgid "Attendance sheet Batches"
+msgstr "دفعات كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_settled_sheet_id
+msgid ""
+"Attendance sheet where this source sheet carry-forward was finally deducted."
+msgstr ""
+"كشف الحضور الذي تمت فيه تسوية وترحيل هذا المبلغ وخصمه نهائياً."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__line_ids
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Attendances"
+msgstr "سجلات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_attendance_policy_action
+msgid "Attendances Policies"
+msgstr "سياسات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__type
+msgid "BY"
+msgstr "حسب"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_business_trip_alw
+msgid "Business Trip"
+msgstr "مهمة عمل"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_business_trip_ded
+msgid "Business Trip DED"
+msgstr "خصم مهمة عمل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__business_trip_leave
+msgid "Business Trip Leave"
+msgstr "إجازة مهمة عمل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__type_select
+msgid "By"
+msgstr "حسب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_batch__type__company
+msgid "By Company"
+msgstr "حسب الشركة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_batch__type__department
+msgid "By Department"
+msgstr "حسب القسم"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.att_data_change_from_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_overtime_reject_wizard_view_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Carry Forward"
+msgstr "ترحيل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_absence_amount
+msgid "Carry Forward Absence"
+msgstr "ترحيل الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_amount
+msgid "Carry Forward Amount (Source)"
+msgstr "المبلغ المرحّل (المصدر)"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_deduction
+msgid "Carry Forward Deduction"
+msgstr "الخصم المرحّل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_diff_amount
+msgid "Carry Forward Diff"
+msgstr "ترحيل فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_early_checkout_amount
+msgid "Carry Forward Early Checkout"
+msgstr "ترحيل المغادرة المبكرة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_late_amount
+msgid "Carry Forward Late"
+msgstr "ترحيل التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_overtime_amount
+msgid "Carry Forward Overtime"
+msgstr "ترحيل العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_processed
+msgid "Carry Forward Processed"
+msgstr "تمت معالجة الترحيل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_run_date
+msgid "Carry Forward Processed Date"
+msgstr "تاريخ معالجة الترحيل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_settled_sheet_id
+msgid "Carry Forward Settled In"
+msgstr "تمت تسوية الترحيل في"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_att_data_change
+msgid "Change Attendance Data"
+msgstr "تعديل بيانات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.att_data_change_from_view
+msgid "Change Attendance data"
+msgstr "تعديل بيانات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_employee__compute_attendance
+msgid "Check Attendance"
+msgstr "التحقق من الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_batch__state__done
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__company_id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__company_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+msgid "Company"
+msgstr "الشركة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_amount
+msgid ""
+"Computed deduction amount for this source sheet that will be carried to a later payroll."
+msgstr ""
+"قيمة الخصم المحتسبة لهذا الكشف والتي سيتم ترحيلها إلى كشف راتب لاحق."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet__state__confirm
+msgid "Confirmed"
+msgstr "مؤكد"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__contract_id
+msgid "Contract"
+msgstr "العقد"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_attendance_sheet
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_diff_rules
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_early_rules
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_hr_absence_rule
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_hr_attendance_policy
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_late_rules
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_overtime_rules
+msgid "Create a new document"
+msgstr "إنشاء مستند جديد"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.actions.act_window,help:gs_hr_attendance_sheet.action_hr_public_holiday
+msgid "Create a new public holiday"
+msgstr "إنشاء عطلة عامة جديدة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__create_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__create_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__date
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__date_from
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__date_from
+msgid "Date From"
+msgstr "من تاريخ"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__date_to
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__date_to
+msgid "Date To"
+msgstr "إلى تاريخ"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance__day_name
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.gs_hr_attendance_view_filter
+msgid "Day"
+msgstr "اليوم"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__day_amount
+msgid "Day Amount"
+msgstr "قيمة اليوم"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__day
+msgid "Day of Week"
+msgstr "اليوم من الأسبوع"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__predictive_cutoff_date
+msgid ""
+"Days after this date are projected as present when payroll is run before "
+"month end."
+msgstr ""
+"تُعتبر الأيام بعد هذا التاريخ حضورًا متوقعًا عند تشغيل مسير الرواتب قبل نهاية الشهر."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_deduction
+msgid ""
+"Deductions captured from previously projected payroll periods and applied in "
+"this payroll."
+msgstr ""
+"الخصومات المُرحّلة من فترات رواتب متوقعة سابقة والمطبقة في هذا المسير."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__department_id
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_public_holiday__type_select__dep
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+msgid "Department"
+msgstr "القسم"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__department_id
+msgid "Department Name"
+msgstr "اسم القسم"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__dep_ids
+msgid "Departments"
+msgstr "الأقسام"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__name
+msgid "Description"
+msgstr "الوصف"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__diff_amount
+msgid "Diff Amount"
+msgstr "قيمة فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__diff_id
+msgid "Diff Rule"
+msgstr "قاعدة فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__diff_time
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__diff_time
+msgid "Diff Time"
+msgstr "فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_diff_rule
+msgid "Diff Time Rule"
+msgstr "قاعدة فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_diff_rule_line
+msgid "Diff Time Rule Line"
+msgstr "بند قاعدة فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_form
+msgid "Difference Time"
+msgstr "فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_diff_rule_form_view
+msgid "Difference Time Periods"
+msgstr "فترات فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__diff_rule_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_attendance_policy_form_view
+msgid "Difference Time Rule"
+msgstr "قاعدة فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_diff_rules
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_diff_rules
+msgid "Difference Time Rules"
+msgstr "قواعد فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__line_ids
+msgid "Difference time Periods"
+msgstr "فترات فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_diff_amount
+msgid "Difference-time amount carried from prior projected periods."
+msgstr "قيمة فرق الوقت المُرحّلة من فترات متوقعة سابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet_line__act_diff_time
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet_line__diff_time
+msgid "Diffrence between the working time and attendance time(s) "
+msgstr "الفرق بين وقت العمل وأوقات الحضور."
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Diffrenece Time"
+msgstr "فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__display_name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet__state__draft
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_batch__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_early_rule_line
+msgid "Early Check Out Lines"
+msgstr "بنود المغادرة المبكرة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__line_ids
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_early_rule_form_view
+msgid "Early Check Out Periods"
+msgstr "فترات المغادرة المبكرة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__early_rule_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_attendance_policy_form_view
+msgid "Early Check Out Rule"
+msgstr "قاعدة المغادرة المبكرة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_early_rules
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_early_rule
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_early_rules
+msgid "Early Check Out Rules"
+msgstr "قواعد المغادرة المبكرة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__early_id
+msgid "Early Rule"
+msgstr "قاعدة المغادرة المبكرة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_early_checkout_amount
+msgid "Early checkout amount carried from prior projected periods."
+msgstr "قيمة المغادرة المبكرة المُرحّلة من فترات متوقعة سابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__email_cc
+msgid "Email cc"
+msgstr "نسخة إلى"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_employee
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__employee_id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__employee_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.view_rm_hr_attendance_sheet_filter
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Employee %s does not have attendance policy"
+msgstr "الموظف %s ليس لديه سياسة حضور."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_contract
+msgid "Employee Contract"
+msgstr "عقد الموظف"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__emp_ids
+msgid "Employees"
+msgstr "الموظفون"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_overtime_reject_wizard_view_form
+msgid "Enter rejection reason"
+msgstr "أدخل سبب الرفض"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__fifth
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__fifth
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__fifth
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_absence_rule_line__counter__5
+msgid "Fifth Time"
+msgstr "المرة الخامسة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__first
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__first
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__first
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_absence_rule_line__counter__1
+msgid "First Time"
+msgstr "المرة الأولى"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_diff_rule_line__type__fix
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_early_rule_line__type__fix
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_late_rule_line__type__fix
+msgid "Fixed"
+msgstr "ثابت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_follower_ids
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_partner_ids
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__fourth
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__fourth
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__fourth
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_absence_rule_line__counter__4
+msgid "Fourth Time"
+msgstr "المرة الرابعة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__day__4
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__day_name__friday
+msgid "Friday"
+msgstr "الجمعة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__date_from
+msgid "From"
+msgstr "من"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+msgid "Generate Sheets"
+msgstr "إنشاء كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Get Attendances"
+msgstr "جلب سجلات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.view_rm_hr_attendance_sheet_filter
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__has_message
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__has_overtime
+msgid "Has Overtime"
+msgstr "يحتوي على عمل إضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.module.category,description:gs_hr_attendance_sheet.module_category_human_resources_attendances_sheet
+msgid ""
+"Helps you manage Attendance Sheets.\n"
+"            "
+msgstr ""
+"يساعدك على إدارة كشوف الحضور.\n"
+"            "
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_public_holiday_view_form
+msgid "Holiday Reason"
+msgstr "سبب الإجازة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_attendance_sheet
+msgid "Hr Attendance Sheet"
+msgstr "كشف حضور الموارد البشرية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__message_needaction
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_public_holiday__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فهناك رسائل جديدة تتطلب انتباهك."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__message_has_error
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__message_has_sms_error
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_public_holiday__message_has_error
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_public_holiday__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فبعض الرسائل بها خطأ في التسليم."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet_batch__predictive_mode
+msgid ""
+"If enabled, future days after cutoff are projected as present while "
+"generating attendance sheets."
+msgstr ""
+"عند التفعيل، سيتم اعتبار الأيام المستقبلية بعد تاريخ القطع كأيام حضور عند "
+"إنشاء كشوف الحضور."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_payslip__is_bool
+msgid "Is Bool"
+msgstr "قيمة منطقية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_is_follower
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__write_uid
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__write_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.hr_salary_rule_att_late
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__late_in
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__late_in
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Late In"
+msgstr "التأخير في الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__late_in_amount
+msgid "Late In Amount"
+msgstr "قيمة خصم التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__line_ids
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__line_ids
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_late_rule_form_view
+msgid "Late In Periods"
+msgstr "فترات التأخير في الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__late_rule_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_attendance_policy_form_view
+msgid "Late In Rule"
+msgstr "قاعدة التأخير في الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_late_rule_line
+msgid "Late In Rule Lines"
+msgstr "بنود قاعدة التأخير في الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_late_rules
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_late_rule
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_late_rules
+msgid "Late In Rules"
+msgstr "قواعد التأخير في الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__late_id
+msgid "Late Rule"
+msgstr "قاعدة التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_late_amount
+msgid "Late-only amount carried from prior projected periods."
+msgstr "مبلغ التأخير المرحّل فقط من الفترات التقديرية السابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_form
+msgid "Lateness"
+msgstr "التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__status__leave
+msgid "Leave"
+msgstr "إجازة"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.gs_business_trip_alw
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.gs_business_trip_ded
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.gs_unpaid_leave
+msgid "Leave Salary"
+msgstr "راتب الإجازة"
+
+#. module: gs_hr_attendance_sheet
+#: model:res.groups,name:gs_hr_attendance_sheet.group_attendance_sheet_manager
+msgid "Manager"
+msgstr "المدير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_absence_amount
+msgid ""
+"Manual one-time carry amount from legacy payroll periods before predictive "
+"mode was enabled."
+msgstr ""
+"مبلغ مرحّل يدوي لمرة واحدة من فترات الرواتب السابقة قبل تفعيل الوضع التنبؤي."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_diff_amount
+msgid "Manual one-time diff-time carry amount from legacy payroll periods."
+msgstr "مبلغ فرق الوقت المرحّل يدويًا لمرة واحدة من فترات الرواتب السابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_early_checkout_amount
+msgid ""
+"Manual one-time early checkout carry amount from legacy payroll periods."
+msgstr "مبلغ الانصراف المبكر المرحّل يدويًا لمرة واحدة من فترات الرواتب السابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_late_amount
+msgid "Manual one-time late carry amount from legacy payroll periods."
+msgstr "مبلغ التأخير المرحّل يدويًا لمرة واحدة من فترات الرواتب السابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_overtime_amount
+msgid "Manual one-time overtime carry amount from legacy payroll periods."
+msgstr "مبلغ العمل الإضافي المرحّل يدويًا لمرة واحدة من فترات الرواتب السابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_has_error
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_ids
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__day__0
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__day_name__monday
+msgid "Monday"
+msgstr "الاثنين"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__overtime_rule_id
+msgid "Name"
+msgstr "الاسم"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم التالي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__no_absence
+msgid "No of Absence Days"
+msgstr "عدد أيام الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__no_difftime
+msgid "No of Diff Times"
+msgstr "عدد مرات فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__no_late
+msgid "No of Lates"
+msgstr "عدد مرات التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__no_overtime
+msgid "No of overtimes"
+msgstr "عدد مرات العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "No overtime found on this day."
+msgstr "لم يتم العثور على عمل إضافي في هذا اليوم."
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "No overtime to approve for this attendance record."
+msgstr "لا يوجد عمل إضافي للموافقة عليه في سجل الحضور هذا."
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "No overtime to reject for this attendance record."
+msgstr "لا يوجد عمل إضافي لرفضه في سجل الحضور هذا."
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid "No payslip was found for these attendance sheets: %s"
+msgstr "لم يتم العثور على قسيمة راتب لسجلات الحضور التالية: %s"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_public_holiday__state__inactive
+msgid "Not Active"
+msgstr "غير نشط"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet__overtime_approval_state__not_required
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__overtime_approval_state__not_required
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__overtime_approval_state__not_required
+msgid "Not Required"
+msgstr "غير مطلوب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__note
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__note
+msgid "Note"
+msgstr "ملاحظة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__note
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_public_holiday_view_form
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__num_att
+msgid "Num Att"
+msgstr "عدد سجلات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_needaction_counter
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_has_error_counter
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__message_needaction_counter
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_public_holiday__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__message_has_error_counter
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_public_holiday__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Opening Carry (Manual)"
+msgstr "الرصيد المرحّل الافتتاحي (يدوي)"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_absence_amount
+msgid "Opening Carry Absence"
+msgstr "رصيد الغياب المرحّل الافتتاحي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_diff_amount
+msgid "Opening Carry Diff"
+msgstr "رصيد فرق الوقت المرحّل الافتتاحي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_early_checkout_amount
+msgid "Opening Carry Early Checkout"
+msgstr "رصيد الانصراف المبكر المرحّل الافتتاحي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_late_amount
+msgid "Opening Carry Late"
+msgstr "رصيد التأخير المرحّل الافتتاحي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__opening_carry_overtime_amount
+msgid "Opening Carry Overtime"
+msgstr "رصيد العمل الإضافي المرحّل الافتتاحي"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Over Time"
+msgstr "العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:hr.salary.rule,note:gs_hr_attendance_sheet.hr_salary_rule_att_overtime
+msgid "Over time"
+msgstr "العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_overtime_rule
+msgid "Over time Rules"
+msgstr "قواعد العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_overtime_rules
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_overtime_rules
+msgid "OverTime Rules"
+msgstr "قواعد العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.hr_salary_rule_att_overtime
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__overtime
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line_change__overtime
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_form
+msgid "Overtime"
+msgstr "العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__overtime_amount
+msgid "Overtime Amount"
+msgstr "مبلغ العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__overtime_approval_state
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__overtime_approval_state
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance__overtime_approval_state
+msgid "Overtime Approval"
+msgstr "اعتماد العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance__overtime_for_approval
+msgid "Overtime For Approval"
+msgstr "العمل الإضافي بانتظار الاعتماد"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.view_rm_hr_attendance_sheet_filter
+msgid "Overtime Pending"
+msgstr "العمل الإضافي المعلّق"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_policy_overtime_line
+msgid "Overtime Policy Lines"
+msgstr "بنود سياسة العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance__overtime_reject_reason
+msgid "Overtime Rejection Reason"
+msgstr "سبب رفض العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance_policy__overtime_rule_ids
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_attendance_policy_form_view
+msgid "Overtime Rules"
+msgstr "قواعد العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_overtime_amount
+msgid "Overtime amount carried from prior projected periods."
+msgstr "قيمة العمل الإضافي المرحلة من الفترات التقديرية السابقة."
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "PL/IN"
+msgstr "دخول مخطط"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "PL/OUT"
+msgstr "خروج مخطط"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:hr.salary.rule,note:gs_hr_attendance_sheet.gs_paid_leave
+msgid "Paid Annual Leave"
+msgstr "إجازة سنوية مدفوعة الأجر"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__paid_leave
+msgid "Paid Leave"
+msgstr "إجازة مدفوعة الأجر"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:hr.salary.rule,note:gs_hr_attendance_sheet.gs_paid_leave_DED
+msgid "Paid annual leave"
+msgstr "إجازة سنوية مدفوعة الأجر"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:hr.salary.rule,note:gs_hr_attendance_sheet.gs_sick_leave
+#: model_terms:hr.salary.rule,note:gs_hr_attendance_sheet.gs_sick_leave_DED
+msgid "Paid sick leave"
+msgstr "إجازة مرضية مدفوعة الأجر"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_payslip
+msgid "Pay Slip"
+msgstr "قسيمة الراتب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__payslip_id
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "PaySlip"
+msgstr "قسيمة الراتب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__payslip_batch_id
+msgid "Payslip Batch"
+msgstr "دفعة قسائم الرواتب"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid "Payslip Batch Synchronized"
+msgstr "تمت مزامنة دفعة قسائم الرواتب"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Payslip Has Been Created Before"
+msgstr "تم إنشاء قسيمة الراتب مسبقًا"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet__overtime_approval_state__pending
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__overtime_approval_state__pending
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__overtime_approval_state__pending
+msgid "Pending HR Approval"
+msgstr "بانتظار اعتماد الموارد البشرية"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.gs_hr_attendance_view_filter
+msgid "Pending OT Approval"
+msgstr "بانتظار اعتماد العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_public_holiday_view_form
+msgid "Period"
+msgstr "الفترة"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.leave.type,name:gs_hr_attendance_sheet.holiday_status_per
+msgid "Permission"
+msgstr "إذن"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__pl_sign_in
+msgid "Planned sign in"
+msgstr "وقت الدخول المخطط"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__pl_sign_out
+msgid "Planned sign out"
+msgstr "وقت الخروج المخطط"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.att_data_change_from_view
+msgid "Please Add Note For Changing Attendance Data"
+msgstr "يرجى إضافة ملاحظة لتعديل بيانات الحضور"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Please Add Work Entry Type For Attendance Sheet Absence With Code ATTSHAB"
+msgstr "يرجى إضافة نوع سجل عمل لغياب كشف الحضور بالرمز ATTSHAB"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Please Add Work Entry Type For Attendance Sheet Diff Time With Code ATTSHDT"
+msgstr "يرجى إضافة نوع سجل عمل لفارق الوقت في كشف الحضور بالرمز ATTSHDT"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Please Add Work Entry Type For Attendance Sheet Late In With Code ATTSHLI"
+msgstr "يرجى إضافة نوع سجل عمل للتأخير في كشف الحضور بالرمز ATTSHLI"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Please Add Work Entry Type For Attendance Sheet Overtime With Code ATTSHOT"
+msgstr "يرجى إضافة نوع سجل عمل للعمل الإضافي في كشف الحضور بالرمز ATTSHOT"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Please add Attendance Policy to the %s `s contract "
+msgstr "يرجى إضافة سياسة الحضور إلى عقد %s"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Please add working hours to the %s `s contract "
+msgstr "يرجى إضافة ساعات العمل إلى عقد %s"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__predictive_cutoff_date
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__predictive_cutoff_date
+msgid "Predictive Cutoff Date"
+msgstr "تاريخ التوقف التقديري"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__predictive_mode
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__predictive_mode
+msgid "Predictive Payroll"
+msgstr "مسير رواتب تقديري"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Projected as present for predictive payroll run."
+msgstr "تم احتسابه كتواجد فعلي لأغراض تشغيل مسير الرواتب التقديري."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__status__ph
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_overtime_rule__type__ph
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_policy_overtime_line__type__ph
+msgid "Public Holiday"
+msgstr "عطلة رسمية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.actions.act_window,name:gs_hr_attendance_sheet.action_hr_public_holiday
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_action_public_holiday
+#: model:ir.ui.menu,name:gs_hr_attendance_sheet.menu_hr_public_holiday
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_public_holiday_view_form
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_public_holiday_view_tree
+msgid "Public Holidays"
+msgstr "العطل الرسمية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__rate
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__rate
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__rate
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__rate
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__rate
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__rate
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_diff_rule_line__type__rate
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_early_rule_line__type__rate
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_late_rule_line__type__rate
+msgid "Rate"
+msgstr "النسبة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__rating_ids
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_overtime_reject_wizard_view_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_tree
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.gs_hr_attendance_view_tree
+msgid "Reject OT"
+msgstr "رفض العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_overtime_reject_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_line_view_form
+#, python-format
+msgid "Reject Overtime"
+msgstr "رفض العمل الإضافي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet__overtime_approval_state__rejected
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__overtime_approval_state__rejected
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__overtime_approval_state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Rejected by HR Manager"
+msgstr "تم الرفض من قبل مدير الموارد البشرية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_overtime_reject_wizard__rejection_reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_resource_calendar
+msgid "Resource Working Time"
+msgstr "جدول ساعات العمل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Resubmit Overtime"
+msgstr "إعادة إرسال العمل الإضافي للاعتماد"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_attendance__run_compute
+msgid "Run Compute"
+msgstr "تشغيل الاحتساب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__message_has_sms_error
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__day__5
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__day_name__saturday
+msgid "Saturday"
+msgstr "السبت"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.view_rm_hr_attendance_sheet_filter
+msgid "Search Attendance Sheets"
+msgstr "البحث في كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__second
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__second
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__second
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_absence_rule_line__counter__2
+msgid "Second Time"
+msgstr "المرة الثانية"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Set to Draft"
+msgstr "إعادة إلى المسودة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__sick_leave
+msgid "Sick Leave"
+msgstr "إجازة مرضية"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_sick_leave
+msgid "Sick Time Off"
+msgstr "إجازة مرضية"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_sick_leave_DED
+msgid "Sick Time Off DED"
+msgstr "خصم الإجازة المرضية"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.hr_salary_rule_att_overtime
+msgid "Staff Over Time Allowance"
+msgstr "بدل العمل الإضافي للموظفين"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.hr_salary_rule_att_absence
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.hr_salary_rule_att_late
+msgid "Staff Salary Expenses"
+msgstr "مصروفات رواتب الموظفين"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.view_rm_hr_attendance_sheet_filter
+msgid "Start Month"
+msgstr "بداية الشهر"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__state
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__state
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__state
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__status
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__state
+msgid "Status"
+msgstr "الحالة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة.\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق.\n"
+"اليوم: النشاط مستحق اليوم.\n"
+"مخطط: نشاط مستقبلي."
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+msgid "Submit Sheets"
+msgstr "إرسال الكشوف"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Submit to Manager"
+msgstr "إرسال إلى المدير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__day__6
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__day_name__sunday
+msgid "Sunday"
+msgstr "الأحد"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_batch_form_view
+msgid "Sync Payslip Batch"
+msgstr "مزامنة دفعة مسيرات الرواتب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__cat_ids
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_public_holiday__type_select__tag
+msgid "Tags"
+msgstr "الوسوم"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__carry_forward_processed
+msgid ""
+"Technical flag to avoid deducting the same projected period more than once."
+msgstr "علامة تقنية لمنع خصم نفس الفترة المتوقعة أكثر من مرة."
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.hr_attendance_policy_form_view
+msgid ""
+"The Early Out time or leaving during the working\n"
+"                                time period"
+msgstr ""
+"وقت الانصراف المبكر أو مغادرة العمل\n"
+"خلال ساعات الدوام"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "There Is No Attendance For Employee %s"
+msgstr "لا توجد سجلات حضور للموظف %s"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "There Is No Valid Contract For Employee %s"
+msgstr "لا يوجد عقد ساري للموظف %s"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid "There is no Employees In This Company"
+msgstr "لا يوجد موظفون في هذه الشركة"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
+#, python-format
+msgid "There is no Employees In This Department"
+msgstr "لا يوجد موظفون في هذا القسم"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "There is no active contract for current employee"
+msgstr "لا يوجد عقد ساري للموظف الحالي"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "There is no overtime to submit for approval."
+msgstr "لا توجد ساعات إضافية لإرسالها للموافقة."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__third
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__third
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__third
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_absence_rule_line__counter__3
+msgid "Third Time"
+msgstr "المرة الثالثة"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "This attendance sheet has no eligible overtime to approve."
+msgstr "لا يحتوي كشف الحضور هذا على ساعات إضافية قابلة للموافقة."
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "This attendance sheet has no eligible overtime to reject."
+msgstr "لا يحتوي كشف الحضور هذا على ساعات إضافية قابلة للرفض."
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "This employee is not eligible for overtime approval."
+msgstr "هذا الموظف غير مؤهل للموافقة على الساعات الإضافية."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__day__3
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__day_name__thursday
+msgid "Thursday"
+msgstr "الخميس"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__time
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__time
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__time
+msgid "Time"
+msgstr "الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__counter
+msgid "Times"
+msgstr "عدد المرات"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__date_to
+msgid "To"
+msgstr "إلى"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.view_rm_hr_attendance_sheet_filter
+msgid "To Approve"
+msgstr "بانتظار الموافقة"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_payslip__total_absence
+msgid "Total Absence"
+msgstr "إجمالي الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_absence_amount
+msgid "Total Absence Amount"
+msgstr "إجمالي مبلغ الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__attendance_amount
+msgid "Total Attendance Amount"
+msgstr "إجمالي مبلغ الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__total_business_trip_leave
+msgid "Total Business Trip Leave"
+msgstr "إجمالي إجازات رحلة العمل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_difftime_amount
+msgid "Total Diff Amount"
+msgstr "إجمالي مبلغ فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_difftime
+msgid "Total Diff time Hours"
+msgstr "إجمالي ساعات فرق الوقت"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_late
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_worked_hour
+msgid "Total Late In"
+msgstr "إجمالي التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_late_amount
+msgid "Total Late In Amount"
+msgstr "إجمالي مبلغ التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_overtime
+msgid "Total Over Time"
+msgstr "إجمالي الساعات الإضافية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_overtime_amount
+msgid "Total Overtime Amount"
+msgstr "إجمالي مبلغ الساعات الإضافية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__total_paid_leave
+msgid "Total Paid Leave"
+msgstr "إجمالي الإجازات المدفوعة"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "Total Salary Less Than Zero For Employee :  %s"
+msgstr "إجمالي الراتب أقل من صفر للموظف: %s"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__total_sick_leave
+msgid "Total Sick Leave"
+msgstr "إجمالي الإجازات المرضية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__total_unpaid_leave
+msgid "Total Unpaid Leave"
+msgstr "إجمالي الإجازات غير المدفوعة"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__tot_absence
+msgid "Total absence Hours"
+msgstr "إجمالي ساعات الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__day__1
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__day_name__tuesday
+msgid "Tuesday"
+msgstr "الثلاثاء"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule_line__type
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule_line__type
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule_line__type
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__type
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_policy_overtime_line__type
+msgid "Type"
+msgstr "النوع"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط الاستثنائي في السجل."
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,name:gs_hr_attendance_sheet.gs_unpaid_leave
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__unpaid_leave
+msgid "Unpaid Leave"
+msgstr "إجازة غير مدفوعة"
+
+#. module: gs_hr_attendance_sheet
+#: model:res.groups,name:gs_hr_attendance_sheet.group_attendance_sheet_user
+msgid "User"
+msgstr "مستخدم"
+
+#. module: gs_hr_attendance_sheet
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.gs_paid_leave
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.gs_paid_leave_DED
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.gs_sick_leave
+#: model:hr.salary.rule,account_name:gs_hr_attendance_sheet.gs_sick_leave_DED
+msgid "Vacation Salary Expenses "
+msgstr "مصروفات رواتب الإجازات"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__website_message_ids
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_public_holiday__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__website_message_ids
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_hr_public_holiday__website_message_ids
+msgid "Website communication history"
+msgstr "سجل مراسلات الموقع"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__day__2
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_attendance__day_name__wednesday
+msgid "Wednesday"
+msgstr "الأربعاء"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__attendance_sheet_line__status__weekend
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_overtime_rule__type__weekend
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_policy_overtime_line__type__weekend
+msgid "Week End"
+msgstr "عطلة نهاية الأسبوع"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,help:gs_hr_attendance_sheet.field_attendance_sheet__predictive_mode
+msgid ""
+"When enabled, days after the predictive cutoff are assumed as present "
+"without deductions."
+msgstr ""
+"عند التفعيل، تُعتبر الأيام التي تلي تاريخ القطع التنبؤي أيام حضور دون تطبيق أي خصومات."
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_line__worked_hours
+msgid "Worked Hours"
+msgstr "ساعات العمل"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.attendance_sheet_form_view
+msgid "Worked/H"
+msgstr "ساعات العمل"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_overtime_rule__type__workday
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_policy_overtime_line__type__workday
+msgid "Working Day"
+msgstr "يوم عمل"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:ir.ui.view,arch_db:gs_hr_attendance_sheet.att_data_change_from_view
+msgid "_Apply"
+msgstr "تطبيق"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_attendance_sheet_batch
+msgid "attendance.sheet.batch"
+msgstr "دفعة كشوف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_attendance_sheet_line
+msgid "attendance.sheet.line"
+msgstr "سطر كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_attendance_sheet_line_change
+msgid "attendance.sheet.line.change"
+msgstr "تعديل سطر كشف الحضور"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:hr.salary.rule,note:gs_hr_attendance_sheet.hr_salary_rule_att_absence
+msgid "deduction of absence days"
+msgstr "خصم أيام الغياب"
+
+#. module: gs_hr_attendance_sheet
+#: model_terms:hr.salary.rule,note:gs_hr_attendance_sheet.hr_salary_rule_att_late
+msgid "deduction of late in"
+msgstr "خصم التأخير"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model,name:gs_hr_attendance_sheet.model_hr_public_holiday
+msgid "hr.public.holiday"
+msgstr "العطلات الرسمية"
+
+#. module: gs_hr_attendance_sheet
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet__name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_attendance_sheet_batch__name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule__name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_absence_rule_line__absence_id
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_diff_rule__name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_early_rule__name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_late_rule__name
+#: model:ir.model.fields,field_description:gs_hr_attendance_sheet.field_hr_overtime_rule__name
+#: model:ir.model.fields.selection,name:gs_hr_attendance_sheet.selection__hr_public_holiday__type_select__emp
+msgid "name"
+msgstr "الاسم"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "overtime out of work intervals"
+msgstr "ساعات إضافية خارج فترات العمل"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "working in weekend"
+msgstr "العمل في عطلة نهاية الأسبوع"
+
+#. module: gs_hr_attendance_sheet
+#. odoo-python
+#: code:addons/gs_hr_attendance_sheet/models/hr_attendance_sheet.py:0
+#, python-format
+msgid "working on Public Holiday"
+msgstr "العمل في عطلة رسمية"

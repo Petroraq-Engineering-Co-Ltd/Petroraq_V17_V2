@@ -1,0 +1,355 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_vendor_advance
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 06:57+0000\n"
+"PO-Revision-Date: 2026-07-15 06:57+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.purchase_order_advance_payment_view_form
+msgid ""
+"<span invisible=\"advance_payment_method in ('fixed','delivered')\" class=\"oe_inline\">%\n"
+"                        </span>"
+msgstr ""
+"<span invisible=\"advance_payment_method in ('fixed','delivered')\" class=\"oe_inline\">%\n"
+"                        </span>"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__advance_payment_method
+msgid ""
+"A standard bill is issued with all the order lines ready for billing,"
+"         according to their billing policy (based on ordered or delivered "
+"quantity)."
+msgstr ""
+"يتم إصدار فاتورة عادية تتضمن جميع بنود أمر الشراء الجاهزة للفوترة، وفقًا "
+"لسياسة الفوترة الخاصة بها (استنادًا إلى الكمية المطلوبة أو المستلمة)."
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__deposit_account_id
+msgid "Account used for deposits"
+msgstr "الحساب المستخدم للدفعات المقدمة"
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid "Advance: %s / %s"
+msgstr "دفعة مقدمة: %s / %s"
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.purchase_order_advance_payment_view_form
+msgid ""
+"Bills will be created in draft so that you can review them\n"
+"                    before validation."
+msgstr ""
+"سيتم إنشاء الفواتير كمسودات حتى تتمكن من مراجعتها\n"
+"                    قبل اعتمادها."
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.purchase_order_advance_payment_view_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_vendor_advance
+#: model:ir.model,name:pr_vendor_advance.model_res_config_settings
+msgid "Config Settings"
+msgstr "إعدادات التهيئة"
+
+#. module: pr_vendor_advance
+#: model:ir.actions.act_window,name:pr_vendor_advance.action_purchase_bill_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__advance_payment_method
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.purchase_order_advance_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.purchase_order_view_form
+msgid "Create Bill"
+msgstr "إنشاء فاتورة"
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.purchase_order_advance_payment_view_form
+msgid "Create and View Bill"
+msgstr "إنشاء الفاتورة وعرضها"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__deposit_taxes_ids
+msgid "Customer Taxes"
+msgstr "ضرائب المورد"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__deduct_down_payments
+msgid "Deduct down payments"
+msgstr "خصم الدفعات المقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__currency_id
+msgid "Default company currency"
+msgstr "العملة الافتراضية للشركة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_res_config_settings__po_deposit_default_product_id
+msgid "Default product used for payment advances in purchase order"
+msgstr "المنتج الافتراضي المستخدم للدفعات المقدمة في أوامر الشراء"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__amount
+msgid "Down Payment Amount"
+msgstr "مبلغ الدفعة المقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__fixed_amount
+msgid "Down Payment Amount (Fixed)"
+msgstr "مبلغ الدفعة المقدمة (قيمة ثابتة)"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__product_id
+msgid "Down Payment Product"
+msgstr "منتج الدفعة المقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields.selection,name:pr_vendor_advance.selection__purchase_advance_payment_inv__advance_payment_method__fixed
+msgid "Down payment (fixed amount)"
+msgstr "دفعة مقدمة (مبلغ ثابت)"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields.selection,name:pr_vendor_advance.selection__purchase_advance_payment_inv__advance_payment_method__percentage
+msgid "Down payment (percentage)"
+msgstr "دفعة مقدمة (نسبة مئوية)"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_order_line__is_downpayment
+msgid ""
+"Down payments are made when creating Bills from a purchase order. They are "
+"not copied when duplicating a purchase order."
+msgstr ""
+"يتم إنشاء الدفعات المقدمة عند إنشاء فاتورة من أمر شراء، ولا يتم نسخها عند "
+"استنساخ أمر الشراء."
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.view_account_invoice_filter
+msgid "Exclude Prepayment Bills"
+msgstr "استبعاد فواتير الدفعات المقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__has_down_payments
+msgid "Has down payments"
+msgstr "يحتوي على دفعات مقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__deposit_account_id
+msgid "Income Account"
+msgstr "حساب الإيرادات"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_order_line__is_downpayment
+msgid "Is a down payment"
+msgstr "دفعة مقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model,name:pr_vendor_advance.model_account_move
+msgid "Journal Entry"
+msgstr "قيد اليومية"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_purchase_advance_payment_inv__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_res_config_settings__po_deposit_default_product_id
+msgid "PO Deposit Product"
+msgstr "منتج دفعة أمر الشراء"
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid "Pre Payment"
+msgstr "دفعة مقدمة"
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/models/purchase.py:0
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid "Pre Payments"
+msgstr "الدفعات المقدمة"
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid "Pre payment"
+msgstr "دفعة مقدمة"
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid "Pre payment of %s%%"
+msgstr "دفعة مقدمة بنسبة %s%%"
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.res_config_settings_view_form_purchase
+msgid "Pre-Payments"
+msgstr "الدفعات المقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_account_bank_statement_line__prepayment_bill
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_account_move__prepayment_bill
+#: model:ir.model.fields,field_description:pr_vendor_advance.field_account_payment__prepayment_bill
+msgid "Prepayment Bill"
+msgstr "فاتورة دفعة مقدمة"
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.res_config_settings_view_form_purchase
+msgid "Product used for purchase pre-payments"
+msgstr "المنتج المستخدم للدفعات المقدمة في الشراء"
+
+#. module: pr_vendor_advance
+#: model:ir.model,name:pr_vendor_advance.model_purchase_order
+msgid "Purchase Order"
+msgstr "أمر شراء"
+
+#. module: pr_vendor_advance
+#: model_terms:ir.ui.view,arch_db:pr_vendor_advance.purchase_order_advance_payment_view_form
+msgid "Purchase Order Advance Bill"
+msgstr "فاتورة دفعة مقدمة لأمر الشراء"
+
+#. module: pr_vendor_advance
+#: model:ir.model,name:pr_vendor_advance.model_purchase_advance_payment_inv
+msgid "Purchase Order Advance Payment Bill"
+msgstr "فاتورة الدفعة المقدمة لأمر الشراء"
+
+#. module: pr_vendor_advance
+#: model:ir.model,name:pr_vendor_advance.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "بند أمر الشراء"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields.selection,name:pr_vendor_advance.selection__purchase_advance_payment_inv__advance_payment_method__delivered
+msgid "Regular bill"
+msgstr "فاتورة عادية"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__deposit_taxes_ids
+msgid "Taxes used for deposits"
+msgstr "الضرائب المستخدمة للدفعات المقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__fixed_amount
+msgid "The fixed amount to be bill in advance, taxes excluded."
+msgstr "المبلغ الثابت المطلوب فوترته مقدمًا، غير شامل الضرائب."
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__amount
+msgid "The percentage of amount to be bill in advance, taxes excluded."
+msgstr "النسبة المئوية للمبلغ المطلوب فوترته مقدمًا، غير شاملة الضرائب."
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid ""
+"The product used to invoice a down payment should be of type 'Service'. "
+"Please use another product or update this product."
+msgstr ""
+"يجب أن يكون المنتج المستخدم لفوترة الدفعة المقدمة من نوع 'خدمة'. يرجى "
+"استخدام منتج آخر أو تحديث هذا المنتج."
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid ""
+"The product used to invoice a down payment should have an invoice policy set"
+" to \"Ordered quantities\". Please update your deposit product to be able to"
+" create a deposit invoice."
+msgstr ""
+"يجب أن تكون سياسة الفوترة للمنتج المستخدم في الدفعة المقدمة مضبوطة على "
+"\"الكميات المطلوبة\". يرجى تحديث منتج الدفعة المقدمة حتى تتمكن من إنشاء "
+"فاتورة دفعة مقدمة."
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/wizard/purchase_make_invoice_advance.py:0
+#, python-format
+msgid "The value of the down payment amount must be positive."
+msgstr "يجب أن تكون قيمة مبلغ الدفعة المقدمة أكبر من صفر."
+
+#. module: pr_vendor_advance
+#. odoo-python
+#: code:addons/pr_vendor_advance/models/purchase.py:0
+#, python-format
+msgid ""
+"There is nothing to bill!\n"
+"\n"
+"Reason(s) of this behavior could be:\n"
+"- You should recieve your products before billing them: Click on the \"truck\" icon (top-right of your screen) and follow instructions.\n"
+"- You should modify the control policy of your product: Open the product, go to the \"Purchase\" tab and modify control policy from \"On received quantities\" to \"On ordered quantities\"."
+msgstr ""
+"لا يوجد ما يمكن فوترته!\n"
+"\n"
+"قد يكون السبب أحد ما يلي:\n"
+"- يجب استلام المنتجات قبل إصدار الفاتورة. انقر على أيقونة \"الشاحنة\" (أعلى يمين الشاشة) واتبع التعليمات.\n"
+"- يجب تعديل سياسة التحكم للمنتج. افتح المنتج، ثم انتقل إلى تبويب \"المشتريات\" وقم بتغيير سياسة التحكم من \"حسب الكميات المستلمة\" إلى \"حسب الكميات المطلوبة\"."
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_account_bank_statement_line__prepayment_bill
+#: model:ir.model.fields,help:pr_vendor_advance.field_account_move__prepayment_bill
+#: model:ir.model.fields,help:pr_vendor_advance.field_account_payment__prepayment_bill
+msgid ""
+"This Flag is set to True while creating a Down Payment on a Purchase Order."
+msgstr "يتم تعيين هذا المؤشر إلى \"صحيح\" عند إنشاء دفعة مقدمة لأمر شراء."
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__product_id
+msgid "To add the down payment product"
+msgstr "لإضافة منتج الدفعة المقدمة"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__has_down_payments
+msgid "To check the invoice in down payment or not"
+msgstr "للتحقق مما إذا كانت الفاتورة تخص دفعة مقدمة أم لا"
+
+#. module: pr_vendor_advance
+#: model:ir.model.fields,help:pr_vendor_advance.field_purchase_advance_payment_inv__deduct_down_payments
+msgid "To mention the down payment amount deduct to next invoice"
+msgstr "لخصم مبلغ الدفعة المقدمة من الفاتورة التالية"

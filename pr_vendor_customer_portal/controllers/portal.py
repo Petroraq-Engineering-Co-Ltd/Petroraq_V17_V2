@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
+import logging
 from math import isfinite
 from markupsafe import Markup, escape
 
@@ -8,7 +9,7 @@ from odoo import _, fields, http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import content_disposition, request
 from odoo.osv import expression
-from odoo.tools import format_amount
+from odoo.tools import config, format_amount
 
 from odoo.addons.account.controllers.portal import PortalAccount
 from odoo.addons.portal.controllers.portal import pager as portal_pager
@@ -16,9 +17,25 @@ from odoo.addons.purchase.controllers.portal import CustomerPortal as PurchasePo
 from odoo.addons.sale.controllers.portal import CustomerPortal as SalePortal
 
 
+_logger = logging.getLogger(__name__)
+
+
 class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
     _vendor_invoice_max_file_size = 10 * 1024 * 1024
     _vendor_document_max_file_size = 10 * 1024 * 1024
+
+    def _vendor_upload_error(self, message, exception):
+        """Keep production errors private, but make local --dev failures actionable."""
+        errors = [message]
+        if config.get("dev_mode"):
+            errors.append(
+                _(
+                    "Development details: %(error_type)s: %(error)s",
+                    error_type=type(exception).__name__,
+                    error=str(exception),
+                )
+            )
+        return errors
 
     def _commercial_partner(self):
         return request.env.user.partner_id.commercial_partner_id
@@ -305,12 +322,36 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             limit=self._items_per_page,
             offset=pager["offset"],
         )
+        delivery_rows = []
+        status_labels = {
+            "pending": _("Pending"),
+            "partial": _("Partially Delivered"),
+            "received": _("Delivered"),
+            "cancel": _("Cancelled"),
+        }
+        for delivery in deliveries:
+            moves = delivery.move_ids_without_package
+            demanded_quantity = sum(moves.mapped("product_uom_qty"))
+            delivered_quantity = sum(
+                move.quantity if "quantity" in move._fields else move.quantity_done
+                for move in moves
+            )
+            status = delivery._pr_portal_delivery_status_from_quantities(
+                delivery.state, demanded_quantity, delivered_quantity
+            )
+            delivery_rows.append({
+                "delivery": delivery,
+                "delivered_quantity": delivered_quantity,
+                "pending_quantity": max(demanded_quantity - delivered_quantity, 0.0),
+                "status": status_labels[status],
+            })
         request.session["vendor_delivery_notes_history"] = deliveries.ids[:100]
 
         values.update({
             "date": date_begin,
             "date_end": date_end,
             "delivery_notes": deliveries,
+            "delivery_rows": delivery_rows,
             "picking": False,
             "page_name": "vendor_delivery",
             "default_url": "/vendor/delivery-notes",
@@ -349,7 +390,10 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         return request.make_response(content, [
             ("Content-Type", "application/pdf"),
             ("Content-Length", str(len(content))),
-            ("Content-Disposition", content_disposition(filename)),
+            (
+                "Content-Disposition",
+                content_disposition(filename).replace("attachment", "inline", 1),
+            ),
         ])
 
     @http.route(
@@ -464,6 +508,18 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
     def _vendor_document_type_options(self):
         return {
+            "po_acceptance": {
+                "label": _("PO Acceptance"),
+                "number_label": _("PO Acceptance Reference"),
+                "file_label": _("PO Acceptance File"),
+                "activity_summary": _("Review Vendor PO Acceptance"),
+            },
+            "gdn": {
+                "label": _("Goods Delivery Note"),
+                "number_label": _("GDN Number"),
+                "file_label": _("GDN File"),
+                "activity_summary": _("Review Vendor GDN"),
+            },
             "delivery_note": {
                 "label": _("Delivery Note"),
                 "number_label": _("Delivery Note Number"),
@@ -486,6 +542,10 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             selected_po_id = int(form_data.get("po_id") or 0)
         except ValueError:
             selected_po_id = 0
+        try:
+            selected_delivery_id = int(form_data.get("delivery_id") or 0)
+        except ValueError:
+            selected_delivery_id = 0
         selected_document_type = form_data.get("document_type")
         if selected_document_type not in document_types:
             selected_document_type = "delivery_note"
@@ -501,6 +561,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             "selected_document_type_meta": document_types[selected_document_type],
             "form_data": form_data,
             "selected_po_id": selected_po_id,
+            "selected_delivery_id": selected_delivery_id,
             "error_message": error_message or [],
         })
         return values
@@ -554,6 +615,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         error_message = []
         form_data = dict(post)
         po_id = post.get("po_id")
+        delivery_id = post.get("delivery_id")
         document_type = post.get("document_type")
         if document_type not in document_types:
             document_type = "delivery_note"
@@ -580,6 +642,16 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 )
         if not po:
             error_message.append(_("Please select a valid purchase order."))
+        delivery = request.env["stock.picking"].sudo().browse()
+        if delivery_id:
+            try:
+                delivery_id = int(delivery_id)
+            except ValueError:
+                delivery_id = 0
+            if delivery_id:
+                delivery = self._get_accessible_vendor_delivery(delivery_id)
+                if not delivery or delivery.purchase_id != po:
+                    error_message.append(_("Please select a valid delivery note for this purchase order."))
         if not document_number:
             error_message.append(_("Please enter the %(document)s number.", document=document_meta["label"]))
         if not document_date:
@@ -614,12 +686,13 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
         try:
             vendor = self._commercial_partner().sudo()
+            target = delivery or po
             attachment = request.env["ir.attachment"].sudo().create({
                 "name": document_file.filename or ("%s-%s" % (document_type, document_number)),
                 "type": "binary",
                 "datas": base64.b64encode(document_file_content).decode(),
-                "res_model": "purchase.order",
-                "res_id": po.id,
+                "res_model": target._name,
+                "res_id": target.id,
                 "mimetype": document_file.mimetype,
                 "description": _(
                     "Vendor %(document)s %(number)s uploaded through the portal.",
@@ -627,6 +700,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     number=document_number,
                 ),
                 "pr_vendor_portal_upload": True,
+                "pr_vendor_portal_visible": True,
                 "pr_vendor_portal_document_type": document_type,
                 "pr_vendor_id": vendor.id,
                 "pr_vendor_document_number": document_number,
@@ -654,34 +728,56 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     escape(note)
                 ) if note else Markup(""),
             )
-            po.sudo().message_post(
-                body=message_body,
-                attachment_ids=attachment.ids,
-                author_id=request.env.user.partner_id.id,
-                subtype_xmlid="mail.mt_note",
-            )
+            try:
+                with request.env.cr.savepoint():
+                    target.sudo().message_post(
+                        body=message_body,
+                        attachment_ids=attachment.ids,
+                        author_id=request.env.user.partner_id.id,
+                        subtype_xmlid="mail.mt_note",
+                    )
+            except Exception:
+                _logger.exception(
+                    "Vendor document %s was attached to PO %s, but chatter posting failed",
+                    attachment.id,
+                    po.id,
+                )
 
-            reviewers = self._vendor_upload_reviewers(
-                po,
-                (
-                    "pr_custom_purchase.inventory_qc",
-                    "pr_custom_purchase.inventory_admin",
-                ),
+            try:
+                with request.env.cr.savepoint():
+                    reviewers = self._vendor_upload_reviewers(
+                        po,
+                        (
+                            "pr_custom_purchase.inventory_qc",
+                            "pr_custom_purchase.inventory_admin",
+                        ),
+                    )
+                    self._schedule_vendor_upload_reviewers(
+                        po,
+                        reviewers,
+                        _(
+                            "%(summary)s %(number)s",
+                            summary=document_meta["activity_summary"],
+                            number=document_number,
+                        ),
+                        message_body,
+                    )
+            except Exception:
+                _logger.exception(
+                    "Vendor document %s was attached to PO %s, but reviewer notification failed",
+                    attachment.id,
+                    po.id,
+                )
+        except Exception as exception:
+            _logger.exception(
+                "Vendor portal document upload failed for PO %s and document %s",
+                po.id,
+                document_number,
             )
-            self._schedule_vendor_upload_reviewers(
-                po,
-                reviewers,
-                _(
-                    "%(summary)s %(number)s",
-                    summary=document_meta["activity_summary"],
-                    number=document_number,
-                ),
-                message_body,
-            )
-        except Exception:
             request.env.cr.rollback()
-            error_message.append(_(
-                "The document could not be attached to the purchase order. Please try again or contact Procurement."
+            error_message.extend(self._vendor_upload_error(
+                _("The document could not be attached to the purchase order. Please try again or contact Procurement."),
+                exception,
             ))
             return request.render(
                 "pr_vendor_customer_portal.portal_vendor_document_upload",
@@ -691,9 +787,57 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 ),
             )
 
-        return request.redirect(
-            po.get_portal_url(query_string="&vendor_document_uploaded=1")
-        )
+        if delivery:
+            return request.redirect("/vendor/delivery-notes/%s?document_uploaded=1" % delivery.id)
+        return request.redirect(po.get_portal_url(query_string="&vendor_document_uploaded=1"))
+
+    @http.route(
+        ["/vendor/attachment/<int:attachment_id>/download"],
+        type="http",
+        auth="user",
+        website=True,
+    )
+    def portal_vendor_attachment_download(self, attachment_id, **kw):
+        if not self._is_vendor_portal_partner():
+            return request.redirect("/my")
+
+        attachment = request.env["ir.attachment"].sudo().browse(attachment_id).exists()
+        if not attachment or attachment.res_field:
+            raise MissingError(_("This attachment is not available in the vendor portal."))
+
+        allowed = False
+        if attachment.res_model == "purchase.order":
+            allowed = bool(request.env["purchase.order"].sudo().search_count(
+                expression.AND([
+                    self._prepare_purchase_order_domain(),
+                    [("id", "=", attachment.res_id)],
+                ])
+            ))
+        elif attachment.res_model == "stock.picking":
+            allowed = bool(self._get_accessible_vendor_delivery(attachment.res_id))
+        elif attachment.res_model == "account.move":
+            allowed = bool(request.env["account.move"].sudo().search_count(
+                expression.AND([
+                    self._get_invoices_domain("in"),
+                    [("id", "=", attachment.res_id)],
+                ])
+            ))
+        elif attachment.res_model == "service.receipt.note":
+            allowed = bool(self._get_accessible_srn(attachment.res_id))
+        if not allowed:
+            raise MissingError(_("This attachment does not exist or you do not have access to it."))
+
+        content = attachment.raw or b""
+        return request.make_response(content, [
+            ("Content-Type", attachment.mimetype or "application/octet-stream"),
+            ("Content-Length", str(len(content))),
+            (
+                "Content-Disposition",
+                content_disposition(
+                    attachment.name or "document"
+                ).replace("attachment", "inline", 1),
+            ),
+        ])
 
     @http.route(
         ["/vendor/invoice/upload"],
@@ -813,6 +957,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 "mimetype": "application/pdf",
                 "description": _("Vendor invoice %(number)s uploaded through the portal.", number=vendor_invoice_number),
                 "pr_vendor_portal_upload": True,
+                "pr_vendor_portal_visible": True,
                 "pr_vendor_portal_document_type": "invoice",
                 "pr_vendor_id": vendor.id,
                 "pr_vendor_invoice_number": vendor_invoice_number,
@@ -843,43 +988,65 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     escape(note)
                 ) if note else Markup(""),
             )
-            po.sudo().message_post(
-                body=message_body,
-                attachment_ids=attachment.ids,
-                author_id=request.env.user.partner_id.id,
-                subtype_xmlid="mail.mt_note",
-            )
+            try:
+                with request.env.cr.savepoint():
+                    po.sudo().message_post(
+                        body=message_body,
+                        attachment_ids=attachment.ids,
+                        author_id=request.env.user.partner_id.id,
+                        subtype_xmlid="mail.mt_note",
+                    )
+            except Exception:
+                _logger.exception(
+                    "Vendor invoice %s was attached to PO %s, but chatter posting failed",
+                    attachment.id,
+                    po.id,
+                )
 
-            reviewer_group = request.env.ref(
-                "pr_vendor_customer_portal.group_vendor_invoice_reviewer",
-                raise_if_not_found=False,
+            try:
+                with request.env.cr.savepoint():
+                    reviewer_group = request.env.ref(
+                        "pr_vendor_customer_portal.group_vendor_invoice_reviewer",
+                        raise_if_not_found=False,
+                    )
+                    reviewers = reviewer_group.users.filtered("active") if reviewer_group else request.env["res.users"]
+                    reviewers = reviewers.filtered(
+                        lambda user: po.company_id in user.company_ids
+                    )
+                    if not reviewers:
+                        accounting_group = request.env.ref(
+                            "account.group_account_manager",
+                            raise_if_not_found=False,
+                        )
+                        reviewers = accounting_group.users.filtered("active") if accounting_group else request.env["res.users"]
+                        reviewers = reviewers.filtered(
+                            lambda user: po.company_id in user.company_ids
+                        )
+                    if not reviewers and po.user_id and po.user_id.active:
+                        reviewers = po.user_id
+                    for reviewer in reviewers:
+                        po.sudo().activity_schedule(
+                            "mail.mail_activity_data_todo",
+                            user_id=reviewer.id,
+                            summary=_("Review Vendor Invoice %(number)s", number=vendor_invoice_number),
+                            note=message_body,
+                        )
+            except Exception:
+                _logger.exception(
+                    "Vendor invoice %s was attached to PO %s, but reviewer notification failed",
+                    attachment.id,
+                    po.id,
+                )
+        except Exception as exception:
+            _logger.exception(
+                "Vendor portal invoice upload failed for PO %s and invoice %s",
+                po.id,
+                vendor_invoice_number,
             )
-            reviewers = reviewer_group.users.filtered("active") if reviewer_group else request.env["res.users"]
-            reviewers = reviewers.filtered(
-                lambda user: po.company_id in user.company_ids
-            )
-            if not reviewers:
-                accounting_group = request.env.ref(
-                    "account.group_account_manager",
-                    raise_if_not_found=False,
-                )
-                reviewers = accounting_group.users.filtered("active") if accounting_group else request.env["res.users"]
-                reviewers = reviewers.filtered(
-                    lambda user: po.company_id in user.company_ids
-                )
-            if not reviewers and po.user_id and po.user_id.active:
-                reviewers = po.user_id
-            for reviewer in reviewers:
-                po.sudo().activity_schedule(
-                    "mail.mail_activity_data_todo",
-                    user_id=reviewer.id,
-                    summary=_("Review Vendor Invoice %(number)s", number=vendor_invoice_number),
-                    note=message_body,
-                )
-        except Exception:
             request.env.cr.rollback()
-            error_message.append(_(
-                "The invoice could not be attached to the purchase order. Please try again or contact Accounts."
+            error_message.extend(self._vendor_upload_error(
+                _("The invoice could not be attached to the purchase order. Please try again or contact Accounts."),
+                exception,
             ))
             return request.render(
                 "pr_vendor_customer_portal.portal_vendor_invoice_upload",

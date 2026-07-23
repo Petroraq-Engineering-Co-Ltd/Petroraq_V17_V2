@@ -1,0 +1,925 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_end_of_service
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 13:12+0000\n"
+"PO-Revision-Date: 2026-07-13 13:12+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_end_of_service
+#: model:ir.actions.report,print_report_name:pr_end_of_service.action_report_pr_end_of_service
+msgid "'End_of_Service_%s' % (object.name)"
+msgstr "'نهاية_الخدمة_%s' % (object.name)"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "<span class=\"o_stat_text\">Journal Entry</span>"
+msgstr "<span class=\"o_stat_text\">القيد المحاسبي</span>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Annual Leave Days</strong>"
+msgstr "<strong>أيام الإجازة السنوية</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Deductions</strong>"
+msgstr "<strong>الاستقطاعات</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>EOS Benefit</strong>"
+msgstr "<strong>مكافأة نهاية الخدمة</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Employee</strong>"
+msgstr "<strong>الموظف</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Joining Date</strong>"
+msgstr "<strong>تاريخ الالتحاق</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Leave Settlement</strong>"
+msgstr "<strong>تسوية الإجازة</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Monthly Base</strong>"
+msgstr "<strong>الراتب الأساسي الشهري</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Notes:</strong>"
+msgstr "<strong>الملاحظات:</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Number</strong>"
+msgstr "<strong>الرقم</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Other Additions</strong>"
+msgstr "<strong>إضافات أخرى</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Previously Disbursed</strong>"
+msgstr "<strong>المبالغ المصروفة سابقًا</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Reason</strong>"
+msgstr "<strong>السبب</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Requested Amount</strong>"
+msgstr "<strong>المبلغ المطلوب</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Service Duration</strong>"
+msgstr "<strong>مدة الخدمة</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Service End Date</strong>"
+msgstr "<strong>تاريخ انتهاء الخدمة</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Status</strong>"
+msgstr "<strong>الحالة</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "<strong>Total Deserved</strong>"
+msgstr "<strong>إجمالي المستحق</strong>"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Accounting"
+msgstr "المحاسبة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__date_accounting_approval
+msgid "Accounting Approval Date"
+msgstr "تاريخ اعتماد المحاسبة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__state__accounts_approval
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Accounts Approval"
+msgstr "اعتماد المحاسبة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_needaction
+msgid "Action Needed"
+msgstr "إجراء مطلوب"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "Amounts"
+msgstr "المبالغ"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__annual_leave_days
+msgid "Annual Leave Days"
+msgstr "أيام الإجازة السنوية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__annual_leave_type_id
+msgid "Annual Leave Type"
+msgstr "نوع الإجازة السنوية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__available_amount
+msgid "Available Amount"
+msgstr "المبلغ المتاح"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#: model:ir.model,name:pr_end_of_service.model_pr_account_bank_payment
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__bank_payment_id
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+#, python-format
+msgid "Bank Payment"
+msgstr "دفعة بنكية"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "Bank Payment %s created for EOS settlement."
+msgstr "تم إنشاء الدفعة البنكية %s لتسوية نهاية الخدمة."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__bank_payment_count
+msgid "Bank Payments"
+msgstr "الدفعات البنكية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__line_ids
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_service_reason_form
+msgid "Benefit Rules"
+msgstr "قواعد الاستحقاق"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_service_reason_line__deserved_month_for_year
+msgid "Benefit months granted for each year covered by this rule."
+msgstr "عدد أشهر الاستحقاق الممنوحة لكل سنة تغطيها هذه القاعدة."
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "CANCELLED"
+msgstr "ملغي"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__state__cancel
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_end_of_service
+#: model:ir.model,name:pr_end_of_service.model_res_config_settings
+msgid "Config Settings"
+msgstr "إعدادات التهيئة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__contract_id
+msgid "Contract"
+msgstr "العقد"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Create Bank Payment"
+msgstr "إنشاء دفعة بنكية"
+
+#. module: pr_end_of_service
+#: model_terms:ir.actions.act_window,help:pr_end_of_service.action_pr_end_of_service
+msgid "Create a new end of service settlement."
+msgstr "إنشاء تسوية جديدة لنهاية الخدمة."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__create_uid
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__create_uid
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__create_date
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__create_date
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_res_config_settings_form_inherit_pr_eos
+msgid "Credit account used on the generated EOS bank payment voucher."
+msgstr "حساب الدائن المستخدم في سند الدفعة البنكية المُنشأ لمكافأة نهاية الخدمة."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_res_config_settings__pr_eos_payment_account_id
+msgid "Credit account used on the generated Petroraq bank payment voucher."
+msgstr "حساب الدائن المستخدم في سند الدفعة البنكية المُنشأ في Petroraq."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "DONE"
+msgstr "مكتمل"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__daily_base_amount
+msgid "Daily Base"
+msgstr "الأساس اليومي"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__days
+msgid "Days"
+msgstr "الأيام"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_res_config_settings_form_inherit_pr_eos
+msgid "Debit account used on the generated EOS bank payment line."
+msgstr "حساب المدين المستخدم في سطر الدفعة البنكية المُنشأ لمكافأة نهاية الخدمة."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__deduction_amount
+msgid "Deductions"
+msgstr "الاستقطاعات"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__name
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__deserved_after
+msgid "Deserved After Years"
+msgstr "مستحق بعد عدد السنوات"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__display_name
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__display_name
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__state__done
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__state__draft
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__eos_benefit_amount
+msgid "EOS Benefit"
+msgstr "مكافأة نهاية الخدمة"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#: model:ir.model.fields,field_description:pr_end_of_service.field_res_config_settings__pr_eos_expense_account_id
+#, python-format
+msgid "EOS Expense Account"
+msgstr "حساب مصروف مكافأة نهاية الخدمة"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#: model:ir.model.fields,field_description:pr_end_of_service.field_res_config_settings__pr_eos_payment_account_id
+#, python-format
+msgid "EOS Payment Account"
+msgstr "حساب دفع مكافأة نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.model,name:pr_end_of_service.model_hr_employee
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__employee_id
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/hr_employee.py:0
+#, python-format
+msgid "Employee moved to Out-Service from end of service settlement."
+msgstr "تم نقل الموظف إلى خارج الخدمة من خلال تسوية نهاية الخدمة."
+
+#. module: pr_end_of_service
+#: model:ir.actions.act_window,name:pr_end_of_service.action_pr_end_of_service
+#: model:ir.actions.act_window,name:pr_end_of_service.action_pr_end_of_service_accounting
+#: model:ir.model.fields,field_description:pr_end_of_service.field_hr_employee__pr_eos_ids
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_account_bank_payment__eos_id
+#: model:ir.ui.menu,name:pr_end_of_service.menu_pr_end_of_service_accounting
+#: model:ir.ui.menu,name:pr_end_of_service.menu_pr_end_of_service_config_root
+#: model:ir.ui.menu,name:pr_end_of_service.menu_pr_end_of_service_root
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_hr_employee_form_inherit_pr_eos
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_tree
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_res_config_settings_form_inherit_pr_eos
+msgid "End of Service"
+msgstr "نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_res_config_settings_form_inherit_pr_eos
+msgid "End of Service Accounting"
+msgstr "محاسبة نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_pivot
+msgid "End of Service Analysis"
+msgstr "تحليل نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_hr_employee__pr_eos_count
+msgid "End of Service Count"
+msgstr "عدد سجلات نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.model,name:pr_end_of_service.model_pr_end_service_reason
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_service_reason_form
+msgid "End of Service Reason"
+msgstr "سبب نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.model,name:pr_end_of_service.model_pr_end_service_reason_line
+msgid "End of Service Reason Rule"
+msgstr "قاعدة سبب نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.actions.act_window,name:pr_end_of_service.action_pr_end_service_reason
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_service_reason_tree
+msgid "End of Service Reasons"
+msgstr "أسباب نهاية الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.actions.report,name:pr_end_of_service.action_report_pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.report_pr_end_of_service
+msgid "End of Service Settlement"
+msgstr "تسوية نهاية الخدمة"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "End of Service settlement for %s (%s)"
+msgstr "تسوية نهاية الخدمة لـ %s (%s)"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "End of service request submitted for HR approval."
+msgstr "تم إرسال طلب نهاية الخدمة لاعتماد الموارد البشرية."
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "End of service settlement completed from posted bank payment %s."
+msgstr "تم إكمال تسوية نهاية الخدمة من عملية الدفع البنكية المرحلة %s."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__settlement_type__final
+msgid "Final Settlement"
+msgstr "التسوية النهائية"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Final Settlements"
+msgstr "التسويات النهائية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome مثل fa-tasks"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__state__hr_approval
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "HR Approval"
+msgstr "اعتماد الموارد البشرية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__date_hr_approval
+msgid "HR Approval Date"
+msgstr "تاريخ اعتماد الموارد البشرية"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "HR Approve"
+msgstr "اعتماد الموارد البشرية"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "HR approved the end of service request."
+msgstr "اعتمدت الموارد البشرية طلب نهاية الخدمة."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسائل"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__id
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__id
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__message_has_error
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فبعض الرسائل بها خطأ في التسليم."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__joining_date
+msgid "Joining Date"
+msgstr "تاريخ الالتحاق"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__journal_entry_id
+#, python-format
+msgid "Journal Entry"
+msgstr "القيد المحاسبي"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__write_uid
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__write_uid
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__write_date
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__write_date
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__leave_settlement_amount
+msgid "Leave Settlement"
+msgstr "تسوية الإجازات"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Mark Done"
+msgstr "تحديد كمكتمل"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_service_reason__deserved_after
+msgid ""
+"Minimum service years required before this reason gives any EOS benefit."
+msgstr "الحد الأدنى لسنوات الخدمة المطلوبة قبل أن يمنح هذا السبب أي مكافأة نهاية خدمة."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__monthly_base_amount
+msgid "Monthly Base"
+msgstr "الراتب الأساسي الشهري"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__months
+msgid "Months"
+msgstr "الأشهر"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__deserved_month_for_year
+msgid "Months per Year"
+msgstr "الأشهر لكل سنة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "New"
+msgstr "جديد"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث النشاط التالي في التقويم"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__notes
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__name
+msgid "Number"
+msgstr "الرقم"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراء"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_service_reason_line__deserved_for_first
+msgid ""
+"Number of service years this rule covers before moving to the next rule."
+msgstr "عدد سنوات الخدمة التي تغطيها هذه القاعدة قبل الانتقال إلى القاعدة التالية."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__other_amount
+msgid "Other Additions"
+msgstr "إضافات أخرى"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__is_partial
+msgid "Partial"
+msgstr "جزئي"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__is_partial
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__settlement_type__partial
+msgid "Partial Settlement"
+msgstr "تسوية جزئية"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Partial Settlements"
+msgstr "التسويات الجزئية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields.selection,name:pr_end_of_service.selection__pr_end_of_service__state__payment
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Payment"
+msgstr "الدفع"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__date_payment
+msgid "Payment Date"
+msgstr "تاريخ الدفع"
+
+#. module: pr_end_of_service
+#: model:ir.model,name:pr_end_of_service.model_pr_end_of_service
+msgid "Petroraq End of Service"
+msgstr "نهاية الخدمة - بتروراق"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "Please configure %s in Settings before creating the bank payment."
+msgstr "يرجى إعداد %s في الإعدادات قبل إنشاء عملية الدفع البنكية."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__previously_disbursed_amount
+msgid "Previously Disbursed"
+msgstr "المبلغ المصروف سابقًا"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__reason_id
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__name
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__reason_id
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Reason"
+msgstr "السبب"
+
+#. module: pr_end_of_service
+#: model:ir.ui.menu,name:pr_end_of_service.menu_pr_end_service_reason
+msgid "Reasons"
+msgstr "الأسباب"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Request"
+msgstr "الطلب"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__date_request
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Request Date"
+msgstr "تاريخ الطلب"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__requested_amount
+msgid "Requested Amount"
+msgstr "المبلغ المطلوب"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "Requested amount cannot be greater than available amount."
+msgstr "لا يمكن أن يكون المبلغ المطلوب أكبر من المبلغ المتاح."
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "Requested amount cannot be negative."
+msgstr "لا يمكن أن يكون المبلغ المطلوب سالبًا."
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "Requested amount must be greater than zero."
+msgstr "يجب أن يكون المبلغ المطلوب أكبر من صفر."
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Reset to Draft"
+msgstr "إعادة إلى المسودة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__sequence
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__sequence
+msgid "Sequence"
+msgstr "التسلسل"
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Service Duration"
+msgstr "مدة الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__service_end_date
+msgid "Service End Date"
+msgstr "تاريخ انتهاء الخدمة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__service_years
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason_line__deserved_for_first
+msgid "Service Years"
+msgstr "سنوات الخدمة"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "Service end date cannot be before the joining date."
+msgstr "لا يمكن أن يكون تاريخ انتهاء الخدمة قبل تاريخ الالتحاق."
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Settlement Amounts"
+msgstr "مبالغ التسوية"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__settlement_type
+msgid "Settlement Type"
+msgstr "نوع التسوية"
+
+#. module: pr_end_of_service
+#: model:ir.ui.menu,name:pr_end_of_service.menu_pr_end_of_service
+msgid "Settlements"
+msgstr "التسويات"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__state
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تاريخ الاستحقاق قد مضى\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_end_of_service
+#: model_terms:ir.ui.view,arch_db:pr_end_of_service.view_pr_end_of_service_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "The employee must have an active contract."
+msgstr "يجب أن يكون لدى الموظف عقد ساري."
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "The related bank payment must be posted first."
+msgstr "يجب ترحيل الدفعة البنكية المرتبطة أولاً."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__total_deserved_amount
+msgid "Total Deserved"
+msgstr "إجمالي المستحق"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع نشاط الاستثناء في السجل."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,help:pr_end_of_service.field_pr_end_of_service__website_message_ids
+msgid "Website communication history"
+msgstr "سجل التواصل عبر الموقع الإلكتروني"
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_of_service__years
+msgid "Years"
+msgstr "السنوات"
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "You cannot cancel an EOS request with a posted bank payment."
+msgstr "لا يمكنك إلغاء طلب نهاية الخدمة إذا كانت الدفعة البنكية المرتبطة مُرحلة."
+
+#. module: pr_end_of_service
+#. odoo-python
+#: code:addons/pr_end_of_service/models/pr_end_of_service.py:0
+#, python-format
+msgid "You cannot reset an EOS request with a posted bank payment."
+msgstr "لا يمكنك إعادة طلب نهاية الخدمة إلى مسودة إذا كانت الدفعة البنكية المرتبطة مُرحلة."
+
+#. module: pr_end_of_service
+#: model:ir.model.fields,field_description:pr_end_of_service.field_pr_end_service_reason__zero_message
+msgid "Zero Message"
+msgstr "صفر"

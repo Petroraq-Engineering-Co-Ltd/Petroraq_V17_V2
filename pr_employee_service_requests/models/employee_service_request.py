@@ -312,6 +312,12 @@ class PrEmployeeServiceRequest(models.Model):
     duration_days = fields.Integer(string="Duration (Days)", compute="_compute_duration_days", store=True)
     passport_no = fields.Char(string="Passport No.", tracking=True)
     iqama_no = fields.Char(string="Iqama No.", tracking=True)
+    qiwa_renewal_reference = fields.Char(
+        string="Qiwa Renewal Reference",
+        tracking=True,
+        copy=False,
+        help="Reference number received from the Qiwa portal after renewing the Iqama.",
+    )
     visa_number = fields.Char(string="Exit/Re-entry Visa No.", tracking=True)
     issue_date = fields.Date(string="Issue Date", tracking=True)
     visa_expiry_date = fields.Date(string="Visa Expiry Date", tracking=True)
@@ -2033,6 +2039,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _issue_iqama_request(self):
         self.ensure_one()
+        if self.request_type == "iqama_renewal" and not (self.qiwa_renewal_reference or "").strip():
+            raise UserError(_("Please enter the Qiwa Renewal Reference before issuing the Iqama renewal."))
         self._check_new_or_renewal_target()
         iqama = self.iqama_id or (self._find_employee_iqama() if self.request_type == "iqama_renewal" else False)
         if not iqama:

@@ -1,0 +1,416 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_purchase_dashboard
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 06:56+0000\n"
+"PO-Revision-Date: 2026-07-15 06:56+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Approved PO Rate"
+msgstr "معدل أوامر الشراء المعتمدة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Budget Increase Workflow"
+msgstr "سير عمل زيادة الميزانية"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Budget Watch"
+msgstr "مراقبة الميزانية"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Budget increase request state counts"
+msgstr "عدد حالات طلبات زيادة الميزانية"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Budget increase requests and work-order variance"
+msgstr "طلبات زيادة الميزانية وانحراف أوامر العمل"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Confirmed or locked purchase order share"
+msgstr "نسبة أوامر الشراء المؤكدة أو المقفلة"
+
+#. module: pr_purchase_dashboard
+#: model:ir.ui.menu,name:pr_purchase_dashboard.menu_pr_purchase_dashboard
+msgid "Dashboard"
+msgstr "لوحة المعلومات"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Expense Type Split"
+msgstr "توزيع حسب نوع المصروف"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Horizontal comparison of top vendors"
+msgstr "مقارنة أفقية لأفضل الموردين"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Loading purchase dashboard..."
+msgstr "جارٍ تحميل لوحة معلومات المشتريات..."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Monthly Purchase Spend Trends"
+msgstr "اتجاهات الإنفاق الشهري على المشتريات"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No buyer data yet."
+msgstr "لا توجد بيانات للمشترين بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No cost center requests yet."
+msgstr "لا توجد طلبات لمراكز التكلفة بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No product category value yet."
+msgstr "لا توجد قيم لفئات المنتجات بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No product value yet."
+msgstr "لا توجد قيم للمنتجات بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No vendor country data yet."
+msgstr "لا توجد بيانات عن دول الموردين بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No vendor purchase value yet."
+msgstr "لا توجد قيم مشتريات للموردين بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No vendor value yet."
+msgstr "لا توجد قيم للموردين بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "No volume data yet."
+msgstr "لا توجد بيانات حجم بعد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Overdue Requisitions"
+msgstr "طلبات الشراء المتأخرة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "PO Approval Stages by Role"
+msgstr "مراحل اعتماد أوامر الشراء حسب الدور"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "PO value by vendor country"
+msgstr "قيمة أوامر الشراء حسب دولة المورد"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "PO value distribution by product category"
+msgstr "توزيع قيمة أوامر الشراء حسب فئة المنتج"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "PO value split by buyer"
+msgstr "توزيع قيمة أوامر الشراء حسب المشتري"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "PR Approval Breakdown"
+msgstr "توزيع حالات اعتماد طلبات الشراء"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "PR amount split by Opex and Capex"
+msgstr "توزيع قيمة طلبات الشراء بين المصروفات التشغيلية والرأسمالية"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "PR line amounts by cost center"
+msgstr "قيم بنود طلبات الشراء حسب مركز التكلفة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Pending Budget Requests"
+msgstr "طلبات الميزانية المعلقة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Pending PO Approvals"
+msgstr "اعتمادات أوامر الشراء المعلقة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Pending approvals according to Petroraq PO thresholds"
+msgstr "الاعتمادات المعلقة وفقًا لحدود اعتماد أوامر الشراء في بيتروراق"
+
+#. module: pr_purchase_dashboard
+#: model:ir.model,name:pr_purchase_dashboard.model_pr_purchase_dashboard
+msgid "Petroraq Purchase Dashboard Service"
+msgstr "خدمة لوحة معلومات المشتريات لبيتروراق"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Products ranked by ordered quantity"
+msgstr "المنتجات مرتبة حسب الكمية المطلوبة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Products ranked by purchase order value"
+msgstr "المنتجات مرتبة حسب قيمة أوامر الشراء"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#: model:ir.actions.client,name:pr_purchase_dashboard.action_pr_purchase_dashboard
+#, python-format
+msgid "Purchase Dashboard"
+msgstr "لوحة معلومات المشتريات"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Purchase Orders"
+msgstr "أوامر الشراء"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Purchase Overview"
+msgstr "نظرة عامة على المشتريات"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Purchase Value From Top 5 Vendors"
+msgstr "قيمة المشتريات من أفضل 5 موردين"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Purchase Value by Product Category"
+msgstr "قيمة المشتريات حسب فئة المنتج"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Purchase by Buyer"
+msgstr "المشتريات حسب المشتري"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Purchase order value by order month"
+msgstr "قيمة أوامر الشراء حسب شهر الطلب"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Purchase orders waiting for approval"
+msgstr "أوامر الشراء بانتظار الموافقة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "RFQ Pipeline"
+msgstr "مسار طلبات عروض الأسعار"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "RFQs by current state"
+msgstr "طلبات عروض الأسعار حسب الحالة الحالية"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Regular and cash PR split"
+msgstr "توزيع طلبات الشراء العادية والنقدية"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Requisition Type Insights"
+msgstr "تحليلات أنواع طلبات الشراء"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid ""
+"Requisitions, RFQs, purchase orders, approvals, vendors, cost centers, and "
+"budget movement in one view."
+msgstr ""
+"طلبات الشراء، وطلبات عروض الأسعار، وأوامر الشراء، والموافقات، والموردون، "
+"ومراكز التكلفة، وحركة الميزانية في عرض واحد."
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Supervisor approval state for purchase requisitions"
+msgstr "حالة موافقة المشرف على طلبات الشراء"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Top 5 Highest Value Vendors"
+msgstr "أفضل 5 موردين حسب قيمة المشتريات"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Top 5 Purchased Products by Value"
+msgstr "أفضل 5 منتجات مشتراة حسب القيمة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Top 5 Purchased Products by Volume"
+msgstr "أفضل 5 منتجات مشتراة حسب الكمية"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Top Cost Centers Requested"
+msgstr "أكثر مراكز التكلفة طلبًا"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Total PO Value"
+msgstr "إجمالي قيمة أوامر الشراء"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Vendor Country Analysis"
+msgstr "تحليل الموردين حسب الدولة"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "Vendors ranked by purchase order value"
+msgstr "الموردون مرتّبون حسب قيمة أوامر الشراء"
+
+#. module: pr_purchase_dashboard
+#. odoo-javascript
+#: code:addons/pr_purchase_dashboard/static/src/xml/purchase_dashboard_templates.xml:0
+#, python-format
+msgid "WO Variance PRs"
+msgstr "طلبات الشراء ذات انحراف أوامر العمل"

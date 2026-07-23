@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_eos_employee_acceptance" model="mail.template">
+            <field name="name">EOS: Employee Settlement Acceptance</field>
+            <field name="model_id" ref="model_pr_end_of_service"/>
+            <field name="subject">Final Settlement for Review - {{ object.name }}</field>
+            <field name="email_from">{{ user.email_formatted or object.company_id.partner_id.email_formatted or '' }}</field>
+            <field name="email_to">{{ object.employee_id.work_email or '' }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="body_html" type="html">
+                <div>
+                    <p>Dear <t t-out="object.employee_id.name or 'Employee'"/>,</p>
+                    <p>
+                        Please find your End of Service final settlement attached for review and acceptance.
+                    </p>
+                    <p>
+                        Kindly review the settlement details and contact Human Resources if any clarification is required.
+                    </p>
+                    <p>Regards,<br/>Human Resources<br/><t t-out="object.company_id.name"/></p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

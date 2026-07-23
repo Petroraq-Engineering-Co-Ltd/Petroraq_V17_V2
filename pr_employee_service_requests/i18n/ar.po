@@ -1,0 +1,2751 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_employee_service_requests
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-13 12:38+0000\n"
+"PO-Revision-Date: 2026-07-13 12:38+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"%(category)s company-paid entitlement is available for %(start)s to %(end)s."
+msgstr "استحقاق %(category)s المدفوع من الشركة متاح من %(start)s إلى %(end)s."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%(category)s employees become company-paid eligible from %(date)s."
+msgstr "يصبح موظفو %(category)s مؤهلين للاستحقاق المدفوع من الشركة اعتبارًا من %(date)s."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "%(letter_type)s - %(employee)s"
+msgstr "%(letter_type)s - %(employee)s"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"%(request)s - Iqama & Work Permit renewal - %(employee)s (MOI %(moi).2f + "
+"MOL %(mol).2f)"
+msgstr "%(request)s - تجديد الإقامة ورخصة العمل - %(employee)s (وزارة الداخلية %(moi).2f + وزارة الموارد البشرية %(mol).2f)"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%s %s created in Draft."
+msgstr "تم إنشاء %s %s في حالة المسودة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%s - %s - %s"
+msgstr "%s - %s - %s"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%s <b>%s</b> is waiting for Department Manager approval."
+msgstr "%s <b>%s</b> بانتظار موافقة مدير القسم."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%s <b>%s</b> is waiting for Employee Manager approval."
+msgstr "%s <b>%s</b> بانتظار موافقة المدير المباشر للموظف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%s <b>%s</b> is waiting for HR Manager approval."
+msgstr "%s <b>%s</b> بانتظار موافقة مدير الموارد البشرية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%s <b>%s</b> is waiting for HR Supervisor approval."
+msgstr "%s <b>%s</b> بانتظار موافقة مشرف الموارد البشرية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "%s <b>%s</b> is waiting for MD approval."
+msgstr "%s <b>%s</b> بانتظار موافقة المدير العام."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_employee.py:0
+#, python-format
+msgid "%s Iqama & Work Permit"
+msgstr "%s الإقامة ورخصة العمل"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_employee.py:0
+#, python-format
+msgid "%s Medical Insurance"
+msgstr "%s التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid ""
+"<p>Dear <strong>%(employee)s</strong>,</p><p>Please find the requested "
+"employee letter attached.</p><p>Regards,<br/>Human Resources</p>"
+msgstr "<p>عزيزي/عزيزتي <strong>%(employee)s</strong>،</p><p>يرجى العثور على خطاب الموظف المطلوب مرفقًا.</p><p>مع التحية،<br/>إدارة الموارد البشرية</p>"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid ""
+"<p>Dear <strong>%(employee)s</strong>,</p><p>Please find your appraisal "
+"letter attached. We appreciate your contribution and continued "
+"commitment.</p><p>Regards,<br/>Human Resources</p>"
+msgstr "<p>عزيزي/عزيزتي <strong>%(employee)s</strong>،</p><p>يرجى العثور على خطاب التقييم الخاص بك مرفقًا. نقدر مساهمتك والتزامك المستمر.</p><p>مع التحية،<br/>إدارة الموارد البشرية</p>"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid ""
+"<p>Dear <strong>%(employee)s</strong>,</p><p>Please find your employment "
+"certificate attached for your official use.</p><p>Regards,<br/>Human "
+"Resources</p>"
+msgstr "<p>عزيزي/عزيزتي <strong>%(employee)s</strong>،</p><p>يرجى العثور على شهادة التعريف بالراتب مرفقة لاستخدامك الرسمي.</p><p>مع التحية،<br/>إدارة الموارد البشرية</p>"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid ""
+"<p>Dear <strong>%(employee)s</strong>,</p><p>Please find your salary "
+"certificate attached for your official use.</p><p>Regards,<br/>Human "
+"Resources</p>"
+msgstr "<p>عزيزي/عزيزتي <strong>%(employee)s</strong>،</p><p>يرجى العثور على شهادة الراتب مرفقة لاستخدامك الرسمي.</p><p>مع التحية،<br/>إدارة الموارد البشرية</p>"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid ""
+"<p>Dear <strong>%(employee)s</strong>,</p><p>This letter is issued as a "
+"formal warning. Please review the attached document and comply with the "
+"required corrective actions.</p><p>Regards,<br/>Human Resources</p>"
+msgstr "<p>عزيزي/عزيزتي <strong>%(employee)s</strong>،</p><p>تم إصدار هذا الخطاب كإنذار رسمي. يرجى مراجعة المستند المرفق والالتزام بالإجراءات التصحيحية المطلوبة.</p><p>مع التحية،<br/>إدارة الموارد البشرية</p>"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid ""
+"<p>To whom it may concern,</p><p>This is to certify that "
+"<strong>%(employee)s</strong> has been employed with "
+"<strong>%(company)s</strong>. This letter is issued upon request for "
+"official use.</p><p>Regards,<br/>Human Resources</p>"
+msgstr "<p>إلى من يهمه الأمر،</p><p>تشهد <strong>%(company)s</strong> بأن <strong>%(employee)s</strong> يعمل لديها. وقد صدر هذا الخطاب بناءً على طلبه للاستخدام الرسمي.</p><p>مع التحية،<br/>إدارة الموارد البشرية</p>"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+msgid ""
+"<span class=\"o_stat_text\">Payment</span>\n"
+"                                <span class=\"o_stat_text\">Voucher</span>"
+msgstr ""
+"<span class=\"o_stat_text\">سند</span>\n"
+"                                <span class=\"o_stat_text\">الدفع</span>"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.constraint,message:pr_employee_service_requests.constraint_pr_employee_payment_request_pr_employee_payment_request_iqama_unique
+msgid "A payment request already exists for this Iqama request."
+msgstr "يوجد بالفعل طلب دفع مرتبط بطلب الإقامة هذا."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.constraint,message:pr_employee_service_requests.constraint_pr_employee_payment_request_pr_employee_payment_request_service_unique
+msgid "A payment request already exists for this employee service request."
+msgstr "يوجد بالفعل طلب دفع مرتبط بطلب خدمة الموظف هذا."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.constraint,message:pr_employee_service_requests.constraint_pr_employee_payment_request_pr_employee_payment_request_insurance_unique
+msgid "A payment request already exists for this medical insurance request."
+msgstr "يوجد بالفعل طلب دفع مرتبط بطلب التأمين الطبي هذا."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "A payment voucher already exists for employee request %s."
+msgstr "يوجد بالفعل سند دفع لطلب الموظف %s."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "A payment voucher already exists for payment request %s."
+msgstr "يوجد بالفعل سند دفع لطلب الدفع %s."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "A payment voucher already exists for this request."
+msgstr "يوجد بالفعل سند دفع لهذا الطلب."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__accounts_approval
+msgid "Accounts"
+msgstr "الحسابات"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_voucher_state__finance_approve
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Accounts Approval"
+msgstr "موافقة الحسابات"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Accounts Approve"
+msgstr "اعتماد الحسابات"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__accounts_approved_by_id
+msgid "Accounts Approved By"
+msgstr "تم الاعتماد بواسطة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__accounts_approved_date
+msgid "Accounts Approved On"
+msgstr "تاريخ الاعتماد"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Accounts approved this request and created payment request %s."
+msgstr "اعتمدت إدارة الحسابات هذا الطلب وأنشأت طلب الدفع %s."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Accounts approved this request."
+msgstr "اعتمدت إدارة الحسابات هذا الطلب."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_needaction
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_ids
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_state
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_type_icon
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__amount
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"An existing Iqama is already recorded for this employee. Please use Iqama "
+"Renewal."
+msgstr "توجد إقامة مسجلة بالفعل لهذا الموظف. يرجى استخدام تجديد الإقامة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"An existing Medical Insurance record is already recorded for this employee. "
+"Please use Medical Insurance Renewal."
+msgstr "يوجد سجل تأمين طبي مسجل بالفعل لهذا الموظف. يرجى استخدام تجديد التأمين الطبي."
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Approvals"
+msgstr "الموافقات"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__approved_amount
+msgid "Approved / Payable Amount"
+msgstr "المبلغ المعتمد / المستحق للدفع"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__expense_bucket_id
+msgid "Approved backend budget to consume for this HR request."
+msgstr "الميزانية المعتمدة التي سيتم الصرف منها لهذا الطلب."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_attachment_count
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_iqama__attachment_count
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_medical_insurance__attachment_count
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_work_permit__attachment_count
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__attachment_count
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__attachment_ids
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__attachment_count
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_hr_employee_iqama_form_combined_request_only
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_hr_employee_medical_insurance_form_attachment_preview
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_hr_work_permit_form_no_standalone_create
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+#, python-format
+msgid "Attachments"
+msgstr "المرفقات"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/hr_compliance_records.py:0
+#: code:addons/pr_employee_service_requests/models/hr_compliance_records.py:0
+#: code:addons/pr_employee_service_requests/models/hr_compliance_records.py:0
+#, python-format
+msgid "Attachments - %s"
+msgstr "المرفقات - %s"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Automatic BPV creation is only available for compliance renewals."
+msgstr "إنشاء سند الدفع البنكي (BPV) تلقائيًا متاح فقط لطلبات تجديد سجلات الامتثال."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__bank_payment_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__bank_payment_id
+msgid "BPV"
+msgstr "سند دفع بنكي (BPV)"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_pr_account_bank_payment
+msgid "Bank Payment"
+msgstr "دفعة بنكية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_payment_request__transfer_type__bank
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_method__bank
+msgid "Bank Transfer"
+msgstr "تحويل بنكي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_iqama_line_add_wizard__expense_bucket_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_medical_insurance_line_add_wizard__expense_bucket_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__expense_bucket_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__expense_bucket_id
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+msgid "Budget"
+msgstr "الميزانية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Budget and Cost Center cannot be changed after the payment request is "
+"created."
+msgstr "لا يمكن تغيير الميزانية أو مركز التكلفة بعد إنشاء طلب الدفع."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__business_trip
+msgid "Business Trip"
+msgstr "رحلة عمل"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__cash_payment_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__cash_payment_id
+msgid "CPV"
+msgstr "سند دفع نقدي (CPV)"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_accounts_approve
+msgid "Can Accounts Approve"
+msgstr "يمكن للحسابات الاعتماد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_cancel
+msgid "Can Cancel"
+msgstr "يمكن الإلغاء"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_employee_manager_approve
+msgid "Can Employee Manager Approve"
+msgstr "يمكن للمدير المباشر الاعتماد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_finance_approve
+msgid "Can Finance Approve"
+msgstr "يمكن للإدارة المالية الاعتماد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_hr_manager_approve
+msgid "Can Hr Manager Approve"
+msgstr "يمكن لمدير الموارد البشرية الاعتماد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_hr_supervisor_approve
+msgid "Can Hr Supervisor Approve"
+msgstr "يمكن لمشرف الموارد البشرية الاعتماد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_issue
+msgid "Can Issue"
+msgstr "يمكن الإصدار"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_md_approve
+msgid "Can Md Approve"
+msgstr "يمكن للمدير العام الاعتماد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_reject
+msgid "Can Reject"
+msgstr "يمكن الرفض"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__can_reset_to_draft
+msgid "Can Reset To Draft"
+msgstr "يمكن الإرجاع إلى المسودة"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_reject_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_payment_request__state__cancelled
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_request_state__cancelled
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_voucher_state__cancel
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__cancelled
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Cancelled payment requests cannot create vouchers."
+msgstr "لا يمكن إنشاء سندات دفع لطلبات الدفع الملغاة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Cannot cancel a request after a voucher has been created."
+msgstr "لا يمكن إلغاء الطلب بعد إنشاء سند الدفع."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_payment_request__transfer_type__cash
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_method__cash
+msgid "Cash"
+msgstr "نقدًا"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_pr_account_cash_payment
+msgid "Cash Payment"
+msgstr "دفعة نقدية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__pay_from_account_id
+msgid "Cash or bank account credited by the generated CPV/BPV."
+msgstr "الحساب النقدي أو البنكي الذي سيتم الخصم منه عند إنشاء سند الدفع النقدي أو البنكي."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__company_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__company_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__company_id
+#, python-format
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Company-paid Exit/Re-entry is not eligible"
+msgstr "الخروج والعودة على نفقة الشركة غير مستحق."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Company-paid Exit/Re-entry was already used in this entitlement period by "
+"%s."
+msgstr "تم استخدام ميزة الخروج والعودة على نفقة الشركة خلال فترة الاستحقاق الحالية بواسطة %s."
+
+#. module: pr_employee_service_requests
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_compliance_records
+msgid "Compliance Records"
+msgstr "سجلات الامتثال"
+
+#. module: pr_employee_service_requests
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_compliance_requests
+msgid "Compliance Requests"
+msgstr "طلبات الامتثال"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_iqama_line_add_wizard__cost_center_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_medical_insurance_line_add_wizard__cost_center_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__cost_center_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__cost_center_id
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+msgid "Cost Center"
+msgstr "مركز التكلفة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Cost Center %(cc)s is not included in Budget %(budget)s."
+msgstr "مركز التكلفة %(cc)s غير مدرج ضمن الميزانية %(budget)s."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__cost_center_id
+msgid "Cost center that will receive the BPV/CPV analytic distribution."
+msgstr "مركز التكلفة الذي سيتم تحميله بالتوزيع التحليلي لسند الدفع البنكي أو النقدي."
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+msgid "Create Payment Voucher"
+msgstr "إنشاء سند دفع"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__create_uid
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__create_uid
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__create_uid
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__create_date
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__create_date
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__create_date
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__currency_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__currency_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__department_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__department_id
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Department Manager approved this request and created payment request %s for "
+"Accounts."
+msgstr "اعتمد مدير القسم هذا الطلب وأنشأ طلب الدفع %s لإدارة الحسابات."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__employee_manager_approval
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Dept. Manager"
+msgstr "مدير القسم"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_manager_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_manager_approvals
+msgid "Dept. Manager Approvals"
+msgstr "موافقات مدير القسم"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Dept. Manager Approve"
+msgstr "اعتماد مدير القسم"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__description
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__destination_country_id
+msgid "Destination Country"
+msgstr "دولة الوجهة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__display_name
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__display_name
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__display_name
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_voucher_state__draft
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__duration_days
+msgid "Duration (Days)"
+msgstr "المدة (بالأيام)"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#: model:ir.model,name:pr_employee_service_requests.model_hr_employee
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__employee_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__employee_id
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+#, python-format
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__expense_account_id
+msgid "Employee / Expense Account"
+msgstr "الموظف / حساب المصروف"
+
+#. module: pr_employee_service_requests
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_accounting_approvals
+msgid "Employee Accounting"
+msgstr "محاسبة الموظفين"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_hr_employee_iqama_line
+msgid "Employee Iqama Lines"
+msgstr "بنود إقامة الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_hr_employee_iqama
+msgid "Employee Iqamas"
+msgstr "إقامات الموظفين"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__employee_manager_user_id
+msgid "Employee Manager"
+msgstr "مدير الموظف"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Employee Manager approved this request."
+msgstr "قام مدير الموظف بالموافقة على هذا الطلب."
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_hr_employee_medical_insurance
+msgid "Employee Medical Insurance"
+msgstr "التأمين الطبي للموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_hr_employee_medical_insurance_line
+msgid "Employee Medical Insurance Lines"
+msgstr "بنود التأمين الطبي للموظف"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: model:ir.model,name:pr_employee_service_requests.model_pr_employee_payment_request
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_account_bank_payment__employee_payment_request_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_account_cash_payment__employee_payment_request_id
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+#, python-format
+msgid "Employee Payment Request"
+msgstr "طلب صرف مستحقات الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_pr_employee_payment_request_line
+msgid "Employee Payment Request Line"
+msgstr "بند طلب صرف مستحقات الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_payment_tracking
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_payment_requests_financial
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_payment_tracking
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_tree
+msgid "Employee Payment Requests"
+msgstr "طلبات صرف مستحقات الموظفين"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_reimbursement_accounting
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_reimbursement_accounting
+msgid "Employee Reimbursements"
+msgstr "تعويضات الموظفين"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Employee Renewal Approval Needed"
+msgstr "مطلوب اعتماد تجديد الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_account_bank_payment__employee_service_request_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_account_cash_payment__employee_service_request_id
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Employee Request"
+msgstr "طلب الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_accounts_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_accounts_approvals
+msgid "Employee Request Accounts Approvals"
+msgstr "موافقات الحسابات على طلبات الموظفين"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Employee Request Approval Needed"
+msgstr "مطلوب اعتماد طلب الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_finance_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_finance_approvals
+msgid "Employee Request Finance Approvals"
+msgstr "موافقات المالية على طلبات الموظفين"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_md_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_md_approvals
+msgid "Employee Request MD Approvals"
+msgstr "موافقات المدير العام على طلبات الموظفين"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_tree
+msgid "Employee Requests"
+msgstr "طلبات الموظفين"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_pr_employee_service_request
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__service_request_id
+msgid "Employee Service Request"
+msgstr "طلب خدمة موظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_pr_employee_service_request_reject_wizard
+msgid "Employee Service Request Reject Wizard"
+msgstr "معالج رفض طلب خدمة الموظف"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Employee letter approved by HR Manager."
+msgstr "تمت الموافقة على خطاب الموظف من قبل مدير الموارد البشرية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Employee letter rejected."
+msgstr "تم رفض خطاب الموظف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Employee letter sent to %s."
+msgstr "تم إرسال خطاب الموظف إلى %s."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Employee letter submitted for HR Manager approval."
+msgstr "تم إرسال خطاب الموظف لاعتماده من مدير الموارد البشرية."
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Enter request reason / notes..."
+msgstr "أدخل سبب الطلب / الملاحظات..."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__request_type__exit_reentry
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Exit/Re-entry"
+msgstr "خروج وعودة"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Exit/Re-entry Details"
+msgstr "تفاصيل تأشيرة الخروج والعودة"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_exit_reentry_hr_approvals
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_exit_reentry_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_exit_reentry_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_exit_reentry_my
+msgid "Exit/Re-entry Requests"
+msgstr "طلبات الخروج والعودة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__visa_number
+msgid "Exit/Re-entry Visa No."
+msgstr "رقم تأشيرة الخروج والعودة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Exit/Re-entry request has been issued."
+msgstr "تم إصدار طلب الخروج والعودة."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__expense_account_id
+msgid "Expense Account"
+msgstr "حساب المصروف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__expense_date
+msgid "Expense Date"
+msgstr "تاريخ المصروف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__service_expiry_date
+msgid "Expiry Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__finance_approval
+msgid "Finance"
+msgstr "المالية"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Finance Approval"
+msgstr "اعتماد المالية"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Finance Approve"
+msgstr "اعتماد المالية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__finance_approved_by_id
+msgid "Finance Approved By"
+msgstr "تم الاعتماد بواسطة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__finance_approved_date
+msgid "Finance Approved On"
+msgstr "تاريخ اعتماد المالية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Finance approved this request and created payment request %s for Accounts."
+msgstr "اعتمدت الإدارة المالية هذا الطلب وأنشأت طلب دفع %s لقسم الحسابات."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_follower_ids
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_partner_ids
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (الشركاء)"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__activity_type_icon
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__food
+msgid "Food"
+msgstr "الطعام"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__service_from_date
+msgid "From Date"
+msgstr "من تاريخ"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__fuel
+msgid "Fuel"
+msgstr "الوقود"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Generated from Employee payment request %s"
+msgstr "تم إنشاؤه من طلب دفع الموظف %s"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__government
+msgid "Government Fee"
+msgstr "رسوم حكومية"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__hr_manager_approval
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "HR Manager"
+msgstr "مدير الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "HR Manager Approve"
+msgstr "اعتماد مدير الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__hr_manager_approved_by_id
+msgid "HR Manager Approved By"
+msgstr "تم الاعتماد بواسطة مدير الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__hr_manager_approved_date
+msgid "HR Manager Approved On"
+msgstr "تاريخ اعتماد مدير الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "HR Manager approved this request."
+msgstr "اعتمد مدير الموارد البشرية هذا الطلب."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__hr_supervisor_approval
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "HR Supervisor"
+msgstr "مشرف الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "HR Supervisor Approve"
+msgstr "اعتماد مشرف الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__hr_supervisor_approved_by_id
+msgid "HR Supervisor Approved By"
+msgstr "تم الاعتماد بواسطة مشرف الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__hr_supervisor_approved_date
+msgid "HR Supervisor Approved On"
+msgstr "تاريخ اعتماد مشرف الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "HR Supervisor approved this request."
+msgstr "اعتمد مشرف الموارد البشرية هذا الطلب."
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_hr_work_permit
+msgid "HR Work Permit/Iqama Flow"
+msgstr "سير عمل تصريح العمل / الإقامة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_de_hr_workspace_dashboard_service
+msgid "HR Workspace Dashboard Service"
+msgstr "خدمة لوحة معلومات مساحة عمل الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__has_message
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Historical Exit/Re-entry records are only for company-paid visas."
+msgstr "سجلات الخروج والعودة التاريخية مخصصة فقط للتأشيرات التي تتحمل الشركة تكلفتها."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Historical company-paid Exit/Re-entry recorded as already approved/paid. No "
+"payment request or voucher was created."
+msgstr ""
+"تم تسجيل سجل خروج/عودة تاريخي تتحمل الشركة تكلفته على أنه معتمد ومدفوع مسبقًا. "
+"لم يتم إنشاء طلب دفع أو سند صرف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Historical company-paid Exit/Re-entry records must be single-entry."
+msgstr "يجب أن تكون سجلات الخروج والعودة التاريخية التي تتحمل الشركة تكلفتها من نوع دخول مرة واحدة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Historical company-paid record: no payment workflow will run, but this "
+"consumes the entitlement."
+msgstr ""
+"سجل تاريخي تتحمل الشركة تكلفته: لن يتم تشغيل سير عمل الدفع، ولكن سيتم احتساب "
+"هذا السجل ضمن الاستحقاق."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__activity_exception_icon
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__message_needaction
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا تم تحديده، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__message_has_error
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__message_has_sms_error
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__message_has_error
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا تم تحديده، فهذا يعني أن بعض الرسائل بها خطأ في التسليم."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: "
+"%(amount).2f"
+msgstr ""
+"الميزانية غير كافية لمركز التكلفة %(cc)s. المتبقي: %(remaining).2f، المطلوب: %(amount).2f"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_account_cash_payment__insurance_line_id
+msgid "Insurance"
+msgstr "التأمين"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__insurance_category
+msgid "Insurance Category"
+msgstr "فئة التأمين"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__insurance_company
+msgid "Insurance Company"
+msgstr "شركة التأمين"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_account_cash_payment__iqama_line_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__iqama_id
+msgid "Iqama"
+msgstr "الإقامة"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Iqama & Work Permit Details"
+msgstr "تفاصيل الإقامة وتصريح العمل"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__request_type__iqama_renewal
+msgid "Iqama & Work Permit Renewal"
+msgstr "تجديد الإقامة وتصريح العمل"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_compliance_records.py:0
+#: code:addons/pr_employee_service_requests/models/hr_compliance_records.py:0
+#, python-format
+msgid "Iqama & Work Permit Renewal Request"
+msgstr "طلب تجديد الإقامة وتصريح العمل"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_iqama_renewal_hr_approvals
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_iqama_renewal_my
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_work_permit_hr_approvals
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_work_permit_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_iqama_renewal_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_iqama_renewal_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_work_permit_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_work_permit_my
+msgid "Iqama & Work Permit Renewal Requests"
+msgstr "طلبات تجديد الإقامة وتصريح العمل"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Iqama & Work Permit Renewals"
+msgstr "تجديدات الإقامة وتصريح العمل"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_employee_form_combined_iqama_label
+msgid "Iqama &amp; Work Permit"
+msgstr "الإقامة وتصريح العمل"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Iqama / Work Permit Issue Date"
+msgstr "تاريخ إصدار الإقامة / تصريح العمل"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__iqama_profession
+msgid "Iqama / Work Permit Profession"
+msgstr "مهنة الإقامة / تصريح العمل"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Iqama Expiry Date"
+msgstr "تاريخ انتهاء الإقامة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_hr_employee_iqama_line_add_wizard
+msgid "Iqama Line Add"
+msgstr "إضافة بند إقامة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__iqama_no
+msgid "Iqama No."
+msgstr "رقم الإقامة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__iqama_line_id
+msgid "Iqama Renewal Line"
+msgstr "بند تجديد الإقامة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__iqama_line_id
+msgid "Iqama Request"
+msgstr "طلب الإقامة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Iqama and Work Permit renewal has been issued."
+msgstr "تم إصدار تجديد الإقامة وتصريح العمل."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_is_follower
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Issue"
+msgstr "إصدار"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__issue_date
+msgid "Issue Date"
+msgstr "تاريخ الإصدار"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__issued
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Issued"
+msgstr "تم الإصدار"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__write_uid
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__write_uid
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__write_uid
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__write_date
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__write_date
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__write_date
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "MD Approval"
+msgstr "اعتماد المدير العام"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "MD Approve"
+msgstr "اعتماد المدير العام"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__md_approved_by_id
+msgid "MD Approved By"
+msgstr "تم الاعتماد بواسطة المدير العام"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__md_approved_date
+msgid "MD Approved On"
+msgstr "تاريخ اعتماد المدير العام"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "MD approved this renewal and submitted BPV %s for Accounts approval."
+msgstr "اعتمد المدير العام هذا التجديد وأرسل سند الدفع البنكي %s لاعتماد قسم الحسابات."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "MD approved this request and created payment request %s for Accounts."
+msgstr "اعتمد المدير العام هذا الطلب وأنشأ طلب الدفع %s لقسم الحسابات."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__moi_fee_amount
+msgid "MOI Fee"
+msgstr "رسوم وزارة الداخلية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "MOI and MOL fees cannot be negative."
+msgstr "لا يمكن أن تكون رسوم وزارة الداخلية أو وزارة الموارد البشرية سالبة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "MOI fee - Iqama renewal - %s"
+msgstr "رسوم وزارة الداخلية - تجديد الإقامة - %s"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__mol_fee_amount
+msgid "MOL Fee"
+msgstr "رسوم وزارة الموارد البشرية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "MOL fee - Work Permit renewal - %s"
+msgstr "رسوم وزارة الموارد البشرية - تجديد تصريح العمل - %s"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__employee_manager_approved_by_id
+msgid "Manager Approved By"
+msgstr "تم الاعتماد بواسطة المدير"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__employee_manager_approved_date
+msgid "Manager Approved On"
+msgstr "تاريخ اعتماد المدير"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__md_approval
+msgid "Managing Director"
+msgstr "المدير العام"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__medical
+msgid "Medical"
+msgstr "طبي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__insurance_id
+msgid "Medical Insurance"
+msgstr "التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Medical Insurance Details"
+msgstr "تفاصيل التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__insurance_line_id
+msgid "Medical Insurance Line"
+msgstr "بند التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model,name:pr_employee_service_requests.model_hr_employee_medical_insurance_line_add_wizard
+msgid "Medical Insurance Line Add"
+msgstr "إضافة بند تأمين طبي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__request_type__medical_insurance_renewal
+msgid "Medical Insurance Renewal"
+msgstr "تجديد التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_compliance_records.py:0
+#, python-format
+msgid "Medical Insurance Renewal Request"
+msgstr "طلب تجديد التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_medical_insurance_hr_approvals
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_medical_insurance_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_medical_insurance_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_medical_insurance_my
+msgid "Medical Insurance Renewal Requests"
+msgstr "طلبات تجديد التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Medical Insurance Renewals"
+msgstr "تجديدات التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__insurance_line_id
+msgid "Medical Insurance Request"
+msgstr "طلب التأمين الطبي"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Medical insurance renewal has been issued."
+msgstr "تم إصدار تجديد التأمين الطبي."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_has_error
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_ids
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__moi_fee_amount
+msgid "Ministry of Interior fee for the Iqama."
+msgstr "رسوم وزارة الداخلية الخاصة بالإقامة."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__mol_fee_amount
+msgid "Ministry of Labor fee for the work permit."
+msgstr "رسوم وزارة الموارد البشرية الخاصة بتصريح العمل."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__mobile
+msgid "Mobile/Internet"
+msgstr "الهاتف المحمول / الإنترنت"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Multiple-entry Exit/Re-entry switched to Self-paid."
+msgstr "تم تحويل تأشيرة الخروج والعودة متعددة الدخول إلى نفقة الموظف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Multiple-entry Exit/Re-entry visas cannot be charged to the company."
+msgstr "لا يمكن تحميل الشركة تكلفة تأشيرات الخروج والعودة متعددة الدخول."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Multiple-entry Exit/Re-entry visas must be Self-paid."
+msgstr "يجب أن تكون تأشيرات الخروج والعودة متعددة الدخول على نفقة الموظف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Multiple-entry is Self-paid"
+msgstr "متعددة الدخول على نفقة الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "My Requests"
+msgstr "طلباتي"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "New"
+msgstr "جديد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__request_type__iqama_new
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "New Iqama & Work Permit"
+msgstr "إقامة وتصريح عمل جديد"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_employee.py:0
+#, python-format
+msgid "New Iqama & Work Permit Request"
+msgstr "طلب إصدار إقامة وتصريح عمل جديد"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_iqama_new_hr_approvals
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_iqama_new_my
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_work_permit_new_hr_approvals
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_work_permit_new_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_iqama_new_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_iqama_new_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_work_permit_new_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_work_permit_new_my
+msgid "New Iqama & Work Permit Requests"
+msgstr "طلبات إصدار إقامة وتصريح عمل جديد"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "New Iqama and Work Permit records have been created."
+msgstr "تم إنشاء سجلات الإقامة ورخصة العمل الجديدة."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__request_type__medical_insurance_new
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "New Medical Insurance"
+msgstr "تأمين طبي جديد"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_employee.py:0
+#, python-format
+msgid "New Medical Insurance Request"
+msgstr "طلب تأمين طبي جديد"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_medical_insurance_new_hr_approvals
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_medical_insurance_new_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_medical_insurance_new_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_medical_insurance_new_my
+msgid "New Medical Insurance Requests"
+msgstr "طلبات التأمين الطبي الجديدة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "New medical insurance record has been created."
+msgstr "تم إنشاء سجل تأمين طبي جديد."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم التالي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_summary
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_type_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "No attachments found to preview."
+msgstr "لم يتم العثور على مرفقات للمعاينة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "No attachments found."
+msgstr "لم يتم العثور على مرفقات."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "No existing Iqama was found for this employee. Please use New Iqama."
+msgstr "لم يتم العثور على إقامة حالية لهذا الموظف. يرجى استخدام خيار «إقامة ورخصة عمل جديدة»."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"No existing Medical Insurance record was found for this employee. Please use"
+" New Medical Insurance."
+msgstr "لم يتم العثور على سجل تأمين طبي لهذا الموظف. يرجى استخدام خيار «تأمين طبي جديد»."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "No payment request has been created yet."
+msgstr "لم يتم إنشاء طلب صرف حتى الآن."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "No payment voucher has been created yet."
+msgstr "لم يتم إنشاء سند صرف حتى الآن."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"No running contract was found. The request will be handled as Self-paid."
+msgstr "لم يتم العثور على عقد عمل ساري. سيتم التعامل مع الطلب على أنه على نفقة الموظف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Non Executive"
+msgstr "غير تنفيذي"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Not required for Saudi employees"
+msgstr "غير مطلوب للموظفين السعوديين"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__message_needaction_counter
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراء"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__message_has_error_counter
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__office
+msgid "Office Expense"
+msgstr "مصروفات مكتبية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only Accounts can approve this stage."
+msgstr "يمكن لإدارة الحسابات فقط اعتماد هذه المرحلة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only Accounts users can create payment vouchers."
+msgstr "يمكن لمستخدمي إدارة الحسابات فقط إنشاء سندات الصرف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only Finance can approve this stage."
+msgstr "يمكن للإدارة المالية فقط اعتماد هذه المرحلة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only HR Manager can approve this stage."
+msgstr "يمكن لمدير الموارد البشرية فقط اعتماد هذه المرحلة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Only HR Managers can perform this action."
+msgstr "يمكن لمديري الموارد البشرية فقط تنفيذ هذا الإجراء."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only HR Supervisor can approve this stage."
+msgstr "يمكن لمشرف الموارد البشرية فقط اعتماد هذه المرحلة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only HR can issue paid employee service requests."
+msgstr "يمكن لإدارة الموارد البشرية فقط إصدار طلبات خدمات الموظفين المدفوعة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only HR/MD approvers can edit Budget and Cost Center after submission."
+msgstr "يمكن فقط لمديري الموارد البشرية أو المدير العام تعديل الميزانية ومركز التكلفة بعد تقديم الطلب."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only HR/MD approvers can edit approval and voucher accounting fields."
+msgstr "يمكن فقط لمديري الموارد البشرية أو المدير العام تعديل حقول الاعتماد والحقول المحاسبية لسندات الصرف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only MD can approve this stage."
+msgstr "يمكن للمدير العام فقط اعتماد هذه المرحلة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Only approved letters can be sent."
+msgstr "يمكن إرسال الخطابات المعتمدة فقط."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only draft, cancelled, or rejected requests can be deleted."
+msgstr "يمكن حذف الطلبات التي تكون في حالة مسودة أو ملغاة أو مرفوضة فقط."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Only the employee's manager can approve this stage."
+msgstr "يمكن لمدير الموظف فقط اعتماد هذه المرحلة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Only the requester or an HR Manager can reset this letter to draft."
+msgstr "يمكن لمقدم الطلب أو مدير الموارد البشرية فقط إعادة هذا الخطاب إلى حالة المسودة."
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Open Payment Request"
+msgstr "فتح طلب الصرف"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Open Voucher"
+msgstr "فتح سند الصرف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__other
+msgid "Other"
+msgstr "أخرى"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__paid
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Paid"
+msgstr "مدفوع"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__paid_date
+msgid "Paid Date"
+msgstr "تاريخ السداد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__passport_no
+msgid "Passport No."
+msgstr "رقم جواز السفر"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__pay_from_account_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__payment_account_id
+msgid "Pay From Account"
+msgstr "الصرف من الحساب"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Payment"
+msgstr "السداد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__line_ids
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+msgid "Payment Lines"
+msgstr "بنود طلب الدفع"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__payment_method
+msgid "Payment Method"
+msgstr "طريقة الدفع"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__payment_reference
+msgid "Payment Reference"
+msgstr "مرجع الدفع"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_iqama_line__payment_request_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee_medical_insurance_line__payment_request_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__payment_request_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__payment_request_id
+#, python-format
+msgid "Payment Request"
+msgstr "طلب دفع"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__payment_request_state
+msgid "Payment Request Status"
+msgstr "حالة طلب الدفع"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Payment Voucher"
+msgstr "سند دفع"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Payment request has no positive amount lines to create a voucher."
+msgstr "لا يحتوي طلب الدفع على بنود بمبالغ موجبة لإنشاء سند دفع."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Payment request line amount must be greater than zero."
+msgstr "يجب أن يكون مبلغ بند طلب الدفع أكبر من صفر."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Payment request lines must have a positive amount."
+msgstr "يجب أن تحتوي بنود طلب الدفع على مبالغ موجبة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Payment responsibility switched to Self: %s"
+msgstr "تم تغيير مسؤولية الدفع إلى الموظف: %s"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Payment voucher %s was fully approved. Request marked as paid."
+msgstr "تمت الموافقة النهائية على سند الدفع %s. وتم وضع علامة «مدفوع» على الطلب."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__petty_cash
+msgid "Petty Cash"
+msgstr "عهدة نثرية"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__place_of_issue
+msgid "Place of Issue"
+msgstr "مكان الإصدار"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please attach the renewal supporting document(s)."
+msgstr "يرجى إرفاق المستندات الداعمة للتجديد."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please configure or select the bank account used for renewal BPVs."
+msgstr "يرجى إعداد أو اختيار الحساب البنكي المستخدم لسندات الدفع البنكية (BPV) الخاصة بالتجديد."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Please configure the Self dependent relation before issuing this request."
+msgstr "يرجى إعداد علاقة المعال (Self) قبل إصدار هذا الطلب."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter From Date and To Date."
+msgstr "يرجى إدخال تاريخ البداية وتاريخ النهاية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter a reimbursement amount greater than zero."
+msgstr "يرجى إدخال مبلغ تعويض أكبر من صفر."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Please enter an approved amount greater than zero before Accounts approval."
+msgstr "يرجى إدخال مبلغ معتمد أكبر من صفر قبل موافقة الحسابات."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter an approved amount greater than zero before MD approval."
+msgstr "يرجى إدخال مبلغ معتمد أكبر من صفر قبل موافقة المدير العام."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter insurance company and category."
+msgstr "يرجى إدخال شركة التأمين وفئة التأمين."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the Exit/Re-entry Visa No. before issuing."
+msgstr "يرجى إدخال رقم تأشيرة الخروج والعودة قبل الإصدار."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the Iqama / Work Permit Profession."
+msgstr "يرجى إدخال المهنة في الإقامة / تصريح العمل."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the Iqama / Work Permit issuance date."
+msgstr "يرجى إدخال تاريخ إصدار الإقامة / تصريح العمل."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the Iqama No."
+msgstr "يرجى إدخال رقم الإقامة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the Work Permit expiry date."
+msgstr "يرجى إدخال تاريخ انتهاء تصريح العمل."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Please enter the email subject and body before sending."
+msgstr "يرجى إدخال موضوع البريد الإلكتروني ومحتواه قبل الإرسال."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the expected fee amount greater than zero."
+msgstr "يرجى إدخال مبلغ الرسوم المتوقع بحيث يكون أكبر من صفر."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the expense date."
+msgstr "يرجى إدخال تاريخ المصروف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter the expiry date."
+msgstr "يرجى إدخال تاريخ الانتهاء."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Please enter the subject and letter content before submitting."
+msgstr "يرجى إدخال موضوع الخطاب ومحتواه قبل الإرسال."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Please enter the visa fee or approved payable amount before Accounts "
+"approval."
+msgstr "يرجى إدخال رسوم التأشيرة أو المبلغ المستحق المعتمد قبل موافقة الحسابات."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Please enter the visa fee or approved payable amount before MD approval."
+msgstr "يرجى إدخال رسوم التأشيرة أو المبلغ المستحق المعتمد قبل موافقة المدير العام."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please enter travel and return dates."
+msgstr "يرجى إدخال تاريخي السفر والعودة."
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_reject_wizard_form
+msgid "Please provide rejection reason..."
+msgstr "يرجى إدخال سبب الرفض..."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please review payment request %s and create the CPV/BPV."
+msgstr "يرجى مراجعة طلب الدفع %s وإنشاء سند الدفع النقدي (CPV) أو سند الدفع البنكي (BPV)."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select Transfer Type: Cash or Bank Transfer."
+msgstr "يرجى اختيار نوع التحويل: نقدًا أو تحويل بنكي."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select an Expense Account on every payment request line."
+msgstr "يرجى اختيار حساب مصروف لكل بند من بنود طلب الدفع."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select an employee."
+msgstr "يرجى اختيار موظف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the Cost Center before Accounts approval."
+msgstr "يرجى اختيار مركز التكلفة قبل موافقة الحسابات."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the Cost Center before MD approval."
+msgstr "يرجى اختيار مركز التكلفة قبل موافقة المدير العام."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the Cost Center for this renewal."
+msgstr "يرجى اختيار مركز التكلفة لهذا التجديد."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the Cost Center."
+msgstr "يرجى اختيار مركز التكلفة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the Employee / Expense Account before Accounts approval."
+msgstr "يرجى اختيار الموظف / حساب المصروف قبل موافقة الحسابات."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the Employee / Expense Account for this renewal."
+msgstr "يرجى اختيار الموظف / حساب المصروف لهذا التجديد."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the Pay From Account."
+msgstr "يرجى اختيار حساب الدفع."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the approved Budget before Accounts approval."
+msgstr "يرجى اختيار الميزانية المعتمدة قبل موافقة الحسابات."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the approved Budget before MD approval."
+msgstr "يرجى اختيار الميزانية المعتمدة قبل موافقة المدير العام."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the approved Budget for this renewal."
+msgstr "يرجى اختيار الميزانية المعتمدة لهذا التجديد."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the approved Budget."
+msgstr "يرجى اختيار الميزانية المعتمدة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the destination country."
+msgstr "يرجى اختيار دولة الوجهة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please select the reimbursement category."
+msgstr "يرجى اختيار فئة التعويض."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Please set a manager user on the employee before submitting."
+msgstr "يرجى تعيين مستخدم المدير للموظف قبل الإرسال."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Please set an email recipient before sending."
+msgstr "يرجى تحديد مستلم البريد الإلكتروني قبل الإرسال."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_voucher_state__posted
+msgid "Posted"
+msgstr "مُرحّل"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Preview Attachments"
+msgstr "معاينة المرفقات"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_hr_work_permit_form_renewal
+msgid "RENEW"
+msgstr "تجديد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__rating_ids
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__reason
+msgid "Reason / Notes"
+msgstr "السبب / الملاحظات"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__attachment_ids
+msgid "Receipts / Attachments"
+msgstr "الإيصالات / المرفقات"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__request_type__reimbursement
+msgid "Reimbursement"
+msgstr "طلب تعويض"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__reimbursement_type
+msgid "Reimbursement Category"
+msgstr "فئة التعويض"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Reimbursement Details"
+msgstr "تفاصيل التعويض"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_reimbursement_hr_approvals
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_reimbursement_hr_approvals
+msgid "Reimbursement Requests"
+msgstr "طلبات التعويض"
+
+#. module: pr_employee_service_requests
+#: model:ir.actions.act_window,name:pr_employee_service_requests.action_pr_employee_reimbursement_my
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_reimbursement_my
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Reimbursements"
+msgstr "التعويضات"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_reject_wizard_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_reject_wizard_form
+msgid "Reject Employee Request"
+msgstr "رفض طلب الموظف"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Reject Request"
+msgstr "رفض الطلب"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__rejected
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__rejection_reason
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__rejection_reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request_line__remarks
+msgid "Remarks"
+msgstr "ملاحظات"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Renewal submitted for HR Manager approval."
+msgstr "تم إرسال طلب التجديد لاعتماد مدير الموارد البشرية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request_reject_wizard__request_id
+#, python-format
+msgid "Request"
+msgstr "الطلب"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__request_date
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__request_date
+msgid "Request Date"
+msgstr "تاريخ الطلب"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__name
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__name
+msgid "Request Number"
+msgstr "رقم الطلب"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__request_type
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Request Type"
+msgstr "نوع الطلب"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Request cancelled by employee."
+msgstr "تم إلغاء الطلب بواسطة الموظف."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Request rejected: %s"
+msgstr "تم رفض الطلب: %s"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Request reset to draft."
+msgstr "تمت إعادة الطلب إلى المسودة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Request submitted for Department Manager approval."
+msgstr "تم إرسال الطلب لاعتماد مدير القسم."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Request submitted for HR Manager approval."
+msgstr "تم إرسال الطلب لاعتماد مدير الموارد البشرية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Request submitted for HR Supervisor approval."
+msgstr "تم إرسال الطلب لاعتماد مشرف الموارد البشرية."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_payment_request__state__requested
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_request_state__requested
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+msgid "Requested"
+msgstr "مطلوب"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__requested_amount
+msgid "Requested Amount"
+msgstr "المبلغ المطلوب"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Requested Amount must be greater than zero for reimbursement requests."
+msgstr "يجب أن يكون المبلغ المطلوب أكبر من صفر لطلبات التعويض."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Requested Amount must be greater than zero for renewal requests."
+msgstr "يجب أن يكون المبلغ المطلوب أكبر من صفر لطلبات التجديد."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__requested_user_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__requested_by_id
+msgid "Requested By"
+msgstr "مقدم الطلب"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Reset to Draft"
+msgstr "إعادة إلى المسودة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__activity_user_id
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__return_date
+msgid "Return Date"
+msgstr "تاريخ العودة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Return Date cannot be before Travel Date."
+msgstr "لا يمكن أن يكون تاريخ العودة قبل تاريخ السفر."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Saudi employees do not require Exit/Re-entry requests."
+msgstr "لا يحتاج الموظفون السعوديون إلى طلبات تأشيرة الخروج والعودة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Saudi employees do not require Iqama/Work Permit or Exit/Re-entry requests."
+msgstr "لا يحتاج الموظفون السعوديون إلى طلبات الإقامة/تصريح العمل أو تأشيرة الخروج والعودة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_compliance_records.py:0
+#, python-format
+msgid "Saudi employees do not require Iqama/Work Permit records."
+msgstr "لا يحتاج الموظفون السعوديون إلى سجلات الإقامة/تصريح العمل."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/hr_employee.py:0
+#, python-format
+msgid "Saudi employees do not require Iqama/Work Permit requests."
+msgstr "لا يحتاج الموظفون السعوديون إلى طلبات الإقامة/تصريح العمل."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Self-paid Exit/Re-entry approved. No accounting entry will be created; HR "
+"can issue the visa."
+msgstr "تمت الموافقة على طلب تأشيرة الخروج والعودة (على حساب الموظف). لن يتم إنشاء قيد محاسبي، ويمكن للموارد البشرية إصدار التأشيرة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Self-paid and historical requests do not create payment requests or "
+"accounting vouchers."
+msgstr "الطلبات المدفوعة ذاتيًا والطلبات التاريخية لا تنشئ طلبات دفع أو سندات محاسبية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Self-paid and historical requests do not create payment vouchers."
+msgstr "الطلبات المدفوعة ذاتيًا والطلبات التاريخية لا تنشئ سندات دفع."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Self-paid renewal approved and issued without accounting entries."
+msgstr "تمت الموافقة على التجديد المدفوع ذاتيًا وإصداره دون قيود محاسبية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Self-paid renewals do not create BPVs."
+msgstr "التجديدات المدفوعة ذاتيًا لا تنشئ سندات دفع بنكية (BPV)."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Self-paid request approved without accounting entries."
+msgstr "تمت الموافقة على الطلب المدفوع ذاتيًا دون قيود محاسبية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_document_letter.py:0
+#, python-format
+msgid "Send Employee Letter"
+msgstr "إرسال خطاب الموظف"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_employee_form_compliance_work_permit_button
+msgid "Show work permits linked to this Employee"
+msgstr "عرض تصاريح العمل المرتبطة بهذا الموظف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__state
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__state
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__activity_state
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تاريخ الاستحقاق قد مضى\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_voucher_state__submit
+msgid "Submitted"
+msgstr "تم الإرسال"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "Submitted requests cannot be edited. Reject and reset to draft first."
+msgstr "لا يمكن تعديل الطلبات المرسلة. قم برفض الطلب وإعادته إلى المسودة أولاً."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__attachment_ids
+msgid ""
+"Supporting documents copied from the employee service request and then "
+"copied to the generated CPV/BPV."
+msgstr "المستندات الداعمة يتم نسخها من طلب خدمة الموظف ثم نسخها إلى سند الدفع (CPV/BPV) الذي يتم إنشاؤه."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"The current contract has no start date. The request will be handled as Self-"
+"paid."
+msgstr "لا يحتوي العقد الحالي على تاريخ بداية. سيتم التعامل مع الطلب على أنه مدفوع ذاتيًا."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "The renewal BPV could not be created."
+msgstr "تعذر إنشاء سند الدفع البنكي (BPV) الخاص بالتجديد."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "This payment request has no lines."
+msgstr "طلب الدفع هذا لا يحتوي على بنود."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "This request already created a payment voucher and cannot be deleted."
+msgstr "قام هذا الطلب بالفعل بإنشاء سند دفع، ولا يمكن حذفه."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"This request already has posted accounting/payment activity and cannot be "
+"reset or cancelled."
+msgstr "يحتوي هذا الطلب بالفعل على حركة محاسبية/دفع مُرحّلة، ولا يمكن إعادته إلى المسودة أو إلغاؤه."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__ticket
+msgid "Ticket"
+msgstr "تذكرة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "To Be Confirmed"
+msgstr "سيتم التأكيد"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__service_to_date
+msgid "To Date"
+msgstr "إلى تاريخ"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "To Date cannot be before From Date."
+msgstr "لا يمكن أن يكون تاريخ الانتهاء قبل تاريخ البداية."
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_form
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_tree
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__total_amount
+msgid "Total Amount"
+msgstr "إجمالي المبلغ"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Total MOI + MOL Fees"
+msgstr "إجمالي رسوم الداخلية + العمل"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__transfer_type
+msgid "Transfer Type"
+msgstr "نوع التحويل"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__reimbursement_type__travel
+msgid "Travel"
+msgstr "سفر"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__travel_date
+msgid "Travel Date"
+msgstr "تاريخ السفر"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__activity_exception_decoration
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع نشاط الاستثناء في السجل."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__visa_expiry_date
+msgid "Visa Expiry Date"
+msgstr "تاريخ انتهاء التأشيرة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__visa_fee
+msgid "Visa Fee"
+msgstr "رسوم التأشيرة"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"Voucher %s already has an accounting entry and cannot be removed by "
+"reset/cancel."
+msgstr "يحتوي سند الدفع %s بالفعل على قيد محاسبي، ولا يمكن إزالته من خلال إعادة الضبط أو الإلغاء."
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__state__payment_approval
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_search
+msgid "Voucher Approval"
+msgstr "اعتماد سند الصرف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_payment_request__state__voucher_created
+#: model:ir.model.fields.selection,name:pr_employee_service_requests.selection__pr_employee_service_request__payment_request_state__voucher_created
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_payment_request_search
+msgid "Voucher Created"
+msgstr "تم إنشاء سند الصرف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__payment_voucher_state
+msgid "Voucher Status"
+msgstr "حالة سند الصرف"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_payment_request__website_message_ids
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_payment_request__website_message_ids
+#: model:ir.model.fields,help:pr_employee_service_requests.field_pr_employee_service_request__website_message_ids
+msgid "Website communication history"
+msgstr "سجل التواصل عبر الموقع الإلكتروني"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__work_permit_id
+msgid "Work Permit"
+msgstr "رخصة العمل"
+
+#. module: pr_employee_service_requests
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_pr_employee_service_request_form
+msgid "Work Permit / Visa Number"
+msgstr "رقم رخصة العمل / التأشيرة"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_pr_employee_service_request__work_permit_expiry_date
+msgid "Work Permit Expiry Date"
+msgstr "تاريخ انتهاء رخصة العمل"
+
+#. module: pr_employee_service_requests
+#: model:ir.model.fields,field_description:pr_employee_service_requests.field_hr_employee__work_permit_count
+#: model:ir.ui.menu,name:pr_employee_service_requests.menu_pr_employee_work_permit_records
+#: model_terms:ir.ui.view,arch_db:pr_employee_service_requests.view_employee_form_compliance_work_permit_button
+msgid "Work Permits"
+msgstr "رخص العمل"
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid ""
+"You can only cancel non-final requests that do not have posted accounting."
+msgstr "يمكنك إلغاء الطلبات غير النهائية فقط والتي لا تحتوي على قيود محاسبية مُرحّلة."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "You cannot reject this request at the current stage."
+msgstr "لا يمكنك رفض هذا الطلب في المرحلة الحالية."
+
+#. module: pr_employee_service_requests
+#. odoo-python
+#: code:addons/pr_employee_service_requests/models/employee_service_request.py:0
+#, python-format
+msgid "You cannot reset this request to draft."
+msgstr "لا يمكنك إعادة هذا الطلب إلى حالة المسودة."

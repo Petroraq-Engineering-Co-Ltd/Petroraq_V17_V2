@@ -6,23 +6,13 @@
         </xpath>
         <xpath expr="//t[@t-foreach='rfqs']/tr" position="inside">
             <td class="text-end">
-                <t t-set="has_quotation"
-       t-value="request.env['purchase.quotation'].sudo().search_count([
-            ('custom_rfq_id', '=', rfq.id),
-            ('vendor_id.commercial_partner_id', '=', request.env.user.partner_id.commercial_partner_id.id)
-       ]) > 0"/>
-                <t t-if="not has_quotation">
-                    <a t-att-href="'/my/rfq/%s/quotation' % rfq.id"
-           class="btn btn-sm btn-primary"
-           style="background-color: #122AA0 !important; border-color: #122AA0 !important;">
-            Create Quotation
-        </a>
-                </t>
-                <t t-else="">
-                    <button class="btn btn-sm btn-secondary" disabled="true">
-            Quotation Submitted
-        </button>
-                </t>
+                <!-- Keep list rendering independent from the quotation table.
+                     Duplicate submission is validated by the POST controller. -->
+                <a t-att-href="'/my/rfq/%s/quotation' % rfq.id"
+                   class="btn btn-sm btn-primary"
+                   style="background-color: #122AA0 !important; border-color: #122AA0 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">
+                    Submit Quotation
+                </a>
             </td>
         </xpath>
     </template>

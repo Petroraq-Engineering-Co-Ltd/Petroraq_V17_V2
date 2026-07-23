@@ -93,6 +93,96 @@ class PrAccountDashboard(models.AbstractModel):
             "recent_activity": self._get_recent_activity(company, date_from, date_to),
         }
 
+    @api.model
+    def get_cash_movement_details(self, options=None, direction="in"):
+        """Return one frontend-friendly feed across payments and custom vouchers."""
+        self._check_dashboard_access()
+        options = self._normalize_options(options or {})
+        company = options["company"]
+        date_from = options["date_from"]
+        date_to = options["date_to"]
+        direction = "out" if direction == "out" else "in"
+        rows = []
+        sources = []
+
+        payment_type = "outbound" if direction == "out" else "inbound"
+        payment_label = "Registered Payments" if direction == "out" else "Registered Receipts"
+        payment_domain = (
+            self._company_domain(company)
+            + self._date_domain("date", date_from, date_to)
+            + [("state", "not in", PAYMENT_EXCLUDED_STATES), ("payment_type", "=", payment_type)]
+        )
+        payments = self.env["account.payment"].sudo().search(payment_domain)
+        payment_total = self._sum_records(payments, self._payment_amount)
+        sources.append({"code": "PAY", "label": payment_label, "count": len(payments), "amount": payment_total})
+        for payment in payments:
+            rows.append({
+                "model": payment._name,
+                "id": payment.id,
+                "date": fields.Date.to_string(payment.date),
+                "reference": payment.display_name,
+                "source": "PAY",
+                "source_label": payment_label,
+                "partner": payment.partner_id.display_name or "",
+                "journal": payment.journal_id.display_name or "",
+                "memo": getattr(payment, "memo", False) or getattr(payment, "ref", False) or "",
+                "state": self._selection_label(payment, "state"),
+                "amount": self._payment_amount(payment),
+            })
+
+        category = "Payments" if direction == "out" else "Receipts"
+        for model_name, code, voucher_category, color, date_field in CUSTOM_VOUCHERS:
+            if voucher_category != category:
+                continue
+            domain = (
+                self._company_domain(company)
+                + self._date_domain(date_field, date_from, date_to)
+                + [("state", "=", "posted")]
+            )
+            records = self.env[model_name].sudo().search(domain)
+            source_total = self._sum_records(records, self._voucher_amount)
+            sources.append({"code": code, "label": "%s - %s" % (code, category[:-1]), "count": len(records), "amount": source_total})
+            line_field = CUSTOM_VOUCHER_LINES.get(model_name)
+            for record in records:
+                lines = (
+                    record[line_field]
+                    if line_field and line_field in record._fields
+                    else self.env["res.partner"].browse()
+                )
+                partners = []
+                for line in lines:
+                    for partner_field in ("partner_id", "payment_to_partner_id", "received_from_partner_id"):
+                        if partner_field in line._fields and line[partner_field]:
+                            partners.append(line[partner_field].display_name)
+                journal = ""
+                for journal_field in ("journal_id", "bank_journal_id", "cash_journal_id", "account_id"):
+                    if journal_field in record._fields and record[journal_field]:
+                        journal = record[journal_field].display_name
+                        break
+                rows.append({
+                    "model": model_name,
+                    "id": record.id,
+                    "date": fields.Date.to_string(record[date_field]),
+                    "reference": record.display_name,
+                    "source": code,
+                    "source_label": "%s - %s" % (code, category[:-1]),
+                    "partner": ", ".join(dict.fromkeys(partners)),
+                    "journal": journal,
+                    "memo": getattr(record, "description", False) or "",
+                    "state": self._selection_label(record, "state"),
+                    "amount": self._voucher_amount(record),
+                })
+
+        rows.sort(key=lambda row: (row["date"] or "", row["id"]), reverse=True)
+        return {
+            "direction": direction,
+            "title": "Total Cash Out Details" if direction == "out" else "Total Cash In Details",
+            "total": sum(source["amount"] for source in sources),
+            "count": sum(source["count"] for source in sources),
+            "sources": sources,
+            "rows": rows,
+        }
+
     def _check_dashboard_access(self):
         groups = [
             "account.group_account_invoice",

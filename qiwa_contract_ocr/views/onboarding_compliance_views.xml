@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="de_hr_workspace.menu_my_employee_approvals" model="ir.ui.menu">
-        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_supervisor')), (4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
-    </record>
-
-    <record id="de_hr_workspace.hr_approvals_menu_root" model="ir.ui.menu">
-        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_supervisor')), (4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
-    </record>
+    <function model="ir.ui.menu" name="_qiwa_update_optional_workspace_compliance_entries"/>
 
     <record id="hr_applicant_onboarding_form_view_compliance" model="ir.ui.view">
         <field name="name">hr.applicant.onboarding.form.view.compliance</field>
@@ -636,14 +630,6 @@
         </field>
     </record>
 
-    <record id="de_hr_workspace.de_hr_workspace_hr_employee_iqama_approvals_view_action" model="ir.actions.act_window">
-        <field name="domain">[('state', 'in', ('pending_approval', 'hr_manager_approval', 'md_approval'))]</field>
-    </record>
-
-    <record id="de_hr_workspace.de_hr_workspace_hr_employee_iqama_approvals_menu" model="ir.ui.menu">
-        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
-    </record>
-
     <record id="view_hr_employee_medical_insurance_form_two_step_approval" model="ir.ui.view">
         <field name="name">hr.employee.medical.insurance.form.two.step.approval</field>
         <field name="model">hr.employee.medical.insurance</field>
@@ -696,14 +682,6 @@
                 <attribute name="invisible">check_renews == True or state != 'approve'</attribute>
             </xpath>
         </field>
-    </record>
-
-    <record id="de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_view_action" model="ir.actions.act_window">
-        <field name="domain">[('state', 'in', ('pending_approval', 'hr_manager_approval', 'md_approval'))]</field>
-    </record>
-
-    <record id="de_hr_workspace.de_hr_workspace_hr_employee_medical_insurance_approvals_menu" model="ir.ui.menu">
-        <field name="groups_id" eval="[(4, ref('pr_hr_recruitment_request.group_onboarding_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_md'))]"/>
     </record>
 
     <record id="view_pr_account_bank_payment_form_onboarding_compliance" model="ir.ui.view">

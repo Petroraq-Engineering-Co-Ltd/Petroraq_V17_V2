@@ -364,12 +364,8 @@
                         </td>
 
                         <td>
-                            <span t-esc="move.product_id.name or ''"/>
-
-                            <p t-if="move.description_picking and move.description_picking not in (move.product_id.name, move.product_id.display_name)"
-                               style="margin:3px 0 0 0;">
-                                <span t-esc="move.description_picking"/>
-                            </p>
+                            <span style="white-space:pre-line;"
+                                  t-esc="move._pr_get_delivery_line_description()"/>
                         </td>
                         <td class="text-center">
                             <span t-field="move.product_uom"/>

@@ -1,0 +1,1987 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_recruitment_dynamic_screening
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-14 07:18+0000\n"
+"PO-Revision-Date: 2026-07-14 07:18+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "%s - no answer received"
+msgstr "%s - لم يتم استلام أي إجابة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "%s - received %s; required %s"
+msgstr "%s - تم استلام %s؛ المطلوب %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "%s entries"
+msgstr "%s إدخال"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#, python-format
+msgid "%s minimum cannot be greater than its maximum."
+msgstr "لا يمكن أن يكون الحد الأدنى لـ %s أكبر من الحد الأقصى."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#, python-format
+msgid "%s thresholds must be finite and non-negative."
+msgstr "يجب أن تكون حدود %s منتهية وغير سالبة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "%s: %s"
+msgstr "%s: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.careers_job_detail_dynamic_questions
+msgid ""
+"<i class=\"fa fa-plus\" aria-hidden=\"true\"/>\n"
+"                                        Add another entry"
+msgstr ""
+"<i class=\"fa fa-plus\" aria-hidden=\"true\"/>\n"
+"                                        إضافة إدخال آخر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.careers_job_detail_dynamic_questions
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.repeating_question_row
+msgid "<option value=\"\">Select an answer</option>"
+msgstr "<option value=\"\">اختر إجابة</option>"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.careers_job_detail_dynamic_questions
+msgid ""
+"<option value=\"\">Select an answer</option>\n"
+"                                    <option value=\"yes\">Yes</option>\n"
+"                                    <option value=\"no\">No</option>"
+msgstr ""
+"<option value=\"\">اختر إجابة</option>\n"
+"                                    <option value=\"yes\">نعم</option>\n"
+"                                    <option value=\"no\">لا</option>"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.careers_job_detail_dynamic_questions
+msgid "A few details to help us review your application."
+msgstr "بعض التفاصيل التي تساعدنا في مراجعة طلب التوظيف الخاص بك."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.constraint,message:pr_recruitment_dynamic_screening.constraint_pr_recruitment_question_one_question_owner
+msgid "A question must belong to either one job or one recruitment request."
+msgstr "يجب أن ينتمي السؤال إلى وظيفة واحدة أو طلب توظيف واحد."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.constraint,message:pr_recruitment_dynamic_screening.constraint_pr_recruitment_answer_cell_line_column_unique
+msgid "A repeating line can only contain a column once."
+msgstr "يمكن أن يحتوي الصف المتكرر على العمود مرة واحدة فقط."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "A repeating question cannot contain more than 20 entries."
+msgstr "لا يمكن أن يحتوي السؤال المتكرر على أكثر من 20 إدخالًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "A repeating question contains an invalid row list."
+msgstr "يحتوي السؤال المتكرر على قائمة صفوف غير صالحة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "A repeating-lines question needs at least one column."
+msgstr "يتطلب سؤال الأسطر المتكررة عمودًا واحدًا على الأقل."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "A screening question must be required."
+msgstr "يجب أن يكون سؤال الفرز إلزاميًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "A selection or related-record column needs at least one value."
+msgstr "يحتاج عمود الاختيار أو السجل المرتبط إلى قيمة واحدة على الأقل."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "A selection or related-record question needs at least one value."
+msgstr "يحتاج سؤال الاختيار أو السجل المرتبط إلى قيمة واحدة على الأقل."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__screening_allowed
+msgid "Accept this value when the screening rule uses allowed values."
+msgstr "اقبل هذه القيمة عندما تستخدم قاعدة الفرز القيم المسموح بها."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Accepted answers: %s"
+msgstr "الإجابات المقبولة: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Accepted range: %s to %s"
+msgstr "النطاق المقبول: من %s إلى %s"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__active
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__active
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__active
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_nationality_rule__excluded
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_nationality_rule__excluded
+msgid "Allow All Except Selected Nationalities"
+msgstr "السماح بجميع الجنسيات باستثناء الجنسيات المحددة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_location_rule__exact
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_location_rule__exact
+msgid "Allow Exact Locations"
+msgstr "السماح بالمواقع المحددة فقط"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_education_rule__allowed
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_education_rule__allowed
+msgid "Allow Selected Degrees"
+msgstr "السماح بالمؤهلات الدراسية المحددة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_nationality_rule__allowed
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_nationality_rule__allowed
+msgid "Allow Selected Nationalities"
+msgstr "السماح بالجنسيات المحددة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__screening_allowed
+msgid "Allowed"
+msgstr "مسموح"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_education_degree_ids
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_education_degree_ids
+msgid "Allowed Education Degrees"
+msgstr "المؤهلات الدراسية المسموح بها"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_location_values
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_location_values
+msgid "Allowed Location Terms"
+msgstr "المواقع المسموح بها"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__allowed_option_ids
+msgid "Allowed Options"
+msgstr "الخيارات المسموح بها"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_experience_rule__range
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_notice_period_rule__range
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_salary_rule__range
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_experience_rule__range
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_notice_period_rule__range
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_salary_rule__range
+msgid "Allowed Range"
+msgstr "النطاق المسموح به"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.constraint,message:pr_recruitment_dynamic_screening.constraint_pr_recruitment_answer_applicant_question_unique
+msgid "An applicant can only answer a question once."
+msgstr "يمكن للمتقدم الإجابة على السؤال مرة واحدة فقط."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "An archived value cannot be used by an active screening rule."
+msgstr "لا يمكن استخدام قيمة مؤرشفة في قاعدة فرز نشطة."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.constraint,message:pr_recruitment_dynamic_screening.constraint_pr_recruitment_question_column_option_column_option_name_unique
+msgid "An option may only appear once in the same column."
+msgstr "لا يمكن أن يظهر الخيار أكثر من مرة في العمود نفسه."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.constraint,message:pr_recruitment_dynamic_screening.constraint_pr_recruitment_question_option_question_option_name_unique
+msgid "An option may only appear once on the same question."
+msgstr "لا يمكن أن يظهر الخيار أكثر من مرة في السؤال نفسه."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__answer_id
+msgid "Answer"
+msgstr "الإجابة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__answer_type
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__answer_type
+msgid "Answer Type"
+msgstr "نوع الإجابة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_hr_applicant
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__applicant_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__applicant_id
+msgid "Applicant"
+msgstr "المتقدم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__website_criterion_hint
+msgid "Applicant Requirement"
+msgstr "متطلبات المتقدم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_form_dynamic_screening
+msgid "Application Answer"
+msgstr "إجابة طلب التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_form_dynamic_screening
+msgid "Application Answers"
+msgstr "إجابات طلب التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Application Question"
+msgstr "سؤال طلب التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__application_question_ids
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__application_question_ids
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Application Questions"
+msgstr "أسئلة طلب التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Application automatically refused by screening rules."
+msgstr "تم رفض طلب التوظيف تلقائيًا وفقًا لقواعد الفرز."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+msgid ""
+"Apply rules to Location, Nationality, Education, Experience, Notice Period, "
+"Expected Salary, and National ID / Iqama already collected by the "
+"application form."
+msgstr "تطبيق القواعد على الموقع، والجنسية، والمؤهل العلمي، والخبرة، وفترة الإشعار، والراتب المتوقع، ورقم الهوية الوطنية/الإقامة، والتي تم جمعها بالفعل من نموذج طلب التوظيف."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Auto Refused"
+msgstr "مرفوض تلقائيًا"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_applicant__dynamic_screening_failure_reason
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_tree
+msgid "Automatic Refusal Reason"
+msgstr "سبب الرفض التلقائي"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "Automatic Refusals by Position"
+msgstr "حالات الرفض التلقائي حسب الوظيفة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Automatic Screening"
+msgstr "الفرز التلقائي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.actions.act_window,name:pr_recruitment_dynamic_screening.action_hr_applicant_auto_refused
+#: model:ir.ui.menu,name:pr_recruitment_dynamic_screening.menu_hr_applicant_auto_refused
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_pivot
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_search
+msgid "Automatic Screening Refusals"
+msgstr "حالات الرفض الناتجة عن الفرز التلقائي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_graph
+msgid "Automatic Screening Refusals by Job"
+msgstr "حالات الرفض الناتجة عن الفرز التلقائي حسب الوظيفة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_applicant__dynamic_screening_status__auto_refused
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_search_bis_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_search_dynamic_screening
+msgid "Automatically Refused"
+msgstr "مرفوض تلقائيًا"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Available Values"
+msgstr "القيم المتاحة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_tree
+msgid "Candidate"
+msgstr "المرشح"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"Candidates selecting No, omitting the number, or entering anything other "
+"than 10 digits will be automatically refused."
+msgstr ""
+"سيتم رفض المرشحين تلقائيًا إذا اختاروا «لا»، أو لم يُدخلوا الرقم، أو أدخلوا رقمًا لا يتكون من 10 أرقام."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.actions.act_window,help:pr_recruitment_dynamic_screening.action_hr_applicant_auto_refused
+msgid "Candidates that fail configured job screening rules appear here."
+msgstr "يظهر هنا المرشحون الذين لم يستوفوا قواعد الفرز الوظيفي المُعدّة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Choose Related Record and its Odoo data source first."
+msgstr "اختر أولًا السجل المرتبط ومصدر بياناته في أودو."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__column_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__column_id
+msgid "Column"
+msgstr "العمود"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__name
+msgid "Column Label"
+msgstr "تسمية العمود"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__column_option_id
+msgid "Column Option"
+msgstr "خيار العمود"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__column_type
+msgid "Column Type"
+msgstr "نوع العمود"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"Configure checks for Location, Nationality, Education, Experience, Notice "
+"Period, Expected Salary, and National ID / Iqama. These rules synchronize to"
+" the linked job."
+msgstr ""
+"قم بتكوين قواعد التحقق للموقع، والجنسية، والمؤهل العلمي، والخبرة، وفترة الإشعار، والراتب المتوقع، والهوية الوطنية / الإقامة. تتم مزامنة هذه القواعد مع الوظيفة المرتبطة."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__country_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__country_id
+msgid "Country / Nationality"
+msgstr "الدولة / الجنسية"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__create_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__create_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__create_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__create_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__create_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__create_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__create_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__create_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__create_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__create_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__create_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__create_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__criterion_type
+msgid "Criterion Type"
+msgstr "نوع المعيار"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__date
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__column_type__date
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Date must be between: %s and %s"
+msgstr "يجب أن يكون التاريخ بين %s و%s."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Date must be on or after: %s"
+msgstr "يجب أن يكون التاريخ في %s أو بعده."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Date must be on or before: %s"
+msgstr "يجب أن يكون التاريخ في %s أو قبله."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__date_range
+msgid "Date: Allowed Range"
+msgstr "التاريخ: النطاق المسموح به"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__date_min
+msgid "Date: On or After"
+msgstr "التاريخ: في أو بعد"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__date_max
+msgid "Date: On or Before"
+msgstr "التاريخ: في أو قبل"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__decimal
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__column_type__decimal
+msgid "Decimal Number"
+msgstr "رقم عشري"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+msgid ""
+"Define the fields in each row, such as Employer, Job Title, From, and To."
+msgstr "حدّد الحقول في كل صف، مثل جهة العمل، والمسمى الوظيفي، ومن، وإلى."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"Define the fields in each row, such as Language, Proficiency, and Years."
+msgstr "حدّد الحقول في كل صف، مثل اللغة، ومستوى الإتقان، وعدد السنوات."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_search
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:hr.applicant.refuse.reason,name:pr_recruitment_dynamic_screening.refuse_reason_automatic_screening
+msgid "Did not meet automatic screening requirements"
+msgstr "لم يستوفِ متطلبات الفرز التلقائي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__display_name
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__display_name
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__display_name
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__display_name
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__display_name
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__display_name
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__display_value
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__display_value
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__display_value
+msgid "Display Value"
+msgstr "القيمة المعروضة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_pr_recruitment_question
+msgid "Dynamic Recruitment Question"
+msgstr "سؤال توظيف ديناميكي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_applicant__dynamic_screened_on
+msgid "Dynamic Screened On"
+msgstr "تم الفرز الديناميكي في"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_applicant__dynamic_screening_status
+msgid "Dynamic Screening Status"
+msgstr "حالة الفرز الديناميكي"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Each related value must point to exactly one record."
+msgstr "يجب أن تشير كل قيمة مرتبطة إلى سجل واحد فقط."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Education"
+msgstr "المؤهل العلمي"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Education - received %s; required %s"
+msgstr "المؤهل العلمي - تم استلام %s؛ المطلوب %s"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__degree_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__degree_id
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__relation_model__hr_recruitment_degree
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__relation_model__hr_recruitment_degree
+msgid "Education Degree"
+msgstr "المؤهل العلمي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_education_rule
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_education_rule
+msgid "Education Rule"
+msgstr "قاعدة المؤهل العلمي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Eligibility Rule"
+msgstr "قاعدة الأهلية"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Enter at least one allowed location or matching term."
+msgstr "أدخل موقعًا واحدًا مسموحًا به أو مصطلحًا مطابقًا على الأقل."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_hr_job__core_location_values
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_location_values
+msgid "Enter one location or matching term per line."
+msgstr "أدخل موقعًا واحدًا أو مصطلحًا مطابقًا في كل سطر."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Enter the date used by the screening rule."
+msgstr "أدخل التاريخ المستخدم في قاعدة الفرز."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Enter the maximum date used by the screening rule."
+msgstr "أدخل الحد الأقصى للتاريخ المستخدم في قاعدة الفرز."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Enter the required text answer."
+msgstr "أدخل الإجابة النصية المطلوبة."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__line_ids
+msgid "Entries"
+msgstr "الإدخالات"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Every column value must match its selected Odoo data source."
+msgstr "يجب أن تتطابق كل قيمة في العمود مع مصدر بيانات أودو المحدد."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Every related value must match the selected Odoo data source."
+msgstr "يجب أن تتطابق كل قيمة مرتبطة مع مصدر بيانات أودو المحدد."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Existing Field Screening"
+msgstr "فرز الحقول الحالية"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Expected Salary"
+msgstr "الراتب المتوقع"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_salary_rule
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_salary_rule
+msgid "Expected Salary Rule"
+msgstr "قاعدة الراتب المتوقع"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Expected salary"
+msgstr "الراتب المتوقع"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_recruitment_request.py:0
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+#, python-format
+msgid "Experience"
+msgstr "الخبرة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_experience_rule
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_experience_rule
+msgid "Experience Rule"
+msgstr "قاعدة الخبرة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__sequence
+msgid "For minimum-level screening, larger sequence values are higher levels."
+msgstr "في فرز الحد الأدنى للمستوى، تشير قيم التسلسل الأكبر إلى مستويات أعلى."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "From Date"
+msgstr "من تاريخ"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_hr_recruitment_request
+msgid "HR Recruitment Request"
+msgstr "طلب التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__help_text
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__help_text
+msgid "Help Text"
+msgstr "النص الإرشادي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__hide_criterion_on_website
+msgid "Hide Requirement from Applicant"
+msgstr "إخفاء المتطلب عن المتقدم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"If an applicant fails this rule, the application is classified as Refused "
+"with an automatic-screening reason."
+msgstr "إذا أخفق المتقدم في هذه القاعدة، فسيتم تصنيف طلبه كمرفوض مع تسجيل سبب الرفض التلقائي."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Invalid number"
+msgstr "رقم غير صالح"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__job_id
+msgid "Job"
+msgstr "الوظيفة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_hr_job
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_search
+msgid "Job Position"
+msgstr "المنصب الوظيفي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.careers_job_detail_dynamic_questions
+msgid "Job-specific questions"
+msgstr "أسئلة خاصة بالوظيفة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_pr_recruitment_question__hide_criterion_on_website
+msgid ""
+"Keep the automatic screening requirement internal instead of showing it "
+"below the question."
+msgstr "اجعل متطلب الفرز التلقائي داخليًا بدلاً من عرضه أسفل السؤال."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__language_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__language_id
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__relation_model__res_lang
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__relation_model__res_lang
+msgid "Language"
+msgstr "اللغة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__write_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__write_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__write_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__write_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__write_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__write_uid
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__write_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__write_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__write_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__write_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__write_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__write_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "Latest candidates rejected by configured screening rules."
+msgstr "أحدث المتقدمين الذين تم رفضهم وفقًا لقواعد الفرز المُعدّة."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__line_id
+msgid "Line"
+msgstr "السطر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Load Odoo Records"
+msgstr "تحميل سجلات أودو"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Location"
+msgstr "الموقع"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Location - received %s; required %s"
+msgstr "الموقع - المُدخل %s؛ المطلوب %s"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_location_rule__contains
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_location_rule__contains
+msgid "Location Contains Any Term"
+msgstr "يحتوي الموقع على أي من المصطلحات"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_location_rule
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_location_rule
+msgid "Location Rule"
+msgstr "قاعدة الموقع"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__text
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__column_type__text
+msgid "Long Text"
+msgstr "نص طويل"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"Mark Allowed or Minimum Level directly beside the values on the Available "
+"Values tab."
+msgstr "حدد «مسموح» أو «الحد الأدنى للمستوى» مباشرةً بجانب القيم في تبويب «القيم المتاحة»."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Mark at least one available value as Allowed."
+msgstr "حدد قيمة متاحة واحدة على الأقل كمسموح بها."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Mark one available value as the Minimum Level."
+msgstr "حدد قيمة متاحة واحدة باعتبارها الحد الأدنى للمستوى."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Maximum"
+msgstr "الحد الأقصى"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_salary_maximum
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_salary_maximum
+msgid "Maximum Expected Salary (SAR)"
+msgstr "الحد الأقصى للراتب المتوقع (ريال سعودي)"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_experience_maximum
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_experience_maximum
+msgid "Maximum Experience (Years)"
+msgstr "الحد الأقصى للخبرة (بالسنوات)"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_notice_period_maximum
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_notice_period_maximum
+msgid "Maximum Notice Period (Days)"
+msgstr "الحد الأقصى لفترة الإشعار (بالأيام)"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__criterion_date_max
+msgid "Maximum Required Date"
+msgstr "أقصى تاريخ مطلوب"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__criterion_number_max
+msgid "Maximum Required Number"
+msgstr "الحد الأقصى للرقم المطلوب"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_experience_rule__maximum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_notice_period_rule__maximum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_salary_rule__maximum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_experience_rule__maximum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_notice_period_rule__maximum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_salary_rule__maximum
+msgid "Maximum Value"
+msgstr "الحد الأقصى للقيمة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Maximum accepted: %s"
+msgstr "الحد الأقصى المقبول: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Minimum"
+msgstr "الحد الأدنى"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__minimum_option_id
+msgid "Minimum Accepted Level"
+msgstr "الحد الأدنى للمستوى المقبول"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_minimum_education_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_minimum_education_id
+msgid "Minimum Education Degree"
+msgstr "الحد الأدنى للمؤهل العلمي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_salary_minimum
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_salary_minimum
+msgid "Minimum Expected Salary (SAR)"
+msgstr "الحد الأدنى للراتب المتوقع (ريال سعودي)"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_experience_minimum
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_experience_minimum
+msgid "Minimum Experience (Years)"
+msgstr "الحد الأدنى للخبرة (بالسنوات)"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__screening_minimum
+msgid "Minimum Level"
+msgstr "الحد الأدنى للمستوى"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_notice_period_minimum
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_notice_period_minimum
+msgid "Minimum Notice Period (Days)"
+msgstr "الحد الأدنى لفترة الإشعار (بالأيام)"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_experience_rule__minimum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_notice_period_rule__minimum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_salary_rule__minimum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_experience_rule__minimum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_notice_period_rule__minimum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_salary_rule__minimum
+msgid "Minimum Value"
+msgstr "الحد الأدنى للقيمة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Minimum accepted level: %s"
+msgstr "الحد الأدنى للمستوى المقبول: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Minimum accepted: %s"
+msgstr "الحد الأدنى المقبول: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"Minimum education uses the Sequence configured on Recruitment Degrees. "
+"Higher sequence means a higher accepted level."
+msgstr ""
+"يعتمد الحد الأدنى للمؤهل العلمي على قيمة التسلسل (Sequence) المعرّفة في درجات "
+"المؤهلات. وكلما زادت قيمة التسلسل، ارتفع المستوى المقبول."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "National ID / Iqama"
+msgstr "الهوية الوطنية / الإقامة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid ""
+"National ID / Iqama - received %s; required Yes with a valid 10-digit number"
+msgstr ""
+"الهوية الوطنية / الإقامة - تم استلام %s؛ المطلوب: نعم مع رقم صحيح مكون من 10 أرقام"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_iqama_rule
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_iqama_rule
+msgid "National ID / Iqama Rule"
+msgstr "قاعدة الهوية الوطنية / الإقامة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_hr_job__core_nationality_ids
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_nationality_ids
+msgid ""
+"Nationalities that are allowed or excluded according to the selected rule."
+msgstr "الجنسيات المسموح بها أو المستبعدة وفقًا للقاعدة المحددة."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Nationality"
+msgstr "الجنسية"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Nationality - received %s; required %s"
+msgstr "الجنسية - تم استلام %s؛ المطلوب %s"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__relation_model__res_country
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__relation_model__res_country
+msgid "Nationality / Country"
+msgstr "الجنسية / الدولة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_nationality_rule
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_nationality_rule
+msgid "Nationality Rule"
+msgstr "قاعدة الجنسية"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "No"
+msgstr "لا"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__none
+msgid "No Automatic Screening"
+msgstr "بدون فرز تلقائي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_education_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_education_rule__none
+msgid "No Education Screening"
+msgstr "بدون فرز حسب المؤهل العلمي"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "No Job"
+msgstr "لا توجد وظيفة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_location_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_location_rule__none
+msgid "No Location Screening"
+msgstr "بدون فرز حسب الموقع"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_iqama_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_iqama_rule__none
+msgid "No National ID / Iqama Screening"
+msgstr "بدون فرز حسب الهوية الوطنية / الإقامة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_nationality_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_nationality_rule__none
+msgid "No Nationality Screening"
+msgstr "بدون فرز حسب الجنسية"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_experience_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_notice_period_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_salary_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_experience_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_notice_period_rule__none
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_salary_rule__none
+msgid "No Screening"
+msgstr "بدون فرز"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "No applicants have been automatically refused."
+msgstr "لم يتم رفض أي متقدم تلقائيًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "No automatic refusals yet."
+msgstr "لا توجد حالات رفض تلقائي حتى الآن."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.actions.act_window,help:pr_recruitment_dynamic_screening.action_hr_applicant_auto_refused
+msgid "No automatic screening refusals."
+msgstr "لا توجد حالات رفض بسبب الفرز التلقائي."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "No entries"
+msgstr "لا توجد إدخالات"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "No selected"
+msgstr "لم يتم الاختيار"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_applicant__dynamic_screening_status__not_screened
+msgid "Not Screened"
+msgstr "لم يتم الفرز"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Not provided"
+msgstr "غير مقدم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Notice Period"
+msgstr "فترة الإشعار"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_notice_period_rule
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_notice_period_rule
+msgid "Notice Period Rule"
+msgstr "قاعدة فترة الإشعار"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Notice period"
+msgstr "فترة الإشعار"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__number_range
+msgid "Number: Allowed Range"
+msgstr "رقم: نطاق مسموح"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__number_max
+msgid "Number: Maximum"
+msgstr "رقم: الحد الأقصى"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__number_min
+msgid "Number: Minimum"
+msgstr "رقم: الحد الأدنى"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__number_equal
+msgid "Number: Must Equal"
+msgstr "رقم: يجب أن يساوي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"One location or term per line, for example:\n"
+"Jubail\n"
+"Dammam"
+msgstr ""
+"أدخل موقعًا أو كلمة مطابقة في كل سطر، على سبيل المثال:\n"
+"الجبيل\n"
+"الدمام"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Only one available value can be the Minimum Level."
+msgstr "يمكن تعيين قيمة متاحة واحدة فقط باعتبارها الحد الأدنى للمستوى."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Only recruitment users can re-run applicant screening."
+msgstr "يمكن فقط لمستخدمي التوظيف إعادة تشغيل فحص المتقدم."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_pr_recruitment_question__relation_model
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__relation_model
+msgid "Only these approved public-safe models can be used on the website."
+msgstr "يمكن استخدام نماذج البيانات العامة والآمنة المعتمدة فقط على الموقع الإلكتروني."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__option_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__option_ids
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__name
+msgid "Option"
+msgstr "الخيار"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_applicant__dynamic_screening_status__passed
+msgid "Passed"
+msgstr "ناجح"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Please add at least one entry for: %s"
+msgstr "يرجى إضافة إدخال واحد على الأقل لـ: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Please answer: %s"
+msgstr "يرجى الإجابة عن: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Please complete the %s column."
+msgstr "يرجى إكمال العمود %s."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Please provide a valid answer for: %s"
+msgstr "يرجى تقديم إجابة صحيحة لـ: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Please provide a valid value for %s."
+msgstr "يرجى إدخال قيمة صحيحة لـ %s."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Provide at least %s entries"
+msgstr "أدخل %s إدخالات على الأقل"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Provide between %s and %s entries"
+msgstr "أدخل بين %s و%s من الإدخالات"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Provide no more than %s entries"
+msgstr "لا تُدخل أكثر من %s من الإدخالات"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__question_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__name
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__question_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__question_id
+msgid "Question"
+msgstr "السؤال"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid ""
+"Questions are copied on approval and synchronized with the published job "
+"when changed later."
+msgstr "تُنسخ الأسئلة عند الموافقة، وتُزامَن مع الوظيفة المنشورة عند تعديلها لاحقًا."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__raw_value
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__raw_value
+msgid "Raw Value"
+msgstr "القيمة الخام"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_form_dynamic_screening
+msgid "Re-run Screening"
+msgstr "إعادة تشغيل الفحص"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "Recent Automatic Refusals"
+msgstr "أحدث حالات الرفض التلقائي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_pr_recruitment_answer
+msgid "Recruitment Application Answer"
+msgstr "إجابة طلب التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_pr_recruitment_question_option
+msgid "Recruitment Question Option"
+msgstr "خيار سؤال التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_pr_recruitment_answer_cell
+msgid "Recruitment Repeating Answer Cell"
+msgstr "خلية إجابة التوظيف المتكررة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_pr_recruitment_answer_line
+msgid "Recruitment Repeating Answer Line"
+msgstr "سطر إجابة التوظيف المتكرر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_pr_recruitment_question_column_option
+msgid "Recruitment Repeating Column Option"
+msgstr "خيار عمود التوظيف المتكرر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model,name:pr_recruitment_dynamic_screening.model_pr_recruitment_question_column
+msgid "Recruitment Repeating Question Column"
+msgstr "عمود سؤال التوظيف المتكرر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_form_dynamic_screening
+msgid "Refusal Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "Refused"
+msgstr "مرفوض"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__relation_model
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__relation_model
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__relation_model
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__relation_model
+msgid "Related Odoo Data"
+msgstr "بيانات أودو المرتبطة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__many2one
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__column_type__many2one
+msgid "Related Record"
+msgstr "سجل مرتبط"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.repeating_question_row
+msgid "Remove this entry"
+msgstr "إزالة هذا الإدخال"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Repeating Line Column"
+msgstr "عمود السطر المتكرر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__line_column_ids
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Repeating Line Columns"
+msgstr "أعمدة السطر المتكرر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__one2many
+msgid "Repeating Lines"
+msgstr "الأسطر المتكررة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__line_count_range
+msgid "Repeating Lines: Allowed Range"
+msgstr "الأسطر المتكررة: النطاق المسموح"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__line_count_max
+msgid "Repeating Lines: Maximum Entries"
+msgstr "الأسطر المتكررة: الحد الأقصى للإدخالات"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__line_count_min
+msgid "Repeating Lines: الحد الأدنى للإدخالات"
+msgstr "الأسطر المتكررة: الحد الأدنى للإدخالات"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__request_id
+msgid "Request"
+msgstr "الطلب"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_education_rule__minimum
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_education_rule__minimum
+msgid "Require Minimum Degree Level"
+msgstr "اشتراط الحد الأدنى للمؤهل العلمي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_job__core_iqama_rule__required
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__hr_recruitment_request__core_iqama_rule__required
+msgid "Require Valid National ID / Iqama"
+msgstr "اشتراط رقم هوية وطنية / إقامة صالح"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__required
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__required
+msgid "Required"
+msgstr "مطلوب"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__criterion_boolean
+msgid "Required Answer"
+msgstr "الإجابة المطلوبة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__criterion_date
+msgid "Required Date"
+msgstr "التاريخ المطلوب"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__criterion_number
+msgid "Required Number"
+msgstr "الرقم المطلوب"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__criterion_text
+msgid "Required Text"
+msgstr "النص المطلوب"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Required answer: %s"
+msgstr "الإجابة المطلوبة: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Required value: %s"
+msgstr "القيمة المطلوبة: %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Rule not recorded"
+msgstr "لم يتم تسجيل القاعدة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "SAR"
+msgstr "ر.س"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "Screening"
+msgstr "الفحص"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_applicant__dynamic_answer_ids
+msgid "Screening Answers"
+msgstr "إجابات الفحص"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_search
+msgid "Screening Month"
+msgstr "شهر الفحص"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_form_dynamic_screening
+msgid "Screening Result"
+msgstr "نتيجة الفرز"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Screening Rule"
+msgstr "قاعدة الفرز"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "Screening complete"
+msgstr "اكتمل الفرز"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Screening options must belong to this question."
+msgstr "يجب أن تنتمي خيارات الفرز إلى هذا السؤال."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "Screening refusals by job position."
+msgstr "حالات الرفض الناتجة عن الفرز حسب الوظيفة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Select a related Odoo record for every value."
+msgstr "حدد سجل Odoo مرتبطًا لكل قيمة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Select at least one allowed education degree."
+msgstr "حدد مؤهلًا تعليميًا مسموحًا واحدًا على الأقل."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Select at least one nationality for the selected rule."
+msgstr "حدد جنسية واحدة على الأقل للقاعدة المحددة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Select exactly one related Odoo record."
+msgstr "حدد سجل Odoo مرتبطًا واحدًا فقط."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_job.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_recruitment_request.py:0
+#, python-format
+msgid "Select the minimum education degree."
+msgstr "حدد الحد الأدنى للمؤهل التعليمي."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Select the related Odoo data source for the column."
+msgstr "حدد مصدر بيانات Odoo المرتبط لهذا العمود."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Select the related Odoo data source."
+msgstr "حدد مصدر بيانات Odoo المرتبط."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_job__core_nationality_ids
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_hr_recruitment_request__core_nationality_ids
+msgid "Selected Nationalities"
+msgstr "الجنسيات المحددة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__selection
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__column_type__selection
+msgid "Selection"
+msgstr "اختيار"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__option_allowed
+msgid "Selection / Record: Allowed Values"
+msgstr "اختيار / سجل: القيم المسموح بها"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__option_min_sequence
+msgid "Selection / Record: Minimum Level"
+msgstr "اختيار / سجل: الحد الأدنى للمستوى"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__option_ids
+msgid "Selection Options"
+msgstr "خيارات الاختيار"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__sequence
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__sequence
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__sequence
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__sequence
+msgid "Sequence"
+msgstr "التسلسل"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+msgid ""
+"Sequence is the level: 10, 20, 30, 40 means each later value is higher."
+msgstr "يمثل التسلسل المستوى: 10، 20، 30، 40، حيث يشير الرقم الأكبر إلى مستوى أعلى."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Sequence is the level: Matric 10, FSC 20, BS 30, Masters 40."
+msgstr "يمثل التسلسل المستوى: الثانوية 10، FSc ‏20، البكالوريوس 30، الماجستير 40."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__char
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__column_type__char
+msgid "Short Text"
+msgstr "نص قصير"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__skill_id
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__skill_id
+msgid "Skill"
+msgstr "المهارة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__relation_model__hr_skill
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__relation_model__hr_skill
+msgid "Skill / Language Skill"
+msgstr "المهارة / المهارة اللغوية"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column__source_request_column_id
+msgid "Source Request Column"
+msgstr "عمود طلب المصدر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_column_option__source_request_option_id
+msgid "Source Request Column Option"
+msgstr "خيار عمود طلب المصدر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__source_request_option_id
+msgid "Source Request Option"
+msgstr "خيار طلب المصدر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_question__source_request_question_id
+msgid "Source Request Question"
+msgstr "سؤال طلب المصدر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Sync Questions to Job"
+msgstr "مزامنة الأسئلة مع الوظيفة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__text_equal
+msgid "Text: Must Equal"
+msgstr "النص: يجب أن يطابق"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid ""
+"The answer type cannot be changed after applicant answers exist. Archive "
+"this question and create a new one instead."
+msgstr "لا يمكن تغيير نوع الإجابة بعد وجود إجابات للمتقدمين. قم بأرشفة هذا السؤال وأنشئ سؤالًا جديدًا بدلاً منه."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "The application passed after its screening rules were re-evaluated."
+msgstr "اجتاز الطلب الفرز بعد إعادة تقييم قواعد الفرز."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The line-count maximum cannot be negative."
+msgstr "لا يمكن أن يكون الحد الأقصى لعدد السطور سالبًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The line-count maximum must be a whole number."
+msgstr "يجب أن يكون الحد الأقصى لعدد السطور عددًا صحيحًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The line-count threshold cannot be negative."
+msgstr "لا يمكن أن تكون قيمة حد عدد السطور سالبة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The line-count threshold must be a whole number."
+msgstr "يجب أن تكون قيمة حد عدد السطور عددًا صحيحًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The maximum screening threshold must be a finite number."
+msgstr "يجب أن يكون الحد الأقصى للفرز رقمًا صالحًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "The repeating answer column does not belong to this question."
+msgstr "عمود الإجابة المتكررة لا ينتمي إلى هذا السؤال."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "The screening answer must belong to the applicant's job position."
+msgstr "يجب أن تنتمي إجابة الفرز إلى الوظيفة التي تقدم إليها المتقدم."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The screening minimum cannot be greater than its maximum."
+msgstr "لا يمكن أن يكون الحد الأدنى للفرز أكبر من الحد الأقصى."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The screening rule is not compatible with the answer type."
+msgstr "قاعدة الفرز غير متوافقة مع نوع الإجابة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The screening start date cannot be after its end date."
+msgstr "لا يمكن أن يكون تاريخ بدء الفرز بعد تاريخ انتهائه."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "The screening threshold must be a finite number."
+msgstr "يجب أن تكون قيمة حد الفرز رقمًا صالحًا."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "The selected answer value does not belong to this question."
+msgstr "قيمة الإجابة المحددة لا تنتمي إلى هذا السؤال."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "The selected application screening result was refreshed."
+msgstr "تم تحديث نتيجة فرز الطلب المحدد."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "The selected repeating value does not belong to this column."
+msgstr "القيمة المتكررة المحددة لا تنتمي إلى هذا العمود."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid ""
+"The type of a repeating column cannot be changed after applicant answers "
+"exist. Archive it and add a new column instead."
+msgstr "لا يمكن تغيير نوع العمود المتكرر بعد وجود إجابات للمتقدمين. قم بأرشفته وأضف عمودًا جديدًا بدلاً منه."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+msgid ""
+"These questions appear before the CV upload on the website.\n"
+"                        A failed screening rule automatically archives and marks the application as refused."
+msgstr ""
+"تظهر هذه الأسئلة قبل رفع السيرة الذاتية على الموقع الإلكتروني.\n"
+"                        في حال عدم استيفاء قاعدة الفرز، تتم أرشفة طلب التقديم تلقائيًا ووضعه في حالة مرفوض."
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_applicant_auto_refused_search
+msgid "This Month"
+msgstr "هذا الشهر"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Threshold"
+msgstr "الحد"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "Threshold Date"
+msgstr "التاريخ المرجعي"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_job_form_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.view_hr_recruitment_request_form_dynamic_screening
+msgid "To Date"
+msgstr "إلى تاريخ"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,help:pr_recruitment_dynamic_screening.field_pr_recruitment_question_option__screening_minimum
+msgid "Use this value as the minimum accepted ranked level."
+msgstr "استخدم هذه القيمة كأدنى مستوى مقبول."
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__value_boolean
+msgid "Value Boolean"
+msgstr "القيمة المنطقية"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__value_date
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__value_date
+msgid "Value Date"
+msgstr "قيمة التاريخ"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__value_float
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__value_float
+msgid "Value Float"
+msgstr "القيمة العشرية"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__value_integer
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__value_integer
+msgid "Value Integer"
+msgstr "القيمة الصحيحة"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer__value_text
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_cell__value_text
+msgid "Value Text"
+msgstr "القيمة النصية"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields,field_description:pr_recruitment_dynamic_screening.field_pr_recruitment_answer_line__cell_ids
+msgid "Values"
+msgstr "القيم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model_terms:ir.ui.view,arch_db:pr_recruitment_dynamic_screening.careers_job_detail_dynamic_questions
+msgid "Website"
+msgstr "الموقع الإلكتروني"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__integer
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question_column__column_type__integer
+msgid "Whole Number"
+msgstr "عدد صحيح"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "Yes"
+msgstr "نعم"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__answer_type__boolean
+msgid "Yes / No"
+msgstr "نعم / لا"
+
+#. module: pr_recruitment_dynamic_screening
+#: model:ir.model.fields.selection,name:pr_recruitment_dynamic_screening.selection__pr_recruitment_question__criterion_type__boolean_equal
+msgid "Yes / No: Required Answer"
+msgstr "نعم / لا: الإجابة المطلوبة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "any nationality except %s"
+msgstr "أي جنسية باستثناء %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "at least %s %s"
+msgstr "على الأقل %s %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "between %s and %s"
+msgstr "بين %s و%s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "between %s and %s %s"
+msgstr "بين %s و%s %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/recruitment_question.py:0
+#, python-format
+msgid "between %s and %s entries"
+msgstr "بين %s و%s إدخالات"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "days"
+msgstr "أيام"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "no more than %s %s"
+msgstr "لا يزيد عن %s %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "one of %s"
+msgstr "واحد من %s"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/xml/recruitment_dashboard_extension.xml:0
+#, python-format
+msgid "were refused this month."
+msgstr "تم رفضها هذا الشهر."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-python
+#: code:addons/pr_recruitment_dynamic_screening/models/hr_applicant.py:0
+#, python-format
+msgid "years"
+msgstr "سنوات"

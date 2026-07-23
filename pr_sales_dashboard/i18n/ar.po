@@ -1,0 +1,338 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_sales_dashboard
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 11:18+0000\n"
+"PO-Revision-Date: 2026-07-15 11:18+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Actual"
+msgstr "الفعلي"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Actual confirmed revenue compared with configured sales team target"
+msgstr "الإيرادات الفعلية المؤكدة مقارنة بالهدف المحدد لفريق المبيعات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Confirmed sales order revenue by month"
+msgstr "إيرادات أوامر البيع المؤكدة حسب الشهر"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Customer Requisition Insights"
+msgstr "تحليلات طلبات العملاء"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Customer Retention Rate"
+msgstr "معدل الاحتفاظ بالعملاء"
+
+#. module: pr_sales_dashboard
+#: model:ir.ui.menu,name:pr_sales_dashboard.menu_pr_sales_dashboard
+msgid "Dashboard"
+msgstr "لوحة المعلومات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Geographical Sales Analysis"
+msgstr "تحليل المبيعات الجغرافي"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Highest revenue customers"
+msgstr "العملاء الأعلى إيرادًا"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Horizontal comparison of top customers"
+msgstr "مقارنة أفقية لأفضل العملاء"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Loading sales dashboard..."
+msgstr "جارٍ تحميل لوحة معلومات المبيعات..."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Monthly Sales Revenue Trends"
+msgstr "اتجاهات إيرادات المبيعات الشهرية"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "New Customers"
+msgstr "العملاء الجدد"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "New and repeat customer split"
+msgstr "توزيع العملاء الجدد والمتكررين"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "No country data yet."
+msgstr "لا توجد بيانات للدول بعد."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "No customer revenue yet."
+msgstr "لا توجد إيرادات للعملاء بعد."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "No product category revenue yet."
+msgstr "لا توجد إيرادات لفئات المنتجات بعد."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "No product revenue yet."
+msgstr "لا توجد إيرادات للمنتجات بعد."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "No sales team data yet."
+msgstr "لا توجد بيانات لفريق المبيعات بعد."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "No salesperson revenue yet."
+msgstr "لا توجد إيرادات لمندوبي المبيعات بعد."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "No volume data yet."
+msgstr "لا توجد بيانات للكميات بعد."
+
+#. module: pr_sales_dashboard
+#: model:ir.model,name:pr_sales_dashboard.model_pr_sales_dashboard
+msgid "Petroraq Sales Dashboard Service"
+msgstr "خدمة لوحة معلومات مبيعات بتروراق"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Products ranked by confirmed sales revenue"
+msgstr "المنتجات مرتبة حسب إيرادات المبيعات المؤكدة"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Products ranked by ordered quantity"
+msgstr "المنتجات مرتبة حسب الكمية المطلوبة"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Repeat Customers"
+msgstr "العملاء المتكررون"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Revenue Target Achievement by Sales Teams"
+msgstr "تحقيق هدف الإيرادات حسب فرق المبيعات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Revenue by customer country"
+msgstr "الإيرادات حسب دولة العميل"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Revenue distribution by product category"
+msgstr "توزيع الإيرادات حسب فئة المنتج"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Revenue split by salesperson"
+msgstr "توزيع الإيرادات حسب مندوب المبيعات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid ""
+"Revenue, orders, customers, product movement, geography, and team "
+"performance in one view."
+msgstr "الإيرادات، والطلبات، والعملاء، وحركة المنتجات، والتوزيع الجغرافي، وأداء الفرق في عرض واحد."
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Sale Orders from New Customers"
+msgstr "أوامر البيع من العملاء الجدد"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Sale Orders from Repeat Customers"
+msgstr "أوامر البيع من العملاء المتكررين"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#: model:ir.actions.client,name:pr_sales_dashboard.action_pr_sales_dashboard
+#, python-format
+msgid "Sales Dashboard"
+msgstr "لوحة معلومات المبيعات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Sales Overview"
+msgstr "نظرة عامة على المبيعات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Sales Revenue From Top 5 Customers"
+msgstr "إيرادات المبيعات من أفضل 5 عملاء"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Sales Revenue by Product Category"
+msgstr "إيرادات المبيعات حسب فئة المنتج"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Sales by Salesperson"
+msgstr "المبيعات حسب مندوب المبيعات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Share of confirmed orders from one-time customers"
+msgstr "نسبة أوامر البيع المؤكدة من العملاء لمرة واحدة"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Share of confirmed orders from repeat customers"
+msgstr "نسبة أوامر البيع المؤكدة من العملاء المتكررين"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Target"
+msgstr "الهدف"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Top 5 Best-Selling Products by Volume"
+msgstr "أفضل 5 منتجات مبيعًا حسب الكمية"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Top 5 Customers - Cumulative Revenue Analysis"
+msgstr "أفضل 5 عملاء - تحليل الإيرادات التراكمية"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Top 5 Highest Revenue-Generating Products"
+msgstr "أفضل 5 منتجات من حيث الإيرادات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Total Revenue"
+msgstr "إجمالي الإيرادات"
+
+#. module: pr_sales_dashboard
+#. odoo-javascript
+#: code:addons/pr_sales_dashboard/static/src/xml/sales_dashboard_templates.xml:0
+#, python-format
+msgid "Total Sale Orders"
+msgstr "إجمالي أوامر البيع"

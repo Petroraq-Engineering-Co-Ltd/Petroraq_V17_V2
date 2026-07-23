@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_cash_movement_xlsx" model="ir.actions.report">
+        <field name="name">Cash Movement Excel</field>
+        <field name="model">res.company</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">pr_account_dashboard.cash_movement_xlsx</field>
+        <field name="report_file">pr_account_dashboard.cash_movement_xlsx</field>
+        <field name="print_report_name">('Cash_Movement_%s' % (object.name or 'Export'))</field>
+    </record>
+</odoo>

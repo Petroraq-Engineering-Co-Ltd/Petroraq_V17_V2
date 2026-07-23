@@ -1,0 +1,71 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_order_revision
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 11:22+0000\n"
+"PO-Revision-Date: 2026-07-15 11:22+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_order_revision
+#: model:ir.model.fields,field_description:sale_order_revision.field_sale_order__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: sale_order_revision
+#: model:ir.model.fields,field_description:sale_order_revision.field_sale_order__current_revision_id
+msgid "Current revision"
+msgstr "المراجعة الحالية"
+
+#. module: sale_order_revision
+#: model:ir.model.fields,field_description:sale_order_revision.field_sale_order__has_old_revisions
+msgid "Has Old Revisions"
+msgstr "يحتوي على مراجعات سابقة"
+
+#. module: sale_order_revision
+#: model:ir.model.fields,field_description:sale_order_revision.field_sale_order__old_revision_ids
+msgid "Old revisions"
+msgstr "المراجعات السابقة"
+
+#. module: sale_order_revision
+#: model:ir.model.constraint,message:sale_order_revision.constraint_sale_order_revision_unique
+msgid "Order Reference and revision must be unique per Company."
+msgstr "يجب أن يكون مرجع الطلب ورقم المراجعة فريدين لكل شركة."
+
+#. module: sale_order_revision
+#: model:ir.model.fields,field_description:sale_order_revision.field_sale_order__unrevisioned_name
+msgid "Original Reference"
+msgstr "المرجع الأصلي"
+
+#. module: sale_order_revision
+#: model_terms:ir.ui.view,arch_db:sale_order_revision.view_order_form
+msgid "Prev. revisions"
+msgstr "المراجعات السابقة"
+
+#. module: sale_order_revision
+#: model:ir.model.fields,field_description:sale_order_revision.field_sale_order__revision_count
+msgid "Previous versions count"
+msgstr "عدد الإصدارات السابقة"
+
+#. module: sale_order_revision
+#: model:ir.model,name:sale_order_revision.model_sale_order
+msgid "Quotation"
+msgstr "عرض سعر"
+
+#. module: sale_order_revision
+#: model_terms:ir.ui.view,arch_db:sale_order_revision.view_order_form
+msgid "Revise Quotation"
+msgstr "إنشاء مراجعة لعرض السعر"
+
+#. module: sale_order_revision
+#: model:ir.model.fields,field_description:sale_order_revision.field_sale_order__revision_number
+msgid "Revision"
+msgstr "المراجعة"

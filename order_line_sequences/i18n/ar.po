@@ -1,0 +1,60 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* order_line_sequences
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 11:16+0000\n"
+"PO-Revision-Date: 2026-07-15 11:16+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: order_line_sequences
+#: model:ir.model,name:order_line_sequences.model_account_move_line
+msgid "Journal Item"
+msgstr "بند اليومية"
+
+#. module: order_line_sequences
+#: model:ir.model.fields,help:order_line_sequences.field_purchase_order_line__sequence_number
+#: model:ir.model.fields,help:order_line_sequences.field_sale_order_line__sequence_number
+#: model:ir.model.fields,help:order_line_sequences.field_stock_move__sequence_number
+msgid "Line Numbers"
+msgstr "أرقام البنود"
+
+#. module: order_line_sequences
+#: model:ir.model.fields,field_description:order_line_sequences.field_account_move_line__product_internal_reference
+#: model:ir.model.fields,field_description:order_line_sequences.field_purchase_order_line__product_internal_reference
+#: model:ir.model.fields,field_description:order_line_sequences.field_sale_order_line__product_internal_reference
+#: model:ir.model.fields,field_description:order_line_sequences.field_stock_move__product_internal_reference
+#: model_terms:ir.ui.view,arch_db:order_line_sequences.purchase_order_form
+#: model_terms:ir.ui.view,arch_db:order_line_sequences.view_move_form_invoice_internal_ref
+#: model_terms:ir.ui.view,arch_db:order_line_sequences.view_order_form
+#: model_terms:ir.ui.view,arch_db:order_line_sequences.view_picking_form
+msgid "Product Code"
+msgstr "رمز المنتج"
+
+#. module: order_line_sequences
+#: model:ir.model,name:order_line_sequences.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "بند أمر الشراء"
+
+#. module: order_line_sequences
+#: model:ir.model,name:order_line_sequences.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "بند أمر البيع"
+
+#. module: order_line_sequences
+#: model:ir.model,name:order_line_sequences.model_stock_move
+msgid "Stock Move"
+msgstr "حركة المخزون"
+
+#. module: order_line_sequences
+#: model:ir.model,name:order_line_sequences.model_stock_picking
+msgid "Transfer"
+msgstr "التحويل"
