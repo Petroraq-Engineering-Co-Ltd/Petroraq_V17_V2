@@ -714,3 +714,47 @@ $pr-portal-background: #f4f7fb;
     margin-left: auto;
     max-width: 32rem;
 }
+
+// The standard purchase portal allocates only 25% to the record sidebar.
+// Vendor actions and SAR totals need a little more room.
+@media (min-width: 992px) {
+    .o_portal_sidebar {
+        > .col-lg-3,
+        > .col-lg-4,
+        > #sidebar_content {
+            flex: 0 0 31%;
+            width: 31%;
+            max-width: 31%;
+        }
+
+        > .col-lg-8,
+        > .col-lg-9,
+        > .o_portal_content {
+            flex: 0 0 69%;
+            width: 69%;
+            max-width: 69%;
+        }
+    }
+}
+
+#sidebar_content {
+    width: 100%;
+
+    .o_portal_sidebar_content {
+        min-width: 0;
+        padding-inline: 1rem;
+    }
+
+    // Keep large monetary totals and their currency symbol inside the card.
+    h2,
+    h3,
+    .o_portal_sidebar_value {
+        max-width: 100%;
+        font-size: clamp(1.8rem, 3vw, 2.7rem);
+        overflow-wrap: anywhere;
+    }
+
+    .btn {
+        white-space: normal;
+    }
+}

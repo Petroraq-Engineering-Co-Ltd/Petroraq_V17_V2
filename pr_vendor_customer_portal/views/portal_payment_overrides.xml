@@ -66,7 +66,9 @@
               priority="110">
         <xpath expr="//a[hasclass('o_download_btn')]" position="replace">
             <a class="btn btn-secondary d-block o_download_btn"
-               t-att-href="invoice.get_portal_url(report_type='pdf', download=True)"
+               t-att-href="invoice.get_portal_url(report_type='pdf')"
+               target="_blank"
+               rel="noopener noreferrer"
                title="Download Custom Tax Invoice">
                 <i class="fa fa-download me-1"/>
                 Tax Invoice PDF
@@ -257,7 +259,9 @@
 
                 <footer class="o_pr_invoice_portal_actions">
                     <a class="btn btn-primary"
-                       t-att-href="invoice.get_portal_url(report_type='pdf', download=True)">
+                       t-att-href="invoice.get_portal_url(report_type='pdf')"
+                       target="_blank"
+                       rel="noopener noreferrer">
                         <i class="fa fa-file-pdf-o me-1"/>
                         Download Invoice
                     </a>
@@ -274,7 +278,9 @@
                             class="list-group-item d-flex justify-content-between align-items-center">
                             <span t-out="attachment.name"/>
                             <a class="btn btn-sm btn-outline-secondary"
-                               t-att-href="'/vendor/attachment/%s/download' % attachment.id">
+                               t-att-href="'/vendor/attachment/%s/download' % attachment.id"
+                               target="_blank"
+                               rel="noopener noreferrer">
                                 Download
                             </a>
                         </li>

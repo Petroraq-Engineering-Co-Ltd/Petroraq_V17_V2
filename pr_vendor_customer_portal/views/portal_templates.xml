@@ -343,7 +343,10 @@
                                 <t t-else="">Document</t>
                                 - <t t-out="attachment.name"/>
                             </span>
-                            <a class="btn btn-sm btn-outline-secondary" t-att-href="'/vendor/attachment/%s/download' % attachment.id">Download</a>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               t-att-href="'/vendor/attachment/%s/download' % attachment.id"
+                               target="_blank"
+                               rel="noopener noreferrer">Download</a>
                         </li>
                     </ul>
                     <p t-else="" class="mb-0">No documents are attached yet.</p>
@@ -412,7 +415,10 @@
                         <t t-out="picking.purchase_id.name or picking.origin or ''"/>
                     </div>
                 </div>
-                <a class="btn btn-secondary" t-att-href="'/vendor/delivery-notes/%s/download' % picking.id">
+                <a class="btn btn-secondary"
+                   t-att-href="'/vendor/delivery-notes/%s/download' % picking.id"
+                   target="_blank"
+                   rel="noopener noreferrer">
                     <i class="fa fa-download me-1"/>
                     Download
                 </a>
@@ -482,7 +488,10 @@
                 <ul t-if="picking.pr_vendor_portal_attachment_ids" class="list-group list-group-flush">
                     <li t-foreach="picking.pr_vendor_portal_attachment_ids" t-as="attachment" class="list-group-item d-flex justify-content-between align-items-center">
                         <span><t t-out="attachment.name"/></span>
-                        <a class="btn btn-sm btn-outline-secondary" t-att-href="'/vendor/attachment/%s/download' % attachment.id">Download</a>
+                        <a class="btn btn-sm btn-outline-secondary"
+                           t-att-href="'/vendor/attachment/%s/download' % attachment.id"
+                           target="_blank"
+                           rel="noopener noreferrer">Download</a>
                     </li>
                 </ul>
                 <div t-else="" class="card-body text-muted">No attachments are available yet.</div>
@@ -629,7 +638,9 @@
                         class="list-group-item d-flex justify-content-between align-items-center">
                         <span t-out="attachment.name"/>
                         <a class="btn btn-sm btn-outline-secondary"
-                           t-att-href="'/vendor/attachment/%s/download' % attachment.id">
+                           t-att-href="'/vendor/attachment/%s/download' % attachment.id"
+                           target="_blank"
+                           rel="noopener noreferrer">
                             Download
                         </a>
                     </li>

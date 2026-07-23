@@ -390,7 +390,10 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         return request.make_response(content, [
             ("Content-Type", "application/pdf"),
             ("Content-Length", str(len(content))),
-            ("Content-Disposition", content_disposition(filename)),
+            (
+                "Content-Disposition",
+                content_disposition(filename).replace("attachment", "inline", 1),
+            ),
         ])
 
     @http.route(
@@ -828,7 +831,12 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         return request.make_response(content, [
             ("Content-Type", attachment.mimetype or "application/octet-stream"),
             ("Content-Length", str(len(content))),
-            ("Content-Disposition", content_disposition(attachment.name or "document")),
+            (
+                "Content-Disposition",
+                content_disposition(
+                    attachment.name or "document"
+                ).replace("attachment", "inline", 1),
+            ),
         ])
 
     @http.route(
