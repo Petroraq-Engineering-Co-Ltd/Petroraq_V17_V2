@@ -1466,6 +1466,20 @@ class PrEndOfService(models.Model):
             "voucher": voucher.display_name if voucher else "",
         }
 
+    def _format_final_settlement_amount(self, amount):
+        self.ensure_one()
+        amount = float(amount or 0.0)
+        currency = self.currency_id
+        symbol = currency.symbol or currency.name or ""
+        formatted = "{:,.2f}".format(amount)
+        if not symbol:
+            return formatted
+        return (
+            "%s %s" % (symbol, formatted)
+            if currency.position == "before"
+            else "%s %s" % (formatted, symbol)
+        )
+
     def action_view_payment_request(self):
         self.ensure_one()
         if not self.payment_request_id:

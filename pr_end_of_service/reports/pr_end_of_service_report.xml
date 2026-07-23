@@ -4,16 +4,16 @@
         <field name="name">Petroraq End of Service Final Settlement</field>
         <field name="default" eval="False"/>
         <field name="format">custom</field>
-        <field name="page_height">370</field>
-        <field name="page_width">250</field>
+        <field name="page_height">297</field>
+        <field name="page_width">210</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">55</field>
+        <field name="margin_top">48</field>
         <field name="margin_bottom">20</field>
         <field name="margin_left">0</field>
         <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">55</field>
-        <field name="dpi">110</field>
+        <field name="header_spacing">48</field>
+        <field name="dpi">95</field>
     </record>
 
     <template id="pr_end_of_service_standalone_layout">
@@ -22,20 +22,20 @@
         </t>
         <div class="header" style="width:100%; margin:0; padding:0;">
             <img src="/pr_end_of_service/static/src/img/header_custom.png"
-                 style="display:block; width:100%; height:auto; margin:0; padding:0;"/>
+                 style="display:block; width:104%; max-width:none !important; margin:0 0 0 -15px !important; padding:0 !important;"/>
         </div>
         <div class="article">
             <t t-out="0"/>
         </div>
-        <div class="footer" style="width:100%; margin:0; padding:0;">
-            <div style="border-bottom:1px solid #305081; color:#111827; font-family:Arial, sans-serif; font-size:8px; font-weight:bold; line-height:1.2; padding:2px 8px; text-align:left;">
+        <div class="footer" style="width:104% !important; margin:0 0 0 -3% !important; padding:0 !important;">
+            <div style="border-bottom:1px solid #305081; color:#111827; font-family:Arial, sans-serif; font-size:10px; font-weight:bold; line-height:1.2; padding:2px 8px; text-align:center;">
                 This is a computer-generated document. It is electronically reviewed and approved by the management.
             </div>
-            <div style="text-align:center; color:#163a70; font-size:9px; margin-bottom:2px;">
+            <div style="text-align:center; color:#163a70; font-size:10px; margin-bottom:2px;">
                 Page <span class="page"/> / <span class="topage"/>
             </div>
             <img src="/pr_end_of_service/static/src/img/footer.png"
-                 style="display:block; width:100%; height:auto; margin:0; padding:0;"/>
+                 style="display:block; width:104%; max-width:none !important; margin:0 !important; padding:0 !important;"/>
         </div>
     </template>
 
@@ -186,23 +186,23 @@
                             <table class="pr-eos-table">
                                 <tr>
                                     <td class="pr-eos-label">Basic Salary</td>
-                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['basic_salary'], doc.currency_id)"/></td>
+                                    <td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['basic_salary'])"/></td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Housing Allowance</td>
-                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['housing_allowance'], doc.currency_id)"/></td>
+                                    <td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['housing_allowance'])"/></td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Transportation Allowance</td>
-                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['transport_allowance'], doc.currency_id)"/></td>
+                                    <td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['transport_allowance'])"/></td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Other Allowances</td>
-                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['other_allowances'], doc.currency_id)"/></td>
+                                    <td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['other_allowances'])"/></td>
                                 </tr>
                                 <tr class="pr-eos-total">
                                     <td>Gross Salary</td>
-                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['gross_salary'], doc.currency_id)"/></td>
+                                    <td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['gross_salary'])"/></td>
                                 </tr>
                             </table>
                         </div>
@@ -212,7 +212,7 @@
                             <table class="pr-eos-table">
                                 <tr class="pr-eos-total">
                                     <td>EOSB Amount</td>
-                                    <td class="pr-eos-amount"><span t-esc="format_amount(doc.eos_benefit_amount, doc.currency_id)"/></td>
+                                    <td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(doc.eos_benefit_amount)"/></td>
                                 </tr>
                             </table>
                         </div>
@@ -220,38 +220,38 @@
                         <div class="pr-eos-section">
                             <div class="pr-eos-section-title">5. Employee Payables</div>
                             <table class="pr-eos-table">
-                                <tr><td class="pr-eos-label">Salary Payable</td><td class="pr-eos-amount"><span t-esc="format_amount(data['salary_payable'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Unused Annual Leave</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.leave_settlement_amount, doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Leave Salary</td><td class="pr-eos-amount"><span t-esc="format_amount(0.0, doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Overtime</td><td class="pr-eos-amount"><span t-esc="format_amount(data['overtime'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Commission / Incentives</td><td class="pr-eos-amount"><span t-esc="format_amount(data['commission'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Any Addition</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.other_amount, doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Other Payables</td><td class="pr-eos-amount"><span t-esc="format_amount(data['other_payables'], doc.currency_id)"/></td></tr>
-                                <tr class="pr-eos-total"><td>TOTAL PAYABLE</td><td class="pr-eos-amount"><span t-esc="format_amount(data['employee_payables'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Salary Payable</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['salary_payable'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Unused Annual Leave</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(doc.leave_settlement_amount)"/></td></tr>
+                                <tr><td class="pr-eos-label">Leave Salary</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(0.0)"/></td></tr>
+                                <tr><td class="pr-eos-label">Overtime</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['overtime'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Commission / Incentives</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['commission'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Any Addition</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(doc.other_amount)"/></td></tr>
+                                <tr><td class="pr-eos-label">Other Payables</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['other_payables'])"/></td></tr>
+                                <tr class="pr-eos-total"><td>TOTAL PAYABLE</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['employee_payables'])"/></td></tr>
                             </table>
                         </div>
 
                         <div class="pr-eos-section">
                             <div class="pr-eos-section-title">6. Employee Deductions</div>
                             <table class="pr-eos-table">
-                                <tr><td class="pr-eos-label">Advance Salary</td><td class="pr-eos-amount"><span t-esc="format_amount(data['advance_salary'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Advance HRA</td><td class="pr-eos-amount"><span t-esc="format_amount(data['advance_hra'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Loan Recovery</td><td class="pr-eos-amount"><span t-esc="format_amount(data['loan_recovery'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Company Assets Damage</td><td class="pr-eos-amount"><span t-esc="format_amount(data['asset_damage'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Traffic Violations</td><td class="pr-eos-amount"><span t-esc="format_amount(data['traffic_violations'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Personal Expenses</td><td class="pr-eos-amount"><span t-esc="format_amount(data['personal_expenses'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Other Recoveries</td><td class="pr-eos-amount"><span t-esc="format_amount(data['other_recoveries'], doc.currency_id)"/></td></tr>
-                                <tr t-if="doc.previously_disbursed_amount"><td class="pr-eos-label">Previously Disbursed</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.previously_disbursed_amount, doc.currency_id)"/></td></tr>
-                                <tr class="pr-eos-total"><td>Total Deductions</td><td class="pr-eos-amount"><span t-esc="format_amount(data['total_deductions'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Advance Salary</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['advance_salary'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Advance HRA</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['advance_hra'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Loan Recovery</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['loan_recovery'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Company Assets Damage</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['asset_damage'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Traffic Violations</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['traffic_violations'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Personal Expenses</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['personal_expenses'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Other Recoveries</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['other_recoveries'])"/></td></tr>
+                                <tr t-if="doc.previously_disbursed_amount"><td class="pr-eos-label">Previously Disbursed</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(doc.previously_disbursed_amount)"/></td></tr>
+                                <tr class="pr-eos-total"><td>Total Deductions</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['total_deductions'])"/></td></tr>
                             </table>
                         </div>
 
                         <div class="pr-eos-section">
                             <div class="pr-eos-section-title">7. Final Settlement</div>
                             <table class="pr-eos-table">
-                                <tr><td class="pr-eos-label">Total Payable</td><td class="pr-eos-amount"><span t-esc="format_amount(data['employee_payables'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Total Deductions</td><td class="pr-eos-amount"><span t-esc="format_amount(data['total_deductions'], doc.currency_id)"/></td></tr>
-                                <tr class="pr-eos-net"><td>NET FINAL SETTLEMENT PAYABLE</td><td class="pr-eos-amount"><span t-esc="format_amount(data['net_settlement'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Total Payable</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['employee_payables'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Total Deductions</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['total_deductions'])"/></td></tr>
+                                <tr class="pr-eos-net"><td>NET FINAL SETTLEMENT PAYABLE</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['net_settlement'])"/></td></tr>
                             </table>
                         </div>
 
