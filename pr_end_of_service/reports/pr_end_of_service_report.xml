@@ -28,6 +28,16 @@
             <t t-out="0"/>
         </div>
         <div class="footer" style="width:100%; margin:0; padding:0;">
+            <table style="width:100%; border-collapse:collapse; border-bottom:1px solid #305081; color:#163a70; font-family:Arial, sans-serif; font-size:8px; line-height:1.2; margin:0 0 2px;">
+                <tr>
+                    <td style="width:50%; padding:2px 8px; text-align:left;">
+                        This is a computer-generated document; no signature or stamp is required.
+                    </td>
+                    <td style="width:50%; padding:2px 8px; text-align:right;" dir="rtl">
+                        هذه وثيقة منشأة بواسطة الحاسب الآلي ولا تتطلب توقيعاً أو ختماً.
+                    </td>
+                </tr>
+            </table>
             <div style="text-align:center; color:#163a70; font-size:9px; margin-bottom:2px;">
                 Page <span class="page"/> / <span class="topage"/>
             </div>
