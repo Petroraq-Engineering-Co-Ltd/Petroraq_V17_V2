@@ -1,101 +1,307 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <record id="paperformat_pr_end_of_service" model="report.paperformat">
+        <field name="name">Petroraq End of Service Final Settlement</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_height">370</field>
+        <field name="page_width">250</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">55</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">55</field>
+        <field name="dpi">110</field>
+    </record>
+
+    <template id="pr_end_of_service_standalone_layout">
+        <t t-if="not o and doc">
+            <t t-set="o" t-value="doc"/>
+        </t>
+        <div class="header" style="width:100%; margin:0; padding:0;">
+            <img src="/pr_end_of_service/static/src/img/header_custom.png"
+                 style="display:block; width:100%; height:auto; margin:0; padding:0;"/>
+        </div>
+        <div class="article">
+            <t t-out="0"/>
+        </div>
+        <div class="footer" style="width:100%; margin:0; padding:0;">
+            <table style="width:100%; border-collapse:collapse; border-bottom:1px solid #305081; color:#163a70; font-family:Arial, sans-serif; font-size:8px; line-height:1.2; margin:0 0 2px;">
+                <tr>
+                    <td style="width:50%; padding:2px 8px; text-align:left;">
+                        This is a computer-generated document; no signature or stamp is required.
+                    </td>
+                    <td style="width:50%; padding:2px 8px; text-align:right;" dir="rtl">
+                        هذه وثيقة منشأة بواسطة الحاسب الآلي ولا تتطلب توقيعاً أو ختماً.
+                    </td>
+                </tr>
+            </table>
+            <div style="text-align:center; color:#163a70; font-size:9px; margin-bottom:2px;">
+                Page <span class="page"/> / <span class="topage"/>
+            </div>
+            <img src="/pr_end_of_service/static/src/img/footer.png"
+                 style="display:block; width:100%; height:auto; margin:0; padding:0;"/>
+        </div>
+    </template>
+
     <template id="report_pr_end_of_service">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h2 style="text-align:center;">Final Settlement</h2>
-                        <table class="table table-sm o_main_table" style="width:100%; margin-top:16px;">
-                            <tbody>
-                                <tr>
-                                    <td><strong>Number</strong></td>
-                                    <td><span t-field="doc.name"/></td>
-                                    <td><strong>Status</strong></td>
-                                    <td><span t-field="doc.state"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Employee</strong></td>
-                                    <td><span t-field="doc.employee_id"/></td>
-                                    <td><strong>Reason</strong></td>
-                                    <td><span t-field="doc.reason_id"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Joining Date</strong></td>
-                                    <td><span t-field="doc.joining_date"/></td>
-                                    <td><strong>Service End Date</strong></td>
-                                    <td><span t-field="doc.service_end_date"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Service Duration</strong></td>
-                                    <td colspan="3">
-                                        <span t-esc="'%s years, %s months, %s days' % (doc.years, doc.months, doc.days)"/>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <t t-set="o" t-value="doc"/>
+                <t t-set="data" t-value="doc._get_final_settlement_report_data()"/>
+                <t t-call="pr_end_of_service.pr_end_of_service_standalone_layout">
+                    <style>
+                        .pr-eos-page {
+                            font-family: Arial, Helvetica, sans-serif;
+                            color: #111827;
+                            font-size: 10px;
+                            padding: 0 22px;
+                        }
+                        .pr-eos-title {
+                            color: #163a70;
+                            text-align: center;
+                            font-size: 21px;
+                            font-weight: 700;
+                            margin: 2px 0 9px;
+                            letter-spacing: .2px;
+                        }
+                        .pr-eos-section {
+                            page-break-inside: avoid;
+                            margin: 0 0 8px;
+                        }
+                        .pr-eos-section-title {
+                            background: #163a70;
+                            color: #fff;
+                            font-size: 11px;
+                            font-weight: 700;
+                            padding: 5px 8px;
+                            text-transform: uppercase;
+                        }
+                        .pr-eos-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 0;
+                        }
+                        .pr-eos-table td,
+                        .pr-eos-table th {
+                            border: 1px solid #9ca3af;
+                            padding: 4px 7px;
+                            vertical-align: middle;
+                        }
+                        .pr-eos-label {
+                            width: 22%;
+                            background: #f3f4f6;
+                            font-weight: 700;
+                        }
+                        .pr-eos-value {
+                            width: 28%;
+                        }
+                        .pr-eos-amount {
+                            text-align: right;
+                            white-space: nowrap;
+                        }
+                        .pr-eos-total td {
+                            background: #e8eef8;
+                            color: #163a70;
+                            font-weight: 700;
+                            border-top: 2px solid #163a70;
+                        }
+                        .pr-eos-net td {
+                            background: #163a70;
+                            color: #fff;
+                            font-size: 12px;
+                            font-weight: 700;
+                            border-color: #163a70;
+                        }
+                        .pr-eos-declaration {
+                            border: 1px solid #9ca3af;
+                            padding: 8px 10px;
+                            line-height: 1.5;
+                            text-align: justify;
+                        }
+                        .pr-eos-signature td {
+                            height: 42px;
+                            vertical-align: bottom;
+                            text-align: center;
+                            font-weight: 700;
+                        }
+                    </style>
 
-                        <h4 style="margin-top:18px;">Amounts</h4>
-                        <table class="table table-sm o_main_table" style="width:100%;">
-                            <tbody>
+                    <div class="page pr-eos-page">
+                        <div class="pr-eos-title">FINAL SETTLEMENT &amp; END OF SERVICE BENEFIT</div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">1. Document Information</div>
+                            <table class="pr-eos-table">
                                 <tr>
-                                    <td><strong>Monthly Base</strong></td>
-                                    <td class="text-end"><span t-field="doc.monthly_base_amount"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>EOS Benefit</strong></td>
-                                    <td class="text-end"><span t-field="doc.eos_benefit_amount"/></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Unused Annual Leave Days</strong></td>
-                                    <td class="text-end"><span t-esc="'%.2f' % doc.annual_leave_days"/></td>
+                                    <td class="pr-eos-label">Final Settlement No.</td>
+                                    <td class="pr-eos-value"><span t-esc="doc.name"/></td>
+                                    <td class="pr-eos-label">Offboarding Ref.</td>
+                                    <td class="pr-eos-value"><span t-esc="data['offboarding_ref'] or '-'"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Leave Settlement</strong></td>
-                                    <td class="text-end"><span t-field="doc.leave_settlement_amount"/></td>
+                                    <td class="pr-eos-label">Settlement Date</td>
+                                    <td><span t-esc="data['settlement_date'] or '-'"/></td>
+                                    <td class="pr-eos-label">Last Working Date</td>
+                                    <td><span t-esc="doc.service_end_date or '-'"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Manual Addition</strong></td>
-                                    <td class="text-end"><span t-field="doc.other_amount"/></td>
+                                    <td class="pr-eos-label">Effective Termination Date</td>
+                                    <td><span t-esc="doc.service_end_date or '-'"/></td>
+                                    <td class="pr-eos-label">Termination Reason</td>
+                                    <td><span t-esc="data['termination_reason'] or '-'"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">2. Employee Information</div>
+                            <table class="pr-eos-table">
+                                <tr>
+                                    <td class="pr-eos-label">Employee ID</td>
+                                    <td class="pr-eos-value"><span t-esc="data['employee_code'] or '-'"/></td>
+                                    <td class="pr-eos-label">Employment Type</td>
+                                    <td class="pr-eos-value"><span t-esc="data['employment_type'] or '-'"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Deductions</strong></td>
-                                    <td class="text-end"><span t-field="doc.deduction_amount"/></td>
+                                    <td class="pr-eos-label">Employee Name</td>
+                                    <td><span t-esc="doc.employee_id.display_name"/></td>
+                                    <td class="pr-eos-label">Iqama / Passport</td>
+                                    <td><span t-esc="data['identification'] or '-'"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Total Payable</strong></td>
-                                    <td class="text-end"><span t-field="doc.total_deserved_amount"/></td>
+                                    <td class="pr-eos-label">Department</td>
+                                    <td><span t-esc="data['department'] or '-'"/></td>
+                                    <td class="pr-eos-label">Joining Date</td>
+                                    <td><span t-esc="doc.joining_date or '-'"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Previously Disbursed</strong></td>
-                                    <td class="text-end"><span t-field="doc.previously_disbursed_amount"/></td>
+                                    <td class="pr-eos-label">Designation</td>
+                                    <td><span t-esc="data['designation'] or '-'"/></td>
+                                    <td class="pr-eos-label">Service Duration</td>
+                                    <td><span t-esc="doc.service_period"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">3. Salary Details</div>
+                            <table class="pr-eos-table">
+                                <tr>
+                                    <td class="pr-eos-label">Basic Salary</td>
+                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['basic_salary'], doc.currency_id)"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Net Settlement</strong></td>
-                                    <td class="text-end"><span t-field="doc.net_settlement_amount"/></td>
+                                    <td class="pr-eos-label">Housing Allowance</td>
+                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['housing_allowance'], doc.currency_id)"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Available Amount</strong></td>
-                                    <td class="text-end"><span t-field="doc.available_amount"/></td>
-                                </tr>
-                                <tr t-if="doc.employee_recovery_amount">
-                                    <td><strong>Recoverable From Employee</strong></td>
-                                    <td class="text-end"><span t-field="doc.employee_recovery_amount"/></td>
-                                </tr>
-                                <tr t-if="doc.employee_recovery_amount">
-                                    <td><strong>Recovery Status</strong></td>
-                                    <td class="text-end"><span t-field="doc.recovery_state"/></td>
+                                    <td class="pr-eos-label">Transportation Allowance</td>
+                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['transport_allowance'], doc.currency_id)"/></td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Requested Amount</strong></td>
-                                    <td class="text-end"><span t-field="doc.requested_amount"/></td>
+                                    <td class="pr-eos-label">Other Allowances</td>
+                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['other_allowances'], doc.currency_id)"/></td>
                                 </tr>
-                            </tbody>
-                        </table>
-                        <p t-if="doc.notes">
-                            <strong>Notes:</strong>
-                            <span t-field="doc.notes"/>
-                        </p>
+                                <tr class="pr-eos-total">
+                                    <td>Gross Salary</td>
+                                    <td class="pr-eos-amount"><span t-esc="format_amount(data['gross_salary'], doc.currency_id)"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">4. EOSB</div>
+                            <table class="pr-eos-table">
+                                <tr class="pr-eos-total">
+                                    <td>EOSB Amount</td>
+                                    <td class="pr-eos-amount"><span t-esc="format_amount(doc.eos_benefit_amount, doc.currency_id)"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">5. Employee Payables</div>
+                            <table class="pr-eos-table">
+                                <tr><td class="pr-eos-label">Salary Payable</td><td class="pr-eos-amount"><span t-esc="format_amount(data['salary_payable'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Unused Annual Leave (<span t-esc="'%.2f' % doc.annual_leave_days"/> days)</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.leave_settlement_amount, doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Overtime</td><td class="pr-eos-amount"><span t-esc="format_amount(data['overtime'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Commission / Incentives</td><td class="pr-eos-amount"><span t-esc="format_amount(data['commission'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Any Addition</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.other_amount, doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Other Payables</td><td class="pr-eos-amount"><span t-esc="format_amount(data['other_payables'], doc.currency_id)"/></td></tr>
+                                <tr class="pr-eos-total"><td>Total Employee Payables</td><td class="pr-eos-amount"><span t-esc="format_amount(data['employee_payables'], doc.currency_id)"/></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">6. Employee Deductions</div>
+                            <table class="pr-eos-table">
+                                <tr><td class="pr-eos-label">Advance Salary</td><td class="pr-eos-amount"><span t-esc="format_amount(data['advance_salary'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Advance HRA</td><td class="pr-eos-amount"><span t-esc="format_amount(data['advance_hra'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Loan Recovery</td><td class="pr-eos-amount"><span t-esc="format_amount(data['loan_recovery'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Company Assets Damage</td><td class="pr-eos-amount"><span t-esc="format_amount(data['asset_damage'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Traffic Violations</td><td class="pr-eos-amount"><span t-esc="format_amount(data['traffic_violations'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Personal Expenses</td><td class="pr-eos-amount"><span t-esc="format_amount(data['personal_expenses'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Other Recoveries</td><td class="pr-eos-amount"><span t-esc="format_amount(data['other_recoveries'], doc.currency_id)"/></td></tr>
+                                <tr t-if="doc.previously_disbursed_amount"><td class="pr-eos-label">Previously Disbursed</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.previously_disbursed_amount, doc.currency_id)"/></td></tr>
+                                <tr class="pr-eos-total"><td>Total Deductions</td><td class="pr-eos-amount"><span t-esc="format_amount(data['total_deductions'], doc.currency_id)"/></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">7. Final Settlement</div>
+                            <table class="pr-eos-table">
+                                <tr><td class="pr-eos-label">Total Payable (EOSB + Payables)</td><td class="pr-eos-amount"><span t-esc="format_amount(data['gross_settlement'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Total Deductions</td><td class="pr-eos-amount"><span t-esc="format_amount(data['total_deductions'], doc.currency_id)"/></td></tr>
+                                <tr class="pr-eos-net"><td>NET FINAL SETTLEMENT PAYABLE</td><td class="pr-eos-amount"><span t-esc="format_amount(data['net_settlement'], doc.currency_id)"/></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">8. Clearance Status</div>
+                            <table class="pr-eos-table">
+                                <t t-if="data['clearance_rows']">
+                                    <tr t-foreach="data['clearance_rows']" t-as="clearance">
+                                        <td class="pr-eos-label"><span t-esc="clearance['name']"/></td>
+                                        <td><span t-esc="clearance['status']"/></td>
+                                    </tr>
+                                </t>
+                                <tr t-else="">
+                                    <td colspan="2" style="text-align:center;">No linked offboarding clearance record</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">9. Payment Details</div>
+                            <table class="pr-eos-table">
+                                <tr><td class="pr-eos-label">Payment Method</td><td><span t-esc="data['payment_method'] or '-'"/></td></tr>
+                                <tr><td class="pr-eos-label">Bank</td><td><span t-esc="data['bank'] or '-'"/></td></tr>
+                                <tr><td class="pr-eos-label">IBAN</td><td><span t-esc="data['iban'] or '-'"/></td></tr>
+                                <tr><td class="pr-eos-label">Payment Voucher</td><td><span t-esc="data['voucher'] or '-'"/></td></tr>
+                                <tr><td class="pr-eos-label">Payment Date</td><td><span t-esc="doc.date_payment or '-'"/></td></tr>
+                            </table>
+                        </div>
+
+                        <div class="pr-eos-section">
+                            <div class="pr-eos-section-title">10. Employee Declaration</div>
+                            <div class="pr-eos-declaration">
+                                I acknowledge that the amounts shown in this final settlement represent my end of service
+                                benefits, salary-related payables, deductions, recoveries, and any previous disbursements.
+                                Upon receiving the net amount stated above, I confirm settlement of my employment-related
+                                financial dues with the company, subject to applicable Saudi law and any rights that cannot
+                                legally be waived.
+                            </div>
+                            <table class="pr-eos-table pr-eos-signature" style="margin-top:7px;">
+                                <tr>
+                                    <td>Employee Signature / Date</td>
+                                    <td>HR Representative / Date</td>
+                                    <td>Finance Representative / Date</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </t>
             </t>
@@ -113,5 +319,6 @@
         <field name="attachment_use">True</field>
         <field name="binding_model_id" ref="model_pr_end_of_service"/>
         <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_pr_end_of_service"/>
     </record>
 </odoo>
