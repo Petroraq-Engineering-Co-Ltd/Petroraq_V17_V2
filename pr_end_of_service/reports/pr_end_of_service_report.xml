@@ -48,7 +48,7 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Unused Annual Leave Days</strong></td>
-                                    <td class="text-end"><span t-field="doc.annual_leave_days"/></td>
+                                    <td class="text-end"><span t-esc="'%.2f' % doc.annual_leave_days"/></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Leave Settlement</strong></td>
