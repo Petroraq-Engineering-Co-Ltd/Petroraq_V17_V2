@@ -28,16 +28,9 @@
             <t t-out="0"/>
         </div>
         <div class="footer" style="width:100%; margin:0; padding:0;">
-            <table style="width:100%; border-collapse:collapse; border-bottom:1px solid #305081; color:#163a70; font-family:Arial, sans-serif; font-size:8px; line-height:1.2; margin:0 0 2px;">
-                <tr>
-                    <td style="width:50%; padding:2px 8px; text-align:left;">
-                        This is a computer-generated document; no signature or stamp is required.
-                    </td>
-                    <td style="width:50%; padding:2px 8px; text-align:right;" dir="rtl">
-                        هذه وثيقة منشأة بواسطة الحاسب الآلي ولا تتطلب توقيعاً أو ختماً.
-                    </td>
-                </tr>
-            </table>
+            <div style="border-bottom:1px solid #305081; color:#111827; font-family:Arial, sans-serif; font-size:8px; font-weight:bold; line-height:1.2; padding:2px 8px; text-align:left;">
+                This is a computer-generated document. It is electronically reviewed and approved by the management.
+            </div>
             <div style="text-align:center; color:#163a70; font-size:9px; margin-bottom:2px;">
                 Page <span class="page"/> / <span class="topage"/>
             </div>
@@ -60,16 +53,18 @@
                             padding: 0 22px;
                         }
                         .pr-eos-title {
-                            color: #163a70;
+                            background: #163a70;
+                            color: #fff;
                             text-align: center;
-                            font-size: 21px;
+                            font-size: 12px;
                             font-weight: 700;
-                            margin: 2px 0 9px;
+                            margin: 0;
+                            padding: 5px 8px;
                             letter-spacing: .2px;
                         }
                         .pr-eos-section {
                             page-break-inside: avoid;
-                            margin: 0 0 8px;
+                            margin: 0;
                         }
                         .pr-eos-section-title {
                             background: #163a70;
@@ -130,7 +125,7 @@
                     </style>
 
                     <div class="page pr-eos-page">
-                        <div class="pr-eos-title">FINAL SETTLEMENT &amp; END OF SERVICE BENEFIT</div>
+                        <div class="pr-eos-title">FINAL SETTLEMENT &amp; EOSB</div>
 
                         <div class="pr-eos-section">
                             <div class="pr-eos-section-title">1. Document Information</div>
@@ -226,12 +221,13 @@
                             <div class="pr-eos-section-title">5. Employee Payables</div>
                             <table class="pr-eos-table">
                                 <tr><td class="pr-eos-label">Salary Payable</td><td class="pr-eos-amount"><span t-esc="format_amount(data['salary_payable'], doc.currency_id)"/></td></tr>
-                                <tr><td class="pr-eos-label">Unused Annual Leave (<span t-esc="'%.2f' % doc.annual_leave_days"/> days)</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.leave_settlement_amount, doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Unused Annual Leave</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.leave_settlement_amount, doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Leave Salary</td><td class="pr-eos-amount"><span t-esc="format_amount(0.0, doc.currency_id)"/></td></tr>
                                 <tr><td class="pr-eos-label">Overtime</td><td class="pr-eos-amount"><span t-esc="format_amount(data['overtime'], doc.currency_id)"/></td></tr>
                                 <tr><td class="pr-eos-label">Commission / Incentives</td><td class="pr-eos-amount"><span t-esc="format_amount(data['commission'], doc.currency_id)"/></td></tr>
                                 <tr><td class="pr-eos-label">Any Addition</td><td class="pr-eos-amount"><span t-esc="format_amount(doc.other_amount, doc.currency_id)"/></td></tr>
                                 <tr><td class="pr-eos-label">Other Payables</td><td class="pr-eos-amount"><span t-esc="format_amount(data['other_payables'], doc.currency_id)"/></td></tr>
-                                <tr class="pr-eos-total"><td>Total Employee Payables</td><td class="pr-eos-amount"><span t-esc="format_amount(data['employee_payables'], doc.currency_id)"/></td></tr>
+                                <tr class="pr-eos-total"><td>TOTAL PAYABLE</td><td class="pr-eos-amount"><span t-esc="format_amount(data['employee_payables'], doc.currency_id)"/></td></tr>
                             </table>
                         </div>
 
@@ -253,7 +249,7 @@
                         <div class="pr-eos-section">
                             <div class="pr-eos-section-title">7. Final Settlement</div>
                             <table class="pr-eos-table">
-                                <tr><td class="pr-eos-label">Total Payable (EOSB + Payables)</td><td class="pr-eos-amount"><span t-esc="format_amount(data['gross_settlement'], doc.currency_id)"/></td></tr>
+                                <tr><td class="pr-eos-label">Total Payable</td><td class="pr-eos-amount"><span t-esc="format_amount(data['employee_payables'], doc.currency_id)"/></td></tr>
                                 <tr><td class="pr-eos-label">Total Deductions</td><td class="pr-eos-amount"><span t-esc="format_amount(data['total_deductions'], doc.currency_id)"/></td></tr>
                                 <tr class="pr-eos-net"><td>NET FINAL SETTLEMENT PAYABLE</td><td class="pr-eos-amount"><span t-esc="format_amount(data['net_settlement'], doc.currency_id)"/></td></tr>
                             </table>
@@ -288,17 +284,16 @@
                         <div class="pr-eos-section">
                             <div class="pr-eos-section-title">10. Employee Declaration</div>
                             <div class="pr-eos-declaration">
-                                I acknowledge that the amounts shown in this final settlement represent my end of service
-                                benefits, salary-related payables, deductions, recoveries, and any previous disbursements.
-                                Upon receiving the net amount stated above, I confirm settlement of my employment-related
-                                financial dues with the company, subject to applicable Saudi law and any rights that cannot
-                                legally be waived.
+                                I hereby confirm that I have received my Final Settlement as detailed above and acknowledge
+                                that all dues have been settled by Petroraq Engineering Co. Ltd., except any statutory
+                                obligations remaining under applicable laws. I further confirm that all company property
+                                has been returned and I have no additional employment-related claims against the company,
+                                except rights that cannot legally be waived.
                             </div>
                             <table class="pr-eos-table pr-eos-signature" style="margin-top:7px;">
                                 <tr>
-                                    <td>Employee Signature / Date</td>
-                                    <td>HR Representative / Date</td>
-                                    <td>Finance Representative / Date</td>
+                                    <td style="width:35%; text-align:left;">Employee Signature:</td>
+                                    <td></td>
                                 </tr>
                             </table>
                         </div>
@@ -315,8 +310,8 @@
         <field name="report_name">pr_end_of_service.report_pr_end_of_service</field>
         <field name="report_file">pr_end_of_service.report_pr_end_of_service</field>
         <field name="print_report_name">'Final_Settlement_%s' % (object.name)</field>
-        <field name="attachment">'Final_Settlement_%s.pdf' % (object.name)</field>
-        <field name="attachment_use">True</field>
+        <field name="attachment" eval="False"/>
+        <field name="attachment_use" eval="False"/>
         <field name="binding_model_id" ref="model_pr_end_of_service"/>
         <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_pr_end_of_service"/>
