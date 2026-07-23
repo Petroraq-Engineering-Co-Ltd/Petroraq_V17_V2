@@ -360,7 +360,7 @@
 
     <menuitem id="menu_pr_end_of_service_root"
               name="End of Service"
-              parent="hr.menu_hr_root"
+              parent="pr_hr_offboarding.menu_hr_offboarding_root"
               sequence="4"
               groups="hr.group_hr_user,pr_hr_recruitment_request.group_onboarding_md,account.group_account_manager,pr_account.custom_group_accounting_manager"/>
 

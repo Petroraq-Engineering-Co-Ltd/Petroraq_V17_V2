@@ -27,3 +27,13 @@ class HrApprovalDashboardService(models.AbstractModel):
         if action.res_model == "pr.end.of.service":
             return self._eos_pending_domain()
         return super()._override_domain_for_menu(menu, action, domain)
+
+    @api.model
+    def _section_key_for_menu(self, menu, action):
+        if (
+            action
+            and action._name == "ir.actions.act_window"
+            and action.res_model == "pr.end.of.service"
+        ):
+            return "hr"
+        return super()._section_key_for_menu(menu, action)
