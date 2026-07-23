@@ -1192,6 +1192,194 @@ class PrEndOfService(models.Model):
             "res_id": self.bank_payment_id.id,
         }
 
+    def _get_final_settlement_report_data(self):
+        self.ensure_one()
+        employee = self.employee_id.sudo()
+        contract = self.contract_id.sudo()
+        offboarding = self.offboarding_request_id.sudo() if self.offboarding_request_id else False
+        voucher = self.cash_payment_id or self.bank_payment_id
+
+        salary_rules = contract.contract_salary_rule_ids if contract else self.env["hr.contract.salary.rule"]
+
+        def rule_matches(line, keywords):
+            text = "%s %s" % (
+                (line.salary_rule_id.code or "").lower(),
+                (line.salary_rule_id.name or "").lower(),
+            )
+            return any(keyword in text for keyword in keywords)
+
+        housing_rules = salary_rules.filtered(
+            lambda line: rule_matches(line, ("housing", "house", "hra"))
+        )
+        transport_rules = salary_rules.filtered(
+            lambda line: rule_matches(line, ("transport", "travel", "conveyance"))
+        )
+        other_rules = salary_rules - housing_rules - transport_rules
+
+        additions = self.adjustment_line_ids.filtered(
+            lambda line: line.adjustment_type == "addition"
+        )
+        deductions = self.adjustment_line_ids.filtered(
+            lambda line: line.adjustment_type == "deduction"
+        )
+
+        def adjustment_sum(lines, keywords=(), categories=()):
+            matched = lines.filtered(
+                lambda line: (
+                    (categories and line.category in categories)
+                    or (
+                        keywords
+                        and any(
+                            keyword in ("%s %s" % (line.name or "", line.notes or "")).lower()
+                            for keyword in keywords
+                        )
+                    )
+                )
+            )
+            return sum(matched.mapped("amount")), matched
+
+        overtime, overtime_lines = adjustment_sum(additions, keywords=("overtime",))
+        commission, commission_lines = adjustment_sum(
+            additions - overtime_lines,
+            keywords=("commission", "incentive", "bonus"),
+        )
+        salary_payable, salary_lines = adjustment_sum(
+            additions - overtime_lines - commission_lines,
+            categories=("salary_arrears", "unpaid_salary"),
+        )
+        categorized_additions = salary_lines | overtime_lines | commission_lines
+        other_payables = sum((additions - categorized_additions).mapped("amount"))
+
+        advance_salary, advance_salary_lines = adjustment_sum(
+            deductions, keywords=("advance salary", "salary advance")
+        )
+        advance_hra, advance_hra_lines = adjustment_sum(
+            deductions - advance_salary_lines,
+            keywords=("advance hra", "housing advance", "hra advance"),
+        )
+        loan_recovery, loan_lines = adjustment_sum(
+            deductions - advance_salary_lines - advance_hra_lines,
+            keywords=("loan",),
+            categories=("loan",),
+        )
+        asset_damage, asset_lines = adjustment_sum(
+            deductions - advance_salary_lines - advance_hra_lines - loan_lines,
+            keywords=("damage", "asset"),
+            categories=("asset",),
+        )
+        traffic_violations, traffic_lines = adjustment_sum(
+            deductions - advance_salary_lines - advance_hra_lines - loan_lines - asset_lines,
+            keywords=("traffic", "violation", "fine"),
+        )
+        personal_expenses, personal_lines = adjustment_sum(
+            deductions
+            - advance_salary_lines
+            - advance_hra_lines
+            - loan_lines
+            - asset_lines
+            - traffic_lines,
+            keywords=("personal", "expense"),
+        )
+        categorized_deductions = (
+            advance_salary_lines
+            | advance_hra_lines
+            | loan_lines
+            | asset_lines
+            | traffic_lines
+            | personal_lines
+        )
+        other_recoveries = (
+            sum((deductions - categorized_deductions).mapped("amount"))
+            + self.deduction_amount
+        )
+
+        clearance_rows = []
+        if offboarding:
+            clearance_rows = [
+                {
+                    "name": line.name,
+                    "status": dict(line._fields["state"].selection).get(line.state, line.state),
+                }
+                for line in offboarding.clearance_line_ids.sorted(
+                    lambda line: (line.sequence, line.id)
+                )
+            ]
+
+        bank_account = (
+            employee.bank_account_id
+            if "bank_account_id" in employee._fields
+            else self.env["res.partner.bank"]
+        )
+        employment_type = ""
+        if contract and "contract_employment_type" in contract._fields:
+            employment_type = dict(
+                contract._fields["contract_employment_type"].selection
+            ).get(contract.contract_employment_type, contract.contract_employment_type or "")
+
+        employee_payables = (
+            salary_payable
+            + self.leave_settlement_amount
+            + overtime
+            + commission
+            + self.other_amount
+            + other_payables
+        )
+        total_deductions = (
+            advance_salary
+            + advance_hra
+            + loan_recovery
+            + asset_damage
+            + traffic_violations
+            + personal_expenses
+            + other_recoveries
+            + self.previously_disbursed_amount
+        )
+        gross_settlement = self.eos_benefit_amount + employee_payables
+
+        return {
+            "offboarding_ref": offboarding.name if offboarding else "",
+            "settlement_date": self.date_payment or self.date_accounting_approval or self.date_request,
+            "termination_reason": self.reason_id.display_name,
+            "employee_code": employee.code if "code" in employee._fields else "",
+            "employment_type": employment_type,
+            "identification": employee.identification_id or employee.passport_id or "",
+            "department": employee.department_id.display_name,
+            "designation": employee.job_id.display_name,
+            "basic_salary": contract.wage if contract else 0.0,
+            "housing_allowance": sum(housing_rules.mapped("amount")),
+            "transport_allowance": sum(transport_rules.mapped("amount")),
+            "other_allowances": sum(other_rules.mapped("amount")),
+            "gross_salary": (
+                contract.gross_amount or contract.net_amount or contract.wage
+                if contract
+                else 0.0
+            ),
+            "salary_payable": salary_payable,
+            "overtime": overtime,
+            "commission": commission,
+            "other_payables": other_payables,
+            "employee_payables": employee_payables,
+            "advance_salary": advance_salary,
+            "advance_hra": advance_hra,
+            "loan_recovery": loan_recovery,
+            "asset_damage": asset_damage,
+            "traffic_violations": traffic_violations,
+            "personal_expenses": personal_expenses,
+            "other_recoveries": other_recoveries,
+            "total_deductions": total_deductions,
+            "gross_settlement": gross_settlement,
+            "net_settlement": gross_settlement - total_deductions,
+            "clearance_rows": clearance_rows,
+            "payment_method": (
+                "Cash"
+                if voucher and voucher._name == "pr.account.cash.payment"
+                else "Bank Transfer" if voucher else ""
+            ),
+            "bank": bank_account.bank_id.display_name if bank_account and bank_account.bank_id else "",
+            "iban": bank_account.acc_number if bank_account else "",
+            "voucher": voucher.display_name if voucher else "",
+        }
+
     def action_view_payment_request(self):
         self.ensure_one()
         if not self.payment_request_id:
