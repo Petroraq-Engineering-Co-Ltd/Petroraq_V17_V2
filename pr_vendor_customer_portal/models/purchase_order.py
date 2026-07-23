@@ -26,9 +26,7 @@ class PurchaseOrder(models.Model):
             order.pr_vendor_portal_attachment_ids = Attachment.search([
                 ("res_model", "=", order._name),
                 ("res_id", "=", order.id),
-                "|",
-                ("pr_vendor_portal_upload", "=", True),
-                ("pr_vendor_portal_visible", "=", True),
+                ("res_field", "=", False),
             ])
 
     @api.depends("message_ids.attachment_ids")

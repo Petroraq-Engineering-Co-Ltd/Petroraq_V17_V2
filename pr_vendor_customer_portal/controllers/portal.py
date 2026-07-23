@@ -325,8 +325,8 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         delivery_rows = []
         status_labels = {
             "pending": _("Pending"),
-            "partial": _("Partially Received"),
-            "received": _("Received"),
+            "partial": _("Partially Delivered"),
+            "received": _("Delivered"),
             "cancel": _("Cancelled"),
         }
         for delivery in deliveries:
@@ -799,7 +799,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             return request.redirect("/my")
 
         attachment = request.env["ir.attachment"].sudo().browse(attachment_id).exists()
-        if not attachment or not (attachment.pr_vendor_portal_upload or attachment.pr_vendor_portal_visible):
+        if not attachment or attachment.res_field:
             raise MissingError(_("This attachment is not available in the vendor portal."))
 
         allowed = False
@@ -812,6 +812,15 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             ))
         elif attachment.res_model == "stock.picking":
             allowed = bool(self._get_accessible_vendor_delivery(attachment.res_id))
+        elif attachment.res_model == "account.move":
+            allowed = bool(request.env["account.move"].sudo().search_count(
+                expression.AND([
+                    self._get_invoices_domain("in"),
+                    [("id", "=", attachment.res_id)],
+                ])
+            ))
+        elif attachment.res_model == "service.receipt.note":
+            allowed = bool(self._get_accessible_srn(attachment.res_id))
         if not allowed:
             raise MissingError(_("This attachment does not exist or you do not have access to it."))
 

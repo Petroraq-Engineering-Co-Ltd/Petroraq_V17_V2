@@ -695,3 +695,22 @@ $pr-portal-background: #f4f7fb;
         }
     }
 }
+.o_portal_wrap th.o_pr_portal_sortable,
+#wrapwrap th.o_pr_portal_sortable {
+    cursor: pointer;
+    user-select: none;
+
+    .o_pr_sort_indicator {
+        color: #62748a;
+        display: inline-block;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-inline-start: 0.45rem;
+        min-width: 0.75rem;
+    }
+}
+
+.o_pr_portal_table_search {
+    margin-left: auto;
+    max-width: 32rem;
+}

@@ -6,6 +6,12 @@ from odoo import api, fields, models
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
+    vendor_gdn_number = fields.Char(
+        string="Vendor GDN Number",
+        copy=False,
+        index=True,
+        help="The supplier's goods delivery note number for this receipt.",
+    )
     pr_portal_delivered_quantity = fields.Float(
         string="Delivered Quantity",
         compute="_compute_pr_portal_delivery_summary",
@@ -17,8 +23,8 @@ class StockPicking(models.Model):
     pr_portal_delivery_status = fields.Selection(
         [
             ("pending", "Pending"),
-            ("partial", "Partially Received"),
-            ("received", "Received"),
+            ("partial", "Partially Delivered"),
+            ("received", "Delivered"),
             ("cancel", "Cancelled"),
         ],
         string="Delivery Status",
@@ -36,9 +42,7 @@ class StockPicking(models.Model):
             picking.pr_vendor_portal_attachment_ids = Attachment.search([
                 ("res_model", "=", picking._name),
                 ("res_id", "=", picking.id),
-                "|",
-                ("pr_vendor_portal_upload", "=", True),
-                ("pr_vendor_portal_visible", "=", True),
+                ("res_field", "=", False),
             ])
 
     @api.model
