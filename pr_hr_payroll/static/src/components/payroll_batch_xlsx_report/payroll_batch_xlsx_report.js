@@ -43,6 +43,7 @@ class PayrollBatchXlsxReport extends Component {
     get RULE_NAME_ORDER() {
         return [
             "Basic Salary",
+            "Arrears",
             "Accommodation",
             "Transportation",
             "Food",
@@ -54,7 +55,7 @@ class PayrollBatchXlsxReport extends Component {
             "Sick Time Off",
             "Absence",
             "Late In",
-//            "Unpaid Leave",
+            "Unpaid Leave",
             "Early Checkout",
             "GOSI Company Contribution",
             "Gross",

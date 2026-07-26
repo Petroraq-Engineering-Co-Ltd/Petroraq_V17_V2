@@ -9,6 +9,7 @@ const SELECTED_SECTION_STORAGE_KEY = "de_hr_workspace_attendance.approval_dashbo
 
 class ApprovalDashboard extends Component {
     static template = "de_hr_workspace_attendance.ApprovalDashboard";
+    static props = {"*": true};
 
     setup() {
         this.orm = useService("orm");

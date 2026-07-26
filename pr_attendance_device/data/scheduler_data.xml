@@ -27,6 +27,7 @@
 
     </data>
     <data>
+        <function model="user.attendance" name="_migrate_legacy_reconciliation_statuses"/>
         <function model="user.attendance" name="_pr_cleanup_checkin_leverage_cron"/>
     </data>
 </odoo>

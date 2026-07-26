@@ -9,13 +9,19 @@
 					<sheet>
 						<group>
 							<group>
-								<field name="user_id" />
-								<field name="timestamp" />
+								<field name="user_id" readonly="1"/>
+								<field name="timestamp" readonly="1"/>
 								<field name="status" groups="base.group_no_one" />
-								<field name="attendance_state_id" />
-								<field name="employee_id" />
+								<field name="attendance_state_id" readonly="1"/>
+								<field name="employee_id" readonly="1"/>
 								<field name="hr_attendance_id" groups="base.group_no_one" />
-								<field name="device_id" />
+								<field name="device_id" readonly="1"/>
+								<field name="type" string="Machine Type" readonly="1"/>
+								<field name="interpreted_type"/>
+								<field name="reconciliation_status" widget="badge" readonly="1"/>
+								<field name="reconciliation_note" readonly="1"/>
+								<field name="reconciled_at" readonly="1"/>
+								<field name="reconciled_by_id" readonly="1"/>
 							</group>
 							<group></group>
 						</group>
@@ -49,6 +55,15 @@
 					<field name="employee_id" />
 					<field name="hr_attendance_id" groups="base.group_no_one" />
 					<field name="device_id" />
+					<field name="type" string="Machine Type"/>
+					<field name="interpreted_type"/>
+					<field name="reconciliation_status" widget="badge"
+						decoration-success="reconciliation_status == 'synced'"
+						decoration-info="reconciliation_status == 'auto_corrected'"
+						decoration-muted="reconciliation_status == 'duplicate'"
+						decoration-warning="reconciliation_status == 'pending'"
+						decoration-danger="reconciliation_status == 'needs_review'"/>
+					<field name="reconciliation_note" optional="show"/>
 				</tree>
 			</field>
 		</record>
@@ -60,13 +75,20 @@
 					<field name="user_id" />
 					<field name="device_id" />
 					<field name="employee_id" />
+					<field name="reconciliation_status"/>
 					<separator />
 					<filter name="today" string="Today"
 						domain="[('timestamp', '&gt;=', datetime.datetime.combine(datetime.date.today(), datetime.time(0,0,0)).to_utc().strftime('%Y-%m-%d %H:%M:%S')),('timestamp', '&lt;=', datetime.datetime.combine(datetime.date.today(), datetime.time(23,59,59)).to_utc().strftime('%Y-%m-%d %H:%M:%S'))]" />
 					<separator />
 					<filter string="Not Synchronized" name="not_synch"
-						domain="[('hr_attendance_id','=',False)]"
+						domain="[('reconciliation_status','=','pending')]"
 						help="Show attendance records that have no link to System's HR Atteandnce" />
+					<filter string="Needs Review" name="needs_review"
+						domain="[('reconciliation_status','=','needs_review')]"/>
+					<filter string="Auto-corrected" name="auto_corrected"
+						domain="[('reconciliation_status','=','auto_corrected')]"/>
+					<filter string="Duplicates" name="duplicates"
+						domain="[('reconciliation_status','=','duplicate')]"/>
 					<group expand="0" string="Group By...">
 						<filter string="User" name="user_id" context="{'group_by': 'user_id'}" />
 						<filter string="Machine" name="device_id" context="{'group_by': 'device_id'}" />
@@ -88,6 +110,30 @@
 			<field name="code">records.action_sync_attendance()</field>
 		</record>
 
+		<record id="action_server_mark_attendance_duplicate" model="ir.actions.server">
+			<field name="name">Mark as Duplicate</field>
+			<field name="model_id" ref="model_user_attendance"/>
+			<field name="binding_model_id" ref="model_user_attendance"/>
+			<field name="state">code</field>
+			<field name="code">records.action_mark_duplicate()</field>
+		</record>
+
+		<record id="action_server_apply_attendance_interpretation" model="ir.actions.server">
+			<field name="name">Apply Interpretation</field>
+			<field name="model_id" ref="model_user_attendance"/>
+			<field name="binding_model_id" ref="model_user_attendance"/>
+			<field name="state">code</field>
+			<field name="code">records.action_apply_interpretation()</field>
+		</record>
+
+		<record id="action_server_reset_attendance_reconciliation" model="ir.actions.server">
+			<field name="name">Reset Reconciliation</field>
+			<field name="model_id" ref="model_user_attendance"/>
+			<field name="binding_model_id" ref="model_user_attendance"/>
+			<field name="state">code</field>
+			<field name="code">records.action_reset_reconciliation()</field>
+		</record>
+
 		<record model="ir.actions.act_window" id="action_user_attendance_data">
 			<field name="name">Attendance Data</field>
 			<field name="res_model">user.attendance</field>
@@ -96,9 +142,25 @@
 			</field>
 		</record>
 
+		<record model="ir.actions.act_window" id="action_attendance_reconciliation_exceptions">
+			<field name="name">Attendance Exceptions</field>
+			<field name="res_model">user.attendance</field>
+			<field name="view_mode">tree,form</field>
+			<field name="search_view_id" ref="user_attendance_data_search_view"/>
+			<field name="domain">[('reconciliation_status', 'in', ['pending', 'needs_review', 'duplicate', 'auto_corrected'])]</field>
+			<field name="context">{'search_default_needs_review': 1, 'group_by': ['employee_id'], 'create': False, 'delete': False}</field>
+		</record>
+
 		<menuitem id="user_attendance_data_menu" name="Attendance Data"
 			parent="attendace_device_menu" sequence="10" action="action_user_attendance_data"
 			groups="hr_attendance.group_hr_attendance_officer" />
+
+		<menuitem id="attendance_reconciliation_exceptions_menu"
+			name="Attendance Exceptions"
+			parent="attendace_device_menu"
+			sequence="11"
+			action="action_attendance_reconciliation_exceptions"
+			groups="hr_attendance.group_hr_attendance_officer"/>
 
 	</data>
 </odoo>

@@ -137,6 +137,7 @@ class PayrollReport(models.AbstractModel):
             salary_rule_ids = lines.slip_ids.line_ids.mapped("salary_rule_id")
             order = [
                 "Basic Salary",
+                "Arrears",
                 "Accommodation",
                 "Transportation",
                 "Food",
@@ -148,7 +149,7 @@ class PayrollReport(models.AbstractModel):
                 "Sick Time Off",
                 "Absence",
                 "Late In",
-                # "Unpaid Leave",
+                "Unpaid Leave",
                 "Early Checkout",
                 "Gross",
                 "Reimbursement",
@@ -193,6 +194,7 @@ class PayrollReport(models.AbstractModel):
 
             full_order = [
                 "Basic Salary",
+                "Arrears",
                 "Accommodation",
                 "Transportation",
                 "Food",
@@ -334,7 +336,7 @@ class PayrollReport(models.AbstractModel):
                 # Normalize GOSI portions to dedicated report columns.
                 # Legacy payslips may only have "GOSI" as a combined deduction.
                 gosi_company_add = (
-                    slip_amount_by_code.get("GOSI_COMP_ADD", 0.0) + slip_amount_by_code.get("GOSIALLOW", 0.0)
+                        slip_amount_by_code.get("GOSI_COMP_ADD", 0.0) + slip_amount_by_code.get("GOSIALLOW", 0.0)
                 )
                 legacy_gosi_ded = slip_amount_by_code.get("GOSI", 0.0)
                 gosi_employee_ded = slip_amount_by_code.get("GOSI_EMP", 0.0)

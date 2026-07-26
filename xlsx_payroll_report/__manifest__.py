@@ -3,7 +3,7 @@
 {
     "name": "Excel Payroll Report",
     "summary": "A payroll report in xlsx format",
-    "version": "13.0.2",
+    "version": "17.0.1.0.1",
     "author": "Abdullah Khalil",
     "website": "https://github.com/abdulah-khaleel",
     'support': 'abdulah.khaleel@gmail.com',
