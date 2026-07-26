@@ -5,6 +5,8 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
 export class AttendanceManagementDashboard extends Component {
+    static props = {"*": true};
+
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");

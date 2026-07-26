@@ -218,6 +218,8 @@ class Icloud(http.Controller):
                     'status': existing.status,
                     'type': existing.type,
                     'synced': existing.synced,
+                    'interpreted_type': existing.interpreted_type,
+                    'reconciliation_status': existing.reconciliation_status,
                 })
 
             attendance = UserAttendance.create({
@@ -241,6 +243,9 @@ class Icloud(http.Controller):
                 'status': attendance.status,
                 'type': attendance.type,
                 'synced': attendance.synced,
+                'interpreted_type': attendance.interpreted_type,
+                'reconciliation_status': attendance.reconciliation_status,
+                'reconciliation_note': attendance.reconciliation_note,
                 'hr_attendance_id': attendance.hr_attendance_id.id,
             }, status=201)
         except ValueError as error:

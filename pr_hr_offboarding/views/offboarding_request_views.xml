@@ -446,6 +446,16 @@
               web_icon="pr_hr_offboarding,static/description/icon.png"
     />
 
+    <!--
+        pr_end_of_service is a dependency of this module, so its standalone
+        root already exists at this point. Reparent it only from the dependent
+        module; referencing this Offboarding menu from pr_end_of_service would
+        fail on a clean installation because this XML ID does not exist yet.
+    -->
+    <record id="pr_end_of_service.menu_pr_end_of_service_root" model="ir.ui.menu">
+        <field name="parent_id" ref="menu_hr_offboarding_root"/>
+    </record>
+
     <menuitem id="menu_offboarding_requests"
               name="Termination / Resignation Requests"
               parent="menu_hr_offboarding_root"
