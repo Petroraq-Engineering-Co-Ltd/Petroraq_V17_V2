@@ -124,6 +124,10 @@
                             <field name="tot_absence" widget="float_time"/>
                             <field name="tot_absence_amount" style="color: red;"/>
                         </group>
+                        <group string="Unpaid Leave">
+                            <field name="unpaid_leave_days"/>
+                            <field name="unpaid_leave_amount" style="color: red;"/>
+                        </group>
                         <group string="Diffrenece Time" invisible="1">
                             <field name="no_difftime"/>
                             <field name="tot_difftime" widget="float_time"/>

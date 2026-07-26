@@ -77,6 +77,16 @@ class HrPayslip(models.Model):
     no_absence = fields.Integer(related="attendance_sheet_id.no_absence", readonly=True)
     tot_absence = fields.Float(related="attendance_sheet_id.tot_absence", readonly=True)
     tot_absence_amount = fields.Float(related="attendance_sheet_id.tot_absence_amount", readonly=True)
+    unpaid_leave_days = fields.Integer(
+        string="Unpaid Leave Days",
+        related="attendance_sheet_id.unpaid_leave",
+        readonly=True,
+    )
+    unpaid_leave_amount = fields.Float(
+        string="Unpaid Leave Amount",
+        related="attendance_sheet_id.total_unpaid_leave",
+        readonly=True,
+    )
     no_difftime = fields.Integer(related="attendance_sheet_id.no_difftime", readonly=True)
     tot_difftime = fields.Float(related="attendance_sheet_id.tot_difftime", readonly=True)
     tot_difftime_amount = fields.Float(related="attendance_sheet_id.tot_difftime_amount", readonly=True)
