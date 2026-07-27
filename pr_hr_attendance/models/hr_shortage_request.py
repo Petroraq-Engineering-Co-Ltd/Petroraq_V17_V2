@@ -28,11 +28,21 @@ class HrShortageRequest(models.Model):
     # region [Fields]
 
     name = fields.Char(string="Name")
+    request_type = fields.Selection([
+        ('shortage', 'Attendance Shortage'),
+        ('no_punch', 'No Punch Record'),
+    ], string="Request Type", required=True, default='shortage', tracking=True)
     date = fields.Date(string="Date", required=True)
     check_in = fields.Datetime(string="Check In", required=False)
     check_out = fields.Datetime(string="Check Out", required=False)
-    company_id = fields.Many2one('res.company', string='Company', tracking=True, required=True)
-    employee_id = fields.Many2one('hr.employee', string='Employee', tracking=True, required=True)
+    company_id = fields.Many2one(
+        'res.company', string='Company', tracking=True, required=True,
+        default=lambda self: self.env.company,
+    )
+    employee_id = fields.Many2one(
+        'hr.employee', string='Employee', tracking=True, required=True,
+        default=lambda self: self.env.user.employee_id,
+    )
     employee_manager_id = fields.Many2one('hr.employee', string='Manager', tracking=True, readonly=True)
     hr_supervisor_ids = fields.Many2many('res.users', 'shortage_request_hr_supervisor_users', 'hr_supervisor_id',
                                          'shortage_request_id', string='HR Supervisors', tracking=True, readonly=True)
@@ -60,6 +70,49 @@ class HrShortageRequest(models.Model):
     employee_manager_check = fields.Boolean(compute="_compute_employee_manager_check")
     hr_supervisor_check = fields.Boolean(compute="_compute_hr_supervisor_check")
     hr_manager_check = fields.Boolean(compute="_compute_hr_manager_check")
+
+    @api.constrains("request_type", "date", "check_in", "check_out")
+    def _check_no_punch_times(self):
+        for rec in self.filtered(lambda item: item.request_type == "no_punch"):
+            if not rec.check_in or not rec.check_out:
+                raise ValidationError(
+                    _("Actual Check In and Actual Check Out are required for a No Punch Record request.")
+                )
+            if rec.check_out <= rec.check_in:
+                raise ValidationError(_("Actual Check Out must be later than Actual Check In."))
+            employee_tz = pytz.timezone(rec.employee_id.tz or self.env.user.tz or "UTC")
+            local_check_in = pytz.UTC.localize(rec.check_in).astimezone(employee_tz)
+            local_check_out = pytz.UTC.localize(rec.check_out).astimezone(employee_tz)
+            if local_check_in.date() != rec.date or local_check_out.date() != rec.date:
+                raise ValidationError(
+                    _("Actual attendance times must belong to the selected attendance date.")
+                )
+            local_day_start = employee_tz.localize(datetime.combine(rec.date, time.min))
+            local_day_end = local_day_start + timedelta(days=1)
+            day_start = local_day_start.astimezone(pytz.UTC).replace(tzinfo=None)
+            day_end = local_day_end.astimezone(pytz.UTC).replace(tzinfo=None)
+            attendance_exists = self.env["hr.attendance"].sudo().search_count([
+                ("employee_id", "=", rec.employee_id.id),
+                ("check_in", "<", fields.Datetime.to_string(day_end)),
+                "|",
+                ("check_out", "=", False),
+                ("check_out", ">", fields.Datetime.to_string(day_start)),
+            ])
+            if attendance_exists:
+                raise ValidationError(
+                    _("A No Punch Record request is only allowed when no attendance exists for that date.")
+                )
+            duplicate_request = self.sudo().search_count([
+                ("id", "!=", rec.id),
+                ("employee_id", "=", rec.employee_id.id),
+                ("date", "=", rec.date),
+                ("request_type", "=", "no_punch"),
+                ("state", "not in", ["reject"]),
+            ])
+            if duplicate_request:
+                raise ValidationError(
+                    _("A No Punch Record request already exists for this employee and date.")
+                )
 
     # endregion [Fields]
 
@@ -232,6 +285,9 @@ class HrShortageRequest(models.Model):
 
     def action_manager_approve(self):
         for rec in self:
+            if rec.employee_manager_id.user_id != self.env.user:
+                raise UserError(_("Only the employee's manager can approve this stage."))
+            rec._check_no_punch_times()
             rec = rec.sudo()
             rec.state = "manager_approve"
             rec.approval_state = "manager_approve"
@@ -239,6 +295,8 @@ class HrShortageRequest(models.Model):
 
     def action_manager_reject(self):
         for rec in self:
+            if rec.employee_manager_id.user_id != self.env.user:
+                raise UserError(_("Only the employee's manager can reject this stage."))
             view = {
                 'type': 'ir.actions.act_window',
                 'name': 'Reject Reason',
@@ -254,6 +312,9 @@ class HrShortageRequest(models.Model):
 
     def action_hr_supervisor_approve(self):
         for rec in self:
+            if not self.env.user.has_group('pr_hr_attendance.custom_group_hr_attendance_supervisor'):
+                raise UserError(_("Only an HR Supervisor can approve this stage."))
+            rec._check_no_punch_times()
             rec = rec.sudo()
             rec.state = "hr_supervisor"
             rec.approval_state = "hr_supervisor"
@@ -261,6 +322,8 @@ class HrShortageRequest(models.Model):
 
     def action_hr_supervisor_reject(self):
         for rec in self:
+            if not self.env.user.has_group('pr_hr_attendance.custom_group_hr_attendance_supervisor'):
+                raise UserError(_("Only an HR Supervisor can reject this stage."))
             view = {
                 'type': 'ir.actions.act_window',
                 'name': 'Reject Reason',
@@ -276,6 +339,9 @@ class HrShortageRequest(models.Model):
 
     def action_hr_manager_approve(self):
         for rec in self:
+            if not self.env.user.has_group('hr_attendance.group_hr_attendance_manager'):
+                raise UserError(_("Only an HR Attendance Manager can approve this stage."))
+            rec._check_no_punch_times()
             rec = rec.sudo()
             rec.state = "hr_approve"
             rec.approval_state = "hr_approve"
@@ -292,13 +358,17 @@ class HrShortageRequest(models.Model):
                 ("check_in", "<", day_end),
             ], limit=1)
 
-            # Approved shortage requests should normalize attendance to policy hours (09:00 - 18:00) in employee local TZ.
-            employee_tz = rec.employee_id.tz or self.env.user.tz or 'UTC'
-            tzinfo = pytz.timezone(employee_tz)
-            local_check_in = tzinfo.localize(datetime.combine(rec.date, time(9, 0, 0)))
-            local_check_out = tzinfo.localize(datetime.combine(rec.date, time(18, 0, 0)))
-            check_in_dt = fields.Datetime.to_datetime(local_check_in.astimezone(pytz.utc).replace(tzinfo=None))
-            check_out_dt = fields.Datetime.to_datetime(local_check_out.astimezone(pytz.utc).replace(tzinfo=None))
+            if rec.request_type == "no_punch":
+                check_in_dt = rec.check_in
+                check_out_dt = rec.check_out
+            else:
+                # Existing shortage requests continue to normalize to policy hours.
+                employee_tz = rec.employee_id.tz or self.env.user.tz or 'UTC'
+                tzinfo = pytz.timezone(employee_tz)
+                local_check_in = tzinfo.localize(datetime.combine(rec.date, time(9, 0, 0)))
+                local_check_out = tzinfo.localize(datetime.combine(rec.date, time(18, 0, 0)))
+                check_in_dt = fields.Datetime.to_datetime(local_check_in.astimezone(pytz.utc).replace(tzinfo=None))
+                check_out_dt = fields.Datetime.to_datetime(local_check_out.astimezone(pytz.utc).replace(tzinfo=None))
 
             if attendance_id:
                 attendance_id.sudo().with_context(
@@ -320,6 +390,8 @@ class HrShortageRequest(models.Model):
 
     def action_hr_manager_reject(self):
         for rec in self:
+            if not self.env.user.has_group('hr_attendance.group_hr_attendance_manager'):
+                raise UserError(_("Only an HR Attendance Manager can reject this stage."))
             view = {
                 'type': 'ir.actions.act_window',
                 'name': 'Reject Reason',
@@ -353,6 +425,19 @@ class HrShortageRequest(models.Model):
         '''
         We Inherit Create Method To Pass Sequence Fo Field Name
         '''
+        employee = self.env["hr.employee"].browse(vals.get("employee_id")).exists()
+        current_employee = self.env.user.employee_id
+        if (
+            not self.env.su
+            and current_employee
+            and not self.env.user.has_group("hr_attendance.group_hr_attendance_officer")
+            and not self.env.user.has_group("hr_attendance.group_hr_attendance_manager")
+            and not self.env.user.has_group("pr_hr_attendance.custom_group_hr_attendance_supervisor")
+            and employee != current_employee
+        ):
+            raise ValidationError(_("Employees can only create attendance correction requests for themselves."))
+        if employee and not vals.get("company_id"):
+            vals["company_id"] = employee.company_id.id or self.env.company.id
         res = super().create(vals)
         res.name = self.env['ir.sequence'].next_by_code('hr.attendance.shortage.request.seq.code') or ''
         employee_manager_id = res.employee_id.parent_id
@@ -368,6 +453,18 @@ class HrShortageRequest(models.Model):
             res.hr_manager_ids = hr_manager_ids.ids
         res.sudo()._send_manager_email()
         return res
+
+    def write(self, vals):
+        if not self.env.su:
+            if {"state", "approval_state"} & set(vals):
+                raise ValidationError(_("Approval status can only be changed using the approval actions."))
+            correction_fields = {
+                "request_type", "date", "check_in", "check_out",
+                "employee_id", "employee_reason",
+            }
+            if correction_fields & set(vals) and any(rec.state != "draft" for rec in self):
+                raise ValidationError(_("Only submitted requests can be edited."))
+        return super().write(vals)
 
     def unlink(self):
         for rec in self:

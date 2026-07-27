@@ -36,6 +36,7 @@
                     <thead>
                         <tr class="active" style="background-color: #009879;color: #ffffff;">
                             <th>Employee</th>
+                            <th>Request Type</th>
                             <th>Date</th>
                             <th>Check In</th>
                             <th>Check Out</th>
@@ -50,6 +51,9 @@
                             <t t-set="loop_cycle_number" t-value="loop_cycle_number + 1"/>
                             <td>
                                 <span t-esc="shortage_request.employee_id.name"/>
+                            </td>
+                            <td>
+                                <span t-field="shortage_request.request_type"/>
                             </td>
                             <td>
                                 <span t-field="shortage_request.date" t-options="{'widget': 'date'}"/>
@@ -104,6 +108,12 @@
                                             <span t-esc="shortage_request_id.employee_id.job_id.name"/>
                                         </p>
                                         <div class="d-flex justify-content-start rounded-3 p-2 mb-2 bg-body-tertiary">
+                                            <div class="pe-3">
+                                                <p class="small text-muted mb-1">Request Type</p>
+                                                <p class="mb-0">
+                                                    <span t-field="shortage_request_id.request_type"/>
+                                                </p>
+                                            </div>
                                             <div style="width: 10% !important;">
                                                 <p class="small text-muted mb-1">Date</p>
                                                 <p class="mb-0">
