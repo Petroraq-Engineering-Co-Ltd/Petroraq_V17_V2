@@ -20,7 +20,7 @@
             (0, 0, {'view_mode': 'tree', 'view_id': ref('pr_hr_attendance.hr_shortage_request_tree_view')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('pr_hr_attendance.hr_shortage_request_form_view')})]"/>
         <field name="domain">['|', ('employee_id.user_id', '=', uid), ('employee_id.parent_id.user_id', '=', uid)]</field>
-        <field name="context">{'create': False,'edit': False}</field>
+        <field name="context">{'create': True, 'edit': True, 'default_request_type': 'no_punch'}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">
                 No shortage requests to display
@@ -31,7 +31,7 @@
     </record>
 
     <menuitem id="menu_my_shortage_request"
-              name="Shortage Requests"
+              name="Attendance Correction Requests"
               parent="menu_my_attendance"
               action="action_my_shortage_request"
               sequence="20"
@@ -45,6 +45,7 @@
         <field name="arch" type="xml">
             <tree string="">
                 <field name="name"/>
+                <field name="request_type"/>
                 <field name="employee_id"/>
                 <field name="check_in"/>
                 <field name="check_out"/>
@@ -83,7 +84,7 @@
     </record>
 
     <menuitem id="menu_my_shortage_request_approvals"
-              name="Shortage Requests"
+              name="Attendance Correction Requests"
               parent="de_hr_workspace.menu_my_employee_approvals"
               action="action_my_shortage_request_approvals"
               sequence="20"
