@@ -341,6 +341,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             )
             delivery_rows.append({
                 "delivery": delivery,
+                "total_quantity": demanded_quantity,
                 "delivered_quantity": delivered_quantity,
                 "pending_quantity": max(demanded_quantity - delivered_quantity, 0.0),
                 "status": status_labels[status],

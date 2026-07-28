@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pr_project_feasibility_calculator.Calculator">
+        <div class="o_pfc">
+            <section class="o_pfc_hero">
+                <div>
+<!--                    <span class="o_pfc_eyebrow">INVESTMENT DECISION WORKSPACE</span>-->
+                    <h1 style="color: #fff;">Project Feasibility Calculator</h1>
+                    <p>Compare the proposed profit share with your required fixed return, or calculate the minimum viable split.</p>
+                </div>
+                <div class="o_pfc_hero_actions">
+                    <button class="btn btn-light" t-on-click="newCalculation">
+                        <i class="fa fa-plus me-2"/>New
+                    </button>
+                    <button class="btn btn-outline-light" t-on-click="save" t-att-disabled="state.busy">
+                        <i class="fa fa-save me-2"/>Save
+                    </button>
+                    <button class="btn btn-warning" t-on-click="exportXlsx" t-att-disabled="state.busy">
+                        <i class="fa fa-file-excel-o me-2"/>Export XLSX
+                    </button>
+                </div>
+            </section>
+
+            <main class="o_pfc_body">
+                <div class="o_pfc_mode">
+                    <button t-att-class="state.mode === 'forward' ? 'active' : ''"
+                            t-on-click="() => this.setMode('forward')">
+                        <i class="fa fa-line-chart"/> Feasibility Test
+                        <small>Is the proposed split sufficient?</small>
+                    </button>
+                    <button t-att-class="state.mode === 'reverse' ? 'active' : ''"
+                            t-on-click="() => this.setMode('reverse')">
+                        <i class="fa fa-exchange"/> Reverse Calculator
+                        <small>What split makes it feasible?</small>
+                    </button>
+                </div>
+
+                <div class="o_pfc_grid">
+                    <section class="o_pfc_card o_pfc_inputs">
+                        <div class="o_pfc_card_head">
+                            <div>
+                                <span>PROJECT ASSUMPTIONS</span>
+                                <h2 t-esc="state.mode === 'forward' ? 'Test the proposed return' : 'Find the viable profit share'"/>
+                            </div>
+                            <i class="fa fa-sliders"/>
+                        </div>
+                        <div class="o_pfc_fields">
+                            <label class="o_pfc_field o_pfc_full">
+                                <span>Project / Opportunity Name</span>
+                                <input type="text" t-att-value="state.form.project_name"
+                                       t-on-input="(ev) => this.updateText('project_name', ev)"/>
+                            </label>
+                            <label class="o_pfc_field">
+                                <span>Investment Amount</span>
+                                <div class="o_pfc_input_group">
+                                    <b t-esc="state.currency.symbol"/>
+                                    <input type="text" inputmode="decimal"
+                                           t-att-value="formatInputAmount(state.form.investment_amount)"
+                                           t-on-input="(ev) => this.updateAmount('investment_amount', ev)"/>
+                                </div>
+                            </label>
+                            <label class="o_pfc_field">
+                                <span>Projected Total Project Profit</span>
+                                <div class="o_pfc_input_group">
+                                    <b t-esc="state.currency.symbol"/>
+                                    <input type="text" inputmode="decimal"
+                                           t-att-value="formatInputAmount(state.form.projected_total_profit)"
+                                           t-on-input="(ev) => this.updateAmount('projected_total_profit', ev)"/>
+                                </div>
+                            </label>
+                            <label class="o_pfc_field" style="display: none;">
+                                <span>Expected Fixed Return / Month</span>
+                                <div class="o_pfc_input_group">
+                                    <input type="number" min="0" step="0.1"
+                                           t-att-value="state.form.expected_monthly_rate"
+                                           t-on-input="(ev) => this.updateNumber('expected_monthly_rate', ev)"
+                                           t-on-change="(ev) => this.finalizeNumber('expected_monthly_rate', ev)"/>
+                                    <b>%</b>
+                                </div>
+                            </label>
+                            <label class="o_pfc_field">
+                                <span>Project Duration</span>
+                                <div class="o_pfc_input_group">
+                                    <input type="number" min="1" max="120" step="1"
+                                           t-att-value="state.form.duration_months"
+                                           t-on-input="(ev) => this.updateNumber('duration_months', ev)"
+                                           t-on-change="(ev) => this.finalizeNumber('duration_months', ev)"/>
+                                    <b>months</b>
+                                </div>
+                            </label>
+                            <label class="o_pfc_field o_pfc_full">
+                                <span>Investor Profit Share</span>
+                                <div class="o_pfc_ratio_line">
+                                    <input type="range" min="1" max="100" step="1"
+                                           t-att-value="state.form.investor_ratio"
+                                           t-on-input="(ev) => this.updateNumber('investor_ratio', ev)"/>
+                                    <div class="o_pfc_ratio_value">
+                                        <input type="number" min="1" max="100" step="1"
+                                               t-att-value="state.form.investor_ratio"
+                                               t-on-input="(ev) => this.updateNumber('investor_ratio', ev)"
+                                               t-on-change="(ev) => this.finalizeNumber('investor_ratio', ev)"/>
+                                        <b>%</b>
+                                    </div>
+                                </div>
+                                <small>Investor <strong t-esc="formatPercent(state.form.investor_ratio)"/> / Partner <strong t-esc="formatPercent(result.partnerRatio)"/></small>
+                            </label>
+                            <label class="o_pfc_field o_pfc_full">
+                                <span>Decision Notes</span>
+                                <textarea rows="3" t-att-value="state.form.notes"
+                                          placeholder="Risks, assumptions, or decision notes..."
+                                          t-on-input="(ev) => this.updateText('notes', ev)"/>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="o_pfc_results">
+                        <div t-att-class="'o_pfc_status ' + (result.feasible ? 'is_feasible' : 'is_not_feasible')">
+                            <i t-att-class="'fa ' + (result.feasible ? 'fa-check-circle' : 'fa-exclamation-triangle')"/>
+                            <div>
+                                <span>DECISION</span>
+                                <h2 t-esc="statusText"/>
+                                <p t-if="!result.feasible and !result.impossible">
+                                    Increase the investor share to at least
+                                    <strong t-esc="formatPercent(result.minimumRatio)"/>.
+                                </p>
+                                <p t-if="result.impossible">The projected total profit is below the required investor return.</p>
+                                <p t-if="result.feasible">The investor return meets or exceeds the required benchmark.</p>
+                            </div>
+                        </div>
+
+                        <div class="o_pfc_metric_grid">
+                            <article>
+                                <span>Investor Projected Profit</span>
+                                <strong t-esc="formatMoney(result.investorProfit)"/>
+                                <small t-esc="formatPercent(result.roi) + ' ROI'"/>
+                            </article>
+                            <article>
+                                <span>Required Fixed Profit</span>
+                                <strong t-esc="formatMoney(result.requiredProfit)"/>
+                                <small t-esc="formatPercent(state.form.expected_monthly_rate) + ' × ' + state.form.duration_months + ' months'"/>
+                            </article>
+                            <article t-att-class="result.variance &gt;= 0 ? 'positive' : 'negative'">
+                                <span>Profit Variance</span>
+                                <strong t-esc="formatMoney(result.variance)"/>
+                                <small>Projected less required</small>
+                            </article>
+                            <article>
+                                <span>Monthly Investor Profit</span>
+                                <strong t-esc="formatMoney(result.monthlyProfit)"/>
+                                <small>Average over project duration</small>
+                            </article>
+                        </div>
+
+                        <div class="o_pfc_reverse">
+                            <div class="o_pfc_card_head">
+                                <div>
+                                    <span>REVERSE CALCULATOR</span>
+                                    <h2>Minimum terms for feasibility</h2>
+                                </div>
+                                <i class="fa fa-bullseye"/>
+                            </div>
+                            <div class="o_pfc_reverse_values">
+                                <div>
+                                    <span>Minimum Investor Share</span>
+                                    <strong t-esc="formatPercent(result.minimumRatio)"/>
+                                    <small t-if="result.minimumRatio &lt;= 100">Partner share may be up to <t t-esc="formatPercent(100 - result.minimumRatio)"/></small>
+                                    <small t-else="">Not achievable within a 100% split</small>
+                                </div>
+                                <div>
+                                    <span>Required Total Profit at Current Split</span>
+                                    <strong t-esc="formatMoney(result.requiredTotalProfit)"/>
+                                    <small>At <t t-esc="formatPercent(state.form.investor_ratio)"/> investor share</small>
+                                </div>
+                            </div>
+                            <div class="o_pfc_formula">
+                                <i class="fa fa-info-circle"/>
+                                Required profit = Investment × Monthly fixed return × Duration.
+                                Minimum share = Required profit ÷ Total project profit.
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="o_pfc_saved">
+                    <div class="o_pfc_card_head">
+                        <div>
+                            <span>SAVED ANALYSES</span>
+                            <h2>Recent calculations</h2>
+                        </div>
+                        <button class="btn btn-outline-primary"
+                                t-on-click="() => this.action.doAction('pr_project_feasibility_calculator.action_project_feasibility_calculations')">
+                            View All
+                        </button>
+                    </div>
+                    <div class="o_pfc_empty" t-if="!state.records.length">No calculations saved yet.</div>
+                    <div class="o_pfc_table_wrap" t-else="">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Project</th>
+                                    <th>Investment</th>
+                                    <th>Profit Split</th>
+                                    <th>Required</th>
+                                    <th>Projected</th>
+                                    <th>Status</th>
+                                    <th/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="state.records" t-as="record" t-key="record.id">
+                                    <td><a href="#" t-on-click.prevent="() => this.openRecord(record)" t-esc="record.name"/></td>
+                                    <td t-esc="record.project_name"/>
+                                    <td t-esc="formatMoney(record.investment_amount)"/>
+                                    <td t-esc="formatPercent(record.investor_ratio)"/>
+                                    <td t-esc="formatMoney(record.required_profit)"/>
+                                    <td t-esc="formatMoney(record.investor_projected_profit)"/>
+                                    <td>
+                                        <span t-att-class="'o_pfc_badge ' + (record.feasible ? 'success' : 'danger')"
+                                              t-esc="record.feasible ? 'Feasible' : 'Not Feasible'"/>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-light" t-on-click="() => this.loadRecord(record)">
+                                            Load
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </t>
+</templates>

@@ -105,6 +105,28 @@ function addSorting(table) {
     });
 }
 
+function addClickableRows(table) {
+    [...table.tBodies].flatMap((body) => [...body.rows]).forEach((row) => {
+        if (!row.dataset.href || row.dataset.prClickableInitialized) {
+            return;
+        }
+        row.dataset.prClickableInitialized = "1";
+        const openRecord = (event) => {
+            if (event.target.closest("a, button, input, select, textarea, label")) {
+                return;
+            }
+            window.location.assign(row.dataset.href);
+        };
+        row.addEventListener("click", openRecord);
+        row.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openRecord(event);
+            }
+        });
+    });
+}
+
 function initializePortalTables(root = document) {
     root.querySelectorAll(
         ".o_portal_wrap table, main table.table, #wrapwrap table.table"
@@ -114,6 +136,7 @@ function initializePortalTables(root = document) {
         }
         addSorting(table);
         addSearch(table);
+        addClickableRows(table);
     });
 }
 

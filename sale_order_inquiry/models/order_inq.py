@@ -21,6 +21,25 @@ class OrderInquiry(models.Model):
     designation = fields.Char(string="Designation")
     user_id = fields.Many2one('res.users', string='Inquiry By',
                               required=True)
+    assigned_salesperson_id = fields.Many2one(
+        'res.users',
+        string='Assigned Salesperson',
+        tracking=True,
+        domain=lambda self: self._get_salesperson_domain(),
+    )
+    assigned_by_id = fields.Many2one(
+        'res.users',
+        string='Assigned By',
+        readonly=True,
+        tracking=True,
+    )
+    assigned_at = fields.Datetime(
+        string='Assigned On',
+        readonly=True,
+        tracking=True,
+    )
+    can_assign_inquiry = fields.Boolean(compute="_compute_inquiry_permissions")
+    can_accept_inquiry = fields.Boolean(compute="_compute_inquiry_permissions")
     partner_id = fields.Many2one(
         'res.partner',
         string='Customer',
@@ -35,6 +54,7 @@ class OrderInquiry(models.Model):
         [
             ('pending', 'Pending'),
             ('confirm', 'Submitted'),
+            ('assigned', 'Assigned'),
             ('accept', 'Accepted'),
             ('estimation_created', 'Estimation Created'),
             ('quotation_created', 'Quotation Created'),
@@ -233,6 +253,9 @@ class OrderInquiry(models.Model):
             'state': 'pending',
             'name': 'New',
             'inquiry_type': 'construction',
+            'assigned_salesperson_id': False,
+            'assigned_by_id': False,
+            'assigned_at': False,
         })
         return super().copy(default)
 
@@ -244,12 +267,37 @@ class OrderInquiry(models.Model):
             ))
         ]
 
+    @api.depends_context('uid')
+    @api.depends('assigned_salesperson_id', 'state')
+    def _compute_inquiry_permissions(self):
+        is_sales_manager = self.env.user.has_group('sales_team.group_sale_manager')
+        for inquiry in self:
+            inquiry.can_assign_inquiry = bool(
+                is_sales_manager and inquiry.state == 'confirm'
+            )
+            inquiry.can_accept_inquiry = bool(
+                inquiry.state == 'assigned'
+                and inquiry.assigned_salesperson_id == self.env.user
+            )
+
+    @api.constrains('assigned_salesperson_id')
+    def _check_assigned_salesperson_role(self):
+        for inquiry in self.filtered('assigned_salesperson_id'):
+            salesperson = inquiry.assigned_salesperson_id
+            if not (
+                salesperson.has_group('sales_team.group_sale_salesman')
+                or salesperson.has_group('sales_team.group_sale_manager')
+            ):
+                raise ValidationError(
+                    _("Assigned Salesperson must have Sales User or Sales Manager access.")
+                )
+
     @api.model
     def _cron_expire_inquiries_without_quotation(self):
         today = fields.Date.today()
 
         inquiries = self.search([
-            ('state', 'in', ['accept', 'confirm']),
+            ('state', 'in', ['accept', 'confirm', 'assigned']),
             ('deadline_submission', '<', today),
             ('sale_order_ids', '=', False),
         ])
@@ -282,6 +330,47 @@ class OrderInquiry(models.Model):
                     'subject': summary,
                     'body_html': f"<p>Dear Approver,</p><p>{note}</p><p><a href='{record_url}'>Open Inquiry</a></p>",
                 }).send()
+
+    def _notify_assigned_salesperson(self):
+        self.ensure_one()
+        salesperson = self.assigned_salesperson_id
+        if not salesperson:
+            return
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        record_url = f"{base_url}/web#id={self.id}&model=order.inq&view_type=form"
+        summary = _("Inquiry %s assigned to you") % self.name
+        note = _("Please review inquiry %s and accept it to begin processing.") % self.name
+        self.activity_schedule(
+            'mail.mail_activity_data_todo',
+            user_id=salesperson.id,
+            summary=summary,
+            note=note,
+        )
+        if salesperson.email:
+            self.env['mail.mail'].sudo().create({
+                'email_from': 'noreply@petroraq.com',
+                'email_to': salesperson.email,
+                'subject': summary,
+                'body_html': (
+                    f"<p>Dear {salesperson.name},</p>"
+                    f"<p>{note}</p><p><a href='{record_url}'>Open Inquiry</a></p>"
+                ),
+            }).send()
+
+    def action_assign_salesperson(self):
+        if not self.env.user.has_group('sales_team.group_sale_manager'):
+            raise UserError(_("Only a Sales Manager can assign an inquiry."))
+        for inquiry in self:
+            if inquiry.state != 'confirm':
+                raise UserError(_("Only a submitted inquiry can be assigned."))
+            if not inquiry.assigned_salesperson_id:
+                raise UserError(_("Select an Assigned Salesperson before assigning the inquiry."))
+            inquiry.sudo().write({
+                'state': 'assigned',
+                'assigned_by_id': self.env.user.id,
+                'assigned_at': fields.Datetime.now(),
+            })
+            inquiry._notify_assigned_salesperson()
 
     def action_reset_to_draft(self):
         self.write({
@@ -383,11 +472,33 @@ class OrderInquiry(models.Model):
             self.sale_count = None
 
     def action_accept(self):
-        self.state = 'accept'
+        for inquiry in self:
+            if inquiry.state != 'assigned':
+                raise UserError(_("Only an assigned inquiry can be accepted."))
+            if inquiry.assigned_salesperson_id != self.env.user:
+                raise UserError(_("Only the assigned salesperson can accept this inquiry."))
+            inquiry.sudo().write({'state': 'accept'})
+            inquiry.activity_ids.filtered(
+                lambda activity: activity.user_id == self.env.user
+            ).action_done()
 
     def write(self, vals):
         vals = dict(vals)
         self._apply_contact_partner_details_to_vals(vals)
+
+        if not self.env.su:
+            if {'assigned_by_id', 'assigned_at'} & set(vals):
+                raise UserError(_("Assignment audit fields are maintained automatically."))
+            if 'assigned_salesperson_id' in vals:
+                if not self.env.user.has_group('sales_team.group_sale_manager'):
+                    raise UserError(_("Only a Sales Manager can change inquiry assignment."))
+                if any(inquiry.state != 'confirm' for inquiry in self):
+                    raise UserError(_("Salesperson can only be selected on a submitted inquiry."))
+        if (
+            vals.get('state') in ('assigned', 'accept')
+            and not self.env.su
+        ):
+            raise UserError(_("Use the Assign or Accept action to change this inquiry stage."))
 
         if "inquiry_type" in vals and vals.get("inquiry_type") == "trading":
             non_trading_records = self.filtered(lambda rec: rec.inquiry_type != "trading")
@@ -432,6 +543,13 @@ class OrderInquiry(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             self._apply_contact_partner_details_to_vals(vals)
+
+            if (
+                vals.get('assigned_salesperson_id')
+                and not self.env.su
+                and not self.env.user.has_group('sales_team.group_sale_manager')
+            ):
+                raise UserError(_("Only a Sales Manager can assign an inquiry."))
 
             if vals.get("inquiry_type") == "trading":
                 raise UserError(
@@ -555,6 +673,8 @@ class OrderInquiry(models.Model):
 
     def action_open_reject_wizard(self):
         self.ensure_one()
+        if self.state != 'assigned' or self.assigned_salesperson_id != self.env.user:
+            raise UserError(_("Only the assigned salesperson can reject this inquiry."))
         return {
             "type": "ir.actions.act_window",
             "res_model": "order.inq.reject.reason.wizard",
@@ -634,7 +754,10 @@ class RejectReasonWizard(models.TransientModel):
     reason = fields.Text(string="Rejection Reason", required=True)
 
     def action_confirm_reject(self):
-        self.inquiry_id.write({'state': 'reject', 'rejection_reason': self.reason})
+        inquiry = self.inquiry_id
+        if inquiry.state != 'assigned' or inquiry.assigned_salesperson_id != self.env.user:
+            raise UserError(_("Only the assigned salesperson can reject this inquiry."))
+        inquiry.sudo().write({'state': 'reject', 'rejection_reason': self.reason})
 
 
 class OrderInquiryExtendDeadlineWizard(models.TransientModel):

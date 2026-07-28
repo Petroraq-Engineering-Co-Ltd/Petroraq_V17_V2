@@ -8,11 +8,10 @@
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="request_type"/>
-                <field name="credit_facility_type"/>
                 <field name="current_limit_amount"/>
                 <field name="requested_limit_amount"/>
                 <field name="change_amount"/>
-                <field name="payment_term_id"/>
+                <field name="allocated_limit_amount"/>
                 <field name="requested_by_id"/>
                 <field name="state" widget="badge"
                        decoration-info="state in ('sale_manager_approval', 'sales_md_approval')"
@@ -30,7 +29,14 @@
             <form string="Customer Credit Limit Request">
                 <header>
                     <button name="action_submit" string="Submit" type="object" class="btn-primary"
-                            invisible="state != 'draft'"/>
+                            invisible="state != 'draft' or request_type == 'migration'"/>
+                    <button name="action_activate_migrated_facility"
+                            string="Activate Opening Facility"
+                            type="object"
+                            class="btn-primary"
+                            groups="petroraq_sale_workflow.group_sale_approval_md,base.group_system"
+                            confirm="Activate this externally approved opening credit facility without the internal approval workflow?"
+                            invisible="state != 'draft' or request_type != 'migration'"/>
                     <button name="action_sale_manager_approve" string="Approve" type="object" class="btn-primary"
                             groups="petroraq_sale_workflow.group_sale_approval_manager"
                             invisible="state != 'sale_manager_approval'"/>
@@ -65,10 +71,8 @@
                             <field name="requested_by_id"/>
                             <field name="submitted_date"/>
                         </group>
-                        <group string="Facility">
+                        <group string="Request">
                             <field name="request_type" readonly="state != 'draft'"/>
-                            <field name="credit_facility_type" readonly="state != 'draft'"/>
-                            <field name="payment_term_id" readonly="state != 'draft'"/>
                             <field name="validity_start" readonly="state != 'draft'"/>
                             <field name="validity_end" readonly="state != 'draft'"/>
                         </group>
@@ -78,22 +82,78 @@
                             <field name="current_limit_amount"/>
                             <field name="requested_limit_amount" readonly="state != 'draft'"/>
                             <field name="change_amount"/>
-                        </group>
-                        <group>
-                            <field name="sale_manager_approved_by_id"/>
-                            <field name="sale_manager_approved_date"/>
-                            <field name="md_approved_by_id"/>
-                            <field name="md_approved_date"/>
+                            <field name="allocated_limit_amount"/>
+                            <field name="unallocated_limit_amount"
+                                   decoration-danger="unallocated_limit_amount != 0"/>
                         </group>
                     </group>
                     <notebook>
+                        <page string="Payment-Term Limits">
+                            <field name="term_line_ids" readonly="state != 'draft'">
+                                <tree editable="bottom">
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="payment_term_id"/>
+                                    <field name="limit_amount" sum="Total Allocated"/>
+                                    <field name="note" optional="show"/>
+                                </tree>
+                            </field>
+                            <div class="alert alert-info mt-2" role="alert">
+                                The allocated limits must equal the requested total. Exposure is controlled separately for each payment term.
+                            </div>
+                        </page>
+                        <page string="Registration Documents">
+                            <div class="alert alert-info" role="alert"
+                                 invisible="request_type != 'migration'">
+                                Documents are optional for opening/migrated facilities and do not block activation.
+                            </div>
+                            <group>
+                                <field name="missing_required_document_count"
+                                       string="Required Documents Missing"
+                                       invisible="request_type == 'migration'"/>
+                            </group>
+                            <field name="document_line_ids" readonly="state != 'draft'">
+                                <tree
+                                      decoration-danger="required and not fulfilled"
+                                      decoration-success="fulfilled">
+                                    <field name="sequence" column_invisible="True"/>
+                                    <field name="document_type_id"/>
+                                    <field name="required" readonly="1"/>
+                                    <field name="fulfilled" widget="boolean_toggle" readonly="1"/>
+                                    <field name="note" optional="show"/>
+                                </tree>
+                                <form string="Registration Document">
+                                    <group>
+                                        <field name="document_type_id" readonly="1"/>
+                                        <field name="required" readonly="1"/>
+                                        <field name="fulfilled" readonly="1"/>
+                                        <field name="note"/>
+                                    </group>
+                                    <field name="attachment_ids" widget="many2many_binary"/>
+                                </form>
+                            </field>
+                        </page>
                         <page string="Justification">
                             <field name="reason" placeholder="Add business justification, payment history, customer commitment, or credit facility notes."
                                    readonly="state != 'draft'"/>
                         </page>
-                        <page string="Attachments">
-                            <field name="attachment_ids" widget="many2many_binary"
-                                   readonly="state not in ('draft', 'sale_manager_approval', 'sales_md_approval')"/>
+                        <page string="Approval History" invisible="state == 'draft'">
+                            <group>
+                                <group string="Sales Manager"
+                                       invisible="request_type == 'migration'">
+                                    <field name="sale_manager_approved_by_id"/>
+                                    <field name="sale_manager_approved_date"/>
+                                </group>
+                                <group string="Sales MD"
+                                       invisible="request_type == 'migration'">
+                                    <field name="md_approved_by_id"/>
+                                    <field name="md_approved_date"/>
+                                </group>
+                                <group string="Opening Data"
+                                       invisible="request_type != 'migration'">
+                                    <field name="migrated_by_id"/>
+                                    <field name="migrated_date"/>
+                                </group>
+                            </group>
                         </page>
                         <page string="Rejection" invisible="state != 'rejected'">
                             <group>
@@ -147,6 +207,44 @@
         </field>
     </record>
 
+    <record id="view_pr_customer_credit_document_type_tree" model="ir.ui.view">
+        <field name="name">pr.customer.credit.document.type.tree</field>
+        <field name="model">pr.customer.credit.document.type</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="required"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_customer_credit_document_type_form" model="ir.ui.view">
+        <field name="name">pr.customer.credit.document.type.form</field>
+        <field name="model">pr.customer.credit.document.type</field>
+        <field name="arch" type="xml">
+            <form string="Credit Document Type">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="required"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                        <field name="active"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pr_customer_credit_document_type" model="ir.actions.act_window">
+        <field name="name">Registration Document Types</field>
+        <field name="res_model">pr.customer.credit.document.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
     <menuitem id="menu_pr_customer_credit_limit_root"
               name="Credit Limits"
               parent="sale.sale_menu_root"
@@ -156,4 +254,10 @@
               parent="menu_pr_customer_credit_limit_root"
               action="action_pr_customer_credit_limit_request"
               sequence="10"/>
+    <menuitem id="menu_pr_customer_credit_document_types"
+              name="Registration Document Types"
+              parent="menu_pr_customer_credit_limit_root"
+              action="action_pr_customer_credit_document_type"
+              groups="sales_team.group_sale_manager"
+              sequence="20"/>
 </odoo>

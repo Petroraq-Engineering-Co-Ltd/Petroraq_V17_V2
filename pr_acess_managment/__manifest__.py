@@ -1,6 +1,6 @@
 {
     "name": "PR Access Management",
-    "version": "17.0.1.0.2",
+    "version": "17.0.1.0.4",
     "summary": "Unified access management and advanced domain widget tools.",
     "category": "Tools",
     "author": "Mudassir",
@@ -31,6 +31,8 @@
             "pr_acess_managment/static/src/model_field_selector/model_field_selector.xml"
         ],
         "web.assets_backend": [
+            "pr_acess_managment/static/src/js/activity_visibility.js",
+            "pr_acess_managment/static/src/scss/activity_visibility.scss",
             "pr_acess_managment/static/src/js/action_menus.js",
             "pr_acess_managment/static/src/js/hide_chatter.js",
             "pr_acess_managment/static/src/js/cog_menu.js",
