@@ -539,9 +539,12 @@ class PurchaseOrder(models.Model):
             return str(html_escape(value or "")).replace("\n", "<br/>")
 
         rows = "".join(
-            "<tr><td style='padding:4px 8px;width:25%;'><strong>%s</strong></td>"
-            "<td style='padding:4px 8px;'>%s</td></tr>"
-            % (html_escape(label), _html_value(value))
+            (
+                "<tr><td style='padding:4px 8px;width:25%;'><strong>"
+                f"{html_escape(label)}</strong></td>"
+                "<td style='padding:4px 8px;'>"
+                f"{_html_value(value)}</td></tr>"
+            )
             for label, value in items
         )
         html = (
