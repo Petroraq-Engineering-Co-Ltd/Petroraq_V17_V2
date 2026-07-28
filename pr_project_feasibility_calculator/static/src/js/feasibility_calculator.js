@@ -8,6 +8,7 @@ const DEFAULTS = {
     id: false,
     project_name: "New Project",
     investment_amount: 1000000,
+    total_project_amount: 1500000,
     projected_total_profit: 500000,
     investor_ratio: 50,
     expected_monthly_rate: 5,
@@ -151,6 +152,7 @@ export class ProjectFeasibilityCalculator extends Component {
             id: this.state.form.id || false,
             project_name: this.state.form.project_name || "New Project",
             investment_amount: this.number(this.state.form.investment_amount),
+            total_project_amount: this.number(this.state.form.total_project_amount),
             projected_total_profit: this.number(this.state.form.projected_total_profit),
             investor_ratio: Math.max(
                 1,

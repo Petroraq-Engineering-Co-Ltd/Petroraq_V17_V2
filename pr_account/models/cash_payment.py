@@ -186,11 +186,27 @@ class AccountCashPayment(models.Model):
             rec.accounting_manager_state = "submit"
 
     def action_finance_approve(self):
+        if (
+            not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and (
+                not self.env.user.has_group("account.group_account_manager")
+                or self.env.user.has_group("pr_account.custom_group_accounting_manager")
+            )
+        ):
+            raise UserError(_("Only an Accountant can approve this stage."))
         for bank_payment in self:
             bank_payment.state = "finance_approve"
             bank_payment.accounting_manager_state = "finance_approve"
 
     def action_post(self):
+        if (
+            self.filtered(lambda payment: payment.state == "finance_approve")
+            and not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and not self.env.user.has_group("pr_account.custom_group_accounting_manager")
+        ):
+            raise UserError(_("Only the Accounting Manager can give final approval."))
         for cash_payment in self:
             cash_payment._check_lock_date()
             if cash_payment.cash_payment_line_ids:

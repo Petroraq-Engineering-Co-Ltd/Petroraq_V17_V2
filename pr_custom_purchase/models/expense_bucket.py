@@ -81,7 +81,10 @@ class ExpenseBucket(models.Model):
     def _compute_role_flags(self):
         user = self.env.user
         is_project_manager = user.has_group("pr_custom_purchase.project_manager")
-        is_accounts = user.has_group("account.group_account_manager") or user.has_group("account.group_account_user")
+        is_accounts = (
+            user.has_group("account.group_account_manager")
+            and not user.has_group("pr_account.custom_group_accounting_manager")
+        )
         is_md = user.has_group("pr_custom_purchase.managing_director")
         for rec in self:
             is_department_manager = bool(
@@ -111,6 +114,10 @@ class ExpenseBucket(models.Model):
             group = self.env.ref(xmlid, raise_if_not_found=False)
             if group:
                 users |= group.users
+        if "account.group_account_manager" in group_xml_ids:
+            users = users.filtered(
+                lambda user: not user.has_group("pr_account.custom_group_accounting_manager")
+            )
         users = users.filtered(lambda u: u.active)
 
         for rec in self:
@@ -271,7 +278,7 @@ class ExpenseBucket(models.Model):
                     raise UserError(_("Only Department Manager can approve at this stage."))
                 raise UserError(_("Only Project Manager can approve at this stage."))
             rec.state = "accounts_approval"
-            rec._notify_group(["account.group_account_manager", "account.group_account_user"],
+            rec._notify_group(["account.group_account_manager"],
                               _("Expense  Approval Needed"),
                               _("Expense  <b>%s</b> is waiting for Accounts approval.") % rec.display_name)
 
