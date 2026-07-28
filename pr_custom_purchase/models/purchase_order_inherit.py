@@ -1,4 +1,4 @@
-from odoo import _, models
+from odoo import _, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import html2plaintext, html_escape, is_html_empty
 from datetime import datetime, date, timedelta
@@ -9,6 +9,17 @@ from reportlab.lib.units import mm
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
+
+    # Upgrade compatibility only. Older databases still have an inherited view
+    # referencing this field, and Odoo may validate that stored view before it
+    # reaches the XML record that removes the field from the UI. Keep the field
+    # available for one transition release; it is not used by any workflow,
+    # report, email, or active view.
+    payment_terms_text = fields.Text(
+        string="Legacy Payment Terms",
+        copy=False,
+        help="Deprecated compatibility field. Use the standard Payment Terms field.",
+    )
 
     def _require_terms_and_conditions(self):
         missing_orders = self.filtered(
