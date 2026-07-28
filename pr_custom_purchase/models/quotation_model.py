@@ -617,6 +617,10 @@ class PurchaseOrder(models.Model):
             )
 
     def _submit_for_po_approval(self):
+        # Keep the validation on the canonical transition itself. This method is
+        # reached by both the explicit Submit button and the Confirm/resubmit
+        # compatibility path, so an incomplete PO must never enter the queue.
+        self._require_terms_and_conditions()
         for order in self:
             if order.is_rfq_record:
                 raise UserError(_("RFQs cannot be submitted for PO approval. Create/select a Purchase Order first."))

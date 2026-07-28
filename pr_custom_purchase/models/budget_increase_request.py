@@ -39,7 +39,10 @@ class BudgetIncreaseRequest(models.Model):
     def _compute_role_flags(self):
         user = self.env.user
         is_pm = user.has_group("pr_custom_purchase.project_manager")
-        is_accounts = user.has_group("account.group_account_manager") or user.has_group("account.group_account_user")
+        is_accounts = (
+            user.has_group("account.group_account_manager")
+            and not user.has_group("pr_account.custom_group_accounting_manager")
+        )
         is_md = user.has_group("pr_custom_purchase.managing_director")
         for rec in self:
             rec.can_pm_approve = is_pm
@@ -70,6 +73,10 @@ class BudgetIncreaseRequest(models.Model):
             group = self.env.ref(xmlid, raise_if_not_found=False)
             if group:
                 users |= group.users
+        if "account.group_account_manager" in xmlids:
+            users = users.filtered(
+                lambda user: not user.has_group("pr_account.custom_group_accounting_manager")
+            )
         users = users.filtered(lambda u: u.active)
         activity_type = self.env.ref("mail.mail_activity_data_todo")
         for req in self:
@@ -110,7 +117,7 @@ class BudgetIncreaseRequest(models.Model):
                 raise UserError(_("Only Project Manager can approve at this stage."))
             rec.state = "accounts_approval"
         self._schedule_group_activity(
-            ["account.group_account_manager", "account.group_account_user"],
+            ["account.group_account_manager"],
             _("Budget Increase Approval Needed"),
             _("Please review budget increase request <b>%s</b>.") % self.name,
         )

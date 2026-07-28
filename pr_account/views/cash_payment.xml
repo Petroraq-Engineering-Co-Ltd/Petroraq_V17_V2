@@ -49,7 +49,7 @@
                             type="object"
                             class="btn-teal-custom"
                             invisible="state != 'submit' or check_process_state == False"
-                            groups="account.group_account_manager"
+                            groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                     />
                     <button
                             string="Final Approve"
@@ -190,7 +190,7 @@
                             <button name="action_approve_remaining_lines" string="APPROVE REMAINING LINES" type="object"
                                     class="btn-success"
                                     invisible="state != 'submit' or check_process_state == True"
-                                    groups="account.group_account_manager,pr_account.custom_group_accounting_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     style="display: inline-block !important; width: 400px !important; margin-right: 50px !important;"/>
                         </div>
                         <div style="display: inline-block !important; width: 400px !important;"
@@ -198,7 +198,7 @@
                             <button name="action_reject_remaining_lines" string="REJECT REMAINING LINES" type="object"
                                     class="btn-danger"
                                     invisible="state != 'submit' or check_process_state == True"
-                                    groups="account.group_account_manager,pr_account.custom_group_accounting_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     style="display: inline-block !important; width: 400px !important;"/>
                         </div>
 
@@ -256,11 +256,11 @@
                                    decoration-danger="state ==  'reject'"
                             />
                             <button name="action_line_approve" string="APPROVE" type="object" class="btn-success"
-                                    groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     invisible="state != 'submit'"
                             />
                             <button name="action_line_reject" string="REJECT" type="object" class="btn-danger"
-                                    groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     invisible="state != 'submit'"
                             />
                             <field name="reject_reason" decoration-danger="1"/>

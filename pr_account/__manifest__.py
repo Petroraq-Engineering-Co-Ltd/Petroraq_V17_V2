@@ -19,7 +19,7 @@
     'version': '17.0.1.0.10',
     "license": "LGPL-3",
     # any module necessary for this one to work correctly
-    'depends': ['account_accountant', 'account_reports', 'de_hr_workspace'],
+    'depends': ['account_accountant', 'account_reports', 'de_hr_workspace', 'l10n_sa_edi'],
 
     # always loaded
     'data': [

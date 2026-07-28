@@ -977,6 +977,15 @@ class PrEndOfService(models.Model):
         }
 
     def action_accounting_approve(self):
+        if not (
+            self.env.su
+            or self.env.user.has_group("base.group_system")
+            or (
+                self.env.user.has_group("account.group_account_manager")
+                and not self.env.user.has_group("pr_account.custom_group_accounting_manager")
+            )
+        ):
+            raise UserError(_("Only an Accountant can approve this stage."))
         for rec in self:
             if rec.state != "accounts_approval":
                 continue

@@ -25,6 +25,7 @@ class TestPurchaseOrderRejection(TransactionCase):
             "partner_id": self.vendor.id,
             "state": "pending",
             "origin": "MISSING-RFQ-FOR-REJECTION-TEST",
+            "notes": "<p>Standard purchase terms.</p>",
             "pe_approved": True,
             "order_line": [(0, 0, {
                 "product_id": self.product.id,
@@ -89,6 +90,18 @@ class TestPurchaseOrderRejection(TransactionCase):
         self.assertEqual(order.approval_status, "pending_pe")
         self.assertFalse(order.pe_approved)
         self.assertFalse(order.rejection_reason)
+
+    def test_submit_rejects_missing_terms_before_entering_approval(self):
+        order = self._create_pending_po()
+        order.action_reject(reason="Please revise the quotation.")
+        order.action_reset_to_draft()
+        order.notes = False
+
+        with self.assertRaisesRegex(UserError, "Terms & Conditions"):
+            order.action_submit_for_approval()
+
+        self.assertEqual(order.state, "draft")
+        self.assertFalse(order.pe_approved)
 
     def test_rfq_cannot_be_submitted_for_po_approval(self):
         rfq = self.env["purchase.order"].create({

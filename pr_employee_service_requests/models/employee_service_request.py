@@ -452,13 +452,11 @@ class PrEmployeeServiceRequest(models.Model):
 
         user = self.env.user
         is_admin = user.has_group("base.group_system")
-        is_accounts = is_admin or any(
-            user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS
+        is_accounts = is_admin or (
+            user.has_group("account.group_account_manager")
+            and not user.has_group("pr_account.custom_group_accounting_manager")
         )
-        is_finance = is_admin or (
-            user.has_group("pr_account.custom_group_accounting_manager")
-            or user.has_group("account.group_account_manager")
-        )
+        is_finance = is_admin or user.has_group("pr_account.custom_group_accounting_manager")
         accounts_domain = (
             [("state", "=", "accounts_approval")]
             if is_accounts
@@ -602,11 +600,11 @@ class PrEmployeeServiceRequest(models.Model):
             user.has_group("pr_custom_purchase.managing_director")
             or user.has_group("pr_hr_recruitment_request.group_onboarding_md")
         )
-        is_accounts = any(user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
-        is_finance = (
-            user.has_group("pr_account.custom_group_accounting_manager")
-            or user.has_group("account.group_account_manager")
+        is_accounts = (
+            user.has_group("account.group_account_manager")
+            and not user.has_group("pr_account.custom_group_accounting_manager")
         )
+        is_finance = user.has_group("pr_account.custom_group_accounting_manager")
         is_admin = user.has_group("base.group_system")
         for rec in self:
             is_owner = rec.requested_by_id == user or rec.employee_id.user_id == user
@@ -1411,6 +1409,10 @@ class PrEmployeeServiceRequest(models.Model):
             group = self.env.ref(xmlid, raise_if_not_found=False)
             if group:
                 users |= group.users
+        if "account.group_account_manager" in group_xml_ids:
+            users = users.filtered(
+                lambda user: not user.has_group("pr_account.custom_group_accounting_manager")
+            )
         self._notify_users(users, summary, note)
 
     def _notify_users(self, users, summary, note):

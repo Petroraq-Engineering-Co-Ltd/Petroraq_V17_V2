@@ -60,6 +60,15 @@
                                 </div>
                             </label>
                             <label class="o_pfc_field">
+                                <span>Total Project Amount</span>
+                                <div class="o_pfc_input_group">
+                                    <b t-esc="state.currency.symbol"/>
+                                    <input type="text" inputmode="decimal"
+                                           t-att-value="formatInputAmount(state.form.total_project_amount)"
+                                           t-on-input="(ev) => this.updateAmount('total_project_amount', ev)"/>
+                                </div>
+                            </label>
+                            <label class="o_pfc_field">
                                 <span>Projected Total Project Profit</span>
                                 <div class="o_pfc_input_group">
                                     <b t-esc="state.currency.symbol"/>
@@ -199,6 +208,7 @@
                                 <tr>
                                     <th>Reference</th>
                                     <th>Project</th>
+                                    <th>Project Amount</th>
                                     <th>Investment</th>
                                     <th>Profit Split</th>
                                     <th>Required</th>
@@ -211,6 +221,7 @@
                                 <tr t-foreach="state.records" t-as="record" t-key="record.id">
                                     <td><a href="#" t-on-click.prevent="() => this.openRecord(record)" t-esc="record.name"/></td>
                                     <td t-esc="record.project_name"/>
+                                    <td t-esc="formatMoney(record.total_project_amount)"/>
                                     <td t-esc="formatMoney(record.investment_amount)"/>
                                     <td t-esc="formatPercent(record.investor_ratio)"/>
                                     <td t-esc="formatMoney(record.required_profit)"/>

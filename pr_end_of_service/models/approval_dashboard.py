@@ -15,7 +15,7 @@ class HrApprovalDashboardService(models.AbstractModel):
             domains.append([("state", "=", "md_approval")])
         if (
             user.has_group("account.group_account_manager")
-            or user.has_group("pr_account.custom_group_accounting_manager")
+            and not user.has_group("pr_account.custom_group_accounting_manager")
         ):
             domains.append([("state", "=", "accounts_approval")])
         if user.has_group("hr.group_hr_user"):
