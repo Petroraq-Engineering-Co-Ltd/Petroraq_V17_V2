@@ -17,7 +17,11 @@
             </tr>
         </xpath>
         <xpath expr="//t[@t-foreach='invoices']/tr" position="replace">
-            <tr>
+            <tr class="o_pr_portal_clickable_row"
+                role="link"
+                tabindex="0"
+                t-att-data-href="invoice.get_portal_url()"
+                t-att-aria-label="'Open vendor invoice %s' % invoice.display_name">
                 <t t-set="purchase_orders" t-value="invoice.invoice_line_ids.mapped('purchase_line_id.order_id')"/>
                 <td><t t-out="', '.join(purchase_orders.mapped('name')) or invoice.invoice_origin or '-'"/></td>
                 <td>

@@ -25,6 +25,23 @@
                                     string="Create Credit Limit Request"
                                     type="object"
                                     class="btn-primary"/>
+                            <button name="action_create_opening_credit_facility"
+                                    string="Enter Opening Facility"
+                                    type="object"
+                                    class="btn-secondary"
+                                    groups="petroraq_sale_workflow.group_sale_approval_md,base.group_system"
+                                    invisible="pr_credit_limit_enabled"/>
+                            <button name="action_revise_credit_facility"
+                                    string="Revise Facility"
+                                    type="object"
+                                    class="btn-secondary"
+                                    invisible="not pr_credit_limit_enabled"/>
+                            <button name="action_reset_credit_facility"
+                                    string="Close Facility"
+                                    type="object"
+                                    class="btn-secondary"
+                                    confirm="This creates an approval request to close the facility; it does not close it immediately."
+                                    invisible="not pr_credit_limit_enabled"/>
                         </group>
                         <group string="Current Exposure">
                             <field name="pr_credit_limit_receivable_exposure"/>
@@ -33,6 +50,23 @@
                             <field name="pr_credit_limit_remaining"/>
                         </group>
                     </group>
+                    <separator string="Approved Limits by Payment Term"/>
+                    <field name="pr_credit_term_limit_ids" readonly="1">
+                        <tree>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" column_invisible="True"/>
+                            <field name="payment_term_id"/>
+                            <field name="limit_amount"/>
+                            <field name="receivable_exposure"/>
+                            <field name="sale_order_exposure"/>
+                            <field name="total_exposure"/>
+                            <field name="remaining_amount"
+                                   decoration-danger="remaining_amount &lt; 0"/>
+                            <field name="validity_start" optional="show"/>
+                            <field name="validity_end" optional="show"/>
+                            <field name="approved_request_id" optional="show"/>
+                        </tree>
+                    </field>
                 </page>
             </xpath>
         </field>

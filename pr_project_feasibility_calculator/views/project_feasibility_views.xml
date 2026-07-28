@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_project_feasibility_tree" model="ir.ui.view">
+        <field name="name">project.feasibility.calculation.tree</field>
+        <field name="model">project.feasibility.calculation</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="feasible"
+                  decoration-danger="feasibility_status in ('not_feasible', 'impossible')">
+                <field name="name"/>
+                <field name="project_name"/>
+                <field name="calculation_date"/>
+                <field name="investment_amount" sum="Total Investment"/>
+                <field name="projected_total_profit" sum="Total Profit"/>
+                <field name="investor_ratio"/>
+                <field name="duration_months"/>
+                <field name="required_profit"/>
+                <field name="investor_projected_profit"/>
+                <field name="profit_variance" sum="Total Variance"/>
+                <field name="minimum_feasible_ratio"/>
+                <field name="feasible" column_invisible="True"/>
+                <field name="feasibility_status" widget="badge"
+                       decoration-success="feasibility_status == 'feasible'"
+                       decoration-danger="feasibility_status in ('not_feasible', 'impossible')"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_project_feasibility_form" model="ir.ui.view">
+        <field name="name">project.feasibility.calculation.form</field>
+        <field name="model">project.feasibility.calculation</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_export_xlsx" type="object"
+                            string="Export XLSX" class="btn-primary"
+                            icon="fa-file-excel-o"/>
+                    <field name="feasibility_status" widget="statusbar"
+                           statusbar_visible="feasible,not_feasible,impossible"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="project_name"/>
+                        <h1><field name="project_name"/></h1>
+                        <h2><field name="name" readonly="1"/></h2>
+                    </div>
+                    <group>
+                        <group string="Project Assumptions">
+                            <field name="calculation_date"/>
+                            <field name="investment_amount"/>
+                            <field name="projected_total_profit"/>
+                            <field name="duration_months"/>
+                            <field name="currency_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Return Assumptions">
+                            <field name="investor_ratio"/>
+                            <field name="partner_ratio" readonly="1"/>
+                            <field name="expected_monthly_rate"/>
+                            <field name="projected_monthly_profit" readonly="1"/>
+                            <field name="projected_roi" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Feasibility Result">
+                            <field name="investor_projected_profit" readonly="1"/>
+                            <field name="required_profit" readonly="1"/>
+                            <field name="profit_variance" readonly="1"/>
+                            <field name="feasible" readonly="1"/>
+                        </group>
+                        <group string="Reverse Calculator">
+                            <field name="minimum_feasible_ratio" readonly="1"/>
+                            <field name="required_total_project_profit" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Assumptions, risks, or decision notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_project_feasibility_search" model="ir.ui.view">
+        <field name="name">project.feasibility.calculation.search</field>
+        <field name="model">project.feasibility.calculation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="project_name"/>
+                <filter name="feasible" string="Feasible" domain="[('feasible', '=', True)]"/>
+                <filter name="not_feasible" string="Not Feasible" domain="[('feasible', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_status" string="Status" context="{'group_by': 'feasibility_status'}"/>
+                    <filter name="group_month" string="Calculation Month" context="{'group_by': 'calculation_date:month'}"/>
+                    <filter name="group_company" string="Company" context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_project_feasibility_calculations" model="ir.actions.act_window">
+        <field name="name">Saved Calculations</field>
+        <field name="res_model">project.feasibility.calculation</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_project_feasibility_search"/>
+    </record>
+</odoo>

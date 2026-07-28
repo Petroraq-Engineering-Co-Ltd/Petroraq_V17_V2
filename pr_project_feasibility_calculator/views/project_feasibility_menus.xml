@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_project_feasibility_calculator" model="ir.actions.client">
+        <field name="name">Project Feasibility Calculator</field>
+        <field name="tag">pr_project_feasibility_calculator.main</field>
+    </record>
+
+    <menuitem id="menu_project_feasibility_root"
+              name="Project Feasibility"
+              action="action_project_feasibility_calculator"
+              sequence="72"
+              web_icon="pr_project_feasibility_calculator,static/description/icon.svg"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_project_feasibility_calculator"
+              name="Calculator"
+              parent="menu_project_feasibility_root"
+              action="action_project_feasibility_calculator"
+              sequence="1"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_project_feasibility_saved"
+              name="Saved Calculations"
+              parent="menu_project_feasibility_root"
+              action="action_project_feasibility_calculations"
+              sequence="10"
+              groups="base.group_user"/>
+</odoo>

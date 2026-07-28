@@ -82,6 +82,7 @@ class ResPartner(models.Model):
                     "partner": duplicate_vat_partner.display_name,
                 })
 
+    @api.model
     def name_create(self, name):
         if self._pr_context_requires_partner_identifiers():
             raise ValidationError(_(
