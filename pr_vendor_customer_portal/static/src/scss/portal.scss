@@ -715,6 +715,20 @@ $pr-portal-background: #f4f7fb;
     max-width: 32rem;
 }
 
+.o_pr_portal_clickable_row {
+    cursor: pointer;
+
+    &:hover > *,
+    &:focus > * {
+        background-color: #edf3fa !important;
+    }
+
+    &:focus {
+        outline: 2px solid $pr-portal-navy;
+        outline-offset: -2px;
+    }
+}
+
 // The standard purchase portal allocates only 25% to the record sidebar.
 // Vendor actions and SAR totals need a little more room.
 @media (min-width: 992px) {

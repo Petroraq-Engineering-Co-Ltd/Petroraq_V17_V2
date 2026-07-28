@@ -24,6 +24,11 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Attendances</t>
             </t>
+            <div class="mb-3 text-end">
+                <a href="/shortage_request" class="btn btn-primary">
+                    Request Attendance Correction
+                </a>
+            </div>
             <t t-if="not attendances">
                 <div class="alert alert-warning" role="alert">
                     There are no attendances.

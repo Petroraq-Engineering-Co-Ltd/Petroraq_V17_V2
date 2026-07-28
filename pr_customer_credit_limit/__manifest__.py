@@ -1,7 +1,7 @@
 {
     "name": "Petroraq: Customer Credit Limit",
     "summary": "Approved customer credit facilities and sale order credit exposure checks",
-    "version": "17.0.1.0.0",
+    "version": "17.0.2.2.0",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "website": "https://petroraq.com",
     "category": "Sales",
@@ -16,6 +16,7 @@
         "security/ir.model.access.csv",
         "security/record_rules.xml",
         "data/ir_sequence_data.xml",
+        "data/credit_document_type_data.xml",
         "views/credit_limit_request_views.xml",
         "views/res_partner_views.xml",
         "views/sale_order_views.xml",

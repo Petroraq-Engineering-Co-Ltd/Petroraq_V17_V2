@@ -227,7 +227,7 @@
                                 <tr><td class="pr-eos-label">Commission / Incentives</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['commission'])"/></td></tr>
                                 <tr><td class="pr-eos-label">Any Addition</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(doc.other_amount)"/></td></tr>
                                 <tr><td class="pr-eos-label">Other Payables</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['other_payables'])"/></td></tr>
-                                <tr class="pr-eos-total"><td>TOTAL PAYABLE</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['employee_payables'])"/></td></tr>
+                                <tr class="pr-eos-total"><td>TOTAL EMPLOYEE PAYABLES</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['employee_payables'])"/></td></tr>
                             </table>
                         </div>
 
@@ -249,7 +249,7 @@
                         <div class="pr-eos-section">
                             <div class="pr-eos-section-title">7. Final Settlement</div>
                             <table class="pr-eos-table">
-                                <tr><td class="pr-eos-label">Total Payable</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['employee_payables'])"/></td></tr>
+                                <tr><td class="pr-eos-label">Total Payable (Including EOSB)</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['gross_settlement'])"/></td></tr>
                                 <tr><td class="pr-eos-label">Total Deductions</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['total_deductions'])"/></td></tr>
                                 <tr class="pr-eos-net"><td>NET FINAL SETTLEMENT PAYABLE</td><td class="pr-eos-amount"><span t-esc="doc._format_final_settlement_amount(data['net_settlement'])"/></td></tr>
                             </table>

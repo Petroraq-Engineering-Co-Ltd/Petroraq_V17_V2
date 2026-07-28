@@ -241,6 +241,21 @@ class access_management(models.Model):
             'hide_schedule_activity': hide_schedule_activity
         }
 
+    @api.model
+    def get_global_activity_visibility(self):
+        """Return whether activities must be hidden globally for the current user."""
+        rules = self.sudo().search([
+            ('active', '=', True),
+            ('user_ids', 'in', self.env.user.id),
+            ('hide_schedule_activity', '=', True),
+        ])
+        rules = rules.filtered(
+            lambda rule:
+                rule.is_apply_on_without_company
+                or self.env.company in rule.company_ids
+        )
+        return {'hide_activities': bool(rules)}
+
     def is_spread_sheet_available(self, action_model, action_id):
         model = self.env[action_model].sudo().browse(action_id).res_model
         if self.search([('user_ids', 'in', self.env.user.id), ('company_ids', 'in', self.env.company.id),

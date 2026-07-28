@@ -1,0 +1,17 @@
+body.o_pr_hide_activities {
+    // Global activity systray menu.
+    .o_menu_systray .o-mail-DiscussSystray-class:has(.fa-clock-o),
+    .o-mail-DiscussSystray-class:has(.fa-clock-o),
+    .o_menu_systray .o-mail-ActivityMenu,
+    .o_menu_systray .o_mail_systray_item.o-mail-ActivityMenu {
+        display: none !important;
+    }
+
+    // Schedule button and all existing/planned activity content in chatter.
+    .o-mail-Chatter .o-mail-Chatter-activity,
+    .o-mail-Chatter .o-mail-Chatter-activities,
+    .o-mail-Chatter .o-mail-ActivityList,
+    .o-mail-Chatter .o-mail-Activity {
+        display: none !important;
+    }
+}

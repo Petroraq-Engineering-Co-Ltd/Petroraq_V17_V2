@@ -13,17 +13,12 @@ class SaleOrder(models.Model):
         string="Credit Currency",
         readonly=True,
     )
-    pr_credit_limit_partner_id = fields.Many2one(
-        "res.partner",
-        string="Credit Customer",
-        compute="_compute_pr_credit_limit_status",
-    )
     pr_is_credit_payment_term = fields.Boolean(
         string="Credit Payment Term",
         compute="_compute_pr_credit_limit_status",
     )
-    pr_approved_credit_limit = fields.Monetary(
-        string="Approved Credit Limit",
+    pr_approved_term_credit_limit = fields.Monetary(
+        string="Approved Term Limit",
         compute="_compute_pr_credit_limit_status",
         currency_field="pr_credit_company_currency_id",
     )
@@ -105,28 +100,40 @@ class SaleOrder(models.Model):
             partner = order.partner_id.commercial_partner_id if order.partner_id else self.env["res.partner"]
             is_credit_term = order._pr_uses_credit_payment_term() if order.payment_term_id else False
 
-            limit = partner.pr_credit_limit_amount if partner and partner.pr_credit_limit_enabled else 0.0
+            term_limit_line = self.env["pr.customer.credit.term.limit"]
+            term_limit = 0.0
             exposure_before = 0.0
             current_order_exposure = 0.0
             projected = 0.0
 
             if partner and is_credit_term:
-                exposure_before = partner._pr_get_credit_exposure(company, exclude_sale_order=order)
+                term_limit_line = partner._pr_get_term_credit_limit(
+                    company,
+                    order.payment_term_id,
+                    on_date=order.date_order,
+                )
+                term_limit = term_limit_line.limit_amount if term_limit_line else 0.0
+                exposure_before = partner._pr_get_credit_exposure(
+                    company,
+                    exclude_sale_order=order,
+                    payment_term=order.payment_term_id,
+                )
                 if order.state in ("sale", "done"):
                     current_order_exposure = order._pr_credit_open_order_amount_company_currency()
                 else:
                     current_order_exposure = order._pr_order_amount_company_currency()
                 projected = currency.round(exposure_before + current_order_exposure)
 
-            remaining = currency.round(limit - projected)
+            remaining = currency.round(term_limit - projected)
 
-            order.pr_credit_limit_partner_id = partner
             order.pr_is_credit_payment_term = is_credit_term
-            order.pr_approved_credit_limit = limit
+            order.pr_approved_term_credit_limit = term_limit
             order.pr_credit_exposure_before_order = exposure_before
             order.pr_credit_projected_exposure = projected
             order.pr_credit_remaining_after_order = remaining
-            order.pr_credit_exceeded_amount = max(currency.round(projected - limit), 0.0) if is_credit_term else 0.0
+            order.pr_credit_exceeded_amount = (
+                max(currency.round(projected - term_limit), 0.0) if is_credit_term else 0.0
+            )
 
     def _pr_check_credit_limit_before_confirm(self):
         for order in self:
@@ -143,24 +150,43 @@ class SaleOrder(models.Model):
                     "Please approve a Customer Credit Limit Request before confirming credit sales orders."
                 ) % {"customer": partner.display_name})
 
-            exposure_before = partner._pr_get_credit_exposure(company, exclude_sale_order=order)
+            term_limit_line = partner._pr_get_term_credit_limit(
+                company,
+                order.payment_term_id,
+                on_date=order.date_order,
+            )
+            if not term_limit_line:
+                raise ValidationError(_(
+                    "Customer %(customer)s has no approved credit allocation for payment term %(term)s. "
+                    "Create and approve a Credit Facility revision that allocates a limit to this term."
+                ) % {
+                    "customer": partner.display_name,
+                    "term": order.payment_term_id.display_name,
+                })
+
+            exposure_before = partner._pr_get_credit_exposure(
+                company,
+                exclude_sale_order=order,
+                payment_term=order.payment_term_id,
+            )
             order_amount = order._pr_order_amount_company_currency()
             projected = currency.round(exposure_before + order_amount)
-            limit = currency.round(partner.pr_credit_limit_amount or 0.0)
+            limit = currency.round(term_limit_line.limit_amount or 0.0)
 
             if float_compare(projected, limit, precision_rounding=currency.rounding) > 0:
                 remaining = currency.round(limit - exposure_before)
                 exceeded = currency.round(projected - limit)
                 raise ValidationError(_(
-                    "Cannot confirm %(order)s because it exceeds the approved credit limit for %(customer)s.\n\n"
-                    "Approved Limit: %(limit)s\n"
-                    "Existing Exposure: %(exposure)s\n"
+                    "Cannot confirm %(order)s because it exceeds the approved %(term)s credit limit for %(customer)s.\n\n"
+                    "Approved Term Limit: %(limit)s\n"
+                    "Existing Exposure for This Term: %(exposure)s\n"
                     "This Sale Order: %(order_amount)s\n"
                     "Remaining Before This SO: %(remaining)s\n"
                     "Exceeded By: %(exceeded)s"
                 ) % {
                     "order": order.name or _("this quotation"),
                     "customer": partner.display_name,
+                    "term": order.payment_term_id.display_name,
                     "limit": format_amount(self.env, limit, currency),
                     "exposure": format_amount(self.env, exposure_before, currency),
                     "order_amount": format_amount(self.env, order_amount, currency),

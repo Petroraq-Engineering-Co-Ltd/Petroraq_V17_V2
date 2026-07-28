@@ -216,6 +216,13 @@
     <template id="portal_purchase_rfqs_vendor_reference"
               inherit_id="purchase.portal_my_purchase_rfqs"
               priority="80">
+        <xpath expr="//t[@t-foreach='rfqs']/tr" position="attributes">
+            <attribute name="class" add="o_pr_portal_clickable_row" separator=" "/>
+            <attribute name="role">link</attribute>
+            <attribute name="tabindex">0</attribute>
+            <attribute name="t-att-data-href">rfq.get_portal_url()</attribute>
+            <attribute name="t-att-aria-label">'Open request for quotation %s' % rfq.display_name</attribute>
+        </xpath>
         <xpath expr="//t[@t-foreach='rfqs']/tr/td[1]/a" position="attributes">
             <attribute name="class" add="o_pr_portal_record_link" separator=" "/>
             <attribute name="style">color: #17326f !important; -webkit-text-fill-color: #17326f !important;</attribute>
@@ -246,7 +253,11 @@
             </tr>
         </xpath>
         <xpath expr="//t[@t-foreach='orders']/tr" position="replace">
-            <tr>
+            <tr class="o_pr_portal_clickable_row"
+                role="link"
+                tabindex="0"
+                t-att-data-href="order.get_portal_url()"
+                t-att-aria-label="'Open purchase order %s' % order.display_name">
                 <td><a class="o_pr_portal_record_link" t-att-href="order.get_portal_url()" style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;"><t t-out="order.name"/></a></td>
                 <td><t t-out="order.partner_ref or '-'"/></td>
                 <td><span t-field="order.date_order" t-options="{'widget': 'date'}"/></td>
@@ -371,12 +382,18 @@
                         <th>Purchase Order</th>
                         <th>GRN No.</th>
                         <th>Delivery Status</th>
+                        <th class="text-end">Total Quantity</th>
                         <th class="text-end">Delivered Quantity</th>
                         <th class="text-end">Pending Quantity</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr t-foreach="delivery_rows" t-as="delivery_row">
+                    <tr t-foreach="delivery_rows" t-as="delivery_row"
+                        class="o_pr_portal_clickable_row"
+                        role="link"
+                        tabindex="0"
+                        t-att-data-href="'/vendor/delivery-notes/%s' % delivery_row['delivery'].id"
+                        t-att-aria-label="'Open delivery note %s' % delivery_row['delivery'].display_name">
                         <t t-set="delivery" t-value="delivery_row['delivery']"/>
                         <td>
                             <a class="o_pr_portal_record_link" t-att-href="'/vendor/delivery-notes/%s' % delivery.id" style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;">
@@ -388,6 +405,7 @@
                         </td>
                         <td><t t-out="delivery.name"/></td>
                         <td><t t-out="delivery_row['status']"/></td>
+                        <td class="text-end"><t t-out="delivery_row['total_quantity']"/></td>
                         <td class="text-end"><t t-out="delivery_row['delivered_quantity']"/></td>
                         <td class="text-end"><t t-out="delivery_row['pending_quantity']"/></td>
                     </tr>
@@ -519,7 +537,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr t-foreach="srns" t-as="receipt">
+                    <tr t-foreach="srns" t-as="receipt"
+                        class="o_pr_portal_clickable_row"
+                        role="link"
+                        tabindex="0"
+                        t-att-data-href="'/vendor/srns/%s' % receipt.id"
+                        t-att-aria-label="'Open service receipt note %s' % receipt.display_name">
                         <td>
                             <a class="o_pr_portal_record_link" t-att-href="'/vendor/srns/%s' % receipt.id" style="color: #17326f !important; -webkit-text-fill-color: #17326f !important;">
                                 <t t-out="receipt.name"/>

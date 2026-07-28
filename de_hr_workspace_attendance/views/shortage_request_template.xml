@@ -92,7 +92,7 @@
 
         </style>
         <section class="get-in-touch">
-            <h1 class="title">Shortage Request</h1>
+            <h1 class="title">Attendance Correction Request</h1>
             <t t-if="error_message">
                 <div class="alert alert-danger" style="margin-bottom: 20px;">
                     <t t-esc="error_message"/>
@@ -100,6 +100,7 @@
             </t>
             <form class="contact-form row" action="/shortage_request/create" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input type="hidden" id="request_type" name="request_type" t-att-value="request_type"/>
                 <div class="form-field col-lg-6">
                     <select id="employee_id" class="input-text js-input" name="employee_id" size="1" required="1">
                         <t>
@@ -119,17 +120,19 @@
                     <input id="date" class="input-text js-input" type="date" name="date" required="1" t-att-value="shortage_date"/>
                     <label class="label" for="date">Date</label>
                 </div>
-                <div class="form-field col-lg-6 ">
+                <div class="form-field col-lg-6" id="shortage_field" t-att-style="'display:none' if not has_attendance else ''">
                    <input id="shortage" name="shortage" class="input-text js-input" type="text" readonly="1" t-att-value="shortage_text"/>
                    <label class="label" for="shortage">Shortage</label>
                 </div>
                 <div class="form-field col-lg-6 ">
-                    <input id="checkin" class="input-text js-input" type="datetime-local" name="checkin" readonly="1" t-att-value="check_in"/>
-                    <label class="label" for="checkin">Check-In</label>
+                    <input id="checkin" class="input-text js-input" type="datetime-local" name="checkin"
+                           required="1" t-att-readonly="'readonly' if has_attendance else None" t-att-value="check_in"/>
+                    <label class="label" for="checkin">Actual Check-In</label>
                 </div>
                 <div class="form-field col-lg-6 ">
-                    <input id="checkout" class="input-text js-input" type="datetime-local" name="checkout" readonly="1" t-att-value="check_out"/>
-                    <label class="label" for="checkout">Check-Out</label>
+                    <input id="checkout" class="input-text js-input" type="datetime-local" name="checkout"
+                           required="1" t-att-readonly="'readonly' if has_attendance else None" t-att-value="check_out"/>
+                    <label class="label" for="checkout">Actual Check-Out</label>
                 </div>
                 <div class="form-field col-lg-6 ">
                     <input type="file" role="button" name="attachment_ids" multiple="multiple" id="attachment_ids" class="input-text js-input" />
@@ -140,7 +143,7 @@
                     <label class="label" for="message">Reason</label>
                 </div>
                 <div class="form-field col-lg-12">
-                    <input class="submit-btn" id="submit_shortage" type="submit" value="Submit" t-att-disabled="'disabled' if not has_attendance else None"/>
+                    <input class="submit-btn" id="submit_shortage" type="submit" value="Submit"/>
                 </div>
             </form>
         </section>
@@ -151,6 +154,8 @@
                 const checkInInput = document.getElementById("checkin");
                 const checkOutInput = document.getElementById("checkout");
                 const shortageInput = document.getElementById("shortage");
+                const shortageField = document.getElementById("shortage_field");
+                const requestTypeInput = document.getElementById("request_type");
                 const submitButton = document.getElementById("submit_shortage");
 
                 const fetchAttendanceByDate = async () => {
@@ -178,8 +183,12 @@
                     } else {
                         shortageInput.value = "";
                     }
+                    checkInInput.readOnly = data.has_attendance;
+                    checkOutInput.readOnly = data.has_attendance;
+                    requestTypeInput.value = data.has_attendance ? "shortage" : "no_punch";
+                    shortageField.style.display = data.has_attendance ? "" : "none";
                     if (submitButton) {
-                        submitButton.disabled = !data.has_attendance;
+                        submitButton.disabled = false;
                     }
                 };
 

@@ -38,6 +38,7 @@ ALLOWANCE_TYPE_SELECTION = [
     ('none', 'None'),
     ('fixed', 'Fixed Amount'),
     ('percentage', 'Percentage of Basic Salary'),
+    ('company_provided', 'Provided By Company'),
 ]
 
 FIRST_INTERVIEW_STAGE_KEYWORDS = (
@@ -70,9 +71,11 @@ class HrApplicant(models.Model):
                                               domain="[('share', '=', False), ('company_ids', 'in', company_id)]")
     second_priority = fields.Selection(AVAILABLE_PRIORITIES, "Evaluation", default='0')
     second_availability = fields.Date("Availability",
-                               help="The date at which the applicant will be available to start working", tracking=True)
-    second_salary_proposed = fields.Float("Proposed Salary", group_operator="avg", help="Salary Proposed by the Organisation",
-                                   tracking=True, groups="hr_recruitment.group_hr_recruitment_user")
+                                      help="The date at which the applicant will be available to start working",
+                                      tracking=True)
+    second_salary_proposed = fields.Float("Proposed Salary", group_operator="avg",
+                                          help="Salary Proposed by the Organisation",
+                                          tracking=True, groups="hr_recruitment.group_hr_recruitment_user")
     check_first_interview_stage_sequence = fields.Boolean(compute="_compute_check_first_interview_stage_sequence")
     check_second_interview_stage_sequence = fields.Boolean(compute="_compute_check_second_interview_stage_sequence")
     next_stage_id = fields.Many2one(
@@ -150,11 +153,15 @@ class HrApplicant(models.Model):
     offer_food_allowance_amount = fields.Float(string="Food Fixed Amount", tracking=True)
     offer_food_allowance_percentage = fields.Float(string="Food Percentage", tracking=True)
     offer_fixed_overtime = fields.Float(string="Fixed Overtime", tracking=True)
+    offer_sales_commission = fields.Char(string="Sales Commission", tracking=True)
+    offer_annual_return_ticket = fields.Char(string="Annual Return Ticket", tracking=True)
+
     offer_gross_salary = fields.Float(
         string="Gross Salary", compute="_compute_offer_gross_salary", store=True, tracking=True)
     offer_contract_status = fields.Char(string="Contract Status", default="Single", tracking=True)
     offer_medical = fields.Char(string="Medical", default="Provided by company as per company policy", tracking=True)
-    offer_contract_duration = fields.Char(string="Contract Duration", default="02 (Two) Years (Renewable)", tracking=True)
+    offer_contract_duration = fields.Char(string="Contract Duration", default="02 (Two) Years (Renewable)",
+                                          tracking=True)
     offer_probation_period = fields.Char(string="Probation Period", default="90 Days", tracking=True)
     offer_vacation = fields.Char(string="Vacation", default="21 working days paid vacation per annum", tracking=True)
     offer_working_hours = fields.Char(string="Working Hours", default="48 hours per week", tracking=True)
@@ -306,6 +313,9 @@ class HrApplicant(models.Model):
                 ("%g" % (percentage or 0.0)),
                 self._format_offer_letter_amount(amount, currency_name),
             )
+        if allowance_type == 'company_provided':
+            return 'Provided By Company'
+
         return "Not Applicable"
 
     def _get_applicant_country(self):
@@ -325,21 +335,24 @@ class HrApplicant(models.Model):
         validity_date = offer_date + timedelta(days=1)
         gross_salary = self.offer_gross_salary or self.second_salary_proposed or self.salary_proposed or 0.0
         basic_salary = self.offer_basic_salary or (gross_salary / 1.35 if gross_salary else 0.0)
-        housing_type = self.offer_housing_allowance_type or "percentage"
-        housing_percentage = self.offer_housing_allowance_percentage or 25.0
-        transportation_type = self.offer_transportation_allowance_type or "percentage"
-        transportation_percentage = self.offer_transportation_allowance_percentage or 10.0
-        food_type = self.offer_food_allowance_type or "none"
-        food_percentage = self.offer_food_allowance_percentage or 0.0
+        housing_type = self.offer_housing_allowance_type
+        housing_percentage = self.offer_housing_allowance_percentage
+        transportation_type = self.offer_transportation_allowance_type
+        transportation_percentage = self.offer_transportation_allowance_percentage
+        food_type = self.offer_food_allowance_type
+        food_percentage = self.offer_food_allowance_percentage
+        housing_amount = self._get_offer_allowance_amount(
+            housing_type, self.offer_housing_allowance_amount, housing_percentage, basic_salary)
+        transportation_amount = self._get_offer_allowance_amount(
+            transportation_type, self.offer_transportation_allowance_amount,
+            transportation_percentage, basic_salary)
+        food_amount = self._get_offer_allowance_amount(
+            food_type, self.offer_food_allowance_amount, food_percentage, basic_salary)
         if self.offer_basic_salary:
             gross_salary = basic_salary
-            gross_salary += self._get_offer_allowance_amount(
-                housing_type, self.offer_housing_allowance_amount, housing_percentage, basic_salary)
-            gross_salary += self._get_offer_allowance_amount(
-                transportation_type, self.offer_transportation_allowance_amount,
-                transportation_percentage, basic_salary)
-            gross_salary += self._get_offer_allowance_amount(
-                food_type, self.offer_food_allowance_amount, food_percentage, basic_salary)
+            gross_salary += housing_amount
+            gross_salary += transportation_amount
+            gross_salary += food_amount
             gross_salary += self.offer_fixed_overtime or 0.0
         country = self._get_applicant_country()
         nationality = country.name or ''
@@ -363,19 +376,31 @@ class HrApplicant(models.Model):
                 housing_percentage,
                 currency_name,
                 basic_salary),
+            'show_housing_allowance': bool(
+                housing_type == 'company_provided' or housing_amount),
             'transportation_allowance': self._format_offer_allowance_line(
                 transportation_type,
                 self.offer_transportation_allowance_amount,
                 transportation_percentage,
                 currency_name,
                 basic_salary),
+            'show_transportation_allowance': bool(
+                transportation_type == 'company_provided' or transportation_amount),
             'food_allowance': self._format_offer_allowance_line(
                 food_type,
                 self.offer_food_allowance_amount,
                 food_percentage,
                 currency_name,
                 basic_salary),
+            'show_food_allowance': bool(food_type == 'company_provided' or food_amount),
             'fixed_overtime': self._format_offer_letter_amount(self.offer_fixed_overtime or 0.0, currency_name),
+            'show_fixed_overtime': bool(self.offer_fixed_overtime),
+            'sales_commission': self._format_offer_letter_free_text(
+                self.offer_sales_commission, ''),
+            'show_sales_commission': bool((self.offer_sales_commission or '').strip()),
+            'annual_return_ticket': self._format_offer_letter_free_text(
+                self.offer_annual_return_ticket, ''),
+            'show_annual_return_ticket': bool((self.offer_annual_return_ticket or '').strip()),
             'contract_status': self._format_offer_letter_free_text(self.offer_contract_status, 'Single'),
             'medical': self._format_offer_letter_free_text(
                 self.offer_medical, 'Provided by company as per company policy'),
@@ -444,9 +469,9 @@ class HrApplicant(models.Model):
         self.ensure_one()
         body_message = self._get_offer_letter_mail_body()
         email_from = (
-            self.user_id.email_formatted
-            or self.company_id.email
-            or self.env.user.email_formatted
+                self.user_id.email_formatted
+                or self.company_id.email
+                or self.env.user.email_formatted
         )
         mail = self.env['mail.mail'].sudo().create({
             'email_from': email_from,
@@ -780,7 +805,8 @@ class HrApplicant(models.Model):
             })
         max_monthly = max([max(item["applications"], item["hires"]) for item in monthly] or [1])
         for item in monthly:
-            item["applications_percent"] = round((item["applications"] / max_monthly) * 100.0, 1) if item["applications"] else 0.0
+            item["applications_percent"] = round((item["applications"] / max_monthly) * 100.0, 1) if item[
+                "applications"] else 0.0
             item["hires_percent"] = round((item["hires"] / max_monthly) * 100.0, 1) if item["hires"] else 0.0
 
         request_states = []

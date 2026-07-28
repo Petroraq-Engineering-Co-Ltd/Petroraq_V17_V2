@@ -252,16 +252,15 @@
         </field>
     </record>
     <record id="purchase_order_form_payment_terms_text" model="ir.ui.view">
-        <field name="name">purchase.order.form.payment.terms.text</field>
+        <field name="name">purchase.order.form.required.terms.conditions</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="priority">82</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='payment_term_id']" position="after">
-                <field name="payment_terms_text"
-                       required="state not in ('purchase', 'done', 'cancel')"
-                       placeholder="Example: 30 days from invoice date, 50% advance / 50% after delivery..."
-                       readonly="state in ('purchase', 'done')"/>
+            <xpath expr="//field[@name='notes']" position="attributes">
+                <attribute name="string">Terms &amp; Conditions</attribute>
+                <attribute name="required">state not in ('purchase', 'done', 'cancel')</attribute>
+                <attribute name="placeholder">Enter the applicable terms and conditions...</attribute>
             </xpath>
         </field>
     </record>

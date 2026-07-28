@@ -139,13 +139,7 @@
                                 <span class="o_stat_text">Request</span>
                             </div>
                         </button>
-                        <button name="action_view_attachments"
-                                type="object"
-                                class="oe_stat_button"
-                                icon="fa-eye"
-                                invisible="attachment_count == 0">
-                            <field name="attachment_count" widget="statinfo" string="Attachments"/>
-                        </button>
+
                     </div>
 
                     <div class="alert alert-warning"
@@ -222,12 +216,6 @@
                             </group>
                         </page>
                         <page string="Attachments">
-                            <button name="action_view_attachments"
-                                    type="object"
-                                    string="Preview Attachments"
-                                    icon="fa-eye"
-                                    class="btn-secondary"
-                                    invisible="attachment_count == 0"/>
                             <field name="attachment_ids"
                                    widget="many2many_binary"
                                    readonly="approval != 'draft' or status != 'pr'"/>
@@ -264,6 +252,22 @@
                     </div>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <!-- Normalize upgraded/customized databases to exactly one line Total column. -->
+    <record id="view_purchase_requisition_form_single_line_total" model="ir.ui.view">
+        <field name="name">purchase.requisition.form.single.line.total</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="view_purchase_requisition_form"/>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/tree/field[@name='total_price']"
+                   position="replace"/>
+            <xpath expr="//field[@name='line_ids']/tree/field[@name='unit_price']"
+                   position="after">
+                <field name="total_price" string="Total" readonly="1"/>
+            </xpath>
         </field>
     </record>
 
