@@ -180,6 +180,8 @@
                             <field name="offer_food_allowance_percentage"
                                    invisible="offer_food_allowance_type != 'percentage'"/>
                             <field name="offer_fixed_overtime"/>
+                            <field name="offer_sales_commission"/>
+                            <field name="offer_annual_return_ticket"/>
                             <field name="offer_gross_salary" readonly="1"/>
                         </group>
                         <group string="Offer Terms">
