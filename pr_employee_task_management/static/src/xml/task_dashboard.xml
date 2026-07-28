@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="pr_employee_task_management.TaskDashboard">
+        <div class="o_etm_dashboard">
+            <div class="o_etm_header">
+                <div>
+                    <span class="o_etm_eyebrow">EMPLOYEE TASK MANAGEMENT</span>
+                    <h1>Task Performance Dashboard</h1>
+                    <p>Monitor approvals, execution, completion, and overdue work.</p>
+                </div>
+                <button class="btn btn-light" t-on-click="load">
+                    <i class="fa fa-refresh me-2"/>Refresh
+                </button>
+            </div>
+
+            <div t-if="state.loading" class="o_etm_loading">
+                <i class="fa fa-spinner fa-spin"/> Loading dashboard...
+            </div>
+            <t t-else="">
+                <div class="o_etm_cards">
+                    <button class="o_etm_card total" t-on-click="() => this.openTasks([])">
+                        <i class="fa fa-list-alt"/>
+                        <span>Total Task Lists</span>
+                        <strong t-esc="state.data.counts.total || 0"/>
+                    </button>
+                    <button class="o_etm_card pending"
+                            t-on-click="() => this.openTasks([['state', '=', 'submitted_manager']])">
+                        <i class="fa fa-hourglass-half"/>
+                        <span>Pending Approval</span>
+                        <strong t-esc="state.data.counts.pending || 0"/>
+                    </button>
+                    <button class="o_etm_card progress"
+                            t-on-click="() => this.openTasks([['state', '=', 'in_progress']])">
+                        <i class="fa fa-play-circle"/>
+                        <span>In Progress</span>
+                        <strong t-esc="state.data.counts.in_progress || 0"/>
+                    </button>
+                    <button class="o_etm_card completed"
+                            t-on-click="() => this.openTasks([['state', '=', 'completed']])">
+                        <i class="fa fa-check-circle"/>
+                        <span>Completed</span>
+                        <strong t-esc="state.data.counts.completed || 0"/>
+                    </button>
+                    <button class="o_etm_card overdue"
+                            t-on-click="() => this.openTasks([['overdue', '=', true]])">
+                        <i class="fa fa-exclamation-triangle"/>
+                        <span>Overdue</span>
+                        <strong t-esc="state.data.counts.overdue || 0"/>
+                    </button>
+                    <button class="o_etm_card closed"
+                            t-on-click="() => this.openTasks([['state', '=', 'closed']])">
+                        <i class="fa fa-lock"/>
+                        <span>Closed</span>
+                        <strong t-esc="state.data.counts.closed || 0"/>
+                    </button>
+                </div>
+
+                <div class="o_etm_grid">
+                    <section class="o_etm_panel">
+                        <h3>Task Status</h3>
+                        <div class="o_etm_bars">
+                            <div class="o_etm_bar_row" t-foreach="state.data.states" t-as="item" t-key="item.key">
+                                <span t-esc="item.label"/>
+                                <div class="o_etm_bar_track">
+                                    <div class="o_etm_bar_fill"
+                                         t-attf-style="width: #{(item.count / maxStateCount) * 100}%"/>
+                                </div>
+                                <strong t-esc="item.count"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="o_etm_panel">
+                        <h3>Department Progress</h3>
+                        <div class="o_etm_department"
+                             t-foreach="state.data.departments" t-as="item" t-key="item.label">
+                            <div>
+                                <strong t-esc="item.label"/>
+                                <span><t t-esc="item.tasks"/> tasks</span>
+                            </div>
+                            <div class="o_etm_bar_track">
+                                <div class="o_etm_bar_fill success"
+                                     t-attf-style="width: #{item.progress}%"/>
+                            </div>
+                            <small><t t-esc="item.progress"/>%</small>
+                        </div>
+                    </section>
+
+                    <section class="o_etm_panel">
+                        <h3>Employee Completions</h3>
+                        <div class="o_etm_bar_row"
+                             t-foreach="state.data.employees" t-as="item" t-key="item.label">
+                            <span t-esc="item.label"/>
+                            <div class="o_etm_bar_track">
+                                <div class="o_etm_bar_fill purple"
+                                     t-attf-style="width: #{(item.count / maxEmployeeCount) * 100}%"/>
+                            </div>
+                            <strong t-esc="item.count"/>
+                        </div>
+                    </section>
+
+                    <section class="o_etm_panel">
+                        <h3>Monthly Completion Trend</h3>
+                        <div class="o_etm_bar_row"
+                             t-foreach="state.data.months" t-as="item" t-key="item.label">
+                            <span t-esc="item.label"/>
+                            <div class="o_etm_bar_track">
+                                <div class="o_etm_bar_fill orange"
+                                     t-attf-style="width: #{(item.count / maxMonthCount) * 100}%"/>
+                            </div>
+                            <strong t-esc="item.count"/>
+                        </div>
+                    </section>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

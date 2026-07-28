@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_task_list_tree" model="ir.ui.view">
+        <field name="name">employee.task.list.tree</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="state == 'draft'"
+                  decoration-warning="state == 'submitted_manager'"
+                  decoration-info="state in ('manager_approved', 'in_progress')"
+                  decoration-success="state == 'completed'"
+                  decoration-danger="state == 'returned_manager' or overdue"
+                  decoration-bf="state == 'closed'">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="manager_id"/>
+                <field name="assign_date"/>
+                <field name="end_date"/>
+                <field name="task_count"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state == 'draft'"
+                       decoration-warning="state == 'submitted_manager'"
+                       decoration-info="state in ('manager_approved', 'in_progress')"
+                       decoration-success="state == 'completed'"
+                       decoration-danger="state == 'returned_manager' or overdue"/>
+                <field name="overdue" column_invisible="True"/>
+                <field name="created_by_id"/>
+                <field name="write_date" string="Last Updated"/>
+                <field name="company_id" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_employee_task_list_kanban" model="ir.ui.view">
+        <field name="name">employee.task.list.kanban</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="assign_date"/>
+                <field name="task_count"/>
+                <field name="progress"/>
+                <field name="state"/>
+                <field name="overdue"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click #{record.overdue.raw_value ? 'border border-danger' : ''}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong class="text-primary"><field name="name"/></strong>
+                                <span t-if="record.overdue.raw_value" class="badge text-bg-danger">Overdue</span>
+                            </div>
+                            <div class="mb-1"><i class="fa fa-user me-2"/><field name="employee_id"/></div>
+                            <div class="mb-1"><i class="fa fa-sitemap me-2"/><field name="department_id"/></div>
+                            <div class="mb-2"><i class="fa fa-calendar me-2"/><field name="assign_date"/></div>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span><field name="task_count"/> tasks</span>
+                                <span><field name="progress"/>%</span>
+                            </div>
+                            <div class="progress" style="height: 7px;">
+                                <div class="progress-bar" role="progressbar"
+                                     t-attf-style="width: #{record.progress.raw_value || 0}%"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_employee_task_list_form" model="ir.ui.view">
+        <field name="name">employee.task.list.form</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="can_submit" invisible="1"/>
+                    <field name="can_manager_approve" invisible="1"/>
+                    <field name="can_manager_return" invisible="1"/>
+                    <field name="can_start_work" invisible="1"/>
+                    <field name="can_mark_completed" invisible="1"/>
+                    <field name="can_close" invisible="1"/>
+                    <button name="action_submit_to_manager" type="object"
+                            string="Submit to Manager" class="btn-primary"
+                            invisible="not can_submit"/>
+                    <button name="action_manager_approve" type="object"
+                            string="Approve" class="btn-primary"
+                            invisible="not can_manager_approve"/>
+                    <button name="action_manager_return" type="object"
+                            string="Return for Correction" class="btn-secondary"
+                            invisible="not can_manager_return"
+                            confirm="Manager Remarks are required. Return this task list?"/>
+                    <button name="action_start_work" type="object"
+                            string="Start Work" class="btn-primary"
+                            invisible="not can_start_work"/>
+                    <button name="action_mark_completed" type="object"
+                            string="Mark Completed" class="btn-primary"
+                            invisible="not can_mark_completed"/>
+                    <button name="action_close" type="object"
+                            string="Close" class="btn-primary"
+                            invisible="not can_close"
+                            confirm="Close this task list after final review?"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted_manager,manager_approved,in_progress,completed,closed"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Returned"
+                            bg_color="text-bg-danger"
+                            invisible="state != 'returned_manager'"/>
+                    <widget name="web_ribbon" title="Overdue"
+                            bg_color="text-bg-warning"
+                            invisible="not overdue or state == 'returned_manager'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Assignment">
+                            <field name="employee_id"
+                                   readonly="state not in ('draft', 'returned_manager')"
+                                   options="{'no_create': True}"/>
+                            <field name="department_id"/>
+                            <field name="manager_id"/>
+                            <field name="assign_date"
+                                   readonly="state not in ('draft', 'returned_manager')"/>
+                        </group>
+                        <group string="Progress">
+                            <field name="task_count"/>
+                            <field name="progress" widget="progressbar"/>
+                            <field name="end_date"/>
+                            <field name="overdue"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Task Details" name="task_details">
+                            <field name="task_line_ids"
+                                   readonly="state not in ('draft', 'returned_manager', 'in_progress')">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="description"
+                                           readonly="parent.state == 'in_progress'"/>
+                                    <field name="assign_date"
+                                           readonly="parent.state == 'in_progress'"/>
+                                    <field name="start_date"
+                                           readonly="parent.state not in ('draft', 'returned_manager', 'in_progress')"/>
+                                    <field name="activities"
+                                           readonly="parent.state != 'in_progress'"/>
+                                    <field name="end_date"
+                                           readonly="parent.state not in ('draft', 'returned_manager', 'in_progress')"/>
+                                    <field name="progress" widget="progressbar"
+                                           readonly="parent.state != 'in_progress'"/>
+                                    <field name="task_status"
+                                           readonly="parent.state != 'in_progress'"/>
+                                    <field name="remarks"
+                                           readonly="parent.state != 'in_progress'"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Approval Remarks" name="approval_remarks">
+                            <group>
+                                <field name="manager_remarks"
+                                       readonly="not can_manager_return"/>
+                                <field name="return_reason" invisible="not return_reason"/>
+                                <field name="approved_by_id" invisible="not approved_by_id"/>
+                                <field name="approved_date" invisible="not approved_date"/>
+                                <field name="closed_by_id" invisible="not closed_by_id"/>
+                                <field name="closed_date" invisible="not closed_date"/>
+                            </group>
+                            <field name="history_ids">
+                                <tree create="0" edit="0" delete="0">
+                                    <field name="action_date"/>
+                                    <field name="action_by_id"/>
+                                    <field name="status" widget="badge"/>
+                                    <field name="remarks"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Progress Updates" name="progress_updates">
+                            <group>
+                                <field name="progress" widget="progressbar"/>
+                                <field name="completion_notes"
+                                       readonly="state != 'in_progress'"/>
+                                <field name="completed_date" invisible="not completed_date"/>
+                            </group>
+                        </page>
+                        <page string="Attachments" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary"
+                                   readonly="state in ('completed', 'closed')"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_employee_task_list_search" model="ir.ui.view">
+        <field name="name">employee.task.list.search</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="manager_id"/>
+                <field name="state"/>
+                <field name="assign_date"/>
+                <field name="end_date"/>
+                <filter name="my_task_lists" string="My Task Lists"
+                        domain="[('employee_id.user_id', '=', uid)]"/>
+                <filter name="pending_manager" string="Pending My Approval"
+                        domain="[('state', '=', 'submitted_manager'), ('manager_user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="returned" string="Returned"
+                        domain="[('state', '=', 'returned_manager')]"/>
+                <filter name="approved" string="Approved"
+                        domain="[('state', '=', 'manager_approved')]"/>
+                <filter name="in_progress" string="In Progress"
+                        domain="[('state', '=', 'in_progress')]"/>
+                <filter name="completed" string="Completed"
+                        domain="[('state', '=', 'completed')]"/>
+                <filter name="closed" string="Closed"
+                        domain="[('state', '=', 'closed')]"/>
+                <filter name="overdue" string="Overdue"
+                        domain="[('overdue', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_employee" string="Employee"
+                            context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_department" string="Department"
+                            context="{'group_by': 'department_id'}"/>
+                    <filter name="group_manager" string="Manager"
+                            context="{'group_by': 'manager_id'}"/>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_assign_date" string="Assign Date"
+                            context="{'group_by': 'assign_date'}"/>
+                    <filter name="group_month" string="Assign Month"
+                            context="{'group_by': 'assign_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_employee_task_list_pivot" model="ir.ui.view">
+        <field name="name">employee.task.list.pivot</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <pivot string="Employee Task Summary">
+                <field name="department_id" type="row"/>
+                <field name="employee_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="task_count" type="measure"/>
+                <field name="progress" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_employee_task_list_graph" model="ir.ui.view">
+        <field name="name">employee.task.list.graph</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Department Task Progress" type="bar">
+                <field name="department_id"/>
+                <field name="task_count" type="measure"/>
+                <field name="progress" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_employee_task_lists" model="ir.actions.act_window">
+        <field name="name">Task Lists</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph,activity</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="context">{'search_default_my_task_lists': 1}</field>
+    </record>
+
+    <record id="action_employee_task_all" model="ir.actions.act_window">
+        <field name="name">All Task Lists</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph,activity</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+    </record>
+
+    <record id="action_employee_task_my" model="ir.actions.act_window">
+        <field name="name">My Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'default_employee_id': False}</field>
+    </record>
+
+    <record id="action_employee_task_pending" model="ir.actions.act_window">
+        <field name="name">Pending Approval Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
+        <field name="domain">[('state', '=', 'submitted_manager'), ('manager_user_id', '=', uid)]</field>
+    </record>
+
+    <record id="action_employee_task_approved" model="ir.actions.act_window">
+        <field name="name">Approved by Manager</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ('manager_approved', 'in_progress'))]</field>
+    </record>
+
+    <record id="action_employee_task_completed" model="ir.actions.act_window">
+        <field name="name">Completed Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ('completed', 'closed'))]</field>
+    </record>
+
+    <record id="action_employee_task_reports" model="ir.actions.act_window">
+        <field name="name">Task Reports</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">pivot,graph,tree</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+    </record>
+</odoo>

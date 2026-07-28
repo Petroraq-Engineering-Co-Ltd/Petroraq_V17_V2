@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_employee_task_list_employee,employee.task.list.employee,model_employee_task_list,group_task_employee,1,1,1,0
+access_employee_task_list_manager,employee.task.list.manager,model_employee_task_list,group_task_manager,1,1,1,0
+access_employee_task_list_admin,employee.task.list.admin,model_employee_task_list,group_task_admin,1,1,1,1
+access_employee_task_line_employee,employee.task.line.employee,model_employee_task_line,group_task_employee,1,1,1,1
+access_employee_task_line_manager,employee.task.line.manager,model_employee_task_line,group_task_manager,1,1,1,1
+access_employee_task_line_admin,employee.task.line.admin,model_employee_task_line,group_task_admin,1,1,1,1
+access_employee_task_history_employee,employee.task.history.employee,model_employee_task_approval_history,group_task_employee,1,0,0,0
+access_employee_task_history_manager,employee.task.history.manager,model_employee_task_approval_history,group_task_manager,1,0,0,0
+access_employee_task_history_admin,employee.task.history.admin,model_employee_task_approval_history,group_task_admin,1,0,0,0
+
