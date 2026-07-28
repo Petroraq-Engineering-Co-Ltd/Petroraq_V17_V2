@@ -550,6 +550,6 @@ class PurchaseOrder(models.Model):
         html = (
             "<h3 style='margin-top:24px;'>Commercial Terms</h3>"
             "<table border='1' cellspacing='0' cellpadding='4' "
-            "style='border-collapse:collapse;width:100%;'>%s</table>"
-        ) % rows if rows else ''
+            f"style='border-collapse:collapse;width:100%;'>{rows}</table>"
+        ) if rows else ""
         return {'html': html, 'items': items}
