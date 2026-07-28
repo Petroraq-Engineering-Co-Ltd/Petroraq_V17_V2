@@ -1,6 +1,6 @@
-from odoo import _, fields, models
+from odoo import _, models
 from odoo.exceptions import UserError
-from odoo.tools import html_escape
+from odoo.tools import html2plaintext, html_escape, is_html_empty
 from datetime import datetime, date, timedelta
 import base64
 from io import BytesIO
@@ -10,37 +10,32 @@ from reportlab.lib.units import mm
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
-    payment_terms_text = fields.Text(
-        string="Payment Terms",
-        copy=True,
-        help="Free-text commercial payment terms to print on RFQs and Purchase Orders.",
-    )
-
-    def _require_payment_terms_text(self):
+    def _require_terms_and_conditions(self):
         missing_orders = self.filtered(
-            lambda order: order.state != "cancel" and not (order.payment_terms_text or "").strip()
+            lambda order: order.state != "cancel"
+            and (not order.notes or is_html_empty(order.notes))
         )
         if missing_orders:
             raise UserError(
-                _("Please enter Payment Terms before continuing for: %s")
+                _("Please enter Terms & Conditions before continuing for: %s")
                 % ", ".join(missing_orders.mapped("display_name"))
             )
         return True
 
     def action_rfq_send(self):
-        self._require_payment_terms_text()
+        self._require_terms_and_conditions()
         return super().action_rfq_send()
 
     def action_submit_for_approval(self):
-        self._require_payment_terms_text()
+        self._require_terms_and_conditions()
         return super().action_submit_for_approval()
 
     def button_confirm(self):
-        self._require_payment_terms_text()
+        self._require_terms_and_conditions()
         return super().button_confirm()
 
     def action_create_po_from_rfq(self):
-        self._require_payment_terms_text()
+        self._require_terms_and_conditions()
         return super().action_create_po_from_rfq()
 
     def _get_report_base_filename(self):
@@ -107,7 +102,7 @@ class PurchaseOrder(models.Model):
     def action_send_purchase_order_email(self):
         """Open the standard Compose wizard pre-filled with our custom body and recipients."""
         self.ensure_one()
-        self._require_payment_terms_text()
+        self._require_terms_and_conditions()
 
         # Header fields (read defensively for custom attrs)
         vendor_name = self.partner_id.display_name or ''
@@ -520,15 +515,15 @@ class PurchaseOrder(models.Model):
     def _get_terms_section(self):
         """Return terms and conditions derived from purchase order fields."""
         items = []
-        payment_terms = (self.payment_terms_text or "").strip()
-        if payment_terms:
-            items.append(('Payment Terms', payment_terms))
-        elif self.payment_term_id:
+        if self.payment_term_id:
             items.append(('Payment Terms', self.payment_term_id.display_name))
         if self.incoterm_id:
             items.append(('Delivery Terms', self.incoterm_id.display_name))
         if self.partner_ref:
             items.append(('Vendor Reference', self.partner_ref))
+        terms_and_conditions = html2plaintext(self.notes or "").strip()
+        if terms_and_conditions:
+            items.append(("Terms & Conditions", terms_and_conditions))
         def _html_value(value):
             return str(html_escape(value or "")).replace("\n", "<br/>")
 

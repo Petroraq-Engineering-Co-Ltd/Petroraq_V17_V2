@@ -6,3 +6,4 @@ from . import bank_payment
 from . import payment_request
 from . import approval_dashboard
 from . import res_config_settings
+from . import eos_send_wizard
