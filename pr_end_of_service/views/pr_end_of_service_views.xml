@@ -105,7 +105,7 @@
                     <button name="action_accounting_approve" type="object" string="Accounts Approve"
                             class="oe_highlight"
                             invisible="state != 'accounts_approval'"
-                            groups="account.group_account_manager,pr_account.custom_group_accounting_manager"/>
+                            groups="pr_account.custom_group_accounting_manager"/>
                     <button name="action_employee_accept" type="object" string="Employee Accepted" class="oe_highlight"
                             invisible="state != 'employee_acceptance'" groups="hr.group_hr_user"/>
                     <button name="action_send_employee_acceptance_email" type="object"

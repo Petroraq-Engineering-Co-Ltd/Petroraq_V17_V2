@@ -11,3 +11,6 @@ access_pr_end_of_service_adjustment_account_manager,pr.end.of.service.adjustment
 access_pr_end_of_service_adjustment_custom_account_manager,pr.end.of.service.adjustment.custom.account.manager,model_pr_end_of_service_adjustment,pr_account.custom_group_accounting_manager,1,1,0,0
 access_pr_eos_calculator_workspace_user,pr.eos.calculator.workspace.user,model_pr_eos_calculator,de_hr_workspace.group_hr_employee_workspace,1,1,1,1
 access_pr_eos_calculator_hr_user,pr.eos.calculator.hr.user,model_pr_eos_calculator,hr.group_hr_user,1,1,1,1
+access_pr_eos_send_wizard_hr_user,pr.eos.send.wizard.hr.user,model_pr_eos_send_wizard,hr.group_hr_user,1,1,1,1
+access_pr_eos_send_wizard_account_manager,pr.eos.send.wizard.account.manager,model_pr_eos_send_wizard,account.group_account_manager,1,1,1,1
+access_pr_eos_send_wizard_custom_account_manager,pr.eos.send.wizard.custom.account.manager,model_pr_eos_send_wizard,pr_account.custom_group_accounting_manager,1,1,1,1

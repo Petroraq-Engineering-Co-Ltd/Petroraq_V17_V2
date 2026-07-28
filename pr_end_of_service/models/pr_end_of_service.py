@@ -136,7 +136,7 @@ class PrEndOfService(models.Model):
         tracking=True,
     )
     monthly_base_amount = fields.Monetary(
-        string="Monthly Base",
+        string="Monthly Gross",
         compute="_compute_amounts",
         store=True,
         currency_field="currency_id",
@@ -1007,10 +1007,17 @@ class PrEndOfService(models.Model):
             rec.write({
                 "state": "employee_acceptance",
                 "date_accounting_approval": fields.Date.context_today(rec),
-                "employee_acceptance_state": "sent",
+                "employee_acceptance_state": "not_sent",
                 "employee_rejection_reason": False,
             })
-            rec.action_send_employee_acceptance_email()
+            attachment = rec._generate_final_settlement_pdf_attachment()
+            rec.message_post(
+                body=_(
+                    "Accounts approved the EOS settlement. The final settlement PDF is ready "
+                    "to be reviewed and sent to the employee."
+                ),
+                attachment_ids=attachment.ids if attachment else [],
+            )
 
     def _create_payment_request_if_needed(self):
         self.ensure_one()
@@ -1096,50 +1103,27 @@ class PrEndOfService(models.Model):
         return next((email.strip() for email in candidates if email and email.strip()), False)
 
     def action_send_employee_acceptance_email(self):
-        for rec in self:
-            if rec.state != "employee_acceptance":
-                raise UserError(
-                    _("The settlement can only be emailed while waiting for Employee Acceptance.")
-                )
-            email_to = rec._get_employee_acceptance_email()
-            if not email_to:
-                raise UserError(
-                    _(
-                        "Employee %s has no email address. Add a Work Email or Private Email before continuing."
-                    )
-                    % rec.employee_id.display_name
-                )
-            template = self.env.ref(
-                "pr_end_of_service.mail_template_eos_employee_acceptance",
-                raise_if_not_found=False,
+        self.ensure_one()
+        if self.state != "employee_acceptance":
+            raise UserError(
+                _("The settlement can only be emailed while waiting for Employee Acceptance.")
             )
-            if not template:
-                raise UserError(_("The EOS employee acceptance email template is not configured."))
-            attachment = rec._generate_final_settlement_pdf_attachment()
-            if not attachment:
-                raise UserError(_("The EOS settlement PDF could not be generated."))
-            mail_id = template.sudo().send_mail(
-                rec.id,
-                force_send=True,
-                email_values={
-                    "email_to": email_to,
-                    "attachment_ids": [(6, 0, attachment.ids)],
-                },
-            )
-            if not mail_id:
-                raise UserError(_("The EOS settlement email could not be created or sent."))
-            sent_at = fields.Datetime.now()
-            rec.write({
-                "employee_acceptance_email": email_to,
-                "employee_acceptance_email_sent_at": sent_at,
-                "employee_acceptance_state": "sent",
-            })
-            rec.message_post(
-                body=_("EOS settlement document emailed to %s for employee acceptance.") % email_to,
-                attachment_ids=attachment.ids,
-                message_type="notification",
-            )
-        return True
+        attachment = self._generate_final_settlement_pdf_attachment()
+        if not attachment:
+            raise UserError(_("The EOS settlement PDF could not be generated."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Send EOS Final Settlement"),
+            "res_model": "pr.eos.send.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_eos_id": self.id,
+                "default_attachment_ids": [(6, 0, attachment.ids)],
+                "active_model": self._name,
+                "active_id": self.id,
+            },
+        }
 
     def action_employee_accept(self):
         for rec in self:
@@ -1454,7 +1438,7 @@ class PrEndOfService(models.Model):
             "other_recoveries": other_recoveries,
             "total_deductions": total_deductions,
             "gross_settlement": gross_settlement,
-            "net_settlement": employee_payables - total_deductions,
+            "net_settlement": self.net_settlement_amount,
             "clearance_rows": clearance_rows,
             "payment_method": (
                 "Cash"

@@ -333,14 +333,14 @@
                                         </td>
                                     </tr>
                                 </table>
-                        <table t-if="o.payment_terms_text" class="table table-border"
+                        <table t-if="o.payment_term_id" class="table table-border"
                                style="border:1px solid #000000;margin-top:8px;font-size:16px;font-family: 'DroidArabicNaskh';">
                             <tr>
                                 <td width="25%" style="border:1px solid #000000;font-weight:bold;">
                                     Payment Terms
                                 </td>
                                 <td width="75%" style="border:1px solid #000000;white-space:pre-line;">
-                                    <span t-field="o.payment_terms_text"/>
+                                    <span t-field="o.payment_term_id"/>
                                 </td>
                             </tr>
                         </table>
