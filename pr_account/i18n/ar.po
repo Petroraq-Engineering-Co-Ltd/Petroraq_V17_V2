@@ -1,0 +1,2876 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_account
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-22 12:58+0000\n"
+"PO-Revision-Date: 2026-07-22 12:58+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_analytic_account.py:0
+#, python-format
+msgid "%s cost centers were resequenced continuously across all years."
+msgstr "تمت إعادة ترقيم %s من مراكز التكلفة بشكل متسلسل عبر جميع السنوات."
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_analytic_account_form_inherit
+msgid "<span class=\"text-muted\">Cost Center Code</span>"
+msgstr "<span class=\"text-muted\">رمز مركز التكلفة</span>"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "<span style=\"font-weight:bold; color:#444;\">Name</span>"
+msgstr "<span style=\"font-weight:bold; color:#444;\">الاسم</span>"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_payment_form_vendor_approval
+msgid "<span> Vendor Bill</span>"
+msgstr "<span>فاتورة المورد</span>"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "<span>Acc. Name</span>"
+msgstr "<span>اسم الحساب</span>"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_move_form_vendor_payment_pending_approval
+msgid ""
+"<strong>Vendor payment rejected.</strong>\n"
+"                    <span> Reason: </span>"
+msgstr ""
+"<strong>تم رفض دفعة المورد.</strong>\n"
+"                    <span>السبب:</span>"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.action_move_journal_line_journal_vouchers
+msgid ""
+"A journal voucher consists of several journal items, each of\n"
+"                which is either a debit or a credit transaction."
+msgstr ""
+"يتكون سند اليومية من عدة قيود محاسبية، ويكون كل قيد\n"
+"                إما مدينًا أو دائنًا."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_move.py:0
+#, python-format
+msgid ""
+"A rejected vendor payment already exists for: %s. Open and resubmit it "
+"instead of creating a duplicate."
+msgstr ""
+"توجد بالفعل دفعة مورد مرفوضة لـ %s. يرجى فتحها وإعادة إرسالها بدلاً من إنشاء نسخة مكررة."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_move.py:0
+#, python-format
+msgid "A vendor payment approval is already pending for: %s"
+msgstr "توجد موافقة معلقة بالفعل على دفعة المورد لـ: %s"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "APPROVE"
+msgstr "اعتماد"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "APPROVE REMAINING LINES"
+msgstr "اعتماد البنود المتبقية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__accounting_manager_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__accounting_manager_state
+msgid "Acc Man Status"
+msgstr "حالة مدير الحسابات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_move_line__account_name
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "Acc. Name"
+msgstr "اسم الحساب"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Account"
+msgstr "الحساب"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "Account Code"
+msgstr "رمز الحساب"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category__account_receivable
+msgid "Account Receivable"
+msgstr "الذمم المدينة"
+
+#. module: pr_account
+#: model:res.groups,name:pr_account.custom_group_account_supervisor
+msgid "Account Supervisor"
+msgstr "مشرف الحسابات"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#, python-format
+msgid "Account is missing."
+msgstr "الحساب غير محدد."
+
+#. module: pr_account
+#: model:ir.ui.menu,name:pr_account.accounting_approvals_menu_root
+msgid "Accounting"
+msgstr "المحاسبة"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Accounting Date"
+msgstr "التاريخ المحاسبي"
+
+#. module: pr_account
+#: model:res.groups,name:pr_account.custom_group_accounting_manager
+msgid "Accounting Manager"
+msgstr "مدير المحاسبة"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_report
+msgid "Accounting Report"
+msgstr "التقرير المحاسبي"
+
+#. module: pr_account
+#: model:ir.ui.menu,name:pr_account.account_chart_of_accounts_main_menu
+msgid "Accounts"
+msgstr "الحسابات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_payment__pr_payment_approval_state__finance_approve
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__state__finance_approve
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__state__finance_approve
+msgid "Accounts Approval"
+msgstr "اعتماد الحسابات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_liability_category__accounts_payable
+msgid "Accounts Payable"
+msgstr "الذمم الدائنة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__accounts_payable_subcategory
+msgid "Accounts Payable Sub-Category"
+msgstr "الفئة الفرعية للذمم الدائنة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__accounts_receivable_subcategory
+msgid "Accounts Receivable Sub-Category"
+msgstr "الفئة الفرعية للذمم المدينة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__accounts_payable_subcategory__accrued_expenses
+msgid "Accrued Expenses"
+msgstr "المصروفات المستحقة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_needaction
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_needaction
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_needaction
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_needaction
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_needaction
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_type_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_type_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_type_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_type_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_type_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category__advances
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_liability_category__advances
+msgid "Advances"
+msgstr "السلف"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__current_assets_category_advance_sub_category
+#: model:ir.model.fields,field_description:pr_account.field_account_account__current_liability_advance_sub_category
+msgid "Advances Sub-Category"
+msgstr "الفئة الفرعية للسلف"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__amount
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_analytic_account
+msgid "Analytic Account"
+msgstr "الحساب التحليلي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_analytic_line
+msgid "Analytic Line"
+msgstr "البند التحليلي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_analytic_plan
+msgid "Analytic Plans"
+msgstr "الخطط التحليلية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__analytic_precision
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__analytic_precision
+msgid "Analytic Precision"
+msgstr "دقة التحليل"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__analytic_line_ids
+msgid "Analytic lines"
+msgstr "البنود التحليلية"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_payment_form_vendor_approval
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment_line__state__approve
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment_line__state__approve
+msgid "Approved"
+msgstr "تم الاعتماد"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__approved_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__approved_amount
+msgid "Approved Amount"
+msgstr "المبلغ المعتمد"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_analytic_plan__analytic_plan_type__asset
+msgid "Asset"
+msgstr "أصل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__main_head__assets
+msgid "Assets"
+msgstr "الأصول"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__assets_main_head
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_form_inherit
+msgid "Assets Main Head"
+msgstr "الرأس الرئيسي للأصول"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#, python-format
+msgid "At least one line must have a positive amount."
+msgstr "يجب أن يحتوي سطر واحد على الأقل على مبلغ موجب."
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_attachment_count
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_attachment_count
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_attachment_count
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_attachment_count
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_attachment_count
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+msgid "BPV"
+msgstr "سند صرف بنكي"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+msgid "BRV"
+msgstr "سند قبض بنكي"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__accounts_payable_subcategory__bank
+msgid "Bank"
+msgstr "بنك"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__short_term_loans_subcategory__bank_finance
+msgid "Bank Finance"
+msgstr "تمويل بنكي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_bank_payment
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__bank_payment_id
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__bpv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_move__bpv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__bpv_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__bank_payment_id
+msgid "Bank Payment"
+msgstr "سند صرف بنكي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_bank_payment_line
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__bank_payment_line_id
+msgid "Bank Payment Line"
+msgstr "بند سند الصرف البنكي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_bank_payment_reject_reason_wizard
+msgid "Bank Payment Line Reject Reason"
+msgstr "سبب رفض بند سند الصرف البنكي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__bank_payment_line_ids
+msgid "Bank Payment Lines"
+msgstr "بنود سند الصرف البنكي"
+
+#. module: pr_account
+#: model:ir.actions.act_window,name:pr_account.pr_account_bank_payment_view_action
+#: model:ir.ui.menu,name:pr_account.pr_account_bank_payment_view_menu
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_tree
+msgid "Bank Payments"
+msgstr "سندات الصرف البنكية"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_bank_receipt
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__bank_receipt_id
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__brv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_move__brv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__brv_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__bank_receipt_id
+msgid "Bank Receipt"
+msgstr "سند قبض بنكي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_bank_receipt_line
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__bank_receipt_line_id
+msgid "Bank Receipt Line"
+msgstr "بند سند القبض البنكي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__bank_receipt_line_ids
+msgid "Bank Receipt Lines"
+msgstr "بنود سند القبض البنكي"
+
+#. module: pr_account
+#: model:ir.actions.act_window,name:pr_account.pr_account_bank_receipt_view_action
+#: model:ir.ui.menu,name:pr_account.pr_account_bank_receipt_view_menu
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_tree
+msgid "Bank Receipts"
+msgstr "سندات القبض البنكية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__banks_subcategory__banks
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category__banks
+msgid "Banks"
+msgstr "البنوك"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__banks_subcategory
+msgid "Banks Sub-Category"
+msgstr "الفئة الفرعية للبنوك"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_approval_tree
+msgid "Bills"
+msgstr "الفواتير"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__land_buildings_subcategory__buildings
+msgid "Buildings"
+msgstr "المباني"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "CANCEL"
+msgstr "إلغاء"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "CANCELLED"
+msgstr "تم الإلغاء"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__cogs_subcategory
+msgid "COGS Sub-Category"
+msgstr "الفئة الفرعية لتكلفة البضاعة المباعة"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+msgid "CPV"
+msgstr "سند صرف نقدي"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+msgid "CRV"
+msgstr "سند قبض نقدي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_can_current_user_approve_vendor_payment_accounts
+msgid "Can Approve Vendor Payment"
+msgstr "يمكنه اعتماد دفعة المورد"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_can_current_user_final_approve_vendor_payment
+msgid "Can Final Approve Vendor Payment"
+msgstr "يمكنه الاعتماد النهائي لدفعة المورد"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_can_current_user_reject_vendor_payment
+msgid "Can Reject Vendor Payment"
+msgstr "يمكنه رفض دفعة المورد"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_reject_reason_wizard
+#: model_terms:ir.ui.view,arch_db:pr_account.view_bank_payment_reject_reason_wizard
+#: model_terms:ir.ui.view,arch_db:pr_account.view_reject_reason_wizard
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_payment__pr_payment_approval_state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__accounting_manager_state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_receipt__state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__accounting_manager_state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_receipt__state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_payment_receipt__state__cancel
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_transaction_payment__state__cancel
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__equity_category__capital
+msgid "Capital"
+msgstr "رأس المال"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__capital_subcategory
+msgid "Capital Sub-Category"
+msgstr "الفئة الفرعية لرأس المال"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__vehicles_subcategory__cars
+msgid "Cars"
+msgstr "السيارات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_payment_receipt__receipt_mode__cash
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_transaction_payment__payment_mode__cash
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Cash"
+msgstr "نقدًا"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category__cash_equivalents
+msgid "Cash & Equivalents"
+msgstr "النقد وما يعادله"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__cash_equivalents_subcategory
+msgid "Cash & Equivalents Sub-Category"
+msgstr "الفئة الفرعية للنقد وما يعادله"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_cash_payment
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__cash_payment_id
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__cpv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_move__cpv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__cpv_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__cash_payment_id
+msgid "Cash Payment"
+msgstr "سند صرف نقدي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_cash_payment_line
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__cash_payment_line_id
+msgid "Cash Payment Line"
+msgstr "بند سند الصرف النقدي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__cash_payment_line_ids
+msgid "Cash Payment Lines"
+msgstr "بنود سند الصرف النقدي"
+
+#. module: pr_account
+#: model:ir.actions.act_window,name:pr_account.pr_account_cash_payment_view_action
+#: model:ir.ui.menu,name:pr_account.pr_account_cash_payment_view_menu
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_tree
+msgid "Cash Payments"
+msgstr "سندات الصرف النقدية"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_cash_receipt
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__cash_receipt_id
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__crv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_move__crv_id
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__crv_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__cash_receipt_id
+msgid "Cash Receipt"
+msgstr "سند قبض نقدي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_account_cash_receipt_line
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__cash_receipt_line_id
+msgid "Cash Receipt Line"
+msgstr "بند سند القبض النقدي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__cash_receipt_line_ids
+msgid "Cash Receipt Lines"
+msgstr "بنود سند القبض النقدي"
+
+#. module: pr_account
+#: model:ir.actions.act_window,name:pr_account.pr_account_cash_receipt_view_action
+#: model:ir.ui.menu,name:pr_account.pr_account_cash_receipt_view_menu
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_tree
+msgid "Cash Receipts"
+msgstr "سندات القبض النقدية"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_form_inherit
+msgid "Category"
+msgstr "الفئة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_move_line__check_cost_centers_block
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__check_cost_centers_block
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__check_cost_centers_block
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__check_cost_centers_block
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__check_cost_centers_block
+msgid "Check Cost Centers Block"
+msgstr "التحقق من حظر مراكز التكلفة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__check_credit_cost_centers_block
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__check_credit_cost_centers_block
+msgid "Check Credit Cost Centers Block"
+msgstr "التحقق من حظر مراكز تكلفة الدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__check_debit_cost_centers_block
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__check_debit_cost_centers_block
+msgid "Check Debit Cost Centers Block"
+msgstr "التحقق من حظر مراكز تكلفة المدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__check_process_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__check_process_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__check_process_state
+msgid "Check Process State"
+msgstr "التحقق من حالة المعالجة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_payment_receipt__receipt_mode__cheque
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_transaction_payment__payment_mode__cheque
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Cheque"
+msgstr "شيك"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__account_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "Code"
+msgstr "الرمز"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__company_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__company_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_account_payment_register__received_bank_account_id
+msgid "Company bank account where the payment was received."
+msgstr "الحساب البنكي للشركة الذي تم استلام الدفعة فيه."
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_account_payment__received_bank_account_id
+msgid "Company bank account where this payment was received."
+msgstr "الحساب البنكي للشركة الذي تم استلام هذه الدفعة فيه."
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__fixed_assets_category__computer_printers
+msgid "Computer & Printers"
+msgstr "أجهزة الكمبيوتر والطابعات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__computer_printers_subcategory
+msgid "Computer & Printers Sub-Category"
+msgstr "الفئة الفرعية لأجهزة الكمبيوتر والطابعات"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_bank_payment_reject_reason_wizard
+#: model_terms:ir.ui.view,arch_db:pr_account.view_reject_reason_wizard
+msgid "Confirm"
+msgstr "تأكيد"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_res_partner
+msgid "Contact"
+msgstr "جهة الاتصال"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_analytic_account_form_inherit
+msgid "Cost Center Code"
+msgstr "رمز مركز التكلفة"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_analytic_account.py:0
+#, python-format
+msgid "Cost Center Code %(code)s already exists on %(cost_center)s."
+msgstr "رمز مركز التكلفة %(code)s موجود بالفعل في %(cost_center)s."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_analytic_account.py:0
+#, python-format
+msgid "Cost Center Code is required."
+msgstr "رمز مركز التكلفة مطلوب."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_analytic_account.py:0
+#, python-format
+msgid "Cost Center Codes Resequenced"
+msgstr "تمت إعادة ترقيم رموز مراكز التكلفة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__analytic_distribution
+#: model:ir.ui.menu,name:pr_account.account_cost_centers_main_menu
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_line_form_inherit
+msgid "Cost Centers"
+msgstr "مراكز التكلفة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__expense_category__cogs
+msgid "Cost of Goods Sold - COGS"
+msgstr "تكلفة البضاعة المباعة - COGS"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.pr_account_bank_payment_view_action
+msgid "Create A New Bank Payment"
+msgstr "إنشاء سند صرف بنكي جديد"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.pr_account_bank_receipt_view_action
+msgid "Create A New Bank Receipt"
+msgstr "إنشاء سند قبض بنكي جديد"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.pr_account_cash_payment_view_action
+msgid "Create A New Cash Payment"
+msgstr "إنشاء سند صرف نقدي جديد"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.pr_account_cash_receipt_view_action
+msgid "Create A New Cash Receipt"
+msgstr "إنشاء سند قبض نقدي جديد"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.account_pr_payment_receipt_view_action
+msgid "Create A New Payment Receipt"
+msgstr "إنشاء إيصال دفع جديد"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.account_pr_transaction_payment_view_action
+msgid "Create A New Transaction Payment"
+msgstr "إنشاء دفعة معاملة جديدة"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.action_move_journal_line_journal_vouchers
+msgid "Create a journal voucher"
+msgstr "إنشاء قيد يومية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__create_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__create_date
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__create_date
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__create_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "Credit"
+msgstr "دائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__credit_account_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__credit_account_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Credit Account"
+msgstr "الحساب الدائن"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Credit Account Code"
+msgstr "رمز الحساب الدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__credit_account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__credit_account_name
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Credit Account Name"
+msgstr "اسم الحساب الدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__credit_analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__credit_analytic_distribution
+msgid "Credit Analytic Distribution"
+msgstr "التوزيع التحليلي للدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__credit_analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__credit_analytic_line_ids
+msgid "Credit Analytic lines"
+msgstr "القيود التحليلية للدائن"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Credit Cost Centers"
+msgstr "مراكز تكلفة الدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__credit_payment_receipt_id
+msgid "Credit Payment Receipt"
+msgstr "إيصال الدفع الدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__credit_cs_project_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__credit_cs_project_id
+msgid "Credit Project"
+msgstr "المشروع الدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__credit_cs_project_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__credit_cs_project_name
+msgid "Credit Project Name"
+msgstr "اسم المشروع الدائن"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__credit_transaction_payment_id
+msgid "Credit Transaction Payment"
+msgstr "دفعة معاملة دائنة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__currency_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__assets_main_head__asset_current
+msgid "Current Assets"
+msgstr "الأصول المتداولة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__current_assets_category
+msgid "Current Assets Category"
+msgstr "فئة الأصول المتداولة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__liability_main_head__liability_current
+msgid "Current Liabilities"
+msgstr "الالتزامات المتداولة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__current_liability_category
+msgid "Current Liabilities Category"
+msgstr "فئة الالتزامات المتداولة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category_advance_sub_category__customer_advances
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_liability_advance_sub_category__customer_advances
+msgid "Customer Advances"
+msgstr "سلف العملاء"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_res_partner__pr_ledger_account_id
+#: model:ir.model.fields,field_description:pr_account.field_res_users__pr_ledger_account_id
+msgid "Customer/Vendor Ledger Account"
+msgstr "حساب الأستاذ للعميل/المورد"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__accounts_receivable_subcategory__customers
+msgid "Customers"
+msgstr "العملاء"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "DRAFT"
+msgstr "مسودة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__accounting_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__accounting_date_display
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__accounting_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__accounting_date_display
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__accounting_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__accounting_date_display
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__accounting_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__accounting_date_display
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "Debit"
+msgstr "مدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__debit_account_id
+msgid "Debit Acc"
+msgstr "الحساب المدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__debit_account_name
+msgid "Debit Acc. Name"
+msgstr "اسم الحساب المدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__debit_account_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Debit Account"
+msgstr "الحساب المدين"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Debit Account Code"
+msgstr "رمز الحساب المدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__debit_account_name
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Debit Account Name"
+msgstr "اسم الحساب المدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__debit_analytic_distribution
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__debit_analytic_distribution
+msgid "Debit Analytic Distribution"
+msgstr "التوزيع التحليلي للمدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__debit_analytic_line_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__debit_analytic_line_ids
+msgid "Debit Analytic lines"
+msgstr "القيود التحليلية للمدين"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Debit Cost Centers"
+msgstr "مراكز التكلفة المدينة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__debit_payment_receipt_id
+msgid "Debit Payment Receipt"
+msgstr "سند قبض مدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__debit_cs_project_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__debit_cs_project_id
+msgid "Debit Project"
+msgstr "المشروع المدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__debit_cs_project_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__debit_cs_project_name
+msgid "Debit Project Name"
+msgstr "اسم المشروع المدين"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_line__debit_transaction_payment_id
+msgid "Debit Transaction Payment"
+msgstr "دفعة معاملة مدينة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_account__department_id
+#: model:ir.model.fields.selection,name:pr_account.selection__account_analytic_plan__analytic_plan_type__department
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_account
+#: model:account.analytic.plan,name:pr_account.pr_account_analytic_plan_department
+msgid "Departments"
+msgstr "الأقسام"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_payment_receipt__receipt_mode__deposit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_transaction_payment__payment_mode__deposit
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Deposit"
+msgstr "إيداع"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__description
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__description
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_line_form_inherit
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__cogs_subcategory__direct_labor
+msgid "Direct Labor (Production Staff)"
+msgstr "العمالة المباشرة (موظفو الإنتاج)"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__cogs_subcategory__direct_raw_materials
+msgid "Direct Raw Materials"
+msgstr "المواد الخام المباشرة"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Direct vendor payment finally approved and posted."
+msgstr "تمت الموافقة النهائية على دفعة المورد المباشرة وترحيلها."
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__display_name
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__display_name
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__display_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_payment__pr_payment_approval_state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__accounting_manager_state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment_line__state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_receipt__state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__accounting_manager_state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment_line__state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_receipt__state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_payment_receipt__state__draft
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_transaction_payment__state__draft
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_analytic_plan__analytic_plan_type__employee
+msgid "Employee"
+msgstr "موظف"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__accounts_receivable_subcategory__employee_advances
+msgid "Employee Advances"
+msgstr "سلف الموظفين"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__main_head__equity
+msgid "Equity"
+msgstr "حقوق الملكية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__equity_category
+msgid "Equity Category"
+msgstr "فئة حقوق الملكية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__main_head__expense
+msgid "Expense"
+msgstr "مصروف"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__expense_category
+msgid "Expense Category"
+msgstr "فئة المصروفات"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_payment_form_vendor_approval
+msgid "Final Approve"
+msgstr "الموافقة النهائية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_payment__pr_payment_approval_state__posted
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__state__posted
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_receipt__state__posted
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__state__posted
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_receipt__state__posted
+msgid "Finance Approval"
+msgstr "اعتماد المالية"
+
+#. module: pr_account
+#: model:ir.ui.menu,name:pr_account.financial_accounting_main_menu
+msgid "Financial Accounting"
+msgstr "المحاسبة المالية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__expense_category__financial_expenses
+msgid "Financial Expenses"
+msgstr "المصروفات المالية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__financial_expenses_subcategory
+msgid "Financial Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات المالية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__inventory_subcategory__finished_goods
+msgid "Finished Goods"
+msgstr "البضائع تامة الصنع"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__assets_main_head__asset_fixed
+msgid "Fixed Assets"
+msgstr "الأصول الثابتة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__fixed_assets_category
+msgid "Fixed Assets Category"
+msgstr "فئة الأصول الثابتة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_follower_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_follower_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_follower_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_follower_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_follower_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_partner_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_partner_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_partner_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_partner_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_partner_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (جهات الاتصال)"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__activity_type_icon
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__activity_type_icon
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__activity_type_icon
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__activity_type_icon
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__activity_type_icon
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__furniture_fixture_subcategory__furniture
+msgid "Furniture"
+msgstr "الأثاث"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__fixed_assets_category__furniture_fixture
+msgid "Furniture & Fixture"
+msgstr "الأثاث والتجهيزات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__furniture_fixture_subcategory
+msgid "Furniture & Fixture Sub-Category"
+msgstr "الفئة الفرعية للأثاث والتجهيزات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__other_expenses_subcategory__general_administrative_expenses
+msgid "General Administrative Expenses"
+msgstr "المصروفات الإدارية والعمومية"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_general_ledger_report_handler
+msgid "General Ledger Custom Handler"
+msgstr "معالج دفتر الأستاذ العام المخصص"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Group By..."
+msgstr "تجميع حسب..."
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__has_message
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__has_message
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__has_message
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__has_message
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__has_message
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسائل"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__has_pr_voucher
+#: model:ir.model.fields,field_description:pr_account.field_account_move__has_pr_voucher
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__has_pr_voucher
+msgid "Has PR Voucher"
+msgstr "يحتوي على سند PR"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__pr_has_pending_vendor_payment_approval
+#: model:ir.model.fields,field_description:pr_account.field_account_move__pr_has_pending_vendor_payment_approval
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_has_pending_vendor_payment_approval
+msgid "Has Pending Vendor Payment Approval"
+msgstr "يوجد اعتماد دفع مورد معلق"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__pr_has_rejected_vendor_payment_approval
+#: model:ir.model.fields,field_description:pr_account.field_account_move__pr_has_rejected_vendor_payment_approval
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_has_rejected_vendor_payment_approval
+msgid "Has Rejected Vendor Payment Approval"
+msgstr "يوجد اعتماد دفع مورد مرفوض"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__id
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__id
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__computer_printers_subcategory__it_products
+msgid "IT Products"
+msgstr "منتجات تقنية المعلومات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__activity_exception_icon
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__activity_exception_icon
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__activity_exception_icon
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__activity_exception_icon
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__activity_exception_icon
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__message_needaction
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__message_needaction
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__message_needaction
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__message_needaction
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__message_needaction
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__message_has_error
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__message_has_sms_error
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__message_has_error
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__message_has_sms_error
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__message_has_error
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__message_has_sms_error
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__message_has_error
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__message_has_sms_error
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__message_has_error
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__message_has_sms_error
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__message_has_error
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فإن بعض الرسائل تحتوي على خطأ في التسليم."
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__prepaid_expenses_subcategory__insurance
+msgid "Insurance"
+msgstr "التأمين"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__financial_expenses_subcategory__interest_expense
+msgid "Interest Expense"
+msgstr "مصروف الفوائد"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category__inventory
+msgid "Inventory"
+msgstr "المخزون"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__inventory_subcategory
+msgid "Inventory Sub-Category"
+msgstr "الفئة الفرعية للمخزون"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__other_assets_category__investment
+msgid "Investment"
+msgstr "الاستثمارات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__investment_subcategory
+msgid "Investment Sub-Category"
+msgstr "الفئة الفرعية للاستثمارات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_is_follower
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_is_follower
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_is_follower
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_is_follower
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_is_follower
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#: code:addons/pr_account/models/payment_receipt.py:0
+#: code:addons/pr_account/models/transaction_payment.py:0
+#: model:ir.model,name:pr_account.model_account_move
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__journal_entry_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__journal_entry_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__journal_entry_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__journal_entry_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__journal_entry_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__journal_entry_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#, python-format
+msgid "Journal Entry"
+msgstr "القيد المحاسبي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_move_line
+msgid "Journal Item"
+msgstr "بند اليومية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__journal_voucher_view
+#: model:ir.model.fields,field_description:pr_account.field_account_move__journal_voucher_view
+#: model:ir.model.fields,field_description:pr_account.field_account_move_line__journal_voucher_view
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__journal_voucher_view
+msgid "Journal Voucher View"
+msgstr "عرض سند اليومية"
+
+#. module: pr_account
+#: model:account.journal,name:pr_account.journal_journal_voucher
+#: model:ir.actions.act_window,name:pr_account.action_move_journal_line_journal_vouchers
+#: model:ir.ui.menu,name:pr_account.menu_move_journal_line_journal_vouchers
+msgid "Journal Vouchers"
+msgstr "سندات اليومية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__fixed_assets_category__land_buildings
+msgid "Land & Buildings"
+msgstr "الأراضي والمباني"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__land_buildings_subcategory
+msgid "Land & Buildings Sub-Category"
+msgstr "الفئة الفرعية للأراضي والمباني"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__write_uid
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__write_date
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__write_date
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__write_date
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__pr_last_vendor_payment_rejection_reason
+#: model:ir.model.fields,field_description:pr_account.field_account_move__pr_last_vendor_payment_rejection_reason
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_last_vendor_payment_rejection_reason
+msgid "Last Vendor Payment Rejection Reason"
+msgstr "آخر سبب لرفض دفعة المورد"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__lease_obligations_subcategory__lease
+msgid "Lease"
+msgstr "عقد إيجار"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__liability_non_current_category__lease_obligations
+msgid "Lease Obligations"
+msgstr "التزامات الإيجار"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__lease_obligations_subcategory
+msgid "Lease Obligations Sub-Category"
+msgstr "الفئة الفرعية لالتزامات الإيجار"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_res_partner_view_form_inherit_ledger_account
+msgid "Ledger Account"
+msgstr "حساب دفتر الأستاذ"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_account__project_code
+msgid "Legacy Project Code"
+msgstr "رمز المشروع القديم"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__main_head__liabilities
+msgid "Liabilities"
+msgstr "الخصوم"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__liability_main_head
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_form_inherit
+msgid "Liabilities Main Head"
+msgstr "الرأس الرئيسي للخصوم"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__line_id
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__line_id
+msgid "Line"
+msgstr "السطر"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__long_term_loans_subcategory__loans
+msgid "Loans"
+msgstr "القروض"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__long_term_loans_subcategory
+msgid "Long Term Loans Sub-Category"
+msgstr "الفئة الفرعية للقروض طويلة الأجل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__investment_subcategory__long_terms
+msgid "Long Terms"
+msgstr "طويلة الأجل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__liability_main_head__liability_non_current
+msgid "Long-Term Liabilities"
+msgstr "الخصوم طويلة الأجل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__liability_non_current_category__long_term_loans
+msgid "Long-Term Loans"
+msgstr "القروض طويلة الأجل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__machinery_equipment_subcategory__machinery
+msgid "Machinery"
+msgstr "الآلات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__fixed_assets_category__machinery_equipment
+msgid "Machinery & Equipment"
+msgstr "الآلات والمعدات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__machinery_equipment_subcategory
+msgid "Machinery & Equipment Sub-Category"
+msgstr "الفئة الفرعية للآلات والمعدات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__main_head
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_form_inherit
+msgid "Main Head"
+msgstr "الرأس الرئيسي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_account__project_partner_id
+msgid "Manager"
+msgstr "المدير"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_res_partner__pr_ledger_account_id
+#: model:ir.model.fields,help:pr_account.field_res_users__pr_ledger_account_id
+msgid ""
+"Map this customer/vendor to the legacy account used by the custom Account "
+"Ledger report. When that account is selected, posted invoice, bill, payment,"
+" and journal lines for this partner are included in the ledger as well."
+msgstr ""
+"اربط هذا العميل/المورد بالحساب القديم المستخدم في تقرير دفتر الأستاذ المخصص. "
+"عند تحديد هذا الحساب، سيتم أيضًا تضمين الفواتير، وفواتير الموردين، والمدفوعات، "
+"وقيود اليومية المرحّلة الخاصة بهذا الشريك في دفتر الأستاذ."
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__operating_expenses_subcategory__marketing
+msgid "Marketing"
+msgstr "التسويق"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_approval_tree
+msgid "Memo"
+msgstr "مذكرة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_has_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_has_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_has_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_has_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_has_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__account_name_button
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__account_name_button
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__account_name_button
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__account_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__account_name_button
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#, python-format
+msgid "New"
+msgstr "جديد"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_summary
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_summary
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_summary
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_summary
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_summary
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_type_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_type_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_type_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_type_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_type_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_account
+#: model_terms:ir.actions.act_window,help:pr_account.action_vendor_payment_approvals
+msgid "No pending vendor payment approvals."
+msgstr "لا توجد موافقات معلقة لمدفوعات الموردين."
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__liability_non_current_category
+msgid "Non Current Liabilities Category"
+msgstr "فئة الخصوم غير المتداولة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__notes
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__notes
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__name
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_tree
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_tree
+msgid "Number"
+msgstr "الرقم"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__message_needaction_counter
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__message_needaction_counter
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__message_needaction_counter
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__message_needaction_counter
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__message_needaction_counter
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراء"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__message_has_error_counter
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__message_has_error_counter
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__message_has_error_counter
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__message_has_error_counter
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__message_has_error_counter
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي تحتوي على خطأ في التسليم"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__old_id
+#: model:ir.model.fields,field_description:pr_account.field_account_move__old_id
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__old_id
+msgid "Old ID"
+msgstr "المعرّف القديم"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Only draft payments can be submitted for approval."
+msgstr "يمكن فقط إرسال المدفوعات بحالة المسودة للموافقة."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Only draft vendor payments can be finally approved."
+msgstr "يمكن فقط اعتماد مدفوعات الموردين بحالة المسودة اعتمادًا نهائيًا."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Only submitted vendor payment approvals can be rejected."
+msgstr "يمكن فقط رفض طلبات اعتماد مدفوعات الموردين المقدمة."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Only submitted vendor payments can be approved."
+msgstr "يمكن فقط اعتماد مدفوعات الموردين المقدمة."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Only unposted vendor payments can be rejected."
+msgstr "يمكن فقط رفض مدفوعات الموردين غير المرحلة."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Only unposted vendor payments can be reset to draft."
+msgstr "يمكن فقط إعادة مدفوعات الموردين غير المرحلة إلى حالة المسودة."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Only vendor payment approvals can be rejected."
+msgstr "يمكن فقط رفض طلبات اعتماد مدفوعات الموردين."
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_move_form_vendor_payment_pending_approval
+msgid "Open / Resubmit Payment"
+msgstr "فتح / إعادة إرسال الدفعة"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "Open Linked Document"
+msgstr "فتح المستند المرتبط"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__expense_category__operating_expenses
+msgid "Operating Expenses"
+msgstr "المصروفات التشغيلية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__operating_expenses_subcategory
+msgid "Operating Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات التشغيلية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__revenue_category__operating_revenue
+msgid "Operating Revenue"
+msgstr "الإيرادات التشغيلية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__operating_revenue_subcategory
+msgid "Operating Revenue Sub-Category"
+msgstr "الفئة الفرعية للإيرادات التشغيلية"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__assets_main_head__asset_non_current
+msgid "Other Assets"
+msgstr "الأصول الأخرى"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__other_assets_category
+msgid "Other Assets Category"
+msgstr "فئة الأصول الأخرى"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__expense_category__other_expenses
+msgid "Other Expenses"
+msgstr "المصروفات الأخرى"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__other_expenses_subcategory
+msgid "Other Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات الأخرى"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_liability_category__other_liabilities
+msgid "Other Liabilities"
+msgstr "الالتزامات الأخرى"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__other_liabilities_subcategory
+msgid "Other Liabilities Sub-Category"
+msgstr "الفئة الفرعية للالتزامات الأخرى"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__operating_revenue_subcategory__other_revenue
+msgid "Other Revenue"
+msgstr "إيرادات أخرى"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "POST"
+msgstr "ترحيل"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "POSTED"
+msgstr "مُرحّل"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__parent_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__parent_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__parent_state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__parent_state
+msgid "Parent Status"
+msgstr "حالة السجل الرئيسي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__payment_id
+msgid "Payment"
+msgstr "الدفعة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_payment_approval_state
+msgid "Payment Approval Status"
+msgstr "حالة اعتماد الدفعة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__payment_date
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Payment Date"
+msgstr "تاريخ الدفعة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__payment_mode
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Payment Mode"
+msgstr "طريقة الدفع"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__name
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Payment Number"
+msgstr "رقم الدفعة"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Payment Number #"
+msgstr "رقم الدفعة #"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_payment_receipt
+msgid "Payment Receipt"
+msgstr "سند قبض"
+
+#. module: pr_account
+#: model:ir.ui.menu,name:pr_account.payment_receipt_vouchers_main_menu
+msgid "Payment Receipt Vouchers"
+msgstr "سندات القبض"
+
+#. module: pr_account
+#: model:ir.actions.act_window,name:pr_account.account_pr_transaction_payment_view_action
+#: model:ir.model,name:pr_account.model_account_payment
+#: model:ir.ui.menu,name:pr_account.account_pr_transaction_payment_menu
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_tree
+msgid "Payments"
+msgstr "المدفوعات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__accounting_manager_state__finance_approve
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__accounting_manager_state__submit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__accounting_manager_state__finance_approve
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__accounting_manager_state__submit
+msgid "Pending Approval"
+msgstr "بانتظار الموافقة"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_move_form_vendor_payment_pending_approval
+msgid "Pending Payment"
+msgstr "دفعة معلقة"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_move.py:0
+#, python-format
+msgid "Pending Vendor Payment Approval"
+msgstr "اعتماد دفعة المورد بانتظار الموافقة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__pr_pending_vendor_payment_approval_count
+#: model:ir.model.fields,field_description:pr_account.field_account_move__pr_pending_vendor_payment_approval_count
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_pending_vendor_payment_approval_count
+msgid "Pending Vendor Payment Approval Count"
+msgstr "عدد طلبات اعتماد دفعات الموردين المعلقة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__pr_pending_vendor_payment_approval_ids
+#: model:ir.model.fields,field_description:pr_account.field_account_move__pr_pending_vendor_payment_approval_ids
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_pending_vendor_payment_approval_ids
+msgid "Pending Vendor Payment Approvals"
+msgstr "طلبات اعتماد دفعات الموردين المعلقة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__capital_subcategory__petroraq
+msgid "Petroraq"
+msgstr "بتروراق"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_form_inherit
+msgid "Petroraq Chart Of Account"
+msgstr "دليل حسابات بتروراق"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__cash_equivalents_subcategory__petty_cash
+msgid "Petty Cash"
+msgstr "العهدة النقدية"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_account__analytic_plan_type
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_plan__analytic_plan_type
+msgid "Plan Type"
+msgstr "نوع الخطة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__accounting_manager_state__posted
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__accounting_manager_state__posted
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_payment_receipt__state__posted
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_transaction_payment__state__posted
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Posted"
+msgstr "مُرحّل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category__prepaid_expenses
+msgid "Prepaid Expenses"
+msgstr "المصروفات المدفوعة مقدمًا"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__prepaid_expenses_subcategory
+msgid "Prepaid Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات المدفوعة مقدمًا"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__prepaid_expenses_subcategory__prepaid_rent
+msgid "Prepaid Rent"
+msgstr "إيجار مدفوع مقدمًا"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__operating_revenue_subcategory__product_sales
+msgid "Product Sales"
+msgstr "مبيعات المنتجات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_account__project_id
+#: model:ir.model.fields,field_description:pr_account.field_account_move_line__cs_project_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__cs_project_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__cs_project_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__cs_project_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__cs_project_id
+#: model:ir.model.fields.selection,name:pr_account.selection__account_analytic_plan__analytic_plan_type__project
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+msgid "Project"
+msgstr "المشروع"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__partner_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__partner_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__partner_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__partner_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_line_form_inherit
+msgid "Project Manager"
+msgstr "مدير المشروع"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_move_line__cs_project_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__cs_project_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__cs_project_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__cs_project_name
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__cs_project_name
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_line_form_inherit
+msgid "Project Name"
+msgstr "اسم المشروع"
+
+#. module: pr_account
+#: model:account.analytic.plan,name:pr_account.pr_account_analytic_plan_our_project
+msgid "Projects"
+msgstr "المشاريع"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_move_form_inherit
+msgid "REJECT"
+msgstr "رفض"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "REJECT REMAINING LINES"
+msgstr "رفض البنود المتبقية"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "RESET TO DRAFT"
+msgstr "إعادة إلى المسودة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__rating_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__rating_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__rating_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__rating_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__rating_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__inventory_subcategory__raw_materials
+msgid "Raw Materials"
+msgstr "المواد الخام"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_vendor_payment_reject_reason_wizard__reason
+#: model:ir.model.fields,field_description:pr_account.field_bank_payment_reject_reason_wizard__reason
+#: model:ir.model.fields,field_description:pr_account.field_cash_payment_reject_reason_wizard__reason
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+msgid "Reason"
+msgstr "السبب"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Reason:"
+msgstr "السبب:"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__receipt_date
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+msgid "Receipt Date"
+msgstr "تاريخ الإيصال"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__receipt_mode
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+msgid "Receipt Mode"
+msgstr "طريقة الاستلام"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__name
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+msgid "Receipt Number"
+msgstr "رقم الإيصال"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+msgid "Receipt Number #"
+msgstr "رقم الإيصال #"
+
+#. module: pr_account
+#: model:ir.actions.act_window,name:pr_account.account_pr_payment_receipt_view_action
+#: model:ir.ui.menu,name:pr_account.account_pr_payment_receipt_menu
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_tree
+msgid "Receipts"
+msgstr "الإيصالات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__received_from_partner_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+msgid "Received From"
+msgstr "تم الاستلام من"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__received_bank_account_id
+#: model:ir.model.fields,field_description:pr_account.field_account_payment_register__received_bank_account_id
+msgid "Received In Bank Account"
+msgstr "تم الاستلام في الحساب البنكي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__reference_number
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__reference_number
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__reference_number
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__reference_number
+msgid "Reference Number"
+msgstr "الرقم المرجعي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_payment_register
+msgid "Register Payment"
+msgstr "تسجيل دفعة"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_payment_form_vendor_approval
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_reject_reason_wizard
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_bank_payment_reject_reason_wizard
+#: model_terms:ir.ui.view,arch_db:pr_account.view_reject_reason_wizard
+msgid "Reject Line"
+msgstr "رفض البند"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__reject_reason
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__reject_reason
+msgid "Reject Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_cash_payment_reject_reason_wizard
+msgid "Reject Reason Wizard"
+msgstr "معالج سبب الرفض"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_reject_reason_wizard
+#, python-format
+msgid "Reject Vendor Payment"
+msgstr "رفض دفعة المورد"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_payment__pr_payment_approval_state__reject
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment_line__state__reject
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment_line__state__reject
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__rejected_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__rejected_amount
+msgid "Rejected Amount"
+msgstr "المبلغ المرفوض"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_move_form_vendor_payment_pending_approval
+msgid "Rejected Payment"
+msgstr "الدفعة المرفوضة"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_move.py:0
+#, python-format
+msgid "Rejected Vendor Payment"
+msgstr "دفعة المورد المرفوضة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__pr_rejected_vendor_payment_approval_count
+#: model:ir.model.fields,field_description:pr_account.field_account_move__pr_rejected_vendor_payment_approval_count
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_rejected_vendor_payment_approval_count
+msgid "Rejected Vendor Payment Approval Count"
+msgstr "عدد موافقات دفعات المورد المرفوضة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_bank_statement_line__pr_rejected_vendor_payment_approval_ids
+#: model:ir.model.fields,field_description:pr_account.field_account_move__pr_rejected_vendor_payment_approval_ids
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_rejected_vendor_payment_approval_ids
+msgid "Rejected Vendor Payment Approvals"
+msgstr "موافقات دفعات المورد المرفوضة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_vendor_payment_reject_reason
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__operating_expenses_subcategory__rent_utilities
+msgid "Rent & Utilities"
+msgstr "الإيجار والمرافق"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/trial_balance_xlsx_extend.py:0
+#, python-format
+msgid "Report"
+msgstr "التقرير"
+
+#. module: pr_account
+#: model:ir.ui.menu,name:pr_account.account_reports_main_menu
+msgid "Reports"
+msgstr "التقارير"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#, python-format
+msgid "Required Journal (ID: 3) was not found."
+msgstr "لم يتم العثور على دفتر اليومية المطلوب (المعرف: 3)."
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_requires_vendor_payment_approval
+msgid "Requires Vendor Payment Approval"
+msgstr "يتطلب موافقة على دفعة المورد"
+
+#. module: pr_account
+#: model:ir.actions.server,name:pr_account.action_resequence_cost_center_codes
+msgid "Resequence Cost Center Codes"
+msgstr "إعادة ترقيم رموز مراكز التكلفة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__activity_user_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__activity_user_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__activity_user_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__activity_user_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__activity_user_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_payment_form_vendor_approval
+msgid "Resubmit"
+msgstr "إعادة التقديم"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__accounts_receivable_subcategory__retention_receivable
+msgid "Retention-Receivable"
+msgstr "ذمم مدينة - محتجزات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__main_head__revenue
+msgid "Revenue"
+msgstr "الإيرادات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__revenue_category
+msgid "Revenue Category"
+msgstr "فئة الإيرادات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_form
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_form
+msgid "SUBMIT"
+msgstr "إرسال"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__operating_expenses_subcategory__salaries_wages
+msgid "Salaries & Wages"
+msgstr "الرواتب والأجور"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_account__section_id
+#: model:ir.model.fields.selection,name:pr_account.selection__account_analytic_plan__analytic_plan_type__section
+msgid "Section"
+msgstr "القسم"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_analytic_account__section_id_domain
+msgid "Section Domain"
+msgstr "نطاق القسم"
+
+#. module: pr_account
+#: model:account.analytic.plan,name:pr_account.pr_account_analytic_plan_section
+msgid "Sections"
+msgstr "الأقسام"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__payment_to_partner_id
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "Send To"
+msgstr "إرسال إلى"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__operating_revenue_subcategory__service_revenue
+msgid "Service Revenue"
+msgstr "إيرادات الخدمات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__short_term_loans_subcategory
+msgid "Short Term Loans Sub-Category"
+msgstr "الفئة الفرعية للقروض قصيرة الأجل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__investment_subcategory__short_terms
+msgid "Short Terms"
+msgstr "قصيرة الأجل"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_liability_category__short_term_loans
+msgid "Short-Term Loans"
+msgstr "القروض قصيرة الأجل"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__state
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__state
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__state
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__state
+#: model_terms:ir.ui.view,arch_db:pr_account.account_cash_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_payment_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_bank_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_cash_payment_view_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__activity_state
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__activity_state
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__activity_state
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__activity_state
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__activity_state
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.pr_account_view_account_form_inherit
+msgid "Sub-Category"
+msgstr "الفئة الفرعية"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_payment_form_vendor_approval
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_payment__pr_payment_approval_state__submit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment__state__submit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_payment_line__state__submit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_bank_receipt__state__submit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment__state__submit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_payment_line__state__submit
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_account_cash_receipt__state__submit
+msgid "Submitted"
+msgstr "تم الإرسال"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__prepaid_expenses_subcategory__subscriptions
+msgid "Subscriptions"
+msgstr "الاشتراكات"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_assets_category_advance_sub_category__supplier_advances
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__current_liability_advance_sub_category__supplier_advances
+msgid "Supplier Advances"
+msgstr "سلف الموردين"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__accounts_payable_subcategory__suppliers
+msgid "Suppliers"
+msgstr "الموردون"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__other_assets_category__suspense_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__suspense_account_subcategory__suspense_account
+msgid "Suspense Account"
+msgstr "حساب معلّق"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__suspense_account_subcategory
+msgid "Suspense Account Sub-Category"
+msgstr "الفئة الفرعية للحساب المعلّق"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__amount_tax
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__amount_tax
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__amount_tax
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__amount_tax
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__amount_tax
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__amount_tax
+msgid "Tax Amount"
+msgstr "مبلغ الضريبة"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__tax_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__tax_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__tax_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__tax_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__tax_id
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__tax_id
+msgid "Taxes"
+msgstr "الضرائب"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "The linked vendor bill lines are already reconciled."
+msgstr "تمت تسوية بنود فاتورة المورد المرتبطة بالفعل."
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment_line__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt_line__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment_line__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt_line__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__total_amount
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__total_amount
+msgid "Total Amount"
+msgstr "المبلغ الإجمالي"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_pr_transaction_payment
+msgid "Transaction Payment"
+msgstr "دفعة معاملة"
+
+#. module: pr_account
+#: model:ir.ui.menu,name:pr_account.account_transactions_main_menu
+msgid "Transactions"
+msgstr "المعاملات"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__activity_exception_decoration
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__activity_exception_decoration
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__activity_exception_decoration
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__activity_exception_decoration
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__activity_exception_decoration
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع نشاط الاستثناء في السجل."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_analytic_account.py:0
+#, python-format
+msgid "Unnamed Cost Center"
+msgstr "مركز تكلفة بدون اسم"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__other_liabilities_subcategory__vat_payable
+msgid "VAT Payable"
+msgstr "ضريبة القيمة المضافة المستحقة"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__other_assets_category__vat_receivable
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__vat_receivable_subcategory__vat_receivable
+msgid "VAT Receivable"
+msgstr "ضريبة القيمة المضافة المستحقة القبض"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__vat_receivable_subcategory
+msgid "VAT Receivable Sub-Category"
+msgstr "الفئة الفرعية لضريبة القيمة المضافة المستحقة القبض"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__fixed_assets_category__vehicles
+msgid "Vehicles"
+msgstr "المركبات"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_account__vehicles_subcategory
+msgid "Vehicles Sub-Category"
+msgstr "الفئة الفرعية للمركبات"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_approval_tree
+msgid "Vendor"
+msgstr "المورد"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_vendor_bill_count
+msgid "Vendor Bill Count"
+msgstr "عدد فواتير المورد"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_vendor_payment_source_line_ids
+msgid "Vendor Bill Lines"
+msgstr "بنود فاتورة المورد"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_vendor_bill_ids
+#, python-format
+msgid "Vendor Bills"
+msgstr "فواتير المورد"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_payment_form_vendor_approval
+msgid "Vendor Payment Approval"
+msgstr "اعتماد دفعة المورد"
+
+#. module: pr_account
+#: model:ir.model,name:pr_account.model_account_vendor_payment_reject_reason_wizard
+msgid "Vendor Payment Rejection Reason"
+msgstr "سبب رفض دفعة المورد"
+
+#. module: pr_account
+#: model:ir.actions.act_window,name:pr_account.action_vendor_payment_approvals
+#: model:ir.ui.menu,name:pr_account.menu_vendor_payment_approvals
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_approval_tree
+msgid "Vendor Payments"
+msgstr "دفعات الموردين"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Vendor payment approval reset to draft."
+msgstr "تمت إعادة اعتماد دفعة المورد إلى المسودة."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Vendor payment approved by Accounts."
+msgstr "تم اعتماد دفعة المورد من قبل قسم الحسابات."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Vendor payment finally approved, posted, and reconciled."
+msgstr "تم اعتماد دفعة المورد نهائيًا وترحيلها وتسويتها."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Vendor payment must be approved by Accounts before final approval."
+msgstr "يجب اعتماد دفعة المورد من قسم الحسابات قبل الاعتماد النهائي."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Vendor payment rejected."
+msgstr "تم رفض دفعة المورد."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment_register.py:0
+#, python-format
+msgid "Vendor payment submitted for approval from Register Payment."
+msgstr "تم إرسال دفعة المورد للاعتماد من شاشة تسجيل الدفعات."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "Vendor payment submitted for approval."
+msgstr "تم إرسال دفعة المورد للاعتماد."
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_account_payment__pr_is_current_vendor_payment_approver
+msgid "Visible in My Vendor Payment Approvals"
+msgstr "مرئي في اعتمادات دفعات المورد الخاصة بي"
+
+#. module: pr_account
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_payment__website_message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_bank_receipt__website_message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_payment__website_message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_account_cash_receipt__website_message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_payment_receipt__website_message_ids
+#: model:ir.model.fields,field_description:pr_account.field_pr_transaction_payment__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: pr_account
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_payment__website_message_ids
+#: model:ir.model.fields,help:pr_account.field_pr_account_bank_receipt__website_message_ids
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_payment__website_message_ids
+#: model:ir.model.fields,help:pr_account.field_pr_account_cash_receipt__website_message_ids
+#: model:ir.model.fields,help:pr_account.field_pr_payment_receipt__website_message_ids
+#: model:ir.model.fields,help:pr_account.field_pr_transaction_payment__website_message_ids
+msgid "Website communication history"
+msgstr "سجل التواصل عبر الموقع الإلكتروني"
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__account_account__inventory_subcategory__work_in_progress_wip
+msgid "Work in Progress-WIP"
+msgstr "أعمال تحت التنفيذ (WIP)"
+
+#. module: pr_account
+#: model_terms:ir.ui.view,arch_db:pr_account.view_account_vendor_payment_reject_reason_wizard
+msgid "Write the rejection reason..."
+msgstr "اكتب سبب الرفض..."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid ""
+"You are not allowed to approve this vendor payment at the Accounts Approval "
+"step."
+msgstr "ليس لديك صلاحية لاعتماد دفعة المورد هذه في مرحلة اعتماد الحسابات."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid "You are not allowed to final approve this vendor payment."
+msgstr "ليس لديك صلاحية للاعتماد النهائي لدفعة المورد هذه."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/account_payment.py:0
+#: code:addons/pr_account/models/account_payment.py:0
+#, python-format
+msgid ""
+"You are not allowed to reject this vendor payment at its current approval "
+"step."
+msgstr "ليس لديك صلاحية لرفض دفعة المورد هذه في مرحلة الاعتماد الحالية."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#, python-format
+msgid ""
+"You cannot post %(voucher)s on %(date)s because the period is locked for "
+"company %(company)s."
+msgstr "لا يمكنك ترحيل %(voucher)s بتاريخ %(date)s لأن الفترة المحاسبية مقفلة للشركة %(company)s."
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#, python-format
+msgid "You must add at least one line with a positive amount."
+msgstr "يجب إضافة بند واحد على الأقل بمبلغ موجب."
+
+#. module: pr_account
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_payment_receipt__receipt_mode__e_transfer
+#: model:ir.model.fields.selection,name:pr_account.selection__pr_transaction_payment__payment_mode__e_transfer
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_payment_receipt_view_search
+#: model_terms:ir.ui.view,arch_db:pr_account.account_pr_transaction_payment_view_search
+msgid "e Transfer"
+msgstr "تحويل إلكتروني"
+
+#. module: pr_account
+#. odoo-python
+#: code:addons/pr_account/models/bank_payment.py:0
+#: code:addons/pr_account/models/bank_receipt.py:0
+#: code:addons/pr_account/models/cash_payment.py:0
+#: code:addons/pr_account/models/cash_receipt.py:0
+#, python-format
+msgid "this voucher"
+msgstr "هذا السند"
+

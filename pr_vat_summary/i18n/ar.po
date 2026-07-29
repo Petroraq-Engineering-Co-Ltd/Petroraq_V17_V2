@@ -1,0 +1,233 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_vat_summary
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-22 13:03+0000\n"
+"PO-Revision-Date: 2026-07-22 13:03+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_vat_summary
+#: model:ir.actions.report,print_report_name:pr_vat_summary.vat_summary_xlsx_report
+msgid ""
+"\n"
+"            \"VAT Summary - %s to %s\" % (object.date_start, object.date_end)\n"
+"        "
+msgstr ""
+"\n"
+"            \"ملخص ضريبة القيمة المضافة - %s إلى %s\" % (object.date_start, object.date_end)\n"
+"        "
+
+#. module: pr_vat_summary
+#: model_terms:ir.ui.view,arch_db:pr_vat_summary.view_vat_summary_wizard
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_vat_summary
+#: model_terms:ir.ui.view,arch_db:pr_vat_summary.view_vat_summary_wizard
+msgid "Compute Summary"
+msgstr "احتساب الملخص"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields.selection,name:pr_vat_summary.selection__vat_summary_wizard__date_filter__custom
+msgid "Custom Range"
+msgstr "نطاق مخصص"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__date_end
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: pr_vat_summary
+#: model_terms:ir.ui.view,arch_db:pr_vat_summary.view_vat_summary_wizard
+msgid "Export XLSX"
+msgstr "تصدير XLSX"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__account_ids
+msgid "Filter Accounts (for Non-Vated)"
+msgstr "تصفية الحسابات (غير الخاضعة للضريبة)"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__is_detailed
+msgid "Is Detailed"
+msgstr "عرض تفصيلي"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields.selection,name:pr_vat_summary.selection__vat_summary_wizard__date_filter__last_month
+msgid "Last Month"
+msgstr "الشهر الماضي"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields.selection,name:pr_vat_summary.selection__vat_summary_wizard__date_filter__last_quarter
+msgid "Last Quarter"
+msgstr "الربع الماضي"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields.selection,name:pr_vat_summary.selection__vat_summary_wizard__date_filter__last_year
+msgid "Last Year"
+msgstr "السنة الماضية"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__merge_invoice_lines
+msgid "Merge Invoice Lines"
+msgstr "دمج بنود الفاتورة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__non_vated_purchases_amount
+msgid "Non Vated Purchases Amount"
+msgstr "قيمة المشتريات غير الخاضعة للضريبة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__non_vated_sales_amount
+msgid "Non Vated Sales Amount"
+msgstr "قيمة المبيعات غير الخاضعة للضريبة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,help:pr_vat_summary.field_vat_summary_wizard__account_ids
+msgid "Optional filter for Non-Vated Purchases."
+msgstr "تصفية اختيارية للمشتريات غير الخاضعة للضريبة."
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__date_filter
+msgid "Period"
+msgstr "الفترة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__sales_amount
+msgid "Sales Amount"
+msgstr "قيمة المبيعات"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__sales_vat
+msgid "Sales Vat"
+msgstr "ضريبة المبيعات"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,help:pr_vat_summary.field_vat_summary_wizard__merge_invoice_lines
+msgid ""
+"Show one detailed row per invoice, refund, or receipt by summing its invoice"
+" lines. Ordinary journal entries remain separate."
+msgstr ""
+"اعرض صفًا تفصيليًا واحدًا لكل فاتورة أو إشعار دائن أو إيصال من خلال جمع "
+"بنود الفاتورة. تبقى قيود اليومية العادية منفصلة."
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__date_start
+msgid "Start Date"
+msgstr "تاريخ البداية"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__summary_html
+msgid "Summary Html"
+msgstr "ملخص HTML"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__summary_title
+msgid "Summary Title"
+msgstr "عنوان الملخص"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields.selection,name:pr_vat_summary.selection__vat_summary_wizard__date_filter__this_month
+msgid "This Month"
+msgstr "هذا الشهر"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields.selection,name:pr_vat_summary.selection__vat_summary_wizard__date_filter__this_quarter
+msgid "This Quarter"
+msgstr "هذا الربع"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields.selection,name:pr_vat_summary.selection__vat_summary_wizard__date_filter__this_year
+msgid "This Year"
+msgstr "هذه السنة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__total_amount
+msgid "Total Amount"
+msgstr "إجمالي المبلغ"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__total_vat_payable
+msgid "Total Vat Payable"
+msgstr "إجمالي ضريبة القيمة المضافة المستحقة"
+
+#. module: pr_vat_summary
+#: model:ir.actions.act_window,name:pr_vat_summary.action_vat_summary_wizard
+#: model:ir.ui.menu,name:pr_vat_summary.menu_vat_summary_report
+#: model_terms:ir.ui.view,arch_db:pr_vat_summary.view_vat_summary_wizard
+msgid "VAT Summary"
+msgstr "ملخص ضريبة القيمة المضافة"
+
+#. module: pr_vat_summary
+#: model:ir.model,name:pr_vat_summary.model_vat_summary_wizard
+msgid "VAT Summary Wizard"
+msgstr "معالج ملخص ضريبة القيمة المضافة"
+
+#. module: pr_vat_summary
+#: model:ir.actions.report,name:pr_vat_summary.vat_summary_xlsx_report
+msgid "VAT Summary XLSX"
+msgstr "ملخص ضريبة القيمة المضافة (XLSX)"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__vated_purchases_amount
+msgid "Vated Purchases Amount"
+msgstr "قيمة المشتريات الخاضعة للضريبة"
+
+#. module: pr_vat_summary
+#: model:ir.model.fields,field_description:pr_vat_summary.field_vat_summary_wizard__vated_purchases_vat
+msgid "Vated Purchases Vat"
+msgstr "ضريبة المشتريات الخاضعة للضريبة"
+
+#. module: pr_vat_summary
+#: model:ir.model,name:pr_vat_summary.model_report_pr_vat_summary_vat_summary_xlsx
+msgid "report.pr_vat_summary.vat_summary_xlsx"
+msgstr "report.pr_vat_summary.vat_summary_xlsx"
