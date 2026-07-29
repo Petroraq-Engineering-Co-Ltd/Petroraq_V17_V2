@@ -682,26 +682,18 @@ export class SimpleLeaveSummaryCard extends Component {
         if (!this.state.employee_id) {
             return;
         }
-        this.state.show_absentee_details = true;
-        this.state.absentee_loading = true;
-        const result = await this.orm.call(
-            'hr.leave',
-            'get_employee_absentee_day_details',
+        const action = await this.orm.call(
+            'de.hr.leave.absentee.detail',
+            'action_open_employee_absentees',
             [
                 this.state.employee_id,
                 this.state.duration,
                 this.state.date_from || false,
                 this.state.date_to || false,
             ],
-            { context: { show_all_leave_dashboard: true } }
+            {}
         );
-        this.state.absentee_rows = (result.rows || []).map((row, index) => ({
-            ...row,
-            row_key: `${row.employee_id || 0}-${row.date || index}`,
-        }));
-        this.state.absentee_count = result.count || this.state.absentee_rows.length;
-        this.state.absentee_range_label = `${result.date_from_display || result.date_from || ''} - ${result.date_to_display || result.date_to || ''}`;
-        this.state.absentee_loading = false;
+        return this.actionService.doAction(action);
     }
 
     closeAbsenteeDetails() {

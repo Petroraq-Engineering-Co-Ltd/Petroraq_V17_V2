@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_leave_dashboard_export_wizard_hr_manager,leave.dashboard.export.wizard.hr.manager,model_de_hr_leave_dashboard_export_wizard,hr.group_hr_manager,1,1,1,1
 access_leave_dashboard_export_wizard_approvals,leave.dashboard.export.wizard.approvals,model_de_hr_leave_dashboard_export_wizard,de_hr_workspace.group_hr_employee_approvals,1,1,1,1
+access_hr_leave_absentee_detail_manager,hr.leave.absentee.detail.manager,model_de_hr_leave_absentee_detail,hr.group_hr_manager,1,0,1,1
+access_hr_leave_absentee_detail_approvals,hr.leave.absentee.detail.approvals,model_de_hr_leave_absentee_detail,de_hr_workspace.group_hr_employee_approvals,1,0,1,1

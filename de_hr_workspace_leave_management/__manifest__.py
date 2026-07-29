@@ -1,6 +1,6 @@
 {
     'name': 'Workspace Leave Management Dashboard',
-    'version': '17.0.1.0.6',
+    'version': '17.0.1.0.7',
     'summary': 'Advanced leave dashboard for all active employees',
     'description': 'Adds a single advanced leave dashboard under Employee Workspace with all-active-employee visibility.',
     'author': 'Aual Faisal',
@@ -11,6 +11,7 @@
         'security/ir.model.access.csv',
         'views/leave_management_views.xml',
         'views/dashboard_export_wizard_views.xml',
+        'views/absentee_detail_views.xml',
         'report/period_absentees_reports.xml',
         'report/period_absentees_templates.xml',
     ],

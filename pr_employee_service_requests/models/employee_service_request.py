@@ -5,12 +5,16 @@ from dateutil.relativedelta import relativedelta
 
 IQAMA_REQUEST_TYPES = ("iqama_new", "iqama_renewal")
 MEDICAL_INSURANCE_REQUEST_TYPES = ("medical_insurance_new", "medical_insurance_renewal")
+DEPENDENT_FEE_REQUEST_TYPE = "dependent_fee"
 HR_COMPLIANCE_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES
 NEW_COMPLIANCE_REQUEST_TYPES = ("iqama_new", "medical_insurance_new")
 COMPLIANCE_RENEWAL_REQUEST_TYPES = ("iqama_renewal", "medical_insurance_renewal")
 SERVICE_PERIOD_REQUEST_TYPES = IQAMA_REQUEST_TYPES + MEDICAL_INSURANCE_REQUEST_TYPES
 TICKET_REIMBURSEMENT_TYPE = "ticket"
-SELF_COMPANY_REQUEST_TYPES = ("exit_reentry",) + COMPLIANCE_RENEWAL_REQUEST_TYPES
+SELF_COMPANY_REQUEST_TYPES = (
+    "exit_reentry",
+    DEPENDENT_FEE_REQUEST_TYPE,
+) + COMPLIANCE_RENEWAL_REQUEST_TYPES
 SAUDI_RESTRICTED_REQUEST_TYPES = ("exit_reentry",) + IQAMA_REQUEST_TYPES
 SELF_PAYMENT_RESPONSIBILITY = "self"
 COMPANY_PAYMENT_RESPONSIBILITY = "company"
@@ -79,6 +83,7 @@ class PrEmployeeServiceRequest(models.Model):
             ("iqama_renewal", "Iqama & Work Permit Renewal"),
             ("medical_insurance_new", "New Medical Insurance"),
             ("medical_insurance_renewal", "Medical Insurance Renewal"),
+            (DEPENDENT_FEE_REQUEST_TYPE, "Dependent Fee"),
         ],
         string="Request Type",
         required=True,
@@ -357,6 +362,12 @@ class PrEmployeeServiceRequest(models.Model):
         readonly=True,
         copy=False,
         tracking=True,
+    )
+    dependent_relation_id = fields.Many2one(
+        "hr.employee.dependent.relation",
+        string="Beneficiary Relationship",
+        tracking=True,
+        help="Select Self, Wife,Child",
     )
     work_permit_id = fields.Many2one("hr.work.permit", string="Work Permit", readonly=True, copy=False, tracking=True)
 
@@ -842,6 +853,7 @@ class PrEmployeeServiceRequest(models.Model):
     @api.constrains(
         "request_type",
         "employee_id",
+        "dependent_relation_id",
         "requested_amount",
         "payment_responsibility",
         "exit_reentry_entry_type",
@@ -861,6 +873,9 @@ class PrEmployeeServiceRequest(models.Model):
                 ))
             if rec.request_type == "reimbursement" and rec.requested_amount <= 0.0:
                 raise ValidationError(_("Requested Amount must be greater than zero for reimbursement requests."))
+            if rec.request_type == DEPENDENT_FEE_REQUEST_TYPE:
+                if rec.requested_amount <= 0.0:
+                    raise ValidationError(_("Requested Amount must be greater than zero for dependent fee requests."))
             if rec.request_type == "iqama_renewal" and (
                 rec.moi_fee_amount < 0.0 or rec.mol_fee_amount < 0.0
             ):
@@ -1014,6 +1029,7 @@ class PrEmployeeServiceRequest(models.Model):
             "place_of_issue",
             "insurance_company",
             "insurance_category",
+            "dependent_relation_id",
             "iqama_profession",
             "moi_fee_amount",
             "mol_fee_amount",
@@ -1093,6 +1109,11 @@ class PrEmployeeServiceRequest(models.Model):
                     raise UserError(_("Please select the reimbursement category."))
                 if not rec.expense_date:
                     raise UserError(_("Please enter the expense date."))
+            if rec.request_type == DEPENDENT_FEE_REQUEST_TYPE:
+                if not rec.dependent_relation_id:
+                    raise UserError(_("Please select the beneficiary relationship for this fee request."))
+                if rec.requested_amount <= 0.0:
+                    raise UserError(_("Please enter a dependent fee amount greater than zero."))
             if rec.request_type == "exit_reentry":
                 if not rec.destination_country_id:
                     raise UserError(_("Please select the destination country."))
@@ -1155,6 +1176,7 @@ class PrEmployeeServiceRequest(models.Model):
         return (
             self._is_ticket_reimbursement()
             or self.request_type == "exit_reentry"
+            or self.request_type == DEPENDENT_FEE_REQUEST_TYPE
             or self.request_type in HR_COMPLIANCE_REQUEST_TYPES
         )
 
@@ -1573,6 +1595,16 @@ class PrEmployeeServiceRequest(models.Model):
                     approval_vals["state"] = "paid"
                     rec.write(approval_vals)
                     rec.message_post(body=_("Self-paid Exit/Re-entry approved. No accounting entry will be created; HR can issue the visa."))
+                    continue
+                if rec.request_type == DEPENDENT_FEE_REQUEST_TYPE:
+                    approval_vals["state"] = "issued"
+                    rec.write(approval_vals)
+                    rec.message_post(
+                        body=_(
+                            "Self-paid dependent fee approved and recorded. "
+                            "No payment request or accounting voucher was created."
+                        )
+                    )
                     continue
                 rec.write(approval_vals)
                 if rec.request_type in IQAMA_REQUEST_TYPES:
