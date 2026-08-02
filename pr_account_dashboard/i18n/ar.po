@@ -1,0 +1,1013 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_account_dashboard
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-29 12:01+0000\n"
+"PO-Revision-Date: 2026-07-29 12:01+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_account_dashboard
+#: model:ir.actions.report,print_report_name:pr_account_dashboard.action_cash_movement_xlsx
+msgid "('Cash_Movement_%s' % (object.name or 'Export'))"
+msgstr "('حركة_النقد_%s' % (object.name or 'تصدير'))"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid ""
+"A live view of billing, collections, obligations, liquidity,\n"
+"                            custom vouchers, approvals, VAT, and the general ledger."
+msgstr ""
+"عرض مباشر للفواتير والتحصيلات والالتزامات والسيولة،\n"
+"                            والسندات المخصصة والموافقات وضريبة القيمة المضافة ودفتر الأستاذ العام."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Account"
+msgstr "الحساب"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Account Ledger"
+msgstr "دفتر الأستاذ"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Account, Main Head, and analytic filters"
+msgstr "الحساب، والرأس الرئيسي، وفلاتر التحليل"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Accounting"
+msgstr "المحاسبة"
+
+#. module: pr_account_dashboard
+#: model:ir.actions.client,name:pr_account_dashboard.action_pr_account_dashboard
+msgid "Accounting Dashboard"
+msgstr "لوحة تحكم المحاسبة"
+
+#. module: pr_account_dashboard
+#: model:ir.model,name:pr_account_dashboard.model_report_pr_account_dashboard_cash_movement_xlsx
+msgid "Accounting Dashboard Cash Movement Excel"
+msgstr "ملف إكسل لحركة النقد في لوحة تحكم المحاسبة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Accounting Data Quality"
+msgstr "جودة البيانات المحاسبية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Action Center"
+msgstr "مركز الإجراءات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Apply"
+msgstr "تطبيق"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Approval Performance"
+msgstr "أداء الموافقات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Approval Queue"
+msgstr "قائمة انتظار الموافقات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "As of"
+msgstr "اعتبارًا من"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Audit Trail"
+msgstr "سجل التدقيق"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Average Age"
+msgstr "متوسط العمر"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Balance"
+msgstr "الرصيد"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Bank & Cash Balances by Journal"
+msgstr "أرصدة البنوك والنقد حسب اليومية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Bank Reconciliation Health"
+msgstr "حالة تسوية البنوك"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid ""
+"Bank and cash payment and receipt vouchers, including approval progress and "
+"posted value."
+msgstr ""
+"سندات القبض والصرف البنكية والنقدية، بما في ذلك تقدم الموافقات والقيمة المُرحّلة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Bills"
+msgstr "الفواتير"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Cash In"
+msgstr "التدفقات النقدية الداخلة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Cash Movement Drill-down"
+msgstr "تفاصيل حركة النقد"
+
+#. module: pr_account_dashboard
+#: model:ir.actions.report,name:pr_account_dashboard.action_cash_movement_xlsx
+msgid "Cash Movement Excel"
+msgstr "إكسل حركة النقد"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Cash Out"
+msgstr "التدفقات النقدية الخارجة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Chart of Accounts"
+msgstr "دليل الحسابات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Classification & Cost-Center Analysis"
+msgstr "تحليل التصنيفات ومراكز التكلفة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Classification Balance"
+msgstr "رصيد التصنيف"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Collections"
+msgstr "التحصيلات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Compare multiple accounts and dimensions"
+msgstr "مقارنة عدة حسابات وأبعاد"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Consolidated ·"
+msgstr "مجمّع ·"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Control Checks"
+msgstr "فحوصات الرقابة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Customer Invoices"
+msgstr "فواتير العملاء"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Customers"
+msgstr "العملاء"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Customized Workflow"
+msgstr "سير عمل مخصص"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Detailed input and output VAT lines"
+msgstr "تفاصيل بنود ضريبة القيمة المضافة للمبيعات والمشتريات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Expense"
+msgstr "المصروف"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Export Excel"
+msgstr "تصدير إلى إكسل"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Exposure"
+msgstr "التعرّض"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Finance Intelligence"
+msgstr "ذكاء التحليلات المالية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Financial Snapshot"
+msgstr "ملخص مالي"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "From"
+msgstr "من"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "General Ledger"
+msgstr "دفتر الأستاذ العام"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "In"
+msgstr "داخل"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Input VAT"
+msgstr "ضريبة القيمة المضافة على المشتريات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Invoices"
+msgstr "الفواتير"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Journal"
+msgstr "اليومية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Journal / Account"
+msgstr "اليومية / الحساب"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Largest Open Balances"
+msgstr "أكبر الأرصدة المفتوحة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Last entry:"
+msgstr "آخر قيد:"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Ledger & Balance Reports"
+msgstr "تقارير دفتر الأستاذ والأرصدة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Ledger Intelligence"
+msgstr "تحليلات دفتر الأستاذ"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Liquidity"
+msgstr "السيولة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Loading cash entries…"
+msgstr "جارٍ تحميل القيود النقدية…"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Loading ledgers, vouchers, aging, and cash positions…"
+msgstr "جارٍ تحميل دفاتر الأستاذ والسندات وتقارير الأعمار والمراكز النقدية…"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Loss / Overrun Projects"
+msgstr "المشاريع الخاسرة / المتجاوزة للميزانية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Main Head Overview"
+msgstr "نظرة عامة على الرأس الرئيسي"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Main Head to account hierarchy"
+msgstr "التسلسل الهرمي من الرأس الرئيسي إلى الحساب"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Missing Project"
+msgstr "مشروع مفقود"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Monthly Financial Trend"
+msgstr "الاتجاه المالي الشهري"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Multi Ledger"
+msgstr "دفتر أستاذ متعدد"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Net"
+msgstr "الصافي"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Net Cash Movement"
+msgstr "صافي الحركة النقدية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Net Profit / (Loss)"
+msgstr "صافي الربح / (الخسارة)"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Net VAT Position"
+msgstr "صافي مركز ضريبة القيمة المضافة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No accounting movement in this period."
+msgstr "لا توجد حركة محاسبية خلال هذه الفترة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No active bank or cash journals found."
+msgstr "لم يتم العثور على يوميات بنكية أو نقدية نشطة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No activity"
+msgstr "لا يوجد نشاط"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No loss projects detected."
+msgstr "لم يتم اكتشاف مشاريع خاسرة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No matching cash entries found."
+msgstr "لم يتم العثور على قيود نقدية مطابقة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No pending vouchers in this period."
+msgstr "لا توجد سندات معلقة خلال هذه الفترة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No project analytic movement in this period."
+msgstr "لا توجد حركة تحليلية للمشاريع خلال هذه الفترة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No project profit movement."
+msgstr "لا توجد حركة لأرباح المشاريع."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "No recent accounting activity in this period."
+msgstr "لا يوجد نشاط محاسبي حديث خلال هذه الفترة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Obligations"
+msgstr "الالتزامات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Old > 30d"
+msgstr "أقدم من 30 يومًا"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Oldest"
+msgstr "الأقدم"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Open Payables"
+msgstr "الذمم الدائنة المفتوحة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Open Receivables"
+msgstr "الذمم المدينة المفتوحة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Out"
+msgstr "خارج"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Output VAT"
+msgstr "ضريبة القيمة المضافة على المخرجات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Over 7 Days"
+msgstr "أكثر من 7 أيام"
+
+#. module: pr_account_dashboard
+#: model:ir.ui.menu,name:pr_account_dashboard.menu_pr_account_dashboard
+msgid "Overview"
+msgstr "نظرة عامة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Partner / Memo"
+msgstr "الشريك / المذكرة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Payable Aging"
+msgstr "تقادم الذمم الدائنة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Pending Amount"
+msgstr "المبلغ المعلق"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Performance"
+msgstr "الأداء"
+
+#. module: pr_account_dashboard
+#: model:ir.model,name:pr_account_dashboard.model_pr_account_dashboard
+msgid "Petroraq Accounting Dashboard Service"
+msgstr "خدمة لوحة تحكم محاسبة بتروراق"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Petroraq Voucher Control"
+msgstr "التحكم في سندات بتروراق"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Posted"
+msgstr "مرحل"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Preparing your financial command center"
+msgstr "جاري إعداد مركز التحكم المالي الخاص بك"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Project"
+msgstr "المشروع"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Project Accounting"
+msgstr "محاسبة المشاريع"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Project Revenue vs Expense"
+msgstr "إيرادات المشروع مقابل المصروفات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Receivable Aging"
+msgstr "تقادم الذمم المدينة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Recent Accounting Activity"
+msgstr "آخر الأنشطة المحاسبية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Refresh dashboard"
+msgstr "تحديث لوحة المعلومات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Registered payments + BPV + CPV"
+msgstr "المدفوعات المسجلة + سندات الدفع البنكية + سندات الدفع النقدية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid ""
+"Registered payments and posted Petroraq vouchers during the selected period."
+msgstr "المدفوعات المسجلة وسندات بتروراق المرحلة خلال الفترة المحددة."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Registered receipts + BRV + CRV"
+msgstr "المقبوضات المسجلة + سندات القبض البنكية + سندات القبض النقدية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Reporting"
+msgstr "التقارير"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Reporting period"
+msgstr "فترة التقرير"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Revenue"
+msgstr "الإيرادات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Search reference, partner, journal or status…"
+msgstr "ابحث برقم المرجع أو الشريك أو اليومية أو الحالة…"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Source / Reference"
+msgstr "المصدر / المرجع"
+
+#. module: pr_account_dashboard
+#. odoo-python
+#: code:addons/pr_account_dashboard/models/account_dashboard.py:0
+#, python-format
+msgid "Start Date cannot be later than End Date."
+msgstr "لا يمكن أن يكون تاريخ البدء بعد تاريخ الانتهاء."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Tax Position"
+msgstr "المركز الضريبي"
+
+#. module: pr_account_dashboard
+#. odoo-python
+#: code:addons/pr_account_dashboard/models/account_dashboard.py:0
+#, python-format
+msgid "The selected company is not available in your allowed companies."
+msgstr "الشركة المحددة غير متاحة ضمن الشركات المسموح لك بالوصول إليها."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "This Month"
+msgstr "هذا الشهر"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "This Quarter"
+msgstr "هذا الربع"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "This Year"
+msgstr "هذه السنة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "To"
+msgstr "إلى"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Top Classifications"
+msgstr "أهم التصنيفات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Top Profitable Projects"
+msgstr "أكثر المشاريع ربحية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Total Cash In"
+msgstr "إجمالي المقبوضات النقدية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Total Cash Out"
+msgstr "إجمالي المدفوعات النقدية"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Type"
+msgstr "النوع"
+
+#. module: pr_account_dashboard
+#. odoo-python
+#: code:addons/pr_account_dashboard/models/account_dashboard.py:0
+#, python-format
+msgid "Unassigned"
+msgstr "غير معين"
+
+#. module: pr_account_dashboard
+#. odoo-python
+#: code:addons/pr_account_dashboard/models/account_dashboard.py:0
+#, python-format
+msgid "Unclassified"
+msgstr "غير مصنف"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Unreconciled"
+msgstr "غير مسوى"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid ""
+"Uses the same Main Head and analytic dimensions as Account Ledger reporting."
+msgstr "يستخدم نفس الرأس الرئيسي والأبعاد التحليلية المستخدمة في تقارير دفتر الأستاذ."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "VAT Audit Checks"
+msgstr "فحوصات تدقيق ضريبة القيمة المضافة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "VAT Ledger"
+msgstr "دفتر أستاذ ضريبة القيمة المضافة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "VAT Overview"
+msgstr "نظرة عامة على ضريبة القيمة المضافة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Vendor Bills"
+msgstr "فواتير الموردين"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Vendors"
+msgstr "الموردون"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "Voucher Approval SLA"
+msgstr "اتفاقية مستوى الخدمة لاعتماد السندات"
+
+#. module: pr_account_dashboard
+#. odoo-python
+#: code:addons/pr_account_dashboard/models/account_dashboard.py:0
+#, python-format
+msgid "You are not allowed to access the Accounting Dashboard."
+msgstr "ليس لديك صلاحية للوصول إلى لوحة المعلومات المحاسبية."
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "companies"
+msgstr "الشركات"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "outstanding bills"
+msgstr "الفواتير المستحقة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "outstanding invoices"
+msgstr "الفواتير المستحقة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "posted bills"
+msgstr "الفواتير المرحلة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "posted invoices"
+msgstr "الفواتير المرحلة"
+
+#. module: pr_account_dashboard
+#. odoo-javascript
+#: code:addons/pr_account_dashboard/static/src/xml/account_dashboard_templates.xml:0
+#, python-format
+msgid "· Shared from"
+msgstr "· تمت المشاركة من"

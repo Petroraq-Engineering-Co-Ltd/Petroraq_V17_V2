@@ -1,0 +1,2073 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_acess_managment
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-29 12:02+0000\n"
+"PO-Revision-Date: 2026-07-29 12:02+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector/domain_selector.xml:0
+#, python-format
+msgid "# Code editor"
+msgstr "# محرر الأكواد"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_rule.py:0
+#, python-format
+msgid "%s is a read-only user. So you can not make any changes in the system!"
+msgstr "%s مستخدم بصلاحية القراءة فقط، لذلك لا يمكنك إجراء أي تغييرات في النظام!"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_autocomplete.js:0
+#, python-format
+msgid "(no result)"
+msgstr "(لا توجد نتائج)"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "<span class=\"o_stat_text\">Access Rules</span>"
+msgstr "<span class=\"o_stat_text\">قواعد الوصول</span>"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"<span style=\"font-weight: bold;\" class=\"text-danger\">Deactivate "
+"Rule</span>"
+msgstr "<span style=\"font-weight: bold;\" class=\"text-danger\">تعطيل القاعدة</span>"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "<span style=\"font-weight: bold;\" class=\"text-success\">Activate Rule</span>"
+msgstr "<span style=\"font-weight: bold;\" class=\"text-success\">تفعيل القاعدة</span>"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "=ilike"
+msgstr "=يشابه (بدون حساسية لحالة الأحرف)"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "=like"
+msgstr "=يشابه"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_ir_model__abstract
+msgid "Abstract"
+msgstr "مجرد"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_access_domain_ah
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__access_domain_ah_ids
+msgid "Access Domain"
+msgstr "نطاق الوصول"
+
+#. module: pr_acess_managment
+#: model:ir.actions.act_window,name:pr_acess_managment.action_access_management_ah
+#: model:ir.model,name:pr_acess_managment.model_access_management
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__access_management_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__access_management_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__access_management_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__access_management_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__access_management_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__access_management_id
+#: model:res.groups,name:pr_acess_managment.group_access_management_bits
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.security_ninja_res_users_inherit_form_view_ah
+msgid "Access Management"
+msgstr "إدارة الصلاحيات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_res_users__access_management_ids
+msgid "Access Pack"
+msgstr "حزمة الصلاحيات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__total_rules
+msgid "Access Rules"
+msgstr "قواعد الوصول"
+
+#. module: pr_acess_managment
+#: model:ir.ui.menu,name:pr_acess_managment.main_menu_pr_acess_managment
+msgid "Access Studio"
+msgstr "استوديو الصلاحيات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__action_id
+#: model:ir.model.fields.selection,name:pr_acess_managment.selection__store_model_nodes__button_type__action
+msgid "Action"
+msgstr "إجراء"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_action_data
+msgid "Action Data"
+msgstr "بيانات الإجراء"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_actions_actions
+msgid "Actions"
+msgstr "الإجراءات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/search_menu_patch/search_menu_patch.xml:0
+#, python-format
+msgid "Add Custom Filter"
+msgstr "إضافة عامل تصفية مخصص"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "Add New Rule"
+msgstr "إضافة قاعدة جديدة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "Add branch"
+msgstr "إضافة فرع"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Add condition"
+msgstr "إضافة شرط"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/access_management.py:0
+#: code:addons/pr_acess_managment/models/access_management.py:0
+#: code:addons/pr_acess_managment/models/res_users.py:0
+#: code:addons/pr_acess_managment/models/res_users.py:0
+#, python-format
+msgid "Admin user can not be set as a read-only..!"
+msgstr "لا يمكن تعيين المستخدم المدير كمستخدم للقراءة فقط!"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+msgid "All"
+msgstr "الكل"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__apply_domain
+msgid "Apply Filter"
+msgstr "تطبيق عامل التصفية"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__is_apply_on_without_company
+msgid "Apply Without Company"
+msgstr "تطبيق بدون شركة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_archive_unarchive
+msgid ""
+"Archive and Unarchive action will be hidden in selected model from the "
+"defined users."
+msgstr "سيتم إخفاء إجراء الأرشفة وإلغاء الأرشفة في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+msgid "Archived"
+msgstr "مؤرشف"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__attribute_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__attribute_name
+msgid "Attribute Name"
+msgstr "اسم الخاصية"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__attribute_string
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__attribute_string
+msgid "Attribute String"
+msgstr "نص الخاصية"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_base
+msgid "Base"
+msgstr "الأساس"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__restrict_invoice_create
+msgid ""
+"Block creation of invoices, bills, refunds and receipts while keeping "
+"Journal Entries allowed."
+msgstr "منع إنشاء الفواتير وفواتير الموردين والإشعارات الدائنة والإيصالات مع السماح بإنشاء قيود اليومية."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields.selection,name:pr_acess_managment.selection__store_model_nodes__node_option__button
+msgid "Button"
+msgstr "زر"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__button_type
+msgid "Button Type"
+msgstr "نوع الزر"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_view_nodes_ids
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Button/Tab Access"
+msgstr "صلاحيات الأزرار/علامات التبويب"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__hide_chatter
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Chatter"
+msgstr "سجل المحادثات"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_hide_chatter
+msgid "Chatter Rights"
+msgstr "صلاحيات سجل المحادثات"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/models.py:0
+#, python-format
+msgid ""
+"Check Applied Rule on Access Management:\n"
+" %(access_name)s"
+msgstr ""
+"تحقق من القاعدة المطبقة في إدارة الصلاحيات:\n"
+"%(access_name)s"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "Clear"
+msgstr "مسح"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector_dialog/domain_selector_dialog.xml:0
+#, python-format
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__company_ids
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+msgid "Companies"
+msgstr "الشركات"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector_dialog/domain_selector_dialog.js:0
+#, python-format
+msgid "Confirm"
+msgstr "تأكيد"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_model_access.py:0
+#, python-format
+msgid "Contact your administrator to request access if necessary."
+msgstr "تواصل مع مسؤول النظام لطلب صلاحية الوصول إذا لزم الأمر."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__create_right
+msgid "Create"
+msgstr "إنشاء"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_create
+msgid "Create Button will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء زر الإنشاء في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+msgid "Created By"
+msgstr "تم الإنشاء بواسطة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__create_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__create_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/access_management.py:0
+#, python-format
+msgid ""
+"Created: %(created)s, Updated: %(updated)s, Removed: %(removed)s, Total: "
+"%(total)s"
+msgstr ""
+"تم الإنشاء: %(created)s، تم التحديث: %(updated)s، تم الحذف: %(removed)s، "
+"الإجمالي: %(total)s"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__delete_right
+msgid "Delete"
+msgstr "حذف"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_delete
+msgid "Delete Button will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء زر الحذف في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "Delete node"
+msgstr "حذف العقدة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__disable_debug_mode
+msgid "Developer mode will be hidden from the defined users."
+msgstr "سيتم إخفاء وضع المطور عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/account_move.py:0
+#, python-format
+msgid ""
+"Direct creation of Invoices/Bills/Credit Notes/Receipts is not allowed. You "
+"can still create Journal Entries."
+msgstr ""
+"لا يُسمح بإنشاء الفواتير أو فواتير الموردين أو الإشعارات الدائنة أو الإيصالات "
+"بشكل مباشر. ولا يزال بإمكانك إنشاء قيود اليومية."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__disable_debug_mode
+msgid "Disable Developer Mode"
+msgstr "تعطيل وضع المطور"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__disable_login
+msgid "Disable Login"
+msgstr "تعطيل تسجيل الدخول"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector_dialog/domain_selector_dialog.js:0
+#, python-format
+msgid "Discard"
+msgstr "تجاهل"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__display_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.js:0
+#, python-format
+msgid "Display the domain using facets"
+msgstr "عرض النطاق باستخدام التصنيفات"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.js:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain_selector_dialog/domain_selector_dialog.js:0
+#, python-format
+msgid "Domain"
+msgstr "النطاق"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Domain Access"
+msgstr "صلاحيات النطاق"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector_dialog/domain_selector_dialog.js:0
+#, python-format
+msgid "Domain is invalid. Please correct it"
+msgstr "النطاق غير صالح. يرجى تصحيحه."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "Domain node"
+msgstr "عقدة النطاق"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/models.py:0
+#, python-format
+msgid ""
+"Due to access management rule,\n"
+"You are not allowed to create records from (%(document_model)s) model."
+msgstr ""
+"بسبب قاعدة إدارة الصلاحيات،\n"
+"لا يُسمح لك بإنشاء سجلات في نموذج (%(document_model)s)."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/models.py:0
+#, python-format
+msgid ""
+"Due to access management rule,\n"
+"You are not allowed to delete record '%(record)s' from (%(document_model)s) model."
+msgstr ""
+"بسبب قاعدة إدارة الصلاحيات،\n"
+"لا يُسمح لك بحذف السجل '%(record)s' من نموذج (%(document_model)s)."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/models.py:0
+#, python-format
+msgid ""
+"Due to access management rule,\n"
+"You are not allowed to edit record '%(record)s' from (%(document_model)s) model."
+msgstr ""
+"بسبب قاعدة إدارة الصلاحيات،\n"
+"لا يُسمح لك بتعديل السجل '%(record)s' من نموذج (%(document_model)s)."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_duplicate
+msgid ""
+"Duplicate action will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء إجراء النسخ في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_edit
+msgid "Edit Button will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء زر التعديل في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Edit Domain"
+msgstr "تعديل النطاق"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.js:0
+#, python-format
+msgid "Edit in dialog"
+msgstr "تعديل في نافذة حوار"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_export
+msgid "Export Button will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء زر التصدير في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_field__external_link
+msgid ""
+"External Link will be hidden for relational fields in selected model from "
+"the defined users."
+msgstr "سيتم إخفاء الرابط الخارجي للحقول العلائقية في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "False"
+msgstr "خطأ"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__field_id
+msgid "Field"
+msgstr "الحقل"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Field Access"
+msgstr "صلاحيات الحقول"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_model_fields
+msgid "Fields"
+msgstr "الحقول"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_hide_field
+msgid "Fields Rights"
+msgstr "صلاحيات الحقول"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__domain
+#: model:ir.model.fields.selection,name:pr_acess_managment.selection__store_filters_groups__node_option__filter
+msgid "Filter"
+msgstr "عامل التصفية"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.js:0
+#, python-format
+msgid "Foldable"
+msgstr "قابل للطي"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Global"
+msgstr "عام"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields.selection,name:pr_acess_managment.selection__store_filters_groups__node_option__group
+msgid "Groups"
+msgstr "المجموعات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__server_action_ids
+msgid "Hide Actions"
+msgstr "إخفاء الإجراءات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_add_property
+msgid "Hide Add Property"
+msgstr "إخفاء إضافة خاصية"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_archive_unarchive
+msgid "Hide Archive/Unarchive"
+msgstr "إخفاء الأرشفة/إلغاء الأرشفة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__btn_store_model_nodes_ids
+msgid "Hide Button"
+msgstr "إخفاء الزر"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_chatter
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_chatter
+msgid "Hide Chatter"
+msgstr "إخفاء المحادثات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_chatter_ids
+msgid "Hide Chatters"
+msgstr "إخفاء المحادثات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_create
+msgid "Hide Create"
+msgstr "إخفاء الإنشاء"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_delete
+msgid "Hide Delete"
+msgstr "إخفاء الحذف"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_duplicate
+msgid "Hide Duplicate"
+msgstr "إخفاء النسخ"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_edit
+msgid "Hide Edit"
+msgstr "إخفاء التعديل"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_export
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_export
+msgid "Hide Export"
+msgstr "إخفاء التصدير"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_field_ids
+msgid "Hide Field"
+msgstr "إخفاء الحقل"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Hide Filter/Group By"
+msgstr "إخفاء عوامل التصفية / التجميع حسب"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__filters_store_model_nodes_ids
+msgid "Hide Filters"
+msgstr "إخفاء عوامل التصفية"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_hide_filters_groups
+msgid "Hide Filters Groups"
+msgstr "إخفاء عوامل التصفية ومجموعات التجميع"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_filters_groups_ids
+msgid "Hide Filters/Group By"
+msgstr "إخفاء عوامل التصفية / التجميع حسب"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__groups_store_model_nodes_ids
+msgid "Hide Groups"
+msgstr "إخفاء المجموعات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_import
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_import
+msgid "Hide Import"
+msgstr "إخفاء الاستيراد"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__link_store_model_nodes_ids
+msgid "Hide Kanban Link"
+msgstr "إخفاء رابط كانبان"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_log_notes
+msgid "Hide Log Notes"
+msgstr "إخفاء الملاحظات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_menu_ids
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Hide Menu"
+msgstr "إخفاء القائمة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__report_action_ids
+msgid "Hide Reports"
+msgstr "إخفاء التقارير"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_schedule_activity
+msgid "Hide Schedule Activity"
+msgstr "إخفاء جدولة النشاط"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_send_mail
+msgid "Hide Send Message"
+msgstr "إخفاء إرسال الرسالة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__hide_spreadsheet
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__restrict_spreadsheet
+msgid "Hide Spreadsheet"
+msgstr "إخفاء جدول البيانات"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__page_store_model_nodes_ids
+msgid "Hide Tab/Page"
+msgstr "إخفاء علامة التبويب / الصفحة"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_hide_view_nodes
+msgid "Hide View Nodes"
+msgstr "إخفاء عناصر العرض"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__view_data_ids
+msgid "Hide Views"
+msgstr "إخفاء طرق العرض"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Import & Export"
+msgstr "الاستيراد والتصدير"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_import
+msgid "Import Button will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء زر الاستيراد في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"In this tab you can apply the rule for every model.\n"
+"                                    <br/>\n"
+"                                    <br/>You can hide chatter, send message, log notes, schedule activities, import,\n"
+"                                    export from everywhere with single chabox\n"
+"                                    <br/>\n"
+"                                    <br/>selection for specific user."
+msgstr ""
+"في هذا التبويب يمكنك تطبيق القاعدة على جميع النماذج.\n"
+"<br/>\n"
+"<br/>يمكنك إخفاء سجل المحادثات، وإرسال الرسائل، والملاحظات، وجدولة الأنشطة، والاستيراد،\n"
+"والتصدير من جميع الأماكن باستخدام مربع اختيار واحد\n"
+"<br/>\n"
+"<br/>لمستخدم محدد."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_autocomplete.js:0
+#, python-format
+msgid "Inaccessible/missing record ID: %s"
+msgstr "معرّف السجل غير موجود أو لا يمكن الوصول إليه: %s"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector/domain_selector.xml:0
+#, python-format
+msgid "Include archived"
+msgstr "تضمين المؤرشفة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Invalid domain"
+msgstr "نطاق غير صالح"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector/domain_selector.js:0
+#: code:addons/pr_acess_managment/static/src/domain_selector/domain_selector.js:0
+#, python-format
+msgid "Invalid field chain"
+msgstr "تسلسل الحقول غير صالح"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_autocomplete.js:0
+#, python-format
+msgid "Invalid record ID: %s"
+msgstr "معرّف السجل غير صالح: %s"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__invisible
+msgid "Invisible"
+msgstr "مخفي"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_account_move
+msgid "Journal Entry"
+msgstr "قيد اليومية"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__lang_code
+msgid "Language Code"
+msgstr "رمز اللغة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last 30 Days"
+msgstr "آخر 30 يومًا"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last 365 Days"
+msgstr "آخر 365 يومًا"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last 7 Days"
+msgstr "آخر 7 أيام"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last 90 Days"
+msgstr "آخر 90 يومًا"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last Day"
+msgstr "اليوم السابق"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last Month"
+msgstr "الشهر الماضي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last Quarter"
+msgstr "الربع الماضي"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__write_uid
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__write_date
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last Week"
+msgstr "الأسبوع الماضي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Last Year"
+msgstr "السنة الماضية"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields.selection,name:pr_acess_managment.selection__store_model_nodes__node_option__link
+msgid "Link"
+msgstr "رابط"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Loading"
+msgstr "جارٍ التحميل"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__hide_log_notes
+msgid "Log Notes"
+msgstr "الملاحظات"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "Match"
+msgstr "مطابقة"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_ui_menu
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__name
+msgid "Menu"
+msgstr "القائمة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_menu_item__menu_id
+msgid "Menu ID"
+msgstr "معرّف القائمة"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_menu_item
+msgid "Menu Item"
+msgstr "عنصر القائمة"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/access_management.py:0
+#, python-format
+msgid "Menus Synced"
+msgstr "تمت مزامنة القوائم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.js:0
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__model_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__model_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__model_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__model_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__model_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__model_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__model_id
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__model_id
+#, python-format
+msgid "Model"
+msgstr "النموذج"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_model_access
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Model Access"
+msgstr "صلاحيات النموذج"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__model_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_filters_groups__model_name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_view_nodes__model_name
+msgid "Model Name"
+msgstr "اسم النموذج"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_model
+msgid "Models"
+msgstr "النماذج"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_remove_action
+msgid "Models Right"
+msgstr "صلاحيات النماذج"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Modify filter"
+msgstr "تعديل عامل التصفية"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_module_module
+msgid "Module"
+msgstr "الوحدة"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_base_module_uninstall
+msgid "Module Uninstall"
+msgstr "إلغاء تثبيت الوحدة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_action_data__name
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__name
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "New Rule"
+msgstr "قاعدة جديدة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Next Day"
+msgstr "اليوم التالي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Next Month"
+msgstr "الشهر القادم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Next Quarter"
+msgstr "الربع القادم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Next Week"
+msgstr "الأسبوع القادم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "Next Year"
+msgstr "السنة القادمة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Next day"
+msgstr "اليوم التالي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Next month"
+msgstr "الشهر القادم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Next week"
+msgstr "الأسبوع القادم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Next year"
+msgstr "السنة القادمة"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_model_access.py:0
+#, python-format
+msgid "No group currently allows this operation."
+msgstr "لا توجد أي مجموعة تسمح بهذه العملية حالياً."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_filters_groups__node_option
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__node_option
+msgid "Node Option"
+msgstr "خيار العقدة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Not a valid %s"
+msgstr "%s غير صالح"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields.selection,name:pr_acess_managment.selection__store_model_nodes__button_type__object
+msgid "Object"
+msgstr "كائن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "Operator not supported"
+msgstr "عامل التشغيل غير مدعوم"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Others"
+msgstr "أخرى"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields.selection,name:pr_acess_managment.selection__store_model_nodes__node_option__page
+msgid "Page"
+msgstr "صفحة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_autocomplete.js:0
+#, python-format
+msgid "Quick search: %s"
+msgstr "بحث سريع: %s"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__read_right
+msgid "Read"
+msgstr "قراءة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__readonly
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__readonly
+#: model:ir.model.fields,field_description:pr_acess_managment.field_remove_action__readonly
+msgid "Read-Only"
+msgstr "للقراءة فقط"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__remove_action_ids
+msgid "Remove Action"
+msgstr "إزالة الإجراء"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__external_link
+msgid "Remove External Link"
+msgstr "إزالة الرابط الخارجي"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_field__required
+msgid "Required"
+msgstr "إلزامي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector/domain_selector.xml:0
+#, python-format
+msgid "Reset domain"
+msgstr "إعادة تعيين النطاق"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__restrict_invoice_create
+msgid "Restrict Invoice/Bill Create"
+msgstr "تقييد إنشاء الفواتير وفواتير الموردين"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_rule
+msgid "Rule"
+msgstr "القاعدة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__hide_schedule_activity
+msgid "Schedule Activity"
+msgstr "جدولة نشاط"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_autocomplete.js:0
+#, python-format
+msgid "Search More..."
+msgstr "بحث أكثر..."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_autocomplete.js:0
+#, python-format
+msgid "Search: %s"
+msgstr "بحث: %s"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Select a model to add a filter."
+msgstr "حدد نموذجًا لإضافة عامل تصفية."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_field__readonly
+msgid ""
+"Selected Field will be Read only in selected model from the defined users."
+msgstr "سيكون الحقل المحدد للقراءة فقط في النموذج المحدد للمستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_field__invisible
+msgid ""
+"Selected Field will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء الحقل المحدد في النموذج المحدد للمستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_field__required
+msgid ""
+"Selected Field will be set as required for selected model from the defined "
+"users."
+msgstr "سيتم تعيين الحقل المحدد كحقل إلزامي في النموذج المحدد للمستخدمين المحددين."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.js:0
+#, python-format
+msgid "Selected records"
+msgstr "السجلات المحددة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__self_module_menu_ids
+msgid "Self Module Menu"
+msgstr "قائمة الوحدة الحالية"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_hide_chatter__hide_send_mail
+msgid "Send Message"
+msgstr "إرسال رسالة"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Show matching records"
+msgstr "عرض السجلات المطابقة"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_store_model_nodes__is_smart_button
+msgid "Smart Button"
+msgstr "زر ذكي"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_store_filters_groups
+msgid "Store Filters Groups"
+msgstr "تخزين المرشحات والمجموعات"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_store_model_nodes
+msgid "Store Model Nodes"
+msgstr "تخزين عقد النموذج"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Sync Menus"
+msgstr "مزامنة القوائم"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_view_data__techname
+msgid "Tech Name"
+msgstr "الاسم التقني"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_view_nodes__btn_store_model_nodes_ids
+msgid ""
+"The Buttons are added on list will be hidden in selected model from the "
+"defined users."
+msgstr "سيتم إخفاء الأزرار المضافة إلى القائمة في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__hide_chatter
+msgid "The Chatter will be hidden in all model from the specified users."
+msgstr "سيتم إخفاء المحادثات في جميع النماذج عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__restrict_chatter
+msgid "The Chatter will be hidden in selected model from the defined users."
+msgstr "سيتم إخفاء المحادثات في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_chatter__hide_chatter
+msgid "The Chatter will be hidden in selected model from the specified users."
+msgstr "سيتم إخفاء المحادثات في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_filters_groups__groups_store_model_nodes_ids
+msgid ""
+"The Defalut Group are added on list will be hidden in search view of "
+"selected model from the specified users."
+msgstr "سيتم إخفاء المجموعات الافتراضية المضافة إلى القائمة في واجهة البحث الخاصة بالنموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_filters_groups__filters_store_model_nodes_ids
+msgid ""
+"The Defalut filter are added on list will be hidden in search view of "
+"selected model from the specified users."
+msgstr "سيتم إخفاء عوامل التصفية الافتراضية المضافة إلى القائمة في واجهة البحث الخاصة بالنموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__hide_export
+msgid ""
+"The Export button will be hidden in all model from the specified users."
+msgstr "سيتم إخفاء زر التصدير في جميع النماذج عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__hide_import
+msgid ""
+"The Import button will be hidden in all model from the specified users."
+msgstr "سيتم إخفاء زر الاستيراد في جميع النماذج عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_view_nodes__link_store_model_nodes_ids
+msgid ""
+"The Kanban view action are added on list will be hidden in selected model "
+"from the defined users."
+msgstr "سيتم إخفاء إجراءات عرض كانبان المضافة إلى القائمة في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__hide_log_notes
+msgid ""
+"The Log Notes button will be hidden in chatter of all model from the "
+"specified users."
+msgstr "سيتم إخفاء زر ملاحظات السجل في المحادثات بجميع النماذج عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_chatter__hide_log_notes
+msgid ""
+"The Log Notes button will be hidden in chatter of selected model from the "
+"specified users."
+msgstr "سيتم إخفاء زر ملاحظات السجل في محادثات النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__report_action_ids
+msgid ""
+"The Reports are added on list will be hidden in selected model from the "
+"defined users."
+msgstr "سيتم إخفاء التقارير المضافة إلى القائمة في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__hide_schedule_activity
+msgid ""
+"The Schedule Activity button will be hidden in chatter of all model from the"
+" specified users."
+msgstr "سيتم إخفاء زر جدولة النشاط في المحادثات بجميع النماذج عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_chatter__hide_schedule_activity
+msgid ""
+"The Schedule Activity button will be hidden in chatter of selected model "
+"from the specified users."
+msgstr "سيتم إخفاء زر جدولة النشاط في محادثات النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__hide_send_mail
+msgid ""
+"The Send Message button will be hidden in chatter of all model from the "
+"specified users."
+msgstr "سيتم إخفاء زر إرسال رسالة في المحادثات بجميع النماذج عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_chatter__hide_send_mail
+msgid ""
+"The Send Message button will be hidden in chatter of selected model from the"
+" specified users."
+msgstr "سيتم إخفاء زر إرسال رسالة في محادثات النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_hide_view_nodes__page_store_model_nodes_ids
+msgid ""
+"The Tabs(pages) are added on list will be hidden in selected model from the "
+"defined users."
+msgstr "سيتم إخفاء علامات التبويب (الصفحات) المضافة إلى القائمة في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__disable_login
+msgid "The Users can not login if this button is chek."
+msgstr "لن يتمكن المستخدمون من تسجيل الدخول عند تفعيل هذا الخيار."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__server_action_ids
+msgid ""
+"The actions are added on list will be hidden in selected model from the "
+"defined users."
+msgstr "سيتم إخفاء الإجراءات المضافة إلى القائمة في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_domain_ah__domain
+msgid ""
+"The create customised domain rule where we can customise rule by selecting "
+"specific fields and records"
+msgstr "إنشاء قاعدة نطاق مخصصة، حيث يمكن تخصيص القاعدة باختيار حقول وسجلات محددة."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"The menu or submenu added on above list\n"
+"                                    will be hidden from the defined user(s)."
+msgstr ""
+"سيتم إخفاء القائمة أو القائمة الفرعية\n"
+"المضافة إلى القائمة أعلاه عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__hide_menu_ids
+msgid ""
+"The menu or submenu added on above list will be hidden from the defined "
+"users."
+msgstr "سيتم إخفاء القائمة أو القائمة الفرعية المضافة إلى القائمة أعلاه عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_domain_ah__create_right
+msgid "The set 'Create' access of the selected model for the specified users"
+msgstr "تعيين صلاحية «الإنشاء» للنموذج المحدد للمستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_domain_ah__delete_right
+msgid "The set 'Delete' access of the selected model for the specified users"
+msgstr "تعيين صلاحية «الحذف» للنموذج المحدد للمستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_domain_ah__read_right
+msgid "The set 'Read' access of the selected model for the specified users"
+msgstr "تعيين صلاحية «القراءة» للنموذج المحدد للمستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_domain_ah__write_right
+msgid "The set 'Write' access of the selected model for the specified users"
+msgstr "تعيين صلاحية «التعديل» للنموذج المحدد للمستخدمين المحددين."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_remove_action__view_data_ids
+msgid ""
+"The views are added on list will be hidden in selected model from the "
+"defined users."
+msgstr "سيتم إخفاء طرق العرض المضافة إلى القائمة في النموذج المحدد عن المستخدمين المحددين."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "This Month"
+msgstr "هذا الشهر"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "This Quarter"
+msgstr "هذا الربع"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "This Week"
+msgstr "هذا الأسبوع"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#, python-format
+msgid "This Year"
+msgstr "هذا العام"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector/domain_selector.xml:0
+#, python-format
+msgid "This domain is not supported."
+msgstr "هذا النطاق غير مدعوم."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_model_access.py:0
+#, python-format
+msgid ""
+"This operation is allowed for the following groups:\n"
+"%(groups_list)s"
+msgstr ""
+"هذه العملية مسموح بها للمجموعات التالية:\n"
+"%(groups_list)s"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "This quarter"
+msgstr "هذا الربع"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "This week"
+msgstr "هذا الأسبوع"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "This year"
+msgstr "هذا العام"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Thismonth"
+msgstr "هذا الشهر"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/dateSelectionBits/dateSelectionBits.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Today"
+msgstr "اليوم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "True"
+msgstr "صحيح"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_autocomplete.js:0
+#, python-format
+msgid "Unnamed"
+msgstr "بدون اسم"
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid "Update"
+msgstr "تحديث"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_res_users
+msgid "User"
+msgstr "المستخدم"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_management__user_ids
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_search_view
+msgid "Users"
+msgstr "المستخدمون"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Value not in selection"
+msgstr "القيمة غير موجودة ضمن الخيارات"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "Value not supported"
+msgstr "القيمة غير مدعومة"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_ir_ui_view
+msgid "View"
+msgstr "العرض"
+
+#. module: pr_acess_managment
+#: model:ir.model,name:pr_acess_managment.model_view_data
+msgid "View Data"
+msgstr "بيانات العرض"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "Warning"
+msgstr "تحذير"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_access_management__is_apply_on_without_company
+msgid ""
+"When 'Apply Without Company' is selected, the rules will be applied to every"
+" company."
+msgstr ""
+"عند تحديد خيار 'التطبيق بدون شركة'، سيتم تطبيق القواعد على جميع الشركات."
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,help:pr_acess_managment.field_ir_model__abstract
+msgid "Whether this model is abstract"
+msgstr "ما إذا كان هذا النموذج مجردًا"
+
+#. module: pr_acess_managment
+#: model:ir.model.fields,field_description:pr_acess_managment.field_access_domain_ah__write_right
+msgid "Write"
+msgstr "كتابة"
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_model_access.py:0
+#, python-format
+msgid ""
+"You are not allowed to access '%(document_kind)s' (%(document_model)s) "
+"records."
+msgstr ""
+"غير مسموح لك بالوصول إلى سجلات '%(document_kind)s' (%(document_model)s)."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_model_access.py:0
+#, python-format
+msgid ""
+"You are not allowed to create '%(document_kind)s' (%(document_model)s) "
+"records."
+msgstr ""
+"غير مسموح لك بإنشاء سجلات '%(document_kind)s' (%(document_model)s)."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_model_access.py:0
+#, python-format
+msgid ""
+"You are not allowed to delete '%(document_kind)s' (%(document_model)s) "
+"records."
+msgstr ""
+"غير مسموح لك بحذف سجلات '%(document_kind)s' (%(document_model)s)."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/models/ir_model_access.py:0
+#, python-format
+msgid ""
+"You are not allowed to modify '%(document_kind)s' (%(document_model)s) "
+"records."
+msgstr ""
+"غير مسموح لك بتعديل سجلات '%(document_kind)s' (%(document_model)s)."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"You can Hide any field of any model, Turn any field to Read-Only or Set any field as\n"
+"                                    Required for the specified user(s) from here."
+msgstr ""
+"يمكنك إخفاء أي حقل في أي نموذج، أو جعل أي حقل للقراءة فقط، أو تعيين أي حقل "
+"كمطلوب للمستخدمين المحددين من هنا."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"You can Hide reports, Hide action buttons like Create, Edit, Export, Hide Views\n"
+"                                    (list, kanban, report, etc), Also hide some actions like Archive, Delete, Duplicate,\n"
+"                                    etc from defined user(s).\n"
+"                                    <br/>\n"
+"                                    <br/>Note: the restriction added here will only become hidden for defined users.\n"
+"                                    They can still be accessed by python code or API, so it won't intruppet the process\n"
+"                                    in some cases like from POS and API. If you strictly want to block the Create, Edit,\n"
+"                                    Delete process entirely from the user, you can use the 'Domain Access' Tab of the\n"
+"                                    form and deine the rule there."
+msgstr ""
+"يمكنك إخفاء التقارير، وإخفاء أزرار الإجراءات مثل إنشاء وتحرير وتصدير، وإخفاء طرق العرض\n"
+"(القائمة، كانبان، التقارير، وغيرها)، وكذلك إخفاء بعض الإجراءات مثل الأرشفة والحذف والتكرار\n"
+"وغيرها للمستخدمين المحددين.\n"
+"<br/>\n"
+"<br/>ملاحظة: القيود المضافة هنا تقوم فقط بإخفاء العناصر عن المستخدمين المحددين.\n"
+"ولا يزال بالإمكان الوصول إليها عبر كود Python أو واجهة API، لذلك لن تؤثر على العمليات\n"
+"في بعض الحالات مثل نظام نقاط البيع (POS) أو API. إذا كنت ترغب في منع عمليات الإنشاء أو\n"
+"التعديل أو الحذف بشكل كامل، فاستخدم تبويب 'صلاحيات النطاق (Domain Access)' وقم بتعريف\n"
+"القاعدة هناك."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"You can hide Chatter and Buttons of Chatter for any model for specified user from\n"
+"                                    this tab.\n"
+"                                    <br/>\n"
+"                                    <br/>Here Button of Chatter means 'Send message', 'Log note', 'Activities'."
+msgstr ""
+"يمكنك إخفاء المحادثات (Chatter) وأزرارها لأي نموذج ولأي مستخدم محدد من خلال هذا التبويب.\n"
+"<br/>\n"
+"<br/>تشمل أزرار المحادثة: 'إرسال رسالة' و'تسجيل ملاحظة' و'الأنشطة'."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"You can hide access of Filters and Group By of any model for specified user from\n"
+"                                    this tab.\n"
+"                                    <br/>\n"
+"                                    <br/>Here Filters means any Filters visible on List/Tree view.\n"
+"                                    <br/>\n"
+"                                    <br/>Group By means any Group By visible on List/Tree view."
+msgstr ""
+"يمكنك إخفاء خيارات عوامل التصفية (Filters) والتجميع حسب (Group By) لأي نموذج ولأي مستخدم محدد من هذا التبويب.\n"
+"<br/>\n"
+"<br/>تشير عوامل التصفية إلى جميع الفلاتر الظاهرة في عرض القائمة أو الشجرة.\n"
+"<br/>\n"
+"<br/>ويشير التجميع حسب إلى جميع خيارات التجميع الظاهرة في عرض القائمة أو الشجرة."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"You can hide access of action buttons, object buttons, tabs and links (in kanban\n"
+"                                    box) of any model for specified user from this tab.\n"
+"                                    <br/>\n"
+"                                    <br/>Here Button means any action button visible on any view.\n"
+"                                    <br/>\n"
+"                                    <br/>Page means any tab visible on any form view.\n"
+"                                    <br/>\n"
+"                                    <br/>And Link means any action link visible on Kanban view."
+msgstr ""
+"يمكنك إخفاء أزرار الإجراءات، وأزرار الكائنات، وعلامات التبويب، والروابط (في عرض كانبان)\n"
+"لأي نموذج ولأي مستخدم محدد من خلال هذا التبويب.\n"
+"<br/>\n"
+"<br/>المقصود بالزر هو أي زر إجراء ظاهر في أي عرض.\n"
+"<br/>\n"
+"<br/>والمقصود بالصفحة هو أي علامة تبويب في نموذج الإدخال.\n"
+"<br/>\n"
+"<br/>أما الرابط فهو أي رابط إجراء ظاهر في عرض كانبان."
+
+#. module: pr_acess_managment
+#: model_terms:ir.ui.view,arch_db:pr_acess_managment.access_management_form_view_ah
+msgid ""
+"You can set strict access rights of the model(read, write, delete, update) and set\n"
+"                                    the domain to access the model's records for any user and from one place. The access\n"
+"                                    defined here will either allow or block the entire access from the specified\n"
+"                                    user(s), not only from the system, but also from the code and API. So be careful\n"
+"                                    while defining the accesses here. If you just want to hide the Create, Edit and\n"
+"                                    Delete buttons from the backend user for sales order but want to allow them to use\n"
+"                                    POS, then defining access here will genereate the error on POS side. To prevent\n"
+"                                    that, you can use the 'Model Access' tab to Hide the Create, Edit and Delete\n"
+"                                    buttons.\n"
+"                                    <br/>\n"
+"                                    <br/>You can allow the Read (View), Write (Create), Delete, Update (Edit) rights by\n"
+"                                    just checking the check-boxes of respective actions, and to restrict them of those\n"
+"                                    rights, don't check any of those checkboxes. And also this tab gives you advance\n"
+"                                    configurator to allow those rights for your user on specific conditions, to set that\n"
+"                                    condition check 'Apply Filter' checkbox."
+msgstr ""
+"يمكنك تعيين صلاحيات وصول صارمة للنموذج (القراءة، والإنشاء، والحذف، والتعديل)، كما يمكنك\n"
+"تحديد نطاق (Domain) للوصول إلى سجلات النموذج لأي مستخدم من مكان واحد.\n"
+"الصلاحيات المحددة هنا تسمح أو تمنع الوصول بالكامل، سواء من النظام أو من خلال الكود أو واجهة API.\n"
+"لذلك يجب توخي الحذر عند إعدادها.\n"
+"إذا كنت تريد فقط إخفاء أزرار الإنشاء والتعديل والحذف عن مستخدم الواجهة الخلفية مع السماح باستخدام POS،\n"
+"فلا تستخدم هذا التبويب، بل استخدم تبويب 'صلاحيات النموذج (Model Access)' لإخفاء الأزرار فقط.\n"
+"<br/>\n"
+"<br/>يمكنك منح صلاحيات القراءة (عرض)، والإنشاء، والحذف، والتعديل بمجرد تحديد مربعات الاختيار الخاصة بها.\n"
+"ولمنع أي صلاحية، اترك مربع الاختيار الخاص بها غير محدد.\n"
+"كما يوفر هذا التبويب إعدادًا متقدمًا لتطبيق هذه الصلاحيات وفق شروط معينة من خلال تفعيل خيار 'تطبيق عامل تصفية'."
+
+#. module: pr_acess_managment
+#. odoo-python
+#: code:addons/pr_acess_managment/controllers/action.py:0
+#, python-format
+msgid ""
+"You don't have the permission to access any views. Please contact to administrator."
+msgstr ""
+"ليست لديك صلاحية للوصول إلى أي عرض. يرجى التواصل مع مسؤول النظام."
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "all"
+msgstr "الكل"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "all records"
+msgstr "جميع السجلات"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector/utils.js:0
+#, python-format
+msgid "and"
+msgstr "و"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "any"
+msgstr "أي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "child of"
+msgstr "فرع من"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "contains"
+msgstr "يحتوي على"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "date filter"
+msgstr "عامل تصفية التاريخ"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "does not contain"
+msgstr "لا يحتوي على"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is"
+msgstr "يساوي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is between"
+msgstr "بين"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is in"
+msgstr "ضمن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is not"
+msgstr "لا يساوي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is not in"
+msgstr "ليس ضمن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is not set"
+msgstr "غير معيّن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is not in"
+msgstr "ليس ضمن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is not set"
+msgstr "غير معيّن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "is set"
+msgstr "مُعيّن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last 30 days"
+msgstr "آخر 30 يومًا"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last 365 days"
+msgstr "آخر 365 يومًا"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last 7 days"
+msgstr "آخر 7 أيام"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last 90 days"
+msgstr "آخر 90 يومًا"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last day"
+msgstr "اليوم السابق"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last month"
+msgstr "الشهر الماضي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last quarter"
+msgstr "الربع الماضي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last week"
+msgstr "الأسبوع الماضي"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "last year"
+msgstr "السنة الماضية"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "like"
+msgstr "يشبه"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "next quarter"
+msgstr "الربع القادم"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "none"
+msgstr "لا شيء"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "not all"
+msgstr "ليس الكل"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "not like"
+msgstr "لا يشبه"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "not set"
+msgstr "غير معيّن"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "of the following rules:"
+msgstr "من القواعد التالية:"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor.xml:0
+#, python-format
+msgid "of:"
+msgstr "من:"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain_selector/utils.js:0
+#, python-format
+msgid "or"
+msgstr "أو"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_operator_editor.js:0
+#, python-format
+msgid "parent of"
+msgstr "أصل لـ"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#: code:addons/pr_acess_managment/static/src/domain/domain_field.xml:0
+#, python-format
+msgid "record(s)"
+msgstr "سجل(ات)"
+
+#. module: pr_acess_managment
+#. odoo-javascript
+#: code:addons/pr_acess_managment/static/src/tree_editor/tree_editor_value_editors.js:0
+#, python-format
+msgid "set"
+msgstr "مُعيّن"
+

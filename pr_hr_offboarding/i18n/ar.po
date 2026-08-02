@@ -1,0 +1,1851 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pr_hr_offboarding
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-29 12:02+0000\n"
+"PO-Revision-Date: 2026-07-29 12:02+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "<span class=\"o_stat_text\">EOS Settlement</span>"
+msgstr "<span class=\"o_stat_text\">مخالصة نهاية الخدمة</span>"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: code:addons/pr_hr_offboarding/wizard/offboarding_reject_wizard.py:0
+#, python-format
+msgid "A rejection reason is required."
+msgstr "سبب الرفض مطلوب."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "ACCEPTED"
+msgstr "تمت الموافقة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__qiwa_acceptance_state__accepted
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__accepted
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Accepted"
+msgstr "تمت الموافقة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__local_transfer_state__accepted
+msgid "Accepted by Employee"
+msgstr "تمت الموافقة من قبل الموظف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__account
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__account
+msgid "Accounts"
+msgstr "الحسابات"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_accounts
+#, python-format
+msgid "Accounts clearance"
+msgstr "إخلاء طرف الحسابات"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_needaction
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_needaction
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_needaction
+msgid "Action Needed"
+msgstr "يتطلب إجراء"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__active
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_ids
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_exception_decoration
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "تمييز استثناء النشاط"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_state
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_state
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_type_icon
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__settlement_effect__addition
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__settlement_effect__addition
+msgid "Addition / Arrears"
+msgstr "إضافة / مستحقات"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template__applies_to__all
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__applies_to__all
+msgid "All Employees"
+msgstr "جميع الموظفين"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "All required clearance checklist lines must be Done or Waived."
+msgstr "يجب أن تكون جميع عناصر قائمة التحقق المطلوبة مكتملة أو معفاة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__amount
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__applies_to
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__applies_to
+msgid "Applies To"
+msgstr "ينطبق على"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Approval Audit"
+msgstr "سجل الموافقات"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__final_exit_state__approved
+msgid "Approved"
+msgstr "تمت الموافقة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__asset
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__asset
+msgid "Assets"
+msgstr "الأصول"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Assigned users can only mark clearance items as done."
+msgstr "يمكن للمستخدمين المكلّفين فقط وضع عناصر إخلاء الطرف كمكتملة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_attachment_count
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "CONTINUED"
+msgstr "مستمر"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Cancel or reset the linked EOS settlement before cancelling this offboarding"
+" request."
+msgstr "قم بإلغاء أو إعادة تعيين مخالصة نهاية الخدمة المرتبطة قبل إلغاء طلب إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__cancel
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__category
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__category
+msgid "Category"
+msgstr "الفئة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__line_ids
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_clearance_template_form
+msgid "Checklist Items"
+msgstr "عناصر قائمة التحقق"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__clearance
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Clearance"
+msgstr "إخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__clearance_addition_amount
+msgid "Clearance Additions"
+msgstr "إضافات إخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__clearance_line_ids
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Clearance Checklist"
+msgstr "قائمة التحقق لإخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#: model:ir.actions.act_window,name:pr_hr_offboarding.action_offboarding_clearance_templates
+#: model:ir.ui.menu,name:pr_hr_offboarding.menu_offboarding_clearance_templates
+msgid "Clearance Checklist Templates"
+msgstr "قوالب قائمة التحقق لإخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__clearance_completed
+msgid "Clearance Completed"
+msgstr "اكتمل إخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__clearance_completed_date
+msgid "Clearance Completed On"
+msgstr "تاريخ اكتمال إخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__clearance_deduction_amount
+msgid "Clearance Deductions"
+msgstr "خصومات إخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Clearance fields can only be edited while the request is accepted, in "
+"clearance, or linked to EOS."
+msgstr "يمكن تعديل حقول إخلاء الطرف فقط عندما يكون الطلب مقبولاً أو في مرحلة إخلاء الطرف أو مرتبطاً بمخالصة نهاية الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Collect or waive the employee recovery amount before final release."
+msgstr "يجب تحصيل أو التنازل عن مبلغ الاسترداد المستحق على الموظف قبل الإنهاء النهائي."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__company_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__company_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__company_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_assets
+#, python-format
+msgid "Company assets clearance"
+msgstr "إخلاء طرف أصول الشركة"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Complete Clearance"
+msgstr "إكمال إخلاء الطرف"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Complete all required clearance items before creating EOS settlement."
+msgstr "أكمل جميع عناصر إخلاء الطرف المطلوبة قبل إنشاء مخالصة نهاية الخدمة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__completed_by_id
+msgid "Completed By"
+msgstr "أُنجز بواسطة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__completed_date
+msgid "Completed Date"
+msgstr "تاريخ الإنجاز"
+
+#. module: pr_hr_offboarding
+#: model:ir.ui.menu,name:pr_hr_offboarding.menu_offboarding_configuration
+msgid "Configuration"
+msgstr "الإعدادات"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_gosi
+#, python-format
+msgid "Confirm GOSI removal request is completed."
+msgstr "تأكد من اكتمال طلب الاستبعاد من التأمينات الاجتماعية."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_qiwa
+#, python-format
+msgid "Confirm Qiwa acceptance is completed or no longer required."
+msgstr "تأكد من اكتمال قبول قوى أو أنه لم يعد مطلوبًا."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_final_exit
+#, python-format
+msgid "Confirm final exit or local transfer approvals are complete."
+msgstr "تأكد من اكتمال الموافقات الخاصة بالخروج النهائي أو النقل المحلي."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_handover
+#, python-format
+msgid "Confirm responsibilities, files, and open tasks are handed over."
+msgstr "تأكد من تسليم المسؤوليات والملفات والمهام المفتوحة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__exit_process__continue
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Continue Employment"
+msgstr "الاستمرار في العمل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__continued
+msgid "Continued Employment"
+msgstr "تم الاستمرار في العمل"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Create EOS Settlement"
+msgstr "إنشاء مخالصة نهاية الخدمة"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.actions.act_window,help:pr_hr_offboarding.action_offboarding_requests
+msgid "Create a termination or resignation request."
+msgstr "إنشاء طلب إنهاء خدمة أو استقالة."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.actions.act_window,help:pr_hr_offboarding.action_offboarding_clearance_templates
+msgid "Create reusable offboarding checklist templates."
+msgstr "إنشاء قوالب قابلة لإعادة الاستخدام لقوائم التحقق الخاصة بإنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Create the EOS settlement first."
+msgstr "أنشئ مخالصة نهاية الخدمة أولاً."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__requested_by_id
+msgid "Created By"
+msgstr "أُنشئ بواسطة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__create_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__create_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__create_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__create_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__create_uid
+msgid "Created by"
+msgstr "أُنشئ بواسطة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Created from offboarding request %s."
+msgstr "تم إنشاؤها من طلب إنهاء الخدمة %s."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__create_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__create_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__create_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__create_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__create_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__currency_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "DONE"
+msgstr "مكتمل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__settlement_effect__deduction
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__settlement_effect__deduction
+msgid "Deduction"
+msgstr "خصم"
+
+#. module: pr_hr_offboarding
+#: model:pr.hr.offboarding.clearance.template,name:pr_hr_offboarding.clearance_template_default
+msgid "Default Offboarding Clearance"
+msgstr "إخلاء طرف إنهاء الخدمة الافتراضي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__department_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Department"
+msgstr "القسم"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__department_manager_id
+msgid "Department Manager"
+msgstr "مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__submitted
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Department Manager Approval"
+msgstr "موافقة مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__approved_by_id
+msgid "Department Manager Approved By"
+msgstr "تمت الموافقة بواسطة مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__approved_date
+msgid "Department Manager Approved On"
+msgstr "تاريخ موافقة مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Department Manager Decision"
+msgstr "قرار مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model:ir.actions.act_window,name:pr_hr_offboarding.action_my_offboarding_approvals
+#: model:ir.ui.menu,name:pr_hr_offboarding.menu_my_offboarding_approvals
+msgid "Department Manager Offboarding Approvals"
+msgstr "موافقات مدير القسم على طلبات إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__department_manager_user_id
+msgid "Department Manager User"
+msgstr "مستخدم مدير القسم"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Department Manager approval was automatically completed because %s also "
+"holds that approval authority."
+msgstr "تمت موافقة مدير القسم تلقائيًا لأن %s يمتلك أيضًا صلاحية هذه الموافقة."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Dept. Manager Approve"
+msgstr "اعتماد مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__description
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__description
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_clearance_template_form
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Description"
+msgstr "الوصف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__display_name
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__display_name
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__display_name
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__display_name
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__display_name
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__state__done
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__gosi_removal_state__done
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__done
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__draft
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__deadline_date
+msgid "Due Date"
+msgstr "تاريخ الاستحقاق"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "EOS Link"
+msgstr "رابط مخالصة نهاية الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__eos_reason_id
+msgid "EOS Reason"
+msgstr "سبب نهاية الخدمة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__eos_id
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__eos
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+#, python-format
+msgid "EOS Settlement"
+msgstr "مخالصة نهاية الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__eos_state
+msgid "EOS Status"
+msgstr "حالة مخالصة نهاية الخدمة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "EOS settlement %s was created."
+msgstr "تم إنشاء مخالصة نهاية الخدمة %s."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "EOS settlement can only be created after clearance is completed."
+msgstr "لا يمكن إنشاء مخالصة نهاية الخدمة إلا بعد اكتمال إخلاء الطرف."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.constraint,message:pr_hr_offboarding.constraint_pr_hr_offboarding_employee_code_lookup_employee_unique
+msgid "Each employee can only have one offboarding code lookup record."
+msgstr "يمكن أن يكون لكل موظف سجل تعريف واحد فقط لإنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__employee_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__employee_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__code
+msgid "Employee Code"
+msgstr "رقم الموظف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__employee_code_id
+msgid "Employee ID"
+msgstr "رقم الموظف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__employee_name
+msgid "Employee Name"
+msgstr "اسم الموظف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__eos_employee_acceptance_state
+msgid "Employee Settlement Acceptance"
+msgstr "موافقة الموظف على المخالصة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Employee will continue employment. Offboarding workflow closed."
+msgstr "سيستمر الموظف في العمل. تم إغلاق سير عمل إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Exit / Transfer"
+msgstr "الخروج / النقل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__exit_process
+msgid "Exit Process"
+msgstr "إجراء الخروج"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__is_expat
+msgid "Expat Employee"
+msgstr "موظف وافد"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template__applies_to__expat
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__applies_to__expat
+msgid "Expat Employees"
+msgstr "الموظفون الوافدون"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_reject_wizard_form
+msgid "Explain why this request is being rejected..."
+msgstr "اشرح سبب رفض هذا الطلب..."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__exit_process__final_exit
+msgid "Final Exit"
+msgstr "خروج نهائي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__final_exit
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__final_exit
+msgid "Final Exit / Transfer"
+msgstr "الخروج النهائي / نقل الكفالة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__final_exit_state
+msgid "Final Exit Approval"
+msgstr "موافقة الخروج النهائي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__final_release_date
+msgid "Final Release On"
+msgstr "تاريخ الإنهاء النهائي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__eos_requested_amount
+msgid "Final Settlement Amount"
+msgstr "قيمة المخالصة النهائية"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_final_exit
+#, python-format
+msgid "Final exit / local transfer clearance"
+msgstr "إخلاء طرف الخروج النهائي / نقل الكفالة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Final exit approval must be approved before EOS settlement."
+msgstr "يجب اعتماد موافقة الخروج النهائي قبل إنشاء مخالصة نهاية الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Final settlement released and offboarding completed."
+msgstr "تم صرف المخالصة النهائية واكتملت إجراءات إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_follower_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_partner_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (جهات الاتصال)"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_type_icon
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_type_icon
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل: fa-tasks"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__gosi
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__gosi
+msgid "GOSI"
+msgstr "التأمينات الاجتماعية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__gosi_removal_state
+msgid "GOSI Removal"
+msgstr "إلغاء التسجيل في التأمينات الاجتماعية"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Government / Exit Process"
+msgstr "الإجراءات الحكومية / إجراءات الخروج"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model,name:pr_hr_offboarding.model_de_hr_approval_dashboard_service
+msgid "HR Approval Dashboard Service"
+msgstr "خدمة لوحة موافقات الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__hr_manager_approval
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "HR Manager Approval"
+msgstr "موافقة مدير الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "HR Manager Approve"
+msgstr "اعتماد مدير الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__hr_manager_approved_by_id
+msgid "HR Manager Approved By"
+msgstr "تم الاعتماد بواسطة مدير الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__hr_manager_approved_date
+msgid "HR Manager Approved On"
+msgstr "تاريخ اعتماد مدير الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "HR Manager Decision"
+msgstr "قرار مدير الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model:ir.actions.act_window,name:pr_hr_offboarding.action_hr_manager_offboarding_approvals
+#: model:ir.ui.menu,name:pr_hr_offboarding.menu_hr_manager_offboarding_approvals
+msgid "HR Manager Offboarding Approvals"
+msgstr "موافقات مدير الموارد البشرية على إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"HR Manager approval was automatically completed because %s also holds that "
+"approval authority."
+msgstr "تم اعتماد موافقة مدير الموارد البشرية تلقائياً لأن %s يمتلك أيضاً صلاحية هذا الاعتماد."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__handover
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__handover
+msgid "Handover"
+msgstr "تسليم المهام"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__has_message
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__has_message
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسائل"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_payroll
+#, python-format
+msgid ""
+"Held salary, unpaid salary, attendance deductions, and payroll attachments."
+msgstr "الراتب المحتجز، والراتب غير المصروف، وخصومات الحضور، واستقطاعات الرواتب."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_exception_icon
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_exception_icon
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى وجود نشاط استثنائي."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_needaction
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_needaction
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا تم تحديده، فإن هناك رسائل جديدة تتطلب انتباهك."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_has_error
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_has_error
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_has_sms_error
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__message_has_error
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا تم تحديده، فهذا يعني أن بعض الرسائل حدث بها خطأ في التسليم."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__insurance
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__insurance
+msgid "Insurance"
+msgstr "التأمين"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_insurance
+#, python-format
+msgid "Insurance cancellation / clearance"
+msgstr "إلغاء التأمين / إخلاء طرف التأمين"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__code
+msgid "Internal Employee Code"
+msgstr "الرقم الوظيفي الداخلي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__is_department_manager
+msgid "Is Department Manager"
+msgstr "مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_is_follower
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_is_follower
+msgid "Is Follower"
+msgstr "متابع"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__is_hr_manager
+msgid "Is Hr Manager"
+msgstr "مدير الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__is_hr_supervisor
+msgid "Is Hr Supervisor"
+msgstr "مشرف الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__is_md_approver
+msgid "Is Md Approver"
+msgstr "المخوّل باعتماد المدير العام"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__job_id
+msgid "Job Position"
+msgstr "المسمى الوظيفي"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_handover
+#, python-format
+msgid "Job handover checklist"
+msgstr "قائمة التحقق لتسليم المهام"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_assets
+#, python-format
+msgid "Laptop, phone, tools, vehicle, access cards, and other assets."
+msgstr "الحاسب المحمول، والهاتف، والأدوات، والمركبة، وبطاقات الدخول، والأصول الأخرى."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__write_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__write_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__write_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__write_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__write_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__write_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__write_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_employee_code_lookup__write_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__write_date
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Linked EOS settlement %s was completed."
+msgstr "تم إكمال مخالصة نهاية الخدمة المرتبطة %s."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_accounts
+#, python-format
+msgid "Loans, advances, petty cash, reimbursements, and employee receivables."
+msgstr "القروض والسلف والعهد النقدية والمصروفات المستردة والمبالغ المستحقة على الموظف."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__local_transfer_state
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__exit_process__local_transfer
+msgid "Local Transfer"
+msgstr "النقل المحلي"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Local transfer must be accepted by the employee before EOS settlement."
+msgstr "يجب أن يقبل الموظف النقل المحلي قبل إنشاء تسوية نهاية الخدمة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__md_approval
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "MD Approval"
+msgstr "موافقة المدير العام"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "MD Approve"
+msgstr "اعتماد المدير العام"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__md_approved_by_id
+msgid "MD Approved By"
+msgstr "تم الاعتماد بواسطة المدير العام"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__md_approved_date
+msgid "MD Approved On"
+msgstr "تاريخ اعتماد المدير العام"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "MD Decision"
+msgstr "قرار المدير العام"
+
+#. module: pr_hr_offboarding
+#: model:ir.actions.act_window,name:pr_hr_offboarding.action_md_offboarding_approvals
+#: model:ir.ui.menu,name:pr_hr_offboarding.menu_md_offboarding_approvals
+msgid "MD Offboarding Approvals"
+msgstr "اعتمادات إنهاء الخدمة للمدير العام"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"MD approval was automatically completed because %s also holds that approval "
+"authority."
+msgstr "تم اعتماد المدير العام تلقائيًا لأن %s يمتلك أيضًا صلاحية هذا الاعتماد."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Mark Final Released"
+msgstr "تأكيد الصرف النهائي"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,description:pr_hr_offboarding.clearance_template_line_insurance
+#, python-format
+msgid "Medical insurance and related employee obligations."
+msgstr "التأمين الطبي والالتزامات ذات الصلة الخاصة بالموظف."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_has_error
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_has_error
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسائل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__my_activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "My Pending Approvals"
+msgstr "اعتماداتي المعلقة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__name
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__name
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "New"
+msgstr "جديد"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_calendar_event_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث التقويم للنشاط التالي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_date_deadline
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_summary
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_summary
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_type_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__settlement_effect__none
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__settlement_effect__none
+msgid "No Settlement Effect"
+msgstr "بدون تأثير على التسوية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__exit_process__not_required
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__final_exit_state__not_required
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__gosi_removal_state__not_required
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__local_transfer_state__not_required
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__qiwa_acceptance_state__not_required
+msgid "Not Required"
+msgstr "غير مطلوب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__notes
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_needaction_counter
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__reminder_delay_days
+msgid ""
+"Number of days after clearance starts before the assigned user's activity is due."
+msgstr "عدد الأيام بعد بدء إجراءات المخالصة قبل استحقاق النشاط المخصص للمستخدم."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_has_error_counter
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_needaction_counter
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_has_error_counter
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي تحتوي على خطأ في التسليم"
+
+#. module: pr_hr_offboarding
+#: model:ir.ui.menu,name:pr_hr_offboarding.menu_hr_offboarding_root
+msgid "Offboarding"
+msgstr "إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/approval_dashboard.py:0
+#, python-format
+msgid "Offboarding Approvals"
+msgstr "اعتمادات إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model,name:pr_hr_offboarding.model_pr_hr_offboarding_clearance_line
+msgid "Offboarding Clearance Checklist Line"
+msgstr "بند قائمة التحقق لمخالصة إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model,name:pr_hr_offboarding.model_pr_hr_offboarding_clearance_template
+msgid "Offboarding Clearance Checklist Template"
+msgstr "قالب قائمة التحقق لمخالصة إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model,name:pr_hr_offboarding.model_pr_hr_offboarding_clearance_template_line
+msgid "Offboarding Clearance Checklist Template Line"
+msgstr "بند قالب قائمة التحقق لمخالصة إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_clearance_template_form
+msgid "Offboarding Clearance Template"
+msgstr "قالب مخالصة إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_clearance_template_tree
+msgid "Offboarding Clearance Templates"
+msgstr "قوالب مخالصة إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model,name:pr_hr_offboarding.model_pr_hr_offboarding_employee_code_lookup
+msgid "Offboarding Employee Code Lookup"
+msgstr "مرجع رمز موظف إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_end_of_service__offboarding_request_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__request_id
+msgid "Offboarding Request"
+msgstr "طلب إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_tree
+msgid "Offboarding Requests"
+msgstr "طلبات إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding clearance completed."
+msgstr "اكتملت مخالصة إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding clearance started."
+msgstr "تم بدء مخالصة إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding clearance: %s"
+msgstr "مخالصة إنهاء الخدمة: %s"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Offboarding request accepted by the department manager and sent for HR "
+"Manager approval."
+msgstr "تم اعتماد طلب إنهاء الخدمة من مدير الإدارة وإرساله لاعتماد مدير الموارد البشرية."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding request approved by MD and accepted."
+msgstr "تم اعتماد طلب إنهاء الخدمة من المدير العام وقبوله."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Offboarding request approved by the HR Manager and sent for MD approval."
+msgstr "تم اعتماد طلب إنهاء الخدمة من مدير الموارد البشرية وإرساله لاعتماد المدير العام."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding request cancelled."
+msgstr "تم إلغاء طلب إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding request rejected. Reason: %s"
+msgstr "تم رفض طلب إنهاء الخدمة. السبب: %s"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding request reset to draft."
+msgstr "تمت إعادة طلب إنهاء الخدمة إلى مسودة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Offboarding request submitted to %s for department manager approval."
+msgstr "تم إرسال طلب إنهاء الخدمة إلى %s لاعتماده من مدير القسم."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only MD can perform this action."
+msgstr "يمكن للمدير العام فقط تنفيذ هذا الإجراء."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only a draft request can be submitted."
+msgstr "يمكن إرسال الطلبات التي بحالة مسودة فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only a rejected or cancelled request can be reset to draft."
+msgstr "يمكن إعادة الطلب المرفوض أو الملغى فقط إلى حالة المسودة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only a request pending Department Manager approval can be approved."
+msgstr "يمكن اعتماد الطلبات التي تنتظر موافقة مدير القسم فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only a request pending HR Manager approval can be approved."
+msgstr "يمكن اعتماد الطلبات التي تنتظر موافقة مدير الموارد البشرية فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only a request pending MD approval can be approved."
+msgstr "يمكن اعتماد الطلبات التي تنتظر موافقة المدير العام فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only a request pending approval can be rejected."
+msgstr "يمكن رفض الطلبات التي تنتظر الموافقة فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only accepted or clearance requests can be continued."
+msgstr "يمكن متابعة الطلبات المقبولة أو التي في مرحلة إخلاء الطرف فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only an HR Manager can perform this action."
+msgstr "يمكن لمدير الموارد البشرية فقط تنفيذ هذا الإجراء."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only an HR Supervisor can create offboarding requests."
+msgstr "يمكن لمشرف الموارد البشرية فقط إنشاء طلبات إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only an HR Supervisor can edit clearance item details."
+msgstr "يمكن لمشرف الموارد البشرية فقط تعديل تفاصيل بنود إخلاء الطرف."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only an HR Supervisor can edit offboarding requests."
+msgstr "يمكن لمشرف الموارد البشرية فقط تعديل طلبات إنهاء الخدمة."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only an HR Supervisor can perform this action."
+msgstr "يمكن لمشرف الموارد البشرية فقط تنفيذ هذا الإجراء."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only an HR Supervisor can waive or reset clearance items."
+msgstr "يمكن لمشرف الموارد البشرية فقط إعفاء أو إعادة تعيين بنود إخلاء الطرف."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only an accepted request can start clearance."
+msgstr "يمكن بدء إجراءات إخلاء الطرف للطلبات المقبولة فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only draft offboarding requests can be deleted."
+msgstr "يمكن حذف طلبات إنهاء الخدمة الموجودة بحالة مسودة فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Only draft offboarding requests can be edited. Clearance fields remain "
+"editable during the clearance workflow."
+msgstr ""
+"يمكن تعديل طلبات إنهاء الخدمة الموجودة بحالة مسودة فقط، بينما تظل حقول إخلاء "
+"الطرف قابلة للتعديل أثناء سير إجراءات إخلاء الطرف."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only requests in clearance can be completed."
+msgstr "يمكن إكمال الطلبات التي في مرحلة إخلاء الطرف فقط."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Only the assigned responsible user can complete this clearance item."
+msgstr "يمكن للمستخدم المسؤول المعيّن فقط إكمال بند إخلاء الطرف هذا."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Only the employee's department manager can approve or reject this request."
+msgstr "يمكن لمدير قسم الموظف فقط اعتماد هذا الطلب أو رفضه."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Open EOS Settlement"
+msgstr "فتح تسوية نهاية الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__other
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__other
+msgid "Other"
+msgstr "أخرى"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__payroll
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__payroll
+msgid "Payroll"
+msgstr "الرواتب"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_payroll
+#, python-format
+msgid "Payroll arrears and deductions review"
+msgstr "مراجعة مستحقات الرواتب والاستقطاعات"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__state__pending
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__final_exit_state__pending
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__gosi_removal_state__pending
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__local_transfer_state__pending
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__qiwa_acceptance_state__pending
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Pending Department Manager Approval"
+msgstr "بانتظار موافقة مدير القسم"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Pending HR Manager Approval"
+msgstr "بانتظار موافقة مدير الموارد البشرية"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Pending MD Approval"
+msgstr "بانتظار موافقة المدير العام"
+
+#. module: pr_hr_offboarding
+#: model:ir.model,name:pr_hr_offboarding.model_pr_end_of_service
+msgid "Petroraq End of Service"
+msgstr "نهاية الخدمة - بتروراق"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Please configure an EOS reason before creating the settlement."
+msgstr "يرجى إعداد سبب نهاية الخدمة قبل إنشاء التسوية."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__last_working_date
+msgid "Proposed Last Working Date"
+msgstr "آخر يوم عمل مقترح"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__category__qiwa
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__category__qiwa
+msgid "Qiwa"
+msgstr "قوى"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__qiwa_acceptance_state
+msgid "Qiwa Acceptance"
+msgstr "قبول قوى"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_qiwa
+#, python-format
+msgid "Qiwa acceptance"
+msgstr "قبول قوى"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Qiwa acceptance must be accepted or marked not required."
+msgstr "يجب قبول إجراء قوى أو تحديده على أنه غير مطلوب."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "REJECTED"
+msgstr "مرفوض"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__rating_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__rating_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__request_reason
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Reason / Details"
+msgstr "السبب / التفاصيل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__eos_employee_recovery_amount
+msgid "Recoverable From Employee"
+msgstr "المبلغ المستحق على الموظف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__eos_recovery_state
+msgid "Recovery Status"
+msgstr "حالة الاسترداد"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:ir.model,name:pr_hr_offboarding.model_pr_hr_offboarding_reject_wizard
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_reject_wizard_form
+#, python-format
+msgid "Reject Offboarding Request"
+msgstr "رفض طلب إنهاء الخدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__final_exit_state__rejected
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__qiwa_acceptance_state__rejected
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__state__rejected
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__rejected_by_id
+msgid "Rejected By"
+msgstr "تم الرفض بواسطة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__rejected_date
+msgid "Rejected On"
+msgstr "تاريخ الرفض"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__local_transfer_state__rejected
+msgid "Rejected by Employee"
+msgstr "مرفوض من الموظف"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__rejection_reason
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__rejection_reason
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__reminder_activity_id
+msgid "Reminder Activity"
+msgstr "نشاط التذكير"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__reminder_activity_type_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__reminder_activity_type_id
+msgid "Reminder Activity Type"
+msgstr "نوع نشاط التذكير"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__reminder_delay_days
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__reminder_delay_days
+msgid "Reminder Due After Days"
+msgstr "استحقاق التذكير بعد عدد الأيام"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#: model:pr.hr.offboarding.clearance.template.line,name:pr_hr_offboarding.clearance_template_line_gosi
+#, python-format
+msgid "Remove employee from GOSI"
+msgstr "إزالة الموظف من التأمينات الاجتماعية (GOSI)"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_reject_wizard__request_id
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Request"
+msgstr "الطلب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__request_date
+msgid "Request Date"
+msgstr "تاريخ الطلب"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Request Month"
+msgstr "شهر الطلب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__name
+msgid "Request Number"
+msgstr "رقم الطلب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__request_type
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Request Type"
+msgstr "نوع الطلب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__required
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__required
+msgid "Required"
+msgstr "مطلوب"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Reset"
+msgstr "إعادة تعيين"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Reset to Draft"
+msgstr "إعادة إلى مسودة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__request_type__resignation
+msgid "Resignation"
+msgstr "استقالة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__responsible_user_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__responsible_user_id
+msgid "Responsible"
+msgstr "المسؤول"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_user_id
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__message_has_sms_error
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__is_saudi
+msgid "Saudi Employee"
+msgstr "موظف سعودي"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template__applies_to__saudi
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_template_line__applies_to__saudi
+msgid "Saudi Employees"
+msgstr "الموظفون السعوديون"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "Saudi employee must be removed from GOSI before EOS settlement."
+msgstr "يجب إزالة الموظف السعودي من التأمينات الاجتماعية (GOSI) قبل تسوية مكافأة نهاية الخدمة."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__employee_code_id
+msgid "Search and select the employee by internal employee code."
+msgstr "ابحث عن الموظف وحدده باستخدام رمز الموظف الداخلي."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__sequence
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__sequence
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__sequence
+msgid "Sequence"
+msgstr "التسلسل"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__settlement_effect
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__settlement_effect
+msgid "Settlement Effect"
+msgstr "تأثير التسوية"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Start Clearance"
+msgstr "بدء إجراءات الإخلاء"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__state
+msgid "State"
+msgstr "الحالة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__state
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_search
+msgid "Status"
+msgstr "الحالة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_state
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_state
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تم تجاوز تاريخ الاستحقاق\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: أنشطة مستقبلية."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Submission"
+msgstr "التقديم"
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Submit"
+msgstr "إرسال"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__submitted_by_id
+msgid "Submitted By"
+msgstr "تم الإرسال بواسطة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__submitted_date
+msgid "Submitted On"
+msgstr "تاريخ الإرسال"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template_line__template_id
+msgid "Template"
+msgstr "القالب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__template_line_id
+msgid "Template Item"
+msgstr "عنصر القالب"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_request__request_type__termination
+msgid "Termination"
+msgstr "إنهاء خدمة"
+
+#. module: pr_hr_offboarding
+#: model:ir.model,name:pr_hr_offboarding.model_pr_hr_offboarding_request
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Termination / Resignation Request"
+msgstr "طلب إنهاء خدمة / استقالة"
+
+#. module: pr_hr_offboarding
+#: model:ir.actions.act_window,name:pr_hr_offboarding.action_offboarding_requests
+#: model:ir.ui.menu,name:pr_hr_offboarding.menu_offboarding_requests
+msgid "Termination / Resignation Requests"
+msgstr "طلبات إنهاء الخدمة / الاستقالة"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "The EOS settlement must be done before final release."
+msgstr "يجب إتمام تسوية مكافأة نهاية الخدمة قبل إصدار المخالصة النهائية."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"The department manager must be linked to a user before the request can be "
+"submitted."
+msgstr "يجب ربط مدير القسم بمستخدم في النظام قبل إرسال الطلب."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "The employee's department must have a manager."
+msgstr "يجب أن يكون للقسم التابع له الموظف مدير."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid "The selected employee must have a department."
+msgstr "يجب أن يكون الموظف المحدد تابعًا لقسم."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.actions.act_window,help:pr_hr_offboarding.action_hr_manager_offboarding_approvals
+msgid "There are no offboarding requests waiting for HR Manager approval."
+msgstr "لا توجد طلبات إنهاء خدمة بانتظار موافقة مدير الموارد البشرية."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.actions.act_window,help:pr_hr_offboarding.action_md_offboarding_approvals
+msgid "There are no offboarding requests waiting for MD approval."
+msgstr "لا توجد طلبات إنهاء خدمة بانتظار موافقة المدير العام."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.actions.act_window,help:pr_hr_offboarding.action_my_offboarding_approvals
+msgid ""
+"There are no offboarding requests waiting for department manager approval."
+msgstr "لا توجد طلبات إنهاء خدمة بانتظار موافقة مدير القسم."
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"This request is marked to continue employment. Use Continue Employment "
+"instead."
+msgstr "تم تحديد هذا الطلب على أنه استمرار في العمل. استخدم إجراء «استمرار التوظيف» بدلاً من ذلك."
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__activity_exception_decoration
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع نشاط الاستثناء المسجل."
+
+#. module: pr_hr_offboarding
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Waive"
+msgstr "إعفاء"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__waiver_reason
+#: model_terms:ir.ui.view,arch_db:pr_hr_offboarding.view_offboarding_request_form
+msgid "Waive Off Reason"
+msgstr "سبب الإعفاء"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields.selection,name:pr_hr_offboarding.selection__pr_hr_offboarding_clearance_line__state__waived
+msgid "Waived"
+msgstr "تم الإعفاء"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__website_message_ids
+#: model:ir.model.fields,field_description:pr_hr_offboarding.field_pr_hr_offboarding_request__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: pr_hr_offboarding
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_line__website_message_ids
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_clearance_template__website_message_ids
+#: model:ir.model.fields,help:pr_hr_offboarding.field_pr_hr_offboarding_request__website_message_ids
+msgid "Website communication history"
+msgstr "سجل المراسلات عبر الموقع الإلكتروني"
+
+#. module: pr_hr_offboarding
+#. odoo-python
+#: code:addons/pr_hr_offboarding/models/offboarding_request.py:0
+#, python-format
+msgid ""
+"Workflow and audit fields can only be changed using the request actions."
+msgstr "لا يمكن تعديل حقول سير العمل وسجل التدقيق إلا من خلال إجراءات الطلب."
+
