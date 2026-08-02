@@ -54,3 +54,20 @@ class TestBudgetaryPurchaseRequisition(TransactionCase):
         product = requisition.line_ids._get_or_create_budgetary_product()
 
         self.assertEqual(product, existing)
+
+    def test_budgetary_rfq_cannot_offer_create_po(self):
+        requisition = self._create_budgetary_pr()
+        rfq = self.env["purchase.order"].new({
+            "name": "PEC-RFQ-TEST",
+            "state": "draft",
+            "requisition_id": requisition.id,
+        })
+
+        rfq._compute_can_create_po_from_rfq()
+
+        self.assertFalse(rfq.can_create_po_from_rfq)
+
+        requisition.pr_type = "pr"
+        rfq._compute_can_create_po_from_rfq()
+
+        self.assertTrue(rfq.can_create_po_from_rfq)

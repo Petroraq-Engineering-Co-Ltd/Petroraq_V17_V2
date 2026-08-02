@@ -61,12 +61,13 @@
             </xpath>
             <xpath expr="//form/header" position="inside">
                 <field name="is_rfq_record" invisible="1"/>
+                <field name="can_create_po_from_rfq" invisible="1"/>
                 <button name="action_create_po_from_rfq"
                         type="object"
                         string="Create PO"
                         class="btn-primary"
                         groups="pr_custom_purchase.procurement_admin"
-                        invisible="not is_rfq_record and state not in ('sent')"/>
+                        invisible="not can_create_po_from_rfq"/>
                 <button name="action_open_rfq_comparison"
                         type="object"
                         string="Compare RFQs"

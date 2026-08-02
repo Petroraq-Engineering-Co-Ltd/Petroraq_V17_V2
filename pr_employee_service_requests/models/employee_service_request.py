@@ -369,6 +369,17 @@ class PrEmployeeServiceRequest(models.Model):
         tracking=True,
         help="Select Self, Wife,Child",
     )
+    dependent_fee_duration = fields.Selection(
+        [
+            ("3", "3 Months"),
+            ("6", "6 Months"),
+            ("9", "9 Months"),
+            ("12", "12 Months"),
+        ],
+        string="Duration",
+        tracking=True,
+        help="Optional coverage duration for a dependent fee request.",
+    )
     work_permit_id = fields.Many2one("hr.work.permit", string="Work Permit", readonly=True, copy=False, tracking=True)
 
     reason = fields.Text(string="Reason / Notes", required=True, tracking=True)

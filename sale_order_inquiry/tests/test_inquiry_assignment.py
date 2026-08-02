@@ -82,6 +82,20 @@ class TestInquiryAssignment(TransactionCase):
         inquiry.with_user(self.salesperson).action_accept()
         self.assertEqual(inquiry.state, "accept")
 
+    def test_creator_is_default_assigned_salesperson(self):
+        inquiry = self.env["order.inq"].with_user(self.salesperson).create({
+            "description": "Creator defaults as salesperson",
+            "user_id": self.salesperson.id,
+            "partner_id": self.customer.id,
+            "contact_partner_id": self.contact.id,
+            "contact_person_email": self.contact.email,
+            "contact_person_phone": self.contact.phone,
+            "deadline_submission": fields.Date.today() + timedelta(days=10),
+            "required_attachment_ids": [Command.set(self.attachment.ids)],
+        })
+
+        self.assertEqual(inquiry.assigned_salesperson_id, self.salesperson)
+
     def test_unassigned_salesperson_cannot_accept(self):
         inquiry = self._create_submitted_inquiry()
         inquiry.with_user(self.sales_manager).write({

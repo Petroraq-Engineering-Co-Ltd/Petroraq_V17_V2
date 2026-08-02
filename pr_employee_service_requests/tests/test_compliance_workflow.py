@@ -294,6 +294,20 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertEqual(request.state, "hr_supervisor_approval")
         self.assertFalse(request.payment_request_id)
 
+    def test_dependent_fee_duration_is_optional_selection(self):
+        relation = self.env["hr.employee.dependent.relation"].create({
+            "name": "Dependent Fee Duration Child",
+        })
+        request = self._create_request(
+            "dependent_fee",
+            dependent_relation_id=relation.id,
+            dependent_fee_duration="6",
+            requested_amount=500.0,
+            payment_responsibility="company",
+        )
+
+        self.assertEqual(request.dependent_fee_duration, "6")
+
     def test_self_paid_dependent_fee_is_supported_for_record_keeping(self):
         relation = self.env.ref("pr_hr.employee_dependent_relationship_self")
         request = self._create_request(

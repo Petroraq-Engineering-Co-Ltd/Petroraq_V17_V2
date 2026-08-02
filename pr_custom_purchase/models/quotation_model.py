@@ -42,6 +42,11 @@ class PurchaseOrder(models.Model):
         compute="_compute_is_rfq_record",
         store=False,
     )
+    can_create_po_from_rfq = fields.Boolean(
+        string="Can Create PO from RFQ",
+        compute="_compute_can_create_po_from_rfq",
+        store=False,
+    )
 
     quotation_count = fields.Integer(
         string="Related RFQs",
@@ -148,6 +153,18 @@ class PurchaseOrder(models.Model):
         for order in self:
             order_name = (order.name or "").upper()
             order.is_rfq_record = "RFQ" in order_name
+
+    @api.depends("name", "state", "requisition_id", "requisition_id.pr_type")
+    def _compute_can_create_po_from_rfq(self):
+        for order in self:
+            order.can_create_po_from_rfq = bool(
+                "RFQ" in (order.name or "").upper()
+                and order.state in ("draft", "sent", "pending")
+                and (
+                    not order.requisition_id
+                    or order.requisition_id.pr_type != "budgetary"
+                )
+            )
 
     def _compute_quotation_count(self):
         for order in self:
@@ -341,6 +358,12 @@ class PurchaseOrder(models.Model):
     def action_create_po_from_rfq(self):
         """Create a new PO draft/pending record from the selected RFQ."""
         self.ensure_one()
+
+        if self.requisition_id.pr_type == "budgetary":
+            raise UserError(_(
+                "Budgetary PR RFQs are for price and availability collection only; "
+                "a Purchase Order cannot be created from them."
+            ))
 
         if self.state not in ("draft", "sent", "pending"):
             raise UserError(_("Only RFQs in Draft/Sent/Pending can be selected for Purchase Order."))

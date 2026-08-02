@@ -25,6 +25,7 @@ class OrderInquiry(models.Model):
         'res.users',
         string='Assigned Salesperson',
         tracking=True,
+        default=lambda self: self._default_assigned_salesperson(),
         domain=lambda self: self._get_salesperson_domain(),
     )
     assigned_by_id = fields.Many2one(
@@ -253,11 +254,21 @@ class OrderInquiry(models.Model):
             'state': 'pending',
             'name': 'New',
             'inquiry_type': 'construction',
-            'assigned_salesperson_id': False,
+            'assigned_salesperson_id': self._default_assigned_salesperson().id or False,
             'assigned_by_id': False,
             'assigned_at': False,
         })
         return super().copy(default)
+
+    def _default_assigned_salesperson(self):
+        """Default eligible sales users to themselves without blocking other creators."""
+        user = self.env.user
+        if (
+            user.has_group('sales_team.group_sale_salesman')
+            or user.has_group('sales_team.group_sale_manager')
+        ):
+            return user
+        return self.env['res.users']
 
     def _get_salesperson_domain(self):
         return [
