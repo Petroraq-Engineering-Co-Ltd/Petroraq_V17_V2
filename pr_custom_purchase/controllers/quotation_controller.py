@@ -1,11 +1,17 @@
 from odoo import http
 from odoo.http import request
+from odoo.exceptions import AccessError
 import logging
 
 _logger = logging.getLogger(__name__)
 
 
 class PortalRFQ(http.Controller):
+
+    def _ensure_portal_creation_allowed(self):
+        user = request.env.user
+        if user.has_group("base.group_portal") and not user.has_group("base.group_user"):
+            raise AccessError("Portal users are not allowed to create vendor quotations.")
 
     def _resolve_rfq(self, rfq_id):
         """Resolve a portal RFQ without creating or migrating records."""
@@ -55,6 +61,7 @@ class PortalRFQ(http.Controller):
         "/my/rfq/<int:rfq_id>/quotation", type="http", auth="user", website=True
     )
     def portal_create_rfq_quotation(self, rfq_id, **kw):
+        self._ensure_portal_creation_allowed()
         rfq = self._resolve_rfq(rfq_id)
         if not rfq or not self._can_access_rfq(rfq):
             return request.redirect("/my/rfq")
@@ -109,6 +116,7 @@ class PortalRFQ(http.Controller):
         csrf=True,
     )
     def submit_rfq_quotation(self, rfq_id, **post):
+        self._ensure_portal_creation_allowed()
         rfq = self._resolve_rfq(rfq_id)
         if not rfq or not self._can_access_rfq(rfq):
             return request.redirect("/my/rfq")

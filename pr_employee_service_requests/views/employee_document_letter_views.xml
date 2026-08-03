@@ -15,7 +15,7 @@
                 <field name="requested_by_id"/>
                 <field name="sent_email_to" optional="hide"/>
                 <field name="state" widget="badge"
-                       decoration-warning="state in ('draft', 'hr_manager_approval')"
+                       decoration-warning="state in ('draft', 'department_manager_approval', 'hr_manager_approval')"
                        decoration-success="state in ('approved', 'sent')"
                        decoration-danger="state == 'rejected'"
                        decoration-muted="state == 'cancelled'"/>
@@ -39,6 +39,8 @@
                 <separator/>
                 <filter name="experience" string="Experience" domain="[('letter_type', '=', 'experience')]"/>
                 <filter name="warning" string="Warning" domain="[('letter_type', '=', 'warning')]"/>
+                <filter name="performance_improvement" string="Performance Improvement"
+                        domain="[('letter_type', '=', 'performance_improvement')]"/>
                 <filter name="appraisal" string="Appraisal" domain="[('letter_type', '=', 'appraisal')]"/>
                 <filter name="salary_certificate" string="Salary Certificate"
                         domain="[('letter_type', '=', 'salary_certificate')]"/>
@@ -47,6 +49,8 @@
                 <separator/>
                 <filter name="pending_hr_manager" string="Pending HR Manager"
                         domain="[('state', '=', 'hr_manager_approval')]"/>
+                <filter name="pending_department_manager" string="Pending Department Manager"
+                        domain="[('state', '=', 'department_manager_approval')]"/>
                 <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
                 <filter name="sent" string="Sent" domain="[('state', '=', 'sent')]"/>
                 <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
@@ -67,6 +71,7 @@
             <form string="Employee Letter">
                 <header>
                     <field name="can_submit" invisible="1"/>
+                    <field name="can_department_manager_approve" invisible="1"/>
                     <field name="can_hr_manager_approve" invisible="1"/>
                     <field name="can_send" invisible="1"/>
                     <field name="can_reject" invisible="1"/>
@@ -74,6 +79,8 @@
                     <field name="can_cancel" invisible="1"/>
                     <button name="action_submit" type="object" string="Submit"
                             class="btn-primary" invisible="not can_submit"/>
+                    <button name="action_department_manager_approve" type="object" string="Department Manager Approve"
+                            class="btn-primary" invisible="not can_department_manager_approve"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary" invisible="not can_hr_manager_approve"/>
                     <button name="action_open_send_wizard" type="object" string="Send Letter"
@@ -84,7 +91,7 @@
                             class="btn-secondary" invisible="not can_reset_to_draft"/>
                     <button name="action_cancel" type="object" string="Cancel"
                             class="btn-secondary" invisible="not can_cancel"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,hr_manager_approval,approved,sent"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,department_manager_approval,hr_manager_approval,approved,sent"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
@@ -110,6 +117,8 @@
                             <field name="employee_id" readonly="state != 'draft'"
                                    options="{'no_create': True, 'no_open': True}"/>
                             <field name="employee_email" readonly="1"/>
+                            <field name="employee_private_email" readonly="1"
+                                   invisible="letter_type != 'performance_improvement'"/>
                             <field name="department_id" readonly="1"/>
                             <field name="job_id" readonly="1"/>
                             <field name="appraisal_increment_amount"
@@ -125,6 +134,12 @@
                             <field name="request_date" readonly="state != 'draft'"/>
                             <field name="issue_date" readonly="state not in ('draft', 'hr_manager_approval')"/>
                             <field name="requested_by_id" readonly="1"/>
+                            <field name="department_manager_user_id" readonly="1"
+                                   invisible="letter_type != 'performance_improvement'"/>
+                            <field name="department_manager_approved_by_id" readonly="1"
+                                   invisible="not department_manager_approved_by_id"/>
+                            <field name="department_manager_approved_date" readonly="1"
+                                   invisible="not department_manager_approved_date"/>
                             <field name="hr_manager_approved_by_id" readonly="1"
                                    invisible="not hr_manager_approved_by_id"/>
                             <field name="hr_manager_approved_date" readonly="1"
@@ -154,6 +169,7 @@
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>
@@ -203,7 +219,7 @@
         <field name="context">{'search_default_my_letters': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">No employee letters yet.</p>
-            <p>Create experience, warning, appraisal, and other employee letters from here.</p>
+            <p>Create experience, warning, performance improvement, appraisal, and other employee letters from here.</p>
         </field>
     </record>
 
@@ -216,6 +232,18 @@
         <field name="context">{'create': False, 'search_default_pending_hr_manager': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">No employee letters are pending HR Manager approval.</p>
+        </field>
+    </record>
+
+    <record id="action_pr_employee_document_letter_department_manager_approvals" model="ir.actions.act_window">
+        <field name="name">Performance Improvement Approvals</field>
+        <field name="res_model">pr.employee.document.letter</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_pr_employee_document_letter_search"/>
+        <field name="domain">[('letter_type', '=', 'performance_improvement'), ('state', '=', 'department_manager_approval'), ('department_manager_user_id', '=', uid)]</field>
+        <field name="context">{'create': False, 'search_default_pending_department_manager': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">No Performance Improvement Notices are waiting for your approval.</p>
         </field>
     </record>
 
@@ -258,4 +286,11 @@
               action="action_pr_employee_document_letter_hr_approvals"
               sequence="28"
               groups="hr.group_hr_manager"/>
+
+    <menuitem id="menu_pr_employee_document_letter_department_manager_approvals"
+              name="Performance Improvement Approvals"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_pr_employee_document_letter_department_manager_approvals"
+              sequence="27"
+              groups="base.group_user"/>
 </odoo>

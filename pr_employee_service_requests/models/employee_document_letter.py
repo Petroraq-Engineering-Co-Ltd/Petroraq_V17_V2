@@ -8,6 +8,7 @@ from odoo.osv import expression
 LETTER_TEMPLATE_XML_IDS = {
     "experience": "pr_employee_service_requests.mail_template_employee_letter_experience",
     "warning": "pr_employee_service_requests.mail_template_employee_letter_warning",
+    "performance_improvement": "pr_employee_service_requests.mail_template_employee_letter_performance_improvement",
     "appraisal": "pr_employee_service_requests.mail_template_employee_letter_appraisal",
     "salary_certificate": "pr_employee_service_requests.mail_template_employee_letter_salary_certificate",
     "employment_certificate": "pr_employee_service_requests.mail_template_employee_letter_employment_certificate",
@@ -81,6 +82,7 @@ class PrEmployeeDocumentLetter(models.Model):
         [
             ("experience", "Experience Letter"),
             ("warning", "Warning Letter"),
+            ("performance_improvement", "Performance Improvement Notice"),
             ("appraisal", "Appraisal Letter"),
             ("salary_certificate", "Salary Certificate"),
             # ("employment_certificate", "Employment Certificate"),
@@ -173,6 +175,7 @@ class PrEmployeeDocumentLetter(models.Model):
     state = fields.Selection(
         [
             ("draft", "Draft"),
+            ("department_manager_approval", "Department Manager Approval"),
             ("hr_manager_approval", "HR Manager Approval"),
             ("approved", "Approved"),
             ("sent", "Sent"),
@@ -195,11 +198,25 @@ class PrEmployeeDocumentLetter(models.Model):
         readonly=True,
         copy=False,
     )
+    department_manager_user_id = fields.Many2one(
+        "res.users",
+        string="Department Manager",
+        related="employee_id.parent_id.user_id",
+        store=True,
+        readonly=True,
+    )
+    department_manager_approved_by_id = fields.Many2one(
+        "res.users", string="Department Manager Approved By", readonly=True, copy=False
+    )
+    department_manager_approved_date = fields.Datetime(
+        string="Department Manager Approved On", readonly=True, copy=False
+    )
     sent_by_id = fields.Many2one("res.users", string="Sent By", readonly=True, copy=False)
     sent_date = fields.Datetime(string="Sent On", readonly=True, copy=False)
     sent_email_to = fields.Char(string="Sent To", readonly=True, copy=False)
 
     can_submit = fields.Boolean(compute="_compute_action_flags")
+    can_department_manager_approve = fields.Boolean(compute="_compute_action_flags")
     can_hr_manager_approve = fields.Boolean(compute="_compute_action_flags")
     can_send = fields.Boolean(compute="_compute_action_flags")
     can_reject = fields.Boolean(compute="_compute_action_flags")
@@ -240,21 +257,41 @@ class PrEmployeeDocumentLetter(models.Model):
         for rec in self:
             rec.attachment_count = len(rec._get_letter_attachments())
 
-    @api.depends("state", "requested_by_id", "employee_id.user_id")
+    @api.depends("state", "requested_by_id", "employee_id.user_id", "department_manager_user_id", "letter_type")
     @api.depends_context("uid")
     def _compute_action_flags(self):
         user = self.env.user
         is_hr_manager = user.has_group("hr.group_hr_manager")
+        is_hr_user = user.has_group("hr.group_hr_user") or is_hr_manager
         for rec in self:
             is_owner = rec.requested_by_id == user or rec.employee_id.user_id == user
-            rec.can_submit = rec.state == "draft" and (is_owner or is_hr_manager)
+            rec.can_submit = rec.state == "draft" and (
+                (rec.letter_type == "performance_improvement" and is_hr_user)
+                or (rec.letter_type != "performance_improvement" and (is_owner or is_hr_manager))
+            )
+            rec.can_department_manager_approve = (
+                rec.letter_type == "performance_improvement"
+                and rec.state == "department_manager_approval"
+                and rec.department_manager_user_id == user
+            )
             rec.can_hr_manager_approve = rec.state == "hr_manager_approval" and is_hr_manager
-            rec.can_send = rec.state in ("approved", "sent") and is_hr_manager
-            rec.can_reject = rec.state == "hr_manager_approval" and is_hr_manager
-            rec.can_reset_to_draft = rec.state in ("hr_manager_approval", "rejected", "cancelled") and (
+            rec.can_send = (
+                rec.letter_type != "performance_improvement"
+                and rec.state in ("approved", "sent")
+                and is_hr_manager
+            )
+            rec.can_reject = (
+                (rec.state == "hr_manager_approval" and is_hr_manager)
+                or (
+                    rec.letter_type == "performance_improvement"
+                    and rec.state == "department_manager_approval"
+                    and rec.department_manager_user_id == user
+                )
+            )
+            rec.can_reset_to_draft = rec.state in ("department_manager_approval", "hr_manager_approval", "rejected", "cancelled") and (
                 is_owner or is_hr_manager
             )
-            rec.can_cancel = rec.state in ("draft", "hr_manager_approval") and (is_owner or is_hr_manager)
+            rec.can_cancel = rec.state in ("draft", "department_manager_approval", "hr_manager_approval") and (is_owner or is_hr_manager)
 
     @api.model
     def _get_letter_type_label(self, letter_type):
@@ -285,6 +322,19 @@ class PrEmployeeDocumentLetter(models.Model):
                 "<p>Please be informed that any repetition of such behavior or any similar misconduct "
                 "in the future may result in further disciplinary action.</p>"
                 "<p>We expect immediate improvement and trust that this matter will not be repeated.</p>"
+            ) % {"employee": employee_name, "company": company_name}
+        elif letter_type == "performance_improvement":
+            body_html = _(
+                "<p>Dear <strong>%(employee)s</strong>,</p>"
+                "<p>This Performance Improvement Notice is issued to formally identify areas where "
+                "your performance must improve to meet the expectations of your role at %(company)s.</p>"
+                "<p>The required improvements, measurable expectations, support to be provided, and "
+                "review timeline must be documented below. Your Department Manager will monitor progress "
+                "and provide appropriate guidance during the review period.</p>"
+                "<p>Failure to demonstrate sustained improvement within the communicated timeline may "
+                "result in further action in accordance with company policy.</p>"
+                "<p>Please acknowledge receipt of this notice and discuss any required clarification with "
+                "your Department Manager or Human Resources.</p>"
             ) % {"employee": employee_name, "company": company_name}
         elif letter_type == "appraisal":
             body_html = _(
@@ -586,6 +636,14 @@ class PrEmployeeDocumentLetter(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if (
+                vals.get("letter_type") == "performance_improvement"
+                and not (
+                    self.env.user.has_group("hr.group_hr_user")
+                    or self.env.user.has_group("hr.group_hr_manager")
+                )
+            ):
+                raise UserError(_("Only Human Resources can create a Performance Improvement Notice."))
             if "employee_code_id" in vals:
                 lookup = self.env["pr.employee.code.lookup"].browse(vals.pop("employee_code_id"))
                 vals["employee_id"] = lookup.employee_id.id if lookup else False
@@ -605,6 +663,14 @@ class PrEmployeeDocumentLetter(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        if (
+            vals.get("letter_type") == "performance_improvement"
+            and not (
+                self.env.user.has_group("hr.group_hr_user")
+                or self.env.user.has_group("hr.group_hr_manager")
+            )
+        ):
+            raise UserError(_("Only Human Resources can create a Performance Improvement Notice."))
         if "employee_code_id" in vals:
             vals = dict(vals)
             lookup = self.env["pr.employee.code.lookup"].browse(vals.pop("employee_code_id"))
@@ -614,6 +680,62 @@ class PrEmployeeDocumentLetter(models.Model):
     def _check_hr_manager(self):
         if not self.env.user.has_group("hr.group_hr_manager"):
             raise UserError(_("Only HR Managers can perform this action."))
+
+    def _schedule_letter_approval_activity(self, users, summary):
+        self.ensure_one()
+        for user in users.filtered(lambda item: item.active and item != self.env.user):
+            existing = self.activity_ids.filtered(
+                lambda activity: activity.user_id == user
+                and activity.activity_type_id == self.env.ref("mail.mail_activity_data_todo")
+                and activity.summary == summary
+            )
+            if not existing:
+                self.activity_schedule(
+                    "mail.mail_activity_data_todo",
+                    user_id=user.id,
+                    summary=summary,
+                    note=_("Review employee letter %(letter)s for %(employee)s.") % {
+                        "letter": self.name,
+                        "employee": self.employee_id.name,
+                    },
+                )
+
+    def _complete_letter_approval_activities(self, current_user_only=True):
+        self.ensure_one()
+        summaries = {
+            _("Department Manager approval: Performance Improvement Notice"),
+            _("HR Manager approval: Performance Improvement Notice"),
+        }
+        self.activity_ids.filtered(
+            lambda activity: (not current_user_only or activity.user_id == self.env.user)
+            and activity.activity_type_id == self.env.ref("mail.mail_activity_data_todo")
+            and activity.summary in summaries
+        ).action_done()
+
+    def _send_performance_improvement_notice(self):
+        self.ensure_one()
+        private_email = self._get_employee_private_email()
+        if not private_email:
+            raise UserError(_(
+                "A personal email address is required for %(employee)s before approving this notice."
+            ) % {"employee": self.employee_id.name})
+        template = self._get_default_mail_template()
+        wizard_model = self.env["pr.employee.letter.send.wizard"].with_context(
+            default_letter_id=self.id,
+            active_model=self._name,
+            active_id=self.id,
+        )
+        rendered = wizard_model._render_template_values(template, self)
+        wizard = wizard_model.create({
+            "letter_id": self.id,
+            "template_id": template.id if template else False,
+            "recipient_mode": "private",
+            "email_to": private_email,
+            "subject": rendered.get("subject") or self.subject,
+            "body_html": rendered.get("body_html") or self.body_html,
+            "include_letter_attachments": True,
+        })
+        return wizard.action_send()
 
     def action_view_attachments(self):
         self.ensure_one()
@@ -636,10 +758,61 @@ class PrEmployeeDocumentLetter(models.Model):
                 continue
             if not rec.subject or not rec.body_html:
                 raise UserError(_("Please enter the subject and letter content before submitting."))
+            if rec.letter_type == "performance_improvement":
+                if not (
+                    self.env.user.has_group("hr.group_hr_user")
+                    or self.env.user.has_group("hr.group_hr_manager")
+                ):
+                    raise UserError(_("Only Human Resources can submit a Performance Improvement Notice."))
+                if not rec.department_manager_user_id:
+                    raise UserError(_(
+                        "The selected employee must have a manager linked to an internal user before submission."
+                    ))
             attachment = rec._generate_letter_pdf_attachment()
-            rec.write({"state": "hr_manager_approval"})
+            next_state = (
+                "department_manager_approval"
+                if rec.letter_type == "performance_improvement"
+                else "hr_manager_approval"
+            )
+            rec.write({"state": next_state})
+            if rec.letter_type == "performance_improvement":
+                rec._schedule_letter_approval_activity(
+                    rec.department_manager_user_id,
+                    _("Department Manager approval: Performance Improvement Notice"),
+                )
             rec.message_post(
-                body=_("Employee letter submitted for HR Manager approval. Generated PDF is attached for review."),
+                body=(
+                    _("Performance Improvement Notice submitted to the Department Manager. Generated PDF is attached for review.")
+                    if rec.letter_type == "performance_improvement"
+                    else _("Employee letter submitted for HR Manager approval. Generated PDF is attached for review.")
+                ),
+                attachment_ids=attachment.ids,
+            )
+
+    def action_department_manager_approve(self):
+        for rec in self:
+            if (
+                rec.letter_type != "performance_improvement"
+                or rec.state != "department_manager_approval"
+                or rec.department_manager_user_id != self.env.user
+            ):
+                raise UserError(_("Only the employee's Department Manager can approve this notice at this stage."))
+            rec._complete_letter_approval_activities()
+            attachment = rec._generate_letter_pdf_attachment()
+            rec.write({
+                "state": "hr_manager_approval",
+                "department_manager_approved_by_id": self.env.user.id,
+                "department_manager_approved_date": fields.Datetime.now(),
+            })
+            hr_managers = self.env.ref("hr.group_hr_manager").users.filtered(
+                lambda user: rec.company_id in user.company_ids
+            )
+            rec._schedule_letter_approval_activity(
+                hr_managers,
+                _("HR Manager approval: Performance Improvement Notice"),
+            )
+            rec.message_post(
+                body=_("Performance Improvement Notice approved by Department Manager and sent to HR Manager."),
                 attachment_ids=attachment.ids,
             )
 
@@ -648,6 +821,13 @@ class PrEmployeeDocumentLetter(models.Model):
         for rec in self:
             if rec.state != "hr_manager_approval":
                 continue
+            if rec.letter_type == "performance_improvement" and not rec.department_manager_approved_by_id:
+                raise UserError(_("Department Manager approval is required before HR Manager approval."))
+            if rec.letter_type == "performance_improvement" and not rec._get_employee_private_email():
+                raise UserError(_(
+                    "A personal email address is required for %(employee)s before approving this notice."
+                ) % {"employee": rec.employee_id.name})
+            rec._complete_letter_approval_activities(current_user_only=False)
             attachment = rec._generate_letter_pdf_attachment()
             rec.write({
                 "state": "approved",
@@ -658,29 +838,46 @@ class PrEmployeeDocumentLetter(models.Model):
                 body=_("Employee letter approved by HR Manager. Final approved PDF is attached."),
                 attachment_ids=attachment.ids,
             )
+            if rec.letter_type == "performance_improvement":
+                rec._send_performance_improvement_notice()
 
     def action_reject(self):
-        self._check_hr_manager()
         for rec in self:
-            if rec.state == "hr_manager_approval":
+            is_hr_manager_stage = (
+                rec.state == "hr_manager_approval"
+                and self.env.user.has_group("hr.group_hr_manager")
+            )
+            is_department_manager_stage = (
+                rec.letter_type == "performance_improvement"
+                and rec.state == "department_manager_approval"
+                and rec.department_manager_user_id == self.env.user
+            )
+            if not (is_hr_manager_stage or is_department_manager_stage):
+                raise UserError(_("You are not authorized to reject this employee letter."))
+            if is_hr_manager_stage or is_department_manager_stage:
+                rec._complete_letter_approval_activities(current_user_only=False)
                 rec.state = "rejected"
                 rec.message_post(body=_("Employee letter rejected."))
 
     def action_reset_to_draft(self):
         for rec in self:
-            if rec.state not in ("hr_manager_approval", "rejected", "cancelled"):
+            if rec.state not in ("department_manager_approval", "hr_manager_approval", "rejected", "cancelled"):
                 continue
             if not (self.env.user.has_group("hr.group_hr_manager") or rec.requested_by_id == self.env.user):
                 raise UserError(_("Only the requester or an HR Manager can reset this letter to draft."))
+            rec._complete_letter_approval_activities(current_user_only=False)
             rec.write({
                 "state": "draft",
                 "hr_manager_approved_by_id": False,
                 "hr_manager_approved_date": False,
+                "department_manager_approved_by_id": False,
+                "department_manager_approved_date": False,
             })
 
     def action_cancel(self):
         for rec in self:
-            if rec.state in ("draft", "hr_manager_approval"):
+            if rec.state in ("draft", "department_manager_approval", "hr_manager_approval"):
+                rec._complete_letter_approval_activities(current_user_only=False)
                 rec.state = "cancelled"
 
     def action_open_send_wizard(self):

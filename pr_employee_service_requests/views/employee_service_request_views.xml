@@ -13,6 +13,7 @@
                 <field name="exit_reentry_historical_company_paid" optional="hide"/>
                 <field name="employee_id"/>
                 <field name="dependent_relation_id" optional="hide"/>
+                <field name="dependent_fee_duration" string="Duration" optional="hide"/>
                 <field name="department_id"/>
                 <field name="requested_amount" optional="show"/>
                 <field name="approved_amount" optional="show"/>
@@ -209,6 +210,8 @@
                                    readonly="state != 'draft'"
                                    required="request_type == 'dependent_fee'"
                                    options="{'no_create': True, 'no_create_edit': True}"/>
+                            <field name="dependent_fee_duration"
+                                   readonly="state != 'draft'"/>
                             <field name="requested_amount"
                                    readonly="state != 'draft'"
                                    required="request_type == 'dependent_fee'"/>

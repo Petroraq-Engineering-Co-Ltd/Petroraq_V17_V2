@@ -26,10 +26,10 @@
             <t t-set="title">My Purchase Requisitions</t>
             <div class="container my-4">
                 <h2 class="mb-4">My Purchase Requisitions</h2>
-                <a href="/my/purchase-request/create?type=pr" class="btn btn-primary mb-3" style="background-color: #122AA0 !important; border-color: #122AA0 !important;">
+                <a t-if="request.env.user.has_group('base.group_user')" href="/my/purchase-request/create?type=pr" class="btn btn-primary mb-3" style="background-color: #122AA0 !important; border-color: #122AA0 !important;">
                     <i class="fa fa-plus me-1"></i> New PR
                 </a>
-                <a href="/my/purchase-request/create?type=cash" class="btn btn-secondary mb-3" style="background-color: #122AA0 !important; border-color: #122AA0 !important;">
+                <a t-if="request.env.user.has_group('base.group_user')" href="/my/purchase-request/create?type=cash" class="btn btn-secondary mb-3" style="background-color: #122AA0 !important; border-color: #122AA0 !important;">
                     <i class="fa fa-plus me-1"></i> Cash PR
                 </a>
                 <div class="row mb-4">

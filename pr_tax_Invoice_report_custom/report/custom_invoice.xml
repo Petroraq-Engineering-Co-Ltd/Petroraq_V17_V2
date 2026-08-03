@@ -328,13 +328,10 @@
                                             <tr>
                                                 <td style="text-align:left; vertical-align:top;">Address:</td>
                                                 <td style="text-align:left; vertical-align:top;">
-                                                    <span t-if="o.move_type == 'in_invoice'">Al-Majd Square, King Faisal
-                                                        Street (West),
-                                                        Al
-                                                        Jubail
-                                                    </span>
-                                                    <div t-if="o.move_type == 'in_invoice'">Kingdom of Saudi Arabia
-                                                    </div>
+                                                    <div t-if="o.move_type == 'in_invoice'">Building 8557, King Faisal Ibn Abdulaziz Branch</div>
+                                                    <div t-if="o.move_type == 'in_invoice'">Tebah Dist., Secondary No. 3397, Al Jubail 35518</div>
+                                                    <div t-if="o.move_type == 'in_invoice'">Short Address: ENAB8557</div>
+                                                    <div t-if="o.move_type == 'in_invoice'">Kingdom of Saudi Arabia</div>
                                                     <t t-if="o.move_type == 'out_invoice'"
                                                        t-foreach="o.get_partner_address_lines(o.partner_id, 'en')"
                                                        t-as="address_line">
@@ -342,11 +339,10 @@
                                                     </t>
                                                 </td>
                                                 <td dir="rtl" style="text-align:right; vertical-align:top;">
-                                                    <span t-if="o.move_type == 'in_invoice'">ساحة المجد شارع الملك فيصل
-                                                        (غربي) الجبيل
-                                                    </span>
-                                                    <div t-if="o.move_type == 'in_invoice'">المملكة العربية السعودية
-                                                    </div>
+                                                    <div t-if="o.move_type == 'in_invoice'">مبنى 8557، الملك فيصل بن عبدالعزيز الفرعي</div>
+                                                    <div t-if="o.move_type == 'in_invoice'">حي طيبة، الرقم الفرعي 3397، الجبيل 35518</div>
+                                                    <div t-if="o.move_type == 'in_invoice'">العنوان المختصر: ENAB8557</div>
+                                                    <div t-if="o.move_type == 'in_invoice'">المملكة العربية السعودية</div>
                                                     <t t-if="o.move_type == 'out_invoice'"
                                                        t-foreach="o.get_partner_address_lines(o.partner_id, 'ar')"
                                                        t-as="address_line">
@@ -432,13 +428,10 @@
                                             <tr>
                                                 <td style="text-align:left">Address:</td>
                                                 <td style="text-align:left">
-                                                    <span t-if="o.move_type == 'out_invoice'">Al-Majd, King Faisal
-                                                        Street (West), Al
-                                                        Jubail
-                                                    </span>
-                                                    <br/>
-                                                    <span t-if="o.move_type == 'out_invoice'">Kingdom of Saudi Arabia
-                                                    </span>
+                                                    <div t-if="o.move_type == 'out_invoice'">Building 8557, King Faisal Ibn Abdulaziz Branch</div>
+                                                    <div t-if="o.move_type == 'out_invoice'">Tebah Dist., Secondary No. 3397, Al Jubail 35518</div>
+                                                    <div t-if="o.move_type == 'out_invoice'">Short Address: ENAB8557</div>
+                                                    <div t-if="o.move_type == 'out_invoice'">Kingdom of Saudi Arabia</div>
                                                     <!--                                            <span t-if="o.move_type == 'out_invoice'" t-esc="o.company_id.city"/><br/>-->
                                                     <!--                                            <span t-if="o.move_type == 'out_invoice'" t-esc="o.company_id.country_id.name"/>-->
 
@@ -451,12 +444,10 @@
                                                     <!--                                            <span t-if="o.move_type == 'in_invoice'" t-esc="o.partner_id.country_id.name"/>-->
                                                 </td>
                                                 <td style="text-align:right">
-                                                    <span t-if="o.move_type == 'out_invoice'">المجد شارع الملك فيصل
-                                                        (غربي) الجبيل
-                                                    </span>
-                                                    <br/>
-                                                    <span t-if="o.move_type == 'out_invoice'">المملكة العربية السعودية
-                                                    </span>
+                                                    <div t-if="o.move_type == 'out_invoice'">مبنى 8557، الملك فيصل بن عبدالعزيز الفرعي</div>
+                                                    <div t-if="o.move_type == 'out_invoice'">حي طيبة، الرقم الفرعي 3397، الجبيل 35518</div>
+                                                    <div t-if="o.move_type == 'out_invoice'">العنوان المختصر: ENAB8557</div>
+                                                    <div t-if="o.move_type == 'out_invoice'">المملكة العربية السعودية</div>
                                                     <!--                                            <span t-if="o.move_type == 'out_invoice'" t-esc="o.translate_to_arabic(o.company_id.city)"/><br/>-->
                                                     <!--                                            <span t-if="o.move_type == 'out_invoice'" t-esc="o.translate_to_arabic(o.company_id.country_id.name)"/>-->
 

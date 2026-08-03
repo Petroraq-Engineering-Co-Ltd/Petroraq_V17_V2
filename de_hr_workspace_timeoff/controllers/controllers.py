@@ -2,7 +2,7 @@
 
 from odoo import http, fields
 from odoo.http import request
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import AccessError, ValidationError, UserError
 from odoo.tools import format_date
 from datetime import datetime
 from werkzeug.exceptions import NotFound
@@ -12,9 +12,14 @@ from odoo.addons.de_hr_workspace.controllers.portal_employee import require_curr
 
 
 class LeaveRequestTemplate(http.Controller):
+    def _ensure_portal_creation_allowed(self):
+        user = request.env.user
+        if user.has_group('base.group_portal') and not user.has_group('base.group_user'):
+            raise AccessError("Portal users are not allowed to create leave requests.")
 
     @http.route('/leave_request', auth='user', type='http')
     def display_leave_request_form(self, **kw):
+        self._ensure_portal_creation_allowed()
 
         current_employee_id = require_current_employee()
         email = current_employee_id.work_email
@@ -28,6 +33,7 @@ class LeaveRequestTemplate(http.Controller):
 
     @http.route('/leave_request/create', type='http', auth="user")
     def leave_created(self, **kw):
+        self._ensure_portal_creation_allowed()
         current_employee_id = require_current_employee()
         employee_id = current_employee_id.id
         leave_type_id = int(kw.get('leave_type_id'))

@@ -274,11 +274,11 @@
         <field name="name">purchase.requisition.form.single.line.total</field>
         <field name="model">purchase.requisition</field>
         <field name="inherit_id" ref="view_purchase_requisition_form"/>
-        <field name="priority">999</field>
+        <field name="priority">9999</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='line_ids']/tree/field[@name='total_price']"
+            <xpath expr="//field[@name='line_ids']/*[self::tree or self::list]/field[@name='total_price']"
                    position="replace"/>
-            <xpath expr="//field[@name='line_ids']/tree/field[@name='unit_price']"
+            <xpath expr="//field[@name='line_ids']/*[self::tree or self::list]/field[@name='unit_price']"
                    position="after">
                 <field name="total_price" string="Total" readonly="1"/>
             </xpath>

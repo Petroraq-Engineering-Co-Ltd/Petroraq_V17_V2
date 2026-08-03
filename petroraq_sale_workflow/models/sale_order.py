@@ -940,6 +940,14 @@ class SaleOrder(models.Model):
         for order in self:
             if not order.order_line:
                 raise UserError(_("Please add at least one line item to the quotation."))
+            missing_tax_lines = order.order_line.filtered(
+                lambda line: not line.display_type and not line.tax_id
+            )
+            if missing_tax_lines:
+                raise ValidationError(_(
+                    "Select VAT/Tax on every quotation line before submitting. "
+                    "Use an explicit 0%% or Exempt tax where VAT does not apply. Missing on: %s"
+                ) % ", ".join(missing_tax_lines.mapped("name")))
             if order.estimation_id:
                 currency = order.currency_id or order.company_id.currency_id
                 estimation_total = currency.round(order.estimation_id.total_with_profit or 0.0)

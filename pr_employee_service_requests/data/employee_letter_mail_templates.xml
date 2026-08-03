@@ -31,6 +31,22 @@
             </field>
         </record>
 
+        <record id="mail_template_employee_letter_performance_improvement" model="mail.template">
+            <field name="name">Employee Letter: Performance Improvement Notice</field>
+            <field name="model_id" ref="model_pr_employee_document_letter"/>
+            <field name="subject">{{ object.subject or 'Performance Improvement Notice' }}</field>
+            <field name="email_from">{{ user.email_formatted or object.company_id.partner_id.email_formatted or '' }}</field>
+            <field name="email_to">{{ object.employee_private_email or '' }}</field>
+            <field name="body_html" type="html">
+                <div>
+                    <p>Dear <t t-out="object.employee_id.name or 'Employee'"/>,</p>
+                    <p>Please find your approved Performance Improvement Notice attached.</p>
+                    <p>Please review the notice carefully and contact your Department Manager or Human Resources if clarification is required.</p>
+                    <p>Regards,<br/>Human Resources</p>
+                </div>
+            </field>
+        </record>
+
         <record id="mail_template_employee_letter_appraisal" model="mail.template">
             <field name="name">Employee Letter: Appraisal</field>
             <field name="model_id" ref="model_pr_employee_document_letter"/>
