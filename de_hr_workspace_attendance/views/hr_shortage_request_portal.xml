@@ -24,7 +24,7 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Attendances</t>
             </t>
-            <div class="mb-3 text-end">
+            <div t-if="request.env.user.has_group('base.group_user')" class="mb-3 text-end">
                 <a href="/shortage_request" class="btn btn-primary">
                     Request Attendance Correction
                 </a>
@@ -74,7 +74,7 @@
                                 </td>
                             </t>
 
-                            <td t-if="attendance.show_shortage_button">
+                            <td t-if="attendance.show_shortage_button and request.env.user.has_group('base.group_user')">
                                 <button type="button" class="btn-info" style="border-radius: 8px;">
                                     <a style="text-decoration: none;" t-att-href="'/shortage_request?check_in=' + str(attendance.check_in) + '&amp;check_out=' + str(attendance.check_out) + '&amp;shortage_text=' + str(attendance.shortage_time)"
                                        class="btn btn-info">

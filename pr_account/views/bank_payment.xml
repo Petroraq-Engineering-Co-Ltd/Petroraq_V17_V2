@@ -69,11 +69,19 @@
                     />
                     <button
                             string="REJECT"
-                            name="action_draft"
+                            name="action_open_reject_wizard"
                             type="object"
                             class="btn-danger"
-                            invisible="state not in ['draft', 'finance_approve'] or check_process_state == False"
+                            invisible="state != 'finance_approve' or check_process_state == False"
                             groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
+                    />
+                    <button
+                            string="RESET TO DRAFT"
+                            name="action_reset_rejected_to_draft"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'reject'"
+                            groups="pr_account.custom_group_accounting_manager"
                     />
                     <!--                    invisible="state != 'submit' or check_process_state == False"-->
                     <button
@@ -121,6 +129,8 @@
                             invisible="state != 'draft'"/>
                     <widget name="web_ribbon" title="CANCELLED" bg_color="bg-danger"
                             invisible="state != 'cancel'"/>
+                    <widget name="web_ribbon" title="REJECTED" bg_color="bg-danger"
+                            invisible="state != 'reject'"/>
                     <div class="oe_title" style="margin-bottom:4px;">
                         <label for="name" string="Number"/>
                         <h3 style="margin:0;">
@@ -155,6 +165,7 @@
                                    readonly="state != 'draft'"
                                    string="Cost Centers" invisible="1"/>
                             <field name="description" readonly="state != 'draft'"/>
+                            <field name="rejection_reason" invisible="state != 'reject'" readonly="1"/>
                         </group>
                         <group>
                             <field name="company_id"
@@ -301,7 +312,7 @@
                        decoration-warning="state == 'draft'"
                        decoration-info="state == 'submit'"
                        decoration-success="state == 'posted'"
-                       decoration-danger="state == 'cancel'"/>
+                       decoration-danger="state in ['reject', 'cancel']"/>
             </tree>
         </field>
     </record>

@@ -58,6 +58,8 @@
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
                 <field name="quotation_count" invisible="1"/>
+                <field name="requisition_id" invisible="1"/>
+                <field name="requisition_count" invisible="1"/>
             </xpath>
             <xpath expr="//form/header" position="inside">
                 <field name="is_rfq_record" invisible="1"/>
@@ -76,6 +78,13 @@
                         invisible="1"/>
             </xpath>
             <xpath expr="//sheet/div[@name='button_box']" position="inside">
+                <button type="object"
+                        class="oe_stat_button"
+                        name="action_view_source_requisition"
+                        icon="fa-file-text-o"
+                        invisible="not requisition_id">
+                    <field name="requisition_count" widget="statinfo" string="PR"/>
+                </button>
                 <button type="object"
                         class="oe_stat_button"
                         name="action_view_rfq_quotations"

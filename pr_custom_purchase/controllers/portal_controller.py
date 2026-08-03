@@ -2,6 +2,7 @@ from odoo import http
 from odoo.http import request
 from datetime import date, datetime
 from odoo.tools import format_date
+from odoo.exceptions import AccessError
 import logging
 import json
 
@@ -10,9 +11,15 @@ _logger = logging.getLogger(__name__)
 
 class PortalPR(http.Controller):
 
+    def _ensure_portal_creation_allowed(self):
+        user = request.env.user
+        if user.has_group("base.group_portal") and not user.has_group("base.group_user"):
+            raise AccessError("Portal users are not allowed to create purchase requisitions.")
+
     # showing page and getting manager name with id
     @http.route("/my/purchase-request/create", type="http", auth="user", website=True)
     def create_purchase_request(self, **kwargs):
+        self._ensure_portal_creation_allowed()
         req_type = kwargs.get("type", "pr")
 
         user = request.env.user
@@ -235,6 +242,7 @@ class PortalPR(http.Controller):
         website=True,
     )
     def submit_purchase_request(self, **post):
+        self._ensure_portal_creation_allowed()
         employee = (
             request.env["hr.employee"]
             .sudo()

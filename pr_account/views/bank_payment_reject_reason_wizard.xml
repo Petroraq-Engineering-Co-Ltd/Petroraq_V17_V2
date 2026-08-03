@@ -5,6 +5,8 @@
         <field name="arch" type="xml">
             <form string="Reject Line">
                 <group>
+                    <field name="line_id" invisible="1"/>
+                    <field name="payment_id" invisible="1"/>
                     <field name="reason"/>
                 </group>
                 <footer>

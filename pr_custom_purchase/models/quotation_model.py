@@ -12,6 +12,10 @@ class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
     requisition_id = fields.Many2one("purchase.requisition", string="Source PR", readonly=True, ondelete="set null")
+    requisition_count = fields.Integer(
+        string="PR Count",
+        compute="_compute_requisition_count",
+    )
     linked_pr_state = fields.Selection([
         ("missing", "Not Created"),
         ("draft", "Draft"),
@@ -31,6 +35,24 @@ class PurchaseOrder(models.Model):
         ("cancel", "Cancelled"),
     ], string="PO Status", compute="_compute_linked_statuses")
     current_user_has_acted = fields.Boolean("Current User Has Acted", )
+
+    @api.depends("requisition_id")
+    def _compute_requisition_count(self):
+        for order in self:
+            order.requisition_count = 1 if order.requisition_id else 0
+
+    def action_view_source_requisition(self):
+        self.ensure_one()
+        if not self.requisition_id:
+            raise UserError(_("This Purchase Order is not linked to a Purchase Requisition."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Purchase Requisition"),
+            "res_model": "purchase.requisition",
+            "view_mode": "form",
+            "res_id": self.requisition_id.id,
+            "target": "current",
+        }
     linked_quotation_status = fields.Selection([
         ("missing", "Not Submitted"),
         ("quote", "RFQ"),
@@ -649,6 +671,14 @@ class PurchaseOrder(models.Model):
                 raise UserError(_("RFQs cannot be submitted for PO approval. Create/select a Purchase Order first."))
             if not order.order_line:
                 raise UserError(_("Please add at least one product line before submitting for approval."))
+            missing_tax_lines = order.order_line.filtered(
+                lambda line: not line.display_type and not line.taxes_id
+            )
+            if missing_tax_lines:
+                raise ValidationError(_(
+                    "Select VAT/Tax on every Purchase Order line before submitting. "
+                    "Use an explicit 0%% or Exempt tax where VAT does not apply. Missing on: %s"
+                ) % ", ".join(missing_tax_lines.mapped("name")))
             order.write({
                 "state": "pending",
                 "pe_approved": False,

@@ -20,7 +20,7 @@
     <template id="portal_my_leave_requests" name="My Leave Requests">
         <t t-call="portal.portal_layout">
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
-            <button type="button" class="btn-info" style="border-radius: 8px;">
+            <button t-if="request.env.user.has_group('base.group_user')" type="button" class="btn-info" style="border-radius: 8px;">
                 <a style="text-decoration: none;" href="/leave_request"
                    class="btn btn-info">
                     Apply For Leave Request

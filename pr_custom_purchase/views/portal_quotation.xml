@@ -8,7 +8,8 @@
             <td class="text-end">
                 <!-- Keep list rendering independent from the quotation table.
                      Duplicate submission is validated by the POST controller. -->
-                <a t-att-href="'/my/rfq/%s/quotation' % rfq.id"
+                <a t-if="request.env.user.has_group('base.group_user')"
+                   t-att-href="'/my/rfq/%s/quotation' % rfq.id"
                    class="btn btn-sm btn-primary"
                    style="background-color: #122AA0 !important; border-color: #122AA0 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;">
                     Submit Quotation

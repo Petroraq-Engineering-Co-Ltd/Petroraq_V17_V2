@@ -55,7 +55,14 @@
             <field name="name">Employee Document Letter: own letters</field>
             <field name="model_id" ref="model_pr_employee_document_letter"/>
             <field name="groups" eval="[(4, ref('base.group_user'))]"/>
-            <field name="domain_force">['|', ('requested_by_id', '=', user.id), ('employee_id.user_id', '=', user.id)]</field>
+            <field name="domain_force">[
+                '|',
+                    '|',
+                        ('requested_by_id', '=', user.id),
+                        '&amp;', ('employee_id.user_id', '=', user.id),
+                            '|', ('letter_type', '!=', 'performance_improvement'), ('state', '=', 'sent'),
+                    ('department_manager_user_id', '=', user.id)
+            ]</field>
         </record>
 
         <record id="rule_pr_employee_document_letter_hr_manager_all" model="ir.rule">
