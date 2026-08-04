@@ -83,11 +83,11 @@
         </field>
     </record>
 
-    <menuitem id="menu_my_shortage_request_approvals"
-              name="Attendance Correction Requests"
-              parent="de_hr_workspace.menu_my_employee_approvals"
-              action="action_my_shortage_request_approvals"
-              sequence="20"
-              groups="de_hr_workspace.group_hr_employee_approvals"/>
+<!--    <menuitem id="menu_my_shortage_request_approvals"-->
+<!--              name="Attendance Correction Requests"-->
+<!--              parent="de_hr_workspace.menu_my_employee_approvals"-->
+<!--              action="action_my_shortage_request_approvals"-->
+<!--              sequence="20"-->
+<!--              groups="de_hr_workspace.group_hr_employee_approvals"/>-->
 
 </odoo>

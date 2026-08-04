@@ -228,10 +228,10 @@
         <field name="res_model">pr.employee.document.letter</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_document_letter_search"/>
-        <field name="domain">[('state', '=', 'hr_manager_approval')]</field>
-        <field name="context">{'create': False, 'search_default_pending_hr_manager': 1}</field>
+        <field name="domain">['|', '&amp;', ('state', '=', 'department_manager_approval'), ('department_manager_user_id', '=', uid), ('state', '=', 'hr_manager_approval')]</field>
+        <field name="context">{'create': False}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_empty_folder">No employee letters are pending HR Manager approval.</p>
+            <p class="o_view_nocontent_empty_folder">No employee letters are waiting for your approval.</p>
         </field>
     </record>
 
@@ -280,11 +280,19 @@
               sequence="7"
               groups="base.group_user,de_hr_workspace.group_hr_employee_workspace"/>
 
-    <record id="menu_pr_employee_document_letter_hr_approvals" model="ir.ui.menu">
-        <field name="active" eval="False"/>
-    </record>
+    <menuitem id="menu_pr_employee_document_letter_hr_approvals"
+              name="Employee Letter Approvals"
+              parent="de_hr_workspace.hr_approvals_menu_root"
+              action="action_pr_employee_document_letter_hr_approvals"
+              sequence="28"
+              groups="base.group_user,hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals"
+              active="True"/>
 
-    <record id="menu_pr_employee_document_letter_department_manager_approvals" model="ir.ui.menu">
-        <field name="active" eval="False"/>
-    </record>
+    <menuitem id="menu_pr_employee_document_letter_department_manager_approvals"
+              name="Performance Improvement Approvals"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_pr_employee_document_letter_department_manager_approvals"
+              sequence="27"
+              groups="base.group_user"
+              active="False"/>
 </odoo>

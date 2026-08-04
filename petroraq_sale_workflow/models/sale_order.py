@@ -949,6 +949,10 @@ class SaleOrder(models.Model):
         for order in self:
             if not order.order_line:
                 raise UserError(_("Please add at least one line item to the quotation."))
+            if is_html_empty(order.note):
+                raise ValidationError(_(
+                    "Please enter the Terms & Conditions before submitting the quotation."
+                ))
             missing_tax_lines = order.order_line.filtered(
                 lambda line: not line.display_type and not line.tax_id
             )

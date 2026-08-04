@@ -168,6 +168,8 @@ class AccountCashPayment(models.Model):
                 rec.sudo().action_post()
 
     def action_draft(self):
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a voucher to Draft."))
         for cash_payment in self:
 
             if cash_payment.journal_entry_id and cash_payment.journal_entry_id.state != "draft":
@@ -222,8 +224,8 @@ class AccountCashPayment(models.Model):
             })
 
     def action_reset_rejected_to_draft(self):
-        if not self.env.user.has_group("pr_account.custom_group_accounting_manager"):
-            raise UserError(_("Only the Accounting Manager can reset a rejected voucher to Draft."))
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a rejected voucher to Draft."))
         for payment in self:
             if payment.state != "reject":
                 raise UserError(_("Only a rejected voucher can be reset to Draft."))

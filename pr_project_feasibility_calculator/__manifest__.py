@@ -1,7 +1,7 @@
 {
     "name": "Project Feasibility Calculator",
     "summary": "Forward and reverse investment feasibility calculator",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.0.3",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "category": "Accounting/Finance",
     "license": "LGPL-3",

@@ -176,6 +176,31 @@ class PurchaseRequisition(models.Model):
         compute="_compute_linked_purchase_statuses",
         compute_sudo=True,
     )
+    linked_delivery_status = fields.Selection(
+        [
+            ("missing", "No PO"),
+            ("pending", "Not Received"),
+            ("partial", "Partially Received"),
+            ("done", "Fully Received"),
+        ],
+        string="Delivery Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
+    )
+    linked_payment_status = fields.Selection(
+        [
+            ("missing", "No PO"),
+            ("not_billed", "Not Billed"),
+            ("not_paid", "Not Paid"),
+            ("partial", "Partially Paid"),
+            ("in_payment", "In Payment"),
+            ("paid", "Paid"),
+            ("reversed", "Reversed"),
+        ],
+        string="Payment Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
+    )
     cash_pr_payment_method = fields.Selection(
         [("cash", "Cash"), ("bank", "Bank Transfer")],
         string="Transfer Type",
@@ -315,6 +340,42 @@ class PurchaseRequisition(models.Model):
                 max(purchase_orders, key=lambda order: state_priority.get(order.state, 0)).state
                 if purchase_orders else "missing"
             )
+
+            active_purchase_orders = purchase_orders.filtered(
+                lambda order: order.state not in ("draft", "sent", "pending", "rejected", "cancel")
+            )
+            order_lines = active_purchase_orders.mapped("order_line").filtered(
+                lambda line: not line.display_type and line.product_qty > 0
+            )
+            if not active_purchase_orders:
+                requisition.linked_delivery_status = "missing"
+            elif order_lines and all(
+                line.qty_received >= line.product_qty for line in order_lines
+            ):
+                requisition.linked_delivery_status = "done"
+            elif any(line.qty_received > 0 for line in order_lines):
+                requisition.linked_delivery_status = "partial"
+            else:
+                requisition.linked_delivery_status = "pending"
+
+            bills = active_purchase_orders.mapped("invoice_ids").filtered(
+                lambda bill: bill.state != "cancel"
+            )
+            payment_states = set(bills.mapped("payment_state"))
+            if not active_purchase_orders:
+                requisition.linked_payment_status = "missing"
+            elif not bills:
+                requisition.linked_payment_status = "not_billed"
+            elif payment_states == {"paid"}:
+                requisition.linked_payment_status = "paid"
+            elif payment_states == {"in_payment"}:
+                requisition.linked_payment_status = "in_payment"
+            elif payment_states == {"reversed"}:
+                requisition.linked_payment_status = "reversed"
+            elif "partial" in payment_states or len(payment_states) > 1:
+                requisition.linked_payment_status = "partial"
+            else:
+                requisition.linked_payment_status = "not_paid"
 
     @api.depends("expense_bucket_id", "expense_bucket_id.crossovered_budget_line",
                  "expense_bucket_id.crossovered_budget_line.analytic_account_id")

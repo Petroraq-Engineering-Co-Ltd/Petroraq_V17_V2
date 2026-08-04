@@ -100,13 +100,13 @@
                             <label class="o_pfc_field o_pfc_full">
                                 <span>Investor Profit Share</span>
                                 <div class="o_pfc_ratio_line">
-                                    <input type="range" min="1" max="100" step="1"
+                                    <input type="range" min="1" max="100" step="0.01"
                                            t-att-value="state.form.investor_ratio"
                                            t-on-input="(ev) => this.updateNumber('investor_ratio', ev)"/>
                                     <div class="o_pfc_ratio_value">
-                                        <input type="number" min="1" max="100" step="1"
+                                        <input type="text" inputmode="decimal"
                                                t-att-value="state.form.investor_ratio"
-                                               t-on-input="(ev) => this.updateNumber('investor_ratio', ev)"
+                                               t-on-input="(ev) => this.updatePercentageInput(ev)"
                                                t-on-change="(ev) => this.finalizeNumber('investor_ratio', ev)"/>
                                         <b>%</b>
                                     </div>
