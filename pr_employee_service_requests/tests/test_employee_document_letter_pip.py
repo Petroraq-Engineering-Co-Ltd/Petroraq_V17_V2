@@ -29,6 +29,13 @@ class TestPerformanceImprovementNotice(TransactionCase):
             "email": "pip.hrm@example.com",
             "groups_id": [(6, 0, [internal.id, hr_manager_group.id])],
         })
+        md_group = cls.env.ref("pr_custom_purchase.managing_director")
+        cls.managing_director = cls.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Letter Managing Director",
+            "login": "letter.managing.director.test",
+            "email": "letter.md@example.com",
+            "groups_id": [(6, 0, [internal.id, md_group.id])],
+        })
         cls.manager_employee = cls.env["hr.employee"].create({
             "name": "PIP Department Manager",
             "user_id": cls.department_manager.id,
@@ -36,6 +43,22 @@ class TestPerformanceImprovementNotice(TransactionCase):
         cls.employee = cls.env["hr.employee"].create({
             "name": "PIP Employee",
             "parent_id": cls.manager_employee.id,
+        })
+        cls.hr_manager_employee = cls.env["hr.employee"].create({
+            "name": "PIP HR Manager",
+            "user_id": cls.hr_manager.id,
+        })
+        cls.hr_managed_employee = cls.env["hr.employee"].create({
+            "name": "HR Manager Direct Report",
+            "parent_id": cls.hr_manager_employee.id,
+        })
+        cls.md_employee = cls.env["hr.employee"].create({
+            "name": "Letter Managing Director",
+            "user_id": cls.managing_director.id,
+        })
+        cls.md_managed_employee = cls.env["hr.employee"].create({
+            "name": "Managing Director Direct Report",
+            "parent_id": cls.md_employee.id,
         })
         cls.attachment = cls.env["ir.attachment"].create({
             "name": "PIP.pdf",
@@ -76,3 +99,64 @@ class TestPerformanceImprovementNotice(TransactionCase):
         })
         with self.assertRaises(UserError):
             notice.with_user(self.hr_manager).action_hr_manager_approve()
+
+    def test_all_letter_types_follow_department_manager_then_hr_manager(self):
+        letter = self.env["pr.employee.document.letter"].create({
+            "letter_type": "warning",
+            "employee_id": self.employee.id,
+            "subject": "Warning Letter",
+            "body_html": "<p>Warning details.</p>",
+        })
+        model_class = type(letter)
+        with patch.object(
+            model_class,
+            "_generate_letter_pdf_attachment",
+            autospec=True,
+            return_value=self.attachment,
+        ):
+            letter.action_submit()
+            self.assertEqual(letter.state, "department_manager_approval")
+            letter.with_user(self.department_manager).action_department_manager_approve()
+            self.assertEqual(letter.state, "hr_manager_approval")
+            letter.with_user(self.hr_manager).action_hr_manager_approve()
+        self.assertEqual(letter.state, "approved")
+
+    def test_hr_manager_department_manager_approves_only_once(self):
+        letter = self.env["pr.employee.document.letter"].create({
+            "letter_type": "experience",
+            "employee_id": self.hr_managed_employee.id,
+            "subject": "Experience Letter",
+            "body_html": "<p>Experience details.</p>",
+        })
+        model_class = type(letter)
+        with patch.object(
+            model_class,
+            "_generate_letter_pdf_attachment",
+            autospec=True,
+            return_value=self.attachment,
+        ):
+            letter.action_submit()
+            letter.with_user(self.hr_manager).action_department_manager_approve()
+        self.assertEqual(letter.state, "approved")
+        self.assertEqual(letter.department_manager_approved_by_id, self.hr_manager)
+        self.assertEqual(letter.hr_manager_approved_by_id, self.hr_manager)
+
+    def test_md_department_manager_approves_only_once(self):
+        letter = self.env["pr.employee.document.letter"].create({
+            "letter_type": "appraisal",
+            "employee_id": self.md_managed_employee.id,
+            "subject": "Appraisal Letter",
+            "body_html": "<p>Appraisal details.</p>",
+        })
+        model_class = type(letter)
+        with patch.object(
+            model_class,
+            "_generate_letter_pdf_attachment",
+            autospec=True,
+            return_value=self.attachment,
+        ):
+            letter.action_submit()
+            letter.with_user(self.managing_director).action_department_manager_approve()
+        self.assertEqual(letter.state, "approved")
+        self.assertEqual(letter.department_manager_approved_by_id, self.managing_director)
+        self.assertEqual(letter.hr_manager_approved_by_id, self.managing_director)

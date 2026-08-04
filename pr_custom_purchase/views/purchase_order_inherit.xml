@@ -60,6 +60,7 @@
                 <field name="quotation_count" invisible="1"/>
                 <field name="requisition_id" invisible="1"/>
                 <field name="requisition_count" invisible="1"/>
+                <field name="source_rfq_count" invisible="1"/>
             </xpath>
             <xpath expr="//form/header" position="inside">
                 <field name="is_rfq_record" invisible="1"/>
@@ -84,6 +85,13 @@
                         icon="fa-file-text-o"
                         invisible="not requisition_id">
                     <field name="requisition_count" widget="statinfo" string="PR"/>
+                </button>
+                <button type="object"
+                        class="oe_stat_button"
+                        name="action_view_source_rfq"
+                        icon="fa-envelope-open-o"
+                        invisible="source_rfq_count == 0">
+                    <field name="source_rfq_count" widget="statinfo" string="RFQ"/>
                 </button>
                 <button type="object"
                         class="oe_stat_button"

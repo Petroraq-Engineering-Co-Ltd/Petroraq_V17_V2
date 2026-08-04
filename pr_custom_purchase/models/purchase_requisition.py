@@ -146,6 +146,36 @@ class PurchaseRequisition(models.Model):
         default="pr",
         string="PR Status",
     )
+    linked_rfq_status = fields.Selection(
+        [
+            ("missing", "Not Created"),
+            ("draft", "Draft"),
+            ("sent", "RFQ Sent"),
+            ("pending", "Pending Approval"),
+            ("purchase", "Purchase Order"),
+            ("done", "Locked"),
+            ("rejected", "Rejected"),
+            ("cancel", "Cancelled"),
+        ],
+        string="RFQ Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
+    )
+    linked_po_status = fields.Selection(
+        [
+            ("missing", "Not Created"),
+            ("draft", "Draft"),
+            ("sent", "RFQ Sent"),
+            ("pending", "Pending Approval"),
+            ("purchase", "Purchase Order"),
+            ("done", "Locked"),
+            ("rejected", "Rejected"),
+            ("cancel", "Cancelled"),
+        ],
+        string="PO Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
+    )
     cash_pr_payment_method = fields.Selection(
         [("cash", "Cash"), ("bank", "Bank Transfer")],
         string="Transfer Type",
@@ -254,6 +284,37 @@ class PurchaseRequisition(models.Model):
         [("opex", "Opex"), ("capex", "Capex")],
         string="Expense Type",
     )
+
+    def _compute_linked_purchase_statuses(self):
+        state_priority = {
+            "draft": 1,
+            "cancel": 2,
+            "rejected": 3,
+            "sent": 4,
+            "pending": 5,
+            "purchase": 6,
+            "done": 7,
+        }
+        PurchaseOrder = self.env["purchase.order"].sudo()
+        for requisition in self:
+            linked_orders = PurchaseOrder.search([
+                "|",
+                ("requisition_id", "=", requisition.id),
+                ("pr_name", "=", requisition.name),
+            ])
+            rfqs = linked_orders.filtered(
+                lambda order: "RFQ" in (order.name or "").upper()
+            )
+            purchase_orders = linked_orders - rfqs
+
+            requisition.linked_rfq_status = (
+                max(rfqs, key=lambda order: state_priority.get(order.state, 0)).state
+                if rfqs else "missing"
+            )
+            requisition.linked_po_status = (
+                max(purchase_orders, key=lambda order: state_priority.get(order.state, 0)).state
+                if purchase_orders else "missing"
+            )
 
     @api.depends("expense_bucket_id", "expense_bucket_id.crossovered_budget_line",
                  "expense_bucket_id.crossovered_budget_line.analytic_account_id")

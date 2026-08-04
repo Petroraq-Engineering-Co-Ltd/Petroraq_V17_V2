@@ -15,6 +15,20 @@
                        decoration-muted="approval == 'draft'"
                        decoration-info="approval == 'pending'"/>
 
+                <field name="linked_rfq_status" widget="badge" string="RFQ Status"
+                       decoration-success="linked_rfq_status in ('purchase', 'done')"
+                       decoration-info="linked_rfq_status in ('draft', 'sent')"
+                       decoration-warning="linked_rfq_status == 'pending'"
+                       decoration-danger="linked_rfq_status in ('rejected', 'cancel')"
+                       decoration-muted="linked_rfq_status == 'missing'"/>
+
+                <field name="linked_po_status" widget="badge" string="PO Status"
+                       decoration-success="linked_po_status in ('purchase', 'done')"
+                       decoration-info="linked_po_status in ('draft', 'sent')"
+                       decoration-warning="linked_po_status == 'pending'"
+                       decoration-danger="linked_po_status in ('rejected', 'cancel')"
+                       decoration-muted="linked_po_status == 'missing'"/>
+
                 <field name="payment_request_state" widget="badge"
                        optional="show"
                        decoration-info="payment_request_state == 'requested'"
@@ -116,7 +130,7 @@
                                 icon="fa-envelope-open-o"
                                 invisible="pr_type == 'cash'"
                                 groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager">
-                            <field name="rfq_count" widget="statinfo" string="RFQs"/>
+                            <field name="rfq_count" widget="statinfo" string="RFQs / POs"/>
                         </button>
                         <button name="action_open_cash_pr_payment_voucher"
                                 type="object"
@@ -265,6 +279,11 @@
                         </div>
                     </div>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>

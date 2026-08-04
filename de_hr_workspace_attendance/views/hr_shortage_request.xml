@@ -30,12 +30,12 @@
         </field>
     </record>
 
-    <menuitem id="menu_my_shortage_request"
-              name="Attendance Correction Requests"
-              parent="menu_my_attendance"
-              action="action_my_shortage_request"
-              sequence="20"
-              groups="de_hr_workspace.group_hr_employee_workspace"/>
+<!--    <menuitem id="menu_my_shortage_request"-->
+<!--              name="Attendance Correction Requests"-->
+<!--              parent="menu_my_attendance"-->
+<!--              action="action_my_shortage_request"-->
+<!--              sequence="20"-->
+<!--              groups="de_hr_workspace.group_hr_employee_workspace"/>-->
 
     <!--  Approvals  -->
 

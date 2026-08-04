@@ -40,6 +40,7 @@ class OrderInquiry(models.Model):
         tracking=True,
     )
     can_assign_inquiry = fields.Boolean(compute="_compute_inquiry_permissions")
+    can_edit_salesperson = fields.Boolean(compute="_compute_inquiry_permissions")
     can_accept_inquiry = fields.Boolean(compute="_compute_inquiry_permissions")
     partner_id = fields.Many2one(
         'res.partner',
@@ -283,6 +284,9 @@ class OrderInquiry(models.Model):
     def _compute_inquiry_permissions(self):
         is_sales_manager = self.env.user.has_group('sales_team.group_sale_manager')
         for inquiry in self:
+            inquiry.can_edit_salesperson = bool(
+                is_sales_manager and inquiry.state in ('pending', 'confirm')
+            )
             inquiry.can_assign_inquiry = bool(
                 is_sales_manager and inquiry.state == 'confirm'
             )
@@ -503,8 +507,8 @@ class OrderInquiry(models.Model):
             if 'assigned_salesperson_id' in vals:
                 if not self.env.user.has_group('sales_team.group_sale_manager'):
                     raise UserError(_("Only a Sales Manager can change inquiry assignment."))
-                if any(inquiry.state != 'confirm' for inquiry in self):
-                    raise UserError(_("Salesperson can only be selected on a submitted inquiry."))
+                if any(inquiry.state not in ('pending', 'confirm') for inquiry in self):
+                    raise UserError(_("Salesperson can only be selected on a pending or submitted inquiry."))
         if (
             vals.get('state') in ('assigned', 'accept')
             and not self.env.su
@@ -559,8 +563,9 @@ class OrderInquiry(models.Model):
                 vals.get('assigned_salesperson_id')
                 and not self.env.su
                 and not self.env.user.has_group('sales_team.group_sale_manager')
+                and vals['assigned_salesperson_id'] != self.env.user.id
             ):
-                raise UserError(_("Only a Sales Manager can assign an inquiry."))
+                raise UserError(_("Only a Sales Manager can assign an inquiry to another salesperson."))
 
             if vals.get("inquiry_type") == "trading":
                 raise UserError(
@@ -586,8 +591,23 @@ class OrderInquiry(models.Model):
         self.state = 'pending'
 
     def button_confirm(self, sales_list=None):
-        self.state = 'confirm'
-        self._notify_inquiry_approvers()
+        for inquiry in self:
+            if inquiry.state != 'pending':
+                raise UserError(_("Only a pending inquiry can be submitted."))
+
+            if (
+                inquiry.assigned_salesperson_id
+                and inquiry.assigned_salesperson_id == inquiry.create_uid
+            ):
+                inquiry.sudo().write({
+                    'state': 'assigned',
+                    'assigned_by_id': inquiry.create_uid.id,
+                    'assigned_at': fields.Datetime.now(),
+                })
+                inquiry._notify_assigned_salesperson()
+            else:
+                inquiry.sudo().write({'state': 'confirm'})
+                inquiry._notify_inquiry_approvers()
 
     def view_sale_order(self):
         return {
