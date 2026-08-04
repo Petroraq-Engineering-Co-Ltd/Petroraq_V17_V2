@@ -10,6 +10,15 @@ from reportlab.lib.units import mm
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
+    def _notify_get_reply_to(self, default=None):
+        """Route vendor replies to the PO email's visible sender."""
+        reply_to_by_record = super()._notify_get_reply_to(default=default)
+        sender = default or self.env.user.email_formatted
+        if sender:
+            for order in self:
+                reply_to_by_record[order.id] = sender
+        return reply_to_by_record
+
     # Upgrade compatibility only. Older databases still have an inherited view
     # referencing this field, and Odoo may validate that stored view before it
     # reaches the XML record that removes the field from the UI. Keep the field

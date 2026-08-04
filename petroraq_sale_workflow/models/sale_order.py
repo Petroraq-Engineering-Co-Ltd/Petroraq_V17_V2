@@ -8,6 +8,15 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
     _description = "Quotation"
 
+    def _notify_get_reply_to(self, default=None):
+        """Route customer replies to the SO email's visible sender."""
+        reply_to_by_record = super()._notify_get_reply_to(default=default)
+        sender = default or self.env.user.email_formatted
+        if sender:
+            for order in self:
+                reply_to_by_record[order.id] = sender
+        return reply_to_by_record
+
     def _notify_approval_users(self, users, subject, body_html, summary):
         self.ensure_one()
         activity_type = self.env.ref("mail.mail_activity_data_todo", raise_if_not_found=False)
