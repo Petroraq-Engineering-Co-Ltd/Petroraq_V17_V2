@@ -96,6 +96,30 @@ export class ProjectFeasibilityCalculator extends Component {
         event.target.value = value;
     }
 
+    updatePercentageInput(event) {
+        const input = event.target;
+        let rawValue = String(input.value || "").replace(",", ".");
+        rawValue = rawValue.replace(/[^\d.]/g, "");
+
+        const firstDot = rawValue.indexOf(".");
+        if (firstDot !== -1) {
+            rawValue =
+                rawValue.slice(0, firstDot + 1) +
+                rawValue.slice(firstDot + 1).replace(/\./g, "");
+        }
+
+        const [whole = "", decimal] = rawValue.split(".");
+        rawValue = decimal === undefined
+            ? whole.slice(0, 3)
+            : `${whole.slice(0, 3)}.${decimal.slice(0, 2)}`;
+
+        if (rawValue !== "" && rawValue !== "." && this.number(rawValue) > 100) {
+            rawValue = "100";
+        }
+        input.value = rawValue;
+        this.state.form.investor_ratio = rawValue;
+    }
+
     finalizeNumber(field, event) {
         if (event.target.value !== "") {
             this.updateNumber(field, event);

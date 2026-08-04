@@ -8,7 +8,20 @@ class TestVoucherRejectionStages(TransactionCase):
         super().setUpClass()
         internal_group = cls.env.ref("base.group_user")
         first_approval_group = cls.env.ref("account.group_account_manager")
+        accountant_group = cls.env.ref("account.group_account_user")
         final_approval_group = cls.env.ref("pr_account.custom_group_accounting_manager")
+        cls.accountant = cls.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Voucher Accountant",
+            "login": "voucher.accountant.test",
+            "email": "voucher.accountant@example.com",
+            "groups_id": [(6, 0, [internal_group.id, accountant_group.id])],
+        })
+        cls.non_accountant = cls.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Voucher Non Accountant",
+            "login": "voucher.non.accountant.test",
+            "email": "voucher.non.accountant@example.com",
+            "groups_id": [(6, 0, [internal_group.id])],
+        })
         cls.first_approver = cls.env["res.users"].with_context(no_reset_password=True).create({
             "name": "Voucher First Approver",
             "login": "voucher.first.approver.test",
@@ -40,3 +53,15 @@ class TestVoucherRejectionStages(TransactionCase):
                 submitted._check_reject_stage_access()
             final_stage = self._voucher(model_name, self.final_approver, "finance_approve")
             self.assertTrue(final_stage._check_reject_stage_access())
+
+    def test_accountant_can_reset_rejected_bpv_and_cpv(self):
+        for model_name in ("pr.account.bank.payment", "pr.account.cash.payment"):
+            voucher = self._voucher(model_name, self.accountant, "reject")
+            voucher.action_reset_rejected_to_draft()
+            self.assertEqual(voucher.state, "draft")
+
+    def test_non_accountant_cannot_reset_bpv_or_cpv(self):
+        for model_name in ("pr.account.bank.payment", "pr.account.cash.payment"):
+            voucher = self._voucher(model_name, self.non_accountant, "reject")
+            with self.assertRaises(UserError):
+                voucher.action_reset_rejected_to_draft()

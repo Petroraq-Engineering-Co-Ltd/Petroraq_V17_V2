@@ -29,6 +29,19 @@
                        decoration-danger="linked_po_status in ('rejected', 'cancel')"
                        decoration-muted="linked_po_status == 'missing'"/>
 
+                <field name="linked_delivery_status" widget="badge" string="Delivery Status"
+                       decoration-success="linked_delivery_status == 'done'"
+                       decoration-warning="linked_delivery_status == 'partial'"
+                       decoration-info="linked_delivery_status == 'pending'"
+                       decoration-muted="linked_delivery_status == 'missing'"/>
+
+                <field name="linked_payment_status" widget="badge" string="Payment Status"
+                       decoration-success="linked_payment_status == 'paid'"
+                       decoration-info="linked_payment_status == 'in_payment'"
+                       decoration-warning="linked_payment_status == 'partial'"
+                       decoration-danger="linked_payment_status in ('not_paid', 'reversed')"
+                       decoration-muted="linked_payment_status in ('missing', 'not_billed')"/>
+
                 <field name="payment_request_state" widget="badge"
                        optional="show"
                        decoration-info="payment_request_state == 'requested'"

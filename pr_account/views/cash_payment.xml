@@ -81,7 +81,7 @@
                             type="object"
                             class="btn-secondary"
                             invisible="state != 'reject'"
-                            groups="pr_account.custom_group_accounting_manager"
+                            groups="account.group_account_user"
                     />
                     <button
                             string="RESET TO DRAFT"
@@ -89,7 +89,7 @@
                             type="object"
                             class="btn-danger"
                             invisible="state != 'posted'"
-                            groups="account.group_account_manager"
+                            groups="account.group_account_user"
                     />
                     <!--                    <button-->
                     <!--                            string="CANCEL"-->

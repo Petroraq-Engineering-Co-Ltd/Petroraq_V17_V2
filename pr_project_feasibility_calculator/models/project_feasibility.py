@@ -45,6 +45,7 @@ class ProjectFeasibilityCalculation(models.Model):
         string="Investor Profit Share (%)",
         required=True,
         default=50.0,
+        digits=(5, 2),
         tracking=True,
     )
     partner_ratio = fields.Float(
@@ -85,6 +86,7 @@ class ProjectFeasibilityCalculation(models.Model):
         string="Minimum Feasible Investor Share (%)",
         compute="_compute_results",
         store=True,
+        digits=(5, 2),
     )
     required_total_project_profit = fields.Monetary(
         compute="_compute_results",
