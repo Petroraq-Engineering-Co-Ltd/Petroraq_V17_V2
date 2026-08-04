@@ -95,9 +95,10 @@
                                    readonly="state in ('confirm', 'assigned', 'cancel', 'reject', 'expire', 'accept', 'estimation_created', 'quotation_created', 'closed')"/>
                             <field name="assigned_salesperson_id"
                                    options="{'no_create': True, 'no_open': True}"
-                                   readonly="not can_assign_inquiry"/>
+                                   readonly="not can_edit_salesperson"/>
                             <field name="assigned_by_id" readonly="1" invisible="not assigned_by_id"/>
                             <field name="assigned_at" readonly="1" invisible="not assigned_at"/>
+                            <field name="can_edit_salesperson" invisible="1"/>
                             <field name="can_assign_inquiry" invisible="1"/>
                             <field name="can_accept_inquiry" invisible="1"/>
                             <field name="date_order" readonly="1"/>

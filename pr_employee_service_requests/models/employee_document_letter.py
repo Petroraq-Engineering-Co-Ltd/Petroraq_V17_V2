@@ -270,8 +270,7 @@ class PrEmployeeDocumentLetter(models.Model):
                 or (rec.letter_type != "performance_improvement" and (is_owner or is_hr_manager))
             )
             rec.can_department_manager_approve = (
-                rec.letter_type == "performance_improvement"
-                and rec.state == "department_manager_approval"
+                rec.state == "department_manager_approval"
                 and rec.department_manager_user_id == user
             )
             rec.can_hr_manager_approve = rec.state == "hr_manager_approval" and is_hr_manager
@@ -283,8 +282,7 @@ class PrEmployeeDocumentLetter(models.Model):
             rec.can_reject = (
                 (rec.state == "hr_manager_approval" and is_hr_manager)
                 or (
-                    rec.letter_type == "performance_improvement"
-                    and rec.state == "department_manager_approval"
+                    rec.state == "department_manager_approval"
                     and rec.department_manager_user_id == user
                 )
             )
@@ -705,12 +703,43 @@ class PrEmployeeDocumentLetter(models.Model):
         summaries = {
             _("Department Manager approval: Performance Improvement Notice"),
             _("HR Manager approval: Performance Improvement Notice"),
+            _("Department Manager approval: Employee Letter"),
+            _("HR Manager approval: Employee Letter"),
         }
         self.activity_ids.filtered(
             lambda activity: (not current_user_only or activity.user_id == self.env.user)
             and activity.activity_type_id == self.env.ref("mail.mail_activity_data_todo")
             and activity.summary in summaries
         ).action_done()
+
+    def _department_manager_is_final_approver(self):
+        self.ensure_one()
+        manager = self.department_manager_user_id
+        return bool(manager and (
+            manager.has_group("hr.group_hr_manager")
+            or manager.has_group("pr_custom_purchase.managing_director")
+            or manager.has_group("pr_hr_recruitment_request.group_onboarding_md")
+        ))
+
+    def _finalize_letter_approval(self, approver):
+        self.ensure_one()
+        if self.letter_type == "performance_improvement" and not self._get_employee_private_email():
+            raise UserError(_(
+                "A personal email address is required for %(employee)s before approving this notice."
+            ) % {"employee": self.employee_id.name})
+        self._complete_letter_approval_activities(current_user_only=False)
+        attachment = self._generate_letter_pdf_attachment()
+        self.write({
+            "state": "approved",
+            "hr_manager_approved_by_id": approver.id,
+            "hr_manager_approved_date": fields.Datetime.now(),
+        })
+        self.message_post(
+            body=_("Employee letter received final approval. Final approved PDF is attached."),
+            attachment_ids=attachment.ids,
+        )
+        if self.letter_type == "performance_improvement":
+            self._send_performance_improvement_notice()
 
     def _send_performance_improvement_notice(self):
         self.ensure_one()
@@ -735,7 +764,7 @@ class PrEmployeeDocumentLetter(models.Model):
             "body_html": rendered.get("body_html") or self.body_html,
             "include_letter_attachments": True,
         })
-        return wizard.action_send()
+        return wizard.with_context(auto_approved_employee_letter=True).action_send()
 
     def action_view_attachments(self):
         self.ensure_one()
@@ -764,55 +793,47 @@ class PrEmployeeDocumentLetter(models.Model):
                     or self.env.user.has_group("hr.group_hr_manager")
                 ):
                     raise UserError(_("Only Human Resources can submit a Performance Improvement Notice."))
-                if not rec.department_manager_user_id:
-                    raise UserError(_(
-                        "The selected employee must have a manager linked to an internal user before submission."
-                    ))
+            if not rec.department_manager_user_id:
+                raise UserError(_(
+                    "The selected employee must have a manager linked to an internal user before submission."
+                ))
             attachment = rec._generate_letter_pdf_attachment()
-            next_state = (
-                "department_manager_approval"
-                if rec.letter_type == "performance_improvement"
-                else "hr_manager_approval"
+            rec.write({"state": "department_manager_approval"})
+            rec._schedule_letter_approval_activity(
+                rec.department_manager_user_id,
+                _("Department Manager approval: Employee Letter"),
             )
-            rec.write({"state": next_state})
-            if rec.letter_type == "performance_improvement":
-                rec._schedule_letter_approval_activity(
-                    rec.department_manager_user_id,
-                    _("Department Manager approval: Performance Improvement Notice"),
-                )
             rec.message_post(
-                body=(
-                    _("Performance Improvement Notice submitted to the Department Manager. Generated PDF is attached for review.")
-                    if rec.letter_type == "performance_improvement"
-                    else _("Employee letter submitted for HR Manager approval. Generated PDF is attached for review.")
-                ),
+                body=_("Employee letter submitted to the Department Manager. Generated PDF is attached for review."),
                 attachment_ids=attachment.ids,
             )
 
     def action_department_manager_approve(self):
         for rec in self:
             if (
-                rec.letter_type != "performance_improvement"
-                or rec.state != "department_manager_approval"
+                rec.state != "department_manager_approval"
                 or rec.department_manager_user_id != self.env.user
             ):
-                raise UserError(_("Only the employee's Department Manager can approve this notice at this stage."))
+                raise UserError(_("Only the employee's Department Manager can approve this letter at this stage."))
             rec._complete_letter_approval_activities()
             attachment = rec._generate_letter_pdf_attachment()
             rec.write({
-                "state": "hr_manager_approval",
                 "department_manager_approved_by_id": self.env.user.id,
                 "department_manager_approved_date": fields.Datetime.now(),
             })
+            if rec._department_manager_is_final_approver():
+                rec._finalize_letter_approval(self.env.user)
+                continue
+            rec.write({"state": "hr_manager_approval"})
             hr_managers = self.env.ref("hr.group_hr_manager").users.filtered(
                 lambda user: rec.company_id in user.company_ids
             )
             rec._schedule_letter_approval_activity(
                 hr_managers,
-                _("HR Manager approval: Performance Improvement Notice"),
+                _("HR Manager approval: Employee Letter"),
             )
             rec.message_post(
-                body=_("Performance Improvement Notice approved by Department Manager and sent to HR Manager."),
+                body=_("Employee letter approved by Department Manager and sent to HR Manager."),
                 attachment_ids=attachment.ids,
             )
 
@@ -821,25 +842,9 @@ class PrEmployeeDocumentLetter(models.Model):
         for rec in self:
             if rec.state != "hr_manager_approval":
                 continue
-            if rec.letter_type == "performance_improvement" and not rec.department_manager_approved_by_id:
+            if not rec.department_manager_approved_by_id:
                 raise UserError(_("Department Manager approval is required before HR Manager approval."))
-            if rec.letter_type == "performance_improvement" and not rec._get_employee_private_email():
-                raise UserError(_(
-                    "A personal email address is required for %(employee)s before approving this notice."
-                ) % {"employee": rec.employee_id.name})
-            rec._complete_letter_approval_activities(current_user_only=False)
-            attachment = rec._generate_letter_pdf_attachment()
-            rec.write({
-                "state": "approved",
-                "hr_manager_approved_by_id": self.env.user.id,
-                "hr_manager_approved_date": fields.Datetime.now(),
-            })
-            rec.message_post(
-                body=_("Employee letter approved by HR Manager. Final approved PDF is attached."),
-                attachment_ids=attachment.ids,
-            )
-            if rec.letter_type == "performance_improvement":
-                rec._send_performance_improvement_notice()
+            rec._finalize_letter_approval(self.env.user)
 
     def action_reject(self):
         for rec in self:
@@ -848,8 +853,7 @@ class PrEmployeeDocumentLetter(models.Model):
                 and self.env.user.has_group("hr.group_hr_manager")
             )
             is_department_manager_stage = (
-                rec.letter_type == "performance_improvement"
-                and rec.state == "department_manager_approval"
+                rec.state == "department_manager_approval"
                 and rec.department_manager_user_id == self.env.user
             )
             if not (is_hr_manager_stage or is_department_manager_stage):
@@ -921,6 +925,7 @@ class PrEmployeeLetterSendWizard(models.TransientModel):
     )
     employee_email = fields.Char(related="letter_id.employee_email", readonly=True)
     employee_private_email = fields.Char(related="letter_id.employee_private_email", readonly=True)
+    email_from = fields.Char(string="From", required=True, default=lambda self: self._get_email_from())
     email_to = fields.Char(string="To", required=True)
     email_cc = fields.Char(string="Cc")
     subject = fields.Char(required=True)
@@ -943,7 +948,7 @@ class PrEmployeeLetterSendWizard(models.TransientModel):
         values = {}
         if not template or not letter:
             return values
-        for field_name in ("subject", "body_html", "email_to", "email_cc"):
+        for field_name in ("subject", "body_html", "email_from", "email_to", "email_cc"):
             try:
                 rendered = template._render_field(field_name, [letter.id], compute_lang=True)
                 values[field_name] = rendered.get(letter.id)
@@ -970,12 +975,14 @@ class PrEmployeeLetterSendWizard(models.TransientModel):
             return values
         values["letter_id"] = letter.id
         values["email_to"] = letter._get_employee_email() or ""
+        values["email_from"] = self._get_email_from() or ""
         template = letter._get_default_mail_template()
         if template:
             values["template_id"] = template.id
             rendered = self._render_template_values(template, letter)
             values["subject"] = rendered.get("subject") or letter.subject
             values["body_html"] = rendered.get("body_html") or letter.body_html
+            values["email_from"] = rendered.get("email_from") or values["email_from"]
         else:
             values["subject"] = letter.subject
             values["body_html"] = letter.body_html
@@ -1003,13 +1010,22 @@ class PrEmployeeLetterSendWizard(models.TransientModel):
     def action_send(self):
         self.ensure_one()
         letter = self.letter_id
-        letter._check_hr_manager()
+        auto_send_authorized = bool(
+            self.env.context.get("auto_approved_employee_letter")
+            and letter.state == "approved"
+            and letter.department_manager_approved_by_id == self.env.user
+            and letter.hr_manager_approved_by_id == self.env.user
+        )
+        if not auto_send_authorized:
+            letter._check_hr_manager()
         if letter.state not in ("approved", "sent"):
             raise UserError(_("Only approved letters can be sent."))
 
         email_to = (self.email_to or "").strip()
         if not email_to:
             raise UserError(_("Please set an email recipient before sending."))
+        if not (self.email_from or "").strip():
+            raise UserError(_("Please set the sender email address before sending."))
         if not self.subject or not self.body_html:
             raise UserError(_("Please enter the email subject and body before sending."))
 
@@ -1026,7 +1042,7 @@ class PrEmployeeLetterSendWizard(models.TransientModel):
             "res_id": letter.id,
             "subject": self.subject,
             "body_html": self.body_html,
-            "email_from": self._get_email_from(),
+            "email_from": self.email_from.strip(),
             "email_to": email_to,
             "email_cc": self.email_cc or False,
             "auto_delete": False,

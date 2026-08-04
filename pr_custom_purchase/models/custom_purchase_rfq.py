@@ -76,7 +76,9 @@ class CustomPurchaseRFQ(models.Model):
             legacy_pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
             rec.linked_pr_state = self._map_requisition_to_legacy_pr_state(requisition) if requisition else (legacy_pr.state if legacy_pr else "missing")
 
-            linked_pos = self.env["purchase.order"].sudo().search([("origin", "=", rec.name)]) if rec.name else self.env["purchase.order"]
+            linked_pos = self.env["purchase.order"].sudo().search([
+                "|", ("source_rfq_id", "=", rec.id), ("origin", "=", rec.name)
+            ]) if rec.name else self.env["purchase.order"]
             if linked_pos:
                 rec.linked_po_state = max(linked_pos, key=lambda po: po_priority.get(po.state, 0)).state
             else:
@@ -136,7 +138,7 @@ class CustomPurchaseRFQ(models.Model):
     def action_reset_to_draft(self):
         for rec in self:
             linked_po = self.env["purchase.order"].sudo().search_count([
-                ("origin", "=", rec.name),
+                "|", ("source_rfq_id", "=", rec.id), ("origin", "=", rec.name),
                 ("state", "in", ["purchase", "done"]),
             ])
             if linked_po:

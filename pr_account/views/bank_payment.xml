@@ -72,8 +72,16 @@
                             name="action_open_reject_wizard"
                             type="object"
                             class="btn-danger"
+                            invisible="state != 'submit' or check_process_state == False"
+                            groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
+                    />
+                    <button
+                            string="REJECT"
+                            name="action_open_reject_wizard"
+                            type="object"
+                            class="btn-danger"
                             invisible="state != 'finance_approve' or check_process_state == False"
-                            groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
+                            groups="pr_account.custom_group_accounting_manager"
                     />
                     <button
                             string="RESET TO DRAFT"

@@ -182,10 +182,7 @@ class AccountCashPayment(models.Model):
 
     def action_open_reject_wizard(self):
         self.ensure_one()
-        if self.state != "finance_approve":
-            raise UserError(_("Only a voucher awaiting final approval can be rejected."))
-        if not self.env.user.has_group("account.group_account_manager"):
-            raise UserError(_("Only Accounts users can reject a Cash Payment Voucher."))
+        self._check_reject_stage_access()
         return {
             "type": "ir.actions.act_window",
             "name": _("Reject Cash Payment Voucher"),
@@ -195,15 +192,29 @@ class AccountCashPayment(models.Model):
             "context": {"default_payment_id": self.id},
         }
 
+    def _check_reject_stage_access(self):
+        self.ensure_one()
+        is_accounting_manager = self.env.user.has_group(
+            "pr_account.custom_group_accounting_manager"
+        )
+        is_first_approver = (
+            self.env.user.has_group("account.group_account_manager")
+            and not is_accounting_manager
+        )
+        if self.state == "submit" and not is_first_approver:
+            raise UserError(_("Only the first Accounts approver can reject a submitted Cash Payment Voucher."))
+        if self.state == "finance_approve" and not is_accounting_manager:
+            raise UserError(_("Only the Accounting Manager can reject a Cash Payment Voucher awaiting final approval."))
+        if self.state not in ("submit", "finance_approve"):
+            raise UserError(_("Only a voucher awaiting approval can be rejected."))
+        return True
+
     def _reject_with_reason(self, reason):
         reason = (reason or "").strip()
         if not reason:
             raise ValidationError(_("Reject Reason is mandatory."))
-        if not self.env.user.has_group("account.group_account_manager"):
-            raise UserError(_("Only Accounts users can reject a Cash Payment Voucher."))
         for payment in self:
-            if payment.state != "finance_approve":
-                raise UserError(_("Only a voucher awaiting final approval can be rejected."))
+            payment._check_reject_stage_access()
             payment.write({
                 "state": "reject",
                 "accounting_manager_state": "reject",
