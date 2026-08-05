@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="module_category_employee_task" model="ir.module.category">
+            <field name="name">Employee Task Management</field>
+            <field name="description">Access rights for Employee Task Management module</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <!-- employee_task.group_task_employee -->
+        <record id="group_task_employee" model="res.groups">
+            <field name="name">Task Employee</field>
+            <field name="category_id" ref="module_category_employee_task"/>
+            <field name="comment">Can create task lists for themselves only, view own task lists, edit in Draft/Returned status, update progress after approval.</field>
+        </record>
+
+        <!-- employee_task.group_task_manager -->
+        <record id="group_task_manager" model="res.groups">
+            <field name="name">Task Manager</field>
+            <field name="category_id" ref="module_category_employee_task"/>
+            <field name="implied_ids" eval="[(4, ref('group_task_employee'))]"/>
+            <field name="comment">Can create/view task lists of employees under their department/team, approve or return submitted task lists, review progress and close completed task lists.</field>
+        </record>
+
+        <!-- employee_task.group_task_admin -->
+        <record id="group_task_admin" model="res.groups">
+            <field name="name">Task Administrator</field>
+            <field name="category_id" ref="module_category_employee_task"/>
+            <field name="implied_ids" eval="[(4, ref('group_task_manager'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">Full access to all task lists, configuration and exceptional edits.</field>
+        </record>
+
+    </data>
+</odoo>

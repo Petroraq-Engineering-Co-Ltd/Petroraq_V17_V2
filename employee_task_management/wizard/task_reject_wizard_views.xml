@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_reject_wizard_form" model="ir.ui.view">
+        <field name="name">employee.task.reject.wizard.form</field>
+        <field name="model">employee.task.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Task List">
+                <div class="alert alert-danger" role="alert">
+                    Rejecting is <b>final</b>. The task list will be closed as
+                    <b>Rejected</b> and cannot be reopened or sent back to the
+                    employee.
+                </div>
+                <group>
+                    <field name="task_list_id" readonly="1"/>
+                    <field name="reject_reason" required="1"
+                           placeholder="Explain why the completed work is not accepted..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Reject"
+                            type="object" class="btn-danger" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

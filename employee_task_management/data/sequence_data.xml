@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Task list reference: PEC-TL-2026-00001 (TDD Section 24)
+             implementation = no_gap: the number is allocated inside the
+             transaction, so a save that fails validation rolls the number
+             back instead of burning it and leaving a gap in the
+             references (bug 3). -->
+        <record id="seq_employee_task_list" model="ir.sequence">
+            <field name="name">Employee Task List</field>
+            <field name="code">employee.task.list</field>
+            <field name="prefix">PEC-TL-%(year)s-</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="implementation">no_gap</field>
+            <field name="use_date_range">True</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

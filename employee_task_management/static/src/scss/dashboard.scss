@@ -1,0 +1,147 @@
+.o_etm_dashboard {
+    padding: 20px 24px;
+    background: #F5F6F8;
+    min-height: 100%;
+    box-sizing: border-box;
+
+    .o_etm_banner {
+        background: #06284F;
+        border-radius: 12px;
+        padding: 24px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #FFFFFF;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 12px rgba(6, 40, 79, 0.28);
+
+        .o_etm_eyebrow {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #F2A541;
+            margin-bottom: 6px;
+        }
+
+        .o_etm_title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .o_etm_subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.75);
+            margin: 0;
+        }
+
+        .o_etm_refresh_btn {
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #FFFFFF;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.15s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+        }
+    }
+
+    .o_etm_cards {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+
+        @media (max-width: 1200px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        @media (max-width: 700px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .o_etm_card {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+        &:hover {
+            box-shadow: 0 4px 14px rgba(6, 40, 79, 0.14);
+            transform: translateY(-2px);
+        }
+
+        .o_etm_card_label {
+            font-size: 0.76rem;
+            color: #6B7280;
+            margin-bottom: 6px;
+        }
+
+        .o_etm_card_value {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #06284F;
+        }
+    }
+
+    .o_etm_card_danger .o_etm_card_value {
+        color: #DC2626;
+    }
+
+    .o_etm_toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .o_etm_toolbar_title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .o_etm_view_switcher {
+        display: flex;
+        gap: 4px;
+    }
+
+    .o_etm_switch_btn {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        color: #6B7280;
+        border-radius: 6px;
+        padding: 6px 12px;
+        transition: background 0.15s ease, color 0.15s ease;
+
+        &:hover {
+            background: #F3EAF1;
+            color: #06284F;
+        }
+
+        &.active {
+            background: #06284F;
+            border-color: #06284F;
+            color: #FFFFFF;
+        }
+    }
+
+    .o_etm_list_wrapper {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 4px;
+        min-height: 420px;
+    }
+}

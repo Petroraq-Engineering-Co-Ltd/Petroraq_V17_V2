@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- ANALYSIS VIEWS used by dashboard & reports (TDD 16 & 17)     -->
+    <!-- ============================================================ -->
+
+    <!-- Task status pie chart -->
+    <record id="view_task_list_graph_pie" model="ir.ui.view">
+        <field name="name">employee.task.list.graph.pie</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Task Status Distribution" type="pie" sample="1">
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Department-wise task bar chart -->
+    <record id="view_task_list_graph_department" model="ir.ui.view">
+        <field name="name">employee.task.list.graph.department</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Department-Wise Tasks" type="bar" sample="1" stacked="1">
+                <field name="department_id"/>
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Employee-wise completion chart -->
+    <record id="view_task_list_graph_employee" model="ir.ui.view">
+        <field name="name">employee.task.list.graph.employee</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Employee-Wise Completion" type="bar" sample="1">
+                <field name="employee_id"/>
+                <field name="progress" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Monthly task completion trend -->
+    <record id="view_task_list_graph_monthly" model="ir.ui.view">
+        <field name="name">employee.task.list.graph.monthly</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <graph string="Monthly Task Completion Trend" type="line" sample="1">
+                <field name="assign_date" interval="month"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Pivot view for flexible analysis -->
+    <record id="view_task_list_pivot" model="ir.ui.view">
+        <field name="name">employee.task.list.pivot</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <pivot string="Task Analysis" sample="1">
+                <field name="department_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="progress" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- DASHBOARD (TDD Section 17) - cards via filtered actions +    -->
+    <!-- graphs via the Analysis action                               -->
+    <!-- ============================================================ -->
+    <record id="action_task_dashboard" model="ir.actions.act_window">
+        <field name="name">Task Dashboard</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">graph,pivot,kanban,tree</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_task_list_graph_pie')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_task_list_pivot')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No data yet</p>
+            <p>Task status pie chart, department-wise bar chart, employee-wise completion and monthly trend are available from the measures/views toolbar.</p>
+        </field>
+    </record>
+
+    <!-- Dashboard cards as dedicated filtered actions -->
+    <record id="action_dash_total" model="ir.actions.act_window">
+        <field name="name">Total Task Lists</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <record id="action_dash_pending" model="ir.actions.act_window">
+        <field name="name">Pending Manager Approval</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', '=', 'submitted_manager')]</field>
+    </record>
+    <record id="action_dash_in_progress" model="ir.actions.act_window">
+        <field name="name">In Progress Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['in_progress', 'returned_after_completion'])]</field>
+    </record>
+    <record id="action_dash_completed" model="ir.actions.act_window">
+        <field name="name">Completed Tasks (not closed)</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', '=', 'completed')]</field>
+    </record>
+    <record id="action_dash_overdue" model="ir.actions.act_window">
+        <field name="name">Delayed Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('is_delayed', '=', True)]</field>
+    </record>
+    <record id="action_dash_closed" model="ir.actions.act_window">
+        <field name="name">Closed Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['closed', 'rejected'])]</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- REPORTS (TDD Section 16)                                     -->
+    <!-- ============================================================ -->
+
+    <!-- 16.1 Employee Task Summary -->
+    <record id="action_report_employee_summary" model="ir.actions.act_window">
+        <field name="name">Employee Task Summary</field>
+        <field name="res_model">employee.task.line</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="context">{'search_default_group_employee': 1}</field>
+    </record>
+
+    <!-- 16.2 Pending Approval Report -->
+    <record id="action_report_pending_approval" model="ir.actions.act_window">
+        <field name="name">Pending Approval Report</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="domain">[('state', '=', 'submitted_manager')]</field>
+        <field name="context">{'search_default_group_manager': 1}</field>
+    </record>
+
+    <!-- 16.3 Delayed Task Report -->
+    <record id="action_report_overdue" model="ir.actions.act_window">
+        <field name="name">Delayed Task Report</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="domain">[('is_delayed', '=', True)]</field>
+        <field name="context">{'search_default_group_employee': 1}</field>
+    </record>
+
+    <!-- 16.4 Department-Wise Task Report -->
+    <record id="action_report_department" model="ir.actions.act_window">
+        <field name="name">Department-Wise Task Report</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">graph,pivot,tree</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'graph', 'view_id': ref('view_task_list_graph_department')}),
+            (0, 0, {'view_mode': 'pivot', 'view_id': ref('view_task_list_pivot')})]"/>
+        <field name="context">{'search_default_group_department': 1}</field>
+    </record>
+
+    <!-- 16.5 Completion Report -->
+    <record id="action_report_completion" model="ir.actions.act_window">
+        <field name="name">Completion Report</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,graph,pivot</field>
+        <field name="domain">[('state', 'in', ['completed', 'closed', 'rejected'])]</field>
+        <field name="context">{'search_default_group_employee': 1}</field>
+    </record>
+
+    <!-- Task Line supporting views for Employee Task Summary -->
+    <record id="view_task_line_tree_report" model="ir.ui.view">
+        <field name="name">employee.task.line.tree.report</field>
+        <field name="model">employee.task.line</field>
+        <field name="arch" type="xml">
+            <tree string="Task Lines" create="false" edit="false"
+                  decoration-danger="is_delayed"
+                  decoration-success="task_status == 'completed'">
+                <field name="task_list_id"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="department_id"/>
+                <field name="description"/>
+                <field name="start_date" optional="show"/>
+                <field name="end_date" optional="show"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="task_status" widget="badge"/>
+                <field name="is_delayed" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_task_line_search_report" model="ir.ui.view">
+        <field name="name">employee.task.line.search.report</field>
+        <field name="model">employee.task.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="task_list_id"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="description"/>
+                <filter string="Completed" name="completed" domain="[('task_status', '=', 'completed')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('task_status', '=', 'in_progress')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                    <filter string="Task List" name="group_task_list" context="{'group_by': 'task_list_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'task_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_task_line_pivot_report" model="ir.ui.view">
+        <field name="name">employee.task.line.pivot.report</field>
+        <field name="model">employee.task.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Employee Task Summary" sample="1">
+                <field name="employee_id" type="row"/>
+                <field name="task_status" type="col"/>
+                <field name="progress" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_task_line_graph_report" model="ir.ui.view">
+        <field name="name">employee.task.line.graph.report</field>
+        <field name="model">employee.task.line</field>
+        <field name="arch" type="xml">
+            <graph string="Employee Task Summary" type="bar" sample="1">
+                <field name="employee_id"/>
+                <field name="progress" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+</odoo>
