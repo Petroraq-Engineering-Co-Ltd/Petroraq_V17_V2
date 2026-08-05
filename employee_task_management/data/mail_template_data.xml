@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- 1. Manager Approval Request (Task list submitted -> Immediate Manager) -->
+        <record id="mail_template_task_submitted" model="mail.template">
+            <field name="name">Task List: Approval Required</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Approval Required - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.manager_id.user_id.partner_id.id or object.manager_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.manager_id.name or 'Manager'"/>,</p>
+    <p>A new task list has been submitted by employee
+       <b><t t-out="object.employee_id.name"/></b> and requires your approval.</p>
+    <table style="border-collapse:collapse;margin:12px 0;">
+        <tr><td style="padding:4px 12px 4px 0;"><b>Reference:</b></td><td><t t-out="object.name"/></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;"><b>Department:</b></td><td><t t-out="object.department_id.name"/></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;"><b>Assign Date:</b></td><td><t t-out="object.assign_date"/></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;"><b>Number of Tasks:</b></td><td><t t-out="object.task_count"/></td></tr>
+    </table>
+    <p>Please log in to review, approve or return the task list.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 2. Task List Approved (Manager approved -> Employee) -->
+        <record id="mail_template_task_approved" model="mail.template">
+            <field name="name">Task List: Approved</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Approved - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>Your task list <b><t t-out="object.name"/></b> has been approved by your
+       manager <b><t t-out="object.manager_id.name"/></b> and is now applicable.</p>
+    <p>You may now start work and update your activities and progress.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 3. Task List Returned (Manager returned -> Employee) -->
+        <record id="mail_template_task_returned" model="mail.template">
+            <field name="name">Task List: Returned for Correction</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Returned for Correction - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>Your task list <b><t t-out="object.name"/></b> has been returned.
+       Please review the remarks, make corrections, and resubmit.</p>
+    <t t-if="object.return_reason">
+        <p><b>Return Reason:</b><br/><t t-out="object.return_reason"/></p>
+    </t>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 4. Task Marked Completed (-> Manager for review + Employee) -->
+        <record id="mail_template_task_completed" model="mail.template">
+            <field name="name">Task List: Completed - Review Required</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Completed - Review Required - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.manager_id.user_id.partner_id.id or object.manager_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.manager_id.name or 'Manager'"/>,</p>
+    <p>Employee <b><t t-out="object.employee_id.name"/></b> has marked task list
+       <b><t t-out="object.name"/></b> as <b>Completed</b>.</p>
+    <p>Please review the progress and close the task list.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 5. Task Closed (-> Employee) -->
+        <record id="mail_template_task_closed" model="mail.template">
+            <field name="name">Task List: Closed</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Closed - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>Your task list <b><t t-out="object.name"/></b> has been reviewed and
+       <b>closed</b> by your manager. The record remains available for reporting.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 6. Task List Assigned by Manager (-> Employee) -->
+        <record id="mail_template_task_assigned" model="mail.template">
+            <field name="name">Task List: Assigned by Manager</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">New Task List Assigned - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>A new task list <b><t t-out="object.name"/></b> has been created and
+       assigned to you by your manager. It is already approved and applicable.</p>
+    <table style="border-collapse:collapse;margin:12px 0;">
+        <tr><td style="padding:4px 12px 4px 0;"><b>Department:</b></td><td><t t-out="object.department_id.name"/></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;"><b>Assign Date:</b></td><td><t t-out="object.assign_date"/></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;"><b>Number of Tasks:</b></td><td><t t-out="object.task_count"/></td></tr>
+    </table>
+    <p>Please log in, review the tasks and click <b>Start Work</b> to begin.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 7. Task List Updated & Resubmitted after Unlock (-> Employee) -->
+        <record id="mail_template_task_resubmitted" model="mail.template">
+            <field name="name">Task List: Updated - Start Working</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Updated - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>Task list <b><t t-out="object.name"/></b> has been reviewed and updated by
+       your manager <b><t t-out="object.manager_id.name"/></b>. It is approved
+       and ready for you to work on again.</p>
+    <table style="border-collapse:collapse;margin:12px 0;">
+        <tr><td style="padding:4px 12px 4px 0;"><b>Department:</b></td><td><t t-out="object.department_id.name"/></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;"><b>Assign Date:</b></td><td><t t-out="object.assign_date"/></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;"><b>Number of Tasks:</b></td><td><t t-out="object.task_count"/></td></tr>
+    </table>
+    <p>Please review the updated tasks and click <b>Start Work</b> to continue.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 8. Task List Accepted by Employee (-> Manager) -->
+        <record id="mail_template_task_accepted" model="mail.template">
+            <field name="name">Task List: Accepted by Employee</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Accepted - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.manager_id.user_id.partner_id.id or object.manager_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.manager_id.name or 'Manager'"/>,</p>
+    <p>Employee <b><t t-out="object.employee_id.name"/></b> has <b>accepted</b>
+       task list <b><t t-out="object.name"/></b>. It is now applicable and the
+       employee can start the work.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 9. Modification Requested by Employee (-> Manager) -->
+        <record id="mail_template_task_modification_request" model="mail.template">
+            <field name="name">Task List: Modification Requested</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Modification Requested - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.manager_id.user_id.partner_id.id or object.manager_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.manager_id.name or 'Manager'"/>,</p>
+    <p>Employee <b><t t-out="object.employee_id.name"/></b> has requested a
+       modification on task list <b><t t-out="object.name"/></b> before
+       accepting it.</p>
+    <t t-if="object.modification_reason">
+        <p><b>Requested change:</b><br/><t t-out="object.modification_reason"/></p>
+    </t>
+    <p>If this request is not handled before the <b>task start date</b>, the
+       task list will be assigned to the employee automatically.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 10. Task List Modified &amp; Re-sent for Acceptance (-> Employee) -->
+        <record id="mail_template_task_modified" model="mail.template">
+            <field name="name">Task List: Modified - Please Accept</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Updated - Please Accept - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>Your modification request on task list <b><t t-out="object.name"/></b>
+       has been handled by your manager
+       <b><t t-out="object.manager_id.name"/></b>.</p>
+    <p>Please review the updated task list and click <b>Accept</b>.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 11. Auto-assigned because the task start date arrived -->
+        <record id="mail_template_task_auto_applied" model="mail.template">
+            <field name="name">Task List: Auto-Assigned</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Auto-Assigned - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>Task list <b><t t-out="object.name"/></b> has been
+       <b>assigned automatically</b> because the start date of its work
+       arrived while it was still waiting.</p>
+    <p>You may now click <b>Start Work</b> and begin execution.</p>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- 12. Task List Rejected after completion (-> Employee) -->
+        <record id="mail_template_task_rejected" model="mail.template">
+            <field name="name">Task List: Rejected</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="subject">Task List Rejected - {{ object.name }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to">{{ object.employee_id.user_id.partner_id.id or object.employee_id.work_contact_id.id }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;">
+    <p>Dear <t t-out="object.employee_id.name"/>,</p>
+    <p>Your completed task list <b><t t-out="object.name"/></b> has been
+       <b style="color:#b3261e;">rejected</b> by your manager
+       <t t-out="object.manager_id.name"/> and is now closed.</p>
+    <t t-if="object.reject_reason">
+        <p><b>Reject Reason:</b><br/><t t-out="object.reject_reason"/></p>
+    </t>
+    <p>Regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

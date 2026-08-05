@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- FORM VIEW (TDD Section 8 & 9)                                -->
+    <!-- ============================================================ -->
+    <record id="view_employee_task_list_form" model="ir.ui.view">
+        <field name="name">employee.task.list.form</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <form string="Employee Task List" class="etm_form">
+                <header>
+                    <!-- Buttons per role & workflow status (TDD Section 19) -->
+                    <button name="action_submit_to_manager" string="Submit to Manager"
+                            type="object" class="btn-primary"
+                            invisible="state not in ('draft', 'returned_manager') or not is_current_user_employee"
+                            groups="employee_task_management.group_task_employee"/>
+                    <button name="action_assign_to_employee" string="Assign to Employee"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft' or is_current_user_employee"
+                            groups="employee_task_management.group_task_manager"/>
+                    <button name="action_manager_approve" string="Approve"
+                            type="object" class="btn-success"
+                            invisible="state != 'submitted_manager'"
+                            groups="employee_task_management.group_task_manager"/>
+                    <button name="action_manager_return" string="Return for Correction"
+                            type="object" class="btn-warning"
+                            invisible="state != 'submitted_manager'"
+                            groups="employee_task_management.group_task_manager"/>
+                    <!-- QA 17 & 18: employee accepts, or asks for changes -->
+                    <button name="action_employee_accept" string="Accept"
+                            type="object" class="btn-success"
+                            invisible="state != 'pending_acceptance' or not is_current_user_employee"
+                            groups="employee_task_management.group_task_employee"/>
+                    <button name="action_request_modification" string="Request Modification"
+                            type="object" class="btn-warning"
+                            invisible="state != 'pending_acceptance' or not is_current_user_employee"
+                            groups="employee_task_management.group_task_employee"/>
+                    <button name="action_resend_to_employee" string="Modify &amp; Re-send"
+                            type="object" class="btn-primary"
+                            invisible="state != 'modification_requested'"
+                            groups="employee_task_management.group_task_manager"/>
+                    <button name="action_start_work" string="Start Work"
+                            type="object" class="btn-primary"
+                            invisible="state != 'manager_approved' or not is_current_user_employee"
+                            groups="employee_task_management.group_task_employee"/>
+                    <button name="action_mark_completed" string="Mark Completed"
+                            type="object" class="btn-primary"
+                            invisible="state not in ('in_progress', 'returned_after_completion') or not is_current_user_employee"
+                            groups="employee_task_management.group_task_employee"/>
+                    <button name="action_close" string="Approve"
+                            type="object" class="btn-success"
+                            invisible="state != 'completed'"
+                            groups="employee_task_management.group_task_manager"/>
+                    <!-- Replaces Return for Correction at the Completed stage.
+                         Rejecting is final: the task list ends as Rejected. -->
+                    <button name="action_reject" string="Reject"
+                            type="object" class="btn-danger"
+                            invisible="state != 'completed'"
+                            groups="employee_task_management.group_task_manager"/>
+                    <!-- Status bar (TDD 8.2). The exception states are shown
+                         separately by the ribbons below when they are active. -->
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted_manager,pending_acceptance,manager_approved,in_progress,completed,closed"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Returned" bg_color="text-bg-danger"
+                            invisible="state != 'returned_manager'"/>
+                    <!-- QA 6 & 26: returned after completion is its own status -->
+                    <widget name="web_ribbon" title="Returned after Completion"
+                            bg_color="text-bg-danger"
+                            invisible="state != 'returned_after_completion'"/>
+                    <widget name="web_ribbon" title="Modification Requested"
+                            bg_color="text-bg-warning"
+                            invisible="state != 'modification_requested'"/>
+                    <widget name="web_ribbon" title="Waiting Acceptance"
+                            bg_color="text-bg-warning"
+                            invisible="state != 'pending_acceptance'"/>
+                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger"
+                            invisible="state != 'rejected'"/>
+                    <widget name="web_ribbon" title="Delayed" bg_color="text-bg-warning"
+                            invisible="not is_delayed"/>
+                    <!-- Keeps the delay visible after the work finishes,
+                         when is_delayed has already gone False. Manager /
+                         Administrator only. -->
+                    <widget name="web_ribbon" title="Was Delayed" bg_color="text-bg-danger"
+                            invisible="is_delayed or not was_delayed"
+                            groups="employee_task_management.group_task_manager"/>
+                    <field name="is_delayed" invisible="1"/>
+                    <field name="was_delayed" invisible="1"/>
+                    <field name="is_unlocked" invisible="1"/>
+                    <field name="can_edit_unlocked" invisible="1"/>
+                    <field name="can_select_employee" invisible="1"/>
+                    <field name="can_edit_department" invisible="1"/>
+                    <field name="can_edit_manager" invisible="1"/>
+                    <field name="allowed_employee_ids" invisible="1"/>
+                    <field name="allowed_department_ids" invisible="1"/>
+                    <field name="has_task_without_activity" invisible="1"/>
+                    <field name="is_current_user_manager" invisible="1"/>
+                    <field name="is_current_user_employee" invisible="1"/>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="not has_task_without_activity or state in ('completed', 'closed')">
+                        Some tasks still have <b>no activity</b>. Use the
+                        <b>Activities</b> button on the task line to add at least one
+                        activity with its hours. A task list cannot be submitted to the
+                        manager, nor marked completed, while a task has no activity.
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Task List Reference"/>
+                        <h1>
+                            <field name="name" readonly="1" placeholder="PEC-TL-2026-00001"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Employee Information">
+                            <!-- QA 24 / bug 2: a plain employee cannot pick
+                                 somebody else, nor change his department or
+                                 manager - all three are fixed for him.
+                                 Bug 6: a manager only sees his own
+                                 department / his own team members. -->
+                            <field name="employee_id"
+                                   readonly="not can_select_employee or (state not in ('draft', 'returned_manager') and not can_edit_unlocked)"
+                                   domain="[('id', 'in', allowed_employee_ids)]"
+                                   options="{'no_create': True, 'no_open': False}"/>
+                            <field name="department_id"
+                                   readonly="not can_edit_department or (state not in ('draft', 'returned_manager') and not can_edit_unlocked)"
+                                   domain="[('id', 'in', allowed_department_ids)]"
+                                   options="{'no_create': True}"/>
+                            <field name="manager_id"
+                                   readonly="not can_edit_manager or (state not in ('draft', 'returned_manager') and not can_edit_unlocked)"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group string="Task Information">
+                            <!-- Auto-filled on creation, never editable -->
+                            <field name="assign_date" readonly="1"/>
+                            <field name="progress" widget="progressbar" readonly="1"/>
+                            <field name="task_count"/>
+                            <field name="was_delayed" readonly="1"
+                                   widget="boolean_toggle"
+                                   groups="employee_task_management.group_task_manager"/>
+                            <field name="pending_since" readonly="1"
+                                   invisible="state not in ('submitted_manager', 'pending_acceptance', 'modification_requested')"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   readonly="state not in ('draft', 'returned_manager') and not can_edit_unlocked"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <!-- Tab 1: Task Details (TDD Section 9) -->
+                        <page string="Task Details" name="task_details">
+                            <!-- ================================================
+                                 TWO RENDERINGS OF THE SAME FIELD.
+                                 Odoo cannot switch a list's create/delete
+                                 buttons on and off per record, so the
+                                 editable version and the frozen version are
+                                 two nodes toggled by the status.
+                                 ================================================ -->
+
+                            <!-- A. Still being planned: full editing. -->
+                            <field name="task_line_ids" nolabel="1"
+                                   invisible="state not in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested')">
+                                <tree editable="bottom" class="etm_task_lines"
+                                      decoration-danger="is_delayed">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="sr_no" string="#" readonly="1" width="40px"/>
+                                    <field name="description" required="1"/>
+                                    <field name="start_date" width="110px"/>
+                                    <field name="end_date" width="110px"/>
+                                    <field name="progress" widget="progressbar" width="130px" readonly="1"/>
+                                    <field name="task_status" widget="badge" width="120px" readonly="1"
+                                           class="etm_state_badge"
+                                           decoration-muted="task_status in ('draft', 'closed')"
+                                           decoration-primary="task_status == 'in_progress'"
+                                           decoration-success="task_status == 'completed'"
+                                           decoration-bf="task_status == 'closed'"/>
+                                    <field name="subtask_label" string="Activities" width="90px"/>
+                                    <button name="action_open_subtasks" type="object"
+                                            icon="fa-list-ul" class="btn-link etm_subtask_btn"
+                                            title="Manage Activities"/>
+                                    <field name="total_hours" string="Hours" widget="float_time" width="70px" sum="Total Hours"/>
+                                    <field name="remarks" optional="show"/>
+                                    <field name="is_delayed" column_invisible="1"/>
+                                </tree>
+                            </field>
+
+                            <!-- B. Approved onwards: the plan is frozen. No
+                                 Add a line, no delete, everything read-only
+                                 except Remarks (and Done inside the
+                                 Activities dialog). -->
+                            <!-- No container-level readonly here: it would
+                                 also disable the Activities button, which a
+                                 manager still needs on a Completed task list.
+                                 Every column is locked individually instead,
+                                 and create/delete are off. -->
+                            <field name="task_line_ids" nolabel="1"
+                                   invisible="state in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested')">
+                                <tree editable="bottom" create="false" delete="false"
+                                      class="etm_task_lines" decoration-danger="is_delayed">
+                                    <field name="sr_no" string="#" readonly="1" width="40px"/>
+                                    <field name="description" readonly="1"/>
+                                    <field name="start_date" readonly="1" width="110px"/>
+                                    <field name="end_date" readonly="1" width="110px"/>
+                                    <field name="progress" widget="progressbar" width="130px" readonly="1"/>
+                                    <field name="task_status" widget="badge" width="120px" readonly="1"
+                                           class="etm_state_badge"
+                                           decoration-muted="task_status in ('draft', 'closed')"
+                                           decoration-primary="task_status == 'in_progress'"
+                                           decoration-success="task_status == 'completed'"
+                                           decoration-bf="task_status == 'closed'"/>
+                                    <field name="subtask_label" string="Activities" width="90px"/>
+                                    <button name="action_open_subtasks" type="object"
+                                            icon="fa-list-ul" class="btn-link etm_subtask_btn"
+                                            title="Activities"/>
+                                    <field name="total_hours" string="Hours" widget="float_time" width="70px" sum="Total Hours"/>
+                                    <!-- Remarks stay editable while the work runs,
+                                         and lock once it leaves the employee -->
+                                    <field name="remarks" optional="show"
+                                           readonly="parent.state in ('submitted_manager', 'completed', 'closed', 'rejected')"/>
+                                    <field name="is_delayed" column_invisible="1"/>
+                                </tree>
+                            </field>
+                            <div class="text-muted mt-2"
+                                 invisible="state not in ('manager_approved', 'in_progress', 'returned_after_completion')">
+                                This task list is approved, so the tasks and activities are
+                                frozen. You can still update <b>Remarks</b> here, and tick
+                                activities off as <b>Done</b> from the Activities button.
+                            </div>
+                        </page>
+                        <!-- Tab 2: Approval Remarks (TDD Section 9) -->
+                        <page string="Approval Remarks" name="approval_remarks">
+                            <group>
+                                <group string="Manager Remarks">
+                                    <field name="manager_remarks" nolabel="1" colspan="2"
+                                           placeholder="Manager remarks..."
+                                           readonly="(state in ('closed',) or (not is_current_user_manager and state not in ('draft',))) and not can_edit_unlocked"/>
+                                </group>
+                                <group string="Return Reason">
+                                    <field name="return_reason" nolabel="1" colspan="2" readonly="1"
+                                           placeholder="Reason will appear here if the task list is returned."/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Reject Reason">
+                                    <field name="reject_reason" nolabel="1" colspan="2" readonly="1"
+                                           placeholder="Appears here if the manager rejects the completed task list."/>
+                                </group>
+                                <group string="Modification Requested by Employee">
+                                    <field name="modification_reason" nolabel="1" colspan="2" readonly="1"
+                                           placeholder="Appears here when the employee requests a modification."/>
+                                </group>
+                            </group>
+                            <separator string="Approval History"/>
+                            <field name="approval_history_ids" readonly="1">
+                                <tree>
+                                    <field name="action_datetime"/>
+                                    <field name="user_id"/>
+                                    <field name="action" widget="badge"
+                                           decoration-success="action in ('approved', 'accepted')"
+                                           decoration-danger="action in ('returned', 'returned_completed', 'rejected')"
+                                           decoration-warning="action in ('modification_requested', 'auto_applied')"
+                                           decoration-muted="action == 'submitted'"/>
+                                    <field name="approval_level"/>
+                                    <field name="state"/>
+                                    <field name="remarks"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <!-- Tab 3: Progress Updates (TDD Section 9) -->
+                        <page string="Progress Updates" name="progress_updates">
+                            <group>
+                                <field name="progress" widget="progressbar" readonly="1"/>
+                            </group>
+                            <separator string="Activities Update Log"/>
+                            <field name="activity_update_log" readonly="1"/>
+                            <separator string="Completion Notes"/>
+                            <field name="completion_notes"
+                                   placeholder="Notes entered at completion time..."
+                                   readonly="state in ('completed', 'closed') and not is_current_user_manager and not can_edit_unlocked"/>
+                        </page>
+                        <!-- Tab 4: Attachments (TDD Section 9) -->
+                        <page string="Attachments" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary"
+                                   readonly="state == 'closed'"/>
+                            <div class="text-muted mt-2">
+                                Supporting files, site photos, drawings and work progress documents.
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <!-- Chatter integration (TDD Deliverable 13) -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- TREE / LIST VIEW (TDD Section 11) with color indicators      -->
+    <!-- ============================================================ -->
+    <record id="view_employee_task_list_tree" model="ir.ui.view">
+        <field name="name">employee.task.list.tree</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <tree string="Task Lists" sample="1" class="etm_task_list_tree">
+                <field name="name" string="Task List Reference Number"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="department_id"/>
+                <field name="manager_id" widget="many2one_avatar_employee"/>
+                <field name="assign_date"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state in ('draft', 'closed')"
+                       decoration-warning="state in ('submitted_manager', 'pending_acceptance', 'modification_requested')"
+                       decoration-info="state == 'manager_approved'"
+                       decoration-primary="state == 'in_progress'"
+                       decoration-success="state == 'completed'"
+                       decoration-danger="state in ('returned_manager', 'returned_after_completion', 'rejected')"
+                       decoration-bf="state == 'closed'" class="etm_state_badge"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="was_delayed" string="Was Delayed" optional="hide"
+                       groups="employee_task_management.group_task_manager"/>
+                <field name="create_uid" string="Created By" optional="show"/>
+                <field name="write_date" string="Last Updated" optional="show"/>
+                <field name="task_count" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- KANBAN VIEW (TDD Section 10)                                 -->
+    <!-- QA 13/14/15: read-only board. records_draggable is forced to  -->
+    <!-- 0 for everybody except the Task Administrator by _get_view.   -->
+    <!-- ============================================================ -->
+    <record id="view_employee_task_list_kanban" model="ir.ui.view">
+        <field name="name">employee.task.list.kanban</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile etm_kanban"
+                    sample="1" quick_create="false" group_create="false"
+                    group_edit="false" group_delete="false"
+                    records_draggable="0">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="assign_date"/>
+                <field name="task_count"/>
+                <field name="progress"/>
+                <field name="state"/>
+                <field name="color"/>
+                <field name="is_delayed"/>
+                <progressbar field="state"
+                             colors='{"returned_manager": "danger", "returned_after_completion": "danger", "rejected": "danger", "completed": "success", "submitted_manager": "warning", "pending_acceptance": "warning", "modification_requested": "warning"}'/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click oe_kanban_card etm_kanban_card #{kanban_color(record.color.raw_value)}">
+                            <div class="o_kanban_record_top mb-2">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <div class="text-muted">
+                                        <field name="employee_id"/>
+                                    </div>
+                                </div>
+                                <span t-if="record.is_delayed.raw_value"
+                                      class="badge text-bg-danger">Delayed</span>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div><i class="fa fa-building-o me-1" title="Department"/><field name="department_id"/></div>
+                                <div><i class="fa fa-calendar me-1" title="Assign Date"/><field name="assign_date"/></div>
+                                <div><i class="fa fa-tasks me-1" title="Number of Tasks"/><field name="task_count"/> Tasks</div>
+                                <field name="progress" widget="progressbar" class="mt-2"/>
+                            </div>
+                            <div class="o_kanban_record_bottom mt-2">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="state" widget="label_selection"
+                                           options="{'classes': {'draft': 'muted', 'submitted_manager': 'warning', 'pending_acceptance': 'warning', 'modification_requested': 'warning', 'manager_approved': 'info', 'in_progress': 'primary', 'completed': 'success', 'returned_manager': 'danger', 'returned_after_completion': 'danger', 'rejected': 'danger', 'closed': 'dark'}}"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- ACTIVITY VIEW                                                -->
+    <!-- ============================================================ -->
+    <record id="view_employee_task_list_activity" model="ir.ui.view">
+        <field name="name">employee.task.list.activity</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <activity string="Task Lists">
+                <templates>
+                    <div t-name="activity-box">
+                        <field name="employee_id" widget="many2one_avatar_employee"/>
+                        <div>
+                            <field name="name" display="full"/>
+                            <field name="state" muted="1" display="full"/>
+                        </div>
+                    </div>
+                </templates>
+            </activity>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- SEARCH VIEW (TDD Section 12)                                 -->
+    <!-- ============================================================ -->
+    <record id="view_employee_task_list_search" model="ir.ui.view">
+        <field name="name">employee.task.list.search</field>
+        <field name="model">employee.task.list</field>
+        <field name="arch" type="xml">
+            <search string="Search Task Lists">
+                <!-- 12.1 Search Fields -->
+                <field name="name" string="Task List Reference"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="manager_id"/>
+                <field name="state"/>
+                <field name="assign_date"/>
+                <field name="task_line_ids" string="End Date"
+                       filter_domain="[('task_line_ids.end_date', '=', self)]"/>
+                <!-- 12.2 Filters -->
+                <filter string="My Task Lists" name="my_task_lists"
+                        domain="[('employee_id.user_id', '=', uid)]"/>
+                <filter string="My Team (as Manager)" name="my_team"
+                        domain="[('manager_id.user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Pending Manager Approval" name="pending_approval"
+                        domain="[('state', '=', 'submitted_manager')]"/>
+                <filter string="Pending Employee Acceptance" name="pending_acceptance"
+                        domain="[('state', '=', 'pending_acceptance')]"/>
+                <filter string="Modification Requested" name="modification_requested"
+                        domain="[('state', '=', 'modification_requested')]"/>
+                <filter string="Returned Task Lists" name="returned"
+                        domain="[('state', 'in', ['returned_manager', 'returned_after_completion'])]"/>
+                <filter string="Approved Task Lists" name="approved"
+                        domain="[('state', '=', 'manager_approved')]"/>
+                <filter string="In Progress" name="in_progress"
+                        domain="[('state', 'in', ['in_progress', 'returned_after_completion'])]"/>
+                <filter string="Completed" name="completed"
+                        domain="[('state', '=', 'completed')]"/>
+                <filter string="Closed" name="closed"
+                        domain="[('state', '=', 'closed')]"/>
+                <filter string="Rejected" name="rejected"
+                        domain="[('state', '=', 'rejected')]"/>
+                <separator/>
+                <filter string="Delayed Tasks" name="delayed"
+                        domain="[('is_delayed', '=', True)]"/>
+                <filter string="Ran Late (incl. finished)" name="was_delayed"
+                        domain="[('was_delayed', '=', True)]"
+                        groups="employee_task_management.group_task_manager"/>
+                <separator/>
+                <filter string="Assign Date" name="filter_assign_date" date="assign_date"/>
+                <!-- 12.3 Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee"
+                            context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_department"
+                            context="{'group_by': 'department_id'}"/>
+                    <filter string="Manager" name="group_manager"
+                            context="{'group_by': 'manager_id'}"/>
+                    <filter string="Status" name="group_status"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Assign Date" name="group_assign_date"
+                            context="{'group_by': 'assign_date'}"/>
+                    <filter string="Month" name="group_month"
+                            context="{'group_by': 'assign_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- WINDOW ACTIONS (TDD Section 7 menu structure)                -->
+    <!-- ============================================================ -->
+    <record id="action_task_list_all" model="ir.actions.act_window">
+        <field name="name">Task Lists</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first task list</p>
+            <p>Create a task list, submit it to your manager for approval, then track execution until closure.</p>
+        </field>
+    </record>
+
+    <record id="action_task_list_my" model="ir.actions.act_window">
+        <field name="name">My Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'search_default_my_task_lists': 1}</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No task lists yet</p>
+            <p>Create your own task list and submit it to your manager.</p>
+        </field>
+    </record>
+
+    <record id="action_task_list_pending" model="ir.actions.act_window">
+        <field name="name">Pending Approval Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', '=', 'submitted_manager')]</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing pending approval</p>
+        </field>
+    </record>
+
+    <record id="action_task_list_acceptance" model="ir.actions.act_window">
+        <field name="name">Pending My Acceptance</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['pending_acceptance', 'modification_requested'])]</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nothing waiting for acceptance</p>
+            <p>Task lists assigned to you by your manager appear here until you accept them.</p>
+        </field>
+    </record>
+
+    <record id="action_task_list_approved" model="ir.actions.act_window">
+        <field name="name">Approved by Manager</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['manager_approved', 'in_progress', 'returned_after_completion'])]</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No approved task lists</p>
+        </field>
+    </record>
+
+    <record id="action_task_list_completed" model="ir.actions.act_window">
+        <field name="name">Completed Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['completed', 'closed', 'rejected'])]</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No completed task lists yet</p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,178 @@
+/* Employee Task Management - UI polish */
+
+.etm_kanban {
+    .etm_kanban_card {
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+
+        &:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .o_kanban_record_title {
+            font-size: 0.95rem;
+            letter-spacing: 0.2px;
+        }
+
+        .o_kanban_record_body > div {
+            margin-bottom: 2px;
+            font-size: 0.82rem;
+            color: #5f6368;
+
+            .fa {
+                width: 16px;
+                text-align: center;
+                color: #875a7b;
+            }
+        }
+    }
+
+    // Column headers
+    .o_kanban_header .o_column_title {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        letter-spacing: 0.5px;
+    }
+}
+
+/* Client brand color: the "Approved" status uses the 'info' decoration
+   (Bootstrap blue) per the TDD color scheme, but should render as the
+   exact brand navy #06284F rather than default Bootstrap info-blue.
+   PRIMARY mechanism: Bootstrap 5.1+ colored utilities (.bg-info,
+   .text-bg-info, badges, etc.) derive their color from the CSS custom
+   property --bs-info internally, so redefining that variable in scope
+   cascades correctly no matter which exact class Odoo's badge widget
+   applies - this doesn't depend on knowing the exact class name.
+   FALLBACK: explicit class overrides in case a fixed color is used
+   instead of the variable somewhere. */
+.etm_task_list_tree,
+.etm_kanban,
+.etm_task_lines,
+.etm_form {
+    --bs-info: #06284F;
+    --bs-info-rgb: 6, 40, 79;
+}
+
+.etm_state_badge {
+    .badge,
+    span {
+        &.bg-info,
+        &.text-bg-info,
+        &.badge-info {
+            background-color: #06284F !important;
+            border-color: #06284F !important;
+            color: #FFFFFF !important;
+        }
+    }
+}
+
+.etm_kanban {
+    .o_status_label,
+    span {
+        &.bg-info,
+        &.text-bg-info,
+        &.badge-info,
+        &.o_status_label_info {
+            background-color: #06284F !important;
+            border-color: #06284F !important;
+            color: #FFFFFF !important;
+        }
+    }
+}
+
+.etm_form {
+    .oe_title h1 .o_field_char input,
+    .oe_title h1 .o_field_char span {
+        font-weight: 700;
+        color: #875a7b;
+    }
+
+    .o_statusbar_status .o_arrow_button.o_arrow_button_current {
+        font-weight: 600;
+        background-color: #06284F !important;
+        color: #FFFFFF !important;
+    }
+}
+
+/* Task Lines grid - tighter, cleaner rows so the many columns (dates,
+   progress, status, sub-activities, hours, remarks) don't feel cramped */
+.etm_task_lines {
+    .o_data_row {
+        > td {
+            vertical-align: middle;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+    }
+
+    .o_field_progressbar {
+        min-width: 90px;
+
+        .o_progressbar > .bg-primary,
+        .o_progress_bar {
+            border-radius: 4px;
+        }
+    }
+
+    .o_field_widget[name="task_status"] {
+        font-weight: 500;
+    }
+
+    .o_field_widget[name="subtask_label"] {
+        font-size: 0.82rem;
+        color: #5f6368;
+        white-space: nowrap;
+    }
+
+    .etm_subtask_btn {
+        padding: 2px 6px;
+        color: #875a7b;
+
+        &:hover {
+            color: #6b4460;
+            background-color: #F3EAF1;
+            border-radius: 4px;
+        }
+    }
+
+    .o_data_row.text-danger td {
+        color: #c23934;
+    }
+}
+
+/* Activities dialog (opened via the "Manage" button on a task line):
+   right-align the Hours column, center the Done toggle, keep rows
+   evenly spaced so nothing looks skewed */
+.etm_activity_lines {
+    .o_data_row > td,
+    thead th {
+        vertical-align: middle;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+    .o_field_widget[name="hours"] {
+        text-align: right;
+
+        input {
+            text-align: right;
+        }
+    }
+
+    thead th[data-name="hours"] {
+        text-align: right;
+    }
+
+    .o_field_widget[name="is_done"] {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    thead th[data-name="is_done"] {
+        text-align: center;
+    }
+}

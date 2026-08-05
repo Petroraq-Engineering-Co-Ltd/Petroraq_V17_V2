@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Root: Employee Task Management (TDD 7.1) -->
+    <menuitem id="menu_employee_task_root"
+              name="Employee Task Management"
+              web_icon="employee_task_management,static/description/icon.png"
+              groups="employee_task_management.group_task_employee"
+              sequence="35"/>
+
+    <!-- Task Lists -->
+    <menuitem id="menu_task_lists"
+              name="Task Lists"
+              parent="menu_employee_task_root"
+              sequence="10"/>
+    <menuitem id="menu_task_lists_all"
+              name="All Task Lists"
+              parent="menu_task_lists"
+              action="action_task_list_all"
+              sequence="5"/>
+    <menuitem id="menu_task_lists_my"
+              name="My Tasks"
+              parent="menu_task_lists"
+              action="action_task_list_my"
+              sequence="10"/>
+    <menuitem id="menu_task_lists_pending"
+              name="Pending Approval Tasks"
+              parent="menu_task_lists"
+              action="action_task_list_pending"
+              groups="employee_task_management.group_task_manager"
+              sequence="20"/>
+    <menuitem id="menu_task_lists_acceptance"
+              name="Pending My Acceptance"
+              parent="menu_task_lists"
+              action="action_task_list_acceptance"
+              sequence="25"/>
+    <menuitem id="menu_task_lists_approved"
+              name="Approved by Manager"
+              parent="menu_task_lists"
+              action="action_task_list_approved"
+              sequence="30"/>
+    <menuitem id="menu_task_lists_completed"
+              name="Completed Tasks"
+              parent="menu_task_lists"
+              action="action_task_list_completed"
+              sequence="40"/>
+
+    <!-- Dashboard: custom banner + KPI cards + default list view -->
+    <menuitem id="menu_task_dashboard"
+              name="Dashboard"
+              parent="menu_employee_task_root"
+              action="action_task_dashboard_client"
+              sequence="5"/>
+
+    <!-- Reports -->
+    <menuitem id="menu_task_reports"
+              name="Reports"
+              parent="menu_employee_task_root"
+              groups="employee_task_management.group_task_manager"
+              sequence="20"/>
+    <menuitem id="menu_report_task_analytics"
+              name="Task Analytics (Charts)"
+              parent="menu_task_reports"
+              action="action_task_dashboard"
+              sequence="5"/>
+    <menuitem id="menu_report_employee_summary"
+              name="Employee Task Summary"
+              parent="menu_task_reports"
+              action="action_report_employee_summary"
+              sequence="10"/>
+    <menuitem id="menu_report_pending"
+              name="Pending Approval Report"
+              parent="menu_task_reports"
+              action="action_report_pending_approval"
+              sequence="20"/>
+    <menuitem id="menu_report_overdue"
+              name="Delayed Task Report"
+              parent="menu_task_reports"
+              action="action_report_overdue"
+              sequence="30"/>
+    <menuitem id="menu_report_department"
+              name="Department-Wise Task Report"
+              parent="menu_task_reports"
+              action="action_report_department"
+              sequence="40"/>
+    <menuitem id="menu_report_completion"
+              name="Completion Report"
+              parent="menu_task_reports"
+              action="action_report_completion"
+              sequence="50"/>
+    <!-- Dashboard cards (TDD 17) as quick links -->
+    <menuitem id="menu_dash_total" name="Total Tasks"
+              parent="menu_task_reports" action="action_dash_total" sequence="60"/>
+    <menuitem id="menu_dash_pending" name="Pending Manager Approval"
+              parent="menu_task_reports" action="action_dash_pending" sequence="61"/>
+    <menuitem id="menu_dash_in_progress" name="In Progress Tasks"
+              parent="menu_task_reports" action="action_dash_in_progress" sequence="62"/>
+    <menuitem id="menu_dash_completed" name="Completed (Not Closed)"
+              parent="menu_task_reports" action="action_dash_completed" sequence="63"/>
+    <menuitem id="menu_dash_overdue" name="Delayed Tasks"
+              parent="menu_task_reports" action="action_dash_overdue" sequence="64"/>
+    <menuitem id="menu_dash_closed" name="Closed Tasks"
+              parent="menu_task_reports" action="action_dash_closed" sequence="65"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_task_configuration"
+              name="Configuration"
+              parent="menu_employee_task_root"
+              groups="employee_task_management.group_task_admin"
+              sequence="30"/>
+    <menuitem id="menu_config_employees"
+              name="Employees"
+              parent="menu_task_configuration"
+              action="hr.open_view_employee_list_my"
+              sequence="10"/>
+    <menuitem id="menu_config_departments"
+              name="Departments"
+              parent="menu_task_configuration"
+              action="hr.hr_department_kanban_action"
+              sequence="20"/>
+    <menuitem id="menu_config_approval_history"
+              name="Approval History"
+              parent="menu_task_configuration"
+              action="action_approval_history"
+              sequence="30"/>
+    <menuitem id="menu_config_sequences"
+              name="Sequences"
+              parent="menu_task_configuration"
+              action="base.ir_sequence_form"
+              sequence="40"/>
+
+</odoo>
