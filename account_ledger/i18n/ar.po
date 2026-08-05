@@ -1,0 +1,1768 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_ledger
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-22 12:56+0000\n"
+"PO-Revision-Date: 2026-07-22 12:56+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "<span style=\"color:#173b76; font-weight:600;\">Account:</span>"
+msgstr "<span style=\"color:#173b76; font-weight:600;\">الحساب:</span>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "<span style=\"color:#173b76; font-weight:600;\">Company:</span>"
+msgstr "<span style=\"color:#173b76; font-weight:600;\">الشركة:</span>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "<span style=\"color:#173b76; font-weight:600;\">Date Range:</span>"
+msgstr "<span style=\"color:#173b76; font-weight:600;\">الفترة:</span>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid ""
+"<span>\n"
+"                                <strong>Account Name</strong>\n"
+"                            </span>"
+msgstr ""
+"<span>\n"
+"                                <strong>اسم الحساب</strong>\n"
+"                            </span>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "<strong>Asset:</strong>"
+msgstr "<strong>الأصل:</strong>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "<strong>Department:</strong>"
+msgstr "<strong>القسم:</strong>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "<strong>Employee:</strong>"
+msgstr "<strong>الموظف:</strong>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "<strong>Project:</strong>"
+msgstr "<strong>المشروع:</strong>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "<strong>Section:</strong>"
+msgstr "<strong>القسم:</strong>"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "<strong>Total</strong>"
+msgstr "<strong>الإجمالي</strong>"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__account_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__account_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__account_label
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__label
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__account_id
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_result_line__row_type__account
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+#, python-format
+msgid "Account"
+msgstr "الحساب"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__summary_html
+msgid "Account Balances Summary"
+msgstr "ملخص أرصدة الحسابات"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+#, python-format
+msgid "Account Code"
+msgstr "رمز الحساب"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__account_domain
+msgid "Account Domain"
+msgstr "نطاق الحساب"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__account_id_domain
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__account_id_domain
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__account_id_domain
+msgid "Account Id Domain"
+msgstr "نطاق معرف الحساب"
+
+#. module: account_ledger
+#: model:ir.actions.act_window,name:account_ledger.account_ledger_action
+#: model:ir.actions.report,name:account_ledger.acc_leg_report
+#: model:ir.ui.menu,name:account_ledger.menu_account_ledger_id
+#: model_terms:ir.actions.act_window,help:account_ledger.account_ledger_action
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+msgid "Account Ledger"
+msgstr "دفتر الأستاذ"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_account_ledger_multi
+msgid "Account Ledger (Multi Accounts)"
+msgstr "دفتر الأستاذ (حسابات متعددة)"
+
+#. module: account_ledger
+#: model:ir.actions.act_window,name:account_ledger.account_ledger_multi_action
+#: model:ir.actions.report,name:account_ledger.acc_leg_multi_report
+#: model:ir.ui.menu,name:account_ledger.menu_account_ledger_multi_id
+#: model_terms:ir.actions.act_window,help:account_ledger.account_ledger_multi_action
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_wizard_view
+msgid "Account Ledger (Multi)"
+msgstr "دفتر الأستاذ (متعدد)"
+
+#. module: account_ledger
+#: model:ir.actions.report,name:account_ledger.account_ledger_multi_xlsx_report_view_xlsx
+msgid "Account Ledger (Multi) Excel"
+msgstr "دفتر الأستاذ (متعدد) - Excel"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__account_name
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__account_name
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__account_name
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+#, python-format
+msgid "Account Name"
+msgstr "اسم الحساب"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_assets_category__account_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_assets_category__account_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_assets_category__account_receivable
+msgid "Account Receivable"
+msgstr "الذمم المدينة"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__account_type_label
+#, python-format
+msgid "Account Type"
+msgstr "نوع الحساب"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+msgid "Account:"
+msgstr "الحساب:"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__account_ids
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__account_ids
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__account_ids
+msgid "Accounts"
+msgstr "الحسابات"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_liability_category__accounts_payable
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_liability_category__accounts_payable
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_liability_category__accounts_payable
+msgid "Accounts Payable"
+msgstr "الذمم الدائنة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__accounts_payable_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__accounts_payable_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__accounts_payable_subcategory
+msgid "Accounts Payable Sub-Category"
+msgstr "الفئة الفرعية للذمم الدائنة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__accounts_receivable_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__accounts_receivable_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__accounts_receivable_subcategory
+msgid "Accounts Receivable Sub-Category"
+msgstr "الفئة الفرعية للذمم المدينة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__accounts_payable_subcategory__accrued_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__accounts_payable_subcategory__accrued_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__accounts_payable_subcategory__accrued_expenses
+msgid "Accrued Expenses"
+msgstr "المصروفات المستحقة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__main_head__all
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__vat_option__all
+msgid "All"
+msgstr "الكل"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__amount
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger_multi__sort_by__amount
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Amount"
+msgstr "المبلغ"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "Apply"
+msgstr "تطبيق"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__asset_id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__asset_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__asset_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__asset_id
+msgid "Asset"
+msgstr "الأصل"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__main_head__assets
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__main_head__assets
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__main_head__assets
+#, python-format
+msgid "Assets"
+msgstr "الأصول"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__assets_main_head
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__assets_main_head
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__assets_main_head
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "Assets Main Head"
+msgstr "التصنيف الرئيسي للأصول"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__balance
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__balance
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+#, python-format
+msgid "Balance"
+msgstr "الرصيد"
+
+#. module: account_ledger
+#: model:ir.actions.report,name:account_ledger.custom_dynamic_ledger_report_view_xlsx
+msgid "Balance Excel Report"
+msgstr "تقرير الرصيد - Excel"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: model:ir.actions.act_window,name:account_ledger.custom_dynamic_ledger_report_wizard_action
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#, python-format
+msgid "Balance Report"
+msgstr "تقرير الأرصدة"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "Balance Type"
+msgstr "نوع الرصيد"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__short_term_loans_subcategory__bank_finance
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__short_term_loans_subcategory__bank_finance
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__short_term_loans_subcategory__bank_finance
+msgid "Bank Finance"
+msgstr "تمويل بنكي"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_pr_account_bank_payment
+msgid "Bank Payment"
+msgstr "دفعة بنكية"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_pr_account_bank_receipt
+msgid "Bank Receipt"
+msgstr "سند قبض بنكي"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__banks_subcategory__banks
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_assets_category__banks
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__banks_subcategory__banks
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_assets_category__banks
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__banks_subcategory__banks
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_assets_category__banks
+msgid "Banks"
+msgstr "البنوك"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__banks_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__banks_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__banks_subcategory
+msgid "Banks Sub-Category"
+msgstr "الفئة الفرعية للبنوك"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__land_buildings_subcategory__buildings
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__land_buildings_subcategory__buildings
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__land_buildings_subcategory__buildings
+msgid "Buildings"
+msgstr "المباني"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "CANCEL"
+msgstr "إلغاء"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__cogs_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__cogs_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__cogs_subcategory
+msgid "COGS Sub-Category"
+msgstr "الفئة الفرعية لتكلفة البضاعة المباعة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__equity_category__capital
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__equity_category__capital
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__equity_category__capital
+msgid "Capital"
+msgstr "رأس المال"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__capital_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__capital_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__capital_subcategory
+msgid "Capital Sub-Category"
+msgstr "الفئة الفرعية لرأس المال"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__vehicles_subcategory__cars
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__vehicles_subcategory__cars
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__vehicles_subcategory__cars
+msgid "Cars"
+msgstr "السيارات"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_assets_category__cash_equivalents
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_assets_category__cash_equivalents
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_assets_category__cash_equivalents
+msgid "Cash & Equivalents"
+msgstr "النقد وما يعادله"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__cash_equivalents_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__cash_equivalents_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__cash_equivalents_subcategory
+msgid "Cash & Equivalents Sub-Category"
+msgstr "الفئة الفرعية للنقد وما يعادله"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_pr_account_cash_payment
+msgid "Cash Payment"
+msgstr "دفعة نقدية"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_pr_account_cash_receipt
+msgid "Cash Receipt"
+msgstr "سند قبض نقدي"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__category_label
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_result_line__row_type__category
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+#, python-format
+msgid "Category"
+msgstr "الفئة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__child_ids
+msgid "Child"
+msgstr "فرعي"
+
+#. module: account_ledger
+#: model:ir.ui.menu,name:account_ledger.menu_custom_dynamic_ledger_report_wizard
+msgid "Classification Balance Report"
+msgstr "تقرير الرصيد حسب التصنيف"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__code
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+#, python-format
+msgid "Code"
+msgstr "الرمز"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__company_id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__company_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__company_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__fixed_assets_category__computer_printers
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__fixed_assets_category__computer_printers
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__fixed_assets_category__computer_printers
+msgid "Computer & Printers"
+msgstr "أجهزة الكمبيوتر والطابعات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__computer_printers_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__computer_printers_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__computer_printers_subcategory
+msgid "Computer & Printers Sub-Category"
+msgstr "الفئة الفرعية لأجهزة الكمبيوتر والطابعات"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__expense_category__cogs
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__expense_category__cogs
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__expense_category__cogs
+msgid "Cost of Goods Sold - COGS"
+msgstr "تكلفة البضاعة المباعة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__create_uid
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__create_uid
+msgid "Created by"
+msgstr "أُنشئ بواسطة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__create_date
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__credit
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "Credit"
+msgstr "دائن"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__assets_main_head__asset_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__assets_main_head__asset_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__assets_main_head__asset_current
+msgid "Current Assets"
+msgstr "الأصول المتداولة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__current_assets_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__current_assets_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__current_assets_category
+msgid "Current Assets Category"
+msgstr "فئة الأصول المتداولة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__liability_main_head__liability_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__liability_main_head__liability_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__liability_main_head__liability_current
+msgid "Current Liabilities"
+msgstr "الالتزامات المتداولة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__current_liability_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__current_liability_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__current_liability_category
+msgid "Current Liabilities Category"
+msgstr "فئة الالتزامات المتداولة"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_custom_dynamic_ledger_result
+msgid "Custom Dynamic Ledger Result Container"
+msgstr "حاوية نتائج تقرير الرصيد الديناميكي المخصص"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_custom_dynamic_ledger_result_line
+msgid "Custom Dynamic Ledger Result Line"
+msgstr "سطر نتيجة تقرير الرصيد الديناميكي المخصص"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__accounts_receivable_subcategory__customers
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__accounts_receivable_subcategory__customers
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__accounts_receivable_subcategory__customers
+msgid "Customers"
+msgstr "العملاء"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__date
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__date
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "Date Range"
+msgstr "نطاق التاريخ"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "Dates"
+msgstr "التواريخ"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__debit
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "Debit"
+msgstr "مدين"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__department_id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__department_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__department_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__department_id
+msgid "Department"
+msgstr "القسم"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__description
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "Description"
+msgstr "الوصف"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__cogs_subcategory__direct_labor
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__cogs_subcategory__direct_labor
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__cogs_subcategory__direct_labor
+msgid "Direct Labor (Production Staff)"
+msgstr "العمالة المباشرة (موظفو الإنتاج)"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__cogs_subcategory__direct_raw_materials
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__cogs_subcategory__direct_raw_materials
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__cogs_subcategory__direct_raw_materials
+msgid "Direct Raw Materials"
+msgstr "المواد الخام المباشرة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__display_name
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__display_name
+msgid "Display Name"
+msgstr "الاسم المعروض"
+
+#. module: account_ledger
+#: model:ir.actions.act_window,name:account_ledger.action_custom_dynamic_ledger_result
+#: model:ir.actions.report,name:account_ledger.custom_dynamic_ledger_report_pdf
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_custom_dynamic_ledger_result_form
+msgid "Dynamic Balance Report"
+msgstr "تقرير الرصيد الديناميكي"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "Dynamic Balance Report -"
+msgstr "تقرير الرصيد الديناميكي -"
+
+#. module: account_ledger
+#: model_terms:ir.actions.act_window,help:account_ledger.custom_dynamic_ledger_report_wizard_action
+msgid "Dynamic Report"
+msgstr "تقرير ديناميكي"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__employee_id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__employee_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__employee_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__employee_id
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__accounts_receivable_subcategory__employee_advances
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__accounts_receivable_subcategory__employee_advances
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__accounts_receivable_subcategory__employee_advances
+msgid "Employee Advances"
+msgstr "سلف الموظفين"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__date_end
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__date_end
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__date_end
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__date_end
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "End Date :"
+msgstr "تاريخ الانتهاء:"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__ending_credit
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "Ending Credit"
+msgstr "الرصيد الدائن الختامي"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__ending_debit
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "Ending Debit"
+msgstr "الرصيد المدين الختامي"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__main_head__equity
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__main_head__equity
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__main_head__equity
+#, python-format
+msgid "Equity"
+msgstr "حقوق الملكية"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__equity_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__equity_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__equity_category
+msgid "Equity Category"
+msgstr "فئة حقوق الملكية"
+
+#. module: account_ledger
+#: model:ir.actions.report,name:account_ledger.account_ledger_xlsx_report_view_xlsx
+msgid "Excel Report"
+msgstr "تقرير Excel"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__vat_option__excluding_vat
+msgid "Excluding VAT"
+msgstr "غير شامل ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__main_head__expense
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger_multi__main_head__expense
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__main_head__expense
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__main_head__expense
+msgid "Expense"
+msgstr "المصروفات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__expense_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__expense_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__expense_category
+msgid "Expense Category"
+msgstr "فئة المصروفات"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "Export (XLSX)"
+msgstr "تصدير (XLSX)"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_custom_dynamic_ledger_result_form
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_vat_ledger_result_form
+msgid "Export Excel"
+msgstr "تصدير إلى Excel"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "Filters"
+msgstr "الفلاتر"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__expense_category__financial_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__expense_category__financial_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__expense_category__financial_expenses
+msgid "Financial Expenses"
+msgstr "المصروفات المالية"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__financial_expenses_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__financial_expenses_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__financial_expenses_subcategory
+msgid "Financial Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات المالية"
+
+#. module: account_ledger
+#: model:ir.ui.menu,name:account_ledger.menu_financial_reporting_root
+msgid "Financial Reporting"
+msgstr "التقارير المالية"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__inventory_subcategory__finished_goods
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__inventory_subcategory__finished_goods
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__inventory_subcategory__finished_goods
+msgid "Finished Goods"
+msgstr "البضائع تامة الصنع"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__assets_main_head__asset_fixed
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__assets_main_head__asset_fixed
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__assets_main_head__asset_fixed
+msgid "Fixed Assets"
+msgstr "الأصول الثابتة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__fixed_assets_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__fixed_assets_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__fixed_assets_category
+msgid "Fixed Assets Category"
+msgstr "فئة الأصول الثابتة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__furniture_fixture_subcategory__furniture
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__furniture_fixture_subcategory__furniture
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__furniture_fixture_subcategory__furniture
+msgid "Furniture"
+msgstr "الأثاث"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__fixed_assets_category__furniture_fixture
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__fixed_assets_category__furniture_fixture
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__fixed_assets_category__furniture_fixture
+msgid "Furniture & Fixture"
+msgstr "الأثاث والتركيبات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__furniture_fixture_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__furniture_fixture_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__furniture_fixture_subcategory
+msgid "Furniture & Fixture Sub-Category"
+msgstr "الفئة الفرعية للأثاث والتركيبات"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__other_expenses_subcategory__general_administrative_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__other_expenses_subcategory__general_administrative_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__other_expenses_subcategory__general_administrative_expenses
+msgid "General Administrative Expenses"
+msgstr "المصروفات الإدارية العامة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__header_account
+msgid "Header Account"
+msgstr "حساب العنوان"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__header_company
+msgid "Header Company"
+msgstr "شركة العنوان"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__header_date_range
+msgid "Header Date Range"
+msgstr "نطاق تاريخ العنوان"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__header_opening_balance
+msgid "Header Opening Balance"
+msgstr "الرصيد الافتتاحي للعنوان"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger_multi__sort_order__desc
+msgid "Highest First"
+msgstr "الأعلى أولاً"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__id
+msgid "ID"
+msgstr "المعرف"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__computer_printers_subcategory__it_products
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__computer_printers_subcategory__it_products
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__computer_printers_subcategory__it_products
+msgid "IT Products"
+msgstr "منتجات تقنية المعلومات"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__vat_option__including_vat
+msgid "Including VAT"
+msgstr "شامل ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__initial_credit
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "Initial Credit"
+msgstr "الرصيد الدائن الافتتاحي"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__initial_debit
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "Initial Debit"
+msgstr "الرصيد المدين الافتتاحي"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__prepaid_expenses_subcategory__insurance
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__prepaid_expenses_subcategory__insurance
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__prepaid_expenses_subcategory__insurance
+msgid "Insurance"
+msgstr "التأمين"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__financial_expenses_subcategory__interest_expense
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__financial_expenses_subcategory__interest_expense
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__financial_expenses_subcategory__interest_expense
+msgid "Interest Expense"
+msgstr "مصروف الفوائد"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_assets_category__inventory
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_assets_category__inventory
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_assets_category__inventory
+msgid "Inventory"
+msgstr "المخزون"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__inventory_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__inventory_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__inventory_subcategory
+msgid "Inventory Sub-Category"
+msgstr "الفئة الفرعية للمخزون"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__other_assets_category__investment
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__other_assets_category__investment
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__other_assets_category__investment
+msgid "Investment"
+msgstr "الاستثمار"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__investment_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__investment_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__investment_subcategory
+msgid "Investment Sub-Category"
+msgstr "الفئة الفرعية للاستثمار"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__is_heading
+msgid "Is Heading"
+msgstr "عنوان رئيسي"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__is_total
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__is_total
+msgid "Is Total Line"
+msgstr "إجمالي"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__label
+msgid "Label"
+msgstr "التسمية"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__fixed_assets_category__land_buildings
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__fixed_assets_category__land_buildings
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__fixed_assets_category__land_buildings
+msgid "Land & Buildings"
+msgstr "الأراضي والمباني"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__land_buildings_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__land_buildings_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__land_buildings_subcategory
+msgid "Land & Buildings Sub-Category"
+msgstr "الفئة الفرعية للأراضي والمباني"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__write_uid
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__write_date
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__lease_obligations_subcategory__lease
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__lease_obligations_subcategory__lease
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__lease_obligations_subcategory__lease
+msgid "Lease"
+msgstr "عقد إيجار"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__liability_non_current_category__lease_obligations
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__liability_non_current_category__lease_obligations
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__liability_non_current_category__lease_obligations
+msgid "Lease Obligations"
+msgstr "التزامات الإيجار"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__lease_obligations_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__lease_obligations_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__lease_obligations_subcategory
+msgid "Lease Obligations Sub-Category"
+msgstr "الفئة الفرعية لالتزامات الإيجار"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "Ledger Lines"
+msgstr "بنود دفتر الأستاذ"
+
+#. module: account_ledger
+#: model:ir.actions.act_window,name:account_ledger.action_account_ledger_result
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "Ledger Result"
+msgstr "نتيجة دفتر الأستاذ"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_account_ledger_result
+msgid "Ledger Result Container"
+msgstr "حاوية نتائج دفتر الأستاذ"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_account_ledger_result_line
+msgid "Ledger Result Line"
+msgstr "سطر نتيجة دفتر الأستاذ"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__level
+msgid "Level"
+msgstr "المستوى"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__main_head__liabilities
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__main_head__liabilities
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__main_head__liabilities
+#, python-format
+msgid "Liabilities"
+msgstr "الالتزامات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__liability_main_head
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__liability_main_head
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__liability_main_head
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "Liabilities Main Head"
+msgstr "الرأس الرئيسي للالتزامات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__line_ids
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__line_ids
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__line_ids
+msgid "Lines"
+msgstr "السطور"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#, python-format
+msgid "Loading..."
+msgstr "جارٍ التحميل..."
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__long_term_loans_subcategory__loans
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__long_term_loans_subcategory__loans
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__long_term_loans_subcategory__loans
+msgid "Loans"
+msgstr "القروض"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__long_term_loans_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__long_term_loans_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__long_term_loans_subcategory
+msgid "Long Term Loans Sub-Category"
+msgstr "الفئة الفرعية للقروض طويلة الأجل"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__investment_subcategory__long_terms
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__investment_subcategory__long_terms
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__investment_subcategory__long_terms
+msgid "Long Terms"
+msgstr "طويلة الأجل"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__liability_main_head__liability_non_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__liability_main_head__liability_non_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__liability_main_head__liability_non_current
+msgid "Long-Term Liabilities"
+msgstr "الالتزامات طويلة الأجل"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__liability_non_current_category__long_term_loans
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__liability_non_current_category__long_term_loans
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__liability_non_current_category__long_term_loans
+msgid "Long-Term Loans"
+msgstr "القروض طويلة الأجل"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger_multi__sort_order__asc
+msgid "Lowest First"
+msgstr "الأقل أولاً"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__machinery_equipment_subcategory__machinery
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__machinery_equipment_subcategory__machinery
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__machinery_equipment_subcategory__machinery
+msgid "Machinery"
+msgstr "الآلات"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__fixed_assets_category__machinery_equipment
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__fixed_assets_category__machinery_equipment
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__fixed_assets_category__machinery_equipment
+msgid "Machinery & Equipment"
+msgstr "الآلات والمعدات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__machinery_equipment_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__machinery_equipment_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__machinery_equipment_subcategory
+msgid "Machinery & Equipment Sub-Category"
+msgstr "الفئة الفرعية للآلات والمعدات"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__main_head
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__main_head
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__main_head
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__main_head_label
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__main_head
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_result_line__row_type__main_head
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+#, python-format
+msgid "Main Head"
+msgstr "الرأس الرئيسي"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid ""
+"Main Head\n"
+"                               :"
+msgstr ""
+"الرأس الرئيسي\n"
+"                               :"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__operating_expenses_subcategory__marketing
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__operating_expenses_subcategory__marketing
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__operating_expenses_subcategory__marketing
+msgid "Marketing"
+msgstr "التسويق"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__merge_invoice_lines
+msgid "Merge Invoice Lines"
+msgstr "دمج بنود الفاتورة"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Multiple Accounts"
+msgstr "حسابات متعددة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__liability_non_current_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__liability_non_current_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__liability_non_current_category
+msgid "Non Current Liabilities Category"
+msgstr "فئة الالتزامات غير المتداولة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__expense_category__operating_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__expense_category__operating_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__expense_category__operating_expenses
+msgid "Operating Expenses"
+msgstr "المصروفات التشغيلية"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__operating_expenses_subcategory
+msgid "Operating Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات التشغيلية"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__revenue_category__operating_revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__revenue_category__operating_revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__revenue_category__operating_revenue
+msgid "Operating Revenue"
+msgstr "الإيرادات التشغيلية"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__operating_revenue_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__operating_revenue_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__operating_revenue_subcategory
+msgid "Operating Revenue Sub-Category"
+msgstr "الفئة الفرعية للإيرادات التشغيلية"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__assets_main_head__asset_non_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__assets_main_head__asset_non_current
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__assets_main_head__asset_non_current
+msgid "Other Assets"
+msgstr "الأصول الأخرى"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__other_assets_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__other_assets_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__other_assets_category
+msgid "Other Assets Category"
+msgstr "فئة الأصول الأخرى"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__expense_category__other_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__expense_category__other_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__expense_category__other_expenses
+msgid "Other Expenses"
+msgstr "المصروفات الأخرى"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__other_expenses_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__other_expenses_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__other_expenses_subcategory
+msgid "Other Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات الأخرى"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_liability_category__other_liabilities
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_liability_category__other_liabilities
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_liability_category__other_liabilities
+msgid "Other Liabilities"
+msgstr "الالتزامات الأخرى"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__other_liabilities_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__other_liabilities_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__other_liabilities_subcategory
+msgid "Other Liabilities Sub-Category"
+msgstr "الفئة الفرعية للالتزامات الأخرى"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__operating_revenue_subcategory__other_revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__operating_revenue_subcategory__other_revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__operating_revenue_subcategory__other_revenue
+msgid "Other Revenue"
+msgstr "إيرادات أخرى"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "PRINT PDF"
+msgstr "طباعة PDF"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "PRINT XLSX"
+msgstr "طباعة XLSX"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__parent_id
+msgid "Parent"
+msgstr "الأصل"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__period_credit
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "Period Credit"
+msgstr "دائن الفترة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__period_debit
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "Period Debit"
+msgstr "مدين الفترة"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Period:"
+msgstr "الفترة:"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__capital_subcategory__petroraq
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__capital_subcategory__petroraq
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__capital_subcategory__petroraq
+msgid "Petroraq"
+msgstr "بتروراق"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Petroraq Engineering &amp; Construction - VAT Number 311428741500003"
+msgstr "بتروراق للهندسة والإنشاءات - الرقم الضريبي 311428741500003"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__cash_equivalents_subcategory__petty_cash
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__cash_equivalents_subcategory__petty_cash
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__cash_equivalents_subcategory__petty_cash
+msgid "Petty Cash"
+msgstr "العهدة النقدية"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_assets_category__prepaid_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_assets_category__prepaid_expenses
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_assets_category__prepaid_expenses
+msgid "Prepaid Expenses"
+msgstr "المصروفات المدفوعة مقدمًا"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__prepaid_expenses_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__prepaid_expenses_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__prepaid_expenses_subcategory
+msgid "Prepaid Expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات المدفوعة مقدمًا"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__prepaid_expenses_subcategory__prepaid_rent
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__prepaid_expenses_subcategory__prepaid_rent
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__prepaid_expenses_subcategory__prepaid_rent
+msgid "Prepaid Rent"
+msgstr "إيجار مدفوع مقدمًا"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_custom_dynamic_ledger_result_form
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_vat_ledger_result_form
+msgid "Print PDF"
+msgstr "طباعة PDF"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__operating_revenue_subcategory__product_sales
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__operating_revenue_subcategory__product_sales
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__operating_revenue_subcategory__product_sales
+msgid "Product Sales"
+msgstr "مبيعات المنتجات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__project_id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__project_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__project_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__project_id
+msgid "Project"
+msgstr "المشروع"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__inventory_subcategory__raw_materials
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__inventory_subcategory__raw_materials
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__inventory_subcategory__raw_materials
+msgid "Raw Materials"
+msgstr "المواد الخام"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__reference
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__reference
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_account_ledger_result_form
+msgid "Reference"
+msgstr "المرجع"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__operating_expenses_subcategory__rent_utilities
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__operating_expenses_subcategory__rent_utilities
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__operating_expenses_subcategory__rent_utilities
+msgid "Rent & Utilities"
+msgstr "الإيجارات والمرافق"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Report Date:"
+msgstr "تاريخ التقرير:"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__result_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__result_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__result_id
+msgid "Result"
+msgstr "النتيجة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__accounts_receivable_subcategory__retention_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__accounts_receivable_subcategory__retention_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__accounts_receivable_subcategory__retention_receivable
+msgid "Retention-Receivable"
+msgstr "ذمم مدينة محتجزة"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__main_head__revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger_multi__main_head__revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__main_head__revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__main_head__revenue
+#, python-format
+msgid "Revenue"
+msgstr "الإيرادات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__revenue_category
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__revenue_category
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__revenue_category
+msgid "Revenue Category"
+msgstr "فئة الإيرادات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__row_type
+msgid "Row Type"
+msgstr "نوع الصف"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__operating_expenses_subcategory__salaries_wages
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__operating_expenses_subcategory__salaries_wages
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__operating_expenses_subcategory__salaries_wages
+msgid "Salaries & Wages"
+msgstr "الرواتب والأجور"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__section_id
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__section_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__section_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__section_id
+msgid "Section"
+msgstr "القسم"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__sequence
+msgid "Sequence"
+msgstr "التسلسل"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__operating_revenue_subcategory__service_revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__operating_revenue_subcategory__service_revenue
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__operating_revenue_subcategory__service_revenue
+msgid "Service Revenue"
+msgstr "إيرادات الخدمات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__short_term_loans_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__short_term_loans_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__short_term_loans_subcategory
+msgid "Short Term Loans Sub-Category"
+msgstr "الفئة الفرعية للقروض قصيرة الأجل"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__investment_subcategory__short_terms
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__investment_subcategory__short_terms
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__investment_subcategory__short_terms
+msgid "Short Terms"
+msgstr "قصيرة الأجل"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__current_liability_category__short_term_loans
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__current_liability_category__short_term_loans
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__current_liability_category__short_term_loans
+msgid "Short-Term Loans"
+msgstr "القروض قصيرة الأجل"
+
+#. module: account_ledger
+#: model:ir.model.fields,help:account_ledger.field_account_ledger__merge_invoice_lines
+msgid ""
+"Show one ledger line per invoice and account by summing invoice journal "
+"items."
+msgstr ""
+"إظهار سطر أستاذ واحد لكل فاتورة وحساب من خلال تجميع بنود قيود اليومية الخاصة "
+"بالفاتورة."
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__sort_by
+msgid "Sort By"
+msgstr "ترتيب حسب"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__sort_order
+msgid "Sort Order"
+msgstr "ترتيب الفرز"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__date_start
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_multi__date_start
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__date_start
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__date_start
+msgid "Start Date"
+msgstr "تاريخ البداية"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "Start Date :"
+msgstr "تاريخ البداية :"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/ledger_hierarchy_field.xml:0
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__subcategory_label
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_result_line__row_type__subcategory
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+#, python-format
+msgid "Sub-Category"
+msgstr "الفئة الفرعية"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__prepaid_expenses_subcategory__subscriptions
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__prepaid_expenses_subcategory__subscriptions
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__prepaid_expenses_subcategory__subscriptions
+msgid "Subscriptions"
+msgstr "الاشتراكات"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+msgid "Summary"
+msgstr "الملخص"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__accounts_payable_subcategory__suppliers
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__accounts_payable_subcategory__suppliers
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__accounts_payable_subcategory__suppliers
+msgid "Suppliers"
+msgstr "الموردون"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__other_assets_category__suspense_account
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__suspense_account_subcategory__suspense_account
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__other_assets_category__suspense_account
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__suspense_account_subcategory__suspense_account
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__other_assets_category__suspense_account
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__suspense_account_subcategory__suspense_account
+msgid "Suspense Account"
+msgstr "الحساب المعلق"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__suspense_account_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__suspense_account_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__suspense_account_subcategory
+msgid "Suspense Account Sub-Category"
+msgstr "الفئة الفرعية للحساب المعلق"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__tax_amount
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Tax Amount"
+msgstr "قيمة الضريبة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_result_line__row_type__total
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__total_amount
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Total Amount"
+msgstr "المبلغ الإجمالي"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__total_credit
+msgid "Total Credit"
+msgstr "إجمالي الدائن"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__total_debit
+msgid "Total Debit"
+msgstr "إجمالي المدين"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__vat_total
+msgid "Total VAT"
+msgstr "إجمالي ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__transaction_count
+msgid "Transaction Count"
+msgstr "عدد المعاملات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result_line__transaction_ref
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result_line__transaction_ref
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_multi_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_rep
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_rep
+msgid "Transaction Ref"
+msgstr "مرجع المعاملة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result_line__balance_type
+msgid "Type"
+msgstr "النوع"
+
+#. module: account_ledger
+#: model:ir.actions.report,name:account_ledger.vat_ledger_xlsx_report_view_xlsx
+msgid "VAT Excel Report"
+msgstr "تقرير ضريبة القيمة المضافة (Excel)"
+
+#. module: account_ledger
+#: model:ir.actions.act_window,name:account_ledger.action_vat_ledger_result
+#: model_terms:ir.ui.view,arch_db:account_ledger.view_vat_ledger_result_form
+msgid "VAT Ledger Result"
+msgstr "نتيجة دفتر أستاذ ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_vat_ledger_result
+msgid "VAT Ledger Result Container"
+msgstr "حاوية نتيجة دفتر أستاذ ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_vat_ledger_result_line
+msgid "VAT Ledger Result Line"
+msgstr "سطر نتيجة دفتر أستاذ ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__vat_option
+msgid "VAT Options"
+msgstr "خيارات ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__other_liabilities_subcategory__vat_payable
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__other_liabilities_subcategory__vat_payable
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__other_liabilities_subcategory__vat_payable
+msgid "VAT Payable"
+msgstr "ضريبة القيمة المضافة المستحقة"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__other_assets_category__vat_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__vat_receivable_subcategory__vat_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__other_assets_category__vat_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__vat_receivable_subcategory__vat_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__other_assets_category__vat_receivable
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__vat_receivable_subcategory__vat_receivable
+msgid "VAT Receivable"
+msgstr "ضريبة القيمة المضافة المدينة"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__vat_receivable_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__vat_receivable_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__vat_receivable_subcategory
+msgid "VAT Receivable Sub-Category"
+msgstr "الفئة الفرعية لضريبة القيمة المضافة المدينة"
+
+#. module: account_ledger
+#: model:ir.actions.act_window,name:account_ledger.vat_ledger_report_action
+#: model:ir.actions.report,name:account_ledger.vat_leg_report
+#: model:ir.ui.menu,name:account_ledger.menu_vat_ledger_report_id
+#: model_terms:ir.actions.act_window,help:account_ledger.vat_ledger_report_action
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "VAT Report"
+msgstr "تقرير ضريبة القيمة المضافة"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.account_ledger_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_report_wizard_view
+#: model_terms:ir.ui.view,arch_db:account_ledger.vat_ledger_report_wizard_view
+msgid "VIEW REPORT"
+msgstr "عرض التقرير"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__fixed_assets_category__vehicles
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__fixed_assets_category__vehicles
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__fixed_assets_category__vehicles
+msgid "Vehicles"
+msgstr "المركبات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_report_wizard__vehicles_subcategory
+msgid "Vehicles Sub-Category"
+msgstr "الفئة الفرعية للمركبات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger_result__wizard_id
+#: model:ir.model.fields,field_description:account_ledger.field_custom_dynamic_ledger_result__wizard_id
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_result__wizard_id
+msgid "Wizard"
+msgstr "المعالج"
+
+#. module: account_ledger
+#: model:ir.model.fields.selection,name:account_ledger.selection__account_ledger__inventory_subcategory__work_in_progress_wip
+#: model:ir.model.fields.selection,name:account_ledger.selection__custom_dynamic_ledger_report_wizard__inventory_subcategory__work_in_progress_wip
+#: model:ir.model.fields.selection,name:account_ledger.selection__vat_ledger_report_wizard__inventory_subcategory__work_in_progress_wip
+msgid "Work in Progress-WIP"
+msgstr "الأعمال قيد التنفيذ (WIP)"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_account_ledger
+msgid "account.ledger"
+msgstr "account.ledger"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_custom_dynamic_ledger_report_wizard
+msgid "custom.dynamic.ledger.report.wizard"
+msgstr "custom.dynamic.ledger.report.wizard"
+
+#. module: account_ledger
+#. odoo-javascript
+#: code:addons/account_ledger/static/src/xml/dynamic_balance_report.xml:0
+#, python-format
+msgid "expenses"
+msgstr "المصروفات"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__operating_expenses_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__operating_expenses_subcategory
+msgid "operating_expenses Sub-Category"
+msgstr "الفئة الفرعية للمصروفات التشغيلية"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_account_ledger_multi_rep
+msgid "report.account_ledger.account_ledger_multi_rep"
+msgstr "report.account_ledger.account_ledger_multi_rep"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_account_ledger_multi_xlsx_report
+msgid "report.account_ledger.account_ledger_multi_xlsx_report"
+msgstr "report.account_ledger.account_ledger_multi_xlsx_report"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_account_ledger_rep
+msgid "report.account_ledger.account_ledger_rep"
+msgstr "report.account_ledger.account_ledger_rep"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_account_ledger_xlsx_report
+msgid "report.account_ledger.account_ledger_xlsx_report"
+msgstr "report.account_ledger.account_ledger_xlsx_report"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_custom_dynamic_ledger_rep
+msgid "report.account_ledger.custom_dynamic_ledger_rep"
+msgstr "report.account_ledger.custom_dynamic_ledger_rep"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_custom_dynamic_ledger_report
+msgid "report.account_ledger.custom_dynamic_ledger_report"
+msgstr "report.account_ledger.custom_dynamic_ledger_report"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_vat_ledger_rep
+msgid "report.account_ledger.vat_ledger_rep"
+msgstr "report.account_ledger.vat_ledger_rep"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_report_account_ledger_vat_ledger_xlsx_report
+msgid "report.account_ledger.vat_ledger_xlsx_report"
+msgstr "report.account_ledger.vat_ledger_xlsx_report"
+
+#. module: account_ledger
+#: model_terms:ir.ui.view,arch_db:account_ledger.custom_dynamic_ledger_rep
+msgid "to"
+msgstr "إلى"
+
+#. module: account_ledger
+#: model:ir.model,name:account_ledger.model_vat_ledger_report_wizard
+msgid "vat.ledger.report.wizard"
+msgstr "vat.ledger.report.wizard"
+
+#. module: account_ledger
+#: model:ir.model.fields,field_description:account_ledger.field_account_ledger__vehicles_subcategory
+#: model:ir.model.fields,field_description:account_ledger.field_vat_ledger_report_wizard__vehicles_subcategory
+msgid "vehicles Sub-Category"
+msgstr "الفئة الفرعية للمركبات"

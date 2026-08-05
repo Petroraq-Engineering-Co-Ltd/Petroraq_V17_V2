@@ -8,6 +8,15 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
     _description = "Quotation"
 
+    def _notify_get_reply_to(self, default=None):
+        """Route customer replies to the SO email's visible sender."""
+        reply_to_by_record = super()._notify_get_reply_to(default=default)
+        sender = default or self.env.user.email_formatted
+        if sender:
+            for order in self:
+                reply_to_by_record[order.id] = sender
+        return reply_to_by_record
+
     def _notify_approval_users(self, users, subject, body_html, summary):
         self.ensure_one()
         activity_type = self.env.ref("mail.mail_activity_data_todo", raise_if_not_found=False)
@@ -940,6 +949,18 @@ class SaleOrder(models.Model):
         for order in self:
             if not order.order_line:
                 raise UserError(_("Please add at least one line item to the quotation."))
+            if is_html_empty(order.note):
+                raise ValidationError(_(
+                    "Please enter the Terms & Conditions before submitting the quotation."
+                ))
+            missing_tax_lines = order.order_line.filtered(
+                lambda line: not line.display_type and not line.tax_id
+            )
+            if missing_tax_lines:
+                raise ValidationError(_(
+                    "Select VAT/Tax on every quotation line before submitting. "
+                    "Use an explicit 0%% or Exempt tax where VAT does not apply. Missing on: %s"
+                ) % ", ".join(missing_tax_lines.mapped("name")))
             if order.estimation_id:
                 currency = order.currency_id or order.company_id.currency_id
                 estimation_total = currency.round(order.estimation_id.total_with_profit or 0.0)

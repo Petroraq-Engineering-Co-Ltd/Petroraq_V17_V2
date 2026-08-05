@@ -1,5 +1,5 @@
 from odoo.tests.common import TransactionCase
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class TestPurchaseOrderRejection(TransactionCase):
@@ -18,6 +18,13 @@ class TestPurchaseOrderRejection(TransactionCase):
             "uom_po_id": cls.uom.id,
             "standard_price": 5000.0,
         })
+        cls.purchase_tax = cls.env["account.tax"].create({
+            "name": "Purchase VAT 15% - PO Workflow Test",
+            "amount": 15.0,
+            "amount_type": "percent",
+            "type_tax_use": "purchase",
+            "company_id": cls.env.company.id,
+        })
 
     def _create_pending_po(self):
         return self.env["purchase.order"].create({
@@ -25,6 +32,7 @@ class TestPurchaseOrderRejection(TransactionCase):
             "partner_id": self.vendor.id,
             "state": "pending",
             "origin": "MISSING-RFQ-FOR-REJECTION-TEST",
+            "notes": "<p>Standard purchase terms.</p>",
             "pe_approved": True,
             "order_line": [(0, 0, {
                 "product_id": self.product.id,
@@ -33,6 +41,7 @@ class TestPurchaseOrderRejection(TransactionCase):
                 "product_uom": self.product.uom_po_id.id,
                 "price_unit": 5000.0,
                 "date_planned": "2026-07-07 00:00:00",
+                "taxes_id": [(6, 0, cls.purchase_tax.ids)],
             })],
         })
 
@@ -90,6 +99,29 @@ class TestPurchaseOrderRejection(TransactionCase):
         self.assertFalse(order.pe_approved)
         self.assertFalse(order.rejection_reason)
 
+    def test_submit_requires_tax_on_every_po_line(self):
+        order = self._create_pending_po()
+        order.action_reject(reason="Please revise the quotation.")
+        order.action_reset_to_draft()
+        order.order_line.taxes_id = False
+
+        with self.assertRaisesRegex(ValidationError, "VAT/Tax"):
+            order.action_submit_for_approval()
+
+        self.assertEqual(order.state, "draft")
+
+    def test_submit_rejects_missing_terms_before_entering_approval(self):
+        order = self._create_pending_po()
+        order.action_reject(reason="Please revise the quotation.")
+        order.action_reset_to_draft()
+        order.notes = False
+
+        with self.assertRaisesRegex(UserError, "Terms & Conditions"):
+            order.action_submit_for_approval()
+
+        self.assertEqual(order.state, "draft")
+        self.assertFalse(order.pe_approved)
+
     def test_rfq_cannot_be_submitted_for_po_approval(self):
         rfq = self.env["purchase.order"].create({
             "name": "PEC-RFQ-SUBMIT-GUARD-TEST",
@@ -102,6 +134,7 @@ class TestPurchaseOrderRejection(TransactionCase):
                 "product_uom": self.product.uom_po_id.id,
                 "price_unit": 5000.0,
                 "date_planned": "2026-07-07 00:00:00",
+                "taxes_id": [(6, 0, self.purchase_tax.ids)],
             })],
         })
 

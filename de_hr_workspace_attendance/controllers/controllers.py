@@ -2,7 +2,7 @@
 
 from odoo import fields, http
 from odoo.http import request
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pytz
@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 class ShortageRequestTemplate(http.Controller):
+    def _ensure_portal_creation_allowed(self):
+        user = request.env.user
+        if user.has_group('base.group_portal') and not user.has_group('base.group_user'):
+            raise AccessError("Portal users are not allowed to create shortage requests.")
+
     def _current_employee(self):
         employee = request.env["hr.employee"].sudo().search([
             ("user_id", "=", request.env.user.id),
@@ -55,6 +60,7 @@ class ShortageRequestTemplate(http.Controller):
 
     @http.route('/shortage_request', auth='user', type='http')
     def display_shortage_request_form(self, **kw):
+        self._ensure_portal_creation_allowed()
         current_employee_id = self._current_employee()
         email = current_employee_id.work_email
         check_in = kw.get("check_in")
@@ -110,6 +116,7 @@ class ShortageRequestTemplate(http.Controller):
 
     @http.route('/shortage_request/create', type='http', auth="user")
     def contact_created(self, **kw):
+        self._ensure_portal_creation_allowed()
         # logger.warning(
         #     f"{kw.get('employee_id')} -> employee shortage request"
         # )

@@ -49,7 +49,7 @@
                             type="object"
                             class="btn-teal-custom"
                             invisible="state != 'submit' or check_process_state == False"
-                            groups="account.group_account_manager"
+                            groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                     />
                     <button
                             string="Final Approve"
@@ -61,11 +61,27 @@
                     />
                     <button
                             string="REJECT"
-                            name="action_draft"
+                            name="action_open_reject_wizard"
                             type="object"
                             class="btn-danger"
-                            invisible="state not in ['draft', 'finance_approve'] or check_process_state == False"
-                            groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
+                            invisible="state != 'submit' or check_process_state == False"
+                            groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
+                    />
+                    <button
+                            string="REJECT"
+                            name="action_open_reject_wizard"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state != 'finance_approve' or check_process_state == False"
+                            groups="pr_account.custom_group_accounting_manager"
+                    />
+                    <button
+                            string="RESET TO DRAFT"
+                            name="action_reset_rejected_to_draft"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'reject'"
+                            groups="account.group_account_user"
                     />
                     <button
                             string="RESET TO DRAFT"
@@ -73,7 +89,7 @@
                             type="object"
                             class="btn-danger"
                             invisible="state != 'posted'"
-                            groups="account.group_account_manager"
+                            groups="account.group_account_user"
                     />
                     <!--                    <button-->
                     <!--                            string="CANCEL"-->
@@ -112,6 +128,8 @@
                             invisible="state != 'draft'"/>
                     <widget name="web_ribbon" title="CANCELLED" bg_color="bg-danger"
                             invisible="state != 'cancel'"/>
+                    <widget name="web_ribbon" title="REJECTED" bg_color="bg-danger"
+                            invisible="state != 'reject'"/>
                     <div class="oe_title" style="margin-bottom:4px;">
                         <label for="name" string="Number"/>
                         <h3 style="margin:0;">
@@ -151,6 +169,7 @@
                                    string="Cost Centers"
                                    invisible="1"/>
                             <field name="description" readonly="state != 'draft'"/>
+                            <field name="rejection_reason" invisible="state != 'reject'" readonly="1"/>
                         </group>
 
                         <!-- ===== RIGHT SIDE ===== -->
@@ -190,7 +209,7 @@
                             <button name="action_approve_remaining_lines" string="APPROVE REMAINING LINES" type="object"
                                     class="btn-success"
                                     invisible="state != 'submit' or check_process_state == True"
-                                    groups="account.group_account_manager,pr_account.custom_group_accounting_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     style="display: inline-block !important; width: 400px !important; margin-right: 50px !important;"/>
                         </div>
                         <div style="display: inline-block !important; width: 400px !important;"
@@ -198,7 +217,7 @@
                             <button name="action_reject_remaining_lines" string="REJECT REMAINING LINES" type="object"
                                     class="btn-danger"
                                     invisible="state != 'submit' or check_process_state == True"
-                                    groups="account.group_account_manager,pr_account.custom_group_accounting_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     style="display: inline-block !important; width: 400px !important;"/>
                         </div>
 
@@ -256,11 +275,11 @@
                                    decoration-danger="state ==  'reject'"
                             />
                             <button name="action_line_approve" string="APPROVE" type="object" class="btn-success"
-                                    groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     invisible="state != 'submit'"
                             />
                             <button name="action_line_reject" string="REJECT" type="object" class="btn-danger"
-                                    groups="pr_account.custom_group_accounting_manager,account.group_account_manager"
+                                    groups="account.group_account_manager,!pr_account.custom_group_accounting_manager"
                                     invisible="state != 'submit'"
                             />
                             <field name="reject_reason" decoration-danger="1"/>
@@ -297,7 +316,7 @@
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
                        decoration-success="state == 'posted'"
-                       decoration-danger="state == 'cancel'"/>
+                       decoration-danger="state in ['reject', 'cancel']"/>
             </tree>
         </field>
     </record>

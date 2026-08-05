@@ -11,6 +11,19 @@ class ServiceReceiptNote(models.Model):
     _inherit = ["mail.thread", "mail.activity.mixin"]
     _order = "id desc"
 
+    @api.constrains("name")
+    def _check_unique_srn_number(self):
+        for receipt in self.filtered(lambda rec: rec.name and rec.name != _("New")):
+            duplicate = self.sudo().search_count([
+                ("name", "=", receipt.name),
+                ("id", "!=", receipt.id),
+            ])
+            if duplicate:
+                raise ValidationError(
+                    _("SRN number %s already exists. Please contact an administrator to correct the SRN sequence.")
+                    % receipt.name
+                )
+
     name = fields.Char(
         string="SRN Number",
         required=True,

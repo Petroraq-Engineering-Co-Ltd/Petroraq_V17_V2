@@ -10,6 +10,14 @@
             <field name="company_id" eval="False"/>
 
         </record>
+        <record id="seq_budgetary_purchase_requisition" model="ir.sequence">
+            <field name="name">Budgetary Purchase Requisition</field>
+            <field name="code">budgetary.purchase.requisition</field>
+            <field name="prefix">PEC-BPR-%(year)s-</field>
+            <field name="padding">4</field>
+            <field name="implementation">no_gap</field>
+            <field name="company_id" eval="False"/>
+        </record>
         <!-- Cash PR Sequence -->
         <record id="seq_cash_purchase_requisition" model="ir.sequence">
             <field name="name">Cash Purchase Requisition</field>

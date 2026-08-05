@@ -168,18 +168,13 @@ class TestLastWorkingDay(TransactionCase):
             payslip_model._pr_should_prorate_final_period_line("TRANSPORTATION", "ALW")
         )
 
-    def test_fixed_overtime_proration_uses_scheduled_working_days(self):
-        amount = self.env["hr.payslip"]._pr_prorate_attendance_eligible_amount(
+    def test_fixed_overtime_is_not_deducted_twice_for_absence(self):
+        salary_rule = self.env["hr.salary.rule"].new({
+            "attendance_based_eligibility": True,
+        })
+        amount = self.env["hr.payslip"]._compute_attendance_eligible_amount(
+            self.env["hr.payslip"],
+            salary_rule,
             1300.0,
-            deductible_days=14,
-            divisor=26,
         )
-        self.assertAlmostEqual(amount, 600.0, places=2)
-
-    def test_fixed_overtime_proration_never_becomes_negative(self):
-        amount = self.env["hr.payslip"]._pr_prorate_attendance_eligible_amount(
-            1300.0,
-            deductible_days=31,
-            divisor=26,
-        )
-        self.assertEqual(amount, 0.0)
+        self.assertEqual(amount, 1300.0)

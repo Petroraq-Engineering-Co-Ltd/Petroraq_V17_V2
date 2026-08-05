@@ -2,6 +2,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import requests
 import json
+import re
 
 
 class AccountMove(models.Model):
@@ -83,6 +84,91 @@ class AccountMove(models.Model):
         string="Last Vendor Payment Rejection Reason",
         compute="_compute_pr_pending_vendor_payment_approvals",
     )
+
+    def _pr_get_zatca_customer_issues(self):
+        """Return buyer master-data issues that would be rejected/warned by ZATCA."""
+        self.ensure_one()
+        if (
+            self.company_id.country_id.code != "SA"
+            or self.move_type not in ("out_invoice", "out_refund")
+            or self._l10n_sa_is_simplified()
+        ):
+            return []
+
+        customer = self.commercial_partner_id
+        issues = []
+
+        required_address = (
+            ("street", _("Street")),
+            ("city", _("City")),
+            ("zip", _("Postal Code")),
+            ("country_id", _("Country")),
+        )
+        for field_name, label in required_address:
+            value = customer[field_name]
+            if not value or (isinstance(value, str) and not value.strip()):
+                issues.append(_("%s is required.") % label)
+
+        city = (customer.city or "").strip()
+        if city and len(city) > 127:
+            issues.append(
+                _("City must not exceed 127 characters (currently %(count)s).")
+                % {"count": len(city)}
+            )
+
+        country_code = customer.country_id.code or ""
+        if country_code and len(country_code) != 2:
+            issues.append(_("Country must have a valid two-letter ISO country code."))
+
+        if country_code == "SA":
+            saudi_address = (
+                ("street2", _("District / Neighborhood")),
+                ("l10n_sa_edi_building_number", _("Building Number")),
+                ("l10n_sa_edi_plot_identification", _("Additional Number")),
+            )
+            for field_name, label in saudi_address:
+                value = customer[field_name]
+                if not value or (isinstance(value, str) and not value.strip()):
+                    issues.append(_("%s is required for a Saudi customer.") % label)
+
+            vat = re.sub(r"\D", "", customer.vat or "")
+            if not vat:
+                issues.append(_("VAT Number is required for a Saudi B2B customer."))
+            elif len(vat) != 15 or not vat.startswith("3") or not vat.endswith("3"):
+                issues.append(
+                    _("VAT Number must contain 15 digits and start and end with 3.")
+                )
+
+        return issues
+
+    def _pr_validate_zatca_customer_before_post(self):
+        invalid = []
+        for move in self:
+            issues = move._pr_get_zatca_customer_issues()
+            if issues:
+                customer_name = move.commercial_partner_id.display_name
+                invalid.append(
+                    _("%(invoice)s - %(customer)s:\n%(issues)s")
+                    % {
+                        "invoice": move.display_name,
+                        "customer": customer_name,
+                        "issues": "\n".join("- %s" % issue for issue in issues),
+                    }
+                )
+        if invalid:
+            raise UserError(
+                _(
+                    "The invoice cannot be posted because the customer is not ready for "
+                    "a ZATCA Standard Tax Invoice.\n\n%s\n\n"
+                    "Open the customer and complete the Accounting/ZATCA and address fields."
+                )
+                % "\n\n".join(invalid)
+            )
+        return True
+
+    def action_post(self):
+        self._pr_validate_zatca_customer_before_post()
+        return super().action_post()
 
     def action_open_bpv(self):
         self.ensure_one()

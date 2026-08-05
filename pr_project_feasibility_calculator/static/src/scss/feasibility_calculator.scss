@@ -93,9 +93,14 @@
     }
     .o_pfc_ratio_line { display: flex; align-items: center; gap: 16px; }
     .o_pfc_ratio_line > input[type="range"] { padding: 0; accent-color: var(--pfc-gold); }
-    .o_pfc_ratio_value { display: flex; width: 110px; align-items: center; }
-    .o_pfc_ratio_value input { text-align: right; }
-    .o_pfc_ratio_value b { margin-left: -28px; pointer-events: none; }
+    .o_pfc_ratio_value { position: relative; display: flex; width: 110px; align-items: center; }
+    .o_pfc_ratio_value input { text-align: right; padding-right: 32px; }
+    .o_pfc_ratio_value b {
+        position: absolute;
+        right: 12px;
+        color: #617587;
+        pointer-events: none;
+    }
 
     .o_pfc_results { display: flex; flex-direction: column; gap: 18px; }
     .o_pfc_status {

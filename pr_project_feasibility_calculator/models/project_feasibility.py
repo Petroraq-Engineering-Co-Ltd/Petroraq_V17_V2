@@ -32,6 +32,10 @@ class ProjectFeasibilityCalculation(models.Model):
         default=lambda self: self.env.company.currency_id,
     )
     investment_amount = fields.Monetary(required=True, tracking=True)
+    total_project_amount = fields.Monetary(
+        string="Total Project Amount",
+        tracking=True,
+    )
     projected_total_profit = fields.Monetary(
         string="Projected Total Project Profit",
         required=True,
@@ -41,6 +45,7 @@ class ProjectFeasibilityCalculation(models.Model):
         string="Investor Profit Share (%)",
         required=True,
         default=50.0,
+        digits=(5, 2),
         tracking=True,
     )
     partner_ratio = fields.Float(
@@ -81,6 +86,7 @@ class ProjectFeasibilityCalculation(models.Model):
         string="Minimum Feasible Investor Share (%)",
         compute="_compute_results",
         store=True,
+        digits=(5, 2),
     )
     required_total_project_profit = fields.Monetary(
         compute="_compute_results",
@@ -146,6 +152,7 @@ class ProjectFeasibilityCalculation(models.Model):
 
     @api.constrains(
         "investment_amount",
+        "total_project_amount",
         "projected_total_profit",
         "investor_ratio",
         "expected_monthly_rate",
@@ -155,6 +162,8 @@ class ProjectFeasibilityCalculation(models.Model):
         for record in self:
             if record.investment_amount <= 0:
                 raise ValidationError(_("Investment Amount must be greater than zero."))
+            if record.total_project_amount < 0:
+                raise ValidationError(_("Total Project Amount cannot be negative."))
             if record.projected_total_profit < 0:
                 raise ValidationError(_("Projected Profit cannot be negative."))
             if not 0 < record.investor_ratio <= 100:
@@ -188,6 +197,7 @@ class ProjectFeasibilityCalculation(models.Model):
             "currency_name": self.currency_id.name,
             "currency_symbol": self.currency_id.symbol,
             "investment_amount": self.investment_amount,
+            "total_project_amount": self.total_project_amount,
             "projected_total_profit": self.projected_total_profit,
             "investor_ratio": self.investor_ratio,
             "partner_ratio": self.partner_ratio,
@@ -232,6 +242,7 @@ class ProjectFeasibilityCalculation(models.Model):
         allowed_fields = {
             "project_name",
             "investment_amount",
+            "total_project_amount",
             "projected_total_profit",
             "investor_ratio",
             "expected_monthly_rate",

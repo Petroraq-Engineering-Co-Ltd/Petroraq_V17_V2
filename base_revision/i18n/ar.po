@@ -1,0 +1,75 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* base_revision
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-29 11:59+0000\n"
+"PO-Revision-Date: 2026-07-29 11:59+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: base_revision
+#: model:ir.model.fields,field_description:base_revision.field_base_revision__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: base_revision
+#: model:ir.model.fields,field_description:base_revision.field_base_revision__current_revision_id
+msgid "Current revision"
+msgstr "المراجعة الحالية"
+
+#. module: base_revision
+#: model:ir.model,name:base_revision.model_base_revision
+msgid "Document Revision (abstract)"
+msgstr "مراجعة المستند (مجردة)"
+
+#. module: base_revision
+#: model:ir.model.fields,field_description:base_revision.field_base_revision__has_old_revisions
+msgid "Has Old Revisions"
+msgstr "يحتوي على مراجعات سابقة"
+
+#. module: base_revision
+#. odoo-python
+#: code:addons/base_revision/models/base_revision.py:0
+#, python-format
+msgid "New Revisions"
+msgstr "المراجعات الجديدة"
+
+#. module: base_revision
+#. odoo-python
+#: code:addons/base_revision/models/base_revision.py:0
+#, python-format
+msgid "New revision created: %s"
+msgstr "تم إنشاء مراجعة جديدة: %s"
+
+#. module: base_revision
+#: model:ir.model.fields,field_description:base_revision.field_base_revision__old_revision_ids
+msgid "Old revisions"
+msgstr "المراجعات السابقة"
+
+#. module: base_revision
+#: model:ir.model.fields,field_description:base_revision.field_base_revision__unrevisioned_name
+msgid "Original Reference"
+msgstr "المرجع الأصلي"
+
+#. module: base_revision
+#: model:ir.model.fields,field_description:base_revision.field_base_revision__revision_count
+msgid "Previous versions count"
+msgstr "عدد الإصدارات السابقة"
+
+#. module: base_revision
+#: model:ir.model.constraint,message:base_revision.constraint_base_revision_revision_unique
+msgid "Reference and revision must be unique."
+msgstr "يجب أن يكون المرجع ورقم المراجعة فريدين."
+
+#. module: base_revision
+#: model:ir.model.fields,field_description:base_revision.field_base_revision__revision_number
+msgid "Revision"
+msgstr "المراجعة"

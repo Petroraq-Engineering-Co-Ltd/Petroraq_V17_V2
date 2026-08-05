@@ -217,7 +217,10 @@ class CrossoveredBudget(models.Model):
     def _compute_role_flags(self):
         user = self.env.user
         is_pm = user.has_group("pr_custom_purchase.project_manager")
-        is_accounts = user.has_group("account.group_account_manager") or user.has_group("account.group_account_user")
+        is_accounts = (
+            user.has_group("account.group_account_manager")
+            and not user.has_group("pr_account.custom_group_accounting_manager")
+        )
         is_md = user.has_group("pr_custom_purchase.managing_director")
         for rec in self:
             is_department_manager = bool(

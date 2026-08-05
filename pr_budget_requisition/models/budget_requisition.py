@@ -286,7 +286,10 @@ class PrBudgetRequisition(models.Model):
     @api.depends("state", "requested_by_id", "department_manager_user_id", "generated_budget_id")
     def _compute_role_flags(self):
         user = self.env.user
-        is_accounts = user.has_group("account.group_account_manager") or user.has_group("account.group_account_user")
+        is_accounts = (
+            user.has_group("account.group_account_manager")
+            and not user.has_group("pr_account.custom_group_accounting_manager")
+        )
         is_md = user.has_group("pr_custom_purchase.managing_director")
         is_admin = (
             user.has_group("pr_custom_purchase.procurement_admin")
@@ -519,6 +522,10 @@ class PrBudgetRequisition(models.Model):
             group = self.env.ref(xmlid, raise_if_not_found=False)
             if group:
                 users |= group.users
+        if "account.group_account_manager" in group_xml_ids:
+            users = users.filtered(
+                lambda user: not user.has_group("pr_account.custom_group_accounting_manager")
+            )
         self._notify_users(users, summary, note)
 
     def _reset_role_approvals(self):
@@ -560,7 +567,7 @@ class PrBudgetRequisition(models.Model):
             not self.accounts_approved
             and (
                 user.has_group("account.group_account_manager")
-                or user.has_group("account.group_account_user")
+                and not user.has_group("pr_account.custom_group_accounting_manager")
             )
         ):
             vals.update({
@@ -604,7 +611,7 @@ class PrBudgetRequisition(models.Model):
         elif not self.accounts_approved:
             self.state = "accounts_approval"
             self._notify_group(
-                ["account.group_account_manager", "account.group_account_user"],
+                ["account.group_account_manager"],
                 _("Budget Requisition Approval Needed"),
                 _("Budget requisition <b>%s</b> is waiting for Accounts approval.") % self.display_name,
             )

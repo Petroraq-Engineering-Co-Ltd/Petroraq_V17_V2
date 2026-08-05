@@ -77,12 +77,12 @@
         </record>
 
 
-        <record id="holiday_status_per" model="hr.leave.type">
-            <field name="name">Permission</field>
-<!--            <field name="allocation_type">fixed</field>
-            <field name="color_name">lightgreen</field>-->
-            <field name="request_unit">hour</field>
-        </record>
+<!--        <record id="holiday_status_per" model="hr.leave.type">-->
+<!--            <field name="name">Permission</field>-->
+<!--&lt;!&ndash;            <field name="allocation_type">fixed</field>-->
+<!--            <field name="color_name">lightgreen</field>&ndash;&gt;-->
+<!--            <field name="request_unit">hour</field>-->
+<!--        </record>-->
 
 
         <record id="paperformat_attendance_sheet" model="report.paperformat">

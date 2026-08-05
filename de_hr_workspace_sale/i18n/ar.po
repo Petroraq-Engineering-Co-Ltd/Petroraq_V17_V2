@@ -1,0 +1,138 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* de_hr_workspace_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-29 12:00+0000\n"
+"PO-Revision-Date: 2026-07-29 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_budget_increase_request_action
+msgid "Budget Requests"
+msgstr "طلبات الميزانية"
+
+#. module: de_hr_workspace_sale
+#: model:ir.model,name:de_hr_workspace_sale.model_pr_work_order
+msgid "Construction Work Order"
+msgstr "أمر عمل إنشائي"
+
+#. module: de_hr_workspace_sale
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_workflow_sale_order_manager_action
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_workflow_sale_order_md_action
+msgid "Create A New Quotations"
+msgstr "إنشاء عرض سعر جديد"
+
+#. module: de_hr_workspace_sale
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_work_order_accounts_approval_action
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_work_order_final_approval_action
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_work_order_ops_approval_action
+msgid "Create A Work Order"
+msgstr "إنشاء أمر عمل"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_estimation_md_approvals_action
+msgid "Estimation MD Approvals"
+msgstr "موافقات المدير العام للتقديرات"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_estimation_manager_approvals_action
+msgid "Estimation Manager Approvals"
+msgstr "موافقات مدير التقديرات"
+
+#. module: de_hr_workspace_sale
+#: model:ir.ui.menu,name:de_hr_workspace_sale.estimation_manager_approvals_view_menu
+msgid "Estimations"
+msgstr "التقديرات"
+
+#. module: de_hr_workspace_sale
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_estimation_md_approvals_action
+msgid "No estimations are pending MD approval."
+msgstr "لا توجد تقديرات بانتظار موافقة المدير العام."
+
+#. module: de_hr_workspace_sale
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_estimation_manager_approvals_action
+msgid "No estimations are pending manager approval."
+msgstr "لا توجد تقديرات بانتظار موافقة المدير."
+
+#. module: de_hr_workspace_sale
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_purchase_order_approvals_action
+msgid "No purchase orders are pending your approval."
+msgstr "لا توجد أوامر شراء بانتظار موافقتك."
+
+#. module: de_hr_workspace_sale
+#: model_terms:ir.actions.act_window,help:de_hr_workspace_sale.pr_sale_purchase_requisition_supervisor_approvals_action
+msgid "No purchase requisitions are pending your supervisor approval."
+msgstr "لا توجد طلبات شراء بانتظار موافقة المشرف."
+
+#. module: de_hr_workspace_sale
+#: model:ir.ui.menu,name:de_hr_workspace_sale.menu_my_purchase_approvals
+msgid "Purchase Approvals"
+msgstr "موافقات المشتريات"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_purchase_order_approvals_action
+#: model:ir.ui.menu,name:de_hr_workspace_sale.purchase_order_approvals_view_menu
+msgid "Purchase Orders"
+msgstr "أوامر الشراء"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_purchase_requisition_supervisor_approvals_action
+#: model:ir.ui.menu,name:de_hr_workspace_sale.purchase_requisition_supervisor_approvals_view_menu
+msgid "Purchase Requisitions"
+msgstr "طلبات الشراء"
+
+#. module: de_hr_workspace_sale
+#: model:ir.ui.menu,name:de_hr_workspace_sale.sale_order_approvals_manager_view_menu
+#: model:ir.ui.menu,name:de_hr_workspace_sale.sale_order_approvals_md_view_menu
+msgid "Sale Quotations"
+msgstr "عروض الأسعار"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_workflow_sale_order_md_action
+msgid "Sale Quotations (MD)"
+msgstr "عروض الأسعار (المدير العام)"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_workflow_sale_order_manager_action
+msgid "Sale Quotations (Manager)"
+msgstr "عروض الأسعار (المدير)"
+
+#. module: de_hr_workspace_sale
+#: model:ir.ui.menu,name:de_hr_workspace_sale.menu_my_sales_approvals
+msgid "Sales Approvals"
+msgstr "موافقات المبيعات"
+
+#. module: de_hr_workspace_sale
+#. odoo-python
+#: code:addons/de_hr_workspace_sale/models/work_order.py:0
+#: model:ir.actions.server,name:de_hr_workspace_sale.pr_sale_work_order_approvals_server_action
+#: model:ir.ui.menu,name:de_hr_workspace_sale.work_order_ops_approvals_view_menu
+#, python-format
+msgid "Work Orders"
+msgstr "أوامر العمل"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_work_order_accounts_approval_action
+#: model:ir.ui.menu,name:de_hr_workspace_sale.work_order_accounts_approvals_view_menu
+msgid "Work Orders (Accounts)"
+msgstr "أوامر العمل (الحسابات)"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_work_order_final_approval_action
+#: model:ir.ui.menu,name:de_hr_workspace_sale.work_order_approvals_view_menu
+msgid "Work Orders (Final)"
+msgstr "أوامر العمل (الاعتماد النهائي)"
+
+#. module: de_hr_workspace_sale
+#: model:ir.actions.act_window,name:de_hr_workspace_sale.pr_sale_work_order_ops_approval_action
+msgid "Work Orders (Operations)"
+msgstr "أوامر العمل (العمليات)"

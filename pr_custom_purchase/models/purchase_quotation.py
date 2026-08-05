@@ -244,8 +244,13 @@ class PurchaseQuotation(models.Model):
             show_button = False
             if rec.status == "quote":
                 origin_name = rec.custom_rfq_id.name or rec.rfq_origin
-                po_exists = self.env["purchase.order"].search_count(
-                    [("origin", "=", origin_name), ("state", "in", ["pending", "purchase"])])
+                link_domain = (
+                    ["|", ("source_rfq_id", "=", rec.custom_rfq_id.id), ("origin", "=", origin_name)]
+                    if rec.custom_rfq_id
+                    else [("origin", "=", origin_name)]
+                )
+                po_domain = link_domain + [("state", "in", ["pending", "purchase"])]
+                po_exists = self.env["purchase.order"].search_count(po_domain)
                 show_button = po_exists == 0
             rec.show_create_po_button = show_button
 

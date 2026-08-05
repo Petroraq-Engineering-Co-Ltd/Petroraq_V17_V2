@@ -82,6 +82,82 @@ class TestInquiryAssignment(TransactionCase):
         inquiry.with_user(self.salesperson).action_accept()
         self.assertEqual(inquiry.state, "accept")
 
+    def test_manager_can_choose_salesperson_before_submit(self):
+        inquiry = self.env["order.inq"].with_user(self.sales_manager).create({
+            "description": "Manager delegates before submission",
+            "user_id": self.sales_manager.id,
+            "partner_id": self.customer.id,
+            "contact_partner_id": self.contact.id,
+            "contact_person_email": self.contact.email,
+            "contact_person_phone": self.contact.phone,
+            "deadline_submission": fields.Date.today() + timedelta(days=10),
+            "required_attachment_ids": [Command.set(self.attachment.ids)],
+        })
+
+        inquiry.with_user(self.sales_manager).write({
+            "assigned_salesperson_id": self.salesperson.id,
+        })
+        inquiry.with_user(self.sales_manager).button_confirm()
+
+        self.assertEqual(inquiry.assigned_salesperson_id, self.salesperson)
+        self.assertEqual(inquiry.state, "confirm")
+        inquiry.with_user(self.sales_manager).action_assign_salesperson()
+        self.assertEqual(inquiry.state, "assigned")
+
+    def test_creator_is_default_assigned_salesperson(self):
+        inquiry = self.env["order.inq"].with_user(self.salesperson).create({
+            "description": "Creator defaults as salesperson",
+            "user_id": self.salesperson.id,
+            "partner_id": self.customer.id,
+            "contact_partner_id": self.contact.id,
+            "contact_person_email": self.contact.email,
+            "contact_person_phone": self.contact.phone,
+            "deadline_submission": fields.Date.today() + timedelta(days=10),
+            "required_attachment_ids": [Command.set(self.attachment.ids)],
+        })
+
+        self.assertEqual(inquiry.assigned_salesperson_id, self.salesperson)
+
+    def test_creator_self_assignment_skips_manager_assignment(self):
+        inquiry = self.env["order.inq"].with_user(self.salesperson).create({
+            "description": "Creator accepts own inquiry",
+            "user_id": self.salesperson.id,
+            "assigned_salesperson_id": self.salesperson.id,
+            "partner_id": self.customer.id,
+            "contact_partner_id": self.contact.id,
+            "contact_person_email": self.contact.email,
+            "contact_person_phone": self.contact.phone,
+            "deadline_submission": fields.Date.today() + timedelta(days=10),
+            "required_attachment_ids": [Command.set(self.attachment.ids)],
+        })
+
+        inquiry.with_user(self.salesperson).button_confirm()
+
+        self.assertEqual(inquiry.state, "assigned")
+        self.assertEqual(inquiry.assigned_salesperson_id, self.salesperson)
+        self.assertEqual(inquiry.assigned_by_id, self.salesperson)
+        self.assertTrue(inquiry.assigned_at)
+        inquiry.with_user(self.salesperson).action_accept()
+        self.assertEqual(inquiry.state, "accept")
+
+    def test_other_salesperson_still_requires_manager_assignment(self):
+        inquiry = self.env["order.inq"].with_user(self.salesperson).create({
+            "description": "Manager assignment remains required",
+            "user_id": self.salesperson.id,
+            "partner_id": self.customer.id,
+            "contact_partner_id": self.contact.id,
+            "contact_person_email": self.contact.email,
+            "contact_person_phone": self.contact.phone,
+            "deadline_submission": fields.Date.today() + timedelta(days=10),
+            "required_attachment_ids": [Command.set(self.attachment.ids)],
+        })
+        inquiry.sudo().write({"assigned_salesperson_id": self.other_salesperson.id})
+
+        inquiry.with_user(self.salesperson).button_confirm()
+
+        self.assertEqual(inquiry.state, "confirm")
+        self.assertFalse(inquiry.assigned_by_id)
+
     def test_unassigned_salesperson_cannot_accept(self):
         inquiry = self._create_submitted_inquiry()
         inquiry.with_user(self.sales_manager).write({

@@ -3,7 +3,7 @@ from datetime import date
 from odoo import api, fields, models, _, Command
 from odoo.tools import float_compare
 from odoo.tools.misc import format_date
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountBankPayment(models.Model):
@@ -50,6 +50,7 @@ class AccountBankPayment(models.Model):
         ("submit", "Submitted"),
         ("finance_approve", "Accounts Approval"),
         ("posted", "Finance Approval"),
+        ("reject", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="Status", tracking=True, default="draft")
     accounting_manager_state = fields.Selection([
@@ -57,6 +58,7 @@ class AccountBankPayment(models.Model):
         ("submit", "Pending Approval"),
         ("finance_approve", "Pending Approval"),
         ("posted", "Posted"),
+        ("reject", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="Acc Man Status", tracking=True, default="draft")
     bank_payment_line_ids = fields.One2many("pr.account.bank.payment.line", "bank_payment_id",
@@ -68,6 +70,7 @@ class AccountBankPayment(models.Model):
                                    tracking=True)
     journal_entry_id = fields.Many2one("account.move", string="Journal Entry", readonly=True, tracking=True)
     check_process_state = fields.Boolean(compute="_compute_check_process_state")
+    rejection_reason = fields.Text(string="Reject Reason", readonly=True, copy=False, tracking=True)
 
     @api.constrains("bank_payment_line_ids")
     def _check_positive_amount_line(self):
@@ -167,6 +170,8 @@ class AccountBankPayment(models.Model):
                 rec.sudo().action_post()
 
     def action_draft(self):
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a voucher to Draft."))
         for bank_payment in self:
 
             if bank_payment.journal_entry_id and bank_payment.journal_entry_id.state != "draft":
@@ -179,6 +184,56 @@ class AccountBankPayment(models.Model):
             bank_payment.state = "draft"
             bank_payment.accounting_manager_state = "draft"
 
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        self._check_reject_stage_access()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reject Bank Payment Voucher"),
+            "res_model": "bank.payment.reject.reason.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_payment_id": self.id},
+        }
+
+    def _check_reject_stage_access(self):
+        self.ensure_one()
+        is_accounting_manager = self.env.user.has_group(
+            "pr_account.custom_group_accounting_manager"
+        )
+        is_first_approver = (
+            self.env.user.has_group("account.group_account_manager")
+            and not is_accounting_manager
+        )
+        if self.state == "submit" and not is_first_approver:
+            raise UserError(_("Only the first Accounts approver can reject a submitted Bank Payment Voucher."))
+        if self.state == "finance_approve" and not is_accounting_manager:
+            raise UserError(_("Only the Accounting Manager can reject a Bank Payment Voucher awaiting final approval."))
+        if self.state not in ("submit", "finance_approve"):
+            raise UserError(_("Only a voucher awaiting approval can be rejected."))
+        return True
+
+    def _reject_with_reason(self, reason):
+        reason = (reason or "").strip()
+        if not reason:
+            raise ValidationError(_("Reject Reason is mandatory."))
+        for payment in self:
+            payment._check_reject_stage_access()
+            payment.write({
+                "state": "reject",
+                "accounting_manager_state": "reject",
+                "rejection_reason": reason,
+            })
+
+    def action_reset_rejected_to_draft(self):
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a rejected voucher to Draft."))
+        for payment in self:
+            if payment.state != "reject":
+                raise UserError(_("Only a rejected voucher can be reset to Draft."))
+            payment.action_draft()
+            payment.rejection_reason = False
+
     def action_submit(self):
         for bank_payment in self:
             if bank_payment.bank_payment_line_ids:
@@ -186,13 +241,30 @@ class AccountBankPayment(models.Model):
                     line.sudo().write({"state": "submit", "reject_reason": ""})
             bank_payment.state = "submit"
             bank_payment.accounting_manager_state = "submit"
+            bank_payment.rejection_reason = False
 
     def action_finance_approve(self):
+        if (
+            not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and (
+                not self.env.user.has_group("account.group_account_manager")
+                or self.env.user.has_group("pr_account.custom_group_accounting_manager")
+            )
+        ):
+            raise UserError(_("Only an Accountant can approve this stage."))
         for bank_payment in self:
             bank_payment.state = "finance_approve"
             bank_payment.accounting_manager_state = "finance_approve"
 
     def action_post(self):
+        if (
+            self.filtered(lambda payment: payment.state == "finance_approve")
+            and not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and not self.env.user.has_group("pr_account.custom_group_accounting_manager")
+        ):
+            raise UserError(_("Only the Accounting Manager can give final approval."))
         for bank_payment in self:
             bank_payment._check_lock_date()
             if bank_payment.bank_payment_line_ids:
@@ -762,16 +834,26 @@ class BankPaymentRejectReasonWizard(models.TransientModel):
     _name = "bank.payment.reject.reason.wizard"
     _description = "Bank Payment Line Reject Reason"
 
-    line_id = fields.Many2one("pr.account.bank.payment.line", required=True)
-    reason = fields.Char(string="Reason", required=True)
+    line_id = fields.Many2one("pr.account.bank.payment.line")
+    payment_id = fields.Many2one("pr.account.bank.payment")
+    reason = fields.Text(string="Reason", required=True)
 
     def action_confirm(self):
+        reason = (self.reason or "").strip()
+        if not reason:
+            raise ValidationError(_("Reject Reason is mandatory."))
+        if self.payment_id:
+            self.payment_id._reject_with_reason(reason)
+            return True
+
         line = self.line_id
+        if not line:
+            raise ValidationError(_("Select a Bank Payment Voucher or voucher line to reject."))
         parent = line.bank_payment_id
 
         line.sudo().write({
             'state': 'reject',
-            'reject_reason': self.reason,
+            'reject_reason': reason,
         })
 
         # If ALL lines rejected → reset parent to draft

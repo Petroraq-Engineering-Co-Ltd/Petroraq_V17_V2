@@ -83,6 +83,7 @@ class ProjectFeasibilityExportController(http.Controller):
         assumptions = [
             ("Reference", calculation.name, value),
             ("Calculation Date", calculation.calculation_date, date_format),
+            ("Total Project Amount", calculation.total_project_amount, money),
             ("Investment Amount", calculation.investment_amount, money),
             ("Projected Total Project Profit", calculation.projected_total_profit, money),
             ("Investor Profit Share", calculation.investor_ratio, percent),

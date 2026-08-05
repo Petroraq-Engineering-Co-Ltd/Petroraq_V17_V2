@@ -307,7 +307,10 @@
                             </div>
                         </t>
 
-                        <t t-elif="letter.get('type') == 'warning'">
+                        <t t-elif="letter.get('type') in ('warning', 'performance_improvement')">
+<!--                            <div t-if="letter.get('type') == 'performance_improvement'" class="letter-title">-->
+<!--                                Performance Improvement Notice-->
+<!--                            </div>-->
                             <p style="text-align:right; margin:20px 0 44px 0;">
                                 Date:
                                 <span t-out="letter.get('date_long')"/>

@@ -16,10 +16,10 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Accounting/Accounting',
-    'version': '17.0.1.0.10',
+    'version': '17.0.1.0.13',
     "license": "LGPL-3",
     # any module necessary for this one to work correctly
-    'depends': ['account_accountant', 'account_reports', 'de_hr_workspace'],
+    'depends': ['account_accountant', 'account_reports', 'de_hr_workspace', 'l10n_sa_edi'],
 
     # always loaded
     'data': [

@@ -616,71 +616,14 @@ class HrPayslip(models.Model):
         return line_vals
 
     def _compute_attendance_eligible_amount(self, payslip, salary_rule, base_amount):
-        """Prorate contract rule amount based on attendance eligibility in the payslip period."""
-        if not salary_rule.attendance_based_eligibility:
-            return base_amount
+        """Return recurring contract amounts without a second attendance deduction.
 
-        att_sheet = payslip.attendance_sheet_id
-        if not att_sheet:
-            return 0.0
-
-        unpaid_leave_type = self.env.ref(
-            'hr_work_entry_contract.work_entry_type_unpaid_leave',
-            raise_if_not_found=False,
-        )
-        validated_leaves = self.env['hr.leave'].sudo().search([
-            ('employee_id', '=', payslip.employee_id.id),
-            ('request_date_from', '<=', payslip.date_to),
-            ('request_date_to', '>=', payslip.date_from),
-            ('state', '=', 'validate'),
-        ])
-        unpaid_leaves = validated_leaves.filtered(
-            lambda leave: not leave.holiday_status_id.is_paid
-            or (
-                unpaid_leave_type
-                and leave.holiday_status_id.work_entry_type_id == unpaid_leave_type
-            )
-        )
-        unpaid_leave_dates = {
-            line.date
-            for line in att_sheet.line_ids
-            if line.status == 'leave'
-            and any(
-                leave.request_date_from <= line.date <= leave.request_date_to
-                for leave in unpaid_leaves
-            )
-        }
-
-        min_hours = salary_rule.attendance_min_worked_hours or 0.0
-        require_presence = salary_rule.attendance_require_presence
-        period_lines = att_sheet.line_ids.filtered(
-            lambda attendance_line: payslip.date_from <= attendance_line.date <= payslip.date_to
-        )
-        working_dates = {
-            line.date
-            for line in period_lines
-            if line.status not in ('weekend', 'ph')
-        }
-        deductible_dates = set()
-        for line in period_lines:
-            if line.date not in working_dates:
-                continue
-            is_absent = line.status == 'ab'
-            is_unpaid_leave = line.date in unpaid_leave_dates
-            if is_unpaid_leave:
-                deductible_dates.add(line.date)
-                continue
-            if require_presence and is_absent:
-                deductible_dates.add(line.date)
-                continue
-            if not line.status and line.worked_hours < min_hours:
-                deductible_dates.add(line.date)
-
-        return self._pr_prorate_attendance_eligible_amount(
-            base_amount,
-            deductible_days=len(deductible_dates),
-            divisor=len(working_dates),
-        )
+        These amounts already form part of ``contract.gross_amount``. Absence and
+        unpaid attendance are deducted from that gross through the ABS payslip
+        line, so reducing Fixed OT (or another recurring line) here would charge
+        the employee twice for the same absence.
+        """
+        return base_amount
 
     @api.model
     def _pr_prorate_attendance_eligible_amount(self, base_amount, deductible_days, divisor=30.0):

@@ -8,6 +8,7 @@ const DEFAULTS = {
     id: false,
     project_name: "New Project",
     investment_amount: 1000000,
+    total_project_amount: 1500000,
     projected_total_profit: 500000,
     investor_ratio: 50,
     expected_monthly_rate: 5,
@@ -95,6 +96,30 @@ export class ProjectFeasibilityCalculator extends Component {
         event.target.value = value;
     }
 
+    updatePercentageInput(event) {
+        const input = event.target;
+        let rawValue = String(input.value || "").replace(",", ".");
+        rawValue = rawValue.replace(/[^\d.]/g, "");
+
+        const firstDot = rawValue.indexOf(".");
+        if (firstDot !== -1) {
+            rawValue =
+                rawValue.slice(0, firstDot + 1) +
+                rawValue.slice(firstDot + 1).replace(/\./g, "");
+        }
+
+        const [whole = "", decimal] = rawValue.split(".");
+        rawValue = decimal === undefined
+            ? whole.slice(0, 3)
+            : `${whole.slice(0, 3)}.${decimal.slice(0, 2)}`;
+
+        if (rawValue !== "" && rawValue !== "." && this.number(rawValue) > 100) {
+            rawValue = "100";
+        }
+        input.value = rawValue;
+        this.state.form.investor_ratio = rawValue;
+    }
+
     finalizeNumber(field, event) {
         if (event.target.value !== "") {
             this.updateNumber(field, event);
@@ -151,6 +176,7 @@ export class ProjectFeasibilityCalculator extends Component {
             id: this.state.form.id || false,
             project_name: this.state.form.project_name || "New Project",
             investment_amount: this.number(this.state.form.investment_amount),
+            total_project_amount: this.number(this.state.form.total_project_amount),
             projected_total_profit: this.number(this.state.form.projected_total_profit),
             investor_ratio: Math.max(
                 1,

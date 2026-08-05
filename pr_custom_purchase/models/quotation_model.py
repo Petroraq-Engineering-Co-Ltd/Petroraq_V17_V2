@@ -12,6 +12,22 @@ class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
     requisition_id = fields.Many2one("purchase.requisition", string="Source PR", readonly=True, ondelete="set null")
+    source_rfq_id = fields.Many2one(
+        "purchase.order",
+        string="Source RFQ",
+        readonly=True,
+        copy=False,
+        ondelete="set null",
+        help="Technical link to the RFQ selected to create this Purchase Order.",
+    )
+    source_rfq_count = fields.Integer(
+        string="Source RFQ Count",
+        compute="_compute_source_rfq_count",
+    )
+    requisition_count = fields.Integer(
+        string="PR Count",
+        compute="_compute_requisition_count",
+    )
     linked_pr_state = fields.Selection([
         ("missing", "Not Created"),
         ("draft", "Draft"),
@@ -31,6 +47,67 @@ class PurchaseOrder(models.Model):
         ("cancel", "Cancelled"),
     ], string="PO Status", compute="_compute_linked_statuses")
     current_user_has_acted = fields.Boolean("Current User Has Acted", )
+
+    @api.depends("requisition_id")
+    def _compute_requisition_count(self):
+        for order in self:
+            order.requisition_count = 1 if order.requisition_id else 0
+
+    def _get_related_source_rfqs(self):
+        self.ensure_one()
+        if self.requisition_id:
+            return self.env["purchase.order"].sudo().search([
+                ("requisition_id", "=", self.requisition_id.id),
+                ("name", "ilike", "RFQ"),
+            ])
+        if self.source_rfq_id:
+            return self.source_rfq_id
+        if self.origin and "RFQ" in self.origin.upper():
+            return self.env["purchase.order"].sudo().search([
+                ("name", "=", self.origin),
+            ], limit=1)
+        return self.env["purchase.order"]
+
+    @api.depends("source_rfq_id", "origin", "requisition_id")
+    def _compute_source_rfq_count(self):
+        for order in self:
+            order.source_rfq_count = len(order._get_related_source_rfqs())
+
+    def action_view_source_rfq(self):
+        self.ensure_one()
+        source_rfqs = self._get_related_source_rfqs()
+        if not source_rfqs:
+            raise UserError(_("This Purchase Order is not linked to a source RFQ."))
+        if len(source_rfqs) == 1:
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Source RFQ"),
+                "res_model": "purchase.order",
+                "view_mode": "form",
+                "res_id": source_rfqs.id,
+                "target": "current",
+            }
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Related RFQs"),
+            "res_model": "purchase.order",
+            "view_mode": "tree,form",
+            "domain": [("id", "in", source_rfqs.ids)],
+            "target": "current",
+        }
+
+    def action_view_source_requisition(self):
+        self.ensure_one()
+        if not self.requisition_id:
+            raise UserError(_("This Purchase Order is not linked to a Purchase Requisition."))
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Purchase Requisition"),
+            "res_model": "purchase.requisition",
+            "view_mode": "form",
+            "res_id": self.requisition_id.id,
+            "target": "current",
+        }
     linked_quotation_status = fields.Selection([
         ("missing", "Not Submitted"),
         ("quote", "RFQ"),
@@ -40,6 +117,11 @@ class PurchaseOrder(models.Model):
     is_rfq_record = fields.Boolean(
         string="Is RFQ",
         compute="_compute_is_rfq_record",
+        store=False,
+    )
+    can_create_po_from_rfq = fields.Boolean(
+        string="Can Create PO from RFQ",
+        compute="_compute_can_create_po_from_rfq",
         store=False,
     )
 
@@ -149,6 +231,18 @@ class PurchaseOrder(models.Model):
             order_name = (order.name or "").upper()
             order.is_rfq_record = "RFQ" in order_name
 
+    @api.depends("name", "state", "requisition_id", "requisition_id.pr_type")
+    def _compute_can_create_po_from_rfq(self):
+        for order in self:
+            order.can_create_po_from_rfq = bool(
+                "RFQ" in (order.name or "").upper()
+                and order.state in ("draft", "sent", "pending")
+                and (
+                    not order.requisition_id
+                    or order.requisition_id.pr_type != "budgetary"
+                )
+            )
+
     def _compute_quotation_count(self):
         for order in self:
             if not order.requisition_id:
@@ -174,8 +268,9 @@ class PurchaseOrder(models.Model):
             )
             legacy_pr = self.env["custom.pr"].sudo().search([("name", "=", rec.pr_name)], limit=1) if rec.pr_name else False
             rec.linked_pr_state = self._map_requisition_to_legacy_pr_state(requisition) if requisition else (legacy_pr.state if legacy_pr else "missing")
-            linked_pos = self.env["purchase.order"].sudo().search([("origin", "=", rec.name)]) if rec.name else \
-                self.env["purchase.order"]
+            linked_pos = self.env["purchase.order"].sudo().search([
+                "|", ("source_rfq_id", "=", rec.id), ("origin", "=", rec.name)
+            ]) if rec.name else self.env["purchase.order"]
             rec.linked_po_state = max(linked_pos,
                                       key=lambda po: po_priority.get(po.state, 0)).state if linked_pos else "missing"
             related_rfqs = self.env["purchase.order"].sudo().search([
@@ -342,6 +437,12 @@ class PurchaseOrder(models.Model):
         """Create a new PO draft/pending record from the selected RFQ."""
         self.ensure_one()
 
+        if self.requisition_id.pr_type == "budgetary":
+            raise UserError(_(
+                "Budgetary PR RFQs are for price and availability collection only; "
+                "a Purchase Order cannot be created from them."
+            ))
+
         if self.state not in ("draft", "sent", "pending"):
             raise UserError(_("Only RFQs in Draft/Sent/Pending can be selected for Purchase Order."))
 
@@ -370,7 +471,7 @@ class PurchaseOrder(models.Model):
                 )
         else:
             existing_po = self.env["purchase.order"].sudo().search_count([
-                ("origin", "=", self.name),
+                "|", ("source_rfq_id", "=", self.id), ("origin", "=", self.name),
                 ("state", "in", ["draft", "pending", "purchase", "done", "rejected"]),
                 ("name", "not ilike", "RFQ"),
             ])
@@ -434,7 +535,8 @@ class PurchaseOrder(models.Model):
         po_vals = {
             "name": po_name,
             "state": "pending",
-            "origin": self.name,
+            "origin": self.requisition_id.name or self.pr_name or self.origin or self.name,
+            "source_rfq_id": self.id,
             "partner_id": self.partner_id.id,
             "partner_ref": self.partner_ref,
             "date_planned": self.date_planned or fields.Datetime.now(),
@@ -617,11 +719,23 @@ class PurchaseOrder(models.Model):
             )
 
     def _submit_for_po_approval(self):
+        # Keep the validation on the canonical transition itself. This method is
+        # reached by both the explicit Submit button and the Confirm/resubmit
+        # compatibility path, so an incomplete PO must never enter the queue.
+        self._require_terms_and_conditions()
         for order in self:
             if order.is_rfq_record:
                 raise UserError(_("RFQs cannot be submitted for PO approval. Create/select a Purchase Order first."))
             if not order.order_line:
                 raise UserError(_("Please add at least one product line before submitting for approval."))
+            missing_tax_lines = order.order_line.filtered(
+                lambda line: not line.display_type and not line.taxes_id
+            )
+            if missing_tax_lines:
+                raise ValidationError(_(
+                    "Select VAT/Tax on every Purchase Order line before submitting. "
+                    "Use an explicit 0%% or Exempt tax where VAT does not apply. Missing on: %s"
+                ) % ", ".join(missing_tax_lines.mapped("name")))
             order.write({
                 "state": "pending",
                 "pe_approved": False,
@@ -1058,8 +1172,8 @@ class PurchaseOrder(models.Model):
         for order in self:
             if order.state != "pending":
                 raise UserError(_("Only pending Purchase Orders can be rejected."))
-            if not order.origin:
-                raise UserError(_("This Purchase Order has no origin."))
+            if not order.requisition_id and not order.origin:
+                raise UserError(_("This Purchase Order has no source Purchase Requisition."))
 
             rejecting_user = self.env.user
             order.write({
@@ -1077,23 +1191,20 @@ class PurchaseOrder(models.Model):
                 rejecting_user.name,
             )
 
-            parent_po = self.env["purchase.order"].search(
+            parent_rfq = order.source_rfq_id or self.env["purchase.order"].search(
                 [("name", "=", order.origin)], limit=1
             )
-            if not parent_po:
-                _logger.warning("No parent PO found for origin: %s", order.origin)
-                continue
-
-            if not parent_po.origin:
-                _logger.warning("Parent PO %s has no origin.", parent_po.name)
-                continue
-
-            pr_record = self.env["purchase.requisition"].search(
-                [("name", "=", parent_po.origin)], limit=1
-            )
+            pr_record = order.requisition_id or parent_rfq.requisition_id
+            if not pr_record:
+                pr_name = order.origin or parent_rfq.origin
+                pr_record = self.env["purchase.requisition"].search(
+                    [("name", "=", pr_name)], limit=1
+                )
             if not pr_record:
                 _logger.warning(
-                    "No Purchase Requisition found with name: %s", parent_po.origin
+                    "No Purchase Requisition found for rejected PO %s (source: %s)",
+                    order.name,
+                    order.origin,
                 )
                 continue
 

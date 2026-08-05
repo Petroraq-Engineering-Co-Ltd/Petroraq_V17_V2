@@ -126,6 +126,7 @@ class PurchaseRequisition(models.Model):
         [
             ("pr", "PR"),
             ("cash", "Cash PR"),
+            ("budgetary", "Budgetary PR"),
         ],
         string="Type",
         default="pr",
@@ -144,6 +145,61 @@ class PurchaseRequisition(models.Model):
         ],
         default="pr",
         string="PR Status",
+    )
+    linked_rfq_status = fields.Selection(
+        [
+            ("missing", "Not Created"),
+            ("draft", "Draft"),
+            ("sent", "RFQ Sent"),
+            ("pending", "Pending Approval"),
+            ("purchase", "Purchase Order"),
+            ("done", "Locked"),
+            ("rejected", "Rejected"),
+            ("cancel", "Cancelled"),
+        ],
+        string="RFQ Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
+    )
+    linked_po_status = fields.Selection(
+        [
+            ("missing", "Not Created"),
+            ("draft", "Draft"),
+            ("sent", "RFQ Sent"),
+            ("pending", "Pending Approval"),
+            ("purchase", "Purchase Order"),
+            ("done", "Locked"),
+            ("rejected", "Rejected"),
+            ("cancel", "Cancelled"),
+        ],
+        string="PO Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
+    )
+    linked_delivery_status = fields.Selection(
+        [
+            ("missing", "No PO"),
+            ("pending", "Not Received"),
+            ("partial", "Partially Received"),
+            ("done", "Fully Received"),
+        ],
+        string="Delivery Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
+    )
+    linked_payment_status = fields.Selection(
+        [
+            ("missing", "No PO"),
+            ("not_billed", "Not Billed"),
+            ("not_paid", "Not Paid"),
+            ("partial", "Partially Paid"),
+            ("in_payment", "In Payment"),
+            ("paid", "Paid"),
+            ("reversed", "Reversed"),
+        ],
+        string="Payment Status",
+        compute="_compute_linked_purchase_statuses",
+        compute_sudo=True,
     )
     cash_pr_payment_method = fields.Selection(
         [("cash", "Cash"), ("bank", "Bank Transfer")],
@@ -253,6 +309,73 @@ class PurchaseRequisition(models.Model):
         [("opex", "Opex"), ("capex", "Capex")],
         string="Expense Type",
     )
+
+    def _compute_linked_purchase_statuses(self):
+        state_priority = {
+            "draft": 1,
+            "cancel": 2,
+            "rejected": 3,
+            "sent": 4,
+            "pending": 5,
+            "purchase": 6,
+            "done": 7,
+        }
+        PurchaseOrder = self.env["purchase.order"].sudo()
+        for requisition in self:
+            linked_orders = PurchaseOrder.search([
+                "|",
+                ("requisition_id", "=", requisition.id),
+                ("pr_name", "=", requisition.name),
+            ])
+            rfqs = linked_orders.filtered(
+                lambda order: "RFQ" in (order.name or "").upper()
+            )
+            purchase_orders = linked_orders - rfqs
+
+            requisition.linked_rfq_status = (
+                max(rfqs, key=lambda order: state_priority.get(order.state, 0)).state
+                if rfqs else "missing"
+            )
+            requisition.linked_po_status = (
+                max(purchase_orders, key=lambda order: state_priority.get(order.state, 0)).state
+                if purchase_orders else "missing"
+            )
+
+            active_purchase_orders = purchase_orders.filtered(
+                lambda order: order.state not in ("draft", "sent", "pending", "rejected", "cancel")
+            )
+            order_lines = active_purchase_orders.mapped("order_line").filtered(
+                lambda line: not line.display_type and line.product_qty > 0
+            )
+            if not active_purchase_orders:
+                requisition.linked_delivery_status = "missing"
+            elif order_lines and all(
+                line.qty_received >= line.product_qty for line in order_lines
+            ):
+                requisition.linked_delivery_status = "done"
+            elif any(line.qty_received > 0 for line in order_lines):
+                requisition.linked_delivery_status = "partial"
+            else:
+                requisition.linked_delivery_status = "pending"
+
+            bills = active_purchase_orders.mapped("invoice_ids").filtered(
+                lambda bill: bill.state != "cancel"
+            )
+            payment_states = set(bills.mapped("payment_state"))
+            if not active_purchase_orders:
+                requisition.linked_payment_status = "missing"
+            elif not bills:
+                requisition.linked_payment_status = "not_billed"
+            elif payment_states == {"paid"}:
+                requisition.linked_payment_status = "paid"
+            elif payment_states == {"in_payment"}:
+                requisition.linked_payment_status = "in_payment"
+            elif payment_states == {"reversed"}:
+                requisition.linked_payment_status = "reversed"
+            elif "partial" in payment_states or len(payment_states) > 1:
+                requisition.linked_payment_status = "partial"
+            else:
+                requisition.linked_payment_status = "not_paid"
 
     @api.depends("expense_bucket_id", "expense_bucket_id.crossovered_budget_line",
                  "expense_bucket_id.crossovered_budget_line.analytic_account_id")
@@ -497,6 +620,13 @@ class PurchaseRequisition(models.Model):
                         .next_by_code("cash.purchase.requisition")
                         or "CPR0001"
                 )
+            elif record.pr_type == "budgetary":
+                record.name = (
+                    self.env["ir.sequence"].sudo().next_by_code(
+                        "budgetary.purchase.requisition"
+                    )
+                    or "BPR0001"
+                )
             else:
                 record.name = (
                         self.env["ir.sequence"].sudo().next_by_code("purchase.requisition")
@@ -707,6 +837,9 @@ class PurchaseRequisition(models.Model):
     )
     def _compute_show_request_budget_increase_button(self):
         for rec in self:
+            if rec.pr_type == "budgetary":
+                rec.show_request_budget_increase_button = False
+                continue
             remaining_by_cost_center = rec._get_selected_budget_remaining_by_cost_center()
             rec.show_request_budget_increase_button = any(
                 item["amount"] > remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left)
@@ -1108,12 +1241,23 @@ class PurchaseRequisition(models.Model):
 
     def _validate_for_submission(self):
         for rec in self:
-            rec._check_selected_budget_active()
             if not rec.line_ids:
                 raise UserError(_("You must add at least one line before submitting the Purchase Requisition."))
             if rec.total_excl_vat <= 0.0:
                 raise UserError(_("Total requested amount must be greater than zero."))
+            if rec.pr_type == "budgetary":
+                for line in rec.line_ids:
+                    if not (line.budgetary_description or "").strip():
+                        raise UserError(_("Please enter an open description on every Budgetary PR line."))
+                    if not line.budgetary_product_type:
+                        raise UserError(_("Please select Service or Product on every Budgetary PR line."))
+                    if not line.uom_id:
+                        raise UserError(_("Please select a unit of measure on every Budgetary PR line."))
+                continue
+            rec._check_selected_budget_active()
             for line in rec.line_ids:
+                if not line.description:
+                    raise UserError(_("Please select a product on every PR line."))
                 if not line.cost_center_id:
                     raise UserError(_("Please set a cost center on every PR line."))
             rec.line_ids._check_work_order_product_limits()
@@ -1580,9 +1724,10 @@ class PurchaseRequisition(models.Model):
     def _get_remaining_requisition_line_quantities(self):
         self.ensure_one()
         purchased_quantities = self._get_purchased_requisition_line_quantities()
+        lines = self.line_ids if self.pr_type == "budgetary" else self.line_ids.filtered("description")
         return {
             line.id: max((line.quantity or 0.0) - purchased_quantities.get(line.id, 0.0), 0.0)
-            for line in self.line_ids.filtered("description")
+            for line in lines
         }
 
     def _get_remaining_product_quantities(self):
@@ -1853,12 +1998,13 @@ class PurchaseRequisition(models.Model):
             if not any(quantity > 1e-6 for quantity in remaining_quantities.values()):
                 raise UserError(_("All requested products have already been fully purchased for requisition %s.") % pr.name)
 
-            for line in pr.line_ids:
-                if not line.cost_center_id:
-                    raise UserError(_("Please set a cost center on every PR line."))
-            pr._check_amounts_against_selected_budget(
-                pr._amount_by_cost_center(remaining_quantities=remaining_quantities)
-            )
+            if pr.pr_type != "budgetary":
+                for line in pr.line_ids:
+                    if not line.cost_center_id:
+                        raise UserError(_("Please set a cost center on every PR line."))
+                pr._check_amounts_against_selected_budget(
+                    pr._amount_by_cost_center(remaining_quantities=remaining_quantities)
+                )
 
             rfq_vals = {
                 "name": self.env["ir.sequence"].sudo().next_by_code("purchase.order.rfq") or _("New"),
@@ -1882,6 +2028,9 @@ class PurchaseRequisition(models.Model):
                 remaining_qty = remaining_quantities.get(line.id, 0.0)
                 if remaining_qty <= 1e-6:
                     continue
+                product = line.description
+                if pr.pr_type == "budgetary":
+                    product = line._get_or_create_budgetary_product()
                 analytic_distribution = (
                     {str(line.cost_center_id.id): 100.0}
                     if line.cost_center_id
@@ -1889,7 +2038,7 @@ class PurchaseRequisition(models.Model):
                 )
                 rfq_vals["order_line"].append((0, 0, {
                     "name": line._get_document_line_description(),
-                    "product_id": line.description.id,
+                    "product_id": product.id,
                     "product_qty": remaining_qty,
                     "price_unit": line.unit_price,
                     "date_planned": fields.Datetime.now(),
@@ -2134,7 +2283,6 @@ class PurchaseRequisitionLine(models.Model):
     description = fields.Many2one(
         'product.product',
         string="Product",
-        required=True,
         ondelete="restrict",
         context={'display_default_code': False},
     )
@@ -2142,6 +2290,15 @@ class PurchaseRequisitionLine(models.Model):
         string="Description",
         help="Line description copied to RFQs, purchase orders, and payment vouchers.",
     )
+    budgetary_description = fields.Char(
+        string="Description",
+        help="Free-text product or service name used to find or create the RFQ product.",
+    )
+    budgetary_product_type = fields.Selection(
+        [("service", "Service"), ("product", "Product")],
+        string="Product Type",
+    )
+    uom_id = fields.Many2one("uom.uom", string="Unit of Measure")
     product_internal_reference = fields.Many2one(
         "product.internal.reference.lookup",
         string="Product Code",
@@ -2161,7 +2318,7 @@ class PurchaseRequisitionLine(models.Model):
     unit = fields.Char(string="Unit")
     unit_price = fields.Float(string="Unit Cost", digits="Product Price")
     cost_center_id = fields.Many2one(
-        "account.analytic.account", string="Cost Center", required=True,
+        "account.analytic.account", string="Cost Center",
         domain="[('id', 'in', requisition_id.allowed_cost_center_ids)]",
     )
 
@@ -2248,14 +2405,47 @@ class PurchaseRequisitionLine(models.Model):
         """Return the user-entered description, with a safe fallback for old PR lines."""
         self.ensure_one()
         return (
+            (self.budgetary_description or "").strip()
+            or
             (self.line_description or "").strip()
             or self.description.with_context(display_default_code=False).display_name
             or ""
         )
 
+    def _get_or_create_budgetary_product(self):
+        """Resolve a Budgetary PR line to a product, creating it only when absent."""
+        self.ensure_one()
+        name = (self.budgetary_description or "").strip()
+        if not name or not self.budgetary_product_type or not self.uom_id:
+            raise UserError(_("Budgetary PR lines require a description, product type, and unit of measure."))
+
+        Product = self.env["product.product"].sudo().with_context(active_test=False)
+        domain = [("name", "=ilike", name)]
+        type_field = "detailed_type" if "detailed_type" in Product._fields else "type"
+        domain.append((type_field, "=", self.budgetary_product_type))
+        product = Product.search(domain, limit=1)
+        if not product:
+            product_vals = {
+                "name": name,
+                type_field: self.budgetary_product_type,
+                "uom_id": self.uom_id.id,
+                "uom_po_id": self.uom_id.id,
+                "standard_price": self.unit_price,
+                "purchase_ok": True,
+                "sale_ok": True,
+            }
+            if "purchase_method" in Product._fields:
+                product_vals["purchase_method"] = "receive"
+            product = Product.create(product_vals)
+        if self.description != product:
+            self.sudo().write({"description": product.id})
+        return product
+
     @api.constrains("cost_center_id", "requisition_id")
     def _check_cost_center_matches_bucket(self):
         for rec in self:
+            if rec.requisition_id.pr_type == "budgetary":
+                continue
             bucket = rec.requisition_id.expense_bucket_id
             allowed = bucket.crossovered_budget_line.mapped("analytic_account_id")
             if rec.cost_center_id and bucket and rec.cost_center_id not in allowed:
@@ -2368,6 +2558,8 @@ class PurchaseRequisitionLine(models.Model):
     @api.constrains("cost_center_id", "description", "quantity", "unit_price", "requisition_id")
     def _check_work_order_product_limits(self):
         for rec in self:
+            if rec.requisition_id.pr_type == "budgetary":
+                continue
             if not rec.cost_center_id or not rec.description:
                 continue
 

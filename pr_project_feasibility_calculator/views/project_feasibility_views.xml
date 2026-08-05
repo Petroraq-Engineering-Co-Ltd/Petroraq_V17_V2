@@ -9,6 +9,7 @@
                 <field name="name"/>
                 <field name="project_name"/>
                 <field name="calculation_date"/>
+                <field name="total_project_amount" sum="Total Project Amount"/>
                 <field name="investment_amount" sum="Total Investment"/>
                 <field name="projected_total_profit" sum="Total Profit"/>
                 <field name="investor_ratio"/>
@@ -47,6 +48,7 @@
                     <group>
                         <group string="Project Assumptions">
                             <field name="calculation_date"/>
+                            <field name="total_project_amount"/>
                             <field name="investment_amount"/>
                             <field name="projected_total_profit"/>
                             <field name="duration_months"/>

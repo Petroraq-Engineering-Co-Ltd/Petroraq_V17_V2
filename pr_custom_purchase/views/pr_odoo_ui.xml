@@ -15,6 +15,33 @@
                        decoration-muted="approval == 'draft'"
                        decoration-info="approval == 'pending'"/>
 
+                <field name="linked_rfq_status" widget="badge" string="RFQ Status"
+                       decoration-success="linked_rfq_status in ('purchase', 'done')"
+                       decoration-info="linked_rfq_status in ('draft', 'sent')"
+                       decoration-warning="linked_rfq_status == 'pending'"
+                       decoration-danger="linked_rfq_status in ('rejected', 'cancel')"
+                       decoration-muted="linked_rfq_status == 'missing'"/>
+
+                <field name="linked_po_status" widget="badge" string="PO Status"
+                       decoration-success="linked_po_status in ('purchase', 'done')"
+                       decoration-info="linked_po_status in ('draft', 'sent')"
+                       decoration-warning="linked_po_status == 'pending'"
+                       decoration-danger="linked_po_status in ('rejected', 'cancel')"
+                       decoration-muted="linked_po_status == 'missing'"/>
+
+                <field name="linked_delivery_status" widget="badge" string="Delivery Status"
+                       decoration-success="linked_delivery_status == 'done'"
+                       decoration-warning="linked_delivery_status == 'partial'"
+                       decoration-info="linked_delivery_status == 'pending'"
+                       decoration-muted="linked_delivery_status == 'missing'"/>
+
+                <field name="linked_payment_status" widget="badge" string="Payment Status"
+                       decoration-success="linked_payment_status == 'paid'"
+                       decoration-info="linked_payment_status == 'in_payment'"
+                       decoration-warning="linked_payment_status == 'partial'"
+                       decoration-danger="linked_payment_status in ('not_paid', 'reversed')"
+                       decoration-muted="linked_payment_status in ('missing', 'not_billed')"/>
+
                 <field name="payment_request_state" widget="badge"
                        optional="show"
                        decoration-info="payment_request_state == 'requested'"
@@ -116,7 +143,7 @@
                                 icon="fa-envelope-open-o"
                                 invisible="pr_type == 'cash'"
                                 groups="pr_custom_purchase.procurement_admin,purchase.group_purchase_manager">
-                            <field name="rfq_count" widget="statinfo" string="RFQs"/>
+                            <field name="rfq_count" widget="statinfo" string="RFQs / POs"/>
                         </button>
                         <button name="action_open_cash_pr_payment_voucher"
                                 type="object"
@@ -159,8 +186,10 @@
                                    invisible="pr_type == 'cash'"
                                    groups="pr_custom_purchase.procurement_admin"/>
                             <field name="expense_type"
+                                   invisible="pr_type == 'budgetary'"
                                    readonly="approval != 'draft' or status != 'pr'"/>
                             <field name="expense_bucket_id"
+                                   invisible="pr_type == 'budgetary'"
                                    domain="[('expense_type', '=', expense_type), ('state', 'in', ['validate', 'done']), ('date_from', '&lt;=', context_today()), ('date_to', '&gt;=', context_today()), ('pr_under_revision', '=', False)]"
                                    readonly="approval != 'draft' or status != 'pr'"
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
@@ -191,10 +220,18 @@
                                 <tree editable="bottom">
                                     <field name="product_internal_reference"
                                            string="Product Code"
+                                           column_invisible="parent.pr_type == 'budgetary'"
                                            optional="show"/>
-                                    <field name="description"/>
-                                    <field name="line_description" string="Description"/>
+                                    <field name="description"
+                                           column_invisible="parent.pr_type == 'budgetary'"/>
+                                    <field name="line_description" string="Description"
+                                           column_invisible="parent.pr_type == 'budgetary'"/>
+                                    <field name="budgetary_description"
+                                           column_invisible="parent.pr_type != 'budgetary'"/>
+                                    <field name="budgetary_product_type"
+                                           column_invisible="parent.pr_type != 'budgetary'"/>
                                     <field name="cost_center_id"
+                                           column_invisible="parent.pr_type == 'budgetary'"
                                            domain="[('id', 'in', parent.allowed_cost_center_ids)]"/>
                                     <field name="expense_account_id"
                                            optional="hide"
@@ -202,8 +239,12 @@
                                            readonly="1"
                                            options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
                                            groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
-                                    <field name="type" readonly="1" force_save="1"/>
-                                    <field name="unit" readonly="1" force_save="1"/>
+                                    <field name="type" readonly="1" force_save="1"
+                                           column_invisible="parent.pr_type == 'budgetary'"/>
+                                    <field name="unit" readonly="1" force_save="1"
+                                           column_invisible="parent.pr_type == 'budgetary'"/>
+                                    <field name="uom_id"
+                                           column_invisible="parent.pr_type != 'budgetary'"/>
                                     <field name="quantity"/>
                                     <field name="unit_price"/>
                                     <field name="total_price"/>
@@ -251,6 +292,11 @@
                         </div>
                     </div>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
@@ -260,11 +306,11 @@
         <field name="name">purchase.requisition.form.single.line.total</field>
         <field name="model">purchase.requisition</field>
         <field name="inherit_id" ref="view_purchase_requisition_form"/>
-        <field name="priority">999</field>
+        <field name="priority">9999</field>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='line_ids']/tree/field[@name='total_price']"
+            <xpath expr="//field[@name='line_ids']/*[self::tree or self::list]/field[@name='total_price']"
                    position="replace"/>
-            <xpath expr="//field[@name='line_ids']/tree/field[@name='unit_price']"
+            <xpath expr="//field[@name='line_ids']/*[self::tree or self::list]/field[@name='unit_price']"
                    position="after">
                 <field name="total_price" string="Total" readonly="1"/>
             </xpath>
@@ -319,6 +365,13 @@
         <field name="domain">[('pr_type', '=', 'pr')]</field>
         <field name="context">{'default_pr_type': 'pr'}</field>
     </record>
+    <record id="action_purchase_requisition_budgetary" model="ir.actions.act_window">
+        <field name="name">Budgetary Purchase Requisitions</field>
+        <field name="res_model">purchase.requisition</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('pr_type', '=', 'budgetary')]</field>
+        <field name="context">{'default_pr_type': 'budgetary'}</field>
+    </record>
     <!-- Menu item under Purchase -->
     <!-- End User Requisitions (folder, no action) -->
     <menuitem id="menu_purchase_requisition_main"
@@ -362,6 +415,13 @@
               action="pr_custom_purchase.action_purchase_requisition_cash"
               sequence="20"
               groups="pr_custom_purchase.group_custom_pr_end_user,pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.project_engineer,pr_custom_purchase.project_manager,pr_custom_purchase.operations_director,pr_custom_purchase.managing_director,pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_data_entry,pr_custom_purchase.inventory_admin,pr_custom_purchase.group_pr_approver,account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+
+    <menuitem id="menu_budgetary_pr_others"
+              name="Budgetary PR"
+              parent="pr_custom_purchase.menu_purchase_requisition_main_others"
+              action="pr_custom_purchase.action_purchase_requisition_budgetary"
+              sequence="30"
+              groups="pr_custom_purchase.group_custom_pr_end_user,pr_custom_purchase.procurement_admin,purchase.group_purchase_manager,pr_custom_purchase.group_pr_approver"/>
 
     <menuitem id="menu_legacy_custom_prs"
               name="Legacy Custom PRs"

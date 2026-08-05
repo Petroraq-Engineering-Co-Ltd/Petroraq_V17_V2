@@ -276,6 +276,49 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertFalse(request.payment_request_id)
         self.assertFalse(request.cash_payment_id)
         self.assertFalse(request.bank_payment_id)
+
+    def test_dependent_fee_submits_as_company_paid_hr_request(self):
+        relation = self.env["hr.employee.dependent.relation"].create({
+            "name": "Dependent Fee Test Child",
+        })
+        request = self._create_request(
+            "dependent_fee",
+            dependent_relation_id=relation.id,
+            requested_amount=750.0,
+            payment_responsibility="company",
+        )
+
+        self.assertEqual(request.payment_responsibility, "company")
+        request.action_submit()
+
+        self.assertEqual(request.state, "hr_supervisor_approval")
+        self.assertFalse(request.payment_request_id)
+
+    def test_dependent_fee_duration_is_optional_selection(self):
+        relation = self.env["hr.employee.dependent.relation"].create({
+            "name": "Dependent Fee Duration Child",
+        })
+        request = self._create_request(
+            "dependent_fee",
+            dependent_relation_id=relation.id,
+            dependent_fee_duration="6",
+            requested_amount=500.0,
+            payment_responsibility="company",
+        )
+
+        self.assertEqual(request.dependent_fee_duration, "6")
+
+    def test_self_paid_dependent_fee_is_supported_for_record_keeping(self):
+        relation = self.env.ref("pr_hr.employee_dependent_relationship_self")
+        request = self._create_request(
+            "dependent_fee",
+            dependent_relation_id=relation.id,
+            requested_amount=250.0,
+            payment_responsibility="self",
+        )
+
+        self.assertEqual(request.payment_responsibility, "self")
+        self.assertTrue(request._is_self_paid_request())
         self.assertTrue(request.can_create_payment_request)
         create_bpv.assert_not_called()
 
