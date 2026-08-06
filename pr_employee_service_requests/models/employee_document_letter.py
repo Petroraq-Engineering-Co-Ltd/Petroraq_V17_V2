@@ -275,8 +275,7 @@ class PrEmployeeDocumentLetter(models.Model):
             )
             rec.can_hr_manager_approve = rec.state == "hr_manager_approval" and is_hr_manager
             rec.can_send = (
-                rec.letter_type != "performance_improvement"
-                and rec.state in ("approved", "sent")
+                rec.state in ("approved", "sent")
                 and is_hr_manager
             )
             rec.can_reject = (
@@ -738,33 +737,6 @@ class PrEmployeeDocumentLetter(models.Model):
             body=_("Employee letter received final approval. Final approved PDF is attached."),
             attachment_ids=attachment.ids,
         )
-        if self.letter_type == "performance_improvement":
-            self._send_performance_improvement_notice()
-
-    def _send_performance_improvement_notice(self):
-        self.ensure_one()
-        private_email = self._get_employee_private_email()
-        if not private_email:
-            raise UserError(_(
-                "A personal email address is required for %(employee)s before approving this notice."
-            ) % {"employee": self.employee_id.name})
-        template = self._get_default_mail_template()
-        wizard_model = self.env["pr.employee.letter.send.wizard"].with_context(
-            default_letter_id=self.id,
-            active_model=self._name,
-            active_id=self.id,
-        )
-        rendered = wizard_model._render_template_values(template, self)
-        wizard = wizard_model.create({
-            "letter_id": self.id,
-            "template_id": template.id if template else False,
-            "recipient_mode": "private",
-            "email_to": private_email,
-            "subject": rendered.get("subject") or self.subject,
-            "body_html": rendered.get("body_html") or self.body_html,
-            "include_letter_attachments": True,
-        })
-        return wizard.with_context(auto_approved_employee_letter=True).action_send()
 
     def action_view_attachments(self):
         self.ensure_one()
@@ -974,7 +946,14 @@ class PrEmployeeLetterSendWizard(models.TransientModel):
         if not letter:
             return values
         values["letter_id"] = letter.id
-        values["email_to"] = letter._get_employee_email() or ""
+        if letter.letter_type == "performance_improvement":
+            # Performance Improvement Notices must go to the employee's
+            # personal email, but HR still reviews and sends them manually.
+            values["recipient_mode"] = "private"
+            values["email_to"] = letter._get_employee_private_email() or ""
+        else:
+            values["recipient_mode"] = "employee"
+            values["email_to"] = letter._get_employee_email() or ""
         values["email_from"] = self._get_email_from() or ""
         template = letter._get_default_mail_template()
         if template:
@@ -1010,14 +989,9 @@ class PrEmployeeLetterSendWizard(models.TransientModel):
     def action_send(self):
         self.ensure_one()
         letter = self.letter_id
-        auto_send_authorized = bool(
-            self.env.context.get("auto_approved_employee_letter")
-            and letter.state == "approved"
-            and letter.department_manager_approved_by_id == self.env.user
-            and letter.hr_manager_approved_by_id == self.env.user
-        )
-        if not auto_send_authorized:
-            letter._check_hr_manager()
+        # Sending is always an explicit HR Manager action from the wizard.
+        # Final approval only prepares and attaches the approved PDF.
+        letter._check_hr_manager()
         if letter.state not in ("approved", "sent"):
             raise UserError(_("Only approved letters can be sent."))
 

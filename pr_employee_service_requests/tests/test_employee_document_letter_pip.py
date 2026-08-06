@@ -100,6 +100,36 @@ class TestPerformanceImprovementNotice(TransactionCase):
         with self.assertRaises(UserError):
             notice.with_user(self.hr_manager).action_hr_manager_approve()
 
+    def test_final_approval_does_not_automatically_send_notice(self):
+        self.employee.private_email = "employee.private@example.com"
+        notice = self._create_notice()
+        notice.write({
+            "state": "hr_manager_approval",
+            "department_manager_approved_by_id": self.department_manager.id,
+        })
+        model_class = type(notice)
+        with patch.object(
+            model_class,
+            "_generate_letter_pdf_attachment",
+            autospec=True,
+            return_value=self.attachment,
+        ):
+            notice.with_user(self.hr_manager).action_hr_manager_approve()
+        self.assertEqual(notice.state, "approved")
+        self.assertFalse(notice.sent_date)
+        self.assertFalse(notice.sent_email_to)
+        notice.with_user(self.hr_manager)._compute_action_flags()
+        self.assertTrue(notice.can_send)
+        wizard_values = self.env["pr.employee.letter.send.wizard"].with_user(
+            self.hr_manager
+        ).with_context(
+            default_letter_id=notice.id,
+            active_model=notice._name,
+            active_id=notice.id,
+        ).default_get(["letter_id", "recipient_mode", "email_to"])
+        self.assertEqual(wizard_values["recipient_mode"], "private")
+        self.assertEqual(wizard_values["email_to"], "employee.private@example.com")
+
     def test_all_letter_types_follow_department_manager_then_hr_manager(self):
         letter = self.env["pr.employee.document.letter"].create({
             "letter_type": "warning",
