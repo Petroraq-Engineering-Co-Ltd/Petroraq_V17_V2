@@ -8,7 +8,7 @@ assignment, deployments, and other configurable IT services. Employees select
 or adjust a grouped sequential approval chain before submission; approvers receive
 activities and process requests from the central Approvals workspace.
 """,
-    "version": "17.0.1.0.3",
+    "version": "17.0.1.0.6",
     "category": "Services/IT Services",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "website": "https://www.petroraq.com",

@@ -36,7 +36,10 @@ class PrItServiceRequest(models.Model):
         required=True,
         tracking=True,
     )
-    description = fields.Html(required=True, sanitize=True, tracking=True)
+    # Odoo 17's mail tracking does not support Html fields. Enabling tracking
+    # here causes a NotImplementedError during the transaction flush whenever
+    # the description changes.
+    description = fields.Html(required=True, sanitize=True)
     state = fields.Selection(
         [
             ("draft", "Draft"),
@@ -130,14 +133,17 @@ class PrItServiceRequest(models.Model):
             "|", ("state", "!=", "pending"), ("current_approver_ids", "not in", [self.env.user.id])
         ]
 
-    @api.depends("state", "current_approver_ids")
+    @api.depends_context("uid")
+    @api.depends("state", "current_approver_ids", "requested_by_id")
     def _compute_action_flags(self):
-        is_manager = self.env.user.has_group("pr_it_service_requests.group_it_service_manager")
         for rec in self:
             current = rec.state == "pending" and self.env.user in rec.current_approver_ids
             rec.can_approve = current
             rec.can_reject = current
-            rec.can_reset_to_draft = is_manager and rec.state in ("rejected", "cancelled")
+            rec.can_reset_to_draft = (
+                rec.requested_by_id == self.env.user
+                and rec.state in ("rejected", "cancelled")
+            )
 
     @api.onchange("request_type_id")
     def _onchange_request_type_id(self):
@@ -233,23 +239,36 @@ class PrItServiceRequest(models.Model):
                 raise AccessError(_("Only the requester or an IT Service Manager can submit this request."))
             rec._validate_approval_chain()
             lines = rec.approver_line_ids.sorted("sequence")
-            lines.with_context(it_request_workflow_write=True).write({
+            remaining_lines = lines.filtered(lambda line: line.status != "approved")
+            remaining_lines.with_context(it_request_workflow_write=True).write({
                 "status": "waiting", "action_date": False, "remarks": False
             })
-            first_sequence = lines[0].sequence
-            lines.filtered(
-                lambda line: line.sequence == first_sequence
-            ).with_context(it_request_workflow_write=True).write({"status": "pending"})
-            rec.with_context(it_request_workflow_write=True).write({
-                "state": "pending", "rejection_reason": False,
-                "rejected_by_id": False, "rejected_at": False, "approved_at": False,
-            })
             rec.message_subscribe(partner_ids=lines.mapped("approver_id.partner_id").ids)
-            rec.message_post(body=_(
-                "IT service request submitted for grouped sequential approval. "
-                "Approvers sharing the same sequence may approve in any order."
-            ))
-            rec._schedule_current_approvers()
+            if remaining_lines:
+                first_sequence = remaining_lines[0].sequence
+                remaining_lines.filtered(
+                    lambda line: line.sequence == first_sequence
+                ).with_context(it_request_workflow_write=True).write({"status": "pending"})
+                rec.with_context(it_request_workflow_write=True).write({
+                    "state": "pending", "rejection_reason": False,
+                    "rejected_by_id": False, "rejected_at": False, "approved_at": False,
+                })
+                rec.message_post(body=_(
+                    "IT service request submitted for grouped sequential approval. "
+                    "Existing approvals were retained; only the remaining approvers "
+                    "must act. Approvers sharing the same sequence may approve in any order."
+                ))
+                rec._schedule_current_approvers()
+            else:
+                rec.with_context(it_request_workflow_write=True).write({
+                    "state": "approved", "rejection_reason": False,
+                    "rejected_by_id": False, "rejected_at": False,
+                    "approved_at": fields.Datetime.now(),
+                })
+                rec.message_post(body=_(
+                    "IT service request resubmitted and marked fully approved because "
+                    "all approvers had already approved it."
+                ))
         return True
 
     def _ensure_current_approver(self):
@@ -356,9 +375,11 @@ class PrItServiceRequest(models.Model):
         return True
 
     def action_reset_to_draft(self):
-        if not self.env.user.has_group("pr_it_service_requests.group_it_service_manager"):
-            raise AccessError(_("Only an IT Service Manager can reset requests to draft."))
         for rec in self:
+            if rec.requested_by_id != self.env.user:
+                raise AccessError(_(
+                    "Only the user who created this IT service request can reset it to draft."
+                ))
             if rec.state not in ("rejected", "cancelled"):
                 raise UserError(_("Only rejected or cancelled requests can be reset to draft."))
             approval_activity_type = self.env.ref(
@@ -367,14 +388,20 @@ class PrItServiceRequest(models.Model):
             rec.activity_ids.filtered(
                 lambda activity: activity.activity_type_id == approval_activity_type
             ).action_done()
-            rec.approver_line_ids.with_context(it_request_workflow_write=True).write({
+            rec.approver_line_ids.filtered(
+                lambda line: line.status != "approved"
+            ).with_context(it_request_workflow_write=True).write({
                 "status": "waiting", "action_date": False, "remarks": False
             })
             rec.with_context(it_request_workflow_write=True).write({
                 "state": "draft", "rejection_reason": False,
                 "rejected_by_id": False, "rejected_at": False, "approved_at": False,
             })
-            rec.message_post(body=_("IT service request reset to draft by %(user)s.", user=self.env.user.name))
+            rec.message_post(body=_(
+                "IT service request reset to draft by %(user)s. Previous approvals "
+                "were retained; only unfinished approval steps will reopen.",
+                user=self.env.user.name,
+            ))
         return True
 
     def action_cancel(self):

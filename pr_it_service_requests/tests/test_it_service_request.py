@@ -108,11 +108,62 @@ class TestItServiceRequest(TransactionCase):
         self.assertFalse(request.current_approver_ids)
         self.assertEqual(request.approval_progress, "0 of 2 approved")
 
-    def test_manager_can_reset_rejection(self):
+    def test_request_creator_can_reset_rejection(self):
         request = self._request()
         request.with_user(self.requester).action_submit()
-        request.with_user(self.approver_one)._action_reject("Insufficient justification")
+        request.with_user(self.approver_one).action_approve()
+        approved_line = request.approver_line_ids.filtered(
+            lambda line: line.approver_id == self.approver_one
+        )
+        original_approval_date = approved_line.action_date
+        request.with_user(self.approver_two)._action_reject("Insufficient justification")
         self.assertEqual(request.state, "rejected")
-        request.with_user(self.manager).action_reset_to_draft()
+        with self.assertRaises(AccessError):
+            request.with_user(self.manager).action_reset_to_draft()
+        request.with_user(self.requester).action_reset_to_draft()
         self.assertEqual(request.state, "draft")
         self.assertFalse(request.rejection_reason)
+        self.assertEqual(approved_line.status, "approved")
+        self.assertEqual(approved_line.action_date, original_approval_date)
+
+        request.with_user(self.requester).action_submit()
+        self.assertEqual(request.current_approver_ids, self.approver_two)
+        self.assertEqual(approved_line.status, "approved")
+        request.with_user(self.approver_two).action_approve()
+        self.assertEqual(request.state, "approved")
+
+    def test_reset_retains_approved_members_of_parallel_group(self):
+        request = self.env["pr.it.service.request"].with_user(self.requester).create({
+            "title": "Resume grouped deployment approval",
+            "request_type_id": self.request_type.id,
+            "employee_id": self.employee.id,
+            "description": "Approved group members must not approve twice.",
+            "approver_line_ids": [
+                (0, 0, {"sequence": 10, "approver_id": self.approver_one.id}),
+                (0, 0, {"sequence": 10, "approver_id": self.approver_two.id}),
+                (0, 0, {"sequence": 10, "approver_id": self.approver_three.id}),
+                (0, 0, {"sequence": 20, "approver_id": self.manager.id}),
+            ],
+        })
+        request.with_user(self.requester).action_submit()
+        request.with_user(self.approver_one).action_approve()
+        request.with_user(self.approver_two)._action_reject("Deployment evidence missing")
+
+        request.with_user(self.requester).action_reset_to_draft()
+        request.with_user(self.requester).action_submit()
+        self.assertEqual(
+            set(request.current_approver_ids.ids),
+            {self.approver_two.id, self.approver_three.id},
+        )
+        self.assertEqual(
+            request.approver_line_ids.filtered(
+                lambda line: line.approver_id == self.approver_one
+            ).status,
+            "approved",
+        )
+
+        request.with_user(self.approver_two).action_approve()
+        request.with_user(self.approver_three).action_approve()
+        self.assertEqual(request.current_approver_ids, self.manager)
+        request.with_user(self.manager).action_approve()
+        self.assertEqual(request.state, "approved")

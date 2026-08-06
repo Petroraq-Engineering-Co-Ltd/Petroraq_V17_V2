@@ -517,7 +517,7 @@
                 </a>
                 <a class="btn btn-primary" t-att-href="'/vendor/document/upload?po_id=%s&amp;delivery_id=%s' % (picking.purchase_id.id, picking.id)">
                     <i class="fa fa-paperclip me-1"/>
-                    Attach Document to GDN
+                    Attach
                 </a>
             </div>
 
@@ -912,7 +912,7 @@
                             </a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-upload me-1"/>
-                                Attach to Purchase Order
+                                Attach
                             </button>
                         </div>
                     </form>
