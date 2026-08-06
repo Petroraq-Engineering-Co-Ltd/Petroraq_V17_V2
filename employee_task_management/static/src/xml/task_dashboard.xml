@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="employee_task_management.TaskDashboard" owl="1">
+        <div class="o_etm_dashboard">
+            <div class="o_etm_banner">
+                <div class="o_etm_banner_text">
+                    <div class="o_etm_eyebrow">Employee Task Management</div>
+                    <h1 class="o_etm_title">Task Dashboard</h1>
+                    <div class="o_etm_subtitle">
+                        Task lists, approvals, activities, sub-activities and hours in one view.
+                    </div>
+                </div>
+                <button class="btn o_etm_refresh_btn" t-on-click="onRefresh">
+                    <i class="fa fa-refresh me-1"/> Refresh
+                </button>
+            </div>
+
+            <div class="o_etm_cards">
+                <div class="o_etm_card" t-on-click="() => this.openCard('total')">
+                    <div class="o_etm_card_label">Total Tasks</div>
+                    <div class="o_etm_card_value"><t t-esc="state.counts.total"/></div>
+                </div>
+                <div class="o_etm_card" t-on-click="() => this.openCard('pending_approval')">
+                    <div class="o_etm_card_label">Pending Manager Approval</div>
+                    <div class="o_etm_card_value"><t t-esc="state.counts.pending_approval"/></div>
+                </div>
+                <div class="o_etm_card" t-on-click="() => this.openCard('in_progress')">
+                    <div class="o_etm_card_label">In Progress</div>
+                    <div class="o_etm_card_value"><t t-esc="state.counts.in_progress"/></div>
+                </div>
+                <div class="o_etm_card" t-on-click="() => this.openCard('completed')">
+                    <div class="o_etm_card_label">Completed (Not Closed)</div>
+                    <div class="o_etm_card_value"><t t-esc="state.counts.completed"/></div>
+                </div>
+                <div class="o_etm_card o_etm_card_danger" t-on-click="() => this.openCard('delayed')">
+                    <div class="o_etm_card_label">Delayed</div>
+                    <div class="o_etm_card_value"><t t-esc="state.counts.delayed"/></div>
+                </div>
+                <div class="o_etm_card" t-on-click="() => this.openCard('closed')">
+                    <div class="o_etm_card_label">Closed</div>
+                    <div class="o_etm_card_value"><t t-esc="state.counts.closed"/></div>
+                </div>
+            </div>
+
+            <div class="o_etm_toolbar">
+                <div class="o_etm_toolbar_title">Task Lists</div>
+                <div class="o_etm_view_switcher">
+                    <button class="btn o_etm_switch_btn active" title="List (current view)">
+                        <i class="fa fa-list"/>
+                    </button>
+                    <button class="btn o_etm_switch_btn" title="Open Kanban view"
+                            t-on-click="() => this.openView('kanban')">
+                        <i class="fa fa-th-large"/>
+                    </button>
+                    <button class="btn o_etm_switch_btn" title="Open Graph view"
+                            t-on-click="() => this.openView('graph')">
+                        <i class="fa fa-bar-chart"/>
+                    </button>
+                </div>
+            </div>
+
+            <div class="o_etm_list_wrapper">
+                <View t-props="listViewProps" t-key="state.reloadKey"/>
+            </div>
+        </div>
+    </t>
+
+</templates>

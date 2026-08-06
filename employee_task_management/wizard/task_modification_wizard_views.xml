@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_modification_wizard_form" model="ir.ui.view">
+        <field name="name">employee.task.modification.wizard.form</field>
+        <field name="model">employee.task.modification.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Request Modification">
+                <div class="alert alert-info" role="alert">
+                    Your manager will be notified. If the request is not
+                    handled before the <b>task start date</b>, this task list
+                    is assigned to you automatically.
+                </div>
+                <group>
+                    <field name="task_list_id" readonly="1"/>
+                    <field name="modification_reason" required="1"
+                           placeholder="e.g. the dates overlap with another task list, please shift the end date..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_request" string="Send Request"
+                            type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,4 +1,4 @@
-from odoo import _, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import html2plaintext, html_escape, is_html_empty
 from datetime import datetime, date, timedelta
@@ -9,6 +9,114 @@ from reportlab.lib.units import mm
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
+
+    workflow_billing_status = fields.Selection(
+        [
+            ("nothing", "Nothing to Bill"),
+            ("waiting", "Waiting for Bills"),
+            ("partial", "Partially Billed"),
+            ("billed", "Fully Billed"),
+        ],
+        string="Billing Status",
+        compute="_compute_workflow_billing_status",
+        compute_sudo=True,
+    )
+    workflow_payment_status = fields.Selection(
+        [
+            ("no_bill", "No Bill"),
+            ("not_paid", "Not Paid"),
+            ("in_payment", "Payment In Process"),
+            ("partial", "Partially Paid"),
+            ("paid", "Fully Paid"),
+            ("reversed", "Reversed"),
+        ],
+        string="Payment Status",
+        compute="_compute_workflow_billing_status",
+        compute_sudo=True,
+    )
+
+    @api.depends(
+        "state",
+        "invoice_status",
+        "invoice_ids.state",
+        "invoice_ids.payment_state",
+        "picking_ids.state",
+    )
+    def _compute_workflow_billing_status(self):
+        """Show billing progress only after the related GRN/SES is approved.
+
+        This is deliberately separate from Odoo's ``invoice_status`` because
+        that technical field controls bill creation from quantities. Payment
+        progress is a reporting concern and must not change invoiceability.
+        """
+        GrnSes = self.env["grn.ses"].sudo()
+        for order in self:
+            if order.state not in ("purchase", "done"):
+                order.workflow_billing_status = "nothing"
+                order.workflow_payment_status = "no_bill"
+                continue
+
+            approval_states = []
+
+            incoming_pickings = order.picking_ids.filtered(
+                lambda picking: picking.picking_type_code == "incoming"
+                and picking.state != "cancel"
+            )
+            approval_states.extend(
+                picking._get_receipt_approval_state() == "approved"
+                for picking in incoming_pickings
+            )
+
+            if "service_receipt_note_ids" in order._fields:
+                service_receipts = order.service_receipt_note_ids.filtered(
+                    lambda receipt: receipt.state != "cancel"
+                )
+                approval_states.extend(
+                    receipt.approval_state == "approved" or receipt.state == "done"
+                    for receipt in service_receipts
+                )
+            else:
+                service_receipts = self.env["purchase.order"]
+
+            legacy_receipts = GrnSes.search([
+                ("purchase_order_id", "=", order.id),
+            ])
+            approval_states.extend(
+                receipt.stage == "approved" or receipt.is_approved
+                for receipt in legacy_receipts
+            )
+
+            # No receipt yet, or at least one GRN/SES still draft/submitted.
+            if not approval_states or not all(approval_states):
+                order.workflow_billing_status = "nothing"
+                order.workflow_payment_status = "no_bill"
+                continue
+
+            bills = order.invoice_ids.filtered(lambda bill: bill.state != "cancel")
+            bills |= legacy_receipts.mapped("bill_ids").filtered(
+                lambda bill: bill.state != "cancel"
+            )
+            if not bills:
+                order.workflow_billing_status = "waiting"
+                order.workflow_payment_status = "no_bill"
+                continue
+
+            order.workflow_billing_status = (
+                "partial" if order.invoice_status == "to invoice" else "billed"
+            )
+            payment_states = set(bills.mapped("payment_state"))
+            if payment_states == {"paid"}:
+                order.workflow_payment_status = "paid"
+            elif "partial" in payment_states or (
+                "paid" in payment_states and len(payment_states) > 1
+            ):
+                order.workflow_payment_status = "partial"
+            elif payment_states == {"in_payment"}:
+                order.workflow_payment_status = "in_payment"
+            elif payment_states == {"reversed"}:
+                order.workflow_payment_status = "reversed"
+            else:
+                order.workflow_payment_status = "not_paid"
 
     def _notify_get_reply_to(self, default=None):
         """Route vendor replies to the PO email's visible sender."""

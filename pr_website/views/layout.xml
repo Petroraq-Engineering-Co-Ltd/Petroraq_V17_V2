@@ -574,7 +574,7 @@
                                             My Account
                                         </a>
                                     </t>
-                                    <a href="/web/session/logout" class="logout-btn" t-translation="Log Out">
+                                    <a href="/web/session/logout?redirect=/sign-in" class="logout-btn" t-translation="Log Out">
                                         <i class="fa fa-sign-out-alt"></i>
                                         Log Out
                                     </a>
@@ -633,7 +633,7 @@
                                         <t t-esc="request.env.user.name or 'Account'"/>
                                     </a>
                                 </t>
-                                <a href="/web/session/logout" class="logout-btn" t-translation="Log Out">
+                                <a href="/web/session/logout?redirect=/sign-in" class="logout-btn" t-translation="Log Out">
                                     <i class="fa fa-sign-out-alt"></i>
                                     Log Out
                                 </a>

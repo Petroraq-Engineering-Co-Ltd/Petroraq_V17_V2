@@ -89,8 +89,16 @@ class HrAttendance(models.Model):
                 )
             elif source == "scheduled":
                 incompatible = employees.filtered(
-                    lambda employee: employee.attendance_entry_mode != "automated"
-                    or employee.compute_attendance
+                    lambda employee: not (
+                        (
+                            employee.attendance_entry_mode == "automated"
+                            and not employee.compute_attendance
+                        )
+                        or (
+                            employee.attendance_entry_mode == "manual"
+                            and employee.include_in_scheduled_attendance
+                        )
+                    )
                 )
             else:
                 incompatible = self.env["hr.employee"]
@@ -231,8 +239,31 @@ class HrAttendance(models.Model):
     @api.model
     def _get_auto_attendance_datetimes(self, employee, target_date):
         timezone = pytz.timezone(self._get_auto_attendance_timezone(employee))
-        check_in = timezone.localize(datetime.combine(target_date, time(hour=8)))
-        check_out = timezone.localize(datetime.combine(target_date, time(hour=17)))
+        calendar = (
+            employee.resource_calendar_id
+            or employee.contract_id.resource_calendar_id
+            or employee.company_id.resource_calendar_id
+            or self.env.company.resource_calendar_id
+        )
+        weekday = str(target_date.weekday())
+        schedule_lines = calendar.attendance_ids.filtered(
+            lambda attendance: attendance.dayofweek == weekday
+            and (not attendance.date_from or attendance.date_from <= target_date)
+            and (not attendance.date_to or attendance.date_to >= target_date)
+        ) if calendar else self.env["resource.calendar.attendance"]
+
+        first_hour = min(schedule_lines.mapped("hour_from"), default=8.0)
+        last_hour = max(schedule_lines.mapped("hour_to"), default=17.0)
+        check_in = timezone.localize(
+            datetime.combine(target_date, time.min)
+            + timedelta(minutes=round(first_hour * 60))
+        )
+        check_out = timezone.localize(
+            datetime.combine(target_date, time.min)
+            + timedelta(minutes=round(last_hour * 60))
+        )
+        if check_out <= check_in:
+            check_out += timedelta(days=1)
         return (
             check_in.astimezone(pytz.UTC).replace(tzinfo=None),
             check_out.astimezone(pytz.UTC).replace(tzinfo=None),
@@ -335,8 +366,13 @@ class HrAttendance(models.Model):
         return self.env["hr.employee"].sudo().search([
             ("active", "=", True),
             ("company_id", "=", company.id),
+            "|",
+            "&",
             ("attendance_entry_mode", "=", "automated"),
             ("compute_attendance", "=", False),
+            "&",
+            ("attendance_entry_mode", "=", "manual"),
+            ("include_in_scheduled_attendance", "=", True),
         ])
 
     @api.model

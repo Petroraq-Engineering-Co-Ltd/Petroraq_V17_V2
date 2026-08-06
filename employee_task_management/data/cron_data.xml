@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- A task list still waiting in Submitted to Manager, Pending
+             Employee Acceptance or Modification Requested is assigned to
+             the employee automatically once the START DATE of one of its
+             tasks arrives - the work is due, so it cannot stay blocked on
+             an approval nobody actioned. Checked every hour. -->
+        <record id="ir_cron_auto_apply_modification" model="ir.cron">
+            <field name="name">Employee Task Management: Auto-assign task lists whose start date has arrived</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_auto_apply()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

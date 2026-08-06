@@ -54,5 +54,25 @@
             <field name="note">Other Payment</field>
         </record>
 
+        <record id="hr_salary_rule_joining_arrears" model="hr.salary.rule">
+            <field name="code">JOIN_ARREARS</field>
+            <field name="name">Joining Salary Arrears</field>
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="struct_id" ref="hr_payroll.structure_worker_001"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+            <field name="sequence" eval="43"/>
+            <field name="note">One-time net salary arrears for an employee's unpaid joining-period dates.</field>
+        </record>
+
+        <record id="seq_payroll_joining_arrears" model="ir.sequence">
+            <field name="name">Payroll Joining Arrears</field>
+            <field name="code">payroll.joining.arrears</field>
+            <field name="prefix">JAR/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
     </data>
 </odoo>

@@ -32,6 +32,12 @@ class HrPayslip(models.Model):
 
     other_amount = fields.Float(string="Other Amount", default=0.0)
     salary_journal_entry_id = fields.Many2one("account.move", readonly=True)
+    joining_arrears_id = fields.Many2one(
+        "payroll.joining.arrears",
+        string="Joining Arrears",
+        readonly=True,
+        copy=False,
+    )
 
     hold_salary = fields.Boolean(string="Hold Salary", tracking=True, copy=False)
     hold_reason = fields.Char(string="Hold Reason", tracking=True, copy=False)
@@ -55,6 +61,43 @@ class HrPayslip(models.Model):
                 'hold_salary': False,
                 'release_date': fields.Date.today(),
             })
+
+    def write(self, vals):
+        result = super().write(vals)
+        if self.env.context.get("skip_joining_arrears_lifecycle"):
+            return result
+        if vals.get("state") == "paid":
+            for slip in self:
+                arrears = slip.joining_arrears_id
+                if arrears:
+                    arrears.write({"state": "paid"})
+                paid_through = slip.date_to
+                if (
+                    paid_through
+                    and (
+                        not slip.contract_id.salary_paid_through_date
+                        or slip.contract_id.salary_paid_through_date < paid_through
+                    )
+                ):
+                    slip.contract_id.salary_paid_through_date = paid_through
+        elif vals.get("state") == "cancel":
+            for slip in self.filtered("joining_arrears_id"):
+                arrears = slip.joining_arrears_id
+                if arrears.state != "paid":
+                    arrears.write({"state": "draft", "payslip_id": False})
+                    slip.with_context(skip_joining_arrears_lifecycle=True).write({
+                        "joining_arrears_id": False
+                    })
+        return result
+
+    def unlink(self):
+        arrears_records = self.mapped("joining_arrears_id").filtered(
+            lambda record: record.state != "paid"
+        )
+        result = super().unlink()
+        if arrears_records:
+            arrears_records.write({"state": "draft", "payslip_id": False})
+        return result
 
     attendance_sheet_line_ids = fields.One2many(
         related='attendance_sheet_id.line_ids',
@@ -353,6 +396,29 @@ class HrPayslip(models.Model):
             contract_id = payslip.contract_id or payslip.employee_id.contract_id
             if not contract_id:
                 continue
+            joining_arrears = self.env["payroll.joining.arrears"]._prepare_for_payslip(payslip)
+            if joining_arrears and abs(joining_arrears.net_amount or 0.0) >= 1e-6:
+                joining_rule = self.env.ref(
+                    "pr_hr_payroll.hr_salary_rule_joining_arrears",
+                    raise_if_not_found=False,
+                )
+                if joining_rule:
+                    line_vals.append({
+                        "sequence": joining_rule.sequence,
+                        "code": joining_rule.code,
+                        "name": _("Joining Salary Arrears (%s to %s)") % (
+                            joining_arrears.date_from,
+                            joining_arrears.date_to,
+                        ),
+                        "salary_rule_id": joining_rule.id,
+                        "contract_id": contract_id.id,
+                        "employee_id": payslip.employee_id.id,
+                        "amount": joining_arrears.net_amount,
+                        "quantity": 1,
+                        "rate": 100,
+                        "total": joining_arrears.net_amount,
+                        "slip_id": payslip.id,
+                    })
             gosi_salary_rule = self.env.ref("pr_hr_payroll.hr_salary_rule_saudi_gosi")
             gosi_allow_salary_rule = self.env.ref("pr_hr_payroll.hr_salary_rule_saudi_gosi_allow")
             # ===============================
@@ -494,55 +560,6 @@ class HrPayslip(models.Model):
                         'total': (gosi_line_amount * -1 if gosi_line_amount <= 900 else -900) or 0,
                         'slip_id': payslip.id,
                     })
-
-            # Check Other Payment Like: First Payslip Days
-            if contract_id.other_first_payslip and contract_id.joining_date:
-                start_of_month = date_utils.start_of(contract_id.joining_date, 'month')
-                end_of_month = date_utils.end_of(contract_id.joining_date, 'month')
-                month_days = (end_of_month - start_of_month).days + 1
-                extra_salary_days = (end_of_month - contract_id.joining_date).days + 1
-                other_salary_rule = self.env.ref("pr_hr_payroll.hr_salary_rule_other_payments")
-                gross_salary = contract_id.gross_amount
-                extra_salary_amount = (extra_salary_days * gross_salary) / month_days
-                if other_salary_rule and extra_salary_amount > 0:
-                    line_vals.append({
-                        'sequence': other_salary_rule.sequence,
-                        'code': other_salary_rule.code,
-                        'name': other_salary_rule.name,
-                        'salary_rule_id': other_salary_rule.id,
-                        'contract_id': contract_id.id,
-                        'employee_id': payslip.employee_id.id,
-                        'amount': extra_salary_amount or 0,
-                        'quantity': 1,
-                        'rate': 100,
-                        'total': extra_salary_amount or 0,
-                        'slip_id': payslip.id,
-                    })
-
-                # Check GOSI Amount For These Days If Employee Is Saudi
-                if payslip.employee_id.country_id and payslip.employee_id.country_id.is_homeland and contract_id.is_automatic_gosi:
-                    gosi_salary_amount = contract_id.wage
-                    salary_rule_ids = contract_id.contract_salary_rule_ids
-                    if salary_rule_ids:
-                        acc_salary_rule_id = salary_rule_ids.filtered(
-                            lambda l: l.salary_rule_id.code == "ACCOMMODATION")
-                        if acc_salary_rule_id:
-                            gosi_salary_amount += acc_salary_rule_id.amount
-                    extra_gosi_salary_amount = (extra_salary_days * gosi_salary_amount) / month_days
-                    if gosi_salary_rule and extra_gosi_salary_amount > 0:
-                        line_vals.append({
-                            'sequence': gosi_salary_rule.sequence,
-                            'code': gosi_salary_rule.code,
-                            'name': gosi_salary_rule.name,
-                            'salary_rule_id': gosi_salary_rule.id,
-                            'contract_id': contract_id.id,
-                            'employee_id': payslip.employee_id.id,
-                            'amount': (extra_gosi_salary_amount * -1 * .0975) or 0,
-                            'quantity': 1,
-                            'rate': 100,
-                            'total': (extra_gosi_salary_amount * -1 * .0975) or 0,
-                            'slip_id': payslip.id,
-                        })
 
             # Contract Salary Rules
             if contract_id.contract_salary_rule_ids:

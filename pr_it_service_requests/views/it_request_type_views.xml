@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pr_it_request_type_tree" model="ir.ui.view">
+        <field name="name">pr.it.request.type.tree</field><field name="model">pr.it.request.type</field>
+        <field name="arch" type="xml"><tree editable="bottom"><field name="sequence" widget="handle"/><field name="name"/><field name="code"/><field name="active" widget="boolean_toggle"/></tree></field>
+    </record>
+    <record id="view_pr_it_request_type_form" model="ir.ui.view">
+        <field name="name">pr.it.request.type.form</field><field name="model">pr.it.request.type</field>
+        <field name="arch" type="xml">
+            <form string="IT Request Type"><sheet><div class="oe_title"><label for="name"/><h1><field name="name"/></h1></div>
+                <group><field name="code"/><field name="sequence"/><field name="active"/></group><field name="description" placeholder="Explain when employees should use this request type."/>
+                <separator string="Default Approval Sequence"/><field name="default_approver_line_ids"><tree editable="bottom"><field name="sequence"/><field name="approver_id" options="{'no_create': True, 'no_open': True}"/></tree></field>
+            </sheet></form>
+        </field>
+    </record>
+    <record id="action_pr_it_request_types" model="ir.actions.act_window">
+        <field name="name">Request Types</field><field name="res_model">pr.it.request.type</field><field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_pr_it_service_configuration" name="Configuration" parent="menu_pr_it_service_root" sequence="90" groups="pr_it_service_requests.group_it_service_manager"/>
+    <menuitem id="menu_pr_it_request_types" name="Request Types" parent="menu_pr_it_service_configuration" action="action_pr_it_request_types" sequence="10" groups="pr_it_service_requests.group_it_service_manager"/>
+</odoo>
