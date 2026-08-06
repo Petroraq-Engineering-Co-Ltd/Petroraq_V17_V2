@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Employee Task Management',
-    'version': '17.0.1.3.7',
+    'version': '17.0.1.3.8',
     'category': 'Human Resources',
     'summary': 'Employee Task List Approval Workflow',
     'description': """
@@ -19,7 +19,7 @@ Developed for: Petroraq Digital Solutions
     'author': 'Petroraq Digital Solutions',
     'website': 'https://www.petroraq.com',
     'license': 'LGPL-3',
-    'depends': ['base', 'hr', 'mail', 'web'],
+    'depends': ['base', 'hr', 'mail', 'web', 'de_hr_workspace'],
     'data': [
         'security/security_groups.xml',
         'security/ir.model.access.csv',
@@ -33,6 +33,7 @@ Developed for: Petroraq Digital Solutions
         'wizard/task_reject_wizard_views.xml',
         'views/employee_task_subtask_views.xml',
         'views/employee_task_list_views.xml',
+        'views/approval_workspace_views.xml',
         'views/approval_history_views.xml',
         'report/task_report_views.xml',
         'views/dashboard_views.xml',

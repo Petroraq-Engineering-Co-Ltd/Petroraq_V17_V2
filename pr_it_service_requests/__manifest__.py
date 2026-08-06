@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Petroraq IT Service Requests",
-    "summary": "Configurable IT requests with sequential approvals",
+    "summary": "Configurable IT requests with grouped sequential approvals",
     "description": """
 Professional IT service request tracking for access, account creation, device
 assignment, deployments, and other configurable IT services. Employees select
-or adjust a sequential approval chain before submission; approvers receive
+or adjust a grouped sequential approval chain before submission; approvers receive
 activities and process requests from the central Approvals workspace.
 """,
-    "version": "17.0.1.0.1",
+    "version": "17.0.1.0.3",
     "category": "Services/IT Services",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "website": "https://www.petroraq.com",

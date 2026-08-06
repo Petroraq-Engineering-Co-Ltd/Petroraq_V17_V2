@@ -20,6 +20,10 @@ class TestItServiceRequest(TransactionCase):
             "name": "IT Approver Two", "login": "it.approver.two.test", "email": "approver2@example.com",
             "groups_id": [(6, 0, [internal_group.id])],
         })
+        cls.approver_three = cls.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "IT Approver Three", "login": "it.approver.three.test", "email": "approver3@example.com",
+            "groups_id": [(6, 0, [internal_group.id])],
+        })
         cls.manager = cls.env["res.users"].with_context(no_reset_password=True).create({
             "name": "IT Manager", "login": "it.manager.test", "email": "manager@example.com",
             "groups_id": [(6, 0, [internal_group.id, manager_group.id])],
@@ -55,6 +59,54 @@ class TestItServiceRequest(TransactionCase):
                 "employee_id": self.employee.id, "description": "Invalid chain",
                 "approver_line_ids": [(0, 0, {"sequence": 10, "approver_id": self.requester.id})],
             })
+
+    def test_parallel_approval_group_completes_before_next_sequence(self):
+        request = self.env["pr.it.service.request"].with_user(self.requester).create({
+            "title": "Deploy shared application",
+            "request_type_id": self.request_type.id,
+            "employee_id": self.employee.id,
+            "description": "Requires three department approvals before management.",
+            "approver_line_ids": [
+                (0, 0, {"sequence": 10, "approver_id": self.approver_one.id}),
+                (0, 0, {"sequence": 10, "approver_id": self.approver_two.id}),
+                (0, 0, {"sequence": 10, "approver_id": self.approver_three.id}),
+                (0, 0, {"sequence": 20, "approver_id": self.manager.id}),
+            ],
+        })
+        request.with_user(self.requester).action_submit()
+        self.assertEqual(
+            set(request.current_approver_ids.ids),
+            {self.approver_one.id, self.approver_two.id, self.approver_three.id},
+        )
+        with self.assertRaises(AccessError):
+            request.with_user(self.manager).action_approve()
+
+        request.with_user(self.approver_two).action_approve()
+        self.assertEqual(
+            set(request.current_approver_ids.ids),
+            {self.approver_one.id, self.approver_three.id},
+        )
+        request.with_user(self.approver_one).action_approve()
+        self.assertEqual(request.current_approver_ids, self.approver_three)
+        request.with_user(self.approver_three).action_approve()
+        self.assertEqual(request.current_approver_ids, self.manager)
+        request.with_user(self.manager).action_approve()
+        self.assertEqual(request.state, "approved")
+
+    def test_parallel_unsaved_lines_do_not_compare_new_ids(self):
+        request = self.env["pr.it.service.request"].new({
+            "title": "Parallel draft",
+            "request_type_id": self.request_type.id,
+            "employee_id": self.employee.id,
+            "description": "Draft with equal sequence values.",
+            "approver_line_ids": [
+                (0, 0, {"sequence": 10, "approver_id": self.approver_one.id}),
+                (0, 0, {"sequence": 10, "approver_id": self.approver_two.id}),
+            ],
+        })
+        request._compute_approval_summary()
+        self.assertFalse(request.current_approver_ids)
+        self.assertEqual(request.approval_progress, "0 of 2 approved")
 
     def test_manager_can_reset_rejection(self):
         request = self._request()

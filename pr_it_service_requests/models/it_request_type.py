@@ -42,11 +42,6 @@ class PrItRequestTypeApprover(models.Model):
 
     _sql_constraints = [
         (
-            "it_type_approver_sequence_unique",
-            "unique(request_type_id, sequence)",
-            "Each default approval step must have a unique sequence.",
-        ),
-        (
             "it_type_approver_user_unique",
             "unique(request_type_id, approver_id)",
             "A user can only appear once in a default approval chain.",
