@@ -16,9 +16,9 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Human Resources/Payroll',
-    'version': '17.0.1.3.3',
+    'version': '17.0.1.3.8',
     # any module necessary for this one to work correctly
-    'depends': ['pr_hr_contract', 'pr_account'],
+    'depends': ['pr_hr_contract', 'pr_account', 'gs_hr_attendance_sheet'],
 
     # always loaded
     'data': [
@@ -32,6 +32,7 @@
         'views/bank_payment.xml',
         'views/hr_payslip_run.xml',
         'views/hr_payslip.xml',
+        'views/joining_arrears_views.xml',
         'wizards/hr_salary_attachment_pay_wizard.xml',
 
         'data/data.xml',

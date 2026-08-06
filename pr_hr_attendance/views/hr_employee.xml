@@ -13,6 +13,10 @@
                     </group>
                     <group name="employee_attendance_entry_policy" string="Attendance Entry Policy">
                         <field name="attendance_entry_mode" readonly="1"/>
+                        <field name="include_in_scheduled_attendance"
+                               widget="boolean_toggle"
+                               invisible="attendance_entry_mode != 'manual'"
+                               groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
                         <button name="action_request_attendance_mode_change"
                                 type="object"
                                 string="Request Mode Change"

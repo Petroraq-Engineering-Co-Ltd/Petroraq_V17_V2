@@ -8,8 +8,8 @@
         <field name="arch" type="xml">
 
             <field name="date_start" position="after">
-<!--                <field name="other_first_payslip" readonly="state != 'draft'"/>-->
-                <field name="other_first_payslip"/>
+                <field name="salary_paid_through_date"/>
+                <field name="other_first_payslip" invisible="1"/>
             </field>
 
         </field>

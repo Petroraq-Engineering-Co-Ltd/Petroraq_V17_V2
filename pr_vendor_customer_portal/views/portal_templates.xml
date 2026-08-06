@@ -113,14 +113,54 @@
     </template>
 
     <template id="portal_my_home_vendor_customer" inherit_id="purchase.portal_my_home_purchase" priority="200">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="attributes">
+            <attribute name="class" add="o_pr_portal_home" separator=" "/>
+        </xpath>
         <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <section t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank or request.env.user.partner_id.commercial_partner_id.customer_rank"
+                     class="o_pr_portal_hero"
+                     aria-labelledby="pr_portal_welcome_title">
+                <div class="o_pr_portal_hero_content">
+                    <span class="o_pr_portal_eyebrow">
+                        <i class="fa fa-circle" aria-hidden="true"/>
+                        Petroraq Partner Portal
+                    </span>
+                    <h1 id="pr_portal_welcome_title">
+                        Welcome back,
+                        <span t-out="request.env.user.name"/>
+                    </h1>
+                    <p>
+                        Track documents, submit requests, and keep every transaction
+                        moving from one secure workspace.
+                    </p>
+                    <div class="o_pr_portal_hero_meta">
+                        <span>
+                            <i class="fa fa-building-o" aria-hidden="true"/>
+                            <t t-out="request.env.user.partner_id.commercial_partner_id.name"/>
+                        </span>
+                        <span class="o_pr_portal_secure">
+                            <i class="fa fa-shield" aria-hidden="true"/>
+                            Secure account
+                        </span>
+                    </div>
+                </div>
+                <div class="o_pr_portal_hero_art" aria-hidden="true">
+                    <span class="o_pr_portal_orbit o_pr_portal_orbit_one"/>
+                    <span class="o_pr_portal_orbit o_pr_portal_orbit_two"/>
+                    <span class="o_pr_portal_hero_mark">
+                        <i class="fa fa-briefcase"/>
+                    </span>
+                </div>
+            </section>
             <t t-set="portal_client_category_enable"
                t-value="False"/>
             <t t-set="portal_vendor_category_enable"
                t-value="request.env.user.partner_id.commercial_partner_id.supplier_rank &gt; 0"/>
         </xpath>
         <div id="portal_vendor_category" position="replace">
-            <div id="portal_vendor_category" t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank">
+            <div id="portal_vendor_category"
+                 class="row g-3"
+                 t-if="request.env.user.partner_id.commercial_partner_id.supplier_rank">
                 <!--
                     RFQ / Quotations portal entry intentionally hidden.
                     Keep this block commented so it can be restored later.
@@ -138,6 +178,7 @@
                     <t t-set="url" t-value="'/my/purchase'"/>
                     <t t-set="text">View purchase orders issued to you</t>
                     <t t-set="placeholder_count" t-value="'purchase_count'"/>
+                    <t t-set="bg_color" t-value="'o_pr_portal_card_purchase'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
@@ -145,6 +186,7 @@
                     <t t-set="url" t-value="'/my/invoices?filterby=bills'"/>
                     <t t-set="text">View posted vendor invoices</t>
                     <t t-set="placeholder_count" t-value="'bill_count'"/>
+                    <t t-set="bg_color" t-value="'o_pr_portal_card_invoice'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
@@ -152,6 +194,7 @@
                     <t t-set="url" t-value="'/vendor/invoice/upload'"/>
                     <t t-set="text">Submit an invoice against a purchase order</t>
                     <t t-set="config_card" t-value="True"/>
+                    <t t-set="bg_color" t-value="'o_pr_portal_card-upload'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/stock/static/description/icon.png'"/>
@@ -159,6 +202,7 @@
                     <t t-set="url" t-value="'/vendor/delivery-notes'"/>
                     <t t-set="text">View PO delivery receipts</t>
                     <t t-set="placeholder_count" t-value="'vendor_delivery_count'"/>
+                    <t t-set="bg_color" t-value="'o_pr_portal_card-delivery'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/purchase/static/description/icon.png'"/>
@@ -166,6 +210,7 @@
                     <t t-set="url" t-value="'/vendor/srns'"/>
                     <t t-set="text">View service receipt notes</t>
                     <t t-set="placeholder_count" t-value="'srn_count'"/>
+                    <t t-set="bg_color" t-value="'o_pr_portal_card-service'"/>
                 </t>
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
@@ -173,6 +218,7 @@
                     <t t-set="url" t-value="'/vendor/document/upload'"/>
                     <t t-set="text">Submit PO acceptance, GDN, delivery note, or service entry sheet</t>
                     <t t-set="config_card" t-value="True"/>
+                    <t t-set="bg_color" t-value="'o_pr_portal_card-documents'"/>
                 </t>
             </div>
         </div>
@@ -271,6 +317,35 @@
                 <td><t t-out="order.payment_term_id.display_name if order.payment_term_id else '-'"/></td>
                 <td><t t-out="order.incoterm_id.display_name if order.incoterm_id else '-'"/></td>
             </tr>
+        </xpath>
+    </template>
+
+    <template id="portal_partner_company_card"
+              inherit_id="portal.side_content"
+              priority="80">
+        <xpath expr="//div[@t-attf-class]" position="attributes">
+            <attribute name="t-attf-class">{{'offcanvas-body' if isOffcanvas else 'mt-3'}} o_pr_portal_company_card</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('d-flex', 'justify-content-start', 'align-items-center')]" position="before">
+            <div class="o_pr_portal_company_eyebrow">
+                <span>Company profile</span>
+                <span class="o_pr_portal_profile_status">
+                    <i class="fa fa-check-circle" aria-hidden="true"/>
+                    Active
+                </span>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('d-flex', 'justify-content-start', 'align-items-center')]" position="attributes">
+            <attribute name="class" add="o_pr_portal_company_head" separator=" "/>
+        </xpath>
+        <xpath expr="//img[hasclass('o_portal_contact_img')]" position="attributes">
+            <attribute name="class" add="o_pr_portal_company_avatar" separator=" "/>
+        </xpath>
+        <xpath expr="//div[hasclass('o_portal_my_details')]" position="attributes">
+            <attribute name="class" add="o_pr_portal_company_details" separator=" "/>
+        </xpath>
+        <xpath expr="//a[@href='/my/account']" position="attributes">
+            <attribute name="class" add="o_pr_portal_edit_profile" separator=" "/>
         </xpath>
     </template>
 

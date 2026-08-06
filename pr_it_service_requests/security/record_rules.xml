@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="rule_it_service_request_participant" model="ir.rule">
+            <field name="name">IT Service Request: requester or assigned approver</field>
+            <field name="model_id" ref="model_pr_it_service_request"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">['|', ('requested_by_id', '=', user.id), ('approver_line_ids.approver_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_it_service_request_manager_all" model="ir.rule">
+            <field name="name">IT Service Request: managers see all</field>
+            <field name="model_id" ref="model_pr_it_service_request"/>
+            <field name="groups" eval="[(4, ref('group_it_service_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_it_service_request_approver_line" model="ir.rule">
+            <field name="name">IT Approval Line: visible request participants</field>
+            <field name="model_id" ref="model_pr_it_service_request_approver"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">['|', ('request_id.requested_by_id', '=', user.id), ('request_id.approver_line_ids.approver_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_it_service_request_approver_line_manager" model="ir.rule">
+            <field name="name">IT Approval Line: managers see all</field>
+            <field name="model_id" ref="model_pr_it_service_request_approver"/>
+            <field name="groups" eval="[(4, ref('group_it_service_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+    </data>
+</odoo>

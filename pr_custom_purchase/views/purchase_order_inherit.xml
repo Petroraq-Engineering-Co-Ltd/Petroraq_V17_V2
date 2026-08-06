@@ -15,6 +15,57 @@
         </field>
     </record>
 
+    <record id="view_purchase_order_form_workflow_billing_status" model="ir.ui.view">
+        <field name="name">purchase.order.form.workflow.billing.status</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_status']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='other_info']/field[@name='origin']" position="after">
+                <field name="workflow_billing_status"
+                       string="Billing Status"
+                       widget="badge"
+                       invisible="state in ('draft', 'sent', 'cancel')"
+                       decoration-success="workflow_billing_status == 'billed'"
+                       decoration-info="workflow_billing_status == 'waiting'"
+                       decoration-warning="workflow_billing_status == 'partial'"
+                       decoration-muted="workflow_billing_status == 'nothing'"/>
+                <field name="workflow_payment_status"
+                       string="Payment Status"
+                       widget="badge"
+                       invisible="state in ('draft', 'sent', 'cancel')"
+                       decoration-success="workflow_payment_status == 'paid'"
+                       decoration-info="workflow_payment_status == 'in_payment'"
+                       decoration-warning="workflow_payment_status == 'partial'"
+                       decoration-danger="workflow_payment_status in ('not_paid', 'reversed')"
+                       decoration-muted="workflow_payment_status == 'no_bill'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_purchase_order_tree_workflow_billing_status" model="ir.ui.view">
+        <field name="name">purchase.order.tree.workflow.billing.status</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_status']" position="after">
+                <field name="workflow_billing_status" string="Billing Status" widget="badge" optional="show"
+                       decoration-success="workflow_billing_status == 'billed'"
+                       decoration-info="workflow_billing_status == 'waiting'"
+                       decoration-warning="workflow_billing_status == 'partial'"
+                       decoration-muted="workflow_billing_status == 'nothing'"/>
+                <field name="workflow_payment_status" string="Payment Status" widget="badge" optional="show"
+                       decoration-success="workflow_payment_status == 'paid'"
+                       decoration-info="workflow_payment_status == 'in_payment'"
+                       decoration-warning="workflow_payment_status == 'partial'"
+                       decoration-danger="workflow_payment_status in ('not_paid', 'reversed')"
+                       decoration-muted="workflow_payment_status == 'no_bill'"/>
+            </xpath>
+        </field>
+    </record>
+
     <record id="view_purchase_order_form_inherit_hide_send_by_email" model="ir.ui.view">
         <field name="name">purchase.order.form.inherit.hide.send.by_email</field>
         <field name="model">purchase.order</field>

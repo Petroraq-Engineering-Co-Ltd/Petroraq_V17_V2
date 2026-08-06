@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pr_it_service_request_search" model="ir.ui.view">
+        <field name="name">pr.it.service.request.search</field>
+        <field name="model">pr.it.service.request</field>
+        <field name="arch" type="xml">
+            <search string="IT Service Requests">
+                <field name="name"/><field name="title"/><field name="request_type_id"/>
+                <field name="employee_id"/><field name="department_id"/><field name="current_approver_id"/>
+                <filter name="my_requests" string="My Requests" domain="[('requested_by_id', '=', uid)]"/>
+                <filter name="waiting_for_me" string="Waiting for Me" domain="[('is_current_approver', '=', True)]"/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <separator/>
+                <filter name="group_type" string="Request Type" context="{'group_by': 'request_type_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_pr_it_service_request_tree" model="ir.ui.view">
+        <field name="name">pr.it.service.request.tree</field>
+        <field name="model">pr.it.service.request</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="state == 'rejected'" decoration-success="state == 'approved'">
+                <field name="name"/><field name="title"/><field name="request_type_id"/>
+                <field name="employee_id"/><field name="department_id" optional="show"/>
+                <field name="request_date"/><field name="required_date" optional="show"/>
+                <field name="priority" widget="priority"/><field name="current_approver_id"/>
+                <field name="approval_progress"/><field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_pr_it_service_request_form" model="ir.ui.view">
+        <field name="name">pr.it.service.request.form</field>
+        <field name="model">pr.it.service.request</field>
+        <field name="arch" type="xml">
+            <form string="IT Service Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight" invisible="not can_approve"/>
+                    <button name="action_open_reject_wizard" string="Reject" type="object" invisible="not can_reject"/>
+                    <button name="action_reset_to_draft" string="Reset to Draft" type="object" invisible="not can_reset_to_draft"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state not in ('draft', 'pending')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,approved,rejected,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/><h1><field name="name"/></h1>
+                        <label for="title"/><h2><field name="title" placeholder="Briefly describe the IT service needed" readonly="state != 'draft'"/></h2>
+                    </div>
+                    <group>
+                        <group string="Request Details">
+                            <field name="request_type_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="department_id"/>
+                            <field name="requested_by_id"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Planning">
+                            <field name="request_date" readonly="state != 'draft'"/>
+                            <field name="required_date" readonly="state != 'draft'"/>
+                            <field name="priority" widget="priority" readonly="state != 'draft'"/>
+                            <field name="current_approver_id" invisible="state != 'pending'"/>
+                            <field name="approval_progress" invisible="state == 'draft'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" widget="html" readonly="state != 'draft'" placeholder="Include the business justification, systems, users, access level, deployment scope, or equipment details."/>
+                        </page>
+                        <page string="Approvals">
+                            <div class="alert alert-info" role="alert" invisible="state != 'draft'">
+                                Approvers process this request from the lowest sequence number to the highest.
+                            </div>
+                            <field name="approver_line_ids" readonly="state != 'draft'">
+                                <tree editable="bottom">
+                                    <field name="sequence"/>
+                                    <field name="approver_id" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="status" widget="badge" readonly="1"/>
+                                    <field name="action_date" readonly="1" optional="show"/>
+                                    <field name="remarks" readonly="1" optional="show"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Attachments">
+                            <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
+                        </page>
+                        <page string="Rejection" invisible="state != 'rejected'">
+                            <group><field name="rejection_reason"/><field name="rejected_by_id"/><field name="rejected_at"/></group>
+                        </page>
+                    </notebook>
+                    <field name="can_approve" invisible="1"/><field name="can_reject" invisible="1"/>
+                    <field name="can_reset_to_draft" invisible="1"/><field name="is_current_approver" invisible="1"/>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pr_it_service_requests" model="ir.actions.act_window">
+        <field name="name">IT Service Requests</field><field name="res_model">pr.it.service.request</field>
+        <field name="view_mode">tree,form,activity</field><field name="search_view_id" ref="view_pr_it_service_request_search"/>
+        <field name="context">{'search_default_my_requests': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">Create your first IT service request.</p></field>
+    </record>
+    <record id="action_pr_it_service_approvals" model="ir.actions.act_window">
+        <field name="name">IT Service Approvals</field><field name="res_model">pr.it.service.request</field>
+        <field name="view_mode">tree,form,activity</field><field name="search_view_id" ref="view_pr_it_service_request_search"/>
+        <field name="domain">[('is_current_approver', '=', True)]</field>
+        <field name="context">{'create': False, 'search_default_waiting_for_me': 1}</field>
+        <field name="help" type="html"><p class="o_view_nocontent_smiling_face">No IT requests are waiting for your approval.</p></field>
+    </record>
+
+    <menuitem id="menu_pr_it_service_root" name="IT Services" sequence="58"
+              web_icon="pr_it_service_requests,static/description/icon.svg"
+              groups="base.group_user"/>
+    <menuitem id="menu_pr_it_service_requests" name="Requests" parent="menu_pr_it_service_root" action="action_pr_it_service_requests" sequence="10" groups="base.group_user"/>
+    <menuitem id="menu_pr_it_service_approvals" name="IT Service Approvals" parent="de_hr_workspace.menu_my_employee_approvals" action="action_pr_it_service_approvals" sequence="65" groups="base.group_user"/>
+</odoo>

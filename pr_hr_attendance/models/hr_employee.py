@@ -46,6 +46,17 @@ class HrEmployee(models.Model):
             "Only Manual / Site employees can have attendance entered by HR."
         ),
     )
+    include_in_scheduled_attendance = fields.Boolean(
+        string="Generate Attendance from Working Schedule",
+        default=False,
+        copy=False,
+        tracking=True,
+        help=(
+            "For Manual / Site Attendance employees only. When enabled, the scheduled "
+            "attendance cron creates check-in and check-out from the employee's working "
+            "calendar. HR can still manually add or correct attendance records."
+        ),
+    )
     attendance_mode_change_request_count = fields.Integer(
         string="Attendance Mode Requests",
         compute="_compute_attendance_mode_change_request_count",
@@ -80,6 +91,7 @@ class HrEmployee(models.Model):
         return super().create(vals_list)
 
     def write(self, values):
+        values = dict(values)
         if "attendance_entry_mode" in values:
             changing = self.filtered(
                 lambda employee: employee.attendance_entry_mode
@@ -105,12 +117,16 @@ class HrEmployee(models.Model):
                             "approved Attendance Mode Change request."
                         )
                     )
+            if values.get("attendance_entry_mode") != "manual":
+                values["include_in_scheduled_attendance"] = False
         if values.get("active") is False:
             self._close_open_attendances_for_archive()
         return super().write(values)
 
     def _attendance_policy_source_for_archive_checkout(self):
         self.ensure_one()
+        if self.attendance_entry_mode == "manual" and self.include_in_scheduled_attendance:
+            return "scheduled"
         if self.attendance_entry_mode != "automated":
             return False
         return "biometric" if self.compute_attendance else "scheduled"

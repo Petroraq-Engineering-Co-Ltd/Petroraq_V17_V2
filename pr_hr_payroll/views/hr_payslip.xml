@@ -14,6 +14,10 @@
                 </button>
             </div>
 
+            <xpath expr="(//field[@name='contract_id'])[1]" position="after">
+                <field name="joining_arrears_id" readonly="1"/>
+            </xpath>
+
             <page name="worked_days_input" position="attributes">
                 <attribute name="invisible">1</attribute>
             </page>
