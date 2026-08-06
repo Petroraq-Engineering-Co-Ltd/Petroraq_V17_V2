@@ -594,6 +594,47 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 note=note,
             )
 
+    def _vendor_invoice_reviewers(self, po):
+        reviewer_group = request.env.ref(
+            "pr_vendor_customer_portal.group_vendor_invoice_reviewer",
+            raise_if_not_found=False,
+        )
+        reviewers = (
+            reviewer_group.users.filtered("active")
+            if reviewer_group
+            else request.env["res.users"]
+        )
+        reviewers = reviewers.filtered(lambda user: po.company_id in user.company_ids)
+        if not reviewers:
+            accounting_group = request.env.ref(
+                "account.group_account_manager",
+                raise_if_not_found=False,
+            )
+            reviewers = (
+                accounting_group.users.filtered("active")
+                if accounting_group
+                else request.env["res.users"]
+            )
+            reviewers = reviewers.filtered(lambda user: po.company_id in user.company_ids)
+        if not reviewers and po.user_id and po.user_id.active:
+            reviewers = po.user_id
+        return reviewers
+
+    def _post_vendor_upload_message(self, target, attachment, body, reviewers):
+        """Post a mail-enabled chatter message to the selected reviewers."""
+        partner_ids = reviewers.mapped("partner_id").filtered("email").ids
+        return target.sudo().with_context(
+            mail_create_nosubscribe=True,
+            mail_notify_force_send=True,
+        ).message_post(
+            body=body,
+            attachment_ids=attachment.ids,
+            author_id=request.env.user.partner_id.id,
+            message_type="comment",
+            subtype_xmlid="mail.mt_comment",
+            partner_ids=partner_ids,
+        )
+
     @http.route(
         ["/vendor/document/upload"],
         type="http",
@@ -729,13 +770,17 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     escape(note)
                 ) if note else Markup(""),
             )
+            reviewers = self._vendor_upload_reviewers(
+                po,
+                (
+                    "pr_custom_purchase.inventory_qc",
+                    "pr_custom_purchase.inventory_admin",
+                ),
+            )
             try:
                 with request.env.cr.savepoint():
-                    target.sudo().message_post(
-                        body=message_body,
-                        attachment_ids=attachment.ids,
-                        author_id=request.env.user.partner_id.id,
-                        subtype_xmlid="mail.mt_note",
+                    self._post_vendor_upload_message(
+                        target, attachment, message_body, reviewers
                     )
             except Exception:
                 _logger.exception(
@@ -746,13 +791,6 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
             try:
                 with request.env.cr.savepoint():
-                    reviewers = self._vendor_upload_reviewers(
-                        po,
-                        (
-                            "pr_custom_purchase.inventory_qc",
-                            "pr_custom_purchase.inventory_admin",
-                        ),
-                    )
                     self._schedule_vendor_upload_reviewers(
                         po,
                         reviewers,
@@ -989,13 +1027,11 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     escape(note)
                 ) if note else Markup(""),
             )
+            reviewers = self._vendor_invoice_reviewers(po)
             try:
                 with request.env.cr.savepoint():
-                    po.sudo().message_post(
-                        body=message_body,
-                        attachment_ids=attachment.ids,
-                        author_id=request.env.user.partner_id.id,
-                        subtype_xmlid="mail.mt_note",
+                    self._post_vendor_upload_message(
+                        po, attachment, message_body, reviewers
                     )
             except Exception:
                 _logger.exception(
@@ -1006,25 +1042,6 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
             try:
                 with request.env.cr.savepoint():
-                    reviewer_group = request.env.ref(
-                        "pr_vendor_customer_portal.group_vendor_invoice_reviewer",
-                        raise_if_not_found=False,
-                    )
-                    reviewers = reviewer_group.users.filtered("active") if reviewer_group else request.env["res.users"]
-                    reviewers = reviewers.filtered(
-                        lambda user: po.company_id in user.company_ids
-                    )
-                    if not reviewers:
-                        accounting_group = request.env.ref(
-                            "account.group_account_manager",
-                            raise_if_not_found=False,
-                        )
-                        reviewers = accounting_group.users.filtered("active") if accounting_group else request.env["res.users"]
-                        reviewers = reviewers.filtered(
-                            lambda user: po.company_id in user.company_ids
-                        )
-                    if not reviewers and po.user_id and po.user_id.active:
-                        reviewers = po.user_id
                     for reviewer in reviewers:
                         po.sudo().activity_schedule(
                             "mail.mail_activity_data_todo",

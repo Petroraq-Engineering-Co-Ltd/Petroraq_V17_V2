@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Central Approvals workspace entry.
+
+        A record is visible here only while the current user is the person
+        expected to act next:
+          * manager: initial approval, requested modification, final review
+          * employee: acceptance of a manager-assigned task list
+
+        The normal Employee Task Management record rules remain in force, so
+        this action does not grant access to unrelated task lists.
+    -->
+    <record id="action_employee_task_pending_my_action" model="ir.actions.act_window">
+        <field name="name">Employee Task Approvals</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="domain">[
+            '|',
+                '&amp;',
+                    ('state', 'in', ['submitted_manager', 'modification_requested', 'completed']),
+                    ('manager_id.user_id', '=', uid),
+                '&amp;',
+                    ('state', '=', 'pending_acceptance'),
+                    ('employee_id.user_id', '=', uid)
+        ]</field>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No employee task is waiting for your action.</p>
+            <p>Task lists will appear here when your approval, review, modification, or acceptance is required.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_employee_task_pending_my_action"
+              name="Employee Task Approvals"
+              parent="de_hr_workspace.menu_my_employee_approvals"
+              action="action_employee_task_pending_my_action"
+              sequence="66"
+              groups="employee_task_management.group_task_employee"/>
+</odoo>

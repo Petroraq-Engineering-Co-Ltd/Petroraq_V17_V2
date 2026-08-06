@@ -121,12 +121,12 @@
                      class="o_pr_portal_hero"
                      aria-labelledby="pr_portal_welcome_title">
                 <div class="o_pr_portal_hero_content">
-                    <span class="o_pr_portal_eyebrow">
+                    <span class="o_pr_portal_eyebrow" style="font-size: 14px;">
                         <i class="fa fa-circle" aria-hidden="true"/>
                         Petroraq Partner Portal
                     </span>
                     <h1 id="pr_portal_welcome_title">
-                        Welcome back,
+                        Welcome,
                         <span t-out="request.env.user.name"/>
                     </h1>
                     <p>
@@ -517,7 +517,7 @@
                 </a>
                 <a class="btn btn-primary" t-att-href="'/vendor/document/upload?po_id=%s&amp;delivery_id=%s' % (picking.purchase_id.id, picking.id)">
                     <i class="fa fa-paperclip me-1"/>
-                    Attach Document to GDN
+                    Attach
                 </a>
             </div>
 
@@ -912,7 +912,7 @@
                             </a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-upload me-1"/>
-                                Attach to Purchase Order
+                                Attach
                             </button>
                         </div>
                     </form>

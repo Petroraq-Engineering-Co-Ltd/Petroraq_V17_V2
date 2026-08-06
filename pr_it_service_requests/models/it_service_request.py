@@ -36,7 +36,10 @@ class PrItServiceRequest(models.Model):
         required=True,
         tracking=True,
     )
-    description = fields.Html(required=True, sanitize=True, tracking=True)
+    # Odoo 17's mail tracking does not support Html fields. Enabling tracking
+    # here causes a NotImplementedError during the transaction flush whenever
+    # the description changes.
+    description = fields.Html(required=True, sanitize=True)
     state = fields.Selection(
         [
             ("draft", "Draft"),
@@ -56,6 +59,13 @@ class PrItServiceRequest(models.Model):
     )
     current_approver_id = fields.Many2one(
         "res.users", compute="_compute_approval_summary", store=True, string="Current Approver"
+    )
+    current_approver_ids = fields.Many2many(
+        "res.users",
+        compute="_compute_approval_summary",
+        store=True,
+        string="Current Approvers",
+        help="All approvers active at the current approval sequence.",
     )
     approval_progress = fields.Char(compute="_compute_approval_summary", store=True)
     rejection_reason = fields.Text(readonly=True, copy=False, tracking=True)
@@ -91,35 +101,49 @@ class PrItServiceRequest(models.Model):
     @api.depends("state", "approver_line_ids.status", "approver_line_ids.sequence", "approver_line_ids.approver_id")
     def _compute_approval_summary(self):
         for rec in self:
-            lines = rec.approver_line_ids.sorted(lambda line: (line.sequence, line.id))
+            # Do not use ``id`` as a tie-breaker here. While the request is
+            # being edited, parallel approval lines are unsaved records whose
+            # ids are NewId objects; comparing two NewId values raises a
+            # TypeError when the sequence numbers are equal. Recordset sorting
+            # is stable, so sequence alone is sufficient.
+            lines = rec.approver_line_ids.sorted("sequence")
             approved = len(lines.filtered(lambda line: line.status == "approved"))
             rec.approval_progress = _("%(approved)s of %(total)s approved", approved=approved, total=len(lines))
-            current = lines.filtered(lambda line: line.status == "pending")[:1] if rec.state == "pending" else False
-            rec.current_approver_id = current.approver_id if current else False
+            current_lines = (
+                lines.filtered(lambda line: line.status == "pending")
+                if rec.state == "pending" else lines.browse()
+            )
+            rec.current_approver_ids = current_lines.mapped("approver_id")
+            rec.current_approver_id = current_lines[:1].approver_id if current_lines else False
 
-    @api.depends("current_approver_id", "state")
+    @api.depends("current_approver_ids", "state")
     def _compute_is_current_approver(self):
         for rec in self:
-            rec.is_current_approver = rec.state == "pending" and rec.current_approver_id == self.env.user
+            rec.is_current_approver = (
+                rec.state == "pending" and self.env.user in rec.current_approver_ids
+            )
 
     @api.model
     def _search_is_current_approver(self, operator, value):
         if operator not in ("=", "!="):
             raise NotImplementedError("Current approver search only supports '=' and '!='.")
-        domain = [("state", "=", "pending"), ("current_approver_id", "=", self.env.user.id)]
+        domain = [("state", "=", "pending"), ("current_approver_ids", "in", [self.env.user.id])]
         positive = (operator == "=" and bool(value)) or (operator == "!=" and not bool(value))
         return domain if positive else [
-            "|", ("state", "!=", "pending"), ("current_approver_id", "!=", self.env.user.id)
+            "|", ("state", "!=", "pending"), ("current_approver_ids", "not in", [self.env.user.id])
         ]
 
-    @api.depends("state", "current_approver_id")
+    @api.depends_context("uid")
+    @api.depends("state", "current_approver_ids", "requested_by_id")
     def _compute_action_flags(self):
-        is_manager = self.env.user.has_group("pr_it_service_requests.group_it_service_manager")
         for rec in self:
-            current = rec.state == "pending" and rec.current_approver_id == self.env.user
+            current = rec.state == "pending" and self.env.user in rec.current_approver_ids
             rec.can_approve = current
             rec.can_reject = current
-            rec.can_reset_to_draft = is_manager and rec.state in ("rejected", "cancelled")
+            rec.can_reset_to_draft = (
+                rec.requested_by_id == self.env.user
+                and rec.state in ("rejected", "cancelled")
+            )
 
     @api.onchange("request_type_id")
     def _onchange_request_type_id(self):
@@ -178,25 +202,32 @@ class PrItServiceRequest(models.Model):
                 raise ValidationError(_("Add at least one approver before submitting the request."))
             if rec.requested_by_id in lines.mapped("approver_id"):
                 raise ValidationError(_("The requester cannot approve their own IT service request."))
+            approver_ids = lines.mapped("approver_id").ids
+            if len(approver_ids) != len(set(approver_ids)):
+                raise ValidationError(_(
+                    "Each approver can appear only once. Use the same sequence "
+                    "for different approvers to create a parallel approval group."
+                ))
             if any(line.approver_id.share or not line.approver_id.active for line in lines):
                 raise ValidationError(_("All approvers must be active internal users."))
 
-    def _schedule_current_approver(self):
+    def _schedule_current_approvers(self):
         approval_activity_type = self.env.ref(
             "pr_it_service_requests.mail_activity_type_it_service_approval"
         )
-        for rec in self.filtered(lambda item: item.state == "pending" and item.current_approver_id):
-            existing = rec.activity_ids.filtered(
-                lambda activity: activity.user_id == rec.current_approver_id
-                and activity.activity_type_id == approval_activity_type
-            )
-            if not existing:
-                rec.activity_schedule(
-                    "pr_it_service_requests.mail_activity_type_it_service_approval",
-                    user_id=rec.current_approver_id.id,
-                    summary=_("Approve IT Service Request %(request)s", request=rec.name),
-                    note=_("Your approval is required for %(title)s.", title=rec.title),
+        for rec in self.filtered(lambda item: item.state == "pending"):
+            for approver in rec.current_approver_ids:
+                existing = rec.activity_ids.filtered(
+                    lambda activity: activity.user_id == approver
+                    and activity.activity_type_id == approval_activity_type
                 )
+                if not existing:
+                    rec.activity_schedule(
+                        "pr_it_service_requests.mail_activity_type_it_service_approval",
+                        user_id=approver.id,
+                        summary=_("Approve IT Service Request %(request)s", request=rec.name),
+                        note=_("Your approval is required for %(title)s.", title=rec.title),
+                    )
 
     def action_submit(self):
         for rec in self:
@@ -208,23 +239,42 @@ class PrItServiceRequest(models.Model):
                 raise AccessError(_("Only the requester or an IT Service Manager can submit this request."))
             rec._validate_approval_chain()
             lines = rec.approver_line_ids.sorted("sequence")
-            lines.with_context(it_request_workflow_write=True).write({
+            remaining_lines = lines.filtered(lambda line: line.status != "approved")
+            remaining_lines.with_context(it_request_workflow_write=True).write({
                 "status": "waiting", "action_date": False, "remarks": False
             })
-            lines[:1].with_context(it_request_workflow_write=True).write({"status": "pending"})
-            rec.with_context(it_request_workflow_write=True).write({
-                "state": "pending", "rejection_reason": False,
-                "rejected_by_id": False, "rejected_at": False, "approved_at": False,
-            })
             rec.message_subscribe(partner_ids=lines.mapped("approver_id.partner_id").ids)
-            rec.message_post(body=_("IT service request submitted for sequential approval."))
-            rec._schedule_current_approver()
+            if remaining_lines:
+                first_sequence = remaining_lines[0].sequence
+                remaining_lines.filtered(
+                    lambda line: line.sequence == first_sequence
+                ).with_context(it_request_workflow_write=True).write({"status": "pending"})
+                rec.with_context(it_request_workflow_write=True).write({
+                    "state": "pending", "rejection_reason": False,
+                    "rejected_by_id": False, "rejected_at": False, "approved_at": False,
+                })
+                rec.message_post(body=_(
+                    "IT service request submitted for grouped sequential approval. "
+                    "Existing approvals were retained; only the remaining approvers "
+                    "must act. Approvers sharing the same sequence may approve in any order."
+                ))
+                rec._schedule_current_approvers()
+            else:
+                rec.with_context(it_request_workflow_write=True).write({
+                    "state": "approved", "rejection_reason": False,
+                    "rejected_by_id": False, "rejected_at": False,
+                    "approved_at": fields.Datetime.now(),
+                })
+                rec.message_post(body=_(
+                    "IT service request resubmitted and marked fully approved because "
+                    "all approvers had already approved it."
+                ))
         return True
 
     def _ensure_current_approver(self):
         self.ensure_one()
-        if self.state != "pending" or self.current_approver_id != self.env.user:
-            raise AccessError(_("Only the current approver can process this request."))
+        if self.state != "pending" or self.env.user not in self.current_approver_ids:
+            raise AccessError(_("Only an approver in the current approval group can process this request."))
 
     def action_approve(self):
         for rec in self:
@@ -244,18 +294,41 @@ class PrItServiceRequest(models.Model):
                 lambda activity: activity.user_id == self.env.user
                 and activity.activity_type_id == approval_activity_type
             ).action_done()
-            next_line = rec.approver_line_ids.filtered(lambda item: item.status == "pending").sorted("sequence")[:1]
-            if not next_line:
-                next_line = rec.approver_line_ids.filtered(lambda item: item.status == "waiting").sorted("sequence")[:1]
-            if next_line:
-                next_line.with_context(it_request_workflow_write=True).write({"status": "pending"})
-                rec.message_post(body=_("Approved by %(approver)s. Sent to %(next)s.", approver=self.env.user.name, next=next_line.approver_id.name))
-                rec._schedule_current_approver()
+            pending_group = rec.approver_line_ids.filtered(
+                lambda item: item.status == "pending"
+            ).sorted("sequence")
+            if pending_group:
+                rec.message_post(body=_(
+                    "Approved by %(approver)s. Waiting for the remaining "
+                    "sequence %(sequence)s approver(s): %(remaining)s.",
+                    approver=self.env.user.name,
+                    sequence=pending_group[0].sequence,
+                    remaining=", ".join(pending_group.mapped("approver_id.name")),
+                ))
             else:
-                rec.with_context(it_request_workflow_write=True).write({
-                    "state": "approved", "approved_at": fields.Datetime.now()
-                })
-                rec.message_post(body=_("IT service request fully approved."))
+                waiting_lines = rec.approver_line_ids.filtered(
+                    lambda item: item.status == "waiting"
+                ).sorted("sequence")
+                if waiting_lines:
+                    next_sequence = waiting_lines[0].sequence
+                    next_group = waiting_lines.filtered(
+                        lambda item: item.sequence == next_sequence
+                    )
+                    next_group.with_context(it_request_workflow_write=True).write({"status": "pending"})
+                    rec.message_post(body=_(
+                        "Sequence %(completed_sequence)s completed by %(approver)s. "
+                        "Sent to sequence %(next_sequence)s approver(s): %(next)s.",
+                        completed_sequence=line.sequence,
+                        approver=self.env.user.name,
+                        next_sequence=next_sequence,
+                        next=", ".join(next_group.mapped("approver_id.name")),
+                    ))
+                    rec._schedule_current_approvers()
+                else:
+                    rec.with_context(it_request_workflow_write=True).write({
+                        "state": "approved", "approved_at": fields.Datetime.now()
+                    })
+                    rec.message_post(body=_("IT service request fully approved."))
         return True
 
     def action_open_reject_wizard(self):
@@ -302,9 +375,11 @@ class PrItServiceRequest(models.Model):
         return True
 
     def action_reset_to_draft(self):
-        if not self.env.user.has_group("pr_it_service_requests.group_it_service_manager"):
-            raise AccessError(_("Only an IT Service Manager can reset requests to draft."))
         for rec in self:
+            if rec.requested_by_id != self.env.user:
+                raise AccessError(_(
+                    "Only the user who created this IT service request can reset it to draft."
+                ))
             if rec.state not in ("rejected", "cancelled"):
                 raise UserError(_("Only rejected or cancelled requests can be reset to draft."))
             approval_activity_type = self.env.ref(
@@ -313,14 +388,20 @@ class PrItServiceRequest(models.Model):
             rec.activity_ids.filtered(
                 lambda activity: activity.activity_type_id == approval_activity_type
             ).action_done()
-            rec.approver_line_ids.with_context(it_request_workflow_write=True).write({
+            rec.approver_line_ids.filtered(
+                lambda line: line.status != "approved"
+            ).with_context(it_request_workflow_write=True).write({
                 "status": "waiting", "action_date": False, "remarks": False
             })
             rec.with_context(it_request_workflow_write=True).write({
                 "state": "draft", "rejection_reason": False,
                 "rejected_by_id": False, "rejected_at": False, "approved_at": False,
             })
-            rec.message_post(body=_("IT service request reset to draft by %(user)s.", user=self.env.user.name))
+            rec.message_post(body=_(
+                "IT service request reset to draft by %(user)s. Previous approvals "
+                "were retained; only unfinished approval steps will reopen.",
+                user=self.env.user.name,
+            ))
         return True
 
     def action_cancel(self):
@@ -362,7 +443,6 @@ class PrItServiceRequestApprover(models.Model):
     remarks = fields.Text(readonly=True, copy=False)
 
     _sql_constraints = [
-        ("it_request_approver_sequence_unique", "unique(request_id, sequence)", "Each approval step must have a unique sequence."),
         ("it_request_approver_user_unique", "unique(request_id, approver_id)", "An approver can only appear once in a request."),
     ]
 
