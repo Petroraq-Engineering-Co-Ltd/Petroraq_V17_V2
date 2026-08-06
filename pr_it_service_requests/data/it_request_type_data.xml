@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="it_request_type_email" model="pr.it.request.type">
+        <field name="name">Email Account Creation</field><field name="code">EMAIL_CREATE</field><field name="sequence">10</field>
+    </record>
+    <record id="it_request_type_access" model="pr.it.request.type">
+        <field name="name">Access Rights</field><field name="code">ACCESS_RIGHTS</field><field name="sequence">20</field>
+    </record>
+    <record id="it_request_type_deployment" model="pr.it.request.type">
+        <field name="name">Code Deployment Approval</field><field name="code">CODE_DEPLOYMENT</field><field name="sequence">30</field>
+    </record>
+    <record id="it_request_type_laptop" model="pr.it.request.type">
+        <field name="name">Laptop / Device Assignment</field><field name="code">DEVICE_ASSIGNMENT</field><field name="sequence">40</field>
+    </record>
+    <record id="it_request_type_user" model="pr.it.request.type">
+        <field name="name">System User Creation</field><field name="code">USER_CREATE</field><field name="sequence">50</field>
+    </record>
+    <record id="it_request_type_other" model="pr.it.request.type">
+        <field name="name">Other IT Service</field><field name="code">OTHER</field><field name="sequence">100</field>
+    </record>
+</odoo>

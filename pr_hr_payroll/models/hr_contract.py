@@ -7,3 +7,11 @@ class HrContract(models.Model):
     _inherit = 'hr.contract'
 
     other_first_payslip = fields.Boolean(string="Other First Payslip", tracking=True)
+    salary_paid_through_date = fields.Date(
+        string="Salary Paid Through",
+        tracking=True,
+        help="Last inclusive date already covered before automatic joining arrears are calculated.",
+    )
+    joining_arrears_ids = fields.One2many(
+        "payroll.joining.arrears", "contract_id", string="Joining Arrears", readonly=True
+    )

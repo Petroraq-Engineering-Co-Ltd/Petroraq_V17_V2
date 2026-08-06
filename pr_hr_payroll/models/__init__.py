@@ -9,3 +9,4 @@ from . import bank_payment
 from . import hr_payslip
 from . import hr_payslip_employees
 from . import hr_payslip_run
+from . import joining_arrears

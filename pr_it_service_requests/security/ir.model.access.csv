@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pr_it_service_request_user,IT service request user,model_pr_it_service_request,base.group_user,1,1,1,1
+access_pr_it_service_request_manager,IT service request manager,model_pr_it_service_request,pr_it_service_requests.group_it_service_manager,1,1,1,1
+access_pr_it_service_request_approver_user,IT request approver line user,model_pr_it_service_request_approver,base.group_user,1,1,1,1
+access_pr_it_request_type_user,IT request type user,model_pr_it_request_type,base.group_user,1,0,0,0
+access_pr_it_request_type_manager,IT request type manager,model_pr_it_request_type,pr_it_service_requests.group_it_service_manager,1,1,1,1
+access_pr_it_request_type_approver_user,IT type approver user,model_pr_it_request_type_approver,base.group_user,1,0,0,0
+access_pr_it_request_type_approver_manager,IT type approver manager,model_pr_it_request_type_approver,pr_it_service_requests.group_it_service_manager,1,1,1,1
+access_pr_it_request_reject_wizard_user,IT request reject wizard user,model_pr_it_service_request_reject_wizard,base.group_user,1,1,1,1

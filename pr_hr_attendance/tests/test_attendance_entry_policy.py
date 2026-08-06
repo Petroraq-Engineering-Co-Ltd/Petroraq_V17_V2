@@ -1,5 +1,8 @@
 from datetime import timedelta
 
+import pytz
+
+from odoo import Command
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import tagged
 
@@ -150,3 +153,47 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         self.assertIn(self.scheduled_employee, employees)
         self.assertNotIn(self.manual_employee, employees)
         self.assertNotIn(self.biometric_employee, employees)
+
+    def test_opted_in_manual_site_employee_uses_schedule_and_remains_editable(self):
+        site_calendar = self.env["resource.calendar"].create({
+            "name": "Site 06:00 to 16:00",
+            "tz": "Asia/Riyadh",
+            "company_id": self.env.company.id,
+            "attendance_ids": [Command.create({
+                "name": "Monday Site Shift",
+                "dayofweek": "0",
+                "day_period": "morning",
+                "hour_from": 6.0,
+                "hour_to": 16.0,
+            })],
+        })
+        self.manual_employee.with_user(self.hr_user).write({
+            "resource_calendar_id": site_calendar.id,
+            "include_in_scheduled_attendance": True,
+        })
+
+        employees = self.Attendance._get_auto_attendance_employees(self.env.company)
+        self.assertIn(self.manual_employee, employees)
+
+        created = self.Attendance.cron_create_auto_management_attendance_check_in(
+            target_date="2099-06-01"
+        ).filtered(lambda attendance: attendance.employee_id == self.manual_employee)
+        self.assertEqual(len(created), 1)
+        local_check_in = pytz.UTC.localize(created.check_in).astimezone(
+            pytz.timezone("Asia/Riyadh")
+        )
+        self.assertEqual((local_check_in.hour, local_check_in.minute), (6, 0))
+        self.assertEqual(created.attendance_entry_source, "scheduled")
+
+        self.Attendance.cron_checkout_auto_management_attendance(
+            target_date="2099-06-01"
+        )
+        created.invalidate_recordset(["check_out"])
+        local_check_out = pytz.UTC.localize(created.check_out).astimezone(
+            pytz.timezone("Asia/Riyadh")
+        )
+        self.assertEqual((local_check_out.hour, local_check_out.minute), (16, 0))
+
+        corrected_checkout = created.check_out + timedelta(minutes=15)
+        created.with_user(self.hr_user).write({"check_out": corrected_checkout})
+        self.assertEqual(created.check_out, corrected_checkout)

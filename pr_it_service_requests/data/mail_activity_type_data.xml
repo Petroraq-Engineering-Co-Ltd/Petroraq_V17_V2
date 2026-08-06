@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_activity_type_it_service_approval" model="mail.activity.type">
+        <field name="name">IT Service Approval</field>
+        <field name="summary">Review IT service request</field>
+        <field name="category">default</field>
+        <field name="res_model">pr.it.service.request</field>
+        <field name="icon">fa-check-square-o</field>
+        <field name="delay_count">0</field>
+        <field name="delay_unit">days</field>
+    </record>
+</odoo>
