@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Activities dialog, opened from the Activities button on each  -->
+    <!-- task line. Like the task list itself it has an editable and a -->
+    <!-- frozen rendering, toggled by the task list's status.          -->
+    <!-- ============================================================ -->
+    <record id="view_employee_task_line_form_subtasks" model="ir.ui.view">
+        <field name="name">employee.task.line.form.subtasks</field>
+        <field name="model">employee.task.line</field>
+        <field name="arch" type="xml">
+            <form string="Activities">
+                <sheet>
+                    <group>
+                        <field name="description" readonly="1" string="Task"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="progress" widget="progressbar" readonly="1"
+                                   string="Progress % (auto-calculated from activities)"/>
+                            <field name="task_status" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="subtask_done_count" string="Completed"/>
+                            <field name="subtask_count" string="Total Activities"/>
+                            <field name="total_hours" string="Total Hours" widget="float_time"/>
+                        </group>
+                    </group>
+                    <field name="has_subtasks" invisible="1"/>
+                    <field name="state" invisible="1"/>
+                    <field name="activities_locked" invisible="1"/>
+                    <separator string="Activities"/>
+
+                    <!-- A. Still being planned: activities can be added,
+                         edited and removed. Done stays locked until the
+                         employee has actually pressed Start Work. -->
+                    <field name="subtask_ids" nolabel="1"
+                           invisible="state not in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested')">
+                        <tree editable="bottom" class="etm_activity_lines"
+                              decoration-success="is_done">
+                            <field name="sequence" widget="handle"/>
+                            <field name="name" string="Activity" required="1"/>
+                            <field name="hours" string="Hours" required="1"
+                                   widget="float_time" width="90px" sum="Total Hours"/>
+                            <field name="is_done" string="Done" widget="boolean_toggle"
+                                   width="70px" readonly="1"/>
+                        </tree>
+                    </field>
+
+                    <!-- B. Approved onwards: frozen. No add, no delete,
+                         name and hours read-only. The Done toggle is the
+                         only live control, and only while the work is
+                         actually running. -->
+                    <field name="subtask_ids" nolabel="1"
+                           invisible="state in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested')"
+                           readonly="activities_locked">
+                        <tree editable="bottom" create="false" delete="false"
+                              class="etm_activity_lines" decoration-success="is_done">
+                            <field name="can_edit_hours" column_invisible="1"/>
+                            <field name="name" string="Activity" readonly="1"/>
+                            <!-- Hours stay correctable by a Manager /
+                                 Administrator while the task list is
+                                 running; read-only for everyone else. -->
+                            <field name="hours" string="Hours"
+                                   readonly="not can_edit_hours" widget="float_time"
+                                   width="90px" sum="Total Hours"/>
+                            <field name="is_done" string="Done" widget="boolean_toggle" width="70px"
+                                   readonly="parent.state not in ('in_progress', 'returned_after_completion')"/>
+                        </tree>
+                    </field>
+
+                    <div class="text-muted mt-2"
+                         invisible="state not in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested')">
+                        Hours are mandatory on every activity. Plan all the activities
+                        now - once the task list is approved or accepted, activities can
+                        no longer be added, renamed or re-costed, only ticked off.
+                    </div>
+                    <div class="text-muted mt-2"
+                         invisible="state not in ('manager_approved', 'in_progress', 'returned_after_completion')">
+                        This task list is approved, so its activities are frozen. Tick
+                        them off as <b>Done</b> as you complete them - Progress % and the
+                        task status update automatically. A Manager can still correct
+                        the <b>Hours</b> on an activity; the change is recorded in the
+                        task list's chatter.
+                    </div>
+                    <div class="text-muted mt-2"
+                         invisible="state not in ('submitted_manager', 'completed', 'rejected')">
+                        This task list is locked for the employee. A Manager can still
+                        correct the <b>Hours</b> on an activity - every change is
+                        recorded in the task list's chatter. Nothing else can be
+                        changed here.
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Save &amp; Close" type="object"
+                            name="action_close_subtask_dialog"
+                            class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" special="cancel"
+                            class="btn-secondary" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Standalone list for reporting / admin access if needed        -->
+    <!-- ============================================================ -->
+    <record id="view_employee_task_subtask_tree" model="ir.ui.view">
+        <field name="name">employee.task.subtask.tree</field>
+        <field name="model">employee.task.subtask</field>
+        <field name="arch" type="xml">
+            <tree string="Activities" create="false"
+                  decoration-success="is_done">
+                <field name="task_line_id"/>
+                <field name="task_list_id"/>
+                <field name="name"/>
+                <field name="hours" widget="float_time" sum="Total Hours"/>
+                <field name="is_done" widget="boolean_toggle"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

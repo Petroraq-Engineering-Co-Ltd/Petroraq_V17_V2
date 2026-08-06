@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_approval_history_tree" model="ir.ui.view">
+        <field name="name">employee.task.approval.history.tree</field>
+        <field name="model">employee.task.approval.history</field>
+        <field name="arch" type="xml">
+            <tree string="Approval History" create="false" edit="false" delete="false">
+                <field name="task_list_id"/>
+                <field name="action_datetime"/>
+                <field name="user_id"/>
+                <field name="action" widget="badge"
+                       decoration-success="action == 'approved'"
+                       decoration-danger="action == 'returned'"
+                       decoration-muted="action == 'submitted'"/>
+                <field name="approval_level"/>
+                <field name="state"/>
+                <field name="remarks"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_approval_history_search" model="ir.ui.view">
+        <field name="name">employee.task.approval.history.search</field>
+        <field name="model">employee.task.approval.history</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="task_list_id"/>
+                <field name="user_id"/>
+                <filter string="Approved" name="approved" domain="[('action', '=', 'approved')]"/>
+                <filter string="Returned" name="returned" domain="[('action', '=', 'returned')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Task List" name="group_task" context="{'group_by': 'task_list_id'}"/>
+                    <filter string="User" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Action" name="group_action" context="{'group_by': 'action'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_approval_history" model="ir.actions.act_window">
+        <field name="name">Approval History</field>
+        <field name="res_model">employee.task.approval.history</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_approval_history_search"/>
+    </record>
+</odoo>

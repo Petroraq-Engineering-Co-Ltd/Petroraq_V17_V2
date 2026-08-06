@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ========== Employee Rule (TDD 21) ==========
+             Employees can see only their own task lists -->
+        <record id="rule_task_list_employee_own" model="ir.rule">
+            <field name="name">Task List: Employee sees own only</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_employee'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- ========== Manager Rule (TDD 21) ==========
+             Managers can see task lists of employees reporting to them
+             (as immediate manager) plus employees of their department/team -->
+        <record id="rule_task_list_manager_team" model="ir.rule">
+            <field name="name">Task List: Manager sees team</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="domain_force">['|', '|',
+                ('manager_id.user_id', '=', user.id),
+                ('employee_id.parent_id.user_id', '=', user.id),
+                ('department_id.manager_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- ========== Admin Rule: full access ========== -->
+        <record id="rule_task_list_admin_all" model="ir.rule">
+            <field name="name">Task List: Admin full access</field>
+            <field name="model_id" ref="model_employee_task_list"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_task_admin'))]"/>
+        </record>
+
+        <!-- ========== Task Line rules mirror the parent list ========== -->
+        <record id="rule_task_line_employee_own" model="ir.rule">
+            <field name="name">Task Line: Employee sees own only</field>
+            <field name="model_id" ref="model_employee_task_line"/>
+            <field name="domain_force">[('task_list_id.employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_employee'))]"/>
+        </record>
+
+        <record id="rule_task_line_manager_team" model="ir.rule">
+            <field name="name">Task Line: Manager sees team</field>
+            <field name="model_id" ref="model_employee_task_line"/>
+            <field name="domain_force">['|', '|',
+                ('task_list_id.manager_id.user_id', '=', user.id),
+                ('task_list_id.employee_id.parent_id.user_id', '=', user.id),
+                ('task_list_id.department_id.manager_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_manager'))]"/>
+        </record>
+
+        <record id="rule_task_line_admin_all" model="ir.rule">
+            <field name="name">Task Line: Admin full access</field>
+            <field name="model_id" ref="model_employee_task_line"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_task_admin'))]"/>
+        </record>
+
+        <!-- ========== Activity rules mirror the task line ========== -->
+        <record id="rule_subtask_employee_own" model="ir.rule">
+            <field name="name">Activity: Employee sees own only</field>
+            <field name="model_id" ref="model_employee_task_subtask"/>
+            <field name="domain_force">[('task_line_id.task_list_id.employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_employee'))]"/>
+        </record>
+
+        <record id="rule_subtask_manager_team" model="ir.rule">
+            <field name="name">Activity: Manager sees team</field>
+            <field name="model_id" ref="model_employee_task_subtask"/>
+            <field name="domain_force">['|', '|',
+                ('task_line_id.task_list_id.manager_id.user_id', '=', user.id),
+                ('task_line_id.task_list_id.employee_id.parent_id.user_id', '=', user.id),
+                ('task_line_id.task_list_id.department_id.manager_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_manager'))]"/>
+        </record>
+
+        <record id="rule_subtask_admin_all" model="ir.rule">
+            <field name="name">Activity: Admin full access</field>
+            <field name="model_id" ref="model_employee_task_subtask"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_task_admin'))]"/>
+        </record>
+
+        <!-- ========== Approval History rules ========== -->
+        <record id="rule_approval_history_employee" model="ir.rule">
+            <field name="name">Approval History: Employee sees own</field>
+            <field name="model_id" ref="model_employee_task_approval_history"/>
+            <field name="domain_force">[('task_list_id.employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_employee'))]"/>
+        </record>
+
+        <record id="rule_approval_history_manager" model="ir.rule">
+            <field name="name">Approval History: Manager sees team</field>
+            <field name="model_id" ref="model_employee_task_approval_history"/>
+            <field name="domain_force">['|', '|',
+                ('task_list_id.manager_id.user_id', '=', user.id),
+                ('task_list_id.employee_id.parent_id.user_id', '=', user.id),
+                ('task_list_id.department_id.manager_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_task_manager'))]"/>
+        </record>
+
+        <record id="rule_approval_history_admin" model="ir.rule">
+            <field name="name">Approval History: Admin full access</field>
+            <field name="model_id" ref="model_employee_task_approval_history"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_task_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>
