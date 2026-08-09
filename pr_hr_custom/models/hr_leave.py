@@ -41,7 +41,6 @@ class HrLeave(models.Model):
                 'reason': 'Missing Checkout',
                 'shift': emp.resource_calendar_id.name if emp.resource_calendar_id else '',
             })
-
         res['rows'] = new_rows
         res['count'] = len(new_rows)
         return res
@@ -53,6 +52,7 @@ class HrLeave(models.Model):
             return rows
         start_dt, _ = self._get_absentee_day_bounds_utc(employee, start)
         _, end_dt = self._get_absentee_day_bounds_utc(employee, end)
+
         attendances = self.env['hr.attendance'].sudo().search([
             ('employee_id', '=', employee.id),
             ('check_in', '>=', fields.Datetime.to_string(start_dt)),
@@ -60,13 +60,18 @@ class HrLeave(models.Model):
             ('check_out', '!=', False),
         ])
         missing_checkout_recs = attendances.filtered(lambda a: a.check_in == a.check_out)
-        existing_dates = {row.get('date') for row in rows}
+        existing_dates = {row.get('date') for row in rows if row.get('date')}
         for att in missing_checkout_recs:
             local_check_in = self._to_absentee_local_datetime(employee, att.check_in)
             if not local_check_in:
                 continue
             att_date_str = fields.Date.to_string(local_check_in.date())
-            if att_date_str not in existing_dates:
+            if att_date_str in existing_dates:
+                for row in rows:
+                    if row.get('date') == att_date_str:
+                        row['reason'] = 'Missing Checkout'
+                        row['check_in'] = self._format_absentee_check_in(local_check_in)
+            else:
                 rows.append({
                     'employee_id': employee.id,
                     'employee_code': employee.code or employee.barcode or '',

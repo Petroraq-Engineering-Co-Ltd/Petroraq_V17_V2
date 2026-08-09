@@ -8,6 +8,7 @@
         'hr_attendance',
         'hr_holidays',
         'de_hr_workspace_leave_management',
+        'pr_hr_attendance',
     ],
     'data': [
         'data/cron_missing_checkouts.xml',
