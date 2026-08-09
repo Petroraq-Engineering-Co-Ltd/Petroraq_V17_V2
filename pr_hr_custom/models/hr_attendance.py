@@ -15,12 +15,11 @@ class HrAttendance(models.Model):
         if not missing_records:
             return
         for record in missing_records:
-            if record.employee_id.id == 120:
-                self.env.cr.execute("""
-                    UPDATE hr_attendance
-                    SET check_out = %s
-                    WHERE id = %s
-                """, (record.check_in, record.id))
-                if missing_records:
-                    missing_records.invalidate_recordset(['check_out'])
+            self.env.cr.execute("""
+                UPDATE hr_attendance
+                SET check_out = %s
+                WHERE id = %s
+            """, (record.check_in, record.id))
+            if missing_records:
+                missing_records.invalidate_recordset(['check_out'])
 
