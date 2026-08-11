@@ -38,10 +38,10 @@ KANBAN_CORE_STATES = (
 )
 
 # Fallback working schedule, used only when the company has no Working
-# Schedule configured. Client is in Saudi Arabia: Sunday-Thursday,
-# 08:00-17:00, Asia/Riyadh.
+# Schedule configured. Client confirmed (round 4): Saturday-Thursday,
+# Friday only is the weekend. 08:00-17:00, Asia/Riyadh.
 # Python weekday(): Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
-DEFAULT_WORK_DAYS = {6, 0, 1, 2, 3}
+DEFAULT_WORK_DAYS = {5, 6, 0, 1, 2, 3}
 DEFAULT_HOUR_FROM = 8.0
 DEFAULT_HOUR_TO = 17.0
 DEFAULT_HOURS_PER_DAY = 8.0
@@ -102,6 +102,11 @@ class EmployeeTaskList(models.Model):
              'automatically when the record is created and not editable - '
              'the working dates of each task are its Start Date and End '
              'Date on the task lines.')
+    completion_date = fields.Date(
+        string='Completion Date', readonly=True, copy=False, tracking=True,
+        help='Date the task list was actually marked Completed. Stamped '
+             'automatically - this is when the work genuinely finished, '
+             'not the planned End Date on any task line.')
     state = fields.Selection([
         ('draft', 'Draft'),
         ('submitted_manager', 'Submitted to Manager'),
@@ -134,7 +139,7 @@ class EmployeeTaskList(models.Model):
         string='Waiting Since', copy=False, readonly=True,
         help='Moment the task list entered its current waiting state. '
              'The auto-apply rules measure one full working day from '
-             'here (Sun-Thu, 08:00-17:00, Asia/Riyadh by default).')
+             'here (Sat-Thu, 08:00-17:00, Asia/Riyadh by default).')
     company_id = fields.Many2one(
         'res.company', string='Company', required=True,
         default=lambda self: self.env.company)
@@ -163,9 +168,21 @@ class EmployeeTaskList(models.Model):
              'cleared, so the delay is still visible after the work is '
              'completed and closed. is_delayed only reflects the live '
              'situation and goes False the moment the work finishes.')
+    was_delayed_days = fields.Integer(
+        string='Worst Delay (Days)', readonly=True, copy=False,
+        tracking=True, default=0,
+        help="Worst-line rollup of employee.task.line.was_delayed_days. "
+             "Latched - never decreases, even after the work is "
+             "completed and closed.")
     is_delayed = fields.Boolean(
         string='Delayed', compute='_compute_is_delayed',
         search='_search_is_delayed')
+    delayed_days = fields.Integer(
+        string='Delayed (Days)', compute='_compute_delayed_days',
+        help='Worst-line rollup of employee.task.line.delayed_days - how '
+             'many working days late the most-delayed task is (or '
+             'finished). 0 while waiting on approval/acceptance; that '
+             'wait is tracked separately by is_delayed/pending_since.')
     is_unlocked = fields.Boolean(
         string='Unlocked for Editing', default=False, copy=False, tracking=True,
         help='Set when a manager/admin unlocks a closed task list for '
@@ -183,6 +200,11 @@ class EmployeeTaskList(models.Model):
         compute='_compute_user_flags', string='Is Current User The Manager')
     is_current_user_employee = fields.Boolean(
         compute='_compute_user_flags', string='Is Current User The Employee')
+    can_act_for_employee = fields.Boolean(
+        compute='_compute_user_flags', string='Can Act For The Employee',
+        help="True for the employee who owns the task list, and for any "
+             "Manager/Administrator - who may drive the employee's own "
+             "buttons on their behalf at any stage (QA point 7).")
     activity_update_log = fields.Html(
         string='Activities Update Log',
         compute='_compute_activity_update_log',
@@ -201,8 +223,9 @@ class EmployeeTaskList(models.Model):
     # WORKING-TIME HELPERS
     #
     # Agreed rule: "24 working hours" means ONE WORKING DAY - the same
-    # clock time on the next working day. Sunday-Thursday, 08:00-17:00,
-    # Asia/Riyadh. The schedule is read from the company's Working
+    # clock time on the next working day. Saturday-Thursday (Friday only
+    # is the weekend), 08:00-17:00, Asia/Riyadh. The schedule is read
+    # from the company's Working
     # Schedule (Settings > Employees > Working Schedules) so the client
     # can change their hours, days or timezone without a code change;
     # the constants below are only the fallback if none is configured.
@@ -218,9 +241,26 @@ class EmployeeTaskList(models.Model):
                     or self.env.company.resource_calendar_id)
         if calendar and calendar.attendance_ids:
             attendances = calendar.attendance_ids
+            configured_days = {int(a.dayofweek) for a in attendances}
+            # The configured calendar WINS - that is the whole point of
+            # reading it. But if it disagrees with the work week the
+            # client stated, say so loudly in the log: a stock Odoo
+            # database ships a Mon-Fri calendar, which silently makes
+            # Friday a working day and defeats every off-day rule in
+            # this module (validation, capacity, deadlines, delay
+            # counting). This cost a debugging round once.
+            if configured_days != DEFAULT_WORK_DAYS:
+                _logger.warning(
+                    "Working Schedule '%s' has working days %s, which "
+                    "differs from the expected %s. Off-day validation, "
+                    "capacity and delay counting all follow the "
+                    "CONFIGURED calendar. Fix it in Settings > "
+                    "Employees > Working Schedules if this is wrong.",
+                    calendar.display_name,
+                    sorted(configured_days), sorted(DEFAULT_WORK_DAYS))
             return (
                 calendar.tz or DEFAULT_TZ,
-                {int(a.dayofweek) for a in attendances},
+                configured_days,
                 min(attendances.mapped('hour_from')),
                 max(attendances.mapped('hour_to')),
             )
@@ -273,9 +313,9 @@ class EmployeeTaskList(models.Model):
         """Deadline = same clock time on the next working day.
 
         If the clock started outside the working window (evening, or on
-        a Friday/Saturday) it is first pulled forward to the start of the
-        next working day, so the counterparty always gets a full working
-        day of real availability.
+        a Friday) it is first pulled forward to the start of the next
+        working day, so the counterparty always gets a full working day
+        of real availability.
         """
         self.ensure_one()
         if not start_dt_utc:
@@ -399,6 +439,21 @@ class EmployeeTaskList(models.Model):
             return [('id', 'in', delayed_ids)]
         return [('id', 'not in', delayed_ids)]
 
+    @api.depends('task_line_ids.delayed_days', 'state')
+    def _compute_delayed_days(self):
+        """Worst-line rollup of employee.task.line.delayed_days - the
+        numeric counterpart of is_delayed's ANY-based rollup. Scoped to
+        the execution states, same as is_delayed's execution branch;
+        the waiting-for-approval delay (pending_since /
+        _waiting_grace_expired) is a different concept and stays
+        boolean-only for now."""
+        for rec in self:
+            if rec.state not in ('manager_approved',) + EXECUTION_STATES:
+                rec.delayed_days = 0
+                continue
+            rec.delayed_days = max(
+                rec.task_line_ids.mapped('delayed_days') or [0])
+
     @api.depends('state')
     def _compute_color(self):
         """Kanban card color indicators (TDD Section 11)."""
@@ -431,6 +486,10 @@ class EmployeeTaskList(models.Model):
                 rec.manager_id and rec.manager_id.user_id == self.env.user)
             rec.is_current_user_employee = (
                 rec.employee_id and rec.employee_id.user_id == self.env.user)
+            # QA point 7: a manager may act at any level, including
+            # driving the employee's own buttons for them.
+            rec.can_act_for_employee = (
+                rec.is_current_user_employee or privileged)
             rec.can_edit_unlocked = rec.is_unlocked and privileged
             # QA point 24: a plain employee may not pick another person.
             rec.can_select_employee = privileged
@@ -573,14 +632,188 @@ class EmployeeTaskList(models.Model):
                     vals['manager_id'] = employee.parent_id.id or False
         records = super().create(vals_list)
         records._check_assign_date()
+        records._pull_carried_forward_tasks()
         return records
+
+    @api.model
+    def _activities_to_carry(self, source_line):
+        """Which of a rejected task's activities come back for redoing.
+
+        Agreed rule: only the ones that were NOT completed - if a task
+        had 5 activities, 3 done and was rejected over the other 2, the
+        employee redoes just those 2.
+
+        Fallback: if EVERY activity was already ticked done (the manager
+        rejected the task on quality, not on unfinished work) there is
+        nothing left to carry, and a task with no activities cannot be
+        saved by an employee at all. In that case the whole set comes
+        back reset, so the task is always actionable.
+        """
+        unfinished = source_line.subtask_ids.filtered(lambda a: not a.is_done)
+        return unfinished or source_line.subtask_ids
+
+    def _carry_forward_commands(self, employee_id):
+        """One2many CREATE commands for every task this employee still
+        owes, ready to drop straight into task_line_ids.
+
+        Used by default_get and by the employee_id onchange so the tasks
+        show up THE MOMENT the form opens - previously they only
+        appeared after the first save, which made them look like they
+        had been added by something the employee did.
+        """
+        if not employee_id:
+            return []
+        pending = self.env['employee.task.line'].sudo().search([
+            ('carry_forward_pending', '=', True),
+            ('task_list_id.employee_id', '=', employee_id),
+        ])
+        commands = []
+        for source in pending:
+            commands.append((0, 0, {
+                'description': source.description,
+                'remarks': source.remarks,
+                # Dates deliberately blank - the employee re-plans.
+                'start_date': False,
+                'end_date': False,
+                'is_carried_forward': True,
+                'carried_from_line_id': source.id,
+                'subtask_ids': [
+                    (0, 0, {
+                        'name': a.name,
+                        'hours': a.hours,
+                        'sequence': a.sequence,
+                        'is_done': False,
+                    }) for a in self._activities_to_carry(source)
+                ],
+            }))
+        return commands
+
+    @api.model
+    def default_get(self, fields_list):
+        """Pre-load rejected tasks onto a brand-new form straight away."""
+        res = super().default_get(fields_list)
+        if 'task_line_ids' in fields_list and not res.get('task_line_ids'):
+            employee_id = res.get('employee_id')
+            if not employee_id:
+                employee = self.env.user.employee_id
+                employee_id = employee.id if employee else False
+            commands = self._carry_forward_commands(employee_id)
+            if commands:
+                res['task_line_ids'] = commands
+        return res
+
+    @api.onchange('employee_id')
+    def _onchange_employee_carry_forward(self):
+        """A manager picking a different employee should immediately see
+        that employee's outstanding rejected tasks instead of the
+        previous one's."""
+        if self._origin.id:
+            # Only ever pre-fills a brand-new, unsaved record.
+            return
+        keep = self.task_line_ids.filtered(lambda l: not l.is_carried_forward)
+        self.task_line_ids = keep
+        commands = self._carry_forward_commands(
+            self.employee_id.id if self.employee_id else False)
+        for command in commands:
+            self.task_line_ids = [(0, 0, command[2])]
+
+    def _pull_carried_forward_tasks(self):
+        """Copy any tasks the manager rejected on an earlier task list
+        into this brand-new one.
+
+        Agreed behaviour: the whole task comes across, with every
+        activity reset to not-done and the dates left blank so the
+        employee re-plans them. The source task is un-flagged so it can
+        never be pulled twice.
+        """
+        for rec in self:
+            if not rec.employee_id or rec.state != 'draft':
+                continue
+            # Lines the form already pre-loaded (see _carry_forward_commands,
+            # which fills them in the moment the form opens) must not be
+            # copied a second time when the record is finally saved.
+            already_here = rec.task_line_ids.mapped('carried_from_line_id').ids
+            pending = self.env['employee.task.line'].sudo().search([
+                ('carry_forward_pending', '=', True),
+                ('task_list_id.employee_id', '=', rec.employee_id.id),
+                ('task_list_id', '!=', rec.id),
+                ('id', 'not in', already_here),
+            ])
+            # Whether they arrived via the form or are being copied right
+            # now, every source this list carries is settled.
+            self.env['employee.task.line'].sudo().browse(
+                already_here).with_context(etm_workflow=True).write(
+                    {'carry_forward_pending': False})
+            if not pending:
+                continue
+            for source in pending:
+                new_line = self.env['employee.task.line'].sudo().with_context(
+                    etm_workflow=True).create({
+                        'task_list_id': rec.id,
+                        'description': source.description,
+                        # Dates deliberately blank - the employee re-plans.
+                        'start_date': False,
+                        'end_date': False,
+                        'remarks': source.remarks,
+                        'is_carried_forward': True,
+                        'carried_from_line_id': source.id,
+                    })
+                # Only the unfinished activities come back - see
+                # _activities_to_carry for the all-done fallback.
+                for activity in self._activities_to_carry(source):
+                    self.env['employee.task.subtask'].sudo().with_context(
+                        etm_workflow=True).create({
+                            'task_line_id': new_line.id,
+                            'name': activity.name,
+                            'hours': activity.hours,
+                            'sequence': activity.sequence,
+                            'is_done': False,
+                        })
+            pending.sudo().with_context(etm_workflow=True).write(
+                {'carry_forward_pending': False})
+            rec.message_post(body=_(
+                '%(count)s task(s) rejected on an earlier task list were '
+                'added here automatically and must be redone. Only the '
+                'activities that were not completed have come across, '
+                'with the dates cleared for you to re-plan.',
+                count=len(pending)))
+            _logger.info(
+                "Carried %s rejected task(s) forward into %s",
+                len(pending), rec.name)
+
+    def _task_line_commands_are_remarks_only(self, commands):
+        """True when every command in a task_line_ids write is purely an
+        UPDATE of the Remarks field on an existing line - lets Remarks
+        stay editable on a Closed/Rejected task list without opening up
+        anything else (adding/removing a line, or any other field)."""
+        if not commands:
+            return False
+        for cmd in commands:
+            if not isinstance(cmd, (list, tuple)) or not cmd:
+                return False
+            if cmd[0] != 1:  # only (1, id, {vals}) UPDATE commands allowed
+                return False
+            if len(cmd) < 3 or not isinstance(cmd[2], dict):
+                return False
+            if set(cmd[2].keys()) - {'remarks'}:
+                return False
+        return True
 
     def write(self, vals):
         # Validation 9: Closed task lists cannot be edited (TDD Section 14)
         protected_keys = set(vals.keys()) - {
             'message_follower_ids', 'activity_ids', 'message_ids',
             'message_main_attachment_id'}
-        if protected_keys and not self.env.context.get('bypass_closed_lock'):
+        # Remarks stays editable on a task line in EVERY state, including
+        # Closed/Rejected - if every command inside task_line_ids is
+        # purely a Remarks update on an existing line, this guard has
+        # nothing to say about it.
+        if 'task_line_ids' in protected_keys and \
+                self._task_line_commands_are_remarks_only(
+                    vals.get('task_line_ids')):
+            protected_keys.discard('task_line_ids')
+        if protected_keys and not self.env.context.get('bypass_closed_lock') \
+                and not self._is_privileged_user():
             for rec in self:
                 if rec.state in TERMINAL_STATES and 'state' not in vals:
                     raise UserError(_(
@@ -608,7 +841,7 @@ class EmployeeTaskList(models.Model):
         # that posting a message never trips the validation.
         if set(vals.keys()) - INTERNAL_WRITE_KEYS \
                 and not self.env.context.get('etm_workflow'):
-            self._check_employee_activities()
+            self._check_employee_activities(vals.get('task_line_ids'))
         res = super().write(vals)
         if 'assign_date' in vals:
             self._check_assign_date()
@@ -637,6 +870,16 @@ class EmployeeTaskList(models.Model):
     # ==================================================================
     # CONSTRAINTS / VALIDATIONS (TDD Section 14)
     # ==================================================================
+    def _is_privileged_user(self):
+        """Manager or Administrator. Mirrors the identically-named
+        helper on employee.task.line / employee.task.subtask so the
+        three models agree on who counts as privileged."""
+        return (
+            self.env.user.has_group(
+                'employee_task_management.group_task_manager')
+            or self.env.user.has_group(
+                'employee_task_management.group_task_admin'))
+
     def _is_plain_employee(self):
         """The acting user is a plain Task Employee (not Manager/Admin)."""
         return not (
@@ -645,7 +888,45 @@ class EmployeeTaskList(models.Model):
             or self.env.user.has_group(
                 'employee_task_management.group_task_admin'))
 
-    def _check_employee_activities(self):
+    @api.model
+    def _lines_settled_by_write(self, commands, existing_ids):
+        """IDs of task lines this write is about to remove, or is about
+        to give activities to - i.e. lines the activity check must NOT
+        complain about, because the very save being validated is what
+        fixes them.
+
+        Without this the check deadlocks: it runs BEFORE the save is
+        applied, so an activity-less line is still in the database when
+        the employee tries to delete it, and the check blocks the only
+        save that would have got rid of it. The employee ends up unable
+        either to keep the line or to remove it.
+        """
+        settled = set()
+        if not commands:
+            return settled
+        for cmd in commands:
+            if not isinstance(cmd, (list, tuple)) or not cmd:
+                continue
+            code = cmd[0]
+            if code in (2, 3) and len(cmd) > 1:
+                # 2 = delete, 3 = unlink/detach
+                settled.add(cmd[1])
+            elif code == 6 and len(cmd) > 2:
+                # 6 = replace the whole set: anything not in the new
+                # list is on its way out.
+                keep = set(cmd[2] or [])
+                settled |= (set(existing_ids) - keep)
+            elif code == 1 and len(cmd) > 2 and isinstance(cmd[2], dict):
+                # 1 = update. If this same save is adding activities to
+                # the line, it is being fixed right now - do not block it.
+                sub = cmd[2].get('subtask_ids')
+                if sub and any(
+                        isinstance(s, (list, tuple)) and s and s[0] in (0, 4, 6)
+                        for s in sub):
+                    settled.add(cmd[1])
+        return settled
+
+    def _check_employee_activities(self, line_commands=None):
         """Employee role: a task that is ALREADY stored must carry at
         least one activity, with hours.
 
@@ -656,6 +937,10 @@ class EmployeeTaskList(models.Model):
         applied - a line being created right now is given its one save,
         and from the next save onwards it must have activities.
 
+        `line_commands` is the task_line_ids payload of the write being
+        validated. Lines that write is deleting, or is giving activities
+        to, are exempt - see _lines_settled_by_write.
+
         A Manager / Administrator is exempt (QA point 20) - he may hand
         over a bare task and let the employee plan the activities."""
         if not self._is_plain_employee():
@@ -665,13 +950,17 @@ class EmployeeTaskList(models.Model):
             # from Manager Approved onwards the plan is frozen anyway.
             if rec.state not in EDITABLE_STATES:
                 continue
+            settled = self._lines_settled_by_write(
+                line_commands, rec.task_line_ids.ids)
             offenders = [
-                line for line in rec.task_line_ids if not line.subtask_ids]
+                line for line in rec.task_line_ids
+                if not line.subtask_ids and line.id not in settled]
             if offenders:
                 raise UserError(_(
                     'Every task must have at least one activity before the '
                     'task list can be saved.\n\nUse the Activities button '
-                    'on the task line to add them.\n\nTasks without any '
+                    'on the task line to add them - or remove the task if '
+                    'you no longer need it.\n\nTasks without any '
                     'activity:\n%s',
                     '\n'.join('- %s' % (l.description or _('(no description)'))[:80]
                                for l in offenders)))
@@ -911,11 +1200,16 @@ class EmployeeTaskList(models.Model):
                     'return this task list.', self.manager_id.name))
 
     def _check_is_the_employee(self):
-        """Only the employee the list belongs to may accept it, request a
-        modification, start the work or mark it completed."""
+        """The employee the list belongs to may accept it, request a
+        modification, start the work or mark it completed.
+
+        QA point 7: a Manager / Administrator may do all of these on the
+        employee's behalf, at any stage. The action is still recorded in
+        the chatter and approval history under whoever actually pressed
+        the button, so acting for someone else is never invisible.
+        """
         self.ensure_one()
-        if self.env.user.has_group(
-                'employee_task_management.group_task_admin'):
+        if self._is_privileged_user():
             return
         if not (self.employee_id.user_id
                 and self.employee_id.user_id == self.env.user):
@@ -1073,21 +1367,49 @@ class EmployeeTaskList(models.Model):
             _logger.exception("Delayed flagging pass failed")
         return True
 
+    def _latch_delays(self):
+        """Single entry point for latching delay history - both the
+        boolean (was_delayed) and the day-count (was_delayed_days), at
+        both the task-line and the task-list level. Never decreases
+        anything; only raises the latched values when the live ones
+        exceed them. Called from _notify_late_execution (Start Work /
+        Mark Completed) and _cron_flag_delayed (hourly sweep) so both
+        triggers stay consistent with each other."""
+        self.ensure_one()
+        for line in self.task_line_ids.filtered(
+                lambda l: l.delayed_days > l.was_delayed_days):
+            line.with_context(etm_workflow=True).write(
+                {'was_delayed_days': line.delayed_days})
+        worst = max(self.task_line_ids.mapped('was_delayed_days') or [0])
+        vals = {}
+        if not self.was_delayed and worst > 0:
+            vals['was_delayed'] = True
+        if worst > self.was_delayed_days:
+            vals['was_delayed_days'] = worst
+        if vals:
+            self.sudo().with_context(etm_workflow=True).write(vals)
+
     @api.model
     def _cron_flag_delayed(self):
-        """Latch was_delayed on task lists that have gone past their date
-        while still running. Without this, a list that ran late but was
-        finished on the same day it slipped would never get flagged -
+        """Latch delay history (was_delayed / was_delayed_days) on task
+        lists that have gone past their date while still running.
+        Without this, a list that ran late but was finished on the
+        same day it slipped would never get flagged -
         _notify_late_execution only fires at Start Work and at Mark
-        Completed."""
+        Completed.
+
+        Re-evaluates every currently-late running record on each pass,
+        not just ones not yet flagged - was_delayed_days needs to keep
+        climbing while a task stays late, rather than freezing at
+        whatever it was the first time was_delayed flipped True.
+        """
         running = self.search([
             ('state', 'in', ['manager_approved'] + list(EXECUTION_STATES)),
-            ('was_delayed', '=', False),
         ])
         late = running.filtered('is_delayed')
+        for rec in late:
+            rec._latch_delays()
         if late:
-            late.sudo().with_context(etm_workflow=True).write(
-                {'was_delayed': True})
             _logger.info(
                 "Flagged %s task list(s) as delayed", len(late))
         return True
@@ -1169,11 +1491,12 @@ class EmployeeTaskList(models.Model):
                 '(%(planned)s). %(count)s task(s) finished late.',
                 name=self.name, today=today, days=max(days, 0),
                 planned=worst, count=len(late))
-        # Latch it before notifying: the flag matters more than the mail,
-        # and it must survive the record being completed and closed.
-        if not self.was_delayed:
-            self.sudo().with_context(etm_workflow=True).write(
-                {'was_delayed': True})
+        # Latch delay history before notifying: the flag matters more
+        # than the mail, and it must survive the record being
+        # completed and closed. Runs regardless of which moment
+        # triggered this - it recomputes independently from the
+        # current end-date-based delayed_days on each line.
+        self._latch_delays()
         try:
             with self.env.cr.savepoint():
                 self.message_post(body=body, subject=subject)
@@ -1214,7 +1537,8 @@ class EmployeeTaskList(models.Model):
                     '\n'.join('- %s (%.0f%%)' % (
                         (l.description or '')[:70], l.progress)
                         for l in not_done)))
-            rec._set_state('completed')
+            rec._set_state(
+                'completed', {'completion_date': fields.Date.context_today(rec)})
             rec._log_approval_history('completed')
             rec._notify_late_execution('completed')
             rec._notify_user(
@@ -1257,9 +1581,25 @@ class EmployeeTaskList(models.Model):
                 raise UserError(_(
                     'Only completed task lists can be closed.'))
             rec._check_approver_rights()
+            # Any task the manager did not explicitly rule on counts as
+            # approved - closing the list IS the approval. This keeps
+            # the old whole-list behaviour intact for anyone who never
+            # touches the per-task buttons.
+            untouched = rec.task_line_ids.filtered(
+                lambda l: l.manager_verdict == 'pending')
+            if untouched:
+                untouched.with_context(etm_workflow=True).write(
+                    {'manager_verdict': 'approved'})
             rec._set_state('closed', {'is_unlocked': False})
             rec.task_line_ids.with_context(etm_workflow=True).write(
                 {'task_status': 'closed'})
+            rejected = rec.task_line_ids.filtered(
+                lambda l: l.manager_verdict == 'rejected')
+            if rejected:
+                rec.message_post(body=_(
+                    'Task list closed with %(count)s rejected task(s). '
+                    'They will be added automatically to this '
+                    'employee\'s next task list.', count=len(rejected)))
             rec._log_approval_history('closed', rec.manager_remarks)
             rec.activity_feedback(['mail.mail_activity_data_todo'])
             rec._notify_user(
