@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <search string="IT Service Requests">
                 <field name="name"/><field name="title"/><field name="request_type_id"/>
-                <field name="employee_id"/><field name="department_id"/><field name="current_approver_id"/>
+                <field name="employee_id"/><field name="department_id"/><field name="current_approver_ids"/>
                 <filter name="my_requests" string="My Requests" domain="[('requested_by_id', '=', uid)]"/>
                 <filter name="waiting_for_me" string="Waiting for Me" domain="[('is_current_approver', '=', True)]"/>
                 <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
@@ -26,7 +26,8 @@
                 <field name="name"/><field name="title"/><field name="request_type_id"/>
                 <field name="employee_id"/><field name="department_id" optional="show"/>
                 <field name="request_date"/><field name="required_date" optional="show"/>
-                <field name="priority" widget="priority"/><field name="current_approver_id"/>
+                <field name="priority" widget="priority"/>
+                <field name="current_approver_ids" widget="many2many_tags" string="Current Approvers"/>
                 <field name="approval_progress"/><field name="state" widget="badge"/>
             </tree>
         </field>
@@ -62,7 +63,7 @@
                             <field name="request_date" readonly="state != 'draft'"/>
                             <field name="required_date" readonly="state != 'draft'"/>
                             <field name="priority" widget="priority" readonly="state != 'draft'"/>
-                            <field name="current_approver_id" invisible="state != 'pending'"/>
+                            <field name="current_approver_ids" widget="many2many_tags" invisible="state != 'pending'"/>
                             <field name="approval_progress" invisible="state == 'draft'"/>
                         </group>
                     </group>
@@ -72,7 +73,8 @@
                         </page>
                         <page string="Approvals">
                             <div class="alert alert-info" role="alert" invisible="state != 'draft'">
-                                Approvers process this request from the lowest sequence number to the highest.
+                                Approvers sharing the same sequence are activated together and may approve in any order.
+                                The next sequence starts only after everyone in the current sequence has approved.
                             </div>
                             <field name="approver_line_ids" readonly="state != 'draft'">
                                 <tree editable="bottom">
