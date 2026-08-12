@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_line_reject_wizard_form" model="ir.ui.view">
+        <field name="name">employee.task.line.reject.wizard.form</field>
+        <field name="model">employee.task.line.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Task">
+                <div class="alert alert-warning" role="alert">
+                    This task will be marked Rejected. It is added
+                    automatically to this employee's next task list -
+                    carrying only the activities that were not completed,
+                    with its dates left blank for them to re-plan. They
+                    cannot remove it. (If every activity was already
+                    ticked done, the whole set comes back reset, so there
+                    is always something to redo.)
+                </div>
+                <group>
+                    <field name="task_line_id" readonly="1"/>
+                    <field name="reason" required="1"
+                           placeholder="What is wrong with this task?"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Reject Task"
+                            type="object" class="btn-danger" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary"
+                            special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

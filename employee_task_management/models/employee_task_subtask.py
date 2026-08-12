@@ -91,6 +91,11 @@ class EmployeeTaskSubtask(models.Model):
         only thing that still moves is the Done toggle."""
         if self.env.context.get('etm_workflow'):
             return
+        # QA point 7: Manager / Administrator may work at any level, in
+        # any state - including adding, renaming and re-costing
+        # activities after approval.
+        if self._is_privileged_user():
+            return
         touched = set(vals or {})
         privileged = self._is_privileged_user()
         for rec in self:
@@ -118,8 +123,11 @@ class EmployeeTaskSubtask(models.Model):
     def _check_structure_editable(self):
         """Adding or removing an activity is only possible while the task
         list is still being written (Draft / Returned / Pending
-        Acceptance / Modification Requested)."""
+        Acceptance / Modification Requested) - unless you are a
+        Manager/Administrator, who may work at any level (QA point 7)."""
         if self.env.context.get('etm_workflow'):
+            return
+        if self._is_privileged_user():
             return
         for rec in self:
             task_list = rec.task_line_id.task_list_id
