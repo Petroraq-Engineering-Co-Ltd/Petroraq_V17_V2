@@ -200,11 +200,6 @@ class EmployeeTaskList(models.Model):
         compute='_compute_user_flags', string='Is Current User The Manager')
     is_current_user_employee = fields.Boolean(
         compute='_compute_user_flags', string='Is Current User The Employee')
-    can_act_for_employee = fields.Boolean(
-        compute='_compute_user_flags', string='Can Act For The Employee',
-        help="True for the employee who owns the task list, and for any "
-             "Manager/Administrator - who may drive the employee's own "
-             "buttons on their behalf at any stage (QA point 7).")
     activity_update_log = fields.Html(
         string='Activities Update Log',
         compute='_compute_activity_update_log',
@@ -486,10 +481,6 @@ class EmployeeTaskList(models.Model):
                 rec.manager_id and rec.manager_id.user_id == self.env.user)
             rec.is_current_user_employee = (
                 rec.employee_id and rec.employee_id.user_id == self.env.user)
-            # QA point 7: a manager may act at any level, including
-            # driving the employee's own buttons for them.
-            rec.can_act_for_employee = (
-                rec.is_current_user_employee or privileged)
             rec.can_edit_unlocked = rec.is_unlocked and privileged
             # QA point 24: a plain employee may not pick another person.
             rec.can_select_employee = privileged
@@ -841,7 +832,7 @@ class EmployeeTaskList(models.Model):
         # that posting a message never trips the validation.
         if set(vals.keys()) - INTERNAL_WRITE_KEYS \
                 and not self.env.context.get('etm_workflow'):
-            self._check_employee_activities(vals.get('task_line_ids'))
+            self._check_employee_activities('task_line_ids' in vals)
         res = super().write(vals)
         if 'assign_date' in vals:
             self._check_assign_date()
@@ -889,60 +880,35 @@ class EmployeeTaskList(models.Model):
                 'employee_task_management.group_task_admin'))
 
     @api.model
-    def _lines_settled_by_write(self, commands, existing_ids):
-        """IDs of task lines this write is about to remove, or is about
-        to give activities to - i.e. lines the activity check must NOT
-        complain about, because the very save being validated is what
-        fixes them.
+    def _check_employee_activities(self, touches_task_lines=False):
+        """Employee role: a stored task must carry at least one activity.
 
-        Without this the check deadlocks: it runs BEFORE the save is
-        applied, so an activity-less line is still in the database when
-        the employee tries to delete it, and the check blocks the only
-        save that would have got rid of it. The employee ends up unable
-        either to keep the line or to remove it.
+        DELIBERATELY SKIPPED whenever the save touches task_line_ids at
+        all. Rationale, learned from three separate deadlocks:
+
+          * Activities can only be added through a dialog on an
+            ALREADY-SAVED task line, so a new line must survive one save
+            with no activities.
+          * The capacity rule rejects activities that do not fit the
+            line's dates, so the ONLY way to fit 11:00 of work is to
+            widen the End Date first - which is itself a save.
+
+        If this check fired on those saves, the employee would be left
+        with no legal move in either direction. Previous versions tried
+        to work this out by parsing the task_line_ids command payload;
+        that was fragile and still let a deadlock through. The rule is
+        now simply: if you are working on the tasks, you are not blocked.
+
+        Nothing is waved through - action_submit_to_manager still calls
+        _check_activities_before_submit(), so a task list can never
+        REACH the manager carrying a task with no activities. This is a
+        tidiness check on idle saves, not the real gate.
+
+        A Manager / Administrator is exempt entirely (QA point 20) - he
+        may hand over a bare task and let the employee plan it.
         """
-        settled = set()
-        if not commands:
-            return settled
-        for cmd in commands:
-            if not isinstance(cmd, (list, tuple)) or not cmd:
-                continue
-            code = cmd[0]
-            if code in (2, 3) and len(cmd) > 1:
-                # 2 = delete, 3 = unlink/detach
-                settled.add(cmd[1])
-            elif code == 6 and len(cmd) > 2:
-                # 6 = replace the whole set: anything not in the new
-                # list is on its way out.
-                keep = set(cmd[2] or [])
-                settled |= (set(existing_ids) - keep)
-            elif code == 1 and len(cmd) > 2 and isinstance(cmd[2], dict):
-                # 1 = update. If this same save is adding activities to
-                # the line, it is being fixed right now - do not block it.
-                sub = cmd[2].get('subtask_ids')
-                if sub and any(
-                        isinstance(s, (list, tuple)) and s and s[0] in (0, 4, 6)
-                        for s in sub):
-                    settled.add(cmd[1])
-        return settled
-
-    def _check_employee_activities(self, line_commands=None):
-        """Employee role: a task that is ALREADY stored must carry at
-        least one activity, with hours.
-
-        Why "already stored": the Activities pop-up can only open on a
-        saved task line, so a line has to survive one save before its
-        activities can be entered. The check therefore looks at the task
-        lines as they exist in the database *before* the current save is
-        applied - a line being created right now is given its one save,
-        and from the next save onwards it must have activities.
-
-        `line_commands` is the task_line_ids payload of the write being
-        validated. Lines that write is deleting, or is giving activities
-        to, are exempt - see _lines_settled_by_write.
-
-        A Manager / Administrator is exempt (QA point 20) - he may hand
-        over a bare task and let the employee plan the activities."""
+        if touches_task_lines:
+            return
         if not self._is_plain_employee():
             return
         for rec in self:
@@ -950,11 +916,8 @@ class EmployeeTaskList(models.Model):
             # from Manager Approved onwards the plan is frozen anyway.
             if rec.state not in EDITABLE_STATES:
                 continue
-            settled = self._lines_settled_by_write(
-                line_commands, rec.task_line_ids.ids)
             offenders = [
-                line for line in rec.task_line_ids
-                if not line.subtask_ids and line.id not in settled]
+                line for line in rec.task_line_ids if not line.subtask_ids]
             if offenders:
                 raise UserError(_(
                     'Every task must have at least one activity before the '
@@ -1171,17 +1134,36 @@ class EmployeeTaskList(models.Model):
             'context': {'default_task_list_id': self.id},
         }
 
+    def _is_own_task_list(self):
+        """True when the current user is the employee this task list
+        belongs to.
+
+        A department manager has a task list of his own, and reports to
+        his own manager. He may run his subordinates' lists, but his own
+        must go to HIS manager - so this is the single test every
+        approver action shares.
+        """
+        self.ensure_one()
+        return bool(
+            self.employee_id.user_id
+            and self.employee_id.user_id == self.env.user)
+
     def _check_approver_rights(self):
         """Validations 5 & 10: manager approval cannot be done by the
-        employee himself; only authorized users can approve/reject."""
+        employee himself; only authorized users can approve/reject.
+
+        NO EXCEPTIONS, Administrator included: nobody signs off their
+        own work. An admin who needs to unstick their own list has it
+        approved by their own manager, exactly like everyone else.
+        """
         self.ensure_one()
-        if self.employee_id.user_id and \
-                self.employee_id.user_id == self.env.user and not \
-                self.env.user.has_group(
-                    'employee_task_management.group_task_admin'):
+        if self._is_own_task_list():
             raise AccessError(_(
-                'You cannot approve or return your own task list. '
-                'Manager approval cannot be done by the employee himself.'))
+                'You cannot approve, return, close or reject your own '
+                'task list (%s). It has to be actioned by your own '
+                'manager%s.',
+                self.name,
+                _(' (%s)', self.manager_id.name) if self.manager_id else ''))
         if not (self.env.user.has_group(
                 'employee_task_management.group_task_manager') or
                 self.env.user.has_group(
@@ -1200,17 +1182,24 @@ class EmployeeTaskList(models.Model):
                     'return this task list.', self.manager_id.name))
 
     def _check_is_the_employee(self):
-        """The employee the list belongs to may accept it, request a
+        """ONLY the employee the list belongs to may accept it, request a
         modification, start the work or mark it completed.
 
-        QA point 7: a Manager / Administrator may do all of these on the
-        employee's behalf, at any stage. The action is still recorded in
-        the chatter and approval history under whoever actually pressed
-        the button, so acting for someone else is never invisible.
+        NO EXCEPTIONS - Manager and Administrator included. Feedback #4
+        points 3 and 4: the client saw managers being offered "Submit to
+        Manager" and "Accept" on lists belonging to somebody else and
+        called it a bug. These are the employee's own acts of
+        commitment; a manager doing them on his behalf would put words
+        in his mouth.
+
+        This REVERSES the 1.6.0 reading of QA point 7. The manager's
+        override on EDITING content (dates, hours, tasks, activities in
+        any state) is deliberately untouched - see the privileged
+        early-returns in _check_list_editable / _check_structure_editable
+        / _check_activity_editable. Only the workflow buttons are his
+        employee's alone.
         """
         self.ensure_one()
-        if self._is_privileged_user():
-            return
         if not (self.employee_id.user_id
                 and self.employee_id.user_id == self.env.user):
             raise AccessError(_(

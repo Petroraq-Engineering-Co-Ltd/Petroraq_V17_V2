@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Employee Task Management',
-    'version': '17.0.1.6.1',
+    'version': '17.0.1.7.0',
     'category': 'Human Resources',
     'summary': 'Employee Task List Approval Workflow',
     'description': """
@@ -46,6 +46,8 @@ Developed for: Petroraq Digital Solutions
             'employee_task_management/static/src/scss/dashboard.scss',
             'employee_task_management/static/src/js/dashboard/task_dashboard.js',
             'employee_task_management/static/src/xml/task_dashboard.xml',
+            'employee_task_management/static/src/js/fields/masked_hours_field.js',
+            'employee_task_management/static/src/xml/masked_hours_field.xml',
         ],
     },
     'installable': True,

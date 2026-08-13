@@ -260,6 +260,15 @@ class EmployeeTaskLine(models.Model):
             raise UserError(_(
                 'Only a Manager or Administrator can approve or reject '
                 'a task.'))
+        # Same rule as the whole-list actions: nobody rules on their own
+        # work. Without this a department manager could approve or
+        # reject the individual tasks on his OWN completed task list,
+        # which is the exact hole the whole-list guard already closes.
+        if self.task_list_id._is_own_task_list():
+            raise UserError(_(
+                'You cannot approve or reject tasks on your own task '
+                'list (%s). It has to be reviewed by your own manager.',
+                self.task_list_id.name))
         if self.task_list_id.state != 'completed':
             raise UserError(_(
                 'Tasks can only be approved or rejected while the task '
