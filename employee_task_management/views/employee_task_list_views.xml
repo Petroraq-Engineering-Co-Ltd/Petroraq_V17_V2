@@ -13,7 +13,7 @@
                     <!-- Buttons per role & workflow status (TDD Section 19) -->
                     <button name="action_submit_to_manager" string="Submit to Manager"
                             type="object" class="btn-primary"
-                            invisible="state not in ('draft', 'returned_manager') or not can_act_for_employee"
+                            invisible="state not in ('draft', 'returned_manager') or not is_current_user_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_assign_to_employee" string="Assign to Employee"
                             type="object" class="btn-primary"
@@ -21,20 +21,20 @@
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_manager_approve" string="Approve"
                             type="object" class="btn-success"
-                            invisible="state != 'submitted_manager'"
+                            invisible="state != 'submitted_manager' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_manager_return" string="Return for Correction"
                             type="object" class="btn-warning"
-                            invisible="state != 'submitted_manager'"
+                            invisible="state != 'submitted_manager' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- QA 17 & 18: employee accepts, or asks for changes -->
                     <button name="action_employee_accept" string="Accept"
                             type="object" class="btn-success"
-                            invisible="state != 'pending_acceptance' or not can_act_for_employee"
+                            invisible="state != 'pending_acceptance' or not is_current_user_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_request_modification" string="Request Modification"
                             type="object" class="btn-warning"
-                            invisible="state != 'pending_acceptance' or not can_act_for_employee"
+                            invisible="state != 'pending_acceptance' or not is_current_user_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_resend_to_employee" string="Modify &amp; Re-send"
                             type="object" class="btn-primary"
@@ -42,21 +42,21 @@
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_start_work" string="Start Work"
                             type="object" class="btn-primary"
-                            invisible="state != 'manager_approved' or not can_act_for_employee"
+                            invisible="state != 'manager_approved' or not is_current_user_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_mark_completed" string="Mark Completed"
                             type="object" class="btn-primary"
-                            invisible="state not in ('in_progress', 'returned_after_completion') or not can_act_for_employee"
+                            invisible="state not in ('in_progress', 'returned_after_completion') or not is_current_user_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_close" string="Approve"
                             type="object" class="btn-success"
-                            invisible="state != 'completed'"
+                            invisible="state != 'completed' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- Replaces Return for Correction at the Completed stage.
                          Rejecting is final: the task list ends as Rejected. -->
                     <button name="action_reject" string="Reject"
                             type="object" class="btn-danger"
-                            invisible="state != 'completed'"
+                            invisible="state != 'completed' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- Status bar (TDD 8.2). The exception states are shown
                          separately by the ribbons below when they are active. -->
@@ -97,7 +97,6 @@
                     <field name="has_task_without_activity" invisible="1"/>
                     <field name="is_current_user_manager" invisible="1"/>
                     <field name="is_current_user_employee" invisible="1"/>
-                    <field name="can_act_for_employee" invisible="1"/>
                     <div class="alert alert-warning" role="alert"
                          invisible="not has_task_without_activity or state in ('completed', 'closed')">
                         Some tasks still have <b>no activity</b>. Use the
@@ -247,12 +246,12 @@
                                     <button name="action_approve_task" type="object"
                                             icon="fa-check" title="Approve this task"
                                             class="btn-link text-success"
-                                            invisible="parent.state != 'completed' or manager_verdict == 'approved'"
+                                            invisible="parent.state != 'completed' or manager_verdict == 'approved' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <button name="action_reject_task" type="object"
                                             icon="fa-times" title="Reject this task"
                                             class="btn-link text-danger"
-                                            invisible="parent.state != 'completed' or manager_verdict == 'rejected'"
+                                            invisible="parent.state != 'completed' or manager_verdict == 'rejected' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <!-- Remarks stay editable in every state, for
                                          both employee and manager. -->

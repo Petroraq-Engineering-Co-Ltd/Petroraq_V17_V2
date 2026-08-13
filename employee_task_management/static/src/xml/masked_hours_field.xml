@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="employee_task_management.MaskedHoursField" owl="1">
+        <span t-if="props.readonly" class="o_field_masked_hours_readonly"
+              t-esc="displayValue"/>
+        <input t-else=""
+               type="text"
+               class="o_input o_field_masked_hours"
+               inputmode="numeric"
+               autocomplete="off"
+               t-att-id="props.id"
+               t-att-value="displayValue"
+               t-on-input="onInput"
+               t-on-focus="onFocus"
+               t-on-blur="onBlur"
+               t-on-keydown="onKeydown"/>
+    </t>
+
+</templates>
