@@ -37,11 +37,27 @@ KANBAN_CORE_STATES = (
     'closed',
 )
 
-# Fallback working schedule, used only when the company has no Working
-# Schedule configured. Client confirmed (round 4): Saturday-Thursday,
-# Friday only is the weekend. 08:00-17:00, Asia/Riyadh.
 # Python weekday(): Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
-DEFAULT_WORK_DAYS = {5, 6, 0, 1, 2, 3}
+#
+# TWO DIFFERENT WEEKS, deliberately. The client's PAYROLL is calculated
+# from the company's Odoo Working Schedule, which is Sunday-Thursday and
+# must NOT be changed. But Saturday is only a "soft" day off: an
+# employee with pending work may come into the office and clear it, so
+# task work may legitimately be PLANNED on a Saturday.
+#
+#   PAYROLL week  (Sun-Thu) - what the company officially works.
+#                 Used for measuring LATENESS, so nobody is counted late
+#                 over a day they were never obliged to work.
+#   PLANNING week (payroll + Saturday) - days a task may be dated on and
+#                 that carry capacity. A Saturday task holds a full day
+#                 of hours like any other.
+#
+# Friday is the only genuinely blocked day.
+DEFAULT_WORK_DAYS = {6, 0, 1, 2, 3}          # payroll: Sunday-Thursday
+
+# Days that are officially off but may still be worked on request. Added
+# to the payroll week to give the planning week.
+OPTIONAL_WORK_DAYS = {5}                     # Saturday
 DEFAULT_HOUR_FROM = 8.0
 DEFAULT_HOUR_TO = 17.0
 DEFAULT_HOURS_PER_DAY = 8.0
@@ -244,6 +260,9 @@ class EmployeeTaskList(models.Model):
             # Friday a working day and defeats every off-day rule in
             # this module (validation, capacity, deadlines, delay
             # counting). This cost a debugging round once.
+            # Compared against the PAYROLL week - this calendar drives
+            # their payroll, so a difference here is a real config
+            # problem, not the Saturday planning allowance.
             if configured_days != DEFAULT_WORK_DAYS:
                 _logger.warning(
                     "Working Schedule '%s' has working days %s, which "
@@ -272,12 +291,31 @@ class EmployeeTaskList(models.Model):
             return calendar.hours_per_day
         return DEFAULT_HOURS_PER_DAY
 
-    def _working_days_between(self, start_date, end_date):
-        """Number of working days from start to end, both inclusive."""
+    def _get_planning_work_days(self):
+        """Days a task may be DATED on and that carry capacity.
+
+        The payroll week plus the optional days (Saturday). Read this -
+        never the raw payroll week - for date validation and capacity,
+        or an employee coming in on a Saturday to clear pending work
+        cannot record it.
+        """
+        self.ensure_one()
+        payroll = self._get_work_schedule()[1] or DEFAULT_WORK_DAYS
+        return set(payroll) | OPTIONAL_WORK_DAYS
+
+    def _working_days_between(self, start_date, end_date, work_days=None):
+        """Number of working days from start to end, both inclusive.
+
+        Defaults to the PAYROLL week - the safe default, because being
+        counted late over an official day off is the harm worth avoiding.
+        Callers doing planning/capacity maths pass
+        _get_planning_work_days() explicitly.
+        """
         self.ensure_one()
         if not start_date or not end_date or end_date < start_date:
             return 0
-        work_days = self._get_work_schedule()[1] or DEFAULT_WORK_DAYS
+        if work_days is None:
+            work_days = self._get_work_schedule()[1] or DEFAULT_WORK_DAYS
         days, cursor, guard = 0, start_date, 0
         while cursor <= end_date and guard < 3650:
             if cursor.weekday() in work_days:
