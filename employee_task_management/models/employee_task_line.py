@@ -517,7 +517,8 @@ class EmployeeTaskLine(models.Model):
         if not task_list or not self.start_date or not self.end_date:
             return None
         working_days = task_list._working_days_between(
-            self.start_date, self.end_date)
+            self.start_date, self.end_date,
+            task_list._get_planning_work_days())
         return working_days * task_list._get_hours_per_day()
 
     @api.constrains('start_date', 'end_date')
@@ -543,7 +544,8 @@ class EmployeeTaskLine(models.Model):
             if not line.start_date or not line.end_date:
                 single = line.start_date or line.end_date
                 if single and not task_list._working_days_between(
-                        single, single):
+                        single, single,
+                        task_list._get_planning_work_days()):
                     raise ValidationError(_(
                         'Task "%(task)s" is planned on %(day)s, which is '
                         'not a working day. Move it onto a working day.',
@@ -560,7 +562,8 @@ class EmployeeTaskLine(models.Model):
                     task=(line.description or '')[:80],
                     start=line.start_date, end=line.end_date))
             working_days = task_list._working_days_between(
-                line.start_date, line.end_date)
+                line.start_date, line.end_date,
+                task_list._get_planning_work_days())
             if not working_days:
                 raise ValidationError(_(
                     'Task "%(task)s" is planned from %(start)s to %(end)s, '
@@ -600,7 +603,8 @@ class EmployeeTaskLine(models.Model):
                 # already guarantees this range holds at least one
                 # working day by the time a write reaches this point.
                 working_days = line.task_list_id._working_days_between(
-                    line.start_date, line.end_date)
+                    line.start_date, line.end_date,
+                    line.task_list_id._get_planning_work_days())
                 raise ValidationError(_(
                     'Task "%(task)s" does not fit in its own dates.\n\n'
                     'Planned: %(start)s to %(end)s '
