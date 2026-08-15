@@ -521,6 +521,46 @@ class EmployeeTaskLine(models.Model):
             task_list._get_planning_work_days())
         return working_days * task_list._get_hours_per_day()
 
+    @api.constrains('start_date')
+    def _check_no_backdated_start(self):
+        """An EMPLOYEE may not plan a task that starts in the past.
+
+        Managers and Administrators are exempt - they legitimately need
+        to record work that already began, e.g. assigning a task to
+        cover something started earlier in the week.
+
+        Scoped deliberately narrowly so it cannot trap anyone:
+          * `@api.constrains('start_date')` fires on create, and on write
+            only when start_date is actually in the payload. Editing
+            remarks or ticking an activity on an EXISTING backdated line
+            therefore never re-triggers it - important, because records
+            created before this rule existed would otherwise become
+            impossible to touch.
+          * Skipped once the plan is frozen (not in EDITABLE_STATES) -
+            same reasoning as the capacity and date-order rules.
+          * Skipped under etm_workflow, so Start Work stamping a missing
+            start date can never be blocked by it.
+        """
+        if self.env.context.get('etm_workflow'):
+            return
+        for line in self:
+            if not line.start_date:
+                continue
+            task_list = line.task_list_id
+            if not task_list or task_list.state not in EDITABLE_STATES:
+                continue
+            if line._is_privileged_user():
+                continue
+            today = task_list._today_local()
+            if line.start_date < today:
+                raise ValidationError(_(
+                    'Task "%(task)s" starts on %(start)s, which is in the '
+                    'past. Please pick %(today)s or a later date.\n\n'
+                    'If this task really did start earlier, ask your '
+                    'manager to set it for you.',
+                    task=(line.description or _('(no description)'))[:80],
+                    start=line.start_date, today=today))
+
     @api.constrains('start_date', 'end_date')
     def _check_working_date_range(self):
         """A task's own date range must contain at least one working

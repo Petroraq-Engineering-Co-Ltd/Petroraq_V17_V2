@@ -63,38 +63,76 @@ export class MaskedHoursField extends Component {
     static props = { ...standardFieldProps };
 
     setup() {
-        // `buffer` holds what the user is typing. It is null whenever the
-        // field is not focused, so the displayed text falls back to the
-        // record's own value and stays in step with changes made
-        // elsewhere (recomputes, onchanges, another widget).
-        this.state = useState({ buffer: null });
+        // `digits` holds EXACTLY what the user has typed, as raw digits.
+        //
+        // This must stay separate from what is displayed. The first
+        // version re-read the masked text off the input on every
+        // keystroke, so the clamp fed back into the input: typing 7,7,7
+        // gave 00:07 -> 00:59 (77 clamped) -> 05:59, because the "5" of
+        // the clamped "59" slid into the hours slot. Keeping the raw
+        // digits means clamping only ever affects what is SHOWN, never
+        // what the next keystroke builds on.
+        //
+        // null = not being edited, fall back to the record's value.
+        this.state = useState({ digits: null });
     }
 
     get displayValue() {
-        if (this.state.buffer !== null) {
-            return this.state.buffer;
+        if (this.state.digits === null || this.state.digits === "") {
+            return floatToHHMM(this.props.record.data[this.props.name]);
         }
-        return floatToHHMM(this.props.record.data[this.props.name]);
-    }
-
-    onInput(ev) {
-        this.state.buffer = maskDigits(ev.target.value);
+        return maskDigits(this.state.digits);
     }
 
     onFocus(ev) {
-        this.state.buffer = this.displayValue;
-        // Select everything so the next keystroke replaces the value
-        // instead of appending to it - otherwise the right-aligned mask
-        // makes an existing entry very fiddly to correct.
+        // Fresh entry - the first digit typed replaces the old value
+        // rather than appending to it.
+        this.state.digits = "";
         ev.target.select();
     }
 
-    commit() {
-        if (this.state.buffer === null) {
+    onKeydown(ev) {
+        if (ev.key >= "0" && ev.key <= "9") {
+            ev.preventDefault();
+            if (this.state.digits === null) {
+                this.state.digits = "";
+            }
+            // Cap at 4 digits (99:59). Oldest digit drops off the left,
+            // matching the right-aligned feel of a clock entry.
+            this.state.digits = (this.state.digits + ev.key).slice(-4);
             return;
         }
-        const value = hhmmToFloat(this.state.buffer);
-        this.state.buffer = null;
+        if (ev.key === "Backspace") {
+            ev.preventDefault();
+            if (this.state.digits) {
+                this.state.digits = this.state.digits.slice(0, -1);
+            } else {
+                this.state.digits = "";
+            }
+            return;
+        }
+        if (ev.key === "Enter") {
+            this.commit();
+        }
+        // Tab / arrows / Escape fall through to the browser untouched.
+    }
+
+    onPaste(ev) {
+        // Typing is fully intercepted above, so paste is the only other
+        // way characters can arrive. Take its digits and nothing else.
+        ev.preventDefault();
+        const text = (ev.clipboardData || window.clipboardData).getData("text");
+        this.state.digits = String(text || "").replace(/\D/g, "").slice(-4);
+    }
+
+    commit() {
+        if (this.state.digits === null || this.state.digits === "") {
+            // Focused and left without typing - leave the value alone.
+            this.state.digits = null;
+            return;
+        }
+        const value = hhmmToFloat(maskDigits(this.state.digits));
+        this.state.digits = null;
         if (value !== this.props.record.data[this.props.name]) {
             this.props.record.update({ [this.props.name]: value });
         }
@@ -102,12 +140,6 @@ export class MaskedHoursField extends Component {
 
     onBlur() {
         this.commit();
-    }
-
-    onKeydown(ev) {
-        if (ev.key === "Enter") {
-            this.commit();
-        }
     }
 }
 
