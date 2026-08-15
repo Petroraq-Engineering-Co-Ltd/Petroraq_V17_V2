@@ -11,7 +11,7 @@
                autocomplete="off"
                t-att-id="props.id"
                t-att-value="displayValue"
-               t-on-input="onInput"
+               t-on-paste="onPaste"
                t-on-focus="onFocus"
                t-on-blur="onBlur"
                t-on-keydown="onKeydown"/>
