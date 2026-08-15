@@ -397,12 +397,31 @@ class EmployeeTaskList(models.Model):
         for rec in self:
             rec.task_count = len(rec.task_line_ids)
 
-    @api.depends('task_line_ids.progress', 'task_line_ids.task_status')
+    @api.depends('task_line_ids.progress', 'task_line_ids.task_status',
+                 'task_line_ids.total_hours')
     def _compute_progress(self):
+        """Roll the task lines up, weighted by each task's HOURS.
+
+        Same rule the activities now follow (Feedback #5 point 3): a
+        plain average made a one-hour task count as much as an
+        eight-hour one, so a list could read 50% with nearly all the
+        real work still outstanding. Falls back to a plain average when
+        no task carries hours, so a list still being planned never
+        divides by zero.
+        """
         for rec in self:
             lines = rec.task_line_ids
-            rec.progress = (
-                sum(lines.mapped('progress')) / len(lines)) if lines else 0.0
+            if not lines:
+                rec.progress = 0.0
+                continue
+            total_hours = sum(lines.mapped('total_hours'))
+            if total_hours <= 0:
+                rec.progress = round(
+                    sum(lines.mapped('progress')) / len(lines), 2)
+            else:
+                rec.progress = round(sum(
+                    line.progress * line.total_hours for line in lines
+                ) / total_hours, 2)
 
     @api.depends('task_line_ids.end_date', 'task_line_ids.task_status',
                  'state', 'pending_since')
