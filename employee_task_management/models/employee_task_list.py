@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 from .task_states import (  # noqa: F401,E402  (re-exported for convenience)
     EDITABLE_STATES, EXECUTION_STATES, PARTIAL_LOCK_STATES,
-    FULL_LOCK_STATES, TERMINAL_STATES,
+    FULL_LOCK_STATES, TERMINAL_STATES, REPORTABLE_DELAY_STATES,
 )
 
 # A task list waiting in one of these states is auto-assigned to the
@@ -397,12 +397,31 @@ class EmployeeTaskList(models.Model):
         for rec in self:
             rec.task_count = len(rec.task_line_ids)
 
-    @api.depends('task_line_ids.progress', 'task_line_ids.task_status')
+    @api.depends('task_line_ids.progress', 'task_line_ids.task_status',
+                 'task_line_ids.total_hours')
     def _compute_progress(self):
+        """Roll the task lines up, weighted by each task's HOURS.
+
+        Same rule the activities now follow (Feedback #5 point 3): a
+        plain average made a one-hour task count as much as an
+        eight-hour one, so a list could read 50% with nearly all the
+        real work still outstanding. Falls back to a plain average when
+        no task carries hours, so a list still being planned never
+        divides by zero.
+        """
         for rec in self:
             lines = rec.task_line_ids
-            rec.progress = (
-                sum(lines.mapped('progress')) / len(lines)) if lines else 0.0
+            if not lines:
+                rec.progress = 0.0
+                continue
+            total_hours = sum(lines.mapped('total_hours'))
+            if total_hours <= 0:
+                rec.progress = round(
+                    sum(lines.mapped('progress')) / len(lines), 2)
+            else:
+                rec.progress = round(sum(
+                    line.progress * line.total_hours for line in lines
+                ) / total_hours, 2)
 
     @api.depends('task_line_ids.end_date', 'task_line_ids.task_status',
                  'state', 'pending_since')
@@ -443,7 +462,17 @@ class EmployeeTaskList(models.Model):
         _waiting_grace_expired) is a different concept and stays
         boolean-only for now."""
         for rec in self:
-            if rec.state not in ('manager_approved',) + EXECUTION_STATES:
+            # Draft / Submitted / Pending Acceptance / Modification
+            # Requested: execution has not begun, so an end-date delay
+            # is not meaningful yet (that wait is tracked separately by
+            # is_delayed + pending_since).
+            #
+            # Completed, Closed and Rejected DO keep their figure: the
+            # lines settle on End Date -> Completion Date, and a task
+            # list that finished a day late is still a day late once the
+            # manager closes it. Excluding them here reset the number to
+            # 0 on close, which is what the manager reported.
+            if rec.state not in REPORTABLE_DELAY_STATES:
                 rec.delayed_days = 0
                 continue
             rec.delayed_days = max(

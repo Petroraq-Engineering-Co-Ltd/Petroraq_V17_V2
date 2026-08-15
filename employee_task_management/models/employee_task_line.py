@@ -333,6 +333,36 @@ class EmployeeTaskLine(models.Model):
     # ------------------------------------------------------------------
     # Progress roll-up from activities
     # ------------------------------------------------------------------
+    def _weighted_progress(self):
+        """Progress % of this task, weighted by each activity's HOURS.
+
+        Client rule (Feedback #5 point 3): an activity worth 5:00 out of
+        a 6:00 task carries 83.33% of that task, not 50% just because it
+        is one of two rows. Equal-share counting made a five-hour job and
+        a one-hour job look identical, which is what they objected to.
+
+        Two deliberate guards:
+          * ALL done returns exactly 100.0, never 99.99 - Mark Completed
+            hard-checks progress == 100, so a float rounding error there
+            would block completion outright.
+          * If the activities carry no hours at all (possible while
+            planning, before the hours-mandatory gate at submit), fall
+            back to equal share rather than dividing by zero.
+        """
+        self.ensure_one()
+        activities = self.subtask_ids
+        if not activities:
+            return 0.0
+        done = activities.filtered('is_done')
+        if not done:
+            return 0.0
+        if len(done) == len(activities):
+            return 100.0
+        total_hours = sum(activities.mapped('hours'))
+        if total_hours <= 0:
+            return round(len(done) / len(activities) * 100.0, 2)
+        return round(sum(done.mapped('hours')) / total_hours * 100.0, 2)
+
     def _recompute_progress_from_subtasks(self):
         """Progress % of a task is (done activities / total activities)
         and the Task Status follows it."""
@@ -344,9 +374,7 @@ class EmployeeTaskLine(models.Model):
                     line.with_context(etm_workflow=True).write(
                         {'progress': 0.0})
                 continue
-            total = len(line.subtask_ids)
-            done = len(line.subtask_ids.filtered('is_done'))
-            new_progress = round((done / total) * 100.0, 2) if total else 0.0
+            new_progress = line._weighted_progress()
             vals = {'progress': new_progress}
             if line.task_status != 'closed':
                 if new_progress >= 100:
@@ -381,8 +409,7 @@ class EmployeeTaskLine(models.Model):
                 if line.task_status != 'closed':
                     line.task_status = 'draft'
                 continue
-            done = len(line.subtask_ids.filtered('is_done'))
-            line.progress = round((done / total) * 100.0, 2)
+            line.progress = line._weighted_progress()
             if line.task_status != 'closed':
                 if line.progress >= 100:
                     line.task_status = 'completed'
@@ -424,11 +451,16 @@ class EmployeeTaskLine(models.Model):
         """
         for line in self:
             task_list = line.task_list_id
-            if not line.end_date or not task_list \
-                    or line.task_status == 'closed':
+            if not line.end_date or not task_list:
                 line.delayed_days = 0
                 continue
-            if line.task_status == 'completed':
+            if line.task_status in ('completed', 'closed'):
+                # A task that finished a day late is STILL a day late
+                # once the manager closes the list. Closed used to
+                # return 0 here, so the figure silently reset the moment
+                # action_close set every line to 'closed' - the manager
+                # then saw Worst Delay 1 next to Delayed (Days) 0 on the
+                # same record (Feedback #5 point 2).
                 reference = line.completion_date or line.end_date
             else:
                 reference = task_list._today_local()
