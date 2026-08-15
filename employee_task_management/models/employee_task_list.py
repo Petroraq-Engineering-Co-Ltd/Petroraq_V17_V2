@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 from .task_states import (  # noqa: F401,E402  (re-exported for convenience)
     EDITABLE_STATES, EXECUTION_STATES, PARTIAL_LOCK_STATES,
-    FULL_LOCK_STATES, TERMINAL_STATES,
+    FULL_LOCK_STATES, TERMINAL_STATES, REPORTABLE_DELAY_STATES,
 )
 
 # A task list waiting in one of these states is auto-assigned to the
@@ -462,7 +462,17 @@ class EmployeeTaskList(models.Model):
         _waiting_grace_expired) is a different concept and stays
         boolean-only for now."""
         for rec in self:
-            if rec.state not in ('manager_approved',) + EXECUTION_STATES:
+            # Draft / Submitted / Pending Acceptance / Modification
+            # Requested: execution has not begun, so an end-date delay
+            # is not meaningful yet (that wait is tracked separately by
+            # is_delayed + pending_since).
+            #
+            # Completed, Closed and Rejected DO keep their figure: the
+            # lines settle on End Date -> Completion Date, and a task
+            # list that finished a day late is still a day late once the
+            # manager closes it. Excluding them here reset the number to
+            # 0 on close, which is what the manager reported.
+            if rec.state not in REPORTABLE_DELAY_STATES:
                 rec.delayed_days = 0
                 continue
             rec.delayed_days = max(

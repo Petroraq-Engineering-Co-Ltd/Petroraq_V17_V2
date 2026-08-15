@@ -451,11 +451,16 @@ class EmployeeTaskLine(models.Model):
         """
         for line in self:
             task_list = line.task_list_id
-            if not line.end_date or not task_list \
-                    or line.task_status == 'closed':
+            if not line.end_date or not task_list:
                 line.delayed_days = 0
                 continue
-            if line.task_status == 'completed':
+            if line.task_status in ('completed', 'closed'):
+                # A task that finished a day late is STILL a day late
+                # once the manager closes the list. Closed used to
+                # return 0 here, so the figure silently reset the moment
+                # action_close set every line to 'closed' - the manager
+                # then saw Worst Delay 1 next to Delayed (Days) 0 on the
+                # same record (Feedback #5 point 2).
                 reference = line.completion_date or line.end_date
             else:
                 reference = task_list._today_local()

@@ -31,6 +31,18 @@ FULL_LOCK_STATES = ('submitted_manager', 'completed', 'closed', 'rejected')
 # End of the road - Closed (accepted) or Rejected.
 TERMINAL_STATES = ('closed', 'rejected')
 
+# States in which a Delayed (Days) figure is meaningful and must be
+# REPORTED, not zeroed. Execution has started, so an end-date overrun is
+# real; and once the work is Completed / Closed / Rejected the figure
+# settles on End Date -> Completion Date rather than resetting, so the
+# manager can still see that a finished task ran late.
+# Deliberately EXCLUDES draft / submitted_manager / pending_acceptance /
+# modification_requested: nothing is being executed there, and that
+# waiting time is tracked separately by is_delayed + pending_since.
+REPORTABLE_DELAY_STATES = (
+    ('manager_approved', 'completed') + EXECUTION_STATES + TERMINAL_STATES
+)
+
 # The only task-line fields that stay editable in PARTIAL_LOCK_STATES.
 LINE_PARTIAL_FIELDS = {'remarks'}
 
