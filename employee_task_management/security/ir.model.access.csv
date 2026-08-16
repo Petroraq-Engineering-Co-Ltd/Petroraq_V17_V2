@@ -15,3 +15,4 @@ access_employee_task_return_wizard,employee.task.return.wizard,model_employee_ta
 access_employee_task_unlock_wizard,employee.task.unlock.wizard,model_employee_task_unlock_wizard,group_task_manager,1,1,1,1
 access_employee_task_modification_wizard,employee.task.modification.wizard,model_employee_task_modification_wizard,group_task_employee,1,1,1,1
 access_employee_task_reject_wizard,employee.task.reject.wizard,model_employee_task_reject_wizard,group_task_manager,1,1,1,1
+access_employee_task_line_reject_wizard,employee.task.line.reject.wizard,model_employee_task_line_reject_wizard,group_task_manager,1,1,1,1

@@ -21,11 +21,11 @@
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_manager_approve" string="Approve"
                             type="object" class="btn-success"
-                            invisible="state != 'submitted_manager'"
+                            invisible="state != 'submitted_manager' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_manager_return" string="Return for Correction"
                             type="object" class="btn-warning"
-                            invisible="state != 'submitted_manager'"
+                            invisible="state != 'submitted_manager' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- QA 17 & 18: employee accepts, or asks for changes -->
                     <button name="action_employee_accept" string="Accept"
@@ -50,13 +50,13 @@
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_close" string="Approve"
                             type="object" class="btn-success"
-                            invisible="state != 'completed'"
+                            invisible="state != 'completed' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- Replaces Return for Correction at the Completed stage.
                          Rejecting is final: the task list ends as Rejected. -->
                     <button name="action_reject" string="Reject"
                             type="object" class="btn-danger"
-                            invisible="state != 'completed'"
+                            invisible="state != 'completed' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- Status bar (TDD 8.2). The exception states are shown
                          separately by the ribbons below when they are active. -->
@@ -81,11 +81,10 @@
                     <widget name="web_ribbon" title="Delayed" bg_color="text-bg-warning"
                             invisible="not is_delayed"/>
                     <!-- Keeps the delay visible after the work finishes,
-                         when is_delayed has already gone False. Manager /
-                         Administrator only. -->
+                         when is_delayed has already gone False. Visible to
+                         everyone - employee included. -->
                     <widget name="web_ribbon" title="Was Delayed" bg_color="text-bg-danger"
-                            invisible="is_delayed or not was_delayed"
-                            groups="employee_task_management.group_task_manager"/>
+                            invisible="is_delayed or not was_delayed"/>
                     <field name="is_delayed" invisible="1"/>
                     <field name="was_delayed" invisible="1"/>
                     <field name="is_unlocked" invisible="1"/>
@@ -133,11 +132,16 @@
                         <group string="Task Information">
                             <!-- Auto-filled on creation, never editable -->
                             <field name="assign_date" readonly="1"/>
+                            <field name="completion_date" readonly="1"
+                                   invisible="not completion_date"/>
                             <field name="progress" widget="progressbar" readonly="1"/>
                             <field name="task_count"/>
                             <field name="was_delayed" readonly="1"
-                                   widget="boolean_toggle"
-                                   groups="employee_task_management.group_task_manager"/>
+                                   widget="boolean_toggle"/>
+                            <field name="delayed_days" readonly="1"
+                                   invisible="not delayed_days"/>
+                            <field name="was_delayed_days" readonly="1"
+                                   invisible="not was_delayed_days"/>
                             <field name="pending_since" readonly="1"
                                    invisible="state not in ('submitted_manager', 'pending_acceptance', 'modification_requested')"/>
                             <field name="company_id" groups="base.group_multi_company"
@@ -177,6 +181,13 @@
                                             icon="fa-list-ul" class="btn-link etm_subtask_btn"
                                             title="Manage Activities"/>
                                     <field name="total_hours" string="Hours" widget="float_time" width="70px" sum="Total Hours"/>
+                                    <field name="completion_date" readonly="1" optional="hide"/>
+                                    <field name="delayed_days" string="Delayed (Days)" readonly="1" optional="hide"/>
+                                    <field name="is_carried_forward" string="Redo" readonly="1"
+                                           widget="boolean_toggle" width="60px"
+                                           optional="show"/>
+                                    <field name="verdict_reason" string="Why Rejected"
+                                           readonly="1" optional="show"/>
                                     <field name="remarks" optional="show"/>
                                     <field name="is_delayed" column_invisible="1"/>
                                 </tree>
@@ -193,12 +204,19 @@
                                  and create/delete are off. -->
                             <field name="task_line_ids" nolabel="1"
                                    invisible="state in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested')">
-                                <tree editable="bottom" create="false" delete="false"
-                                      class="etm_task_lines" decoration-danger="is_delayed">
+                                <tree editable="bottom" class="etm_task_lines"
+                                      decoration-danger="is_delayed">
                                     <field name="sr_no" string="#" readonly="1" width="40px"/>
-                                    <field name="description" readonly="1"/>
-                                    <field name="start_date" readonly="1" width="110px"/>
-                                    <field name="end_date" readonly="1" width="110px"/>
+                                    <!-- QA point 7: a Manager/Administrator may edit
+                                         at any level, so these unlock for them.
+                                         can_select_employee is the list's
+                                         privileged-user flag. -->
+                                    <field name="description"
+                                           readonly="not parent.can_select_employee"/>
+                                    <field name="start_date" width="110px"
+                                           readonly="not parent.can_select_employee"/>
+                                    <field name="end_date" width="110px"
+                                           readonly="not parent.can_select_employee"/>
                                     <field name="progress" widget="progressbar" width="130px" readonly="1"/>
                                     <field name="task_status" widget="badge" width="120px" readonly="1"
                                            class="etm_state_badge"
@@ -211,10 +229,33 @@
                                             icon="fa-list-ul" class="btn-link etm_subtask_btn"
                                             title="Activities"/>
                                     <field name="total_hours" string="Hours" widget="float_time" width="70px" sum="Total Hours"/>
-                                    <!-- Remarks stay editable while the work runs,
-                                         and lock once it leaves the employee -->
-                                    <field name="remarks" optional="show"
-                                           readonly="parent.state in ('submitted_manager', 'completed', 'closed', 'rejected')"/>
+                                    <field name="completion_date" readonly="1" optional="show"/>
+                                    <field name="delayed_days" string="Delayed (Days)" readonly="1" optional="show"/>
+                                    <field name="was_delayed_days" string="Worst Delay (Days)" readonly="1" optional="hide"/>
+                                    <!-- Manager verdict, per task. Only meaningful
+                                         once the list is Completed and under review. -->
+                                    <field name="manager_verdict" widget="badge" readonly="1"
+                                           string="Verdict" width="110px"
+                                           column_invisible="parent.state in ('manager_approved', 'in_progress', 'returned_after_completion')"
+                                           decoration-muted="manager_verdict == 'pending'"
+                                           decoration-success="manager_verdict == 'approved'"
+                                           decoration-danger="manager_verdict == 'rejected'"/>
+                                    <field name="verdict_reason" string="Rejection Reason"
+                                           readonly="1" optional="hide"/>
+                                    <field name="is_carried_forward" column_invisible="1"/>
+                                    <button name="action_approve_task" type="object"
+                                            icon="fa-check" title="Approve this task"
+                                            class="btn-link text-success"
+                                            invisible="parent.state != 'completed' or manager_verdict == 'approved' or parent.is_current_user_employee"
+                                            groups="employee_task_management.group_task_manager"/>
+                                    <button name="action_reject_task" type="object"
+                                            icon="fa-times" title="Reject this task"
+                                            class="btn-link text-danger"
+                                            invisible="parent.state != 'completed' or manager_verdict == 'rejected' or parent.is_current_user_employee"
+                                            groups="employee_task_management.group_task_manager"/>
+                                    <!-- Remarks stay editable in every state, for
+                                         both employee and manager. -->
+                                    <field name="remarks" optional="show"/>
                                     <field name="is_delayed" column_invisible="1"/>
                                 </tree>
                             </field>
@@ -318,8 +359,10 @@
                        decoration-danger="state in ('returned_manager', 'returned_after_completion', 'rejected')"
                        decoration-bf="state == 'closed'" class="etm_state_badge"/>
                 <field name="progress" widget="progressbar"/>
-                <field name="was_delayed" string="Was Delayed" optional="hide"
-                       groups="employee_task_management.group_task_manager"/>
+                <field name="completion_date" optional="show"/>
+                <field name="delayed_days" string="Delayed (Days)" optional="show"/>
+                <field name="was_delayed" string="Was Delayed" optional="hide"/>
+                <field name="was_delayed_days" string="Worst Delay (Days)" optional="hide"/>
                 <field name="create_uid" string="Created By" optional="show"/>
                 <field name="write_date" string="Last Updated" optional="show"/>
                 <field name="task_count" optional="hide"/>
@@ -455,8 +498,7 @@
                 <filter string="Delayed Tasks" name="delayed"
                         domain="[('is_delayed', '=', True)]"/>
                 <filter string="Ran Late (incl. finished)" name="was_delayed"
-                        domain="[('was_delayed', '=', True)]"
-                        groups="employee_task_management.group_task_manager"/>
+                        domain="[('was_delayed', '=', True)]"/>
                 <separator/>
                 <filter string="Assign Date" name="filter_assign_date" date="assign_date"/>
                 <!-- 12.3 Group By -->
