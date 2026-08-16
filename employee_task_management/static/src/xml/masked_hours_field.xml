@@ -2,19 +2,35 @@
 <templates xml:space="preserve">
 
     <t t-name="employee_task_management.MaskedHoursField" owl="1">
-        <span t-if="props.readonly" class="o_field_masked_hours_readonly"
-              t-esc="displayValue"/>
-        <input t-else=""
-               type="text"
-               class="o_input o_field_masked_hours"
-               inputmode="numeric"
-               autocomplete="off"
-               t-att-id="props.id"
-               t-att-value="displayValue"
-               t-on-paste="onPaste"
-               t-on-focus="onFocus"
-               t-on-blur="onBlur"
-               t-on-keydown="onKeydown"/>
+        <span t-if="props.readonly" class="o_field_masked_hours_readonly">
+            <t t-esc="hoursText"/>:<t t-esc="minutesText"/>
+        </span>
+        <span t-else="" class="o_field_masked_hours">
+            <input type="text"
+                   class="o_input etm_hours_seg"
+                   inputmode="numeric"
+                   autocomplete="off"
+                   maxlength="2"
+                   t-ref="hoursInput"
+                   t-att-id="props.id"
+                   t-att-value="hoursText"
+                   t-on-focus="(ev) => this.onSegmentFocus(ev, 'hours')"
+                   t-on-keydown="onHoursKeydown"
+                   t-on-paste="(ev) => this.onPaste(ev, 'hours')"
+                   t-on-blur="onBlur"/>
+            <span class="etm_hours_colon">:</span>
+            <input type="text"
+                   class="o_input etm_hours_seg"
+                   inputmode="numeric"
+                   autocomplete="off"
+                   maxlength="2"
+                   t-ref="minutesInput"
+                   t-att-value="minutesText"
+                   t-on-focus="(ev) => this.onSegmentFocus(ev, 'minutes')"
+                   t-on-keydown="onMinutesKeydown"
+                   t-on-paste="(ev) => this.onPaste(ev, 'minutes')"
+                   t-on-blur="onBlur"/>
+        </span>
     </t>
 
 </templates>
