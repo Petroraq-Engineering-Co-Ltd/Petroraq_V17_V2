@@ -216,6 +216,12 @@ class EmployeeTaskList(models.Model):
         compute='_compute_user_flags', string='Is Current User The Manager')
     is_current_user_employee = fields.Boolean(
         compute='_compute_user_flags', string='Is Current User The Employee')
+    can_act_for_employee = fields.Boolean(
+        compute='_compute_user_flags', string='Can Act For The Employee',
+        help="The employee himself, OR the manager this task list reports "
+             "to (or an Administrator). A manager may drive his own "
+             "people's Accept / Start Work / Mark Completed when they are "
+             "away - and only his own people, never another team's.")
     activity_update_log = fields.Html(
         string='Activities Update Log',
         compute='_compute_activity_update_log',
@@ -548,6 +554,14 @@ class EmployeeTaskList(models.Model):
                 rec.manager_id and rec.manager_id.user_id == self.env.user)
             rec.is_current_user_employee = (
                 rec.employee_id and rec.employee_id.user_id == self.env.user)
+            # "Only HIS employees": the manager named on THIS task list,
+            # not any manager. An Administrator is included as the usual
+            # escape hatch.
+            rec.can_act_for_employee = (
+                rec.is_current_user_employee
+                or rec.is_current_user_manager
+                or self.env.user.has_group(
+                    'employee_task_management.group_task_admin'))
             rec.can_edit_unlocked = rec.is_unlocked and privileged
             # QA point 24: a plain employee may not pick another person.
             rec.can_select_employee = privileged
@@ -1248,6 +1262,19 @@ class EmployeeTaskList(models.Model):
                     'Only the immediate manager (%s) can approve or '
                     'return this task list.', self.manager_id.name))
 
+    def _log_acted_on_behalf(self, what):
+        """Chatter note whenever somebody other than the employee drives
+        one of the employee's own actions, so the record never implies
+        the employee did something he did not."""
+        self.ensure_one()
+        if self.is_current_user_employee:
+            return
+        self.message_post(body=_(
+            '<b>%(what)s</b> was done by %(actor)s on behalf of '
+            '%(employee)s.',
+            what=what, actor=self.env.user.name,
+            employee=self.employee_id.name or _('the employee')))
+
     def _check_is_the_employee(self):
         """ONLY the employee the list belongs to may accept it, request a
         modification, start the work or mark it completed.
@@ -1267,6 +1294,12 @@ class EmployeeTaskList(models.Model):
         employee's alone.
         """
         self.ensure_one()
+        if self.is_current_user_manager or self.env.user.has_group(
+                'employee_task_management.group_task_admin'):
+            # The manager THIS list reports to may act for his employee
+            # (e.g. the employee is on leave). Recorded on the record so
+            # it is never mistaken for the employee's own action.
+            return
         if not (self.employee_id.user_id
                 and self.employee_id.user_id == self.env.user):
             raise AccessError(_(
@@ -1284,6 +1317,7 @@ class EmployeeTaskList(models.Model):
                     'Only a task list waiting for your acceptance can be '
                     'accepted.'))
             rec._check_is_the_employee()
+            rec._log_acted_on_behalf(_('Accept'))
             rec._check_ready_for_execution()
             rec._set_state('manager_approved')
             rec._log_approval_history(
@@ -1306,6 +1340,7 @@ class EmployeeTaskList(models.Model):
                 'A modification can only be requested while the task list '
                 'is waiting for your acceptance.'))
         self._check_is_the_employee()
+        self._log_acted_on_behalf(_('Request Modification'))
         return {
             'name': _('Request Modification'),
             'type': 'ir.actions.act_window',
@@ -1486,6 +1521,7 @@ class EmployeeTaskList(models.Model):
                     'Work can only be started once the task list is '
                     'approved and applicable.'))
             rec._check_is_the_employee()
+            rec._log_acted_on_behalf(_('Start Work'))
             rec._set_state('in_progress')
             starting = rec.task_line_ids.filtered(
                 lambda l: l.task_status == 'draft')
@@ -1573,6 +1609,7 @@ class EmployeeTaskList(models.Model):
                     'Only a task list that is In Progress (or returned '
                     'after completion) can be marked as completed.'))
             rec._check_is_the_employee()
+            rec._log_acted_on_behalf(_('Mark Completed'))
             if not rec.task_line_ids:
                 raise ValidationError(_(
                     'Task list cannot be completed without any task.'))

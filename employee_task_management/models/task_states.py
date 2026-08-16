@@ -18,6 +18,19 @@ EDITABLE_STATES = (
     'modification_requested',
 )
 
+# Editable, but only by a Manager / Administrator.
+#
+# Modification Requested means the employee has asked the MANAGER to
+# change something - typically the dates. If the employee could just
+# change them himself he would be answering his own request, and the
+# manager would never see it. So the plan stays open (someone has to be
+# able to act on the request) but only for the person the request was
+# addressed to. The employee has already said what he wants, in the
+# request reason.
+MANAGER_ONLY_EDITABLE_STATES = (
+    'modification_requested',
+)
+
 # Execution is running: the employee ticks activities off.
 EXECUTION_STATES = ('in_progress', 'returned_after_completion')
 

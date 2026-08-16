@@ -6,6 +6,7 @@ from odoo.tools import float_compare
 from .task_states import (
     EDITABLE_STATES, EXECUTION_STATES, PARTIAL_LOCK_STATES,
     LINE_PARTIAL_FIELDS, LINE_DELEGATED_FIELDS, MANAGER_HOURS_STATES,
+    MANAGER_ONLY_EDITABLE_STATES,
 )
 
 
@@ -190,6 +191,15 @@ class EmployeeTaskLine(models.Model):
             if not task_list:
                 continue
             state = task_list.state
+            if state in MANAGER_ONLY_EDITABLE_STATES:
+                # The employee asked the MANAGER to change this. Letting
+                # him change it himself would answer his own request.
+                raise UserError(_(
+                    'Task list "%s" is waiting for your manager to action '
+                    'your modification request. You cannot change the '
+                    'tasks or dates yourself - your manager will adjust '
+                    'them, or it will be assigned to you automatically '
+                    'when the start date arrives.', task_list.name))
             if state in EDITABLE_STATES:
                 continue
             if state in PARTIAL_LOCK_STATES:
@@ -217,6 +227,11 @@ class EmployeeTaskLine(models.Model):
             task_list = line.task_list_id
             if not task_list:
                 continue
+            if task_list.state in MANAGER_ONLY_EDITABLE_STATES:
+                raise UserError(_(
+                    'Task list "%s" is waiting for your manager to action '
+                    'your modification request - tasks cannot be added or '
+                    'removed until he does.', task_list.name))
             if task_list.state not in EDITABLE_STATES:
                 raise UserError(_(
                     'Tasks can no longer be added to or removed from task '
