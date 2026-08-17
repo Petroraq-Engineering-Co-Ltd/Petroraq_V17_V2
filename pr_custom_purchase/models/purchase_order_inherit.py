@@ -670,3 +670,6 @@ class PurchaseOrder(models.Model):
             f"style='border-collapse:collapse;width:100%;'>{rows}</table>"
         ) if rows else ""
         return {'html': html, 'items': items}
+
+
+

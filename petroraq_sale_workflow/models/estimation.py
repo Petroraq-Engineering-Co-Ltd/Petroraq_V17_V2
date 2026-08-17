@@ -1,6 +1,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount, html_escape
+from odoo.tools.float_utils import float_compare
 
 SECTION_TYPES = [
     ("material", "Material"),
@@ -136,6 +137,10 @@ class PetroraqEstimation(models.Model):
     )
     sale_order_count = fields.Integer(string="Quotations", compute="_compute_linked_document_counts")
     work_order_count = fields.Integer(string="Work Orders", compute="_compute_linked_document_counts")
+    has_previous_quotation = fields.Boolean(
+        string="Has Previous Quotation",
+        compute="_compute_has_previous_quotation",
+    )
 
     material_total = fields.Monetary(
         string="Material Total",
@@ -268,6 +273,11 @@ class PetroraqEstimation(models.Model):
             record.sale_order_count = 1 if record.sale_order_id else 0
             record.work_order_count = 1 if record.work_order_id else 0
 
+    @api.depends("old_revision_ids.sale_order_id")
+    def _compute_has_previous_quotation(self):
+        for record in self:
+            record.has_previous_quotation = bool(record._get_previous_revision_sale_order())
+
     def write(self, vals):
         self._ensure_unlocked()
         return super().write(vals)
@@ -392,12 +402,35 @@ class PetroraqEstimation(models.Model):
         order_vals = self._prepare_sale_order_vals(company, addresses, term)
         previous_order = self._get_previous_revision_sale_order()
         if previous_order:
-            order = previous_order.with_company(company).copy_revision_with_context()
+            if previous_order.state in ("sale", "done"):
+                raise UserError(_(
+                    "A confirmed Sales Order cannot be revised because downstream processing has already started."
+                ))
+            order = previous_order.with_company(company).with_context(
+                revision_from_estimation=True
+            ).copy_revision_with_context()
             order.write(order_vals)
         else:
             order = self.env["sale.order"].with_company(company).create(order_vals)
 
         self.with_context(allow_estimation_write=True).sale_order_id = order.id
+        order.action_sync_products_from_estimation()
+        currency = order.currency_id or order.company_id.currency_id
+        if float_compare(
+            currency.round(order.amount_untaxed or 0.0),
+            currency.round(self.total_with_profit or 0.0),
+            precision_rounding=currency.rounding,
+        ) != 0:
+            raise ValidationError(_(
+                "The revised quotation total must match the revised estimation total."
+            ))
+        if previous_order:
+            order.message_post(body=_(
+                "Quotation revision %(quotation)s was created from estimation revision %(estimation)s."
+            ) % {"quotation": order.name, "estimation": self.name})
+            self.message_post(body=_(
+                "Revised quotation %s was generated and synchronized from this estimation."
+            ) % order.name)
         return order
 
     def _prepare_sale_order_vals(self, company, addresses, term):

@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="view_order_form_disable_direct_revision" model="ir.ui.view">
+        <field name="name">sale.order.form.disable.direct.revision</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_order_revision.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='create_revision']" position="replace"/>
+        </field>
+    </record>
+
     <record id="view_order_form_inherit_petroraq_workflow" model="ir.ui.view">
         <field name="name">sale.order.form.petroraq.workflow</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
-                <field name="approval_state" widget="statusbar" invisible="approval_state == 'approved'"
+                <field name="approval_state" string="Quotation Approval" widget="statusbar"
                        statusbar_visible="draft,confirmed,to_manager,to_md,approved,rejected"/>
+
+                <field name="confirmation_approval_state"
+                       string="Sales Order Confirmation Approval"
+                       widget="statusbar"
+                       statusbar_visible="not_requested,pending,approved,rejected"
+                       invisible="approval_state != 'approved'"/>
 
                 <field name="can_create_remaining_delivery" invisible="1"/>
                 <field name="approval_state" invisible="1"/>
+                <field name="confirmation_approval_state" invisible="1"/>
                 <field name="show_reject_button" invisible="1"/>
                 <field name="can_refund_remaining_dp" invisible="1"/>
                 <field name="work_order_id" invisible="1"/>
@@ -33,13 +49,38 @@
                         class="btn-primary"
                         invisible="approval_state in ('to_manager','to_md','approved','rejected') or state in ('cancel')"/>
 
+                <button string="Request Confirmation Approval"
+                        type="object"
+                        name="action_request_confirmation_approval"
+                        class="btn-primary"
+                        invisible="approval_state != 'approved' or state not in ('draft', 'sent') or confirmation_approval_state in ('pending', 'approved')"/>
+
+                <button string="Approve Confirmation"
+                        type="object"
+                        name="action_approve_confirmation"
+                        class="btn-primary"
+                        groups="petroraq_sale_workflow.group_sale_confirmation_approver"
+                        invisible="confirmation_approval_state != 'pending'"/>
+
+                <button string="Reject Confirmation"
+                        type="object"
+                        name="action_open_confirmation_reject_wizard"
+                        class="btn-danger"
+                        groups="petroraq_sale_workflow.group_sale_confirmation_approver"
+                        invisible="confirmation_approval_state != 'pending'"/>
+
+                <button string="Confirm Sales Order"
+                        type="object"
+                        name="action_confirm_after_approval"
+                        class="btn-primary"
+                        invisible="state not in ('draft', 'sent') or confirmation_approval_state != 'approved'"/>
+
                 <button name="action_sync_products_from_estimation"
                         type="object"
                         string="Get Products From Estimation"
                         class="btn-secondary"
                         invisible="not estimation_id or state != 'draft' or approval_state != 'draft'"
                         groups="pr_work_order.custom_group_work_order_user"/>
-                />
 
                 <button
                         name="action_refund_remaining_dp"
@@ -91,6 +132,9 @@
                 <attribute name="invisible">state in ('draft','cancel','sale')</attribute>
             </xpath>
             <xpath expr="//header//button[@name='action_preview_sale_order']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header//button[@name='action_confirm']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <!--            <xpath expr="//header//button[@id='send_by_email']" position="attributes">-->
@@ -216,6 +260,13 @@
                     Rejection Reason :
                     <field name="approval_comment"/>
                 </div>
+                <div class="alert alert-danger"
+                     invisible="not confirmation_rejection_reason">
+                    <strong>Sales Order Confirmation Rejected.</strong>
+                    <br/>
+                    Rejection Reason:
+                    <field name="confirmation_rejection_reason" readonly="1"/>
+                </div>
             </xpath>
             <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom_qty']" position="after">
                 <field name="product_uom"
@@ -232,8 +283,18 @@
                 <field name="proforma_dp"
                        groups="petroraq_sale_workflow.group_sale_approval_manager,account.group_account_manager"
                        invisible="state != 'sale'"/>
-                <field name="po_number" string="PO Number" required="state in ('sale', 'done')"/>
-                <field name="po_date" string="PO Date" invisible="state not in ('sale', 'done')"/>
+                <field name="po_number" string="PO Number"
+                       required="state in ('sale', 'done','sent','draft')"
+                       readonly="confirmation_approval_state in ('pending', 'approved')"/>
+                <field name="po_date" string="PO Date"
+                       required="state in ('sale', 'done')"
+                       invisible="approval_state != 'approved' and state not in ('sale', 'done')"
+                       readonly="confirmation_approval_state in ('pending', 'approved')"/>
+                <field name="customer_po_attachment_ids"
+                       widget="many2many_binary"
+                       invisible="approval_state != 'approved' and state not in ('sale', 'done')"
+                       readonly="confirmation_approval_state in ('pending', 'approved')"
+                       context="{'default_res_model': 'sale.order', 'default_res_id': active_id}"/>
             </xpath>
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="before">
                 <xpath expr="//field[@name='po_number']" position="move"/>
