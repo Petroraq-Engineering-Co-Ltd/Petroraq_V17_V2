@@ -30,11 +30,11 @@
                     <!-- QA 17 & 18: employee accepts, or asks for changes -->
                     <button name="action_employee_accept" string="Accept"
                             type="object" class="btn-success"
-                            invisible="state != 'pending_acceptance' or not is_current_user_employee"
+                            invisible="state != 'pending_acceptance' or not can_act_for_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_request_modification" string="Request Modification"
                             type="object" class="btn-warning"
-                            invisible="state != 'pending_acceptance' or not is_current_user_employee"
+                            invisible="state != 'pending_acceptance' or not can_act_for_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_resend_to_employee" string="Modify &amp; Re-send"
                             type="object" class="btn-primary"
@@ -42,11 +42,11 @@
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_start_work" string="Start Work"
                             type="object" class="btn-primary"
-                            invisible="state != 'manager_approved' or not is_current_user_employee"
+                            invisible="state != 'manager_approved' or not can_act_for_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_mark_completed" string="Mark Completed"
                             type="object" class="btn-primary"
-                            invisible="state not in ('in_progress', 'returned_after_completion') or not is_current_user_employee"
+                            invisible="state not in ('in_progress', 'returned_after_completion') or not can_act_for_employee"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_close" string="Approve"
                             type="object" class="btn-success"
@@ -97,6 +97,7 @@
                     <field name="has_task_without_activity" invisible="1"/>
                     <field name="is_current_user_manager" invisible="1"/>
                     <field name="is_current_user_employee" invisible="1"/>
+                    <field name="can_act_for_employee" invisible="1"/>
                     <div class="alert alert-warning" role="alert"
                          invisible="not has_task_without_activity or state in ('completed', 'closed')">
                         Some tasks still have <b>no activity</b>. Use the
@@ -166,9 +167,17 @@
                                       decoration-danger="is_delayed">
                                     <field name="sequence" widget="handle"/>
                                     <field name="sr_no" string="#" readonly="1" width="40px"/>
-                                    <field name="description" required="1"/>
-                                    <field name="start_date" width="110px"/>
-                                    <field name="end_date" width="110px"/>
+                                    <!-- Modification Requested: the employee has
+                                         asked his MANAGER to change these, so
+                                         they lock for him and stay open for the
+                                         manager. can_select_employee is the
+                                         list's existing privileged flag. -->
+                                    <field name="description" required="1"
+                                           readonly="parent.state == 'modification_requested' and not parent.can_select_employee"/>
+                                    <field name="start_date" width="110px"
+                                           readonly="parent.state == 'modification_requested' and not parent.can_select_employee"/>
+                                    <field name="end_date" width="110px"
+                                           readonly="parent.state == 'modification_requested' and not parent.can_select_employee"/>
                                     <field name="progress" widget="progressbar" width="130px" readonly="1"/>
                                     <field name="task_status" widget="badge" width="120px" readonly="1"
                                            class="etm_state_badge"

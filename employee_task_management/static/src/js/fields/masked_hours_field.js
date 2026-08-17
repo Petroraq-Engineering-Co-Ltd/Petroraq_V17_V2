@@ -1,22 +1,28 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { Component, useState } from "@odoo/owl";
+import { Component, useState, useRef } from "@odoo/owl";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
 /**
- * Masked HH:MM hours input.
+ * HH : MM hours entry, as two independent segments.
  *
- * Why this exists instead of Odoo's float_time: float_time happily
- * accepts BOTH "1:30" and "1.5". A user typing "1.50" means one hour
- * fifty minutes, but float_time reads it as 1.5 and stores 1:30 - a
- * silent, confusing difference on a field the whole capacity check
- * depends on.
+ * Why this exists instead of Odoo's float_time: float_time accepts BOTH
+ * "1:30" and "1.5". Someone typing "1.50" means one hour fifty minutes,
+ * but float_time reads 1.5 and stores 1:30 - a silent, confusing
+ * difference on the field the whole capacity check depends on. Only
+ * digits ever reach this widget, so a decimal point cannot be typed.
  *
- * This widget only ever lets digits through. The colon is part of the
- * mask and cannot be deleted, so a decimal point can never be typed in
- * the first place. Storage is unchanged - still a plain float, so every
- * existing sum, total and capacity constraint keeps working.
+ * Why TWO inputs rather than one masked box: the first version filled a
+ * single box right-to-left, so selecting the hours and typing pushed the
+ * digits into the minutes instead - reported as confusing, and it was.
+ * Two segments mean the box you click is the box you type into, which
+ * needs no explaining. Hours auto-advance to minutes once full, and
+ * Backspace at the start of minutes steps back into hours, so fast
+ * left-to-right typing still works without touching the mouse.
+ *
+ * Storage is unchanged - still a plain float, so every existing sum,
+ * total and capacity constraint keeps working.
  */
 
 const MAX_MINUTES = 59;
@@ -28,30 +34,9 @@ export function floatToHHMM(value) {
     return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 }
 
-/**
- * Digits -> "HH:MM". Right-aligned, so typing 1 5 0 gives 01:50 - the
- * reading a user typing "1.50" intended. Minutes above 59 roll DOWN to
- * 59 rather than spilling into the next hour, which is what was agreed:
- * 01:75 becomes 01:59, never 02:15.
- */
-export function maskDigits(raw) {
-    const digits = String(raw || "").replace(/\D/g, "").slice(-4);
-    if (!digits) {
-        return "00:00";
-    }
-    const padded = digits.padStart(4, "0");
-    const hours = parseInt(padded.slice(0, 2), 10);
-    let minutes = parseInt(padded.slice(2), 10);
-    if (minutes > MAX_MINUTES) {
-        minutes = MAX_MINUTES;
-    }
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-}
-
-export function hhmmToFloat(text) {
-    const [rawHours, rawMinutes] = String(text || "").split(":");
-    const hours = parseInt(rawHours, 10) || 0;
-    let minutes = parseInt(rawMinutes, 10) || 0;
+export function hhmmToFloat(hoursText, minutesText) {
+    const hours = parseInt(hoursText, 10) || 0;
+    let minutes = parseInt(minutesText, 10) || 0;
     if (minutes > MAX_MINUTES) {
         minutes = MAX_MINUTES;
     }
@@ -63,52 +48,84 @@ export class MaskedHoursField extends Component {
     static props = { ...standardFieldProps };
 
     setup() {
-        // `digits` holds EXACTLY what the user has typed, as raw digits.
-        //
-        // This must stay separate from what is displayed. The first
-        // version re-read the masked text off the input on every
-        // keystroke, so the clamp fed back into the input: typing 7,7,7
-        // gave 00:07 -> 00:59 (77 clamped) -> 05:59, because the "5" of
-        // the clamped "59" slid into the hours slot. Keeping the raw
-        // digits means clamping only ever affects what is SHOWN, never
-        // what the next keystroke builds on.
-        //
-        // null = not being edited, fall back to the record's value.
-        this.state = useState({ digits: null });
+        // null = not being edited, so the segment shows the record's
+        // value. A string = exactly what the user has typed in that
+        // segment, kept raw so clamping never feeds back into the next
+        // keystroke.
+        this.state = useState({ hours: null, minutes: null });
+        this.hoursRef = useRef("hoursInput");
+        this.minutesRef = useRef("minutesInput");
     }
 
-    get displayValue() {
-        if (this.state.digits === null || this.state.digits === "") {
-            return floatToHHMM(this.props.record.data[this.props.name]);
-        }
-        return maskDigits(this.state.digits);
+    get _stored() {
+        return floatToHHMM(this.props.record.data[this.props.name]).split(":");
     }
 
-    onFocus(ev) {
-        // Fresh entry - the first digit typed replaces the old value
-        // rather than appending to it.
-        this.state.digits = "";
+    get hoursText() {
+        return this.state.hours === null ? this._stored[0] : this.state.hours;
+    }
+
+    get minutesText() {
+        return this.state.minutes === null ? this._stored[1] : this.state.minutes;
+    }
+
+    // ------------------------------------------------------------------
+    // Editing
+    // ------------------------------------------------------------------
+    onSegmentFocus(ev, segment) {
+        // Start the segment empty so the first digit REPLACES what was
+        // there. Selecting the text as well means a mouse user sees the
+        // old value highlighted, which matches the usual expectation.
+        this.state[segment] = "";
         ev.target.select();
     }
 
-    onKeydown(ev) {
+    _push(segment, digit, maxLength) {
+        const current = this.state[segment] === null ? "" : this.state[segment];
+        this.state[segment] = (current + digit).slice(-maxLength);
+        return this.state[segment];
+    }
+
+    onHoursKeydown(ev) {
         if (ev.key >= "0" && ev.key <= "9") {
             ev.preventDefault();
-            if (this.state.digits === null) {
-                this.state.digits = "";
+            const value = this._push("hours", ev.key, 2);
+            if (value.length === 2 && this.minutesRef.el) {
+                // Full - hop to minutes so 0,7,3,0 types straight
+                // through as 07:30 without reaching for the mouse.
+                this.minutesRef.el.focus();
+                this.minutesRef.el.select();
             }
-            // Cap at 4 digits (99:59). Oldest digit drops off the left,
-            // matching the right-aligned feel of a clock entry.
-            this.state.digits = (this.state.digits + ev.key).slice(-4);
             return;
         }
+        this._handleCommonKeys(ev, "hours");
+    }
+
+    onMinutesKeydown(ev) {
+        if (ev.key >= "0" && ev.key <= "9") {
+            ev.preventDefault();
+            this._push("minutes", ev.key, 2);
+            return;
+        }
+        if (ev.key === "Backspace" && !this.minutesText.replace(/0/g, "")
+                && this.hoursRef.el) {
+            // Nothing meaningful left in minutes - step back into hours
+            // rather than sitting on an empty segment.
+            ev.preventDefault();
+            this.state.minutes = "";
+            this.hoursRef.el.focus();
+            this.hoursRef.el.select();
+            return;
+        }
+        this._handleCommonKeys(ev, "minutes");
+    }
+
+    _handleCommonKeys(ev, segment) {
         if (ev.key === "Backspace") {
             ev.preventDefault();
-            if (this.state.digits) {
-                this.state.digits = this.state.digits.slice(0, -1);
-            } else {
-                this.state.digits = "";
-            }
+            const current = this.state[segment] === null
+                ? "" : this.state[segment];
+            this.state[segment] = current.slice(0, -1);
             return;
         }
         if (ev.key === "Enter") {
@@ -117,29 +134,46 @@ export class MaskedHoursField extends Component {
         // Tab / arrows / Escape fall through to the browser untouched.
     }
 
-    onPaste(ev) {
-        // Typing is fully intercepted above, so paste is the only other
-        // way characters can arrive. Take its digits and nothing else.
+    onPaste(ev, segment) {
         ev.preventDefault();
         const text = (ev.clipboardData || window.clipboardData).getData("text");
-        this.state.digits = String(text || "").replace(/\D/g, "").slice(-4);
+        const digits = String(text || "").replace(/\D/g, "");
+        if (!digits) {
+            return;
+        }
+        if (segment === "hours" && digits.length > 2) {
+            // Pasting "0730" into the hours segment fills both.
+            const padded = digits.slice(-4).padStart(4, "0");
+            this.state.hours = padded.slice(0, 2);
+            this.state.minutes = padded.slice(2);
+            return;
+        }
+        this.state[segment] = digits.slice(-2);
+    }
+
+    // ------------------------------------------------------------------
+    // Commit
+    // ------------------------------------------------------------------
+    onBlur(ev) {
+        // Moving between the two segments is not leaving the field, so
+        // do not commit yet - relatedTarget is the segment being entered.
+        const next = ev.relatedTarget;
+        if (next && (next === this.hoursRef.el || next === this.minutesRef.el)) {
+            return;
+        }
+        this.commit();
     }
 
     commit() {
-        if (this.state.digits === null || this.state.digits === "") {
-            // Focused and left without typing - leave the value alone.
-            this.state.digits = null;
-            return;
+        if (this.state.hours === null && this.state.minutes === null) {
+            return;                       // focused and left without typing
         }
-        const value = hhmmToFloat(maskDigits(this.state.digits));
-        this.state.digits = null;
+        const value = hhmmToFloat(this.hoursText, this.minutesText);
+        this.state.hours = null;
+        this.state.minutes = null;
         if (value !== this.props.record.data[this.props.name]) {
             this.props.record.update({ [this.props.name]: value });
         }
-    }
-
-    onBlur() {
-        this.commit();
     }
 }
 
