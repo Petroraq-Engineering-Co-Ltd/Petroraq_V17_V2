@@ -34,8 +34,8 @@
 
     <menuitem id="menu_employee_task_pending_my_action"
               name="Employee Task Approvals"
-              parent="de_hr_workspace.menu_my_employee_approvals"
+              parent="menu_employee_task_root"
               action="action_employee_task_pending_my_action"
-              sequence="66"
+              sequence="8"
               groups="employee_task_management.group_task_employee"/>
 </odoo>

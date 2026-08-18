@@ -18,6 +18,19 @@ EDITABLE_STATES = (
     'modification_requested',
 )
 
+# Editable, but only by a Manager / Administrator.
+#
+# Modification Requested means the employee has asked the MANAGER to
+# change something - typically the dates. If the employee could just
+# change them himself he would be answering his own request, and the
+# manager would never see it. So the plan stays open (someone has to be
+# able to act on the request) but only for the person the request was
+# addressed to. The employee has already said what he wants, in the
+# request reason.
+MANAGER_ONLY_EDITABLE_STATES = (
+    'modification_requested',
+)
+
 # Execution is running: the employee ticks activities off.
 EXECUTION_STATES = ('in_progress', 'returned_after_completion')
 
@@ -30,6 +43,18 @@ FULL_LOCK_STATES = ('submitted_manager', 'completed', 'closed', 'rejected')
 
 # End of the road - Closed (accepted) or Rejected.
 TERMINAL_STATES = ('closed', 'rejected')
+
+# States in which a Delayed (Days) figure is meaningful and must be
+# REPORTED, not zeroed. Execution has started, so an end-date overrun is
+# real; and once the work is Completed / Closed / Rejected the figure
+# settles on End Date -> Completion Date rather than resetting, so the
+# manager can still see that a finished task ran late.
+# Deliberately EXCLUDES draft / submitted_manager / pending_acceptance /
+# modification_requested: nothing is being executed there, and that
+# waiting time is tracked separately by is_delayed + pending_since.
+REPORTABLE_DELAY_STATES = (
+    ('manager_approved', 'completed') + EXECUTION_STATES + TERMINAL_STATES
+)
 
 # The only task-line fields that stay editable in PARTIAL_LOCK_STATES.
 LINE_PARTIAL_FIELDS = {'remarks'}

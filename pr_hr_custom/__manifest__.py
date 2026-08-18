@@ -11,6 +11,8 @@
         'pr_hr_attendance',
     ],
     'data': [
+
         'data/cron_missing_checkouts.xml',
     ],
 }
+

@@ -42,7 +42,7 @@
                             <field name="sequence" widget="handle"/>
                             <field name="name" string="Activity" required="1"/>
                             <field name="hours" string="Hours" required="1"
-                                   widget="float_time" width="90px" sum="Total Hours"/>
+                                   widget="masked_hours" width="90px" sum="Total Hours"/>
                             <field name="is_done" string="Done" widget="boolean_toggle"
                                    width="70px" readonly="1"/>
                         </tree>
@@ -63,7 +63,7 @@
                                  Administrator while the task list is
                                  running; read-only for everyone else. -->
                             <field name="hours" string="Hours"
-                                   readonly="not can_edit_hours" widget="float_time"
+                                   readonly="not can_edit_hours" widget="masked_hours"
                                    width="90px" sum="Total Hours"/>
                             <field name="is_done" string="Done" widget="boolean_toggle" width="70px"
                                    readonly="parent.state not in ('in_progress', 'returned_after_completion')"/>
@@ -115,7 +115,7 @@
                 <field name="task_line_id"/>
                 <field name="task_list_id"/>
                 <field name="name"/>
-                <field name="hours" widget="float_time" sum="Total Hours"/>
+                <field name="hours" widget="masked_hours" sum="Total Hours"/>
                 <field name="is_done" widget="boolean_toggle"/>
             </tree>
         </field>

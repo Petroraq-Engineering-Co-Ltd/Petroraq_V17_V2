@@ -176,3 +176,30 @@
         text-align: center;
     }
 }
+
+/* Hours entry: two segments that should read as ONE field, so the
+   boxes sit tight around the colon rather than looking like two
+   separate inputs sharing a cell. */
+.o_field_masked_hours {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+
+    .etm_hours_seg {
+        width: 2.2em;
+        min-width: 2.2em;
+        text-align: center;
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .etm_hours_colon {
+        padding: 0 2px;
+        font-weight: 600;
+        user-select: none;
+    }
+}
+
+.o_field_masked_hours_readonly {
+    white-space: nowrap;
+}

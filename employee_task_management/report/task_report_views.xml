@@ -109,7 +109,7 @@
         <field name="name">Delayed Tasks</field>
         <field name="res_model">employee.task.list</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="domain">[('is_delayed', '=', True)]</field>
+        <field name="domain">['|', ('is_delayed', '=', True), ('was_delayed', '=', True)]</field>
     </record>
     <record id="action_dash_closed" model="ir.actions.act_window">
         <field name="name">Closed Tasks</field>
@@ -144,7 +144,12 @@
         <field name="name">Delayed Task Report</field>
         <field name="res_model">employee.task.list</field>
         <field name="view_mode">tree,pivot,graph</field>
-        <field name="domain">[('is_delayed', '=', True)]</field>
+        <!-- was_delayed as well as is_delayed: is_delayed is the LIVE
+             flag and goes False the moment the work finishes, so a task
+             that ran late and was then completed used to vanish from
+             this report entirely - which is exactly what the manager
+             reported. was_delayed is the latched history. -->
+        <field name="domain">['|', ('is_delayed', '=', True), ('was_delayed', '=', True)]</field>
         <field name="context">{'search_default_group_employee': 1}</field>
     </record>
 

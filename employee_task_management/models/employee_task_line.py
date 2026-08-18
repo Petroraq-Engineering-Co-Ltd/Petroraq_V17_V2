@@ -6,6 +6,7 @@ from odoo.tools import float_compare
 from .task_states import (
     EDITABLE_STATES, EXECUTION_STATES, PARTIAL_LOCK_STATES,
     LINE_PARTIAL_FIELDS, LINE_DELEGATED_FIELDS, MANAGER_HOURS_STATES,
+    MANAGER_ONLY_EDITABLE_STATES,
 )
 
 
@@ -35,6 +36,39 @@ class EmployeeTaskLine(models.Model):
         ('closed', 'Closed'),
     ], string='Task Status', default='draft', required=True)
 
+    # ------------------------------------------------------------------
+    # Manager verdict, per task (line-level approve / reject).
+    # Deliberately SEPARATE from task_status: task_status is the
+    # employee's execution progress, auto-computed from the activities.
+    # This is the manager's opinion of that work, which is a different
+    # fact and must be able to disagree with it.
+    # ------------------------------------------------------------------
+    manager_verdict = fields.Selection([
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ], string='Manager Verdict', default='pending', required=True,
+        readonly=True, copy=False, tracking=True,
+        help='Set by the manager while reviewing a Completed task list, '
+             'one task at a time. Left at Pending Review, a task counts '
+             'as approved when the manager closes the whole list.')
+    verdict_reason = fields.Text(
+        string='Rejection Reason', readonly=True, copy=False,
+        help='Why the manager rejected this task. Mandatory on rejection.')
+    carry_forward_pending = fields.Boolean(
+        string='Awaiting Carry-Forward', readonly=True, copy=False,
+        help='A rejected task waits here until the employee creates '
+             'their next task list, at which point it is copied into it '
+             'automatically and this flag is cleared.')
+    carried_from_line_id = fields.Many2one(
+        'employee.task.line', string='Redo Of', readonly=True, copy=False,
+        ondelete='set null',
+        help='The rejected task this one was carried forward from.')
+    is_carried_forward = fields.Boolean(
+        string='Carried Forward', readonly=True, copy=False,
+        help='This task was auto-added because a manager rejected it on '
+             'an earlier task list. The employee cannot remove it.')
+
     # Related helpers used by views / record rules
     state = fields.Selection(
         related='task_list_id.state', string='List Status', store=True)
@@ -56,6 +90,23 @@ class EmployeeTaskLine(models.Model):
              'would otherwise override the per-column rules.')
     is_delayed = fields.Boolean(
         string='Delayed', compute='_compute_is_delayed', store=False)
+    completion_date = fields.Date(
+        string='Completion Date', readonly=True, copy=False, tracking=True,
+        help="Date this task's activities reached 100%% and it was "
+             "marked Completed. Cleared automatically if it drops back "
+             "below 100%% (e.g. an activity gets un-ticked). Used to "
+             "measure how many working days late it finished.")
+    delayed_days = fields.Integer(
+        string='Delayed (Days)', compute='_compute_delayed_days',
+        help='Working days past the planned End Date. 0 if on time or '
+             'not yet due. Keeps counting while still running late, '
+             'and settles at the final figure once Completed.')
+    was_delayed_days = fields.Integer(
+        string='Worst Delay (Days)', readonly=True, copy=False,
+        tracking=True, default=0,
+        help='The worst delayed_days this task has ever recorded. '
+             'Latched - never decreases, even if the task is later '
+             'corrected or re-completed on time.')
     subtask_ids = fields.One2many(
         'employee.task.subtask', 'task_line_id', string='Activities')
     subtask_count = fields.Integer(
@@ -111,11 +162,18 @@ class EmployeeTaskLine(models.Model):
                 'employee_task_management.group_task_admin'))
 
     def _check_list_editable(self, vals=None):
-        """Once the task list is approved the plan is frozen: only the
-        fields in LINE_PARTIAL_FIELDS (Remarks) may still change. Beyond
-        that - Submitted, Completed, Closed, Rejected - nothing changes
-        at all."""
+        """Once the task list is approved the plan is frozen - only
+        Remarks may still change, and it may change in ANY state, for
+        both employee and manager. Beyond Remarks: Submitted, Completed,
+        Closed, Rejected allow nothing at all; the partial-lock states
+        (Manager Approved, In Progress, Returned After Completion) also
+        allow nothing else here (activities are policed separately by
+        employee.task.subtask)."""
         if self.env.context.get('etm_workflow'):
+            return
+        # QA point 7: a Manager / Administrator may edit at any level, in
+        # any state. Employees stay bound by the rules below.
+        if self._is_privileged_user():
             return
         # Activity commands are policed by employee.task.subtask itself -
         # see LINE_DELEGATED_FIELDS. If that is all the write carried,
@@ -123,22 +181,35 @@ class EmployeeTaskLine(models.Model):
         touched = set(vals or {}) - LINE_DELEGATED_FIELDS
         if not touched:
             return
+        # Remarks is exempt from this guard in every state - drop it
+        # before checking anything else.
+        touched = touched - LINE_PARTIAL_FIELDS
+        if not touched:
+            return
         for line in self:
             task_list = line.task_list_id
             if not task_list:
                 continue
             state = task_list.state
+            if state in MANAGER_ONLY_EDITABLE_STATES:
+                # The employee asked the MANAGER to change this. Letting
+                # him change it himself would answer his own request.
+                raise UserError(_(
+                    'Task list "%s" is waiting for your manager to action '
+                    'your modification request. You cannot change the '
+                    'tasks or dates yourself - your manager will adjust '
+                    'them, or it will be assigned to you automatically '
+                    'when the start date arrives.', task_list.name))
             if state in EDITABLE_STATES:
                 continue
             if state in PARTIAL_LOCK_STATES:
-                blocked = touched - LINE_PARTIAL_FIELDS
-                if blocked:
-                    raise UserError(_(
-                        'Task list "%s" has been approved, so the tasks '
-                        'are frozen. Only Remarks can still be changed '
-                        'here, and activities can only be ticked off as '
-                        'Done.', task_list.name))
-                continue
+                # Anything left in `touched` here is not Remarks (already
+                # subtracted above), so it is still blocked.
+                raise UserError(_(
+                    'Task list "%s" has been approved, so the tasks '
+                    'are frozen. Only Remarks can still be changed '
+                    'here, and activities can only be ticked off as '
+                    'Done.', task_list.name))
             raise UserError(_(
                 'Task list "%s" is in "%s" status and can no longer be '
                 'modified.', task_list.name,
@@ -146,13 +217,21 @@ class EmployeeTaskLine(models.Model):
 
     def _check_structure_editable(self):
         """Adding or removing a task is only possible while the task list
-        is still being written."""
+        is still being written - unless you are a Manager/Administrator,
+        who may restructure at any level (QA point 7)."""
         if self.env.context.get('etm_workflow'):
+            return
+        if self._is_privileged_user():
             return
         for line in self:
             task_list = line.task_list_id
             if not task_list:
                 continue
+            if task_list.state in MANAGER_ONLY_EDITABLE_STATES:
+                raise UserError(_(
+                    'Task list "%s" is waiting for your manager to action '
+                    'your modification request - tasks cannot be added or '
+                    'removed until he does.', task_list.name))
             if task_list.state not in EDITABLE_STATES:
                 raise UserError(_(
                     'Tasks can no longer be added to or removed from task '
@@ -171,8 +250,72 @@ class EmployeeTaskLine(models.Model):
         return super().write(vals)
 
     def unlink(self):
+        # A carried-forward task is mandatory rework - the employee may
+        # not drop it. A manager/administrator still can, in case the
+        # task genuinely became irrelevant.
+        carried = self.filtered('is_carried_forward')
+        if carried and not self._is_privileged_user():
+            raise UserError(_(
+                'These tasks were carried forward because they were '
+                'rejected on an earlier task list, so they have to be '
+                'done:\n%s',
+                '\n'.join('- %s' % (l.description or '')[:80]
+                           for l in carried)))
         self._check_structure_editable()
         return super().unlink()
+
+    # ------------------------------------------------------------------
+    # Line-level manager review (Completed state)
+    # ------------------------------------------------------------------
+    def _check_reviewable(self):
+        """A verdict may only be set by a manager/admin, and only while
+        the task list is sitting at Completed waiting for review."""
+        self.ensure_one()
+        if not self._is_privileged_user():
+            raise UserError(_(
+                'Only a Manager or Administrator can approve or reject '
+                'a task.'))
+        # Same rule as the whole-list actions: nobody rules on their own
+        # work. Without this a department manager could approve or
+        # reject the individual tasks on his OWN completed task list,
+        # which is the exact hole the whole-list guard already closes.
+        if self.task_list_id._is_own_task_list():
+            raise UserError(_(
+                'You cannot approve or reject tasks on your own task '
+                'list (%s). It has to be reviewed by your own manager.',
+                self.task_list_id.name))
+        if self.task_list_id.state != 'completed':
+            raise UserError(_(
+                'Tasks can only be approved or rejected while the task '
+                'list is Completed and awaiting your review.'))
+
+    def action_approve_task(self):
+        """Manager accepts this individual task."""
+        for line in self:
+            line._check_reviewable()
+            line.with_context(etm_workflow=True).write({
+                'manager_verdict': 'approved',
+                'verdict_reason': False,
+            })
+            line.task_list_id.message_post(body=_(
+                'Task approved by %(user)s: %(task)s',
+                user=line.env.user.name,
+                task=(line.description or '')[:80]))
+        return True
+
+    def action_reject_task(self):
+        """Manager rejects this individual task. Opens a wizard so the
+        reason is mandatory, consistent with the whole-list Reject."""
+        self.ensure_one()
+        self._check_reviewable()
+        return {
+            'name': _('Reject Task'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'employee.task.line.reject.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_task_line_id': self.id},
+        }
 
     # ------------------------------------------------------------------
     # Activities pop-up (restored - the task fields stay in the editable
@@ -205,6 +348,36 @@ class EmployeeTaskLine(models.Model):
     # ------------------------------------------------------------------
     # Progress roll-up from activities
     # ------------------------------------------------------------------
+    def _weighted_progress(self):
+        """Progress % of this task, weighted by each activity's HOURS.
+
+        Client rule (Feedback #5 point 3): an activity worth 5:00 out of
+        a 6:00 task carries 83.33% of that task, not 50% just because it
+        is one of two rows. Equal-share counting made a five-hour job and
+        a one-hour job look identical, which is what they objected to.
+
+        Two deliberate guards:
+          * ALL done returns exactly 100.0, never 99.99 - Mark Completed
+            hard-checks progress == 100, so a float rounding error there
+            would block completion outright.
+          * If the activities carry no hours at all (possible while
+            planning, before the hours-mandatory gate at submit), fall
+            back to equal share rather than dividing by zero.
+        """
+        self.ensure_one()
+        activities = self.subtask_ids
+        if not activities:
+            return 0.0
+        done = activities.filtered('is_done')
+        if not done:
+            return 0.0
+        if len(done) == len(activities):
+            return 100.0
+        total_hours = sum(activities.mapped('hours'))
+        if total_hours <= 0:
+            return round(len(done) / len(activities) * 100.0, 2)
+        return round(sum(done.mapped('hours')) / total_hours * 100.0, 2)
+
     def _recompute_progress_from_subtasks(self):
         """Progress % of a task is (done activities / total activities)
         and the Task Status follows it."""
@@ -216,22 +389,28 @@ class EmployeeTaskLine(models.Model):
                     line.with_context(etm_workflow=True).write(
                         {'progress': 0.0})
                 continue
-            total = len(line.subtask_ids)
-            done = len(line.subtask_ids.filtered('is_done'))
-            new_progress = round((done / total) * 100.0, 2) if total else 0.0
+            new_progress = line._weighted_progress()
             vals = {'progress': new_progress}
             if line.task_status != 'closed':
                 if new_progress >= 100:
                     vals['task_status'] = 'completed'
-                    if not line.end_date:
-                        vals['end_date'] = fields.Date.context_today(line)
+                    if line.task_status != 'completed':
+                        # Genuine transition into Completed - stamp when
+                        # it actually happened, not on every later
+                        # recompute while it stays at 100%.
+                        vals['completion_date'] = fields.Date.context_today(
+                            line)
                 elif new_progress <= 0:
                     vals['task_status'] = (
                         'in_progress'
                         if line.task_list_id.state in EXECUTION_STATES
                         else 'draft')
+                    if line.completion_date:
+                        vals['completion_date'] = False
                 else:
                     vals['task_status'] = 'in_progress'
+                    if line.completion_date:
+                        vals['completion_date'] = False
             line.with_context(etm_workflow=True).write(vals)
 
     @api.onchange('subtask_ids')
@@ -245,8 +424,7 @@ class EmployeeTaskLine(models.Model):
                 if line.task_status != 'closed':
                     line.task_status = 'draft'
                 continue
-            done = len(line.subtask_ids.filtered('is_done'))
-            line.progress = round((done / total) * 100.0, 2)
+            line.progress = line._weighted_progress()
             if line.task_status != 'closed':
                 if line.progress >= 100:
                     line.task_status = 'completed'
@@ -273,6 +451,40 @@ class EmployeeTaskLine(models.Model):
             line.is_delayed = bool(
                 line.end_date and line.end_date < today
                 and line.task_status not in ('completed', 'closed'))
+
+    @api.depends('end_date', 'task_status', 'completion_date')
+    def _compute_delayed_days(self):
+        """How many working days past the planned End Date this task
+        is (still running) or finished (Completed) - 0 if on time.
+
+        Deliberately different from is_delayed: is_delayed goes False
+        the moment a task is marked Completed, because its job is to
+        drive a "needs attention now" ribbon. This field keeps showing
+        the final figure once Completed instead of resetting to 0, so
+        it settles on the answer to "how late did this finish" rather
+        than "does this need attention right now".
+        """
+        for line in self:
+            task_list = line.task_list_id
+            if not line.end_date or not task_list:
+                line.delayed_days = 0
+                continue
+            if line.task_status in ('completed', 'closed'):
+                # A task that finished a day late is STILL a day late
+                # once the manager closes the list. Closed used to
+                # return 0 here, so the figure silently reset the moment
+                # action_close set every line to 'closed' - the manager
+                # then saw Worst Delay 1 next to Delayed (Days) 0 on the
+                # same record (Feedback #5 point 2).
+                reference = line.completion_date or line.end_date
+            else:
+                reference = task_list._today_local()
+            if reference <= line.end_date:
+                line.delayed_days = 0
+            else:
+                line.delayed_days = max(
+                    task_list._working_days_between(
+                        line.end_date, reference) - 1, 0)
 
     # ------------------------------------------------------------------
     # Validations (TDD Section 14)
@@ -311,7 +523,7 @@ class EmployeeTaskLine(models.Model):
     def _get_capacity_hours(self):
         """How many hours of work this task's date range can hold.
 
-        working days between Start and End (inclusive, Sun-Thu) x the
+        working days between Start and End (inclusive, Sat-Thu) x the
         hours in a working day. Returns None when it cannot be judged -
         no dates yet, or no task list.
         """
@@ -320,8 +532,100 @@ class EmployeeTaskLine(models.Model):
         if not task_list or not self.start_date or not self.end_date:
             return None
         working_days = task_list._working_days_between(
-            self.start_date, self.end_date)
+            self.start_date, self.end_date,
+            task_list._get_planning_work_days())
         return working_days * task_list._get_hours_per_day()
+
+    @api.constrains('start_date')
+    def _check_no_backdated_start(self):
+        """An EMPLOYEE may not plan a task that starts in the past.
+
+        Managers and Administrators are exempt - they legitimately need
+        to record work that already began, e.g. assigning a task to
+        cover something started earlier in the week.
+
+        Scoped deliberately narrowly so it cannot trap anyone:
+          * `@api.constrains('start_date')` fires on create, and on write
+            only when start_date is actually in the payload. Editing
+            remarks or ticking an activity on an EXISTING backdated line
+            therefore never re-triggers it - important, because records
+            created before this rule existed would otherwise become
+            impossible to touch.
+          * Skipped once the plan is frozen (not in EDITABLE_STATES) -
+            same reasoning as the capacity and date-order rules.
+          * Skipped under etm_workflow, so Start Work stamping a missing
+            start date can never be blocked by it.
+        """
+        if self.env.context.get('etm_workflow'):
+            return
+        for line in self:
+            if not line.start_date:
+                continue
+            task_list = line.task_list_id
+            if not task_list or task_list.state not in EDITABLE_STATES:
+                continue
+            if line._is_privileged_user():
+                continue
+            today = task_list._today_local()
+            if line.start_date < today:
+                raise ValidationError(_(
+                    'Task "%(task)s" starts on %(start)s, which is in the '
+                    'past. Please pick %(today)s or a later date.\n\n'
+                    'If this task really did start earlier, ask your '
+                    'manager to set it for you.',
+                    task=(line.description or _('(no description)'))[:80],
+                    start=line.start_date, today=today))
+
+    @api.constrains('start_date', 'end_date')
+    def _check_working_date_range(self):
+        """A task's own date range must contain at least one working
+        day, and the End Date cannot be before the Start Date.
+
+        Checked the moment the task is saved - independent of whether
+        it has any activities yet. Previously this only fired once
+        activities existed (as part of the capacity check below), so a
+        task dated entirely on a Friday could be created and even
+        submitted as long as nobody had added an activity to it yet.
+        """
+        for line in self:
+            task_list = line.task_list_id
+            if not task_list or task_list.state not in EDITABLE_STATES:
+                continue
+            # A line with only ONE date set still has to sit on a working
+            # day. Previously this whole check was skipped unless BOTH
+            # dates were filled, so a task dated on a Friday saved
+            # silently as long as the other date was left blank - neither
+            # date field is required, so that is easy to hit.
+            if not line.start_date or not line.end_date:
+                single = line.start_date or line.end_date
+                if single and not task_list._working_days_between(
+                        single, single,
+                        task_list._get_planning_work_days()):
+                    raise ValidationError(_(
+                        'Task "%(task)s" is planned on %(day)s, which is '
+                        'not a working day. Move it onto a working day.',
+                        task=(line.description or '')[:80], day=single))
+                continue
+            # An End Date before the Start Date also yields zero working
+            # days. Say so plainly instead of blaming the weekend - the
+            # old wording sent people hunting for a calendar problem that
+            # was really a reversed date pair.
+            if line.end_date < line.start_date:
+                raise ValidationError(_(
+                    'Task "%(task)s" has an End Date (%(end)s) earlier '
+                    'than its Start Date (%(start)s).',
+                    task=(line.description or '')[:80],
+                    start=line.start_date, end=line.end_date))
+            working_days = task_list._working_days_between(
+                line.start_date, line.end_date,
+                task_list._get_planning_work_days())
+            if not working_days:
+                raise ValidationError(_(
+                    'Task "%(task)s" is planned from %(start)s to %(end)s, '
+                    'which falls entirely on non-working days. Move the '
+                    'dates onto working days.',
+                    task=(line.description or '')[:80],
+                    start=line.start_date, end=line.end_date))
 
     @api.constrains('total_hours', 'start_date', 'end_date')
     def _check_daily_capacity(self):
@@ -330,6 +634,11 @@ class EmployeeTaskLine(models.Model):
         A task planned to start and finish today has one working day of
         capacity - 08:00 by default - so activities of 04:30 and 05:00
         do not fit and the End Date has to move to tomorrow.
+
+        The date range itself (off-day / inverted dates) is already
+        checked by _check_working_date_range above, regardless of
+        whether activities exist yet - by the time we get here on a
+        line that HAS activities, the range is known to be sane.
         """
         for line in self:
             if not line.subtask_ids:
@@ -343,28 +652,14 @@ class EmployeeTaskLine(models.Model):
             capacity = line._get_capacity_hours()
             if capacity is None:
                 continue
-            task_list = line.task_list_id
-            # An End Date before the Start Date also yields zero working
-            # days. Say so plainly instead of blaming the weekend - the
-            # old wording sent people hunting for a calendar problem that
-            # was really a reversed date pair.
-            if line.end_date < line.start_date:
-                raise ValidationError(_(
-                    'Task "%(task)s" has an End Date (%(end)s) earlier '
-                    'than its Start Date (%(start)s).',
-                    task=(line.description or '')[:80],
-                    start=line.start_date, end=line.end_date))
-            working_days = task_list._working_days_between(
-                line.start_date, line.end_date)
-            if not working_days:
-                raise ValidationError(_(
-                    'Task "%(task)s" is planned from %(start)s to %(end)s, '
-                    'which falls entirely on non-working days. Move the '
-                    'dates onto working days.',
-                    task=(line.description or '')[:80],
-                    start=line.start_date, end=line.end_date))
             if float_compare(line.total_hours, capacity,
                              precision_digits=2) > 0:
+                # Safe to recompute here - _check_working_date_range
+                # already guarantees this range holds at least one
+                # working day by the time a write reaches this point.
+                working_days = line.task_list_id._working_days_between(
+                    line.start_date, line.end_date,
+                    line.task_list_id._get_planning_work_days())
                 raise ValidationError(_(
                     'Task "%(task)s" does not fit in its own dates.\n\n'
                     'Planned: %(start)s to %(end)s '
