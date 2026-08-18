@@ -8,7 +8,12 @@ class SaleOrder(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if self.is_using_quotation_number(vals):
+            preserve_revision_name = (
+                self.env.context.get("preserve_quotation_revision_name")
+                and vals.get("name")
+                and vals.get("revision_number", 0) > 0
+            )
+            if self.is_using_quotation_number(vals) and not preserve_revision_name:
                 company = self.env["res.company"].browse(vals.get("company_id")) if vals.get(
                     "company_id") else self.env.company
                 seq = self.env["ir.sequence"].with_company(company).next_by_code("sale.quotation")

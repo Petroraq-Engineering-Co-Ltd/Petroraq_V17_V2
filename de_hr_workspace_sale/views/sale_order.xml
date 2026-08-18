@@ -5,7 +5,7 @@
         <field name="name">Sale Quotations (Manager)</field>
         <field name="res_model">sale.order</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('approval_state','=','to_manager')]</field>
+        <field name="domain">['|', ('approval_state', '=', 'to_manager'), ('confirmation_approval_state', '=', 'pending')]</field>
         <field name="context">{'create':False,'edit':False}</field>
         <field name="search_view_id" ref="sale.sale_order_view_search_inherit_quotation"/>
         <field name="help" type="html">
@@ -38,7 +38,7 @@
               name="Sale Quotations"
               action="pr_sale_workflow_sale_order_manager_action"
               sequence="1"
-              groups="petroraq_sale_workflow.group_sale_approval_manager"/>
+              groups="petroraq_sale_workflow.group_sale_approval_manager,petroraq_sale_workflow.group_sale_confirmation_approver"/>
 
     <menuitem id="sale_order_approvals_md_view_menu"
               parent="menu_my_sales_approvals"
@@ -46,5 +46,12 @@
               action="pr_sale_workflow_sale_order_md_action"
               sequence="2"
               groups="petroraq_sale_workflow.group_sale_approval_md"/>
+
+    <!-- Retire the separate menu if version 0.4 was previously installed. -->
+    <record id="sale_order_confirmation_approvals_menu" model="ir.ui.menu">
+        <field name="name">Sales Order Confirmations</field>
+        <field name="parent_id" ref="menu_my_sales_approvals"/>
+        <field name="active" eval="False"/>
+    </record>
 
 </odoo>

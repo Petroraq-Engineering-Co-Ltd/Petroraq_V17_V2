@@ -11,8 +11,21 @@ class SaleOrder(models.Model):
     def _get_new_rev_data(self, new_rev_number):
         """Use the company quotation revision label: BASE-R1, BASE-R2, ..."""
         self.ensure_one()
-        vals = super()._get_new_rev_data(new_rev_number)
-        vals["name"] = "%s-R%d" % (self.unrevisioned_name or self.name, new_rev_number)
+        base_name = self.unrevisioned_name or self.name
+        latest_existing = self.with_context(active_test=False).search(
+            [
+                ("unrevisioned_name", "=", base_name),
+                ("company_id", "=", self.company_id.id),
+            ],
+            order="revision_number desc, id desc",
+            limit=1,
+        )
+        next_revision = max(
+            new_rev_number,
+            (latest_existing.revision_number or 0) + 1,
+        )
+        vals = super()._get_new_rev_data(next_revision)
+        vals["name"] = "%s-R%d" % (base_name, next_revision)
         return vals
 
     def copy_revision_with_context(self):
@@ -20,7 +33,10 @@ class SaleOrder(models.Model):
             raise UserError(_(
                 "Quotations can only be revised from a revised Estimation."
             ))
-        return super().copy_revision_with_context()
+        return super(
+            SaleOrder,
+            self.with_context(preserve_quotation_revision_name=True),
+        ).copy_revision_with_context()
 
     def _notify_get_reply_to(self, default=None):
         """Route customer replies to the SO email's visible sender."""
