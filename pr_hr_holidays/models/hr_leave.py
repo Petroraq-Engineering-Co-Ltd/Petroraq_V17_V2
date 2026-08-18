@@ -60,15 +60,36 @@ class HrHolidays(models.Model):
 
     # region [Compute Methods]
 
-    # @api.depends('date_from', 'date_to', 'resource_calendar_id', 'holiday_status_id.request_unit', 'request_date_from', 'request_date_to')
-    # def _compute_duration(self):
-    #     for holiday in self:
-    #         days, hours = holiday._get_duration()
-    #         holiday.number_of_hours = hours
-    #         if holiday.holiday_status_id.request_unit == "day":
-    #             holiday.number_of_days = (holiday.request_date_to - holiday.request_date_from).days + 1
-    #         else:
-    #             holiday.number_of_days = days
+    def _get_duration(self, check_leave_type=True, resource_calendar=None):
+        """Charge full-day annual leave by inclusive calendar days.
+
+        Odoo normally derives the duration from the employee's resource
+        calendar, which excludes weekends and calendar leaves.  The company
+        policy for annual leave is different: every date in the selected
+        period consumes the allocation, including weekends and public
+        holidays.  Hours remain based on Odoo's normal work-calendar result so
+        work entries are not generated for non-working dates.
+        """
+        days, hours = super()._get_duration(
+            check_leave_type=check_leave_type,
+            resource_calendar=resource_calendar,
+        )
+        self.ensure_one()
+        is_full_day_annual_leave = (
+            check_leave_type
+            and self.holiday_status_id.leave_type == "annual_leave"
+            and self.leave_type_request_unit == "day"
+            and not self.request_unit_half
+            and not self.request_unit_hours
+        )
+        if not is_full_day_annual_leave:
+            return days, hours
+
+        date_from = self.request_date_from or (self.date_from and self.date_from.date())
+        date_to = self.request_date_to or (self.date_to and self.date_to.date())
+        if not date_from or not date_to or date_to < date_from:
+            return days, hours
+        return (date_to - date_from).days + 1, hours
 
     @api.depends("holiday_status_id",
                  "request_date_from",

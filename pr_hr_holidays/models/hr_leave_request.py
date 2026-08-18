@@ -257,11 +257,16 @@ class HrLeaveRequest(models.Model):
             )
         return True
 
-    @api.depends("date_from", "date_to")
+    @api.depends("date_from", "date_to", "leave_type_id", "leave_type_id.leave_type")
     def _compute_requested_days(self):
         for rec in self:
             if not rec.date_from or not rec.date_to or rec.date_to < rec.date_from:
                 rec.requested_days = 0.0
+                continue
+            if rec.leave_type_id.leave_type == "annual_leave":
+                # Annual leave consumes every calendar date in the inclusive
+                # period, including weekends and public holidays.
+                rec.requested_days = (rec.date_to - rec.date_from).days + 1
                 continue
             working_days = rec._get_working_days_in_period()
             rec.requested_days = len(working_days)

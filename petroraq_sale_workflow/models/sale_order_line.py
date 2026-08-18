@@ -145,9 +145,12 @@ class SaleOrderLine(models.Model):
 
         if lines_to_sync:
             lines_to_sync._sync_price_unit_from_product_cost()
+        if not self.env.context.get("skip_confirmation_approval_reset"):
+            lines.mapped("order_id")._reset_confirmation_approval()
         return lines
 
     def write(self, vals):
+        orders = self.mapped("order_id")
         vals = dict(vals)
         if "cost_price_unit" in vals:
             vals["manual_cost_price_unit"] = vals.pop("cost_price_unit")
@@ -169,6 +172,23 @@ class SaleOrderLine(models.Model):
             "use_manual_cost_price_unit",
         }):
             self._sync_price_unit_from_product_cost()
+        confirmation_sensitive_fields = {
+            "product_id", "product_template_id", "name", "display_type",
+            "product_uom_qty", "product_uom", "price_unit", "discount",
+            "tax_id", "manual_cost_price_unit", "use_manual_cost_price_unit",
+        }
+        if (
+            not self.env.context.get("skip_confirmation_approval_reset")
+            and confirmation_sensitive_fields.intersection(vals)
+        ):
+            orders._reset_confirmation_approval()
+        return res
+
+    def unlink(self):
+        orders = self.mapped("order_id")
+        res = super().unlink()
+        if not self.env.context.get("skip_confirmation_approval_reset"):
+            orders._reset_confirmation_approval()
         return res
 
     @api.depends(

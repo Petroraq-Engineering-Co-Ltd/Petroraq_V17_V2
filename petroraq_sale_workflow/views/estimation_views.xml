@@ -27,6 +27,7 @@
                     <field name="current_revision_id" invisible="1"/>
                     <field name="sync_work_order_id" invisible="1"/>
                     <field name="has_old_revisions" invisible="1"/>
+                    <field name="has_previous_quotation" invisible="1"/>
                     <button name="create_revision"
                             type="object"
                             string="New Revision"
@@ -43,7 +44,12 @@
                             type="object"
                             string="Create Quotation"
                             class="btn-primary"
-                            invisible="sale_order_id"/>
+                            invisible="sale_order_id or has_previous_quotation"/>
+                    <button name="action_create_sale_order"
+                            type="object"
+                            string="Revise Quotation"
+                            class="btn-primary"
+                            invisible="sale_order_id or not has_previous_quotation"/>
                     <button name="action_create_work_order"
                             type="object"
                             string="Create Work Order"
