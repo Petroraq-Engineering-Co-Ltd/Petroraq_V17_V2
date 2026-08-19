@@ -284,7 +284,7 @@
                        groups="petroraq_sale_workflow.group_sale_approval_manager,account.group_account_manager"
                        invisible="state != 'sale'"/>
                 <field name="po_number" string="PO Number"
-                       required="state in ('sale', 'done','sent','draft')"
+                       invisible="approval_state != 'approved' and state not in ('sale', 'done')"
                        readonly="confirmation_approval_state in ('pending', 'approved')"/>
                 <field name="po_date" string="PO Date"
                        required="state in ('sale', 'done')"

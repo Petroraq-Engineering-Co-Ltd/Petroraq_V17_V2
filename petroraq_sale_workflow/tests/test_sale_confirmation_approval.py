@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
@@ -25,7 +25,7 @@ class TestSaleConfirmationApproval(TransactionCase):
             "partner_id": self.partner.id,
             "approval_state": "approved",
             "po_number": "PO-TEST-001",
-            "po_date": date(2099, 1, 1),
+            "po_date": date.today(),
             "order_line": [(0, 0, {
                 "product_id": self.product.id,
                 "product_uom_qty": 1.0,
@@ -55,6 +55,13 @@ class TestSaleConfirmationApproval(TransactionCase):
         with self.assertRaises(ValidationError):
             order.action_request_confirmation_approval()
 
+    def test_customer_po_date_cannot_be_in_future(self):
+        with self.assertRaises(ValidationError):
+            self.env["sale.order"].create({
+                "partner_id": self.partner.id,
+                "po_date": date.today() + timedelta(days=1),
+            })
+
     def test_direct_confirmation_is_blocked_before_second_approval(self):
         order = self._create_order()
         with self.assertRaises(UserError):
@@ -69,4 +76,3 @@ class TestSaleConfirmationApproval(TransactionCase):
         order.po_number = "PO-TEST-CHANGED"
         self.assertEqual(order.confirmation_approval_state, "not_requested")
         self.assertFalse(order.confirmation_approved_by_id)
-
