@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="petroraq_language_switcher.LanguageSwitcher">
+        <div
+            class="o_petroraq_language_switcher d-flex align-items-center"
+            dir="ltr"
+            title="Change language / تغيير اللغة"
+        >
+            <i class="fa fa-globe me-1" aria-label="Language"/>
+            <button
+                type="button"
+                class="o_petroraq_lang_button"
+                t-att-disabled="state.loading"
+                t-on-click="switchToEnglish"
+                title="English"
+            >
+                EN
+            </button>
+            <span class="o_petroraq_lang_separator">|</span>
+            <button
+                type="button"
+                class="o_petroraq_lang_button"
+                t-att-disabled="state.loading"
+                t-on-click="switchToArabic"
+                title="العربية"
+            >
+                العربية
+            </button>
+        </div>
+    </t>
+</templates>
