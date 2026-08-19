@@ -28,13 +28,23 @@
                             invisible="state != 'submitted_manager' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- QA 17 & 18: employee accepts, or asks for changes -->
+                    <!-- Two different hand-overs, two different button sets.
+                         Manager included the activities -> there is a plan to
+                         agree to, so Accept / Request Modification.
+                         Manager left it bare -> nothing to agree to yet, so
+                         the employee plans it and submits it for review. -->
                     <button name="action_employee_accept" string="Accept"
                             type="object" class="btn-success"
-                            invisible="state != 'pending_acceptance' or not can_act_for_employee"
+                            invisible="state != 'pending_acceptance' or not can_act_for_employee or needs_employee_planning"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_request_modification" string="Request Modification"
                             type="object" class="btn-warning"
-                            invisible="state != 'pending_acceptance' or not can_act_for_employee"
+                            invisible="state != 'pending_acceptance' or not can_act_for_employee or needs_employee_planning"
+                            groups="employee_task_management.group_task_employee"/>
+                    <button name="action_submit_activities_for_review"
+                            string="Submit Activities for Review"
+                            type="object" class="btn-primary"
+                            invisible="state != 'pending_acceptance' or not can_act_for_employee or not needs_employee_planning"
                             groups="employee_task_management.group_task_employee"/>
                     <button name="action_resend_to_employee" string="Modify &amp; Re-send"
                             type="object" class="btn-primary"
@@ -64,6 +74,14 @@
                            statusbar_visible="draft,submitted_manager,pending_acceptance,manager_approved,in_progress,completed,closed"/>
                 </header>
                 <sheet>
+                    <div class="alert alert-info" role="alert"
+                         invisible="not needs_employee_planning">
+                        Your manager has assigned these tasks without
+                        activities - it is up to you to plan them. Use the
+                        <b>Activities</b> button on each task to add the
+                        activities and their hours, then press
+                        <b>Submit Activities for Review</b>.
+                    </div>
                     <widget name="web_ribbon" title="Returned" bg_color="text-bg-danger"
                             invisible="state != 'returned_manager'"/>
                     <!-- QA 6 & 26: returned after completion is its own status -->
@@ -98,6 +116,7 @@
                     <field name="is_current_user_manager" invisible="1"/>
                     <field name="is_current_user_employee" invisible="1"/>
                     <field name="can_act_for_employee" invisible="1"/>
+                    <field name="needs_employee_planning" invisible="1"/>
                     <div class="alert alert-warning" role="alert"
                          invisible="not has_task_without_activity or state in ('completed', 'closed')">
                         Some tasks still have <b>no activity</b>. Use the
@@ -553,6 +572,28 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No task lists yet</p>
             <p>Create your own task list and submit it to your manager.</p>
+        </field>
+    </record>
+
+    <!-- Employee Tasks: a manager's TEAM only, with his own task lists
+         filtered out. The record rules already scope him to his own
+         department, so this domain only has to remove himself -
+         otherwise this menu would show exactly the same set as
+         "All Task Lists" and serve no purpose.
+         The '|' with user_id = False keeps employees who have no linked
+         Odoo user: they are still his team, and a bare '!=' would drop
+         them because SQL never matches NULL. -->
+    <record id="action_task_list_employee_tasks" model="ir.actions.act_window">
+        <field name="name">Employee Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form,activity</field>
+        <field name="domain">['|',
+            ('employee_id.user_id', '=', False),
+            ('employee_id.user_id', '!=', uid)]</field>
+        <field name="search_view_id" ref="view_employee_task_list_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No task lists from your team yet</p>
+            <p>Task lists belonging to the employees who report to you appear here. Your own task lists are under My Tasks.</p>
         </field>
     </record>
 

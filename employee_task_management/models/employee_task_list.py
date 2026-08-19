@@ -216,6 +216,14 @@ class EmployeeTaskList(models.Model):
         compute='_compute_user_flags', string='Is Current User The Manager')
     is_current_user_employee = fields.Boolean(
         compute='_compute_user_flags', string='Is Current User The Employee')
+    needs_employee_planning = fields.Boolean(
+        string='Employee Must Plan This',
+        readonly=True, copy=False,
+        help="True when the manager assigned this task list WITHOUT "
+             "activities, so the employee has to plan it himself. Drives "
+             "which buttons he gets: nothing to agree to yet, so Accept "
+             "and Request Modification are replaced by Submit Activities "
+             "for Review.")
     can_act_for_employee = fields.Boolean(
         compute='_compute_user_flags', string='Can Act For The Employee',
         help="The employee himself, OR the manager this task list reports "
@@ -934,10 +942,26 @@ class EmployeeTaskList(models.Model):
         `pending_since`, the clock used by the 24 working-hour rules."""
         vals = dict(extra_vals or {})
         vals['state'] = new_state
+        # `needs_employee_planning` records HOW THE LIST WAS HANDED OVER,
+        # not what it looks like right now. It was originally computed
+        # live from "does any task lack activities", which meant the
+        # moment the employee added them the flag flipped and the Accept
+        # / Request Modification buttons came back before he had ever
+        # accepted anything. Stamped once on the way IN to Pending
+        # Acceptance, cleared on the way OUT, so the button set stays
+        # stable for the whole episode.
         if 'pending_since' not in vals:
             vals['pending_since'] = (
                 fields.Datetime.now() if new_state in WAITING_STATES else False)
-        self.with_context(etm_workflow=True).write(vals)
+        if 'needs_employee_planning' in vals or new_state != 'pending_acceptance':
+            vals.setdefault('needs_employee_planning', False)
+            self.with_context(etm_workflow=True).write(vals)
+            return
+        # Entering Pending Acceptance: the answer differs per record, so
+        # each one is stamped with its OWN state at hand-over.
+        for rec in self:
+            rec.with_context(etm_workflow=True).write(dict(
+                vals, needs_employee_planning=rec._plan_is_incomplete()))
 
     # ==================================================================
     # CONSTRAINTS / VALIDATIONS (TDD Section 14)
@@ -1080,6 +1104,55 @@ class EmployeeTaskList(models.Model):
         self.ensure_one()
         return self.employee_id.user_id.partner_id or \
             self.employee_id.work_contact_id
+
+    def _plan_is_incomplete(self):
+        """True when any task is missing its activities or their hours.
+
+        The same bar `_check_ready_for_execution` enforces, expressed as
+        a question rather than an exception.
+        """
+        self.ensure_one()
+        return (
+            not self.task_line_ids
+            or any(not line.subtask_ids
+                   or any(a.hours <= 0 for a in line.subtask_ids)
+                   for line in self.task_line_ids))
+
+    def action_submit_activities_for_review(self):
+        """Employee sends HIS OWN plan back to the manager for review.
+
+        Replaces Accept / Request Modification when the manager handed
+        over a bare task list. Deliberately lands in `submitted_manager`
+        rather than a new state: that already means "waiting on the
+        manager", already notifies him, already offers Approve and
+        Return for Correction, and is already picked up by the start-date
+        auto-assign - so if the manager never looks, the plan applies on
+        the start date exactly like every other waiting list.
+        """
+        for rec in self:
+            if rec.state != 'pending_acceptance':
+                raise UserError(_(
+                    'Activities can only be submitted for review while '
+                    'the task list is pending your acceptance.'))
+            rec._check_is_the_employee()
+            rec._log_acted_on_behalf(_('Submit Activities for Review'))
+            # Same completeness bar as Accept - a half-planned list is
+            # no more reviewable than it is acceptable.
+            rec._check_ready_for_execution()
+            rec._set_state('submitted_manager')
+            rec._log_approval_history('submitted')
+            rec.message_post(body=_(
+                '%(who)s planned the activities for this task list and '
+                'submitted them for review.',
+                who=rec.employee_id.name or self.env.user.name))
+            rec._notify_user(
+                rec._get_manager_partner(),
+                _('Activities Submitted for Review'),
+                _('%(who)s has planned the activities for task list '
+                  '%(ref)s and submitted them for your review. You can '
+                  'approve them, adjust the hours, or return the list.',
+                  who=rec.employee_id.name or '', ref=rec.name))
+        return True
 
     def _check_ready_for_execution(self):
         """Called right before the task list becomes applicable (Manager
