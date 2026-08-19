@@ -491,6 +491,14 @@ class SaleOrder(models.Model):
     po_date = fields.Date(string="PO Date", copy=False)
     po_number = fields.Char(string="PO Number", copy=False)
 
+    @api.constrains("po_date")
+    def _check_customer_po_date_not_future(self):
+        for order in self.filtered("po_date"):
+            if order.po_date > fields.Date.context_today(order):
+                raise ValidationError(_(
+                    "Customer PO Date cannot be in the future."
+                ))
+
     proforma_dp = fields.Integer(
         string="Down payment Percentage",
         store=True,
