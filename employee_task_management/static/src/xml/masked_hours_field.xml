@@ -17,7 +17,7 @@
                    t-on-focus="(ev) => this.onSegmentFocus(ev, 'hours')"
                    t-on-keydown="onHoursKeydown"
                    t-on-paste="(ev) => this.onPaste(ev, 'hours')"
-                   t-on-blur="onBlur"/>
+                   t-on-blur="onSegmentBlur"/>
             <span class="etm_hours_colon">:</span>
             <input type="text"
                    class="o_input etm_hours_seg"
@@ -29,7 +29,7 @@
                    t-on-focus="(ev) => this.onSegmentFocus(ev, 'minutes')"
                    t-on-keydown="onMinutesKeydown"
                    t-on-paste="(ev) => this.onPaste(ev, 'minutes')"
-                   t-on-blur="onBlur"/>
+                   t-on-blur="onSegmentBlur"/>
         </span>
     </t>
 
