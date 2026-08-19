@@ -13,16 +13,28 @@
               name="Task Lists"
               parent="menu_employee_task_root"
               sequence="10"/>
+    <!-- Manager / Admin only. An employee has no business in a menu
+         called "All Task Lists" - the record rules already limited him
+         to his own records, so it just duplicated My Tasks under a
+         misleading name. -->
     <menuitem id="menu_task_lists_all"
               name="All Task Lists"
               parent="menu_task_lists"
               action="action_task_list_all"
+              groups="employee_task_management.group_task_manager"
               sequence="5"/>
     <menuitem id="menu_task_lists_my"
               name="My Tasks"
               parent="menu_task_lists"
               action="action_task_list_my"
               sequence="10"/>
+    <!-- A manager's team, with his own task lists filtered out. -->
+    <menuitem id="menu_task_lists_employee_tasks"
+              name="Employee Tasks"
+              parent="menu_task_lists"
+              action="action_task_list_employee_tasks"
+              groups="employee_task_management.group_task_manager"
+              sequence="15"/>
     <menuitem id="menu_task_lists_pending"
               name="Pending Approval Tasks"
               parent="menu_task_lists"

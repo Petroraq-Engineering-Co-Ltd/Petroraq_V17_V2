@@ -8,6 +8,36 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
     _description = "Quotation"
 
+    def _get_new_rev_data(self, new_rev_number):
+        """Use the company quotation revision label: BASE-R1, BASE-R2, ..."""
+        self.ensure_one()
+        base_name = self.unrevisioned_name or self.name
+        latest_existing = self.with_context(active_test=False).search(
+            [
+                ("unrevisioned_name", "=", base_name),
+                ("company_id", "=", self.company_id.id),
+            ],
+            order="revision_number desc, id desc",
+            limit=1,
+        )
+        next_revision = max(
+            new_rev_number,
+            (latest_existing.revision_number or 0) + 1,
+        )
+        vals = super()._get_new_rev_data(next_revision)
+        vals["name"] = "%s-R%d" % (base_name, next_revision)
+        return vals
+
+    def copy_revision_with_context(self):
+        if not self.env.context.get("revision_from_estimation"):
+            raise UserError(_(
+                "Quotations can only be revised from a revised Estimation."
+            ))
+        return super(
+            SaleOrder,
+            self.with_context(preserve_quotation_revision_name=True),
+        ).copy_revision_with_context()
+
     def _notify_get_reply_to(self, default=None):
         """Route customer replies to the SO email's visible sender."""
         reply_to_by_record = super()._notify_get_reply_to(default=default)
@@ -99,6 +129,32 @@ class SaleOrder(models.Model):
         ("approved", "Approved"),
         ("rejected", "Rejected"),
     ], default="draft", tracking=True, copy=False)
+    confirmation_approval_state = fields.Selection([
+        ("not_requested", "Not Requested"),
+        ("pending", "Waiting Approval"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ], string="Sales Order Confirmation Approval", default="not_requested",
+        tracking=True, copy=False, required=True)
+    confirmation_requested_by_id = fields.Many2one(
+        "res.users", string="Confirmation Requested By", readonly=True, copy=False)
+    confirmation_requested_date = fields.Datetime(
+        string="Confirmation Requested On", readonly=True, copy=False)
+    confirmation_approved_by_id = fields.Many2one(
+        "res.users", string="Confirmation Approved By", readonly=True, copy=False)
+    confirmation_approved_date = fields.Datetime(
+        string="Confirmation Approved On", readonly=True, copy=False)
+    confirmation_rejection_reason = fields.Text(
+        string="Confirmation Rejection Reason", readonly=True, tracking=True, copy=False)
+    customer_po_attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "sale_order_customer_po_attachment_rel",
+        "sale_order_id",
+        "attachment_id",
+        string="Customer PO Attachments",
+        copy=False,
+        help="Customer purchase order documents required before confirmation approval.",
+    )
     estimation_id = fields.Many2one(
         "petroraq.estimation",
         string="Estimation",
@@ -434,6 +490,14 @@ class SaleOrder(models.Model):
     dp_percent = fields.Float(string="Down Payment %", copy=False)
     po_date = fields.Date(string="PO Date", copy=False)
     po_number = fields.Char(string="PO Number", copy=False)
+
+    @api.constrains("po_date")
+    def _check_customer_po_date_not_future(self):
+        for order in self.filtered("po_date"):
+            if order.po_date > fields.Date.context_today(order):
+                raise ValidationError(_(
+                    "Customer PO Date cannot be in the future."
+                ))
 
     proforma_dp = fields.Integer(
         string="Down payment Percentage",
@@ -903,6 +967,25 @@ class SaleOrder(models.Model):
                 line.price_unit = b["final_u"]
 
     def write(self, vals):
+        vals = dict(vals)
+        confirmation_sensitive_fields = {
+            "partner_id", "partner_invoice_id", "partner_shipping_id",
+            "payment_term_id", "po_number", "po_date",
+            "customer_po_attachment_ids", "order_line",
+        }
+        if (
+            not self.env.context.get("skip_confirmation_approval_reset")
+            and confirmation_sensitive_fields.intersection(vals)
+            and any(order.confirmation_approval_state in ("pending", "approved", "rejected") for order in self)
+        ):
+            vals.update({
+                "confirmation_approval_state": "not_requested",
+                "confirmation_requested_by_id": False,
+                "confirmation_requested_date": False,
+                "confirmation_approved_by_id": False,
+                "confirmation_approved_date": False,
+                "confirmation_rejection_reason": False,
+            })
         res = super().write(vals)
 
         if any(k in vals for k in ("overhead_percent", "risk_percent", "profit_percent")):
@@ -944,6 +1027,25 @@ class SaleOrder(models.Model):
                 order._notify_md_approval()
             else:
                 order.approval_state = "approved"
+
+    def _reset_confirmation_approval(self):
+        orders = self.filtered(
+            lambda order: order.confirmation_approval_state != "not_requested"
+        )
+        if orders:
+            orders.with_context(skip_confirmation_approval_reset=True).write({
+                "confirmation_approval_state": "not_requested",
+                "confirmation_requested_by_id": False,
+                "confirmation_requested_date": False,
+                "confirmation_approved_by_id": False,
+                "confirmation_approved_date": False,
+                "confirmation_rejection_reason": False,
+            })
+            for order in orders:
+                order.message_post(body=_(
+                    "Sales Order confirmation approval reset because commercial or PO data changed."
+                ))
+        return True
 
     def action_confirm_quotation(self):
         for order in self:
@@ -987,6 +1089,92 @@ class SaleOrder(models.Model):
                 raise UserError(_("This quotation is not awaiting MD approval."))
             order.approval_state = "approved"
         return True
+
+    def _check_confirmation_request_requirements(self):
+        for order in self:
+            if order.state not in ("draft", "sent"):
+                raise UserError(_("Only an unconfirmed quotation can be submitted for confirmation approval."))
+            if order.approval_state != "approved":
+                raise UserError(_("The quotation must receive final quotation approval first."))
+            if not order.po_number or not order.po_number.strip():
+                raise ValidationError(_("Please enter the customer PO Number."))
+            if not order.po_date:
+                raise ValidationError(_("Please enter the customer PO Date."))
+            if not order.customer_po_attachment_ids:
+                raise ValidationError(_("Please upload at least one Customer PO attachment."))
+
+    def _notify_confirmation_approval(self):
+        self.ensure_one()
+        users = self._get_group_users(
+            "petroraq_sale_workflow.group_sale_confirmation_approver"
+        ) - self.env.user
+        if not users:
+            return
+        base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
+        record_url = f"{base_url}/web#id={self.id}&model=sale.order&view_type=form"
+        body_html = _(
+            "<p>Sales Order confirmation for <b>%(order)s</b> is waiting for approval.</p>"
+            "<p>Customer PO: %(po)s</p><p><a href=\"%(url)s\">Open Quotation</a></p>"
+        ) % {"order": self.name, "po": self.po_number, "url": record_url}
+        self._notify_approval_users(
+            users,
+            _("Sales Order confirmation approval: %s") % self.name,
+            body_html,
+            _("Sales Order confirmation requires approval"),
+        )
+
+    def action_request_confirmation_approval(self):
+        for order in self:
+            if order.confirmation_approval_state == "pending":
+                raise UserError(_("This Sales Order confirmation is already waiting for approval."))
+            if order.confirmation_approval_state == "approved":
+                raise UserError(_("This Sales Order confirmation has already been approved."))
+        self._check_confirmation_request_requirements()
+        self.with_context(skip_confirmation_approval_reset=True).write({
+            "confirmation_approval_state": "pending",
+            "confirmation_requested_by_id": self.env.user.id,
+            "confirmation_requested_date": fields.Datetime.now(),
+            "confirmation_approved_by_id": False,
+            "confirmation_approved_date": False,
+            "confirmation_rejection_reason": False,
+        })
+        for order in self:
+            order._notify_confirmation_approval()
+            order.message_post(body=_("Sales Order confirmation approval requested."))
+        return True
+
+    def action_approve_confirmation(self):
+        if not self.env.user.has_group(
+            "petroraq_sale_workflow.group_sale_confirmation_approver"
+        ):
+            raise UserError(_("Only a Sales Order Confirmation Approver can approve this request."))
+        for order in self:
+            if order.confirmation_approval_state != "pending":
+                raise UserError(_("This Sales Order confirmation is not waiting for approval."))
+            order._check_confirmation_request_requirements()
+            order.with_context(skip_confirmation_approval_reset=True).write({
+                "confirmation_approval_state": "approved",
+                "confirmation_approved_by_id": self.env.user.id,
+                "confirmation_approved_date": fields.Datetime.now(),
+                "confirmation_rejection_reason": False,
+            })
+            order.message_post(body=_("Sales Order confirmation approved by %s.") % self.env.user.display_name)
+        return True
+
+    def action_open_confirmation_reject_wizard(self):
+        self.ensure_one()
+        if self.confirmation_approval_state != "pending":
+            raise UserError(_("This Sales Order confirmation is not waiting for approval."))
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "sale.order.reject.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {
+                "default_order_id": self.id,
+                "default_rejection_type": "confirmation",
+            },
+        }
 
     def action_reject(self):
         for order in self:
@@ -1032,8 +1220,14 @@ class SaleOrder(models.Model):
                 raise UserError(_("Please add at least one line item to the quotation."))
             if order.approval_state != "approved":
                 raise UserError(_("You cannot confirm the order before final approval."))
+            if order.confirmation_approval_state != "approved":
+                raise UserError(_("You cannot confirm the Sales Order before confirmation approval."))
             if not order.po_number or not order.po_number.strip():
                 raise ValidationError(_("Please enter the customer PO Number before confirming the quotation."))
+            if not order.po_date:
+                raise ValidationError(_("Please enter the customer PO Date before confirming the quotation."))
+            if not order.customer_po_attachment_ids:
+                raise ValidationError(_("Please upload the Customer PO attachment before confirming the quotation."))
             if is_html_empty(order.note):
                 raise ValidationError(_("Please enter the Terms & Conditions before confirming the Sales Order."))
 
@@ -1042,12 +1236,18 @@ class SaleOrder(models.Model):
             locked_orders.action_unlock()
 
         try:
-            res = super().action_confirm()
+            res = super(SaleOrder, self.with_context(
+                skip_confirmation_approval_reset=True
+            )).action_confirm()
         finally:
             if locked_orders:
                 locked_orders.action_lock()
 
         return res
+
+    def action_confirm_after_approval(self):
+        """Explicit UI entry point; action_confirm remains the server-side guard."""
+        return self.action_confirm()
 
     def _get_quotation_section_amounts(self):
         self.ensure_one()
