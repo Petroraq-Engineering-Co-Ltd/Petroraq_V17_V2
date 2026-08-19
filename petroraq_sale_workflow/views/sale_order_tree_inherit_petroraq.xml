@@ -10,6 +10,7 @@
             </xpath>
             <xpath expr="//tree/field[@name='state']" position="before">
                 <field name="approval_state"
+                       string="Quotation Approval"
                        widget="badge"
                        decoration-success="approval_state == 'approved'"
                        decoration-danger="approval_state == 'rejected'"
@@ -17,6 +18,14 @@
                        decoration-primary="approval_state =='to_md'"
 
                        decoration-info="approval_state in ('draft', 'confirmed')"/>
+                <field name="confirmation_approval_state"
+                       string="Confirmation Approval"
+                       widget="badge"
+                       optional="show"
+                       decoration-warning="confirmation_approval_state == 'pending'"
+                       decoration-success="confirmation_approval_state == 'approved'"
+                       decoration-danger="confirmation_approval_state == 'rejected'"
+                       decoration-info="confirmation_approval_state == 'not_requested'"/>
             </xpath>
             <!--            <xpath expr="//tree/field[@name='amount_total']" position="after">-->
             <!--                <field name="profit_grand_total"/>-->
@@ -37,12 +46,20 @@
                 <field name="po_number" string="PO Number" optional="show"/>
             </xpath>
             <xpath expr="//tree/field[@name='state']" position="before">
-                <field name="approval_state" widget="badge"
+                <field name="approval_state" string="Quotation Approval" widget="badge"
                        decoration-success="approval_state == 'approved'"
                        decoration-danger="approval_state == 'rejected'"
                        decoration-warning="approval_state =='to_manager'"
                        decoration-primary="approval_state =='to_md'"
                        decoration-info="approval_state in ('draft', 'confirmed')"/>
+                <field name="confirmation_approval_state"
+                       string="Confirmation Approval"
+                       widget="badge"
+                       optional="show"
+                       decoration-warning="confirmation_approval_state == 'pending'"
+                       decoration-success="confirmation_approval_state == 'approved'"
+                       decoration-danger="confirmation_approval_state == 'rejected'"
+                       decoration-info="confirmation_approval_state == 'not_requested'"/>
             </xpath>
             <!--            <xpath expr="//tree/field[@name='amount_total']" position="after">-->
             <!--                <field name="profit_grand_total"/>-->
