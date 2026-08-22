@@ -16,6 +16,27 @@
                 </button>
             </div>
 
+            <!-- Today's capacity for whoever is looking at the
+                 dashboard. Hidden entirely when there is no row for
+                 today (a day off, a holiday, or the refresh has not
+                 run yet) rather than showing a misleading 00:00. -->
+            <div class="o_etm_capacity_strip" t-if="state.counts.idle_has_row">
+                <span class="o_etm_capacity_item">
+                    <span class="o_etm_capacity_label">Working Hours Today</span>
+                    <span class="o_etm_capacity_value"><t t-esc="state.counts.idle_capacity_display"/></span>
+                </span>
+                <span class="o_etm_capacity_item">
+                    <span class="o_etm_capacity_label">Allocated</span>
+                    <span class="o_etm_capacity_value"><t t-esc="state.counts.idle_allocated_display"/></span>
+                </span>
+                <span class="o_etm_capacity_item" t-att-class="state.counts.idle_raw > 0 ? 'o_etm_capacity_idle' : ''">
+                    <span class="o_etm_capacity_label">Idle Hours</span>
+                    <span class="o_etm_capacity_value"><t t-esc="state.counts.idle_display"/></span>
+                </span>
+                <span class="o_etm_capacity_hint" t-if="state.counts.idle_raw > 0">
+                    Please create tasks/activities for the available time.
+                </span>
+            </div>
             <div class="o_etm_cards">
                 <div class="o_etm_card" t-on-click="() => this.openCard('total')">
                     <div class="o_etm_card_label">Total Tasks</div>

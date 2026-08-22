@@ -31,6 +31,12 @@ export class TaskDashboard extends Component {
                 completed: 0,
                 delayed: 0,
                 closed: 0,
+                // Today's capacity for the logged-in employee.
+                idle_has_row: false,
+                idle_capacity_display: "00:00",
+                idle_allocated_display: "00:00",
+                idle_display: "00:00",
+                idle_raw: 0,
             },
             loading: true,
             // Bumped by Refresh. Used as the t-key of the embedded list
