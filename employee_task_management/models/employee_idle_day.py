@@ -370,6 +370,14 @@ class EmployeeTaskIdleDay(models.Model):
 
         on_leave = self._employees_on_leave(employees, day)
         capacity = TaskList._get_hours_per_day()
+        today = TaskList._today_local()
+        # A FUTURE day only earns a row once something is actually
+        # planned on it. Every future working day used to generate one
+        # showing the full 8 hours idle, which is not information -
+        # nobody is idle on a day that has not happened yet, they simply
+        # have not planned it. Past and today always get a row, because
+        # there "nothing allocated" is a real finding.
+        future_day = day > today
         # Saturday is an OPTIONAL working day: the employee may come in
         # to clear pending work, but he is not expected to. Generating a
         # row for a Saturday nobody planned anything on would show the
@@ -383,8 +391,13 @@ class EmployeeTaskIdleDay(models.Model):
             allocated = figures.get('total', 0.0)
             row = by_employee.get(employee.id)
 
-            # A day the employee cannot work is not idle time.
-            if employee.id in on_leave or (optional_day and not allocated):
+            # A day the employee cannot work - or a future day nobody
+            # has planned anything on - is not idle time. Any existing
+            # row is removed, so a task moved off a day takes its row
+            # with it instead of leaving a phantom 8 hours behind.
+            if (employee.id in on_leave
+                    or (optional_day and not allocated)
+                    or (future_day and not allocated)):
                 if row:
                     row.unlink()
                 continue

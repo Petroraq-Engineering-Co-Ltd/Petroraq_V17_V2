@@ -153,7 +153,11 @@
         <field name="res_model">employee.task.idle.day</field>
         <field name="view_mode">tree,graph</field>
         <field name="search_view_id" ref="view_idle_day_search"/>
-        <field name="context">{'search_default_filter_upcoming': 1}</field>
+        <!-- No default date filter. Future days now only exist when
+             work is actually planned on them, so there is nothing empty
+             left to filter out - and defaulting to "Today and Later"
+             hid the employee's own past days, which he needs to see. -->
+        <field name="context">{}</field>
     </record>
 
 </odoo>
