@@ -50,6 +50,7 @@ class EmployeeTaskLine(models.Model):
     manager_verdict = fields.Selection([
         ('pending', 'Pending Review'),
         ('approved', 'Approved'),
+        ('partial', 'Partially Rejected'),
         ('rejected', 'Rejected'),
     ], string='Manager Verdict', default='pending', required=True,
         readonly=True, copy=False, tracking=True,
@@ -92,6 +93,13 @@ class EmployeeTaskLine(models.Model):
         help='True when nothing at all can be touched in the activities '
              'grid. Drives the read-only state of the grid itself, which '
              'would otherwise override the per-column rules.')
+    can_delete_activities = fields.Boolean(
+        string='Can Delete Activities',
+        compute='_compute_can_delete_activities',
+        help='A Manager / Administrator may remove an activity outright '
+             'once the task list is locked, which is how surplus hours '
+             'get taken off an employee\'s day. Never true on your own '
+             'task list.')
     is_delayed = fields.Boolean(
         string='Delayed', compute='_compute_is_delayed', store=False)
     completion_date = fields.Date(
@@ -137,6 +145,28 @@ class EmployeeTaskLine(models.Model):
                 if line.subtask_ids else '-')
 
     @api.depends('task_list_id.state')
+    @api.depends('task_list_id.state', 'task_list_id.employee_id')
+    def _compute_can_delete_activities(self):
+        """Whether the DELETE control appears on the frozen grid.
+
+        A tree's delete="..." attribute is static - it cannot take an
+        expression - so the frozen grid is rendered twice and this flag
+        picks which copy is shown. The backend already allowed a
+        privileged user to unlink an activity in any state
+        (_check_structure_editable); only the view was hiding it.
+
+        Excluded on the manager's OWN task list, exactly like every
+        other manager power in this module: nobody edits his own work
+        out from under his own approval.
+        """
+        privileged = self._is_privileged_user()
+        for line in self:
+            task_list = line.task_list_id
+            line.can_delete_activities = bool(
+                privileged and task_list
+                and task_list.state not in EDITABLE_STATES
+                and not task_list._is_own_task_list())
+
     def _compute_activities_locked(self):
         """The grid as a whole is read-only unless SOMETHING inside it is
         still editable. A field-level readonly cannot re-open a grid its
@@ -302,10 +332,73 @@ class EmployeeTaskLine(models.Model):
                 'list is Completed, or while it is running without '
                 'having been approved.'))
 
+    def _sync_verdict_from_activities(self):
+        """Roll the activity verdicts up into the task's own verdict.
+
+        The task verdict stays STORED rather than becoming a computed
+        field, deliberately. Activities recorded before 1.18.0 are all
+        Pending, so a computed roll-up would drag every historical task
+        back to Pending and wipe the Approved / Rejected figures the
+        manager already has. Storing it means history stands and only
+        tasks actually reviewed activity-by-activity move.
+
+        Rules, once ANY activity has been ruled on:
+          all approved            -> approved
+          all rejected            -> rejected
+          some rejected, none left pending -> partial
+          anything still pending  -> pending (review is unfinished)
+        A task with no activities keeps whatever verdict it has.
+        """
+        for line in self:
+            activities = line.subtask_ids
+            if not activities:
+                continue
+            verdicts = set(activities.mapped('manager_verdict'))
+            if verdicts == {'pending'}:
+                continue  # nothing ruled on yet - leave the task alone
+            if 'pending' in verdicts:
+                new_verdict = 'pending'
+            elif verdicts == {'approved'}:
+                new_verdict = 'approved'
+            elif verdicts == {'rejected'}:
+                new_verdict = 'rejected'
+            else:
+                new_verdict = 'partial'
+            if line.manager_verdict == new_verdict:
+                continue
+            line.with_context(etm_workflow=True).write(
+                {'manager_verdict': new_verdict})
+            # A task carrying ANY refused activity has to come back to
+            # the employee, whether it was refused whole or in part.
+            if new_verdict in ('rejected', 'partial'):
+                line.with_context(etm_workflow=True).write(
+                    {'carry_forward_pending': True})
+
     def action_approve_task(self):
         """Manager accepts this individual task."""
         for line in self:
             line._check_reviewable()
+            # Approving the TASK approves only the activities nobody has
+            # ruled on yet. An activity the manager already refused
+            # stays refused - a single click on the task must not
+            # silently undo a decision he made deliberately.
+            untouched = line.subtask_ids.filtered(
+                lambda a: a.manager_verdict == 'pending')
+            if untouched:
+                untouched.with_context(etm_workflow=True).write(
+                    {'manager_verdict': 'approved'})
+            already_rejected = line.subtask_ids.filtered(
+                lambda a: a.manager_verdict == 'rejected')
+            if already_rejected:
+                # The roll-up settles this at 'partial'.
+                line._sync_verdict_from_activities()
+                line.task_list_id.message_post(body=_(
+                    'Task approved by %(user)s except %(count)s '
+                    'previously rejected activity(ies): %(task)s',
+                    user=line.env.user.name,
+                    count=len(already_rejected),
+                    task=(line.description or '')[:80]))
+                continue
             line.with_context(etm_workflow=True).write({
                 'manager_verdict': 'approved',
                 'verdict_reason': False,
@@ -736,30 +829,48 @@ class EmployeeTaskLine(models.Model):
                 if float_compare(per_day[day], capacity,
                                  precision_digits=2) <= 0:
                     continue
-                available = max(capacity - (
-                    per_day[day] - line._hours_on_day(day)), 0.0)
+                this_task = line._hours_on_day(day)
+                others = max(per_day[day] - this_task, 0.0)
+                available = max(capacity - others, 0.0)
                 raise ValidationError(_(
-                    'This would put %(emp)s over capacity on %(day)s.\n\n'
+                    'Not enough capacity on %(day)s.\n\n'
+                    'Employee: %(emp)s\n'
+                    'Task: %(task)s\n\n'
                     'Daily capacity: %(cap)s\n'
-                    'Total across all task lists: %(total)s\n'
-                    'Still available that day: %(avail)s\n\n'
-                    'Please create activities within the available '
-                    'capacity, or move some of the work to another day.',
-                    emp=employee.name, day=day,
+                    'Already committed on other tasks: %(others)s\n'
+                    'Still available that day: %(avail)s\n'
+                    'This task needs: %(needs)s\n\n'
+                    'What you can do:\n'
+                    '  - reduce the activity hours to %(avail)s or less\n'
+                    '  - move this task to a day with free capacity\n'
+                    '  - spread it over more days by extending the End '
+                    'Date, which divides the hours between them\n\n'
+                    'Note: hours the manager rejected do NOT count here '
+                    '- that capacity is already released so the work '
+                    'can be redone.',
+                    day=day,
+                    emp=employee.name or '',
+                    task=(line.description or '')[:80],
                     cap=self._format_hours(capacity),
-                    total=self._format_hours(per_day[day]),
-                    avail=self._format_hours(available)))
+                    others=self._format_hours(others),
+                    avail=self._format_hours(available),
+                    needs=self._format_hours(this_task)))
 
     def _hours_on_day(self, day):
-        """This task's own share of one day, using the same even spread
-        the idle report uses - so the two can never disagree."""
+        """This task's own COUNTABLE share of one day.
+
+        Uses the same even spread and the same approved+pending
+        definition as the idle report, so the "still available" figure
+        in the error below can never contradict what the report shows.
+        """
         self.ensure_one()
         Idle = self.env['employee.task.idle.day']
         work_days = self.task_list_id._get_planning_work_days()
         days = Idle._spread_days(self, work_days)
         if not days or day not in days:
             return 0.0
-        return (self.total_hours or 0.0) / len(days)
+        buckets = Idle._activity_buckets(self)
+        return (buckets['approved'] + buckets['pending']) / len(days)
 
     @api.constrains('progress')
     def _check_progress(self):

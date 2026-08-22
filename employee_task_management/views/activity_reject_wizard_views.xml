@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_activity_reject_wizard_form" model="ir.ui.view">
+        <field name="name">employee.task.activity.reject.wizard.form</field>
+        <field name="model">employee.task.activity.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Activity">
+                <group>
+                    <field name="subtask_id" readonly="1"/>
+                    <!-- NOT required: agreed that a per-activity reason
+                         is optional, unlike the whole-task rejection. -->
+                    <field name="reason" placeholder="Optional - what was wrong with this activity?"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_reject" string="Reject Activity"
+                            type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

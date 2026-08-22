@@ -268,7 +268,8 @@
                                            column_invisible="parent.state in ('manager_approved', 'in_progress', 'returned_after_completion')"
                                            decoration-muted="manager_verdict == 'pending'"
                                            decoration-success="manager_verdict == 'approved'"
-                                           decoration-danger="manager_verdict == 'rejected'"/>
+                                           decoration-danger="manager_verdict == 'rejected'"
+                                           decoration-warning="manager_verdict == 'partial'"/>
                                     <field name="verdict_reason" string="Rejection Reason"
                                            readonly="1" optional="hide"/>
                                     <field name="is_carried_forward" column_invisible="1"/>

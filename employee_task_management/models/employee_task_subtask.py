@@ -34,6 +34,28 @@ class EmployeeTaskSubtask(models.Model):
         related='task_line_id.state', string='List Status')
     can_edit_unlocked = fields.Boolean(
         related='task_line_id.task_list_id.can_edit_unlocked')
+    # Activity-level review, added in 1.18.0. A manager can accept some
+    # of a task's activities and refuse others, so the hours split
+    # honestly instead of the whole task landing in one bucket.
+    manager_verdict = fields.Selection([
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ], string='Manager Verdict', default='pending', required=True,
+        readonly=True, copy=False, tracking=True,
+        help='Set by the manager while reviewing the task list. An '
+             'activity left at Pending Review inherits its task\'s '
+             'verdict, which is what keeps figures recorded before '
+             'activity-level review was introduced intact.')
+    verdict_reason = fields.Text(
+        string='Rejection Reason', readonly=True, copy=False,
+        help='Optional note explaining why this activity was refused. '
+             'The employee sees it when the activity is carried into '
+             'their next task list.')
+    can_review = fields.Boolean(
+        string='Reviewable', compute='_compute_can_review',
+        help='Drives the tick / cross buttons on the activity row.')
+
     can_edit_hours = fields.Boolean(
         string='Hours Editable', compute='_compute_can_edit_hours',
         help='Hours stay editable for a Manager / Administrator while the '
@@ -46,6 +68,70 @@ class EmployeeTaskSubtask(models.Model):
                 'employee_task_management.group_task_manager')
             or self.env.user.has_group(
                 'employee_task_management.group_task_admin'))
+
+    @api.depends('task_line_id.task_list_id.state',
+                 'task_line_id.task_list_id.started_without_approval')
+    def _compute_can_review(self):
+        """The same window in which a TASK may be reviewed.
+
+        Deliberately mirrors employee_task_line._check_reviewable rather
+        than inventing its own rule - two review windows that could
+        disagree is exactly how a record ends up in a state with no
+        legal way out.
+        """
+        privileged = self._is_privileged_user()
+        for rec in self:
+            task_list = rec.task_line_id.task_list_id
+            state = task_list.state
+            rec.can_review = bool(
+                privileged and task_list
+                and (state == 'completed'
+                     or (state == 'in_progress'
+                         and task_list.started_without_approval))
+                and task_list.employee_id.user_id != self.env.user)
+
+    def _check_activity_reviewable(self):
+        self.ensure_one()
+        if not self.can_review:
+            raise UserError(_(
+                'Activities can only be approved or rejected while the '
+                'task list is Completed, or while it is running without '
+                'having been approved - and never on your own task '
+                'list.'))
+
+    def action_approve_activity(self):
+        """Manager accepts this single activity."""
+        for rec in self:
+            rec._check_activity_reviewable()
+            rec.with_context(etm_workflow=True).write({
+                'manager_verdict': 'approved',
+                'verdict_reason': False,
+            })
+            rec.task_line_id.task_list_id.message_post(body=_(
+                'Activity approved by %(user)s: %(activity)s '
+                '(task: %(task)s)',
+                user=self.env.user.name,
+                activity=(rec.name or '')[:80],
+                task=(rec.task_line_id.description or '')[:80]))
+        self.mapped('task_line_id')._sync_verdict_from_activities()
+        return True
+
+    def action_reject_activity(self):
+        """Manager refuses this single activity.
+
+        Opens a small wizard for the (optional) reason, so the manager
+        can explain himself without it being compulsory.
+        """
+        self.ensure_one()
+        self._check_activity_reviewable()
+        return {
+            'name': _('Reject Activity'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'employee.task.activity.reject.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_subtask_id': self.id},
+        }
 
     @api.depends('task_line_id.task_list_id.state')
     def _compute_can_edit_hours(self):
@@ -193,6 +279,31 @@ class EmployeeTaskSubtask(models.Model):
     def unlink(self):
         lines = self.mapped('task_line_id')
         self._check_structure_editable()
+        # Capture the audit facts BEFORE the rows go, or there is
+        # nothing left to report. Mirrors _log_hours_change: silent
+        # while the list is still being planned (deleting then is
+        # normal editing and would just be noise), logged once it is
+        # frozen, because at that point somebody is removing hours the
+        # employee had already been committed to.
+        audit = []
+        for rec in self:
+            task_list = rec.task_line_id.task_list_id
+            if not task_list or task_list.state in EDITABLE_STATES:
+                continue
+            audit.append((task_list, rec.name, rec.hours,
+                          rec.task_line_id.description))
+        # Resolved before unlink() empties `self` - _format_hours lives
+        # on employee.task.line, not on this model.
+        Line = self.env['employee.task.line']
         res = super().unlink()
+        for task_list, name, hours, task_desc in audit:
+            task_list.message_post(body=_(
+                'Activity <b>%(activity)s</b> (%(hours)s) was deleted '
+                'from task <b>%(task)s</b> by %(user)s. Those hours no '
+                'longer count against the employee\'s daily capacity.',
+                activity=name or '',
+                hours=Line._format_hours(hours or 0.0),
+                task=task_desc or '',
+                user=self.env.user.name))
         lines._recompute_progress_from_subtasks()
         return res
