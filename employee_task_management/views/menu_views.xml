@@ -114,6 +114,26 @@
     <menuitem id="menu_dash_closed" name="Closed Tasks"
               parent="menu_task_reports" action="action_dash_closed" sequence="65"/>
 
+    <!-- The manager's capacity menu: who has unallocated hours today,
+         how many, and whether they have been reminded. Sits directly
+         under the root rather than inside Reports - the client asked
+         for a DEDICATED menu item, and it is a daily working tool
+         rather than a report. -->
+    <menuitem id="menu_employee_capacity"
+              name="Employee Capacity"
+              parent="menu_employee_task_root"
+              action="action_idle_hours"
+              groups="employee_task_management.group_task_manager"
+              sequence="15"/>
+
+    <!-- Every employee sees his own rolling two weeks. No groups
+         attribute: the record rule already scopes him to himself. -->
+    <menuitem id="menu_my_hours"
+              name="My Hours"
+              parent="menu_employee_task_root"
+              action="action_my_hours"
+              sequence="12"/>
+
     <!-- Configuration -->
     <menuitem id="menu_task_configuration"
               name="Configuration"

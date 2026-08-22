@@ -25,8 +25,12 @@ class EmployeeTaskLine(models.Model):
     description = fields.Text(string='Description', required=True)
     # Assign Date removed from the task lines - the header Assign Date
     # on the task list is the one that matters. Only Start / End remain.
-    start_date = fields.Date(string='Start Date')
-    end_date = fields.Date(string='End Date')
+    # REQUIRED since 1.16.0. An undated task was silently exempt from
+    # the capacity check, the off-day rule, the start-date trigger,
+    # delay tracking AND the idle-hours calculation - it contributed
+    # nothing, so the employee read as idle while actually holding work.
+    start_date = fields.Date(string='Start Date', required=True)
+    end_date = fields.Date(string='End Date', required=True)
     remarks = fields.Text(string='Remarks')
     progress = fields.Float(string='Progress %', group_operator='avg')
     task_status = fields.Selection([
@@ -284,10 +288,19 @@ class EmployeeTaskLine(models.Model):
                 'You cannot approve or reject tasks on your own task '
                 'list (%s). It has to be reviewed by your own manager.',
                 self.task_list_id.name))
-        if self.task_list_id.state != 'completed':
+        # A list that started on its own start date is In Progress but
+        # has never been ruled on - and the tasks on it dated for LATER
+        # never started at all. Those are exactly the future-dated tasks
+        # the client still wants approved individually, so the per-task
+        # verdict has to be available here too.
+        running_review = (
+            self.task_list_id.state == 'in_progress'
+            and self.task_list_id.started_without_approval)
+        if self.task_list_id.state != 'completed' and not running_review:
             raise UserError(_(
                 'Tasks can only be approved or rejected while the task '
-                'list is Completed and awaiting your review.'))
+                'list is Completed, or while it is running without '
+                'having been approved.'))
 
     def action_approve_task(self):
         """Manager accepts this individual task."""
@@ -671,6 +684,82 @@ class EmployeeTaskLine(models.Model):
                     days=working_days,
                     capacity=self._format_hours(capacity),
                     total=self._format_hours(line.total_hours)))
+
+    @api.constrains('total_hours', 'start_date', 'end_date')
+    def _check_capacity_across_task_lists(self):
+        """An employee's whole day, across EVERY task list he holds.
+
+        _check_daily_capacity above only measures a task against its own
+        dates, so two separate 6-hour tasks dated the same day each
+        passed it and the employee ended up committed to 12 hours. This
+        is the rule that actually holds the 8-hour day.
+
+        Scoped narrowly, because a constraint that fires at the wrong
+        moment traps a record with no legal way out - that has happened
+        three times on this module already:
+          * only while the list is still being planned (EDITABLE_STATES);
+            once approved the dates are frozen and re-checking would
+            block work nobody is allowed to re-date
+          * managers and admins exempt, so a manager can deliberately
+            commit overtime (`_is_privileged_user`, same as backdating)
+          * skipped under etm_workflow, so no internal status change can
+            ever be blocked by it
+          * undated lines skipped - _check_working_date_range owns those
+
+        Reducing hours or widening the dates always spreads the load
+        thinner, so there is no state from which the employee cannot
+        edit his way back out.
+        """
+        if self.env.context.get('etm_workflow'):
+            return
+        Idle = self.env['employee.task.idle.day']
+        for line in self:
+            task_list = line.task_list_id
+            if not task_list or not line.start_date or not line.end_date:
+                continue
+            if task_list.state not in EDITABLE_STATES:
+                continue
+            if line._is_privileged_user():
+                continue
+            employee = task_list.employee_id
+            if not employee:
+                continue
+            # include_list_ids: this list is still a Draft, and Draft
+            # does not count as allocated - but it obviously has to
+            # count against its own author's day, or he would only find
+            # out at submit time.
+            per_day = Idle._allocation_for_employee(
+                employee, line.start_date, line.end_date,
+                include_list_ids=task_list.ids)
+            capacity = task_list._get_hours_per_day()
+            for day in sorted(per_day):
+                if float_compare(per_day[day], capacity,
+                                 precision_digits=2) <= 0:
+                    continue
+                available = max(capacity - (
+                    per_day[day] - line._hours_on_day(day)), 0.0)
+                raise ValidationError(_(
+                    'This would put %(emp)s over capacity on %(day)s.\n\n'
+                    'Daily capacity: %(cap)s\n'
+                    'Total across all task lists: %(total)s\n'
+                    'Still available that day: %(avail)s\n\n'
+                    'Please create activities within the available '
+                    'capacity, or move some of the work to another day.',
+                    emp=employee.name, day=day,
+                    cap=self._format_hours(capacity),
+                    total=self._format_hours(per_day[day]),
+                    avail=self._format_hours(available)))
+
+    def _hours_on_day(self, day):
+        """This task's own share of one day, using the same even spread
+        the idle report uses - so the two can never disagree."""
+        self.ensure_one()
+        Idle = self.env['employee.task.idle.day']
+        work_days = self.task_list_id._get_planning_work_days()
+        days = Idle._spread_days(self, work_days)
+        if not days or day not in days:
+            return 0.0
+        return (self.total_hours or 0.0) / len(days)
 
     @api.constrains('progress')
     def _check_progress(self):

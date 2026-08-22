@@ -21,7 +21,7 @@
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_manager_approve" string="Approve"
                             type="object" class="btn-success"
-                            invisible="state != 'submitted_manager' or is_current_user_employee"
+                            invisible="(state != 'submitted_manager' and not (state == 'in_progress' and started_without_approval)) or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <button name="action_manager_return" string="Return for Correction"
                             type="object" class="btn-warning"
@@ -66,7 +66,7 @@
                          Rejecting is final: the task list ends as Rejected. -->
                     <button name="action_reject" string="Reject"
                             type="object" class="btn-danger"
-                            invisible="state != 'completed' or is_current_user_employee"
+                            invisible="(state != 'completed' and not (state == 'in_progress' and started_without_approval)) or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- Status bar (TDD 8.2). The exception states are shown
                          separately by the ribbons below when they are active. -->
@@ -113,6 +113,7 @@
                     <field name="allowed_employee_ids" invisible="1"/>
                     <field name="allowed_department_ids" invisible="1"/>
                     <field name="has_task_without_activity" invisible="1"/>
+                    <field name="started_without_approval" invisible="1"/>
                     <field name="is_current_user_manager" invisible="1"/>
                     <field name="is_current_user_employee" invisible="1"/>
                     <field name="can_act_for_employee" invisible="1"/>
@@ -193,9 +194,9 @@
                                          list's existing privileged flag. -->
                                     <field name="description" required="1"
                                            readonly="parent.state == 'modification_requested' and not parent.can_select_employee"/>
-                                    <field name="start_date" width="110px"
+                                    <field name="start_date" width="110px" required="1"
                                            readonly="parent.state == 'modification_requested' and not parent.can_select_employee"/>
-                                    <field name="end_date" width="110px"
+                                    <field name="end_date" width="110px" required="1"
                                            readonly="parent.state == 'modification_requested' and not parent.can_select_employee"/>
                                     <field name="progress" widget="progressbar" width="130px" readonly="1"/>
                                     <field name="task_status" widget="badge" width="120px" readonly="1"
@@ -274,12 +275,12 @@
                                     <button name="action_approve_task" type="object"
                                             icon="fa-check" title="Approve this task"
                                             class="btn-link text-success"
-                                            invisible="parent.state != 'completed' or manager_verdict == 'approved' or parent.is_current_user_employee"
+                                            invisible="(parent.state != 'completed' and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'approved' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <button name="action_reject_task" type="object"
                                             icon="fa-times" title="Reject this task"
                                             class="btn-link text-danger"
-                                            invisible="parent.state != 'completed' or manager_verdict == 'rejected' or parent.is_current_user_employee"
+                                            invisible="(parent.state != 'completed' and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'rejected' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <!-- Remarks stay editable in every state, for
                                          both employee and manager. -->

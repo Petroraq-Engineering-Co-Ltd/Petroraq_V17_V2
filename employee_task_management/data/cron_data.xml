@@ -18,5 +18,26 @@
             <field name="doall" eval="False"/>
             <field name="active" eval="True"/>
         </record>
+
+        <!-- Rebuilds each employee's capacity / idle rows for a rolling
+             14-day horizon and sends today's reminders. HOURLY, not
+             daily: the numbers move whenever anybody saves a task, and
+             the four daily reminder slots (09:00 / 11:00 / 13:00 /
+             15:00 local) are picked out inside the run, so the cron
+             has to wake up often enough to catch them. The slots
+             already sent are recorded on the row, so an extra run - or
+             a manual one - can never send the same reminder twice. -->
+        <record id="ir_cron_refresh_idle_hours" model="ir.cron">
+            <field name="name">Employee Task Management: Refresh Employee Idle Hours</field>
+            <field name="model_id" ref="model_employee_task_idle_day"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_refresh_idle_hours()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>

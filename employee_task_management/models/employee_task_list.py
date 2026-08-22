@@ -6,6 +6,7 @@ import pytz
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError, AccessError
+from odoo.tools import float_compare
 
 _logger = logging.getLogger(__name__)
 
@@ -137,6 +138,16 @@ class EmployeeTaskList(models.Model):
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True, tracking=True,
         copy=False, index=True, group_expand='_group_expand_state')
+    # Stamped at the EVENT (in action_submit_to_manager), never
+    # recomputed from current data: it records HOW this list reached
+    # In Progress. A live compute would go stale the moment the manager
+    # ruled on it, and the review buttons would vanish or reappear on
+    # their own - the same trap that broke needs_employee_planning.
+    started_without_approval = fields.Boolean(
+        string='Started Without Approval', readonly=True, copy=False,
+        help='This task list started on its own start date, so the '
+             'employee began work immediately. It still needs the '
+             'manager to accept or reject it.')
     manager_remarks = fields.Text(
         string='Manager Remarks', tracking=True,
         help='Remarks from manager')
@@ -313,7 +324,7 @@ class EmployeeTaskList(models.Model):
         or an employee coming in on a Saturday to clear pending work
         cannot record it.
         """
-        self.ensure_one()
+        # NO ensure_one() - same reason as _today_local() above.
         payroll = self._get_work_schedule()[1] or DEFAULT_WORK_DAYS
         return set(payroll) | OPTIONAL_WORK_DAYS
 
@@ -395,10 +406,18 @@ class EmployeeTaskList(models.Model):
         by default). A cron runs as OdooBot, whose timezone is usually
         UTC, so fields.Date.context_today would roll over at the wrong
         moment for the client."""
-        self.ensure_one()
+        # NO ensure_one() - the idle-hours cron legitimately calls this
+        # on an EMPTY recordset (it needs "what is today" before it has
+        # any record in hand), and ensure_one() crashed it with
+        # "Expected singleton". Nothing here reads record data:
+        # _get_work_schedule() already falls back to self.env.company.
+        return self._now_local().date()
+
+    def _now_local(self):
+        """Right now, in the working schedule's timezone."""
         tz_name = self._get_work_schedule()[0]
         return pytz.utc.localize(
-            fields.Datetime.now()).astimezone(pytz.timezone(tz_name)).date()
+            fields.Datetime.now()).astimezone(pytz.timezone(tz_name))
 
     def _has_task_due_to_start(self):
         """True when at least one task was due to start today or earlier.
@@ -1215,16 +1234,150 @@ class EmployeeTaskList(models.Model):
                     ', '.join(missing)))
             # QA points 11 & 12: no submission without activities + hours
             rec._check_activities_before_submit()
-            rec._set_state('submitted_manager')
+            # The day's total across EVERY task list, not just this one.
+            rec._check_daily_capacity_across_lists()
             rec._log_approval_history('submitted')
-            rec._notify_user(
-                rec._get_manager_partner(),
-                _('Task List Approval Required'),
-                _('A new task list %s has been submitted by employee %s '
-                  'and requires your approval.',
-                  rec.name, rec.employee_id.name),
-                'employee_task_management.mail_template_task_submitted')
+            if rec._starts_today_or_earlier():
+                rec._start_without_waiting()
+            else:
+                # Future-dated work: the existing approval flow is
+                # unchanged, deliberately. There is no urgency, so the
+                # manager gets to look at it before anything happens.
+                rec._set_state('submitted_manager')
+                rec._notify_user(
+                    rec._get_manager_partner(),
+                    _('Task List Approval Required'),
+                    _('A new task list %s has been submitted by employee %s '
+                      'and requires your approval.',
+                      rec.name, rec.employee_id.name),
+                    'employee_task_management.mail_template_task_submitted')
         return True
+
+    def _starts_today_or_earlier(self):
+        """True when at least one task on this list is due to start now.
+
+        This is the trigger for skipping the approval wait. The client's
+        rule is stated as "Assignment Date = today AND Start Date =
+        today", but assign_date has been auto-stamped and readonly since
+        1.2.4 - it IS today at creation, always - so the only half that
+        can actually vary is the start date. `<= today` rather than
+        `== today` so a list submitted a day late still starts rather
+        than silently falling back into the approval queue.
+        """
+        self.ensure_one()
+        today = self._today_local()
+        return any(line.start_date and line.start_date <= today
+                   for line in self.task_line_ids)
+
+    def _start_without_waiting(self):
+        """Same-day work goes straight to In Progress.
+
+        Only the tasks actually dated today start. A task on the same
+        list that begins next week stays in Draft with its manager
+        verdict still Pending - the manager rules on those individually,
+        which is how the future-dated approval requirement survives a
+        list that is already running.
+
+        The list still needs the manager's Accept / Reject; that is what
+        `started_without_approval` records, and it is stamped here at
+        the event rather than computed later.
+        """
+        self.ensure_one()
+        today = self._today_local()
+        self._set_state('in_progress', {'started_without_approval': True})
+        starting = self.task_line_ids.filtered(
+            lambda l: l.task_status == 'draft'
+            and l.start_date and l.start_date <= today)
+        if starting:
+            starting.with_context(etm_workflow=True).write(
+                {'task_status': 'in_progress'})
+        self.task_line_ids.with_context(
+            etm_workflow=True)._recompute_progress_from_subtasks()
+        later = self.task_line_ids - starting
+        self._log_approval_history(
+            'started',
+            _('Start date had already arrived, so work began '
+              'immediately without waiting for approval.'))
+        self.message_post(body=_(
+            '<b>Work started immediately</b> - %(now)s task(s) were due '
+            'today. %(later)s task(s) dated later are still waiting for '
+            'the manager\'s decision.',
+            now=len(starting), later=len(later)))
+        self._notify_user(
+            self._get_manager_partner(),
+            _('Task List Started - Review Required'),
+            _('Employee %(emp)s submitted task list %(name)s for work '
+              'due today, so it has gone straight to In Progress. '
+              'Please accept or reject it.',
+              emp=self.employee_id.name, name=self.name))
+        self._notify_late_execution('started')
+
+    def _accept_running_list(self):
+        """Manager accepts a list that is already being worked on.
+
+        The status deliberately STAYS at In Progress - the employee is
+        mid-task and moving him backwards to Manager Approved would make
+        him press Start Work again on work he has already begun. What
+        changes is that the list is no longer awaiting a decision, and
+        every task on it (including the future-dated ones that never
+        started) is now formally approved.
+        """
+        self.ensure_one()
+        pending = self.task_line_ids.filtered(
+            lambda l: l.manager_verdict == 'pending')
+        if pending:
+            pending.with_context(etm_workflow=True).write(
+                {'manager_verdict': 'approved'})
+        self.with_context(etm_workflow=True).write(
+            {'started_without_approval': False})
+        self._log_approval_history('approved', self.manager_remarks)
+        self.message_post(body=_(
+            'Task list accepted by %s while already in progress. '
+            '%s task(s) approved.', self.env.user.name, len(pending)))
+        self._notify_user(
+            self._get_employee_partner(),
+            _('Task List Accepted'),
+            _('Your task list %s has been accepted by %s. Carry on with '
+              'the work.', self.name, self.env.user.name))
+
+    def _check_daily_capacity_across_lists(self):
+        """Submit-time gate for the whole list.
+
+        The live constraint on employee.task.line catches the ordinary
+        case as the employee types, but two lists can each sit in Draft
+        at 8 hours: Draft does not consume capacity, so neither one
+        blocks the other while both are still being written. Submitting
+        is the moment one of them becomes real, so the totals are
+        re-checked here against everything else already committed.
+        """
+        self.ensure_one()
+        if self._is_privileged_user():
+            return
+        dated = self.task_line_ids.filtered(
+            lambda l: l.start_date and l.end_date)
+        if not dated or not self.employee_id:
+            return
+        Idle = self.env['employee.task.idle.day']
+        Line = self.env['employee.task.line']
+        date_from = min(dated.mapped('start_date'))
+        date_to = max(dated.mapped('end_date'))
+        per_day = Idle._allocation_for_employee(
+            self.employee_id, date_from, date_to,
+            include_list_ids=self.ids)
+        capacity = self._get_hours_per_day()
+        for day in sorted(per_day):
+            if float_compare(per_day[day], capacity,
+                             precision_digits=2) > 0:
+                raise ValidationError(_(
+                    'This task list cannot be submitted: it would put '
+                    '%(emp)s over capacity on %(day)s.\n\n'
+                    'Daily capacity: %(cap)s\n'
+                    'Already committed plus this list: %(total)s\n\n'
+                    'Reduce the activity hours, or move some of the '
+                    'work to another day.',
+                    emp=self.employee_id.name, day=day,
+                    cap=Line._format_hours(capacity),
+                    total=Line._format_hours(per_day[day])))
 
     def _check_activities_before_submit(self):
         """QA point 11: a task list may not be submitted to the manager
@@ -1251,12 +1404,21 @@ class EmployeeTaskList(models.Model):
         The employee wrote it himself, so no acceptance step is needed -
         it becomes applicable straight away."""
         for rec in self:
-            if rec.state != 'submitted_manager':
+            # A list that started on its own start date is already In
+            # Progress but has never been ruled on. The manager still
+            # has to accept it - he just must not knock it BACK to
+            # Manager Approved, because the employee is working on it.
+            running_review = (
+                rec.state == 'in_progress' and rec.started_without_approval)
+            if rec.state != 'submitted_manager' and not running_review:
                 raise UserError(_(
                     'Only task lists in "Submitted to Manager" state can '
                     'be approved.'))
             rec._check_approver_rights()
             rec._check_ready_for_execution()
+            if running_review:
+                rec._accept_running_list()
+                continue
             rec._set_state('manager_approved')
             rec._log_approval_history('approved', rec.manager_remarks)
             rec.activity_feedback(['mail.mail_activity_data_todo'])
@@ -1726,10 +1888,12 @@ class EmployeeTaskList(models.Model):
         makes the Reject Reason mandatory. Rejection is final - the task
         list ends there, it does not go back to the employee."""
         self.ensure_one()
-        if self.state != 'completed':
+        running_review = (
+            self.state == 'in_progress' and self.started_without_approval)
+        if self.state != 'completed' and not running_review:
             raise UserError(_(
-                'Only a task list the employee marked as Completed can be '
-                'rejected.'))
+                'Only a task list the employee marked as Completed - or '
+                'one that started without approval - can be rejected.'))
         self._check_approver_rights()
         return {
             'name': _('Reject Task List'),
@@ -1845,7 +2009,9 @@ class EmployeeTaskList(models.Model):
     @api.model
     def get_dashboard_data(self):
         """Counts for the custom dashboard's KPI cards. Uses search_count
-        so record rules apply automatically."""
+        so record rules apply automatically. Also carries today's
+        capacity figures so the employee sees his own idle hours without
+        having to open a report."""
         domains = {
             'total': [],
             'pending_approval': [('state', '=', 'submitted_manager')],
@@ -1856,8 +2022,21 @@ class EmployeeTaskList(models.Model):
             # the dashboard instead of vanishing from every card.
             'closed': [('state', 'in', list(TERMINAL_STATES))],
         }
-        return {key: self.search_count(domain)
+        data = {key: self.search_count(domain)
                 for key, domain in domains.items()}
+        # Today's capacity for the logged-in employee. Kept flat (plain
+        # numbers and one pre-formatted string) because the client-side
+        # Object.assign() merges this straight into the KPI state.
+        Line = self.env['employee.task.line']
+        idle = self.env['employee.task.idle.day']._idle_summary_for_user()
+        data.update({
+            'idle_has_row': idle['has_row'],
+            'idle_capacity_display': Line._format_hours(idle['capacity']),
+            'idle_allocated_display': Line._format_hours(idle['allocated']),
+            'idle_display': Line._format_hours(idle['idle']),
+            'idle_raw': idle['idle'],
+        })
+        return data
 
     def action_unlock(self):
         """Manager/Admin unlock of a closed record.
