@@ -145,3 +145,43 @@
         min-height: 420px;
     }
 }
+
+// Capacity strip: the employee's own working / allocated / idle hours
+// for today, sitting between the banner and the KPI cards.
+.o_etm_capacity_strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 0 0 1rem 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #06284F;
+    border-radius: 4px;
+    background: #f8f9fa;
+
+    .o_etm_capacity_item {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+    .o_etm_capacity_label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #6c757d;
+    }
+    .o_etm_capacity_value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #06284F;
+    }
+    .o_etm_capacity_idle .o_etm_capacity_value {
+        color: #d9534f;
+    }
+    .o_etm_capacity_hint {
+        margin-left: auto;
+        font-size: 0.85rem;
+        color: #d9534f;
+    }
+}

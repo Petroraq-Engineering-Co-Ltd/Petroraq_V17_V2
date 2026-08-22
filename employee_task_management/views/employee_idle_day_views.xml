@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================= TREE ================= -->
+    <record id="view_idle_day_tree" model="ir.ui.view">
+        <field name="name">employee.task.idle.day.tree</field>
+        <field name="model">employee.task.idle.day</field>
+        <field name="arch" type="xml">
+            <!-- decoration keywords are restricted to Odoo's whitelist
+                 (bf, it, danger, info, muted, primary, success,
+                 warning) - anything else crashes the view. -->
+            <tree string="Employee Capacity" create="false" delete="false"
+                  edit="false" decoration-danger="idle_hours &gt;= 4"
+                  decoration-warning="idle_hours &gt; 0 and idle_hours &lt; 4"
+                  decoration-success="idle_hours == 0">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="manager_id" optional="hide"/>
+                <field name="capacity_hours" widget="float_time" sum="Total Working Hours"/>
+                <field name="allocated_hours" widget="float_time" sum="Allocated"/>
+                <field name="idle_hours" widget="float_time" sum="Idle"/>
+                <field name="notified" optional="show"/>
+                <field name="notify_count" optional="show"/>
+                <field name="last_notified_on" optional="hide"/>
+                <field name="has_idle" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- ================= PIVOT / GRAPH ================= -->
+    <record id="view_idle_day_pivot" model="ir.ui.view">
+        <field name="name">employee.task.idle.day.pivot</field>
+        <field name="model">employee.task.idle.day</field>
+        <field name="arch" type="xml">
+            <pivot string="Capacity &amp; Idle Hours">
+                <field name="employee_id" type="row"/>
+                <field name="date" type="col"/>
+                <field name="allocated_hours" type="measure"/>
+                <field name="idle_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_idle_day_graph" model="ir.ui.view">
+        <field name="name">employee.task.idle.day.graph</field>
+        <field name="model">employee.task.idle.day</field>
+        <field name="arch" type="xml">
+            <graph string="Idle Hours" type="bar" stacked="0">
+                <field name="employee_id"/>
+                <field name="idle_hours" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ================= SEARCH ================= -->
+    <record id="view_idle_day_search" model="ir.ui.view">
+        <field name="name">employee.task.idle.day.search</field>
+        <field name="model">employee.task.idle.day</field>
+        <field name="arch" type="xml">
+            <search string="Capacity">
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="date"/>
+                <filter name="filter_today" string="Today"
+                        domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_upcoming" string="Today and Later"
+                        domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="filter_has_idle" string="Has Idle Time"
+                        domain="[('has_idle', '=', True)]"/>
+                <filter name="filter_fully_booked" string="Fully Booked"
+                        domain="[('has_idle', '=', False)]"/>
+                <separator/>
+                <filter name="filter_notified" string="Reminder Sent"
+                        domain="[('notified', '=', True)]"/>
+                <filter name="filter_not_notified" string="No Reminder Yet"
+                        domain="[('notified', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_employee" string="Employee"
+                            context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_department" string="Department"
+                            context="{'group_by': 'department_id'}"/>
+                    <filter name="group_manager" string="Manager"
+                            context="{'group_by': 'manager_id'}"/>
+                    <filter name="group_date" string="Date"
+                            context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ================= ACTIONS ================= -->
+    <!-- Manager view: the whole team, defaulting to today's idle time,
+         which is the question he actually opens this menu to answer. -->
+    <record id="action_idle_hours" model="ir.actions.act_window">
+        <field name="name">Employee Capacity &amp; Idle Hours</field>
+        <field name="res_model">employee.task.idle.day</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="search_view_id" ref="view_idle_day_search"/>
+        <field name="context">{'search_default_filter_today': 1, 'search_default_filter_has_idle': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No capacity rows yet</p>
+            <p>
+                Rows are built by the scheduled action
+                "Refresh Employee Idle Hours". Run it once from
+                Settings &gt; Technical &gt; Scheduled Actions to
+                populate them immediately.
+            </p>
+        </field>
+    </record>
+
+    <!-- Employee view: his own rolling two weeks, read-only. The record
+         rule already scopes him to himself, so no domain is needed. -->
+    <record id="action_my_hours" model="ir.actions.act_window">
+        <field name="name">My Hours</field>
+        <field name="res_model">employee.task.idle.day</field>
+        <field name="view_mode">tree,graph</field>
+        <field name="search_view_id" ref="view_idle_day_search"/>
+        <field name="context">{'search_default_filter_upcoming': 1}</field>
+    </record>
+
+</odoo>
