@@ -845,9 +845,9 @@ class EmployeeTaskLine(models.Model):
                     '  - move this task to a day with free capacity\n'
                     '  - spread it over more days by extending the End '
                     'Date, which divides the hours between them\n\n'
-                    'Note: hours the manager rejected do NOT count here '
-                    '- that capacity is already released so the work '
-                    'can be redone.',
+                    'Note: hours already spent that day count even if '
+                    'the manager rejected the work. Rejected work is '
+                    'redone on a LATER day, not on the day it failed.',
                     day=day,
                     emp=employee.name or '',
                     task=(line.description or '')[:80],
@@ -870,7 +870,7 @@ class EmployeeTaskLine(models.Model):
         if not days or day not in days:
             return 0.0
         buckets = Idle._activity_buckets(self)
-        return (buckets['approved'] + buckets['pending']) / len(days)
+        return sum(buckets.values()) / len(days)
 
     @api.constrains('progress')
     def _check_progress(self):

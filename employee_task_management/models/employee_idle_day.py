@@ -60,15 +60,16 @@ class EmployeeTaskIdleDay(models.Model):
     allocated_hours = fields.Float(
         string='Allocated Hours', digits=(16, 2),
         help='Hours committed to tasks across ALL of this employee\'s '
-             'task lists for this day. Equals Approved + Pending; '
-             'rejected hours are excluded.')
+             'task lists for this day. Equals Approved + Rejected + '
+             'Pending.')
     idle_hours = fields.Float(
         string='Idle Hours', digits=(16, 2),
         help='Working hours not yet covered by any task.')
 
-    # Allocated split by verdict. Approved + Pending = Allocated;
-    # REJECTED SITS OUTSIDE IT, because refused work has to be redone
-    # and must not keep occupying the day it failed on.
+    # Allocated split by verdict. Approved + Rejected + Pending ALWAYS
+    # equals allocated_hours - they divide the same hours up, they never
+    # add or remove any. A verdict never moves Capacity or Idle: the
+    # employee spent the time either way.
     approved_hours = fields.Float(
         string='Approved Hours', digits=(16, 2),
         help='Allocated hours the manager has accepted. Includes tasks '
@@ -76,10 +77,9 @@ class EmployeeTaskIdleDay(models.Model):
              'approved.')
     rejected_hours = fields.Float(
         string='Rejected Hours', digits=(16, 2),
-        help='Hours the manager refused. NOT counted in Allocated - '
-             'the work has to be done again, so the capacity is '
-             'released and shows up in Idle Hours, leaving room for '
-             'the redo.')
+        help='Allocated hours the manager refused. Still counted in '
+             'Allocated and still not idle - the employee spent that '
+             'time. The redo is scheduled on a later day.')
     pending_hours = fields.Float(
         string='Pending Hours', digits=(16, 2),
         help='Allocated hours not yet reviewed. Falls to zero as the '
@@ -223,22 +223,23 @@ class EmployeeTaskIdleDay(models.Model):
             # Hours spread evenly across the task's working days; each
             # bucket is spread by the same factor.
             #
-            # REJECTED HOURS ARE NOT IN THE TOTAL. Refused work has to
-            # be done again, so leaving it in the day's allocation
-            # double-books the employee: the rejected original and its
-            # replacement would both consume the same capacity and he
-            # could not fit the redo in. Releasing them also matches
-            # what rejecting a WHOLE list has always done.
-            #   allocated = approved + pending
-            #   rejected  = reported alongside, outside the total
+            # REJECTED HOURS DO COUNT. Time the employee spent is time
+            # he spent - whether the manager liked the output or not, it
+            # is gone and the day was not idle. A day worked flat out
+            # must read 0:00 idle even if half of it was refused.
+            #   allocated = approved + rejected + pending
+            # (1.19.0 briefly excluded rejected hours to make room for
+            # the redo. That was the wrong fix: the redo does not belong
+            # on a day that is already spent, so it is now scheduled
+            # from the NEXT working day instead - see
+            # _carry_forward_default_date.)
             spread = 1.0 / len(days)
             buckets = self._activity_buckets(line)
-            countable = buckets['approved'] + buckets['pending']
             for day in days:
                 if date_from <= day <= date_to:
-                    result[day]['total'] += countable * spread
                     for bucket, hours in buckets.items():
                         result[day][bucket] += hours * spread
+                        result[day]['total'] += hours * spread
         return dict(result)
 
     @api.model

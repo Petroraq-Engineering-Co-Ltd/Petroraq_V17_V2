@@ -19,10 +19,11 @@
                 <field name="manager_id" optional="hide"/>
                 <field name="capacity_hours" widget="float_time" sum="Total Working Hours"/>
                 <field name="allocated_hours" widget="float_time" sum="Allocated"/>
-                <!-- Approved + Pending = Allocated. Rejected sits
-                     OUTSIDE the total: refused work must be redone, so
-                     its capacity is released back into Idle Hours and
-                     the replacement task has room to fit. -->
+                <!-- Approved + Rejected + Pending always equals
+                     Allocated. They divide those hours up; they never
+                     add to or subtract from them, so Idle is unaffected
+                     by any verdict - the employee spent the time
+                     whether or not the work was accepted. -->
                 <field name="approved_hours" widget="float_time" sum="Approved" optional="show"/>
                 <field name="rejected_hours" widget="float_time" sum="Rejected" optional="show"/>
                 <field name="pending_hours" widget="float_time" sum="Pending" optional="show"/>

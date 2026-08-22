@@ -715,9 +715,12 @@ class EmployeeTaskList(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('name', _('New')) == _('New'):
-                vals['name'] = self.env['ir.sequence'].next_by_code(
-                    'employee.task.list') or _('New')
+            # The reference is NO LONGER drawn here. A draft is a
+            # private scratchpad that may never go anywhere, and every
+            # abandoned one used to burn a sequence number permanently,
+            # leaving gaps in the client's numbering. The number is now
+            # drawn on the way OUT of Draft - see _assign_reference().
+            vals.setdefault('name', _('New'))
             # Safety net next to precompute=True above: whatever the
             # client did or did not send, derive Department and Manager
             # from the employee before the row is inserted.
@@ -771,18 +774,24 @@ class EmployeeTaskList(models.Model):
 
         The intent behind blanking them was that the employee re-plans,
         and that still holds: he can change these freely. They just have
-        to start from a value that is legal, which means the next
-        WORKING day - dropping a carried task onto a Friday would be
-        rejected on save by _check_working_date_range, trading one
-        blocked save for another.
+        to start from a value that is legal, which means a WORKING day -
+        dropping a carried task onto a Friday would be rejected on save
+        by _check_working_date_range, trading one blocked save for
+        another.
+
+        The next working day AFTER today, not today itself. Today's
+        capacity was already spent on the work that got rejected - those
+        hours still count, because the employee really did work them -
+        so seeding the redo onto today would collide with the original
+        and could not be saved. Tomorrow is the first day that has room.
         """
-        day = self._today_local()
+        day = self._today_local() + timedelta(days=1)
         work_days = self._get_planning_work_days()
         for _offset in range(14):
             if day.weekday() in work_days:
                 return day
             day += timedelta(days=1)
-        return self._today_local()
+        return self._today_local() + timedelta(days=1)
 
     def _carry_forward_commands(self, employee_id):
         """One2many CREATE commands for every task this employee still
@@ -996,9 +1005,48 @@ class EmployeeTaskList(models.Model):
                     dict(rec._fields['state'].selection).get(rec.state)))
         return super().unlink()
 
+    def _assign_reference(self):
+        """Draw the task list reference, once and once only.
+
+        THE GUARD IS THE WHOLE POINT: a number is only drawn for a
+        record still sitting at the placeholder. A list returned for
+        correction drops back to Draft and is submitted again - without
+        this check it would take a SECOND number, and every reference
+        already written into the chatter, into emails and into the
+        approval history would point at a number the record no longer
+        carries.
+
+        So the rule is: a task list gets exactly one reference for its
+        entire life, at the moment it first leaves Draft, and nothing
+        afterwards can change it.
+        """
+        for rec in self:
+            if rec.name and rec.name != _('New'):
+                continue  # already numbered - never renumber
+            reference = rec.env['ir.sequence'].next_by_code(
+                'employee.task.list')
+            if not reference:
+                # No sequence configured. Leave the placeholder rather
+                # than blocking the employee's submission over a
+                # numbering problem - the record is still perfectly
+                # usable and the reference can be repaired later.
+                _logger.warning(
+                    "No 'employee.task.list' sequence found - task list "
+                    "%s left without a reference", rec.id)
+                continue
+            rec.with_context(etm_workflow=True).write({'name': reference})
+
     def _set_state(self, new_state, extra_vals=None):
         """Single entry point for every status change. Also maintains
         `pending_since`, the clock used by the 24 working-hour rules."""
+        # Every route out of Draft passes through here - the employee
+        # submitting, the manager assigning, the auto-assign cron, the
+        # same-day auto-start, and anything added in future. Putting the
+        # reference here rather than in each action means a new
+        # transition can never be added that forgets to number the
+        # record.
+        if new_state != 'draft':
+            self._assign_reference()
         vals = dict(extra_vals or {})
         vals['state'] = new_state
         # `needs_employee_planning` records HOW THE LIST WAS HANDED OVER,
@@ -1421,9 +1469,9 @@ class EmployeeTaskList(models.Model):
                     '  - move some tasks to a day with free capacity\n'
                     '  - extend a task\'s End Date so its hours spread '
                     'across more days\n\n'
-                    'Note: hours the manager rejected do NOT count here '
-                    '- that capacity is already released so the work '
-                    'can be redone.',
+                    'Note: hours already spent that day count even if '
+                    'the manager rejected the work. Rejected work is '
+                    'redone on a LATER day, not on the day it failed.',
                     day=day,
                     emp=self.employee_id.name or '',
                     name=self.name or '',
