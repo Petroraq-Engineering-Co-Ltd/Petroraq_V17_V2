@@ -59,11 +59,31 @@ class EmployeeTaskIdleDay(models.Model):
         help='Hours this employee is expected to work on this day.')
     allocated_hours = fields.Float(
         string='Allocated Hours', digits=(16, 2),
-        help='Hours already committed to tasks across ALL of this '
-             'employee\'s task lists for this day.')
+        help='Hours committed to tasks across ALL of this employee\'s '
+             'task lists for this day. Equals Approved + Pending; '
+             'rejected hours are excluded.')
     idle_hours = fields.Float(
         string='Idle Hours', digits=(16, 2),
         help='Working hours not yet covered by any task.')
+
+    # Allocated split by verdict. Approved + Pending = Allocated;
+    # REJECTED SITS OUTSIDE IT, because refused work has to be redone
+    # and must not keep occupying the day it failed on.
+    approved_hours = fields.Float(
+        string='Approved Hours', digits=(16, 2),
+        help='Allocated hours the manager has accepted. Includes tasks '
+             'left at Pending Review on a Closed list, which count as '
+             'approved.')
+    rejected_hours = fields.Float(
+        string='Rejected Hours', digits=(16, 2),
+        help='Hours the manager refused. NOT counted in Allocated - '
+             'the work has to be done again, so the capacity is '
+             'released and shows up in Idle Hours, leaving room for '
+             'the redo.')
+    pending_hours = fields.Float(
+        string='Pending Hours', digits=(16, 2),
+        help='Allocated hours not yet reviewed. Falls to zero as the '
+             'manager works through his approvals.')
     has_idle = fields.Boolean(
         string='Has Idle Time', index=True,
         help='Stored so the manager can filter on it directly.')
@@ -124,21 +144,59 @@ class EmployeeTaskIdleDay(models.Model):
         return days
 
     @api.model
-    def _allocation_for_employee(self, employee, date_from, date_to,
-                                 include_list_ids=()):
-        """{date: allocated hours} for ONE employee over a date window.
+    def _line_fallback_bucket(self, line):
+        """Where a task's hours land when its activities say nothing.
 
-        Counts every task line of the employee whose task list is in an
-        allocating state - that is, everything EXCEPT Draft and
-        Rejected. A task still waiting on the manager therefore already
-        consumes capacity (the employee is committed to it), while a
-        rejected list releases its hours again.
+        A task left at Pending Review counts as APPROVED once the
+        manager closes the whole list - that is the module's existing
+        rule (see manager_verdict's help text), and honouring it here is
+        what stops finished work from sitting in Pending forever.
+        """
+        if line.manager_verdict == 'rejected':
+            return 'rejected'
+        if line.manager_verdict == 'approved':
+            return 'approved'
+        # 'partial' means the activities carry the real answer, so it
+        # never reaches here for an activity that has been ruled on.
+        if line.task_list_id.state == 'closed':
+            return 'approved'
+        return 'pending'
 
-        `include_list_ids` forces particular task lists to be counted
-        even if they are still Draft. That is what makes the live
-        capacity block work: the list the employee is editing right now
-        is by definition a draft, and it obviously has to count against
-        his own day, or he would only discover the clash at submit time.
+    @api.model
+    def _activity_buckets(self, line):
+        """{bucket: hours} for one task, split by ACTIVITY verdict.
+
+        An activity still at Pending inherits its TASK's verdict. That
+        fallback is what keeps every figure recorded before
+        activity-level review existed exactly as it was: those
+        activities are all Pending, so they follow the task and nothing
+        moves. Only activities a manager has actually ruled on
+        individually pull away from their task.
+
+        A task with no activities at all falls back wholesale, so its
+        hours are never silently dropped.
+        """
+        buckets = {'approved': 0.0, 'rejected': 0.0, 'pending': 0.0}
+        fallback = self._line_fallback_bucket(line)
+        if not line.subtask_ids:
+            buckets[fallback] = line.total_hours or 0.0
+            return buckets
+        for activity in line.subtask_ids:
+            verdict = activity.manager_verdict
+            if verdict == 'pending':
+                verdict = fallback
+            buckets[verdict] += activity.hours or 0.0
+        return buckets
+
+    @api.model
+    def _allocation_breakdown(self, employee, date_from, date_to,
+                              include_list_ids=()):
+        """{date: {'total','approved','rejected','pending'}}.
+
+        Same lines, same even spread, same states as the plain total
+        below - only split by the manager's verdict. The three buckets
+        always sum back to the total, which is the property that lets a
+        manager check any row's arithmetic by eye.
         """
         if not employee or not date_from or not date_to:
             return {}
@@ -155,16 +213,57 @@ class EmployeeTaskIdleDay(models.Model):
             ('task_list_id', 'in', list(include_list_ids or [])),
         ]
         work_days = TaskList._get_planning_work_days()
-        result = defaultdict(float)
+        result = defaultdict(
+            lambda: {'total': 0.0, 'approved': 0.0,
+                     'rejected': 0.0, 'pending': 0.0})
         for line in Line.search(domain):
             days = self._spread_days(line, work_days)
             if not days:
                 continue
-            per_day = (line.total_hours or 0.0) / len(days)
+            # Hours spread evenly across the task's working days; each
+            # bucket is spread by the same factor.
+            #
+            # REJECTED HOURS ARE NOT IN THE TOTAL. Refused work has to
+            # be done again, so leaving it in the day's allocation
+            # double-books the employee: the rejected original and its
+            # replacement would both consume the same capacity and he
+            # could not fit the redo in. Releasing them also matches
+            # what rejecting a WHOLE list has always done.
+            #   allocated = approved + pending
+            #   rejected  = reported alongside, outside the total
+            spread = 1.0 / len(days)
+            buckets = self._activity_buckets(line)
+            countable = buckets['approved'] + buckets['pending']
             for day in days:
                 if date_from <= day <= date_to:
-                    result[day] += per_day
+                    result[day]['total'] += countable * spread
+                    for bucket, hours in buckets.items():
+                        result[day][bucket] += hours * spread
         return dict(result)
+
+    @api.model
+    def _allocation_for_employee(self, employee, date_from, date_to,
+                                 include_list_ids=()):
+        """{date: allocated hours} for ONE employee over a date window.
+
+        Counts every task line of the employee whose task list is in an
+        allocating state - that is, everything EXCEPT Draft and
+        Rejected. A task still waiting on the manager therefore already
+        consumes capacity (the employee is committed to it), while a
+        rejected list releases its hours again.
+
+        `include_list_ids` forces particular task lists to be counted
+        even if they are still Draft. That is what makes the live
+        capacity block work: the list the employee is editing right now
+        is by definition a draft, and it obviously has to count against
+        his own day, or he would only discover the clash at submit time.
+        """
+        # Delegates to _allocation_breakdown so there is still exactly
+        # ONE place that decides what a day carries. The capacity block
+        # and the report cannot drift apart.
+        return {day: figures['total'] for day, figures
+                in self._allocation_breakdown(
+                    employee, date_from, date_to, include_list_ids).items()}
 
     # ==================================================================
     # LEAVE / HOLIDAY AWARENESS
@@ -279,8 +378,9 @@ class EmployeeTaskIdleDay(models.Model):
 
         kept = self.browse()
         for employee in employees:
-            allocated = sum(self._allocation_for_employee(
-                employee, day, day).values())
+            figures = self._allocation_breakdown(
+                employee, day, day).get(day, {})
+            allocated = figures.get('total', 0.0)
             row = by_employee.get(employee.id)
 
             # A day the employee cannot work is not idle time.
@@ -293,6 +393,9 @@ class EmployeeTaskIdleDay(models.Model):
             vals = {
                 'capacity_hours': capacity,
                 'allocated_hours': allocated,
+                'approved_hours': figures.get('approved', 0.0),
+                'rejected_hours': figures.get('rejected', 0.0),
+                'pending_hours': figures.get('pending', 0.0),
                 'idle_hours': idle,
                 'has_idle': idle > 0.0,
             }

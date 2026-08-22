@@ -30,6 +30,7 @@
                     <field name="has_subtasks" invisible="1"/>
                     <field name="state" invisible="1"/>
                     <field name="activities_locked" invisible="1"/>
+                    <field name="can_delete_activities" invisible="1"/>
                     <separator string="Activities"/>
 
                     <!-- A. Still being planned: activities can be added,
@@ -53,7 +54,7 @@
                          only live control, and only while the work is
                          actually running. -->
                     <field name="subtask_ids" nolabel="1"
-                           invisible="state in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested')"
+                           invisible="state in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested') or can_delete_activities"
                            readonly="activities_locked">
                         <tree editable="bottom" create="false" delete="false"
                               class="etm_activity_lines" decoration-success="is_done">
@@ -67,6 +68,68 @@
                                    width="90px" sum="Total Hours"/>
                             <field name="is_done" string="Done" widget="boolean_toggle" width="70px"
                                    readonly="parent.state not in ('in_progress', 'returned_after_completion')"/>
+                            <field name="manager_verdict" string="Verdict" widget="badge"
+                                   decoration-success="manager_verdict == 'approved'"
+                                   decoration-danger="manager_verdict == 'rejected'"
+                                   decoration-muted="manager_verdict == 'pending'"
+                                   optional="show" readonly="1"/>
+                            <field name="verdict_reason" string="Reason" optional="hide" readonly="1"/>
+                            <field name="can_review" column_invisible="1"/>
+                            <button name="action_approve_activity" type="object"
+                                    icon="fa-check" title="Approve this activity"
+                                    class="btn-link text-success"
+                                    invisible="not can_review or manager_verdict == 'approved'"
+                                    groups="employee_task_management.group_task_manager"/>
+                            <button name="action_reject_activity" type="object"
+                                    icon="fa-times" title="Reject this activity"
+                                    class="btn-link text-danger"
+                                    invisible="not can_review or manager_verdict == 'rejected'"
+                                    groups="employee_task_management.group_task_manager"/>
+                        </tree>
+                    </field>
+
+                    <!-- C. Same frozen grid, MANAGER copy. Identical to
+                         B in every respect except delete="true".
+                         A tree's delete attribute is static - it cannot
+                         take an expression - so the only way to give the
+                         manager a delete control and withhold it from
+                         the employee is to render the grid twice and
+                         switch on can_delete_activities. B and C are
+                         mutually exclusive, so only one is ever shown.
+
+                         Deleting an activity is how surplus hours come
+                         off an employee's day: there is no "set hours to
+                         0" route, because hours are mandatory and must
+                         be greater than zero on every activity. -->
+                    <field name="subtask_ids" nolabel="1"
+                           invisible="state in ('draft', 'returned_manager', 'pending_acceptance', 'modification_requested') or not can_delete_activities"
+                           readonly="activities_locked">
+                        <tree editable="bottom" create="false" delete="true"
+                              class="etm_activity_lines" decoration-success="is_done">
+                            <field name="can_edit_hours" column_invisible="1"/>
+                            <field name="name" string="Activity" readonly="1"/>
+                            <field name="hours" string="Hours"
+                                   readonly="not can_edit_hours" widget="masked_hours"
+                                   width="90px" sum="Total Hours"/>
+                            <field name="is_done" string="Done" widget="boolean_toggle" width="70px"
+                                   readonly="parent.state not in ('in_progress', 'returned_after_completion')"/>
+                            <field name="manager_verdict" string="Verdict" widget="badge"
+                                   decoration-success="manager_verdict == 'approved'"
+                                   decoration-danger="manager_verdict == 'rejected'"
+                                   decoration-muted="manager_verdict == 'pending'"
+                                   optional="show" readonly="1"/>
+                            <field name="verdict_reason" string="Reason" optional="hide" readonly="1"/>
+                            <field name="can_review" column_invisible="1"/>
+                            <button name="action_approve_activity" type="object"
+                                    icon="fa-check" title="Approve this activity"
+                                    class="btn-link text-success"
+                                    invisible="not can_review or manager_verdict == 'approved'"
+                                    groups="employee_task_management.group_task_manager"/>
+                            <button name="action_reject_activity" type="object"
+                                    icon="fa-times" title="Reject this activity"
+                                    class="btn-link text-danger"
+                                    invisible="not can_review or manager_verdict == 'rejected'"
+                                    groups="employee_task_management.group_task_manager"/>
                         </tree>
                     </field>
 
@@ -81,8 +144,9 @@
                         This task list is approved, so its activities are frozen. Tick
                         them off as <b>Done</b> as you complete them - Progress % and the
                         task status update automatically. A Manager can still correct
-                        the <b>Hours</b> on an activity; the change is recorded in the
-                        task list's chatter.
+                        the <b>Hours</b> on an activity, or delete an activity outright
+                        to take those hours off the employee's day; either change is
+                        recorded in the task list's chatter.
                     </div>
                     <div class="text-muted mt-2"
                          invisible="state not in ('submitted_manager', 'completed', 'rejected')">

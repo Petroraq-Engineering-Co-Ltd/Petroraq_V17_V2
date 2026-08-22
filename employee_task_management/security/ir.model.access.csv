@@ -19,3 +19,4 @@ access_employee_task_line_reject_wizard,employee.task.line.reject.wizard,model_e
 access_employee_task_idle_day_employee,employee.task.idle.day.employee,model_employee_task_idle_day,group_task_employee,1,0,0,0
 access_employee_task_idle_day_manager,employee.task.idle.day.manager,model_employee_task_idle_day,group_task_manager,1,0,0,0
 access_employee_task_idle_day_admin,employee.task.idle.day.admin,model_employee_task_idle_day,group_task_admin,1,1,1,1
+access_employee_task_activity_reject_wizard,employee.task.activity.reject.wizard,model_employee_task_activity_reject_wizard,group_task_manager,1,1,1,1

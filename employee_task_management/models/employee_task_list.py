@@ -748,8 +748,41 @@ class EmployeeTaskList(models.Model):
         saved by an employee at all. In that case the whole set comes
         back reset, so the task is always actionable.
         """
+        refused = source_line.subtask_ids.filtered(
+            lambda a: a.manager_verdict == 'rejected')
+        if refused:
+            return refused
+        # Fallback for tasks rejected BEFORE activity-level review
+        # existed (every activity still Pending), and for a task
+        # rejected as a whole while it was still running, where some
+        # activities may genuinely be unfinished.
         unfinished = source_line.subtask_ids.filtered(lambda a: not a.is_done)
         return unfinished or source_line.subtask_ids
+
+    @api.model
+    def _carry_forward_default_date(self):
+        """The date a carried-forward task lands on.
+
+        Start / End Date became REQUIRED in 1.16.0, so the old
+        behaviour of copying rejected tasks across with the dates left
+        blank now hits a NOT NULL violation the moment the record is
+        flushed - the employee saw a raw "a mandatory field is not set"
+        error on Start Date and could not save at all.
+
+        The intent behind blanking them was that the employee re-plans,
+        and that still holds: he can change these freely. They just have
+        to start from a value that is legal, which means the next
+        WORKING day - dropping a carried task onto a Friday would be
+        rejected on save by _check_working_date_range, trading one
+        blocked save for another.
+        """
+        day = self._today_local()
+        work_days = self._get_planning_work_days()
+        for _offset in range(14):
+            if day.weekday() in work_days:
+                return day
+            day += timedelta(days=1)
+        return self._today_local()
 
     def _carry_forward_commands(self, employee_id):
         """One2many CREATE commands for every task this employee still
@@ -767,13 +800,17 @@ class EmployeeTaskList(models.Model):
             ('task_list_id.employee_id', '=', employee_id),
         ])
         commands = []
+        replan_date = self._carry_forward_default_date()
         for source in pending:
             commands.append((0, 0, {
                 'description': source.description,
                 'remarks': source.remarks,
-                # Dates deliberately blank - the employee re-plans.
-                'start_date': False,
-                'end_date': False,
+                # Seeded with the next working day, NOT blank: the dates
+                # are required since 1.16.0 and a blank one cannot be
+                # saved. The employee still re-plans - he just edits a
+                # valid value instead of filling an empty one.
+                'start_date': replan_date,
+                'end_date': replan_date,
                 'is_carried_forward': True,
                 'carried_from_line_id': source.id,
                 'subtask_ids': [
@@ -821,8 +858,8 @@ class EmployeeTaskList(models.Model):
         into this brand-new one.
 
         Agreed behaviour: the whole task comes across, with every
-        activity reset to not-done and the dates left blank so the
-        employee re-plans them. The source task is un-flagged so it can
+        activity reset to not-done and the dates seeded with the next
+        working day so the employee re-plans them. The source task is un-flagged so it can
         never be pulled twice.
         """
         for rec in self:
@@ -845,14 +882,16 @@ class EmployeeTaskList(models.Model):
                     {'carry_forward_pending': False})
             if not pending:
                 continue
+            replan_date = rec._carry_forward_default_date()
             for source in pending:
                 new_line = self.env['employee.task.line'].sudo().with_context(
                     etm_workflow=True).create({
                         'task_list_id': rec.id,
                         'description': source.description,
-                        # Dates deliberately blank - the employee re-plans.
-                        'start_date': False,
-                        'end_date': False,
+                        # Same as _carry_forward_commands: seeded with a
+                        # valid working day rather than left blank.
+                        'start_date': replan_date,
+                        'end_date': replan_date,
                         'remarks': source.remarks,
                         'is_carried_forward': True,
                         'carried_from_line_id': source.id,
@@ -874,7 +913,8 @@ class EmployeeTaskList(models.Model):
                 '%(count)s task(s) rejected on an earlier task list were '
                 'added here automatically and must be redone. Only the '
                 'activities that were not completed have come across, '
-                'with the dates cleared for you to re-plan.',
+                'dated %(day)s - change the dates to suit your plan.',
+                day=replan_date,
                 count=len(pending)))
             _logger.info(
                 "Carried %s rejected task(s) forward into %s",
@@ -1369,15 +1409,27 @@ class EmployeeTaskList(models.Model):
             if float_compare(per_day[day], capacity,
                              precision_digits=2) > 0:
                 raise ValidationError(_(
-                    'This task list cannot be submitted: it would put '
-                    '%(emp)s over capacity on %(day)s.\n\n'
+                    'This task list cannot be submitted - not enough '
+                    'capacity on %(day)s.\n\n'
+                    'Employee: %(emp)s\n'
+                    'Task list: %(name)s\n\n'
                     'Daily capacity: %(cap)s\n'
-                    'Already committed plus this list: %(total)s\n\n'
-                    'Reduce the activity hours, or move some of the '
-                    'work to another day.',
-                    emp=self.employee_id.name, day=day,
+                    'Total once this list counts: %(total)s\n'
+                    'Over by: %(over)s\n\n'
+                    'What you can do:\n'
+                    '  - reduce the activity hours on this list\n'
+                    '  - move some tasks to a day with free capacity\n'
+                    '  - extend a task\'s End Date so its hours spread '
+                    'across more days\n\n'
+                    'Note: hours the manager rejected do NOT count here '
+                    '- that capacity is already released so the work '
+                    'can be redone.',
+                    day=day,
+                    emp=self.employee_id.name or '',
+                    name=self.name or '',
                     cap=Line._format_hours(capacity),
-                    total=Line._format_hours(per_day[day])))
+                    total=Line._format_hours(per_day[day]),
+                    over=Line._format_hours(per_day[day] - capacity)))
 
     def _check_activities_before_submit(self):
         """QA point 11: a task list may not be submitted to the manager

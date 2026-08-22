@@ -19,6 +19,13 @@
                 <field name="manager_id" optional="hide"/>
                 <field name="capacity_hours" widget="float_time" sum="Total Working Hours"/>
                 <field name="allocated_hours" widget="float_time" sum="Allocated"/>
+                <!-- Approved + Pending = Allocated. Rejected sits
+                     OUTSIDE the total: refused work must be redone, so
+                     its capacity is released back into Idle Hours and
+                     the replacement task has room to fit. -->
+                <field name="approved_hours" widget="float_time" sum="Approved" optional="show"/>
+                <field name="rejected_hours" widget="float_time" sum="Rejected" optional="show"/>
+                <field name="pending_hours" widget="float_time" sum="Pending" optional="show"/>
                 <field name="idle_hours" widget="float_time" sum="Idle"/>
                 <field name="notified" optional="show"/>
                 <field name="notify_count" optional="show"/>
@@ -37,6 +44,9 @@
                 <field name="employee_id" type="row"/>
                 <field name="date" type="col"/>
                 <field name="allocated_hours" type="measure"/>
+                <field name="approved_hours" type="measure"/>
+                <field name="rejected_hours" type="measure"/>
+                <field name="pending_hours" type="measure"/>
                 <field name="idle_hours" type="measure"/>
             </pivot>
         </field>
@@ -66,11 +76,24 @@
                         domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter name="filter_upcoming" string="Today and Later"
                         domain="[('date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <!-- Backward-looking ranges. On the manager's menu the
+                     action's own domain already caps everything at
+                     today, so these are the ranges that actually
+                     return rows there. -->
+                <filter name="filter_last_7" string="Last 7 Days"
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_this_month" string="This Month"
+                        domain="[('date', '&gt;=', (context_today().replace(day=1)).strftime('%Y-%m-%d'))]"/>
                 <separator/>
                 <filter name="filter_has_idle" string="Has Idle Time"
                         domain="[('has_idle', '=', True)]"/>
                 <filter name="filter_fully_booked" string="Fully Booked"
                         domain="[('has_idle', '=', False)]"/>
+                <separator/>
+                <filter name="filter_has_rejected" string="Has Rejected Hours"
+                        domain="[('rejected_hours', '&gt;', 0)]"/>
+                <filter name="filter_has_pending" string="Awaiting Review"
+                        domain="[('pending_hours', '&gt;', 0)]"/>
                 <separator/>
                 <filter name="filter_notified" string="Reminder Sent"
                         domain="[('notified', '=', True)]"/>
@@ -98,6 +121,19 @@
         <field name="res_model">employee.task.idle.day</field>
         <field name="view_mode">tree,pivot,graph</field>
         <field name="search_view_id" ref="view_idle_day_search"/>
+        <!-- HARD domain, not a filter. The manager asked that clearing
+             every filter still never shows a future date - and a filter
+             that has been removed is no longer doing anything, so the
+             only way to guarantee it is here on the action, where the
+             user cannot reach it.
+
+             Rows for future days are still GENERATED (HORIZON_DAYS is
+             unchanged); they are simply not shown until they arrive.
+             That keeps this reversible - deleting these two lines
+             restores forward planning, whereas not generating them
+             would lose the data permanently, since the cron only ever
+             builds forward from today. -->
+        <field name="domain">[('date', '&lt;=', context_today().strftime('%Y-%m-%d'))]</field>
         <field name="context">{'search_default_filter_today': 1, 'search_default_filter_has_idle': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No capacity rows yet</p>

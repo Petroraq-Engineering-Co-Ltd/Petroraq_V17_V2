@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Employee Task Management',
-    'version': '17.0.1.16.0',
+    'version': '17.0.1.19.0',
     'category': 'Human Resources',
     'summary': 'Employee Task List Approval Workflow',
     'description': """
@@ -32,6 +32,7 @@ Developed for: Petroraq Digital Solutions
         'wizard/task_modification_wizard_views.xml',
         'wizard/task_reject_wizard_views.xml',
         'wizard/task_line_reject_wizard_views.xml',
+        'views/activity_reject_wizard_views.xml',
         'views/employee_task_subtask_views.xml',
         'views/employee_task_list_views.xml',
         'views/employee_idle_day_views.xml',
