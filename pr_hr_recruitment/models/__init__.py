@@ -6,4 +6,5 @@ from . import hr_applicant
 from . import hr_work_permit
 from . import bank_payment
 from . import mail_alias
+from . import applicant_refuse_reason
 

@@ -12,6 +12,16 @@
             <field name="active">True</field>
             <field name="nextcall">2026-04-05 21:00:00</field>
         </record>
+        <record id="ir_cron_finalize_daily_attendance_statuses" model="ir.cron">
+            <field name="name">Finalize Missing and Late Attendance Statuses</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_finalize_daily_attendance_statuses()</field>
+            <field name="interval_number">15</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="active">True</field>
+        </record>
     </data>
 
     <data>

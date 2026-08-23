@@ -392,8 +392,15 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             and day == dashboard_today
             and all(self._to_local(attendance.check_in, timezone).date() == day for attendance in open_attendances)
         )
+        core_absent = bool(
+            attendances
+            and "attendance_day_status" in attendances._fields
+            and attendances.filtered(lambda attendance: attendance.attendance_day_status == "absent")
+        )
 
-        if is_current_day_open_attendance:
+        if core_absent:
+            status = "absent"
+        elif is_current_day_open_attendance:
             status = "checked_in"
         elif open_attendances:
             status = "missing_checkout"

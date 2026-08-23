@@ -67,6 +67,30 @@ class AttendanceSheetBatch(models.Model):
 
     company_id = fields.Many2one('res.company', string='Company', tracking=True, default=lambda self: self.env.company, required=True)
 
+    @api.model
+    def _company_attendance_period(self, company, anchor_date=None):
+        """Return the company payroll/attendance cycle containing the anchor."""
+        anchor = fields.Date.to_date(anchor_date or fields.Date.context_today(self))
+        company_name = (company.name or '').lower()
+        if 'exit5' in company_name or 'exit 5' in company_name:
+            return anchor.replace(day=1), anchor + relativedelta(months=1, day=1, days=-1)
+        # Petroraq's cycle closes on the 25th.  An anchor after the 25th belongs
+        # to the following payroll month.
+        cycle_end = anchor.replace(day=25)
+        if anchor.day > 25:
+            cycle_end += relativedelta(months=1)
+        return cycle_end - relativedelta(months=1) + timedelta(days=1), cycle_end
+
+    @api.onchange('company_id')
+    def _onchange_company_attendance_period(self):
+        for batch in self.filtered('company_id'):
+            batch.date_from, batch.date_to = batch._company_attendance_period(batch.company_id)
+
+    @api.onchange('department_id')
+    def _onchange_department_attendance_period(self):
+        for batch in self.filtered(lambda item: item.department_id.company_id):
+            batch.date_from, batch.date_to = batch._company_attendance_period(batch.department_id.company_id)
+
     @api.onchange('type', 'department_id','company_id', 'date_from', 'date_to')
     def onchange_employee(self):
         if self.type == 'department':

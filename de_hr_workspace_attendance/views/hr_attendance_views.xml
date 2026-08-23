@@ -55,10 +55,19 @@
                 <filter name="today_attendances"
                         string="Today"
                         domain="[('check_in', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')), ('check_in', '&lt;', (context_today() + relativedelta(days=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="current_month_attendances"
+                        string="Current Month"
+                        domain="[('check_in', '&gt;=', context_today().replace(day=1).strftime('%Y-%m-%d 00:00:00')), ('check_in', '&lt;', (context_today().replace(day=1) + relativedelta(months=1)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter name="previous_month_attendances"
+                        string="Previous Month"
+                        domain="[('check_in', '&gt;=', (context_today().replace(day=1) - relativedelta(months=1)).strftime('%Y-%m-%d 00:00:00')), ('check_in', '&lt;', context_today().replace(day=1).strftime('%Y-%m-%d 00:00:00'))]"/>
                 <separator/>
                 <filter name="group_by_day"
                         string="Daily"
                         context="{'group_by': 'check_in:day'}"/>
+                <filter name="group_by_month"
+                        string="Monthly"
+                        context="{'group_by': 'check_in:month'}"/>
             </search>
         </field>
     </record>
@@ -72,8 +81,8 @@
             (0, 0, {'view_mode': 'tree', 'view_id': ref('hr_attendance_workspace_tree_view')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('hr_attendance_workspace_form_view')})]"/>
         <field name="domain">[('employee_id.user_id', '=', uid)]</field>
-        <field name="context">{'create': False, 'edit': False, 'search_default_today_attendances': 1,
-            'search_default_group_by_day': 1}
+        <field name="context">{'create': False, 'edit': False,
+            'search_default_group_by_month': 1}
         </field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">
@@ -85,6 +94,13 @@
         </field>
     </record>
 
+    <record id="action_open_my_attendance_workspace" model="ir.actions.server">
+        <field name="name">My Attendances</field>
+        <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_workspace_attendances()</field>
+    </record>
+
     <menuitem id="menu_my_attendance"
               name="Attendance"
               parent="de_hr_workspace.menu_my_workspace"
@@ -92,7 +108,7 @@
               groups="de_hr_workspace.group_hr_employee_workspace"/>
 
     <menuitem id="menu_my_attendance_attendance"
-              name="My Attendance" parent="menu_my_attendance" action="action_my_attendance" sequence="10"
+              name="My Attendance" parent="menu_my_attendance" action="action_open_my_attendance_workspace" sequence="10"
               groups="de_hr_workspace.group_hr_employee_workspace"/>
 
 </odoo>

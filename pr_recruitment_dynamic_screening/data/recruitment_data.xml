@@ -2,6 +2,7 @@
 <odoo noupdate="1">
     <record id="refuse_reason_automatic_screening" model="hr.applicant.refuse.reason">
         <field name="name">Did not meet automatic screening requirements</field>
+        <field name="template_id" ref="pr_hr_recruitment.email_template_applicant_rejection"/>
     </record>
 </odoo>
 
