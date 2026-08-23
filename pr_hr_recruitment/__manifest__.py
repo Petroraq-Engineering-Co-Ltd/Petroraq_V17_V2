@@ -16,7 +16,7 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Human Resources/Employees/Recruitment',
-    'version': '17.0.1.0.5',
+    'version': '17.0.1.0.6',
     # any module necessary for this one to work correctly
     'depends': ['pr_hr_account', 'website_hr_recruitment', 'de_hr_workspace', 'mail', 'pr_tax_Invoice_report_custom', 'prt_report_attachment_preview'],
 
@@ -30,6 +30,7 @@
         'views/hr_applicant_onboarding.xml',
         'reports/applicant_offer_letter_report.xml',
         'data/applicant_offer_letter_email.xml',
+        'data/applicant_rejection_email.xml',
         'views/hr_applicant.xml',
         'views/hr_work_permit.xml',
         'views/hr_work_permit_approvals.xml',

@@ -283,6 +283,32 @@ class HrShortageRequest(models.Model):
 
     # region [Actions]
 
+    def _approval_identity(self, user):
+        employee = self.env["hr.employee"].sudo().search([("user_id", "=", user.id)], limit=1)
+        return ("employee", employee.id) if employee else ("user", user.id)
+
+    def _stage_has_unique_approver(self, users, higher_users):
+        higher_keys = {self._approval_identity(user) for user in higher_users.filtered("active")}
+        return any(
+            self._approval_identity(user) not in higher_keys
+            for user in users.filtered("active")
+        )
+
+    def _advance_duplicate_approval_stages(self):
+        """Skip lower levels when all their people also hold a higher level."""
+        for rec in self:
+            manager_users = rec.employee_manager_id.user_id
+            supervisor_users = rec.hr_supervisor_ids
+            manager_users_hr = rec.hr_manager_ids
+            if rec.state == "draft" and not rec._stage_has_unique_approver(
+                manager_users, supervisor_users | manager_users_hr
+            ):
+                rec.sudo().write({"state": "manager_approve", "approval_state": "manager_approve"})
+            if rec.state == "manager_approve" and not rec._stage_has_unique_approver(
+                supervisor_users, manager_users_hr
+            ):
+                rec.sudo().write({"state": "hr_supervisor", "approval_state": "hr_supervisor"})
+
     def action_manager_approve(self):
         for rec in self:
             if rec.employee_manager_id.user_id != self.env.user:
@@ -291,7 +317,11 @@ class HrShortageRequest(models.Model):
             rec = rec.sudo()
             rec.state = "manager_approve"
             rec.approval_state = "manager_approve"
-            rec._send_hr_supervisor_email()
+            rec._advance_duplicate_approval_stages()
+            if rec.state == "manager_approve":
+                rec._send_hr_supervisor_email()
+            elif rec.state == "hr_supervisor":
+                rec._send_hr_manager_email()
 
     def action_manager_reject(self):
         for rec in self:
@@ -318,6 +348,7 @@ class HrShortageRequest(models.Model):
             rec = rec.sudo()
             rec.state = "hr_supervisor"
             rec.approval_state = "hr_supervisor"
+            rec._advance_duplicate_approval_stages()
             rec._send_hr_manager_email()
 
     def action_hr_supervisor_reject(self):
@@ -451,7 +482,13 @@ class HrShortageRequest(models.Model):
             res.hr_supervisor_ids = hr_supervisor_ids.ids
         if hr_manager_ids:
             res.hr_manager_ids = hr_manager_ids.ids
-        res.sudo()._send_manager_email()
+        res.sudo()._advance_duplicate_approval_stages()
+        if res.state == "draft":
+            res.sudo()._send_manager_email()
+        elif res.state == "manager_approve":
+            res.sudo()._send_hr_supervisor_email()
+        else:
+            res.sudo()._send_hr_manager_email()
         return res
 
     def write(self, vals):

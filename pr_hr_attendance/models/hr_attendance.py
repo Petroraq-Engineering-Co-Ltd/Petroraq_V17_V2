@@ -44,6 +44,21 @@ class HrAttendance(models.Model):
         copy=False,
         index=True,
     )
+    attendance_day_status = fields.Selection(
+        [
+            ("normal", "Present"),
+            ("missing_punch", "Missing Check-Out"),
+            ("absent", "Absent"),
+        ],
+        string="Daily Attendance Status",
+        default="normal",
+        required=True,
+        readonly=True,
+        copy=False,
+        index=True,
+        help="Core daily status shared by Attendance, dashboards, workspace and payroll.",
+    )
+    attendance_status_reason = fields.Char(readonly=True, copy=False)
 
     attachment_ids = fields.Many2many(
         "ir.attachment",
@@ -163,7 +178,9 @@ class HrAttendance(models.Model):
             prepared_values = dict(values)
             prepared_values["attendance_entry_source"] = source
             prepared.append(prepared_values)
-        return super().create(prepared)
+        records = super().create(prepared)
+        records._refresh_daily_attendance_status()
+        return records
 
     def write(self, values):
         if not self:
@@ -179,7 +196,68 @@ class HrAttendance(models.Model):
                 employee_ids.append(values["employee_id"])
             employees = self._attendance_policy_employees_from_ids(employee_ids)
             self._check_attendance_policy_for_employees(employees, _("modified"))
-        return super().write(values)
+        result = super().write(values)
+        if not self.env.context.get("skip_daily_attendance_status") and {
+            "check_in", "check_out", "employee_id"
+        }.intersection(values):
+            self._refresh_daily_attendance_status()
+        return result
+
+    def _attendance_local_datetime(self, value):
+        self.ensure_one()
+        tz_name = (
+            self.employee_id.tz
+            or self.employee_id.resource_calendar_id.tz
+            or self.env.company.partner_id.tz
+            or "Asia/Riyadh"
+        )
+        timezone = pytz.timezone(tz_name)
+        return pytz.UTC.localize(fields.Datetime.to_datetime(value)).astimezone(timezone)
+
+    def _refresh_daily_attendance_status(self, now=None):
+        """Keep a durable status on the core attendance record.
+
+        A check-in at 09:00:00 or later is absent.  A single punch remains a
+        visible missing-punch issue during its local day and becomes absent as
+        soon as that day has ended.
+        """
+        utc_now = fields.Datetime.to_datetime(now or fields.Datetime.now())
+        for attendance in self.filtered("check_in"):
+            local_check_in = attendance._attendance_local_datetime(attendance.check_in)
+            local_now = attendance._attendance_local_datetime(utc_now)
+            if attendance.attendance_entry_source == "approved_shortage":
+                status = "normal"
+                reason = False
+            elif local_check_in.time() >= time(9, 0, 0):
+                status = "absent"
+                reason = _("Check-in was at or after 09:00:00.")
+            elif not attendance.check_out and local_now.date() > local_check_in.date():
+                status = "absent"
+                reason = _("The missing daily punch was not resolved before midnight.")
+            elif not attendance.check_out:
+                status = "missing_punch"
+                reason = _("Only the first biometric punch was received; Check-Out is missing.")
+            else:
+                status = "normal"
+                reason = False
+            if (
+                attendance.attendance_day_status != status
+                or attendance.attendance_status_reason != reason
+            ):
+                attendance.with_context(skip_daily_attendance_status=True).write({
+                    "attendance_day_status": status,
+                    "attendance_status_reason": reason,
+                })
+
+    @api.model
+    def cron_finalize_daily_attendance_statuses(self):
+        candidates = self.sudo().search([
+            ("check_in", "!=", False),
+            "|",
+            ("check_out", "=", False),
+            ("attendance_day_status", "!=", "absent"),
+        ])
+        candidates._refresh_daily_attendance_status()
 
     def unlink(self):
         if not self:

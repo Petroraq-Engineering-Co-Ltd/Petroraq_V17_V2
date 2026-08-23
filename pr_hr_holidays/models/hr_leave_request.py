@@ -701,9 +701,12 @@ class HrLeaveRequest(models.Model):
             "hr_supervisor": _filter_users(hr_manager_users),
         }
 
+        # Reserve a person for their highest authority first.  Lower duplicate
+        # stages are therefore auto-progressed and the dashboard exposes one
+        # approval only: the highest one.
         seen_identity_keys = set()
         stage_map = {}
-        for stage in ("draft", "manager_approve", "hr_supervisor"):
+        for stage in ("hr_supervisor", "manager_approve", "draft"):
             unique_ids = []
             for user in stage_users[stage]:
                 key = self._get_user_identity_key(user)

@@ -16,6 +16,40 @@ class HrAttendance(models.Model):
     minute_rate = fields.Char(string="Minute Rate", compute="_compute_minute_rate_text")
     show_shortage_button = fields.Boolean(compute="_compute_shortage_time_text")
 
+    @api.model
+    def action_open_workspace_attendances(self):
+        """Open self-service attendance with concrete two-month boundaries.
+
+        Dynamic date helpers are not available in the web client's action
+        expression evaluator, so calculate timezone-correct UTC values here.
+        """
+        today = fields.Date.context_today(self)
+        current_month_start = today.replace(day=1)
+        previous_month_start = current_month_start - relativedelta(months=1)
+        next_month_start = current_month_start + relativedelta(months=1)
+        timezone = pytz.timezone(self.env.user.tz or "Asia/Riyadh")
+
+        def _utc_midnight(day):
+            local_value = timezone.localize(datetime.combine(day, time.min))
+            return fields.Datetime.to_string(
+                local_value.astimezone(pytz.UTC).replace(tzinfo=None)
+            )
+
+        action = self.env["ir.actions.actions"]._for_xml_id(
+            "de_hr_workspace_attendance.action_my_attendance"
+        )
+        action["domain"] = [
+            ("employee_id.user_id", "=", self.env.uid),
+            ("check_in", ">=", _utc_midnight(previous_month_start)),
+            ("check_in", "<", _utc_midnight(next_month_start)),
+        ]
+        action["context"] = {
+            "create": False,
+            "edit": False,
+            "search_default_group_by_month": 1,
+        }
+        return action
+
     def action_open_shortage_request(self):
         for rec in self:
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')

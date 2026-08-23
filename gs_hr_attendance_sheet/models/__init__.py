@@ -14,6 +14,7 @@
 
 from . import hr_employee
 from . import hr_attendance_sheet
+from . import hr_salary_rule
 from . import hr_attendance_policy
 from . import hr_holidays
 from . import hr_contract

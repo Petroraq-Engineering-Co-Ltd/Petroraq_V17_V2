@@ -628,7 +628,10 @@ class HrApplicant(models.Model):
                     body=Markup("<p>%s</p><ul>%s</ul>")
                     % (escape(_("Application automatically refused by screening rules.")), items)
                 )
+                applicant.sudo().write({"rejection_email_queued_at": False})
+                applicant.sudo()._queue_rejection_email(refusal_reason.template_id)
             elif not failures and previous_status == "auto_refused":
+                applicant.sudo().write({"rejection_email_queued_at": False})
                 applicant.sudo().message_post(
                     body=escape(
                         _(
