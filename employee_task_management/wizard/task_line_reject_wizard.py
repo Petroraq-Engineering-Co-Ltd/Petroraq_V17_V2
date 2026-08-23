@@ -26,6 +26,14 @@ class EmployeeTaskLineRejectWizard(models.TransientModel):
             raise ValidationError(_('A rejection reason is required.'))
         line = self.task_line_id
         line._check_reviewable()
+        # Rejecting the TASK rejects every activity on it - the
+        # manager's decision covers the whole thing, and leaving the
+        # activities Pending underneath a rejected task would make the
+        # hours split disagree with the verdict on screen.
+        line.subtask_ids.with_context(etm_workflow=True).write({
+            'manager_verdict': 'rejected',
+            'verdict_reason': self.reason,
+        })
         line.with_context(etm_workflow=True).write({
             'manager_verdict': 'rejected',
             'verdict_reason': self.reason,

@@ -23,16 +23,29 @@ class EmployeeTaskRejectWizard(models.TransientModel):
         if not self.reject_reason or not self.reject_reason.strip():
             raise ValidationError(_(
                 'A reject reason is mandatory when rejecting a task list.'))
-        if task.state != 'completed':
+        # A list that started on its own start date can also be
+        # rejected while still running - that is the manager's only
+        # chance to refuse work he never approved in the first place.
+        running_review = (
+            task.state == 'in_progress' and task.started_without_approval)
+        if task.state != 'completed' and not running_review:
             raise ValidationError(_(
-                'Only a task list marked as Completed can be rejected.'))
+                'Only a task list marked as Completed - or one that '
+                'started without approval - can be rejected.'))
         task._check_approver_rights()
         task._set_state('rejected', {
             'reject_reason': self.reject_reason,
             'is_unlocked': False,
         })
+        # Work already done is NOT wiped. Activities keep their done
+        # ticks and the progress figures stand; the list simply ends in
+        # Rejected so the record of what was actually worked survives.
         task.task_line_ids.with_context(etm_workflow=True).write(
             {'task_status': 'closed'})
+        if running_review:
+            task.message_post(body=_(
+                'Rejected while in progress. Work already recorded has '
+                'been kept as-is.'))
         task._log_approval_history('rejected', self.reject_reason)
         task.activity_feedback(['mail.mail_activity_data_todo'])
         task._notify_user(
