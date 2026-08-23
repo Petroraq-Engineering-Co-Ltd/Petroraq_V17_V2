@@ -9,7 +9,7 @@
             <!-- decoration keywords are restricted to Odoo's whitelist
                  (bf, it, danger, info, muted, primary, success,
                  warning) - anything else crashes the view. -->
-            <tree string="Employee Capacity" create="false" delete="false"
+            <tree string="Employee Hours" create="false" delete="false"
                   edit="false" decoration-danger="idle_hours &gt;= 4"
                   decoration-warning="idle_hours &gt; 0 and idle_hours &lt; 4"
                   decoration-success="idle_hours == 0">
@@ -118,7 +118,7 @@
     <!-- Manager view: the whole team, defaulting to today's idle time,
          which is the question he actually opens this menu to answer. -->
     <record id="action_idle_hours" model="ir.actions.act_window">
-        <field name="name">Employee Capacity &amp; Idle Hours</field>
+        <field name="name">Employee Hours &amp; Idle Hours</field>
         <field name="res_model">employee.task.idle.day</field>
         <field name="view_mode">tree,pivot,graph</field>
         <field name="search_view_id" ref="view_idle_day_search"/>
