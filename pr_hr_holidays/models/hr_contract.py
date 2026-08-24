@@ -219,8 +219,3 @@ class HrContract(models.Model):
         if "date_end" in vals:
             self._pr_close_timeoff_at_last_working_day()
         return result
-
-    def action_running(self):
-        result = super().action_running()
-        self._pr_sync_onboarding_timeoff_allocations()
-        return result

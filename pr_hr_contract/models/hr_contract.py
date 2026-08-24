@@ -193,7 +193,7 @@ class HrContract(models.Model):
             rec.net_amount = rec.wage + gross_amount + rec.gosi_amount
             # endregion [Compute Other Amounts]
 
-    @api.onchange('is_automatic_gosi', 'contract_salary_rule_ids', 'contract_salary_rule_ids.salary_rule_id')
+    @api.onchange('is_automatic_gosi', 'contract_salary_rule_ids')
     @api.constrains('is_automatic_gosi', 'contract_salary_rule_ids')
     def _check_gosi_salary(self):
         """
@@ -355,8 +355,10 @@ class HrContract(models.Model):
     # region [Actions]
 
     def action_running(self):
-        for contract in self:
-            contract.write({'state': 'open'})
+        _logger.info("Starting contract activation for contract IDs %s", self.ids)
+        result = self.write({'state': 'open'})
+        _logger.info("Finished contract activation for contract IDs %s", self.ids)
+        return result
 
     def action_set_to_draft(self):
         for contract in self:
