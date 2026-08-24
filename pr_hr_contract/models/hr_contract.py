@@ -194,7 +194,7 @@ class HrContract(models.Model):
             # endregion [Compute Other Amounts]
 
     @api.onchange('is_automatic_gosi', 'contract_salary_rule_ids', 'contract_salary_rule_ids.salary_rule_id')
-    @api.constrains('is_automatic_gosi', 'contract_salary_rule_ids', 'contract_salary_rule_ids.salary_rule_id')
+    @api.constrains('is_automatic_gosi', 'contract_salary_rule_ids')
     def _check_gosi_salary(self):
         """
         Method applied to calculate GOSI Salary, it cals another method (set_gosi_salary)
