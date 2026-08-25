@@ -201,10 +201,7 @@ class AccountBankPayment(models.Model):
         is_accounting_manager = self.env.user.has_group(
             "pr_account.custom_group_accounting_manager"
         )
-        is_first_approver = (
-            self.env.user.has_group("account.group_account_manager")
-            and not is_accounting_manager
-        )
+        is_first_approver = self.env.user.has_group("account.group_account_manager")
         if self.state == "submit" and not is_first_approver:
             raise UserError(_("Only the first Accounts approver can reject a submitted Bank Payment Voucher."))
         if self.state == "finance_approve" and not is_accounting_manager:
@@ -247,15 +244,14 @@ class AccountBankPayment(models.Model):
         if (
             not self.env.su
             and not self.env.user.has_group("base.group_system")
-            and (
-                not self.env.user.has_group("account.group_account_manager")
-                or self.env.user.has_group("pr_account.custom_group_accounting_manager")
-            )
+            and not self.env.user.has_group("account.group_account_manager")
         ):
             raise UserError(_("Only an Accountant can approve this stage."))
         for bank_payment in self:
             bank_payment.state = "finance_approve"
             bank_payment.accounting_manager_state = "finance_approve"
+            if self.env.user.has_group("pr_account.custom_group_accounting_manager"):
+                bank_payment.action_post()
 
     def action_post(self):
         if (
