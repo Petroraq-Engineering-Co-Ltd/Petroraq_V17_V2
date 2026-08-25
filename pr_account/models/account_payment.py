@@ -174,10 +174,14 @@ class AccountPayment(models.Model):
             ("partner_type", "=", "supplier"),
             ("state", "=", "draft"),
         ]
-        if self.env.user.has_group("pr_account.custom_group_accounting_manager"):
-            return base_domain + [("pr_payment_approval_state", "=", "finance_approve")]
-        if self.env.user.has_group("account.group_account_manager"):
+        is_accounts_approver = self.env.user.has_group("account.group_account_manager")
+        is_final_approver = self.env.user.has_group("pr_account.custom_group_accounting_manager")
+        if is_accounts_approver and is_final_approver:
+            return base_domain + [("pr_payment_approval_state", "in", ("submit", "finance_approve"))]
+        if is_accounts_approver:
             return base_domain + [("pr_payment_approval_state", "=", "submit")]
+        if is_final_approver:
+            return base_domain + [("pr_payment_approval_state", "=", "finance_approve")]
         return [("id", "=", 0)]
 
     def _search_pr_is_current_vendor_payment_approver(self, operator, value):
@@ -195,10 +199,7 @@ class AccountPayment(models.Model):
     @api.depends_context("uid")
     def _compute_pr_vendor_payment_current_user_flags(self):
         is_final_approver = self.env.user.has_group("pr_account.custom_group_accounting_manager")
-        is_accounts_approver = (
-                self.env.user.has_group("account.group_account_manager")
-                and not is_final_approver
-        )
+        is_accounts_approver = self.env.user.has_group("account.group_account_manager")
 
         for payment in self:
             is_approval_payment = (
@@ -250,6 +251,8 @@ class AccountPayment(models.Model):
                 raise UserError(_("Only submitted vendor payments can be approved."))
             payment.pr_payment_approval_state = "finance_approve"
             payment.message_post(body=_("Vendor payment approved by Accounts."))
+            if self.env.user.has_group("pr_account.custom_group_accounting_manager"):
+                payment.action_pr_vendor_payment_final_approve()
         return True
 
     def action_pr_vendor_payment_reset_to_draft(self):
