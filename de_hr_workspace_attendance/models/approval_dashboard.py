@@ -212,13 +212,17 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def _account_payment_approval_domain(self):
         user = self.env.user
-        if user.has_group("pr_account.custom_group_accounting_manager"):
-            return [("state", "=", "finance_approve")]
-        if (
+        is_final_approver = user.has_group("pr_account.custom_group_accounting_manager")
+        is_first_approver = (
             user.has_group("account.group_account_manager")
             or user.has_group("pr_account.custom_group_account_supervisor")
-        ):
+        )
+        if is_first_approver and is_final_approver:
+            return [("state", "in", ["submit", "finance_approve"])]
+        if is_first_approver:
             return [("state", "=", "submit")]
+        if is_final_approver:
+            return [("state", "=", "finance_approve")]
         if user.has_group("base.group_system"):
             return [("state", "in", ["submit", "finance_approve"])]
         return [("id", "=", 0)]
