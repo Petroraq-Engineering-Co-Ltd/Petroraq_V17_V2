@@ -454,6 +454,34 @@ class HrApprovalDashboardService(models.AbstractModel):
             else:
                 section_tiles[tile["key"]] = tile
 
+        # The legacy shortage approval menu is intentionally hidden from the
+        # workspace navigation, but HR must still receive its dashboard card.
+        # Build the card directly from the existing action so visibility no
+        # longer depends on that commented-out menu item.
+        shortage_action = self.env.ref(
+            "de_hr_workspace_attendance.action_my_shortage_request_approvals",
+            raise_if_not_found=False,
+        )
+        if shortage_action and "pr.hr.shortage.request" in self.env:
+            shortage_records = self.env["pr.hr.shortage.request"].search(
+                self._shortage_pending_domain()
+            )
+            hr_tiles = grouped_tiles.setdefault("hr", {})
+            shortage_key = "hr|pr.hr.shortage.request|shortage requests"
+            hr_tiles[shortage_key] = {
+                "key": shortage_key,
+                "name": _("Shortage Requests"),
+                "count": len(shortage_records),
+                "icon": "fa-clock-o",
+                "tone": "warning",
+                "action_id": shortage_action.id,
+                "res_model": "pr.hr.shortage.request",
+                "view_mode": shortage_action.view_mode or "list,form",
+                "domain": [("id", "in", shortage_records.ids)],
+                "context": self._context_from_action(shortage_action),
+                "_ids": set(shortage_records.ids),
+            }
+
         sections = []
         for section_key, tiles_by_key in grouped_tiles.items():
             definition = self.APPROVAL_SECTIONS.get(section_key, self.APPROVAL_SECTIONS["other"])

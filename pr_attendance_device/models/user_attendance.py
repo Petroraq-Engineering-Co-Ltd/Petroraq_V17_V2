@@ -260,9 +260,12 @@ class UserAttendance(models.Model):
             limit=1,
         )
 
-        # Multiple checkout punches without an intervening check-in extend the
-        # latest same-day session to the final checkout.
-        if self.type == 'checkout' and closed_attendance:
+        # One biometric day is one attendance record: the first punch is the
+        # check-in and every later punch moves the checkout to the latest
+        # timestamp.  The machine's alternating IN/OUT flag is deliberately
+        # ignored because devices frequently toggle it for intermediate
+        # punches (breaks, site gates, etc.).
+        if closed_attendance:
             closed_checkout = fields.Datetime.to_datetime(closed_attendance.check_out)
             if timestamp > closed_checkout:
                 closed_attendance.with_context(
@@ -277,13 +280,13 @@ class UserAttendance(models.Model):
                     'auto_corrected',
                     interpreted_type='checkout',
                     attendance=closed_attendance,
-                    note=_('Extended the latest same-day session to the final checkout punch.'),
+                    note=_('Intermediate punch ignored; the daily checkout was moved to the final punch.'),
                 )
                 return closed_attendance
 
-        # With no open session, a normal Check-in starts a split session. A
-        # first-of-day Checkout is treated as an accidentally labelled Check-in.
-        if self.type == 'checkin' or not closed_attendance:
+        # The first punch of the local day always starts the single daily
+        # attendance record, regardless of the device-provided punch label.
+        if not closed_attendance:
             attendance = self._create_hr_attendance()
             corrected = self.type != 'checkin'
             self._mark_reconciled(

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="email_template_applicant_rejection" model="mail.template">
+        <field name="name">Candidate Rejection</field>
+        <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+        <field name="subject">Update regarding your application</field>
+        <field name="email_from">{{ object.company_id.email_formatted or user.email_formatted }}</field>
+        <field name="email_to">{{ object.email_from or object.partner_id.email }}</field>
+        <field name="body_html" type="html">
+            <div>
+                <p>Dear <t t-out="object.partner_name or object.name"/>,</p>
+                <p>Thank you for your interest and for the time you invested in your application.</p>
+                <p>After reviewing your application, we will not be progressing it further at this time.</p>
+                <p>We wish you success in your future opportunities.</p>
+            </div>
+        </field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+</odoo>

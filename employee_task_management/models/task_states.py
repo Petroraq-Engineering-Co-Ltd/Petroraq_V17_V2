@@ -95,3 +95,15 @@ MANAGER_HOURS_STATES = (
     'completed',
     'rejected',
 )
+
+
+# Task-list states whose hours do NOT consume the employee's daily
+# capacity.
+#   * Draft      - not committed to anything yet; it is a private
+#                  scratchpad until he submits it.
+#   * Rejected   - the manager refused it, so the hours are released
+#                  back to the employee's day.
+# Everything else DOES count, including Submitted to Manager (he is
+# committed to it while it waits) and Closed (the work really was done
+# that day - excluding it would make a finished day read as fully idle).
+UNALLOCATED_STATES = ('draft', 'rejected')

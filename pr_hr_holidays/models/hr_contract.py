@@ -146,17 +146,15 @@ class HrContract(models.Model):
                 allocation = Allocation.create(
                     contract._pr_prepare_onboarding_allocation_vals(leave_type, spec, accrual_plan)
                 )
+                allocation.action_validate()
                 if allocation.allocation_type == "accrual":
                     process_until = min(today, allocation.date_to)
-                    allocation.write({
-                        "lastcall": contract.date_start,
-                        "nextcall": False,
-                        "number_of_days": 0.0,
-                        "already_accrued": False,
-                    })
                     if contract.date_start <= process_until:
-                        allocation._process_accrual_plans(process_until, log=False)
-                allocation.action_validate()
+                        # Validation initializes lastcall/nextcall for the accrual
+                        # plan.  Processing an unvalidated allocation after forcing
+                        # nextcall=False can leave Odoo's accrual loop without a
+                        # forward cursor and make contract activation never return.
+                        allocation._pr_process_accrual_until(process_until)
 
     def _pr_check_timeoff_after_last_working_day(self, cutoff):
         self.ensure_one()
@@ -220,9 +218,4 @@ class HrContract(models.Model):
             self._pr_sync_onboarding_timeoff_allocations()
         if "date_end" in vals:
             self._pr_close_timeoff_at_last_working_day()
-        return result
-
-    def action_running(self):
-        result = super().action_running()
-        self._pr_sync_onboarding_timeoff_allocations()
         return result

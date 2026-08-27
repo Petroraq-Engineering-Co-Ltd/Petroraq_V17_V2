@@ -229,7 +229,7 @@ class HrAttendanceSheet(models.Model):
             for line in sheet.line_ids:
                 if line.status in ("leave", "weekend"):
                     continue
-                if line.ac_sign_in and line.ac_sign_in > cutoff:
+                if line.ac_sign_in and line.ac_sign_in >= cutoff:
                     line.status = "ab"
                     line.late_in = 0
                     line.late_in_minutes = 0

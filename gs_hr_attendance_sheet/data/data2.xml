@@ -170,9 +170,9 @@
         </record>
 
         <record id="gs_unpaid_leave" model="hr.salary.rule">
-            <field name="name">Unpaid leave</field>
+            <field name="name">Unpaid Leave Salary</field>
             <field name="sequence" eval="87"/>
-            <field name="code">LEAVE90</field>
+            <field name="code">UNPAID_LEAVE</field>
             <field name="category_id" ref="hr_payroll.DED"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
@@ -181,6 +181,7 @@
             <field name="struct_id" ref="gs_hr_attendance_sheet.structure_attendance_sheet"/>
             <field name="amount_python_compute">result = (payslip.attendance_sheet_id.total_unpaid_leave*-1 or 0)</field>
         </record>
+        <function model="hr.salary.rule" name="configure_unpaid_leave_salary_rule"/>
 
         <record id="gs_paid_leave" model="hr.salary.rule">
 <!--            <field name="name">Paid Time Off</field>-->

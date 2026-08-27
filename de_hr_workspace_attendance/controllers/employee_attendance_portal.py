@@ -1,6 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 from odoo import fields, http, _
 from odoo.http import request
@@ -24,7 +24,15 @@ class EmployeeAttendancePortal(CustomerPortal):
         return values
 
     def _prepare_my_attendance_domain(self):
-        return [("employee_id.user_id", "=", request.env.user.id)]
+        today = fields.Date.context_today(request.env.user)
+        current_month = today.replace(day=1)
+        previous_month = current_month - relativedelta(months=1)
+        next_month = current_month + relativedelta(months=1)
+        return [
+            ("employee_id.user_id", "=", request.env.user.id),
+            ("check_in", ">=", previous_month),
+            ("check_in", "<", next_month),
+        ]
 
     def _prepare_my_attendance_searchbar_sortings(self):
         return {
@@ -34,10 +42,13 @@ class EmployeeAttendancePortal(CustomerPortal):
 
     def _prepare_my_attendance_searchbar_filters(self):
         today = fields.Date.context_today(request.env.user)
-        tomorrow = today + timedelta(days=1)
+        current_month = today.replace(day=1)
+        previous_month = current_month - relativedelta(months=1)
+        next_month = current_month + relativedelta(months=1)
         return {
-            'today': {'label': _('Today'), 'domain': [('check_in', '>=', today), ('check_in', '<', tomorrow)]},
-            'all': {'label': _('All'), 'domain': []},
+            'two_months': {'label': _('Current & Previous Month'), 'domain': []},
+            'current': {'label': _('Current Month'), 'domain': [('check_in', '>=', current_month), ('check_in', '<', next_month)]},
+            'previous': {'label': _('Previous Month'), 'domain': [('check_in', '>=', previous_month), ('check_in', '<', current_month)]},
         }
 
     @http.route(['/my/attendances', '/my/attendances/page/<int:page>'], type='http', auth="user", website=True)
@@ -54,7 +65,7 @@ class EmployeeAttendancePortal(CustomerPortal):
 
         searchbar_filters = self._prepare_my_attendance_searchbar_filters()
         if not filterby:
-            filterby = 'today'
+            filterby = 'two_months'
         domain += searchbar_filters[filterby]['domain']
 
         if date_begin and date_end:

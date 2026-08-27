@@ -12,6 +12,8 @@
                 <field name="attachment_ids" widget="many2many_binary" optional="show"/>
                 <field name="auto_generated_attendance" readonly="1"/>
                 <field name="attendance_entry_source" readonly="1"/>
+                <field name="attendance_day_status" readonly="1"/>
+                <field name="attendance_status_reason" readonly="1" invisible="attendance_day_status == 'normal'"/>
             </xpath>
 
             <xpath expr="//div[hasclass('oe_chatter')]" position="replace">
@@ -34,6 +36,7 @@
             <xpath expr="//field[@name='overtime_for_approval']" position="after">
                 <field name="auto_generated_attendance" optional="hide"/>
                 <field name="attendance_entry_source" optional="show"/>
+                <field name="attendance_day_status" optional="show" decoration-danger="attendance_day_status == 'absent'" decoration-warning="attendance_day_status == 'missing_punch'"/>
             </xpath>
         </field>
     </record>
