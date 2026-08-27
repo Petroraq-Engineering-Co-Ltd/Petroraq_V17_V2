@@ -34,7 +34,6 @@ HORIZON_DAYS = 14
 
 # Local clock hours at which an employee with idle time is notified.
 # Four slots inside the 08:00-17:00 working day, the last one early
-# enough that there is still time to act on it.
 NOTIFY_HOURS_LOCAL = (9, 11, 13, 15)
 
 
