@@ -75,9 +75,9 @@ class HrContract(models.Model):
     gosi_salary = fields.Float('GOSI Salary', tracking=True,
                                help="Employee Salary as recorded in GOSI, it may different from actual salary, "
                                     "it may added manually")
-    company_portion = fields.Float('Company Portion', compute='_compute_amount', store=True, tracking=True,
+    company_portion = fields.Float('Company Portion', tracking=True,
                                    help='Amount paid to GOSI by company based on GOSI Configuration')
-    employee_portion = fields.Float('Employee Portion', compute='_compute_amount', store=True, tracking=True,
+    employee_portion = fields.Float('Employee Portion', tracking=True,
                                     help='Amount paid to GOSI by Saudi Employee based on GOSI Configuration')
     # endregion [GOSI Fields]
 
@@ -193,8 +193,16 @@ class HrContract(models.Model):
             rec.net_amount = rec.wage + gross_amount + rec.gosi_amount
             # endregion [Compute Other Amounts]
 
-    @api.onchange('is_automatic_gosi', 'contract_salary_rule_ids', 'contract_salary_rule_ids.salary_rule_id')
-    @api.constrains('is_automatic_gosi', 'contract_salary_rule_ids', 'contract_salary_rule_ids.salary_rule_id')
+    @api.onchange(
+        'is_automatic_gosi', 'contract_salary_rule_ids', 'wage', 'employee_id',
+        'is_special_gosi', 'special_company_gosi_rate',
+        'is_special_employee_gosi', 'special_employee_gosi_rate',
+    )
+    @api.constrains(
+        'is_automatic_gosi', 'contract_salary_rule_ids', 'wage', 'employee_id',
+        'is_special_gosi', 'special_company_gosi_rate',
+        'is_special_employee_gosi', 'special_employee_gosi_rate',
+    )
     def _check_gosi_salary(self):
         """
         Method applied to calculate GOSI Salary, it cals another method (set_gosi_salary)
@@ -355,8 +363,10 @@ class HrContract(models.Model):
     # region [Actions]
 
     def action_running(self):
-        for contract in self:
-            contract.write({'state': 'open'})
+        _logger.info("Starting contract activation for contract IDs %s", self.ids)
+        result = self.write({'state': 'open'})
+        _logger.info("Finished contract activation for contract IDs %s", self.ids)
+        return result
 
     def action_set_to_draft(self):
         for contract in self:
