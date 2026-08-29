@@ -3,6 +3,17 @@
     <!--
         Central Approvals workspace entry.
 
+        MANAGER-ONLY MENU (group_task_manager). It was originally on the
+        employee group because the action doubles as an employee's
+        "waiting for me" list, but the client wants approvals kept off
+        the employee's menu entirely. Nothing is lost: an employee still
+        reaches his own acceptance queue through Task Lists > Pending My
+        Acceptance.
+
+        The employee branch of the domain below is KEPT deliberately - a
+        manager is also somebody's employee, and may have a task list
+        assigned to him awaiting his own acceptance.
+
         A record is visible here only while the current user is the person
         expected to act next:
           * manager: initial approval, requested modification, final review
@@ -37,5 +48,5 @@
               parent="menu_employee_task_root"
               action="action_employee_task_pending_my_action"
               sequence="8"
-              groups="employee_task_management.group_task_employee"/>
+              groups="employee_task_management.group_task_manager"/>
 </odoo>
