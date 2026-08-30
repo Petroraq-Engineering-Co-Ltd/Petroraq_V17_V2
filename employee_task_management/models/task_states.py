@@ -98,12 +98,19 @@ MANAGER_HOURS_STATES = (
 
 
 # Task-list states whose hours do NOT consume the employee's daily
-# capacity.
-#   * Draft      - not committed to anything yet; it is a private
-#                  scratchpad until he submits it.
-#   * Rejected   - the manager refused it, so the hours are released
-#                  back to the employee's day.
-# Everything else DOES count, including Submitted to Manager (he is
-# committed to it while it waits) and Closed (the work really was done
-# that day - excluding it would make a finished day read as fully idle).
-UNALLOCATED_STATES = ('draft', 'rejected')
+# capacity. DRAFT ONLY.
+#
+# A draft is a private scratchpad - nothing is committed until the
+# employee submits it, so it cannot occupy his day.
+#
+# Everything else counts, INCLUDING Rejected. Rejected used to be listed
+# here, which meant rejecting a whole task list made its hours disappear
+# from the report altogether: not into the Rejected column, not into
+# Allocated, just gone - and the day turned idle. That contradicted the
+# rule the client settled on, that hours consumed are consumed whatever
+# the manager thought of the output. It also silently erased task-level
+# rejections already recorded on that list.
+#
+# Rejecting a whole list now behaves exactly like rejecting each task on
+# it: the hours stay counted and show up under Rejected Hours.
+UNALLOCATED_STATES = ('draft',)
