@@ -113,8 +113,16 @@ class EmployeeTaskSubtask(models.Model):
                 user=self.env.user.name,
                 activity=(rec.name or '')[:80],
                 task=(rec.task_line_id.description or '')[:80]))
-        self.mapped('task_line_id')._sync_verdict_from_activities()
-        return True
+        lines = self.mapped('task_line_id')
+        lines._sync_verdict_from_activities()
+        # Re-open the Activities dialog instead of returning True.
+        # An object button inside a dialog that returns no action makes
+        # Odoo close that dialog, so the manager was thrown out after
+        # every single tick and had to re-open the list to rule on the
+        # next activity. Returning the same dialog action puts him
+        # straight back where he was, so he can work down all the
+        # activities in one pass and close it himself when he is done.
+        return lines[:1].action_open_subtasks() if lines else True
 
     def action_reject_activity(self):
         """Manager refuses this single activity.
