@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Petroraq Dynamic Recruitment Screening",
-    "version": "17.0.1.4.1",
+    "version": "17.0.1.4.4",
     "category": "Human Resources/Recruitment",
     "summary": "Per-job application questions with automatic candidate screening",
     "author": "Mudassir Amin",

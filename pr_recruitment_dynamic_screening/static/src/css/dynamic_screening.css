@@ -294,6 +294,28 @@
     background: var(--gold, #d89a2b);
 }
 
+/* Keep the DOM step order logical while drawing connectors toward the next
+   visual item in right-to-left layouts. */
+[dir="rtl"] #jobApplicationForm .pr-form-progress {
+    direction: rtl;
+}
+
+[dir="rtl"] #jobApplicationForm .pr-progress-item:not(:last-child)::after {
+    right: calc(50% + 22px);
+    left: calc(-50% + 22px);
+}
+
+[dir="rtl"] #jobApplicationForm .pr-step-header,
+[dir="rtl"] #jobApplicationForm .pr-step-grid {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] #jobApplicationForm .pr-step-button i.fa-arrow-left,
+[dir="rtl"] #jobApplicationForm .pr-step-button i.fa-arrow-right {
+    transform: rotate(180deg);
+}
+
 #jobApplicationForm .pr-form-step[hidden] {
     display: none !important;
 }

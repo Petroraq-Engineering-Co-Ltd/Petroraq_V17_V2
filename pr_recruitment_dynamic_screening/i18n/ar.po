@@ -1985,3 +1985,81 @@ msgstr "تم رفضها هذا الشهر."
 #, python-format
 msgid "years"
 msgstr "سنوات"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Personal details"
+msgstr "البيانات الشخصية"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Tell us how to reach you and where you are based."
+msgstr "أخبرنا بكيفية التواصل معك ومكان إقامتك."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Professional details"
+msgstr "البيانات المهنية"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Your qualifications, availability, and job-specific answers."
+msgstr "مؤهلاتك ومدى جاهزيتك وإجاباتك المتعلقة بالوظيفة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Resume and submit"
+msgstr "السيرة الذاتية والإرسال"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Attach your CV, review your details, and send your application."
+msgstr "أرفق سيرتك الذاتية وراجع بياناتك ثم أرسل طلبك."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Job questions"
+msgstr "أسئلة الوظيفة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Answer the requirements selected for this position."
+msgstr "أجب عن المتطلبات المحددة لهذه الوظيفة."
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Step"
+msgstr "الخطوة"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "of"
+msgstr "من"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Application progress"
+msgstr "تقدم طلب التوظيف"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Previous"
+msgstr "السابق"
+
+#. module: pr_recruitment_dynamic_screening
+#. odoo-javascript
+#: code:addons/pr_recruitment_dynamic_screening/static/src/js/dynamic_screening.js:0
+msgid "Continue"
+msgstr "متابعة"

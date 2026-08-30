@@ -113,20 +113,20 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def _shortage_pending_domain(self):
         user = self.env.user
-        role_domains = [
-            [("employee_manager_id.user_id", "=", self.env.uid), ("state", "=", "draft")],
-        ]
         if user.has_group("hr_attendance.group_hr_attendance_manager"):
-            role_domains.append([
+            return [
                 ("state", "=", "hr_supervisor"),
                 ("hr_manager_ids", "in", self.env.uid),
-            ])
+            ]
         if user.has_group("pr_hr_attendance.custom_group_hr_attendance_supervisor"):
-            role_domains.append([
+            return [
                 ("state", "=", "manager_approve"),
                 ("hr_supervisor_ids", "in", self.env.uid),
-            ])
-        return expression.OR(role_domains)
+            ]
+        return [
+            ("employee_manager_id.user_id", "=", self.env.uid),
+            ("state", "=", "draft"),
+        ]
 
     @api.model
     def _leave_pending_domain(self):
@@ -140,23 +140,49 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def _leave_request_pending_domain(self):
         user = self.env.user
-        role_domains = [
-            [("employee_manager_id.user_id", "=", self.env.uid), ("state", "=", "draft")],
-            [("state", "=", "cancel_request")],
-        ]
-
         if user.has_group("hr_holidays.group_hr_holidays_manager"):
-            role_domains.append([
-                ("state", "=", "hr_supervisor"),
-                ("hr_manager_ids", "in", self.env.uid),
+            return expression.OR([
+                [("state", "=", "cancel_request")],
+                [
+                    ("state", "=", "hr_supervisor"),
+                    ("hr_manager_ids", "in", self.env.uid),
+                ],
             ])
         if user.has_group("pr_hr_holidays.custom_group_hr_holidays_supervisor"):
-            role_domains.append([
+            return [
                 ("state", "=", "manager_approve"),
                 ("hr_supervisor_ids", "in", self.env.uid),
-            ])
+            ]
+        return [
+            ("employee_manager_id.user_id", "=", self.env.uid),
+            ("state", "=", "draft"),
+        ]
 
-        return expression.OR(role_domains)
+    @api.model
+    def _recruitment_request_pending_domain(self):
+        user = self.env.user
+        if user.has_group("pr_hr_recruitment_request.group_onboarding_md"):
+            return [("state", "=", "md_approval")]
+        if user.has_group("pr_hr_recruitment_request.group_onboarding_manager"):
+            return [("state", "=", "hrm_approval")]
+        if user.has_group("pr_hr_recruitment_request.group_onboarding_supervisor"):
+            return [("state", "=", "hr_approval")]
+        return [("id", "=", False)]
+
+    @api.model
+    def _attendance_mode_pending_domain(self):
+        if self.env.user.has_group(
+            "pr_hr_recruitment_request.group_onboarding_md"
+        ):
+            return [("state", "=", "md_approval")]
+        if (
+            self.env.user.has_group("hr.group_hr_manager")
+            or self.env.user.has_group(
+                "pr_hr_recruitment_request.group_onboarding_manager"
+            )
+        ):
+            return [("state", "=", "hr_manager_approval")]
+        return [("id", "=", False)]
 
     @api.model
     def _work_order_pending_domain(self):
@@ -212,13 +238,17 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def _account_payment_approval_domain(self):
         user = self.env.user
-        if user.has_group("pr_account.custom_group_accounting_manager"):
-            return [("state", "=", "finance_approve")]
-        if (
+        is_final_approver = user.has_group("pr_account.custom_group_accounting_manager")
+        is_first_approver = (
             user.has_group("account.group_account_manager")
             or user.has_group("pr_account.custom_group_account_supervisor")
-        ):
+        )
+        if is_first_approver and is_final_approver:
+            return [("state", "in", ["submit", "finance_approve"])]
+        if is_first_approver:
             return [("state", "=", "submit")]
+        if is_final_approver:
+            return [("state", "=", "finance_approve")]
         if user.has_group("base.group_system"):
             return [("state", "in", ["submit", "finance_approve"])]
         return [("id", "=", 0)]
@@ -253,6 +283,10 @@ class HrApprovalDashboardService(models.AbstractModel):
             return self._shortage_pending_domain()
         if action.res_model == "pr.hr.leave.request":
             return self._leave_request_pending_domain()
+        if action.res_model == "hr.recruitment.request":
+            return self._recruitment_request_pending_domain()
+        if action.res_model == "hr.attendance.mode.change.request":
+            return self._attendance_mode_pending_domain()
         if action.res_model == "hr.leave" or "leave" in menu_name:
             return self._leave_pending_domain()
         if action.res_model == "pr.budget.requisition":

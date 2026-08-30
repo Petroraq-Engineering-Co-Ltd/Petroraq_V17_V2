@@ -44,11 +44,13 @@ class HrLeaveDashboardOverride(models.Model):
 
         today = fields.Date.context_today(self)
         current_total = allocation.number_of_days or 0.0
-        elapsed_until_today = (today - alloc_start).days + 1
+        alloc_end = self._get_allocation_date_bounds(allocation)[1]
+        accrued_through = min(today, alloc_end) if alloc_end else today
+        elapsed_until_today = (accrued_through - alloc_start).days + 1
         if elapsed_until_today <= 0 or current_total <= 0:
             return 0.0
 
-        effective_end = min(end, today)
+        effective_end = min(end, accrued_through)
         if effective_end < alloc_start:
             return 0.0
 
@@ -77,6 +79,50 @@ class HrLeaveDashboardOverride(models.Model):
             return self._compute_accrual_allocation_in_range(allocation, start, end)
 
         return base_days
+
+    @api.model
+    def _allocation_earned_in_period(self, allocation, leave_type, start, end):
+        alloc_start, _alloc_end = self._get_allocation_date_bounds(allocation)
+        if not alloc_start or alloc_start > end:
+            return 0.0
+        if allocation.allocation_type == 'accrual':
+            return self._compute_accrual_allocation_in_range(
+                allocation, max(start, alloc_start), end
+            )
+        return (allocation.number_of_days or 0.0) if start <= alloc_start <= end else 0.0
+
+    @api.model
+    def _allocation_earned_before(self, allocation, leave_type, cutoff):
+        alloc_start, _alloc_end = self._get_allocation_date_bounds(allocation)
+        if not alloc_start or alloc_start > cutoff:
+            return 0.0
+        if allocation.allocation_type == 'accrual':
+            return self._compute_accrual_allocation_in_range(allocation, alloc_start, cutoff)
+        return allocation.number_of_days or 0.0
+
+    @api.model
+    def _leave_days_in_period(self, leave, start, end):
+        leave_start = leave.request_date_from
+        leave_end = leave.request_date_to
+        if not leave_start or not leave_end or end < start or leave_end < start or leave_start > end:
+            return 0.0
+        total_span = (leave_end - leave_start).days + 1
+        overlap_span = (min(leave_end, end) - max(leave_start, start)).days + 1
+        return (leave.number_of_days or 0.0) * overlap_span / total_span if total_span > 0 else 0.0
+
+    @api.model
+    def _get_employee_leave_year_bounds(self, employee):
+        today = fields.Date.context_today(self)
+        annual = self.env['hr.leave.allocation'].sudo().search([
+            ('state', '=', 'validate'),
+            ('employee_id', '=', employee.id),
+            ('holiday_status_id.leave_type', '=', 'annual_leave'),
+            ('date_from', '<=', today),
+            '|', ('date_to', '=', False), ('date_to', '>=', today),
+        ], order='allocation_type desc, date_from desc, id desc', limit=1)
+        if annual and annual.date_from:
+            return annual.date_from, min(annual.date_to or today, today)
+        return False, False
 
     def _get_employee_joining_date(self, employee):
         joining_date = False
@@ -144,6 +190,10 @@ class HrLeaveDashboardOverride(models.Model):
         elif duration == 'date_of_joining':
             joining_date = self._get_employee_joining_date(employee)
             start = fields.Date.to_date(joining_date) if joining_date else employee_start
+        elif duration == 'current_leave_year':
+            leave_year_start, leave_year_end = self._get_employee_leave_year_bounds(employee)
+            start = leave_year_start or employee_start
+            end = leave_year_end or today
         else:
             current_contract_start = self._get_employee_current_contract_start_date(employee)
             start = fields.Date.to_date(current_contract_start) if current_contract_start else employee_start
@@ -810,11 +860,14 @@ class HrLeaveDashboardOverride(models.Model):
         if not employee:
             return []
         leave_types = self.env['hr.leave.type'].sudo().search([('active', '=', True)])
-        allocations = self.env['hr.leave.allocation'].sudo().search([
+        allocation_domain = [
             ('state', '=', 'validate'),
             ('employee_id', '=', employee.id),
             ('holiday_status_id', 'in', leave_types.ids),
-        ])
+        ]
+        if 'pr_is_carryover_allocation' in self.env['hr.leave.allocation']._fields:
+            allocation_domain.append(('pr_is_carryover_allocation', '=', False))
+        allocations = self.env['hr.leave.allocation'].sudo().search(allocation_domain)
         leaves = self.env['hr.leave'].sudo().search([
             ('state', '=', 'validate'),
             ('employee_id', '=', employee.id),
@@ -847,47 +900,56 @@ class HrLeaveDashboardOverride(models.Model):
             date_to=date_to,
         )
 
-        allocations = self.env['hr.leave.allocation'].sudo().search([
+        allocation_domain = [
             ('state', '=', 'validate'),
             ('employee_id', '=', employee.id),
             ('holiday_status_id', 'in', leave_types.ids),
-        ])
+        ]
+        if 'pr_is_carryover_allocation' in self.env['hr.leave.allocation']._fields:
+            allocation_domain.append(('pr_is_carryover_allocation', '=', False))
+        allocations = self.env['hr.leave.allocation'].sudo().search(allocation_domain)
         leaves_domain = [
             ('state', '=', 'validate'),
             ('employee_id', '=', employee.id),
             ('holiday_status_id', 'in', leave_types.ids),
         ]
-        if start and end:
-            leaves_domain += [
-                ('request_date_from', '<=', end),
-                ('request_date_to', '>=', start),
-            ]
         leaves = self.env['hr.leave'].sudo().search(leaves_domain)
 
-        allocated = {}
+        opening = {}
+        earned = {}
         used = {}
+        opening_cutoff = start - timedelta(days=1)
         for allocation in allocations:
             leave_type = allocation.holiday_status_id
             key = leave_type.id
-            allocated[key] = allocated.get(key, 0.0) + self._compute_allocation_days_for_summary(
-                allocation,
-                leave_type,
-                start,
-                end,
+            opening[key] = opening.get(key, 0.0) + self._allocation_earned_before(
+                allocation, leave_type, opening_cutoff
+            )
+            earned[key] = earned.get(key, 0.0) + self._allocation_earned_in_period(
+                allocation, leave_type, start, end
             )
         for leave in leaves:
             key = leave.holiday_status_id.id
-            used[key] = used.get(key, 0.0) + (leave.number_of_days or 0.0)
+            opening[key] = opening.get(key, 0.0) - self._leave_days_in_period(
+                leave, employee_start, opening_cutoff
+            )
+            used[key] = used.get(key, 0.0) + self._leave_days_in_period(
+                leave, start, end
+            )
 
         lines = []
         for leave_type in leave_types:
             used_days = round(used.get(leave_type.id, 0.0), 2)
-            allocated_days = round(allocated.get(leave_type.id, 0.0), 2)
+            opening_days = round(opening.get(leave_type.id, 0.0), 2)
+            earned_days = round(earned.get(leave_type.id, 0.0), 2)
+            allocated_days = round(opening_days + earned_days, 2)
             requires_allocation = leave_type.requires_allocation == 'yes'
             lines.append({
                 'leave_type_id': leave_type.id,
                 'leave_type': leave_type.name,
                 'used_days': used_days,
+                'opening_days': opening_days,
+                'earned_days': earned_days,
                 'allocated_days': allocated_days,
                 'balance_days': round(allocated_days - used_days, 2) if requires_allocation else 0.0,
                 'requires_allocation': requires_allocation,
@@ -901,6 +963,7 @@ class HrLeaveDashboardOverride(models.Model):
             'requires_allocation': False,
         })
 
+        leave_year_start, leave_year_end = self._get_employee_leave_year_bounds(employee)
         return {
             'employee_id': employee.id,
             'employee_name': employee.name,
@@ -916,6 +979,8 @@ class HrLeaveDashboardOverride(models.Model):
                 ),
                 'effective_start_date': fields.Date.to_string(employee_start),
                 'effective_start_date_display': self._format_dashboard_date(employee_start),
+                'leave_year_start_date': fields.Date.to_string(leave_year_start) if leave_year_start else False,
+                'leave_year_end_date': fields.Date.to_string(leave_year_end) if leave_year_end else False,
                 'job_position': employee.job_title or '',
                 'department': employee.department_id.name or '',
                 'company': employee.company_id.name or '',

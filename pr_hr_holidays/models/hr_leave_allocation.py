@@ -137,20 +137,21 @@ class HrLeaveAllocation(models.Model):
     def _cron_pr_create_next_year_for_ending_annual_allocations(self):
         today = fields.Date.context_today(self)
         allocations = self.sudo().search([
-            ("allocation_type", "=", "accrual"),
+            ("allocation_type", "in", ["accrual", "regular"]),
             ("employee_id", "!=", False),
             ("holiday_status_id.leave_type", "=", "annual_leave"),
-            ("accrual_plan_id", "!=", False),
             ("date_from", "!=", False),
-            ("date_to", "=", today),
+            ("date_to", "<=", today),
             ("state", "=", "validate"),
             ("active", "=", True),
         ])
 
         for allocation in allocations:
-            allocation._pr_process_accrual_until(today)
+            if allocation.allocation_type == "accrual":
+                allocation._pr_process_accrual_until(allocation.date_to)
             allocation._pr_create_carryover_allocation()
-            allocation._pr_create_next_year_allocation()
+            if allocation.allocation_type == "accrual" and allocation.accrual_plan_id:
+                allocation._pr_create_next_year_allocation()
 
     def _cron_pr_rollover_annual_leave_allocations(self):
         return self._cron_pr_create_next_year_for_ending_annual_allocations()

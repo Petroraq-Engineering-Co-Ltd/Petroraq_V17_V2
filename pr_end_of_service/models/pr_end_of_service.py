@@ -829,12 +829,39 @@ class PrEndOfService(models.Model):
                 if rec.available_amount > 0.0:
                     raise UserError(_("Requested amount must be greater than zero."))
             rec.state = "hr_approval"
+            rec._advance_duplicate_approval_stages()
             rec.message_post(body=_("End of service request submitted for HR approval."))
+
+    def _approval_users_by_stage(self):
+        self.ensure_one()
+        hr_users = self.env.ref("hr.group_hr_manager").users.filtered("active")
+        md_users = self.env.ref(MD_GROUP).users.filtered("active")
+        account_users = self.env.ref("account.group_account_manager").users.filtered(
+            lambda user: user.active
+            and not user.has_group("pr_account.custom_group_accounting_manager")
+        )
+        return {
+            "hr_approval": hr_users - md_users - account_users,
+            "md_approval": md_users - account_users,
+            "accounts_approval": account_users,
+        }
+
+    def _advance_duplicate_approval_stages(self):
+        for rec in self:
+            stage_users = rec._approval_users_by_stage()
+            if rec.state == "hr_approval" and not stage_users["hr_approval"]:
+                rec.sudo().write({"state": "md_approval"})
+            if rec.state == "md_approval" and not stage_users["md_approval"]:
+                # Preserve the business work normally performed at MD approval.
+                rec.action_sync_payroll_adjustments()
+                rec.sudo().write({"state": "accounts_approval"})
 
     def action_hr_approve(self):
         for rec in self:
             if rec.state != "hr_approval":
                 continue
+            if self.env.user not in rec._approval_users_by_stage()["hr_approval"]:
+                raise UserError(_("Only the highest assigned HR approver can approve this stage."))
             rec.write({
                 "state": "md_approval",
                 "date_hr_approval": fields.Date.context_today(rec),
@@ -842,6 +869,7 @@ class PrEndOfService(models.Model):
                 "date_md_approval": False,
             })
             rec.message_post(body=_("HR approved the end of service request and sent it for MD approval."))
+            rec._advance_duplicate_approval_stages()
 
     def action_md_approve(self):
         if not (
@@ -853,6 +881,8 @@ class PrEndOfService(models.Model):
         for rec in self:
             if rec.state != "md_approval":
                 continue
+            if self.env.user not in rec._approval_users_by_stage()["md_approval"]:
+                raise UserError(_("This approval is reserved for your highest assigned level."))
             rec.action_sync_payroll_adjustments()
             rec.write({
                 "state": "accounts_approval",

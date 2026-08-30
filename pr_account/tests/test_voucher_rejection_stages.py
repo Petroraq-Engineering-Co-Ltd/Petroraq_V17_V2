@@ -46,11 +46,10 @@ class TestVoucherRejectionStages(TransactionCase):
             with self.assertRaises(UserError):
                 final_stage._check_reject_stage_access()
 
-    def test_accounting_manager_can_only_reject_final_stage_bpv_and_cpv(self):
+    def test_accounting_manager_can_reject_both_stages_bpv_and_cpv(self):
         for model_name in ("pr.account.bank.payment", "pr.account.cash.payment"):
             submitted = self._voucher(model_name, self.final_approver, "submit")
-            with self.assertRaises(UserError):
-                submitted._check_reject_stage_access()
+            self.assertTrue(submitted._check_reject_stage_access())
             final_stage = self._voucher(model_name, self.final_approver, "finance_approve")
             self.assertTrue(final_stage._check_reject_stage_access())
 
