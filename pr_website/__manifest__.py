@@ -1,6 +1,6 @@
 {
     "name": "Petroraq Custom Website",
-    "version": "1.7",
+    "version": "1.10",
     "category": "Website",
     "summary": "Custom full website for Petroraq Engineering built in Odoo.",
     "author": "Mudassir Amin",
@@ -16,6 +16,7 @@
         "hr_recruitment_skills",
         "pr_hr_recruitment_request",
     ],
+    "external_dependencies": {"python": ["googletrans"]},
 
     # Data files (XML Views)
     "data": [

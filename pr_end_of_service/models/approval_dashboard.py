@@ -8,19 +8,18 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def _eos_pending_domain(self):
         user = self.env.user
-        domains = []
-        if user.has_group("hr.group_hr_manager"):
-            domains.append([("state", "=", "hr_approval")])
-        if user.has_group("pr_hr_recruitment_request.group_onboarding_md"):
-            domains.append([("state", "=", "md_approval")])
         if (
             user.has_group("account.group_account_manager")
             and not user.has_group("pr_account.custom_group_accounting_manager")
         ):
-            domains.append([("state", "=", "accounts_approval")])
+            return [("state", "=", "accounts_approval")]
+        if user.has_group("pr_hr_recruitment_request.group_onboarding_md"):
+            return [("state", "=", "md_approval")]
+        if user.has_group("hr.group_hr_manager"):
+            return [("state", "=", "hr_approval")]
         if user.has_group("hr.group_hr_user"):
-            domains.append([("state", "in", ["draft", "employee_acceptance"])])
-        return expression.OR(domains) if domains else [("id", "=", False)]
+            return [("state", "in", ["draft", "employee_acceptance"])]
+        return [("id", "=", False)]
 
     @api.model
     def _override_domain_for_menu(self, menu, action, domain):

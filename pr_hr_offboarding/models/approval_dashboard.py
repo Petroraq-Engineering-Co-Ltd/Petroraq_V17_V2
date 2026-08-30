@@ -7,19 +7,16 @@ class HrApprovalDashboardService(models.AbstractModel):
 
     @api.model
     def _offboarding_pending_domain(self):
-        """Return every offboarding stage the current user can approve."""
+        """Return only the current user's highest offboarding authority."""
         user = self.env.user
-        domains = [
-            [
-                ("state", "=", "submitted"),
-                ("department_manager_user_id", "=", user.id),
-            ]
-        ]
-        if user.has_group("hr.group_hr_manager"):
-            domains.append([("state", "=", "hr_manager_approval")])
         if user.has_group("pr_hr_recruitment_request.group_onboarding_md"):
-            domains.append([("state", "=", "md_approval")])
-        return expression.OR(domains)
+            return [("state", "=", "md_approval")]
+        if user.has_group("hr.group_hr_manager"):
+            return [("state", "=", "hr_manager_approval")]
+        return [
+            ("state", "=", "submitted"),
+            ("department_manager_user_id", "=", user.id),
+        ]
 
     @api.model
     def _override_domain_for_menu(self, menu, action, domain):

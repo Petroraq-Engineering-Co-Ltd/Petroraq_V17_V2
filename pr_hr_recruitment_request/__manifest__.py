@@ -1,6 +1,6 @@
 {
     'name': 'HR Recruitment Request',
-    'version': '17.0.0.3',
+    'version': '17.0.0.4',
     'category': 'Human Resources',
     'author': 'Petroraq',
     'website': 'https://www.petroraq.com',

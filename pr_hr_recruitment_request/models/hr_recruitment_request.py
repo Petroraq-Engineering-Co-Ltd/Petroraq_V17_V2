@@ -158,9 +158,16 @@ class HrRecruitmentRequest(models.Model):
 
     def _compute_approval_permissions(self):
         current_user = self.env.user
-        is_hr_supervisor = current_user.has_group("pr_hr_recruitment_request.group_onboarding_supervisor")
-        is_hrm = current_user.has_group("pr_hr_recruitment_request.group_onboarding_manager")
         is_md = current_user.has_group("pr_hr_recruitment_request.group_onboarding_md")
+        is_hrm = (
+            current_user.has_group("pr_hr_recruitment_request.group_onboarding_manager")
+            and not is_md
+        )
+        is_hr_supervisor = (
+            current_user.has_group("pr_hr_recruitment_request.group_onboarding_supervisor")
+            and not is_hrm
+            and not is_md
+        )
         for rec in self:
             rec.is_hr_supervisor_approver = is_hr_supervisor
             rec.is_hrm_approver = is_hrm
@@ -176,14 +183,40 @@ class HrRecruitmentRequest(models.Model):
             if not rec.is_new_position and not rec.job_id:
                 raise UserError(_("Job position is required"))
             rec.write({"state": "hr_approval"})
+            rec._auto_progress_unassigned_approval_stages()
+
+    def _approval_users_by_stage(self):
+        self.ensure_one()
+        supervisor = self.env.ref(
+            "pr_hr_recruitment_request.group_onboarding_supervisor"
+        ).users.filtered("active")
+        manager = self.env.ref(
+            "pr_hr_recruitment_request.group_onboarding_manager"
+        ).users.filtered("active")
+        md = self.env.ref(
+            "pr_hr_recruitment_request.group_onboarding_md"
+        ).users.filtered("active")
+        return {
+            "hr_approval": supervisor - manager - md,
+            "hrm_approval": manager - md,
+            "md_approval": md,
+        }
+
+    def _auto_progress_unassigned_approval_stages(self):
+        for rec in self:
+            stage_users = rec._approval_users_by_stage()
+            if rec.state == "hr_approval" and not stage_users["hr_approval"]:
+                rec.sudo().write({"state": "hrm_approval"})
+            if rec.state == "hrm_approval" and not stage_users["hrm_approval"]:
+                rec.sudo().write({"state": "md_approval"})
 
 
     def _check_hr_supervisor_approver(self):
-        if not self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_supervisor"):
+        if self.env.user not in self._approval_users_by_stage()["hr_approval"]:
             raise UserError(_("Only HR Supervisor can perform this approval."))
 
     def _check_hrm_approver(self):
-        if not self.env.user.has_group("pr_hr_recruitment_request.group_onboarding_manager"):
+        if self.env.user not in self._approval_users_by_stage()["hrm_approval"]:
             raise UserError(_("Only HR Manager can perform this approval."))
 
     def _check_md_approver(self):
@@ -236,6 +269,7 @@ class HrRecruitmentRequest(models.Model):
             else:
                 vals["state"] = "hrm_approval"
                 rec.sudo().write(vals)
+                rec._auto_progress_unassigned_approval_stages()
 
     def action_approve_hrm(self):
         for rec in self:

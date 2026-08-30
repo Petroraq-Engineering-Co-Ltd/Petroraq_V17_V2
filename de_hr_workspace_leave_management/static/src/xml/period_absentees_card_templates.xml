@@ -309,6 +309,7 @@
                 </div>
                 <select class="form-select de-summary-select" t-att-value="state.duration" t-on-change="onDurationChange">
                     <option value="current_contract">Current Contract</option>
+                    <option value="current_leave_year">Current Leave Year</option>
                     <option value="date_of_joining">Date of Joining</option>
                     <option value="this_month">This Month</option>
                     <option value="this_year">This Year</option>
@@ -376,8 +377,16 @@
                                  t-att-style="'width:' + Math.min((line.used_days / line.allocated_days) * 100, 100) + '%'"/>
                         </div>
                         <div class="de-leave-metrics">
+                            <div class="de-leave-metric" t-if="line.requires_allocation">
+                                <span>Opening</span>
+                                <strong><t t-esc="line.opening_days || 0"/></strong>
+                            </div>
+                            <div class="de-leave-metric" t-if="line.requires_allocation">
+                                <span>Earned</span>
+                                <strong><t t-esc="line.earned_days || 0"/></strong>
+                            </div>
                             <div class="de-leave-metric">
-                                <span>Total</span>
+                                <span>Available</span>
                                 <strong><t t-esc="line.allocated_days"/></strong>
                             </div>
                             <div class="de-leave-metric">

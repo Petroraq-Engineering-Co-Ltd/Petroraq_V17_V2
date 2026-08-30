@@ -7,7 +7,7 @@ from html import escape
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 
-from odoo import http
+from odoo import _, http
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -18,10 +18,6 @@ class CareersController(http.Controller):
     CONTACT_RATE_WINDOW = 10 * 60
     CONTACT_CAPTCHA_TTL = 10 * 60
     _contact_attempts_by_ip = {}
-    JOB_TITLE_AR = {
-        'office receptionist': 'موظف استقبال مكتبي',
-    }
-
     @http.route('/', type='http', auth='public', website=True, sitemap=True)
     def homepage(self, **kwargs):
         return request.render('pr_website.petroraq_homepage_custom')
@@ -230,7 +226,11 @@ class CareersController(http.Controller):
 
     @http.route('/jobs', type='http', auth='public', website=True, sitemap=True)
     def jobs(self, **kwargs):
-        jobs = request.env['hr.job'].sudo().search([('website_published', '=', True)], order='create_date desc')
+        jobs = self._career_model('hr.job').search(
+            [('website_published', '=', True)], order='create_date desc'
+        )
+        if self._career_lang_code().lower().startswith('ar'):
+            jobs._ensure_careers_arabic_translation()
         return request.render('pr_website.careers_jobs', {
             'jobs': jobs,
             'job_display_names': self._get_job_display_names(jobs),
@@ -238,12 +238,14 @@ class CareersController(http.Controller):
 
     @http.route('/job/<int:job_id>', type='http', auth='public', website=True, sitemap=True)
     def job_detail(self, job_id, **kwargs):
-        job = request.env['hr.job'].sudo().browse(job_id)
+        job = self._career_model('hr.job').browse(job_id)
         if not job.exists() or not job.website_published:
             return request.not_found()
-        degrees = request.env['hr.recruitment.degree'].sudo().search([], order='name')
-        countries = request.env['res.country'].sudo().search([], order='name')
-        skills = request.env['hr.skill'].sudo().search([], order='skill_type_id, name')
+        if self._career_lang_code().lower().startswith('ar'):
+            job._ensure_careers_arabic_translation()
+        degrees = self._career_model('hr.recruitment.degree').search([], order='name')
+        countries = self._career_model('res.country').search([], order='name')
+        skills = self._career_model('hr.skill').search([], order='skill_type_id, name')
         error_message = kwargs.get('error')
         return request.render('pr_website.careers_job_detail',
                               {
@@ -253,30 +255,33 @@ class CareersController(http.Controller):
                                   'countries': countries,
                                   'skills': skills,
                                   'error_message': error_message,
+                                  'career_is_arabic': self._career_lang_code().lower().startswith('ar'),
+                                  'nationality_placeholder': _('Select nationality'),
+                                  'qualification_placeholder': _('Select qualification'),
                               })
 
-    def _is_arabic_request(self):
+    def _career_lang_code(self):
         lang = getattr(request, 'lang', None)
-        lang_code = getattr(lang, 'code', None) or request.env.context.get('lang') or ''
-        return lang_code.lower().startswith('ar')
+        return getattr(lang, 'code', None) or request.env.context.get('lang') or request.env.user.lang
+
+    def _career_model(self, model_name):
+        """Read all Careers data in the language selected on the website."""
+        return request.env[model_name].sudo().with_context(lang=self._career_lang_code())
 
     def _get_job_display_name(self, job):
-        name = (job.with_context(lang=request.env.context.get('lang')).name or '').strip()
-        if not self._is_arabic_request() or not name:
-            return name
-        if re.search(r'[\u0600-\u06FF]', name):
-            return name
-        return self.JOB_TITLE_AR.get(name.lower(), name)
+        return (job.with_context(lang=self._career_lang_code()).name or '').strip()
 
     def _get_job_display_names(self, jobs):
         return {job.id: self._get_job_display_name(job) for job in jobs}
 
     def _validate_application_payload(self, post):
         validators = [
-            ('partner_name', r"^[A-Za-z][A-Za-z\s'\.-]{1,79}$", 'Please enter a valid full name.'),
-            ('email_from', r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', 'Please enter a valid email address.'),
-            ('partner_phone', r'^\+?[0-9][0-9\s().-]{7,19}$', 'Please enter a valid phone number.'),
-            ('partner_location', r"^[A-Za-z0-9][A-Za-z0-9,\s'\.-]{1,99}$", 'Please enter a valid location.'),
+            # Python's Unicode character classes allow Arabic and other website
+            # languages while still rejecting digits in a person's name.
+            ('partner_name', r"^[^\W\d_][^\d_]{1,79}$", _('Please enter a valid full name.')),
+            ('email_from', r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$', _('Please enter a valid email address.')),
+            ('partner_phone', r'^\+?[0-9][0-9\s().-]{7,19}$', _('Please enter a valid phone number.')),
+            ('partner_location', r"^[\w\u0600-\u06FF][\w\u0600-\u06FF,\s'\.-]{1,99}$", _('Please enter a valid location.')),
         ]
 
         for field_name, pattern, message in validators:
@@ -288,28 +293,30 @@ class CareersController(http.Controller):
         for field_name, min_v, max_v in numeric_fields:
             value = (post.get(field_name) or '').strip()
             if not value.isdigit():
-                return f'Please enter a valid numeric value for {field_name.replace("_", " ")}.'
+                return _('Please enter a valid numeric value for %(field)s.',
+                         field=field_name.replace('_', ' '))
             num = int(value)
             if num < min_v or num > max_v:
-                return f'{field_name.replace("_", " ").title()} must be between {min_v} and {max_v}.'
+                return _('%(field)s must be between %(minimum)s and %(maximum)s.',
+                         field=field_name.replace('_', ' ').title(), minimum=min_v, maximum=max_v)
 
         # if (post.get('will_relocate') or '') not in {'yes', 'no'}:
         #     return 'Please select a valid answer for relocation.'
         if (post.get('legally_required') or '') not in {'yes', 'no'}:
-            return 'Please select whether you have National ID / Iqama.'
+            return _('Please select whether you have National ID / Iqama.')
 
         has_national_id_iqama = post.get('legally_required') == 'yes'
         national_id_iqama = (post.get('national_id_iqama') or '').strip() if has_national_id_iqama else ''
         if has_national_id_iqama and not re.fullmatch(r'\d{10}', national_id_iqama):
-            return 'National ID / Iqama Number must be exactly 10 digits.'
+            return _('National ID / Iqama Number must be exactly 10 digits.')
 
         linkedin_profile = (post.get('linkedin_profile') or '').strip()
         if linkedin_profile and not re.fullmatch(r'^(https?://)?([a-z]{2,3}\.)?linkedin\.com/.*$', linkedin_profile):
-            return 'Please enter a valid LinkedIn URL.'
+            return _('Please enter a valid LinkedIn URL.')
 
         nationality_id = (post.get('nationality_id') or '').strip()
         if not nationality_id.isdigit() or not request.env['res.country'].sudo().browse(int(nationality_id)).exists():
-            return 'Please select a valid nationality.'
+            return _('Please select a valid nationality.')
 
         # for skill_id in request.httprequest.form.getlist('skill_ids'):
         #     if skill_id and not skill_id.isdigit():
@@ -319,7 +326,7 @@ class CareersController(http.Controller):
 
     @http.route('/job/<int:job_id>/apply', type='http', auth='public', website=True, methods=['POST'], csrf=True)
     def job_apply(self, job_id, **post):
-        job = request.env['hr.job'].sudo().browse(job_id)
+        job = self._career_model('hr.job').browse(job_id)
         if not job.exists() or not job.website_published:
             return request.not_found()
 

@@ -1,5 +1,7 @@
 /** @odoo-module **/
 
+import { _t } from "@web/core/l10n/translation";
+
 const QUESTIONS_PER_PAGE = 6;
 const MAX_REPEATING_ROWS = 20;
 
@@ -41,7 +43,7 @@ function appendNavigation(step, hasPrevious, hasNext, submitButton) {
         const previous = createElement(
             "button",
             "pr-step-button pr-previous",
-            '<i class="fa fa-arrow-left"></i><span>Previous</span>'
+            `<i class="fa fa-arrow-left"></i><span>${_t("Previous")}</span>`
         );
         previous.type = "button";
         actions.append(previous);
@@ -50,7 +52,7 @@ function appendNavigation(step, hasPrevious, hasNext, submitButton) {
         const next = createElement(
             "button",
             "pr-step-button pr-next",
-            '<span>Continue</span><i class="fa fa-arrow-right"></i>'
+            `<span>${_t("Continue")}</span><i class="fa fa-arrow-right"></i>`
         );
         next.type = "button";
         actions.append(next);
@@ -260,16 +262,16 @@ function initializeRecruitmentStepper() {
         "experience",
     ]);
     const personalStep = buildStep(
-        "Personal details",
-        "Tell us how to reach you and where you are based."
+        _t("Personal details"),
+        _t("Tell us how to reach you and where you are based.")
     );
     const professionalStep = buildStep(
-        "Professional details",
-        "Your qualifications, availability, and job-specific answers."
+        _t("Professional details"),
+        _t("Your qualifications, availability, and job-specific answers.")
     );
     const documentStep = buildStep(
-        "Resume and submit",
-        "Attach your CV, review your details, and send your application."
+        _t("Resume and submit"),
+        _t("Attach your CV, review your details, and send your application.")
     );
 
     for (const group of directGroups) {
@@ -297,8 +299,10 @@ function initializeRecruitmentStepper() {
                 const pageNumber = Math.floor(index / QUESTIONS_PER_PAGE) + 1;
                 const pageCount = Math.ceil(questionFields.length / QUESTIONS_PER_PAGE);
                 const questionStep = buildStep(
-                    pageCount > 1 ? `Job questions ${pageNumber} of ${pageCount}` : "Job questions",
-                    "Answer the requirements selected for this position."
+                    pageCount > 1
+                        ? `${_t("Job questions")} ${pageNumber} ${_t("of")} ${pageCount}`
+                        : _t("Job questions"),
+                    _t("Answer the requirements selected for this position.")
                 );
                 for (const field of questionFields.slice(index, index + QUESTIONS_PER_PAGE)) {
                     questionStep.grid.append(field);
@@ -313,10 +317,10 @@ function initializeRecruitmentStepper() {
     steps.push(documentStep);
 
     steps.forEach((step, index) => {
-        step.stepBadge.textContent = `Step ${index + 1}/${steps.length}`;
+        step.stepBadge.textContent = `${_t("Step")} ${index + 1}/${steps.length}`;
         step.stepBadge.setAttribute(
             "aria-label",
-            `Step ${index + 1} of ${steps.length}`
+            `${_t("Step")} ${index + 1} ${_t("of")} ${steps.length}`
         );
     });
 
@@ -328,7 +332,7 @@ function initializeRecruitmentStepper() {
     );
 
     const progress = createElement("ol", "pr-form-progress");
-    progress.setAttribute("aria-label", "Application progress");
+    progress.setAttribute("aria-label", _t("Application progress"));
     const progressItems = steps.map((step, index) => {
         const item = createElement("li", "pr-progress-item");
         item.innerHTML = `<span class="pr-progress-number">${index + 1}</span>`;

@@ -1033,7 +1033,7 @@
                                 <t t-foreach="jobs" t-as="job">
                                     <t t-set="job_display_name" t-value="job_display_names.get(job.id, job.name)"/>
                                     <div class="job-card prq-job-card animate-scale-up"
-                                         t-att-data-search="'%s %s %s %s %s' % (job.name or '', job_display_name or '', job.department_id.name if job.department_id else '', job.address_id.city if job.address_id and job.address_id.city else '', job.contract_type_id.name if job._fields.get('contract_type_id') and job.contract_type_id else '')">
+                                         t-att-data-search="'%s %s %s %s %s' % (job.name or '', job_display_name or '', job.department_id.name if job.department_id else '', job.pr_career_location or (job.address_id.city if job.address_id else ''), job.contract_type_id.name if job._fields.get('contract_type_id') and job.contract_type_id else '')">
                                         <h3 class="prq-job-title" t-esc="job_display_name"/>
                                         <div class="job-meta">
                                             <span class="prq-job-company">
@@ -1043,8 +1043,8 @@
                                             </span>
                                             <span>
                                                 <i class="fa fa-map-marker"></i>
-                                                <t t-if="job.address_id and job.address_id.city"
-                                                   t-esc="job.address_id.city"/>
+                                                <t t-if="job.pr_career_location or (job.address_id and job.address_id.city)"
+                                                   t-esc="job.pr_career_location or job.address_id.city"/>
                                                 <t t-else="">Remote</t>
                                             </span>
                                             <span>
@@ -2300,11 +2300,12 @@
                             <div class="job-meta">
                                 <span>
                                     <i class="fa fa-building"></i>
-                                    <t t-esc="request.website.name"/>
+                                    <t t-esc="job.pr_career_company_name or request.website.name"/>
                                 </span>
                                 <span>
                                     <i class="fa fa-map-marker"></i>
-                                    <t t-if="job.address_id and job.address_id.city" t-esc="job.address_id.city"/>
+                                    <t t-if="job.pr_career_location or (job.address_id and job.address_id.city)"
+                                       t-esc="job.pr_career_location or job.address_id.city"/>
                                     <t t-else="">Remote</t>
                                 </span>
                             </div>
@@ -2323,9 +2324,9 @@
                                 <div>
                                     <h2 class="job-title-main" t-esc="job_display_name"/>
                                     <div class="job-company-meta">
-                                        <t t-esc="request.website.name"/>
-                                        <t t-if="job.address_id and job.address_id.city">•
-                                            <t t-esc="job.address_id.city"/>
+                                        <t t-esc="job.pr_career_company_name or request.website.name"/>
+                                        <t t-if="job.pr_career_location or (job.address_id and job.address_id.city)">•
+                                            <t t-esc="job.pr_career_location or job.address_id.city"/>
                                         </t>
                                         <t t-else="">• Remote</t>
                                     </div>
@@ -2361,7 +2362,7 @@
                                         <i class="fa fa-map-marker"></i>
                                     </div>
                                     <div class="info-content">
-                                        <h4 t-esc="job.address_id.city if job.address_id and job.address_id.city else 'Remote'"/>
+                                        <h4 t-esc="job.pr_career_location or (job.address_id.city if job.address_id and job.address_id.city else 'Remote')"/>
                                         <p>Work Location</p>
                                     </div>
                                 </div>
@@ -2382,7 +2383,10 @@
                                 <i class="fa fa-file-text-o"></i>
                                 Job Description
                             </h3>
-                            <div t-field="job.description" class="job-description"/>
+                            <div t-if="career_is_arabic and job.pr_career_description_ar"
+                                 t-field="job.pr_career_description_ar"
+                                 class="job-description"/>
+                            <div t-else="" t-field="job.description" class="job-description"/>
                         </div>
                     </div>
                 </section>
@@ -2424,7 +2428,8 @@
                                 <div class="form-group">
                                     <label class="form-label required">Nationality</label>
                                     <select class="form-select" name="nationality_id" required="required">
-                                        <option value="">Select nationality</option>
+                                        <option value="" selected="selected" disabled="disabled"
+                                                t-esc="nationality_placeholder"/>
                                         <t t-foreach="countries" t-as="country">
                                             <option t-att-value="country.id" t-esc="country.name"/>
                                         </t>
@@ -2438,7 +2443,8 @@
                                 <div class="form-group">
                                     <label class="form-label required">Highest Qualification</label>
                                     <select class="form-select" name="type_id" required="required">
-                                        <option value="">Select qualification</option>
+                                        <option value="" selected="selected" disabled="disabled"
+                                                t-esc="qualification_placeholder"/>
                                         <t t-foreach="degrees" t-as="degree">
                                             <option t-att-value="degree.id" t-esc="degree.name"/>
                                         </t>

@@ -1278,13 +1278,13 @@ msgstr "حسابي."
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
-msgid "<option value=\"\">Select nationality</option>"
-msgstr "اختر الجنسية."
+msgid "Select nationality"
+msgstr "اختر الجنسية"
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
-msgid "<option value=\"\">Select qualification</option>"
-msgstr "اختر المؤهل."
+msgid "Select qualification"
+msgstr "اختر المؤهل"
 
 #. module: pr_website
 #: model_terms:ir.ui.view,arch_db:pr_website.careers_job_detail
@@ -4856,3 +4856,53 @@ msgstr "• عن بُعد"
 #: model_terms:ir.ui.view,arch_db:pr_website.petroraq_404
 msgid "🚀 Let's navigate back to safety"
 msgstr "🚀 لنعد إلى المسار الآمن"
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please enter a valid full name."
+msgstr "يرجى إدخال الاسم الكامل بشكل صحيح."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please enter a valid email address."
+msgstr "يرجى إدخال عنوان بريد إلكتروني صحيح."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please enter a valid phone number."
+msgstr "يرجى إدخال رقم هاتف صحيح."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please enter a valid location."
+msgstr "يرجى إدخال موقع صحيح."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please enter a valid numeric value for %(field)s."
+msgstr "يرجى إدخال قيمة رقمية صحيحة للحقل %(field)s."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "%(field)s must be between %(minimum)s and %(maximum)s."
+msgstr "يجب أن تكون قيمة %(field)s بين %(minimum)s و%(maximum)s."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please select whether you have National ID / Iqama."
+msgstr "يرجى تحديد ما إذا كانت لديك هوية وطنية أو إقامة."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "National ID / Iqama Number must be exactly 10 digits."
+msgstr "يجب أن يتكون رقم الهوية الوطنية أو الإقامة من 10 أرقام بالضبط."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please enter a valid LinkedIn URL."
+msgstr "يرجى إدخال رابط لينكدإن صحيح."
+
+#. module: pr_website
+#: code:addons/pr_website/controllers/main.py:0
+msgid "Please select a valid nationality."
+msgstr "يرجى اختيار جنسية صحيحة."
