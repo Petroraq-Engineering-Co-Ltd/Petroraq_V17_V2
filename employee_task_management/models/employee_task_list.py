@@ -269,42 +269,57 @@ class EmployeeTaskList(models.Model):
     def _get_work_schedule(self):
         """Return (tz_name, {working weekdays}, hour_from, hour_to).
 
-        resource.calendar.attendance.dayofweek is '0'=Monday..'6'=Sunday,
-        which is exactly Python's datetime.weekday(), so no conversion
-        is needed.
+        THE WORKING WEEK IS FIXED IN CODE. It is deliberately NOT read
+        from the Working Schedule any more.
+
+        Why: the calendar used to win, and it caused three separate
+        production problems.
+          1. A stock Odoo database ships a Mon-Fri calendar, so Friday
+             became a working day and generated idle rows for a day
+             nobody works.
+          2. The same calendar made SUNDAY a non-working day, so Sunday
+             carried no capacity at all and a task spanning a Sunday
+             silently dumped its hours onto the neighbouring days.
+          3. Worst of all, the answer depended on WHO was asking. The
+             cron runs as OdooBot and resolved `self.env.company` from
+             OdooBot's company; a manual run resolved it from the
+             user's. Two different calendars meant two different working
+             weeks, so the scheduled run kept deleting rows the manual
+             run had just created - exactly the "30 August appears then
+             vanishes" behaviour that was reported.
+
+        The client's week is set by the country and their contract, not
+        by a settings field: Sunday-Thursday, Saturday optional, Friday
+        off. Hard-coding it makes the answer identical for every caller
+        and removes an entire class of misconfiguration.
+
+        Hours and timezone ARE still read from the calendar - those are
+        genuinely tunable, and neither can change which days exist.
         """
         calendar = (self.company_id.resource_calendar_id
                     or self.env.company.resource_calendar_id)
-        if calendar and calendar.attendance_ids:
-            attendances = calendar.attendance_ids
-            configured_days = {int(a.dayofweek) for a in attendances}
-            # The configured calendar WINS - that is the whole point of
-            # reading it. But if it disagrees with the work week the
-            # client stated, say so loudly in the log: a stock Odoo
-            # database ships a Mon-Fri calendar, which silently makes
-            # Friday a working day and defeats every off-day rule in
-            # this module (validation, capacity, deadlines, delay
-            # counting). This cost a debugging round once.
-            # Compared against the PAYROLL week - this calendar drives
-            # their payroll, so a difference here is a real config
-            # problem, not the Saturday planning allowance.
-            if configured_days != DEFAULT_WORK_DAYS:
-                _logger.warning(
-                    "Working Schedule '%s' has working days %s, which "
-                    "differs from the expected %s. Off-day validation, "
-                    "capacity and delay counting all follow the "
-                    "CONFIGURED calendar. Fix it in Settings > "
-                    "Employees > Working Schedules if this is wrong.",
-                    calendar.display_name,
-                    sorted(configured_days), sorted(DEFAULT_WORK_DAYS))
-            return (
-                calendar.tz or DEFAULT_TZ,
-                configured_days,
-                min(attendances.mapped('hour_from')),
-                max(attendances.mapped('hour_to')),
-            )
-        return (DEFAULT_TZ, DEFAULT_WORK_DAYS,
-                DEFAULT_HOUR_FROM, DEFAULT_HOUR_TO)
+        tz_name = DEFAULT_TZ
+        hour_from, hour_to = DEFAULT_HOUR_FROM, DEFAULT_HOUR_TO
+        if calendar:
+            tz_name = calendar.tz or DEFAULT_TZ
+            if calendar.attendance_ids:
+                hour_from = min(calendar.attendance_ids.mapped('hour_from'))
+                hour_to = max(calendar.attendance_ids.mapped('hour_to'))
+                configured_days = {
+                    int(a.dayofweek) for a in calendar.attendance_ids}
+                if configured_days != DEFAULT_WORK_DAYS:
+                    # Informational only now - it no longer changes any
+                    # behaviour, but a calendar that disagrees with the
+                    # real work week is still a payroll problem worth
+                    # surfacing.
+                    _logger.info(
+                        "Working Schedule '%s' lists working days %s, "
+                        "which differs from this module's fixed week "
+                        "%s. The fixed week is used; the calendar only "
+                        "supplies hours and timezone.",
+                        calendar.display_name,
+                        sorted(configured_days), sorted(DEFAULT_WORK_DAYS))
+        return (tz_name, DEFAULT_WORK_DAYS, hour_from, hour_to)
 
     def _get_hours_per_day(self):
         """How many hours of work fit in one working day. Read from the
