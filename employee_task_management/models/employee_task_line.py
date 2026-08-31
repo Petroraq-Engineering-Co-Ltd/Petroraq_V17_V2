@@ -814,12 +814,7 @@ class EmployeeTaskLine(models.Model):
                 continue
             if line._is_privileged_user():
                 continue
-            # sudo(): hr.employee is HR-officer-only, and Odoo prefetches
-            # every stored field when you touch one - so even reading the
-            # employee's NAME for the error message below was refused
-            # with "not available on the public employee profile",
-            # crashing before the real capacity message could be shown.
-            employee = task_list.employee_id.sudo()
+            employee = task_list.employee_id
             if not employee:
                 continue
             # include_list_ids: this list is still a Draft, and Draft

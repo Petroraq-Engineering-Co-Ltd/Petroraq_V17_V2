@@ -88,7 +88,7 @@ class EmployeeTaskSubtask(models.Model):
                 and (state == 'completed'
                      or (state == 'in_progress'
                          and task_list.started_without_approval))
-                and task_list.employee_id.sudo().user_id != self.env.user)
+                and task_list.employee_id.user_id != self.env.user)
 
     def _check_activity_reviewable(self):
         self.ensure_one()

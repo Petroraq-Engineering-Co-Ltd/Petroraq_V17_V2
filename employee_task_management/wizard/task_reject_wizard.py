@@ -72,5 +72,5 @@ class EmployeeTaskRejectWizard(models.TransientModel):
             task._get_manager_partner(),
             _('Task List Rejected'),
             _('Task list %s of %s has been rejected and closed.',
-              task.name, task.employee_id.sudo().name))
+              task.name, task.employee_id.name))
         return {'type': 'ir.actions.act_window_close'}

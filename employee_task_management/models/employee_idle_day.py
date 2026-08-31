@@ -59,10 +59,10 @@ class EmployeeTaskIdleDay(models.Model):
         ondelete='cascade', index=True)
     department_id = fields.Many2one(
         'hr.department', string='Department',
-        related='employee_id.sudo().department_id', store=True)
+        related='employee_id.department_id', store=True)
     manager_id = fields.Many2one(
         'hr.employee', string='Manager',
-        related='employee_id.sudo().parent_id', store=True)
+        related='employee_id.parent_id', store=True)
     date = fields.Date(string='Date', required=True, index=True)
 
     capacity_hours = fields.Float(
@@ -130,7 +130,7 @@ class EmployeeTaskIdleDay(models.Model):
     def _compute_display_name(self):
         for rec in self:
             rec.display_name = '%s - %s' % (
-                rec.employee_id.sudo().name or '', rec.date or '')
+                rec.employee_id.name or '', rec.date or '')
 
     # ==================================================================
     # ALLOCATION - the single source of truth
@@ -502,7 +502,7 @@ class EmployeeTaskIdleDay(models.Model):
             due = self._due_notify_slots(local_hour, done)
             if not due:
                 continue
-            partner = row.employee_id.sudo().user_id.partner_id
+            partner = row.employee_id.user_id.partner_id
             if not partner:
                 continue
             hours = self.env['employee.task.line']._format_hours(
@@ -520,7 +520,7 @@ class EmployeeTaskIdleDay(models.Model):
                 # rest of the run - cron errors are swallowed into the
                 # log, so this would otherwise be invisible.
                 _logger.exception(
-                    "Idle reminder failed for %s", row.employee_id.sudo().name)
+                    "Idle reminder failed for %s", row.employee_id.name)
                 continue
             done |= {str(h) for h in due}
             row.sudo().write({
@@ -544,10 +544,10 @@ class EmployeeTaskIdleDay(models.Model):
         normal follower channel.
         """
         self.ensure_one()
-        partner = self.employee_id.sudo().user_id.partner_id
+        partner = self.employee_id.user_id.partner_id
         if not partner:
             return
-        self.employee_id.sudo().message_post(
+        self.employee_id.message_post(
             body=body, subject=subject,
             partner_ids=partner.ids,
             message_type='notification',
