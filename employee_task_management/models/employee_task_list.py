@@ -94,7 +94,7 @@ class EmployeeTaskList(models.Model):
         help='Auto-generated reference number (PEC-TL-YEAR-00000)')
     employee_id = fields.Many2one(
         'hr.employee', string='Employee', required=True, tracking=True,
-        default=lambda self: self.env.user.employee_id,
+        default=lambda self: self.env.user.sudo().employee_id,
         help='Employee the task list belongs to')
     # precompute=True is REQUIRED here. Both fields are
     # required + computed + stored: without precompute Odoo runs the
@@ -469,11 +469,27 @@ class EmployeeTaskList(models.Model):
     # ==================================================================
     @api.depends('employee_id')
     def _compute_employee_details(self):
-        """System auto-fills department, manager and company (TDD 6.1)."""
+        """System auto-fills department, manager and company (TDD 6.1).
+
+        Read through sudo(). hr.employee is restricted to HR officers,
+        and for anybody else Odoo silently falls back to
+        hr.employee.public. Odoo's ORM prefetches EVERY stored field of
+        a record when you touch one of them, so simply reading
+        department_id drags in every custom HR field on the database -
+        cost centres, contract type, attendance settings - and the read
+        is refused with "not available on the public employee profile".
+        The employee could not even open a new task list.
+
+        sudo() is safe here: this module has already decided who may see
+        which task list through its own record rules, and the only
+        fields taken are department, manager and the linked user - all
+        of which the form shows anyway.
+        """
         for rec in self:
-            if rec.employee_id:
-                rec.department_id = rec.employee_id.department_id
-                rec.manager_id = rec.employee_id.parent_id
+            employee = rec.employee_id.sudo()
+            if employee:
+                rec.department_id = employee.department_id
+                rec.manager_id = employee.parent_id
             else:
                 rec.department_id = False
                 rec.manager_id = False
@@ -592,10 +608,14 @@ class EmployeeTaskList(models.Model):
             'employee_task_management.group_task_admin')
         privileged = is_manager_group or is_admin_group
         for rec in self:
+            # sudo() for the same prefetch reason as
+            # _compute_employee_details above.
             rec.is_current_user_manager = (
-                rec.manager_id and rec.manager_id.user_id == self.env.user)
+                rec.manager_id
+                and rec.manager_id.sudo().user_id == self.env.user)
             rec.is_current_user_employee = (
-                rec.employee_id and rec.employee_id.user_id == self.env.user)
+                rec.employee_id
+                and rec.employee_id.sudo().user_id == self.env.user)
             # "Only HIS employees": the manager named on THIS task list,
             # not any manager. An Administrator is included as the usual
             # escape hatch.
@@ -613,9 +633,9 @@ class EmployeeTaskList(models.Model):
             # stays editable, otherwise the employee would face a
             # required-but-read-only field and could never save at all.
             rec.can_edit_department = (
-                privileged or not rec.employee_id.department_id)
+                privileged or not rec.employee_id.sudo().department_id)
             rec.can_edit_manager = (
-                privileged or not rec.employee_id.parent_id)
+                privileged or not rec.employee_id.sudo().parent_id)
 
     @api.depends('task_line_ids.subtask_ids')
     def _compute_has_task_without_activity(self):
@@ -634,13 +654,15 @@ class EmployeeTaskList(models.Model):
         a non-stored computed m2m consumed by domain="[('id','in',...)]".
         """
         user = self.env.user
-        employee_model = self.env['hr.employee']
-        department_model = self.env['hr.department']
+        # sudo() throughout: building the pick-list means searching and
+        # reading hr.employee, which a plain employee cannot do.
+        employee_model = self.env['hr.employee'].sudo()
+        department_model = self.env['hr.department'].sudo()
         is_admin = user.has_group(
             'employee_task_management.group_task_admin')
         is_manager = user.has_group(
             'employee_task_management.group_task_manager')
-        own_employee = user.employee_id
+        own_employee = user.sudo().employee_id
         if is_admin:
             employees = employee_model.search([])
             departments = department_model.search([])
@@ -855,7 +877,7 @@ class EmployeeTaskList(models.Model):
         if 'task_line_ids' in fields_list and not res.get('task_line_ids'):
             employee_id = res.get('employee_id')
             if not employee_id:
-                employee = self.env.user.employee_id
+                employee = self.env.user.sudo().employee_id
                 employee_id = employee.id if employee else False
             commands = self._carry_forward_commands(employee_id)
             if commands:
@@ -1219,12 +1241,12 @@ class EmployeeTaskList(models.Model):
 
     def _get_manager_partner(self):
         self.ensure_one()
-        return self.manager_id.user_id.partner_id or \
+        return self.manager_id.sudo().user_id.partner_id or \
             self.manager_id.work_contact_id
 
     def _get_employee_partner(self):
         self.ensure_one()
-        return self.employee_id.user_id.partner_id or \
+        return self.employee_id.sudo().user_id.partner_id or \
             self.employee_id.work_contact_id
 
     def _plan_is_incomplete(self):
@@ -1576,8 +1598,8 @@ class EmployeeTaskList(models.Model):
         """
         self.ensure_one()
         return bool(
-            self.employee_id.user_id
-            and self.employee_id.user_id == self.env.user)
+            self.employee_id.sudo().user_id
+            and self.employee_id.sudo().user_id == self.env.user)
 
     def _check_approver_rights(self):
         """Validations 5 & 10: manager approval cannot be done by the
@@ -1606,8 +1628,8 @@ class EmployeeTaskList(models.Model):
                 'employee_task_management.group_task_manager') and not \
                 self.env.user.has_group(
                 'employee_task_management.group_task_admin'):
-            if self.manager_id.user_id and \
-                    self.manager_id.user_id != self.env.user:
+            if self.manager_id.sudo().user_id and \
+                    self.manager_id.sudo().user_id != self.env.user:
                 raise AccessError(_(
                     'Only the immediate manager (%s) can approve or '
                     'return this task list.', self.manager_id.name))
@@ -1650,8 +1672,8 @@ class EmployeeTaskList(models.Model):
             # (e.g. the employee is on leave). Recorded on the record so
             # it is never mistaken for the employee's own action.
             return
-        if not (self.employee_id.user_id
-                and self.employee_id.user_id == self.env.user):
+        if not (self.employee_id.sudo().user_id
+                and self.employee_id.sudo().user_id == self.env.user):
             raise AccessError(_(
                 'Only %s can perform this action on task list %s.',
                 self.employee_id.name, self.name))
@@ -2063,8 +2085,8 @@ class EmployeeTaskList(models.Model):
             if rec.state != 'draft':
                 raise UserError(_(
                     'Only Draft task lists can be assigned to an employee.'))
-            if rec.employee_id.user_id and \
-                    rec.employee_id.user_id == self.env.user:
+            if rec.employee_id.sudo().user_id and \
+                    rec.employee_id.sudo().user_id == self.env.user:
                 raise UserError(_(
                     'This task list belongs to you. Use "Submit to '
                     'Manager" instead so your manager can approve it.'))
