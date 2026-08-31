@@ -502,7 +502,7 @@ class EmployeeTaskIdleDay(models.Model):
             due = self._due_notify_slots(local_hour, done)
             if not due:
                 continue
-            partner = row.employee_id.user_id.partner_id
+            partner = row.employee_id.sudo().user_id.partner_id
             if not partner:
                 continue
             hours = self.env['employee.task.line']._format_hours(
@@ -544,7 +544,7 @@ class EmployeeTaskIdleDay(models.Model):
         normal follower channel.
         """
         self.ensure_one()
-        partner = self.employee_id.user_id.partner_id
+        partner = self.employee_id.sudo().user_id.partner_id
         if not partner:
             return
         self.employee_id.sudo().message_post(
