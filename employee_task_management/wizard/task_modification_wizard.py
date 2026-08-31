@@ -37,11 +37,11 @@ class EmployeeTaskModificationWizard(models.TransientModel):
               '\n\nRequest: %s\n\nIf this request is not handled before '
               'the task start date, the task list will be assigned to the '
               'employee automatically.',
-              task.employee_id.name, task.name, self.modification_reason),
+              task.employee_id.sudo().name, task.name, self.modification_reason),
             'employee_task_management.mail_template_task_modification_request')
         task._notify_user(
             task._get_employee_partner(),
             _('Modification Request Sent'),
             _('Your modification request on task list %s has been sent to '
-              '%s.', task.name, task.manager_id.name))
+              '%s.', task.name, task.manager_id.sudo().name))
         return {'type': 'ir.actions.act_window_close'}

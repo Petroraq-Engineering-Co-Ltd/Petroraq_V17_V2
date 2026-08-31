@@ -600,7 +600,7 @@ class EmployeeTaskList(models.Model):
             rec.color = color_map.get(rec.state, 0)
 
     @api.depends('is_unlocked', 'manager_id', 'employee_id',
-                 'employee_id.department_id', 'employee_id.parent_id')
+                 'employee_id.sudo().department_id', 'employee_id.sudo().parent_id')
     def _compute_user_flags(self):
         is_manager_group = self.env.user.has_group(
             'employee_task_management.group_task_manager')
@@ -670,11 +670,11 @@ class EmployeeTaskList(models.Model):
             employees = employee_model.search([
                 '|',
                 ('parent_id.user_id', '=', user.id),
-                ('department_id.manager_id.user_id', '=', user.id),
+                ('department_id.manager_id.sudo().user_id', '=', user.id),
             ]) | own_employee
             departments = department_model.search([
                 '|',
-                ('manager_id.user_id', '=', user.id),
+                ('manager_id.sudo().user_id', '=', user.id),
                 ('id', 'in', employees.mapped('department_id').ids),
             ]) | own_employee.department_id
         else:
@@ -1242,12 +1242,12 @@ class EmployeeTaskList(models.Model):
     def _get_manager_partner(self):
         self.ensure_one()
         return self.manager_id.sudo().user_id.partner_id or \
-            self.manager_id.work_contact_id
+            self.manager_id.sudo().work_contact_id
 
     def _get_employee_partner(self):
         self.ensure_one()
         return self.employee_id.sudo().user_id.partner_id or \
-            self.employee_id.work_contact_id
+            self.employee_id.sudo().work_contact_id
 
     def _plan_is_incomplete(self):
         """True when any task is missing its activities or their hours.
@@ -1288,14 +1288,14 @@ class EmployeeTaskList(models.Model):
             rec.message_post(body=_(
                 '%(who)s planned the activities for this task list and '
                 'submitted them for review.',
-                who=rec.employee_id.name or self.env.user.name))
+                who=rec.employee_id.sudo().name or self.env.user.name))
             rec._notify_user(
                 rec._get_manager_partner(),
                 _('Activities Submitted for Review'),
                 _('%(who)s has planned the activities for task list '
                   '%(ref)s and submitted them for your review. You can '
                   'approve them, adjust the hours, or return the list.',
-                  who=rec.employee_id.name or '', ref=rec.name))
+                  who=rec.employee_id.sudo().name or '', ref=rec.name))
         return True
 
     def _check_ready_for_execution(self):
@@ -1374,7 +1374,7 @@ class EmployeeTaskList(models.Model):
                     _('Task List Approval Required'),
                     _('A new task list %s has been submitted by employee %s '
                       'and requires your approval.',
-                      rec.name, rec.employee_id.name),
+                      rec.name, rec.employee_id.sudo().name),
                     'employee_task_management.mail_template_task_submitted')
         return True
 
@@ -1434,7 +1434,7 @@ class EmployeeTaskList(models.Model):
             _('Employee %(emp)s submitted task list %(name)s for work '
               'due today, so it has gone straight to In Progress. '
               'Please accept or reject it.',
-              emp=self.employee_id.name, name=self.name))
+              emp=self.employee_id.sudo().name, name=self.name))
         self._notify_late_execution('started')
 
     def _accept_running_list(self):
@@ -1510,7 +1510,7 @@ class EmployeeTaskList(models.Model):
                     'the manager rejected the work. Rejected work is '
                     'redone on a LATER day, not on the day it failed.',
                     day=day,
-                    emp=self.employee_id.name or '',
+                    emp=self.employee_id.sudo().name or '',
                     name=self.name or '',
                     cap=Line._format_hours(capacity),
                     total=Line._format_hours(per_day[day]),
@@ -1563,7 +1563,7 @@ class EmployeeTaskList(models.Model):
                 rec._get_employee_partner(),
                 _('Task List Approved'),
                 _('Your task list %s has been approved by manager %s and '
-                  'is now applicable.', rec.name, rec.manager_id.name),
+                  'is now applicable.', rec.name, rec.manager_id.sudo().name),
                 'employee_task_management.mail_template_task_approved')
         return True
 
@@ -1616,7 +1616,7 @@ class EmployeeTaskList(models.Model):
                 'task list (%s). It has to be actioned by your own '
                 'manager%s.',
                 self.name,
-                _(' (%s)', self.manager_id.name) if self.manager_id else ''))
+                _(' (%s)', self.manager_id.sudo().name) if self.manager_id else ''))
         if not (self.env.user.has_group(
                 'employee_task_management.group_task_manager') or
                 self.env.user.has_group(
@@ -1632,7 +1632,7 @@ class EmployeeTaskList(models.Model):
                     self.manager_id.sudo().user_id != self.env.user:
                 raise AccessError(_(
                     'Only the immediate manager (%s) can approve or '
-                    'return this task list.', self.manager_id.name))
+                    'return this task list.', self.manager_id.sudo().name))
 
     def _log_acted_on_behalf(self, what):
         """Chatter note whenever somebody other than the employee drives
@@ -1645,7 +1645,7 @@ class EmployeeTaskList(models.Model):
             '<b>%(what)s</b> was done by %(actor)s on behalf of '
             '%(employee)s.',
             what=what, actor=self.env.user.name,
-            employee=self.employee_id.name or _('the employee')))
+            employee=self.employee_id.sudo().name or _('the employee')))
 
     def _check_is_the_employee(self):
         """ONLY the employee the list belongs to may accept it, request a
@@ -1676,7 +1676,7 @@ class EmployeeTaskList(models.Model):
                 and self.employee_id.sudo().user_id == self.env.user):
             raise AccessError(_(
                 'Only %s can perform this action on task list %s.',
-                self.employee_id.name, self.name))
+                self.employee_id.sudo().name, self.name))
 
     # ---------------- Acceptance branch (QA points 17, 18, 22) --------
     def action_employee_accept(self):
@@ -1699,7 +1699,7 @@ class EmployeeTaskList(models.Model):
                 rec._get_manager_partner(),
                 _('Task List Accepted'),
                 _('Employee %s has accepted task list %s. It is now '
-                  'applicable.', rec.employee_id.name, rec.name),
+                  'applicable.', rec.employee_id.sudo().name, rec.name),
                 'employee_task_management.mail_template_task_accepted')
         return True
 
@@ -1807,7 +1807,7 @@ class EmployeeTaskList(models.Model):
             manager_body = _(
                 'Task list %s was assigned to %s automatically - its start '
                 'date arrived while the task list was still in "%s".',
-                rec.name, rec.employee_id.name, previous_state)
+                rec.name, rec.employee_id.sudo().name, previous_state)
 
             try:
                 with self.env.cr.savepoint():
@@ -2011,7 +2011,7 @@ class EmployeeTaskList(models.Model):
                 _('Task List Completed - Review Required'),
                 _('Employee %s has marked task list %s as completed. '
                   'Please review and close it.',
-                  rec.employee_id.name, rec.name),
+                  rec.employee_id.sudo().name, rec.name),
                 'employee_task_management.mail_template_task_completed')
             rec._notify_user(
                 rec._get_employee_partner(),

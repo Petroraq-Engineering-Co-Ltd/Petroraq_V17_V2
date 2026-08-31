@@ -50,5 +50,5 @@ class EmployeeTaskReturnWizard(models.TransientModel):
             task._get_manager_partner(),
             _('Task List Returned for Correction'),
             _('Task list %s has been returned to %s for correction.',
-              task.name, task.employee_id.name))
+              task.name, task.employee_id.sudo().name))
         return {'type': 'ir.actions.act_window_close'}

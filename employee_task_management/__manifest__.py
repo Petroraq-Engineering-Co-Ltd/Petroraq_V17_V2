@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Employee Task Management',
-    'version': '17.0.1.24.1',
+    'version': '17.0.1.24.2',
     'category': 'Human Resources',
     'summary': 'Employee Task List Approval Workflow',
     'description': """
