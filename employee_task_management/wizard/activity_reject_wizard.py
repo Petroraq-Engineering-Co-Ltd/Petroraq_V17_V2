@@ -42,4 +42,7 @@ class EmployeeTaskActivityRejectWizard(models.TransientModel):
             task=(activity.task_line_id.description or '')[:80],
             reason=(_('<br/>Reason: %s') % self.reason
                     if self.reason else '')))
-        return {'type': 'ir.actions.act_window_close'}
+        # Same reasoning as action_approve_activity: closing the wizard
+        # would drop the manager out of the Activities dialog entirely.
+        # Hand him back the activity list he was working through.
+        return activity.task_line_id.action_open_subtasks()

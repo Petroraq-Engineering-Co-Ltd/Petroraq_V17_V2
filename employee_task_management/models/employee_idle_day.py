@@ -32,6 +32,18 @@ _logger = logging.getLogger(__name__)
 # report empty for every future date he looked at.
 HORIZON_DAYS = 14
 
+# How many days BACK the cron recalculates on each run.
+#
+# The report is not just a plan, it is a record - and a manager reviews
+# work days after it was done. The cron used to walk forward only, so a
+# past day was frozen at whatever it held when it was last visited: a
+# task approved or rejected today never updated the day it was actually
+# worked, and those hours sat in Pending for ever.
+#
+# Thirty days covers any realistic review lag. Anything older stays as
+# it was, which is what you want for a settled month.
+BACKFILL_DAYS = 30
+
 # Local clock hours at which an employee with idle time is notified.
 # Four slots inside the 08:00-17:00 working day, the last one early
 NOTIFY_HOURS_LOCAL = (9, 11, 13, 15)
@@ -342,7 +354,7 @@ class EmployeeTaskIdleDay(models.Model):
         return (with_lists | by_group).filtered('active')
 
     @api.model
-    def _refresh_for_day(self, day, employees=None):
+    def _refresh_for_day(self, day, employees=None, create_missing=True):
         """Idempotent upsert of every employee's row for one day.
 
         Safe to run as often as you like - it never duplicates, and it
@@ -414,9 +426,17 @@ class EmployeeTaskIdleDay(models.Model):
             }
             if row:
                 row.write(vals)
-            else:
+            elif create_missing:
                 row = self.sudo().create(dict(
                     vals, employee_id=employee.id, date=day))
+            else:
+                # Backfill pass: UPDATE history, never invent it. Without
+                # this the cron would create rows for every day in the
+                # backward window, including dates before this feature
+                # existed - and every one of them would read a full 8
+                # hours idle, making it look as though the whole company
+                # did nothing for a month.
+                continue
             kept |= row
         return kept
 
@@ -425,20 +445,28 @@ class EmployeeTaskIdleDay(models.Model):
     # ==================================================================
     @api.model
     def _cron_refresh_idle_hours(self):
-        """Hourly refresh of the rolling horizon + the daily reminders.
+        """Hourly refresh of the rolling window + the daily reminders.
+
+        The window runs BACKWARDS as well as forwards. Forwards is the
+        plan; backwards is the record, and it has to be maintained
+        because approvals arrive after the work. Walking forward only
+        meant a rejection made today never reached the day the work was
+        actually done, so those hours stayed in Pending permanently.
 
         Hourly rather than daily on purpose: the numbers move whenever
-        anybody saves a task, and the manager needs the report to be
-        true when he opens it, not true as of midnight.
+        anybody saves a task or rules on one, and the manager needs the
+        report to be true when he opens it, not true as of midnight.
         """
         TaskList = self.env['employee.task.list'].sudo()
         today = TaskList._today_local()
         employees = self._tracked_employees()
-        for offset in range(HORIZON_DAYS):
+        for offset in range(-BACKFILL_DAYS, HORIZON_DAYS):
             day = today + timedelta(days=offset)
             try:
                 with self.env.cr.savepoint():
-                    self._refresh_for_day(day, employees)
+                    # Past days are UPDATED only - see create_missing.
+                    self._refresh_for_day(
+                        day, employees, create_missing=day >= today)
             except Exception:
                 # One bad day must not abort the whole horizon.
                 _logger.exception("Idle hours refresh failed for %s", day)
@@ -474,7 +502,7 @@ class EmployeeTaskIdleDay(models.Model):
             due = self._due_notify_slots(local_hour, done)
             if not due:
                 continue
-            partner = row.employee_id.user_id.partner_id
+            partner = row.employee_id.sudo().user_id.partner_id
             if not partner:
                 continue
             hours = self.env['employee.task.line']._format_hours(
@@ -516,7 +544,7 @@ class EmployeeTaskIdleDay(models.Model):
         normal follower channel.
         """
         self.ensure_one()
-        partner = self.employee_id.user_id.partner_id
+        partner = self.employee_id.sudo().user_id.partner_id
         if not partner:
             return
         self.employee_id.sudo().message_post(
