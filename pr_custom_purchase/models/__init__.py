@@ -21,3 +21,5 @@ from . import custom_purchase_rfq
 from . import models
 from . import stock_picking_approval
 from . import native_budget
+from . import budgetary_rfq_email
+from . import purchase_payment_terms

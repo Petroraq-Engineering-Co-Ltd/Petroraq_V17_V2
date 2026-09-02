@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "Service Receipt Note",
-    "version": "17.0.1.0.3",
+    "version": "17.0.1.0.4",
     "summary": "Service Receipt Note for Purchase Orders",
     "description": """
 Service Receipt Note for Odoo 17
@@ -19,9 +19,11 @@ Features:
     "license": "LGPL-3",
     "depends": ["purchase", "stock", "mail", "account", "pr_custom_purchase", "pr_work_order"],
     "data": [
+        "security/service_receipt_security.xml",
         "security/ir.model.access.csv",
         "data/service_receipt_sequence.xml",
         "views/service_receipt_views.xml",
+        "views/receipt_billing_views.xml",
         "views/purchase_order_views.xml",
         "views/work_order_views.xml",
     ],

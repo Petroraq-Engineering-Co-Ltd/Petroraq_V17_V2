@@ -50,6 +50,11 @@
                         <field name="delivery_note_ship_to_address"
                                placeholder="Select a default address above or write the delivery address manually."/>
                     </group>
+                    <group string="Invoice Requirement">
+                        <field name="delivery_note_attachment_ids"
+                               widget="many2many_binary"
+                               string="Signed Delivery Note"/>
+                    </group>
                 </page>
             </xpath>
         </field>

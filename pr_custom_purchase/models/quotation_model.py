@@ -541,6 +541,8 @@ class PurchaseOrder(models.Model):
             "partner_ref": self.partner_ref,
             "date_planned": self.date_planned or fields.Datetime.now(),
             "payment_term_id": self.payment_term_id.id if self.payment_term_id else False,
+            "incoterm_id": self.incoterm_id.id,
+            "incoterm_location": self.incoterm_location,
             "notes": self.notes,
             "currency_id": self.currency_id.id,
             "company_id": self.company_id.id,

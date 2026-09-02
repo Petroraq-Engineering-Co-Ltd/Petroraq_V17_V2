@@ -14,6 +14,7 @@
                 <th class="text-end">Amount Due</th>
                 <th>Payment Status</th>
                 <th class="d-none d-lg-table-cell">Payment Date</th>
+                <th>Payment Slip</th>
             </tr>
         </xpath>
         <xpath expr="//t[@t-foreach='invoices']/tr" position="replace">
@@ -46,6 +47,16 @@
                     <span t-else="" class="badge rounded-pill text-bg-info">Waiting for Payment</span>
                 </td>
                 <td class="d-none d-lg-table-cell"><span t-field="invoice.pr_portal_payment_date"/></td>
+                <td>
+                    <t t-if="invoice.pr_payment_slip_ids">
+                        <a t-foreach="invoice.pr_payment_slip_ids" t-as="slip"
+                           class="btn btn-sm btn-outline-primary me-1"
+                           t-att-href="'/vendor/payment-slip/%s' % slip.id">
+                            <i class="fa fa-download"/> Slip
+                        </a>
+                    </t>
+                    <span t-else="">-</span>
+                </td>
             </tr>
         </xpath>
     </template>

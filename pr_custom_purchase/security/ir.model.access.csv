@@ -1,4 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_budgetary_rfq_email,budgetary.rfq.email,model_budgetary_rfq_email,purchase.group_purchase_user,1,1,1,1
+access_budgetary_rfq_email_procurement,budgetary.rfq.email.procurement,model_budgetary_rfq_email,procurement_admin,1,1,1,1
 access_custom_pr_user,access_custom_pr_user,model_custom_pr,pr_custom_purchase.group_custom_pr_end_user,1,1,1,1
 access_custom_pr_line_user,access_custom_pr_line_user,model_custom_pr_line,pr_custom_purchase.group_custom_pr_end_user,1,1,1,1
 access_custom_pr_quotation_user,access_custom_pr_quotation_user,model_custom_pr_quotation,pr_custom_purchase.group_custom_pr_end_user,1,1,1,1

@@ -80,6 +80,10 @@ class ServiceReceiptNote(models.Model):
         copy=True,
     )
     note = fields.Text(string="Notes")
+    attachment_ids = fields.Many2many(
+        "ir.attachment", "service_receipt_attachment_rel", "receipt_id", "attachment_id",
+        string="Supporting Documents", copy=False,
+    )
     approval_state = fields.Selection(
         [
             ("pending", "Pending Approval"),
@@ -291,7 +295,7 @@ class ServiceReceiptNote(models.Model):
                 raise UserError(_("The related Purchase Order must be confirmed before validating SRN."))
 
             if rec.approval_state != "approved":
-                raise UserError(_("SRN must be approved by Inventory Administration before validation."))
+                raise UserError(_("SRN must be approved by the department manager before validation."))
 
             rec._validate_lines()
             rec.state = "done"

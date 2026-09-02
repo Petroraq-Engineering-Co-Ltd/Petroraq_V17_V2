@@ -249,7 +249,13 @@ class SaleOrder(models.Model):
             ])
             if "project_attachment_ids" in order._fields:
                 source_attachments |= Attachment.browse(order.project_attachment_ids.ids)
+            completed_deliveries = order.picking_ids.filtered(
+                lambda picking: picking.picking_type_code == "outgoing"
+                and picking.state == "done"
+            )
+            delivery_attachments = completed_deliveries.mapped("delivery_note_attachment_ids")
             source_attachments = source_attachments.filtered(lambda attachment: not attachment.res_field)
+            source_attachments |= delivery_attachments
             if not source_attachments:
                 continue
 
@@ -279,7 +285,52 @@ class SaleOrder(models.Model):
                     copied = attachment.copy(copy_vals)
                     existing_attachments |= copied
 
+    def _check_delivery_note_attachments_before_invoice(self):
+        """Require proof of delivery before creating product sales invoices."""
+        for order in self:
+            delivery_invoice_lines = order.order_line.filtered(
+                lambda line: not line.display_type
+                and line.product_id
+                and line.product_id.type in ("product", "consu")
+                and line.product_id.invoice_policy == "delivery"
+                and float_compare(
+                    line.qty_to_invoice,
+                    0.0,
+                    precision_rounding=line.product_uom.rounding,
+                ) > 0
+            )
+            if not delivery_invoice_lines:
+                # Milestone, ordered-quantity, and service invoicing do not
+                # require a stock delivery note.
+                continue
+
+            completed_deliveries = order.picking_ids.filtered(
+                lambda picking: picking.picking_type_code == "outgoing"
+                and picking.state == "done"
+                and any(
+                    move.sale_line_id in delivery_invoice_lines and not move.scrapped
+                    for move in picking.move_ids
+                )
+            )
+            if not completed_deliveries:
+                raise UserError(_(
+                    "A completed delivery with an attached delivery note is required before "
+                    "creating a sales invoice for %(order)s.",
+                    order=order.display_name,
+                ))
+
+            deliveries_without_attachment = completed_deliveries.filtered(
+                lambda picking: not picking.delivery_note_attachment_ids
+            )
+            if deliveries_without_attachment:
+                raise UserError(_(
+                    "Attach the delivery note to the following completed delivery before "
+                    "creating the sales invoice: %(deliveries)s",
+                    deliveries=", ".join(deliveries_without_attachment.mapped("display_name")),
+                ))
+
     def _create_invoices(self, *args, **kwargs):
+        self._check_delivery_note_attachments_before_invoice()
         invoices = super()._create_invoices(*args, **kwargs)
         for order in self:
             order_invoices = invoices.filtered(

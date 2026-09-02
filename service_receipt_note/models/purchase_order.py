@@ -68,6 +68,9 @@ class PurchaseOrder(models.Model):
     def action_create_service_receipt_note(self):
         self.ensure_one()
 
+        if not self.env.su and self.requisition_id.requested_user_id != self.env.user:
+            raise UserError(_("Only the requesting end user can initiate a Service Receipt Note."))
+
         if self.state not in ("purchase", "done"):
             raise UserError(_("Please confirm the Purchase Order first."))
 
@@ -178,18 +181,8 @@ class PurchaseOrder(models.Model):
         return line_commands
 
     def button_confirm(self):
-        result = super().button_confirm()
-        for order in self:
-            if order.state not in ("purchase", "done"):
-                continue
-            if order._get_open_service_receipt_notes():
-                continue
-
-            service_lines = order._get_service_lines_for_srn()
-            line_commands = order._prepare_srn_line_commands(service_lines)
-            if line_commands:
-                order._create_service_receipt_note(line_commands)
-        return result
+        # The end user initiates service acceptance; PO confirmation must not.
+        return super().button_confirm()
 
 
 class PurchaseOrderLine(models.Model):
@@ -216,7 +209,8 @@ class PurchaseOrderLine(models.Model):
             ])
             received = sum(done_lines.mapped("done_qty"))
             if line.qty_received != received:
-                line.qty_received = received
+                # Authorized SRN validation updates only the computed received quantity.
+                line.sudo().qty_received = received
 
     @api.depends("product_qty")
     def _compute_srn_received_qty(self):

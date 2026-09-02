@@ -1,11 +1,37 @@
 # Copyright 2023 Camptocamp
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-from odoo import Command, api, fields, models
+from odoo import Command, _, api, fields, models, tools
+from odoo.exceptions import ValidationError
+from email.utils import getaddresses
 
 
 class MailComposeMessage(models.TransientModel):
     _inherit = "mail.compose.message"
+
+    email_cc_text = fields.Char(
+        string="Additional CC Emails",
+        help="Comma-separated email addresses. No contact registration is required.",
+    )
+
+    def _get_additional_cc(self):
+        self.ensure_one()
+        value = (self.email_cc_text or "").strip()
+        if not value:
+            return ""
+        if "\n" in value or "\r" in value:
+            raise ValidationError(_("CC addresses must not contain line breaks."))
+        result = []
+        for name, address in getaddresses([value.replace(";", ",")]):
+            normalized = tools.email_normalize(address)
+            if not normalized:
+                raise ValidationError(_("Invalid CC email address: %s") % address)
+            formatted = tools.formataddr((name, normalized))
+            if formatted not in result:
+                result.append(formatted)
+        if not result:
+            raise ValidationError(_("Please enter valid CC email addresses."))
+        return ", ".join(result)
 
     partner_cc_ids = fields.Many2many(
         "res.partner",
@@ -121,8 +147,23 @@ class MailComposeMessage(models.TransientModel):
         add cc and bcc when send to mail.message
         """
         mail_values = super()._prepare_mail_values_rendered(res_ids)
+        return self._add_cc_bcc_to_mail_values(mail_values)
+
+    def _add_cc_bcc_to_mail_values(self, mail_values):
+        """Add composer CC/BCC data without leaking email_cc to message_post."""
+        additional_cc = self._get_additional_cc()
 
         for res_id in mail_values:
+            # In comment mode these values are passed to message_post(), which
+            # rejects email_cc as an unsupported posting parameter in Odoo 17.
+            # _action_send_mail_comment passes the address through context and
+            # _notify_by_email_get_base_mail_values adds it to mail.mail instead.
+            if self.composition_mode == "comment":
+                mail_values[res_id].pop("email_cc", None)
+            elif additional_cc:
+                mail_values[res_id]["email_cc"] = ", ".join(filter(None, [
+                    mail_values[res_id].get("email_cc"), additional_cc,
+                ]))
             mail_values[res_id].update(
                 {
                     "recipient_cc_ids": self.partner_cc_ids.ids,
@@ -142,6 +183,7 @@ class MailComposeMessage(models.TransientModel):
             "is_from_composer": True,
             "partner_cc_ids": self.partner_cc_ids,
             "partner_bcc_ids": self.partner_bcc_ids,
+            "additional_cc_emails": self._get_additional_cc(),
         }
         self = self.with_context(**context)
         return super()._action_send_mail_comment(res_ids)

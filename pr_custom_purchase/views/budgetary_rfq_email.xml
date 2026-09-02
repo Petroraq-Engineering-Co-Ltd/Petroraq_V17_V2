@@ -1,0 +1,37 @@
+<odoo>
+    <record id="budgetary_rfq_vendor_form" model="ir.ui.view">
+        <field name="name">purchase.order.budgetary.vendor</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="required">not is_budgetary_rfq</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_budgetary_rfq" invisible="1"/>
+                <field name="rfq_vendor_name" invisible="not is_budgetary_rfq or partner_id"/>
+                <field name="rfq_vendor_email" widget="email" invisible="not is_budgetary_rfq or partner_id"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="budgetary_rfq_email_form" model="ir.ui.view">
+        <field name="name">budgetary.rfq.email.form</field>
+        <field name="model">budgetary.rfq.email</field>
+        <field name="arch" type="xml">
+            <form string="Send Budgetary RFQ">
+                <group>
+                    <field name="order_id"/>
+                    <field name="email_to"/>
+                    <field name="email_cc" placeholder="person@example.com, other@example.com"/>
+                    <field name="subject"/>
+                </group>
+                <field name="body_html"/>
+                <field name="attachment_ids" widget="many2many_binary"/>
+                <footer>
+                    <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

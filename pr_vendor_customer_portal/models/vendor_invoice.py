@@ -16,6 +16,12 @@ class PrPortalVendorInvoice(models.Model):
             "unique(partner_id, vendor_invoice_number)",
             "This vendor invoice number already exists for this vendor.",
         ),
+        ("unique_portal_goods_receipt", "unique(picking_id)",
+         "An invoice against this GRN/SES has been submitted already"),
+        ("unique_portal_service_receipt", "unique(service_receipt_id)",
+         "An invoice against this GRN/SES has been submitted already"),
+        ("unique_portal_legacy_receipt", "unique(grn_ses_id)",
+         "An invoice against this GRN/SES has been submitted already"),
     ]
 
     name = fields.Char(default="/", required=True, readonly=True, copy=False, tracking=True)
@@ -27,9 +33,12 @@ class PrPortalVendorInvoice(models.Model):
         domain=[("supplier_rank", ">", 0)],
     )
     po_id = fields.Many2one("purchase.order", string="Related Purchase Order", tracking=True)
-    vendor_invoice_number = fields.Char(required=True, tracking=True)
-    invoice_date = fields.Date(required=True, tracking=True)
-    amount_total = fields.Monetary(required=True, tracking=True)
+    picking_id = fields.Many2one("stock.picking", string="GRN", tracking=True, copy=False)
+    service_receipt_id = fields.Many2one("service.receipt.note", string="SES", tracking=True, copy=False)
+    grn_ses_id = fields.Many2one("grn.ses", string="Legacy GRN/SES", tracking=True, copy=False)
+    vendor_invoice_number = fields.Char(tracking=True)
+    invoice_date = fields.Date(tracking=True)
+    amount_total = fields.Monetary(tracking=True)
     currency_id = fields.Many2one(
         "res.currency",
         default=lambda self: self.env.company.currency_id,
@@ -60,8 +69,22 @@ class PrPortalVendorInvoice(models.Model):
 
     @api.constrains("amount_total")
     def _check_positive_amount(self):
-        if any(invoice.amount_total <= 0 for invoice in self):
-            raise ValidationError(_("The invoice amount must be greater than zero."))
+        if any(invoice.amount_total < 0 for invoice in self):
+            raise ValidationError(_("The invoice amount cannot be negative."))
+
+    @api.constrains("picking_id", "service_receipt_id", "grn_ses_id", "po_id", "partner_id")
+    def _check_receipt_source(self):
+        for invoice in self:
+            if sum(bool(source) for source in (
+                invoice.picking_id, invoice.service_receipt_id, invoice.grn_ses_id
+            )) != 1:
+                raise ValidationError(_("Select exactly one approved GRN/SES."))
+            source = invoice.picking_id or invoice.service_receipt_id or invoice.grn_ses_id
+            source_po = source.purchase_id if source._name != "grn.ses" else source.purchase_order_id
+            if source_po != invoice.po_id:
+                raise ValidationError(_("The selected GRN/SES does not belong to this purchase order."))
+            if source_po.partner_id.commercial_partner_id != invoice.partner_id.commercial_partner_id:
+                raise ValidationError(_("The selected GRN/SES does not belong to this vendor."))
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -1,0 +1,64 @@
+<odoo>
+    <record id="group_service_receipt_user" model="res.groups">
+        <field name="name">Service Receipts: Requester / Department Manager</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="receipt_company_rule" model="ir.rule">
+        <field name="name">SRN company isolation</field>
+        <field name="model_id" ref="model_service_receipt_note"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="receipt_actor_rule" model="ir.rule">
+        <field name="name">SRN requester and department manager</field>
+        <field name="model_id" ref="model_service_receipt_note"/>
+        <field name="groups" eval="[(4, ref('group_service_receipt_user'))]"/>
+        <field name="domain_force">['|', ('requested_user_id', '=', user.id), ('department_manager_id', '=', user.id)]</field>
+    </record>
+    <record id="receipt_purchase_account_rule" model="ir.rule">
+        <field name="name">SRN procurement and accounting visibility</field>
+        <field name="model_id" ref="model_service_receipt_note"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user')), (4, ref('account.group_account_invoice'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    <record id="receipt_line_company_rule" model="ir.rule">
+        <field name="name">SRN line company isolation</field>
+        <field name="model_id" ref="model_service_receipt_note_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="receipt_line_actor_rule" model="ir.rule">
+        <field name="name">SRN lines for requester and department manager</field>
+        <field name="model_id" ref="model_service_receipt_note_line"/>
+        <field name="groups" eval="[(4, ref('group_service_receipt_user'))]"/>
+        <field name="domain_force">['|', ('receipt_id.requested_user_id', '=', user.id), ('receipt_id.department_manager_id', '=', user.id)]</field>
+    </record>
+    <record id="receipt_line_purchase_account_rule" model="ir.rule">
+        <field name="name">SRN line procurement and accounting visibility</field>
+        <field name="model_id" ref="model_service_receipt_note_line"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user')), (4, ref('account.group_account_invoice'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    <record id="service_purchase_actor_rule" model="ir.rule">
+        <field name="name">Service requesters: related purchase orders only</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="groups" eval="[(4, ref('group_service_receipt_user'))]"/>
+        <field name="domain_force">['|', ('requisition_id.requested_user_id', '=', user.id), ('requisition_id.requested_user_id.employee_ids.department_id.manager_id.user_id', '=', user.id)]</field>
+    </record>
+    <record id="service_purchase_staff_rule" model="ir.rule">
+        <field name="name">Purchase staff retain purchase access</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    <record id="service_purchase_line_actor_rule" model="ir.rule">
+        <field name="name">Service requesters: related purchase lines only</field>
+        <field name="model_id" ref="purchase.model_purchase_order_line"/>
+        <field name="groups" eval="[(4, ref('group_service_receipt_user'))]"/>
+        <field name="domain_force">['|', ('order_id.requisition_id.requested_user_id', '=', user.id), ('order_id.requisition_id.requested_user_id.employee_ids.department_id.manager_id.user_id', '=', user.id)]</field>
+    </record>
+    <record id="service_purchase_line_staff_rule" model="ir.rule">
+        <field name="name">Purchase staff retain purchase line access</field>
+        <field name="model_id" ref="purchase.model_purchase_order_line"/>
+        <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>
