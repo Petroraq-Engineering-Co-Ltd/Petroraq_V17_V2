@@ -22,6 +22,15 @@ class AccountMove(models.Model):
         compute="_compute_pr_portal_payment_summary",
         compute_sudo=True,
     )
+    pr_payment_slip_ids = fields.Many2many(
+        "ir.attachment",
+        "account_move_pr_payment_slip_rel",
+        "move_id",
+        "attachment_id",
+        string="Payment Slips",
+        copy=False,
+        help="Payment transfer slips visible to the vendor in the portal.",
+    )
 
     def _compute_pr_vendor_portal_attachment_ids(self):
         Attachment = self.env["ir.attachment"].sudo()

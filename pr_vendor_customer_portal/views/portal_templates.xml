@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <template id="portal_reset_password_labels" inherit_id="portal.portal_my_home" priority="120">
+        <xpath expr="//div[@id='portal_common_category']//t[@t-set='title']" position="replace">
+            <t t-set="title">Reset Your Password</t>
+        </xpath>
+        <xpath expr="//div[@id='portal_common_category']//t[@t-set='text']" position="replace">
+            <t t-set="text">Update your portal password</t>
+        </xpath>
+    </template>
+
+    <template id="portal_security_page_label" inherit_id="portal.portal_my_security" priority="120">
+        <xpath expr="//h3[normalize-space()='Connection &amp; Security']" position="replace">
+            <h3 class="my-0">Reset Your Password</h3>
+        </xpath>
+    </template>
+
     <!--
         Odoo's standard sale, purchase, and account modules add broad portal
         cards. This module replaces them with a focused vendor portal.
@@ -212,14 +227,6 @@
                     <t t-set="placeholder_count" t-value="'srn_count'"/>
                     <t t-set="bg_color" t-value="'o_pr_portal_card-service'"/>
                 </t>
-                <t t-call="portal.portal_docs_entry">
-                    <t t-set="icon" t-value="'/account/static/src/img/Bill.svg'"/>
-                    <t t-set="title">Upload PO Documents</t>
-                    <t t-set="url" t-value="'/vendor/document/upload'"/>
-                    <t t-set="text">Submit PO acceptance, GDN, delivery note, or service entry sheet</t>
-                    <t t-set="config_card" t-value="True"/>
-                    <t t-set="bg_color" t-value="'o_pr_portal_card-documents'"/>
-                </t>
             </div>
         </div>
     </template>
@@ -228,7 +235,8 @@
               inherit_id="purchase.portal_my_purchase_order"
               priority="40">
         <xpath expr="//div[hasclass('o_download_pdf')]" position="after">
-            <div t-if="order.state in ['purchase', 'done']" class="mt-2">
+            <div t-if="order.state in ['purchase', 'done'] and order.pr_vendor_has_invoiceable_receipt"
+                 class="mt-2">
                 <a class="btn btn-primary w-100"
                    t-att-href="'/vendor/invoice/upload?po_id=%s' % order.id">
                     <i class="fa fa-upload me-1"/>
@@ -408,6 +416,8 @@
                 <div class="mb-3 col-6 col-lg-3">
                     <strong>Payment Terms:</strong>
                     <span t-out="order.payment_term_id.display_name if order.payment_term_id else '-'"/>
+                    <div t-if="order.payment_term_id.purchase_milestone_schedule"
+                         t-out="order.payment_term_id.purchase_schedule_summary"/>
                 </div>
                 <div class="mb-3 col-6 col-lg-3">
                     <strong>Incoterms / Delivery Terms:</strong>
@@ -455,7 +465,7 @@
                     <tr>
                         <th>Vendor GDN No.</th>
                         <th>Purchase Order</th>
-                        <th>GRN No.</th>
+                        <th>GRN/SES No.</th>
                         <th>Delivery Status</th>
                         <th class="text-end">Total Quantity</th>
                         <th class="text-end">Delivered Quantity</th>
@@ -478,7 +488,7 @@
                         <td>
                             <t t-out="delivery.purchase_id.name or delivery.origin or ''"/>
                         </td>
-                        <td><t t-out="delivery.name"/></td>
+                        <td><t t-out="delivery.vendor_gdn_number or delivery.name"/></td>
                         <td><t t-out="delivery_row['status']"/></td>
                         <td class="text-end"><t t-out="delivery_row['total_quantity']"/></td>
                         <td class="text-end"><t t-out="delivery_row['delivered_quantity']"/></td>
@@ -847,12 +857,12 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-xl-7">
                     <div class="o_pr_portal_workflow">
-                        <strong>Attach your invoice to the purchase order</strong>
+                        <strong>Submit your invoice against an approved GRN/SES</strong>
                         <ul>
-                            <li>Select the confirmed purchase order this invoice belongs to.</li>
-                            <li>Use your supplier invoice number; it must be unique for your company.</li>
-                            <li>Attach a valid PDF no larger than 10 MB and enter an amount greater than zero.</li>
-                            <li>The PDF and invoice details will be stored directly on the purchase order and Accounts will be notified.</li>
+                            <li>Select a purchase order issued to your company.</li>
+                            <li>Select one approved GRN/SES belonging to that purchase order.</li>
+                            <li>Attach a valid invoice PDF no larger than 10 MB.</li>
+                            <li>Only one invoice can be submitted against each GRN/SES.</li>
                         </ul>
                     </div>
                     <div t-if="error_message" class="alert alert-danger" role="alert">
@@ -869,27 +879,25 @@
                                 <t t-foreach="purchase_orders" t-as="po">
                                     <option t-att-value="po.id" t-att-selected="po.id == selected_po_id">
                                         <t t-out="po.name"/>
-                                        <t t-if="po.partner_ref"> - <t t-out="po.partner_ref"/></t>
                                     </option>
                                 </t>
                             </select>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="vendor_invoice_number">Invoice Number</label>
-                                <input id="vendor_invoice_number" name="vendor_invoice_number" type="text" class="form-control" required="required" t-att-value="form_data.get('vendor_invoice_number')"/>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="invoice_date">Invoice Date</label>
-                                <input id="invoice_date" name="invoice_date" type="date" class="form-control" required="required" t-att-value="form_data.get('invoice_date')"/>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="receipt_token">Approved GRN/SES</label>
+                            <select id="receipt_token" name="receipt_token" class="form-select" required="required">
+                                <option value="">Select an approved GRN/SES</option>
+                                <t t-foreach="receipt_options" t-as="receipt_option">
+                                    <option t-att-value="receipt_option['token']"
+                                            t-att-data-po-id="receipt_option['po'].id"
+                                            t-att-selected="receipt_option['token'] == form_data.get('receipt_token')">
+                                        <t t-out="receipt_option['type']"/> - <t t-out="receipt_option['reference']"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <div class="form-text">Only approved and not-yet-invoiced receipts are available.</div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" for="amount_total">Invoice Amount</label>
-                                <input id="amount_total" name="amount_total" type="number" step="0.01" min="0.01" class="form-control" required="required" t-att-value="form_data.get('amount_total')"/>
-                            </div>
-                            <div class="col-md-6 mb-3">
+                        <div class="mb-3">
                                 <label class="form-label" for="invoice_file">Invoice PDF</label>
                                 <input id="invoice_file"
                                        name="invoice_file"
@@ -899,11 +907,6 @@
                                        required="required"
                                        aria-describedby="invoice_file_help"/>
                                 <div id="invoice_file_help" class="form-text">PDF only, maximum 10 MB.</div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="notes">Notes</label>
-                            <textarea id="notes" name="notes" class="form-control" rows="4"><t t-out="form_data.get('notes')"/></textarea>
                         </div>
                         <div class="d-flex gap-2 justify-content-end">
                             <a class="btn btn-secondary"
@@ -912,7 +915,7 @@
                             </a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-upload me-1"/>
-                                Attach
+                                Submit
                             </button>
                         </div>
                     </form>

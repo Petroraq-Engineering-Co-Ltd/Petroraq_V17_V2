@@ -84,7 +84,10 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id" readonly="state in ('purchase', 'done')"/>
+                            <field name="is_budgetary_rfq" invisible="1"/>
+                            <field name="partner_id" required="not is_budgetary_rfq" readonly="state in ('purchase', 'done')"/>
+                            <field name="rfq_vendor_name" invisible="not is_budgetary_rfq or partner_id"/>
+                            <field name="rfq_vendor_email" widget="email" invisible="not is_budgetary_rfq or partner_id"/>
                             <field name="partner_ref" readonly="state in ('purchase', 'done')"/>
                             <field name="name" readonly="1"/>
                             <field name="origin" readonly="state in ('purchase', 'done')"/>

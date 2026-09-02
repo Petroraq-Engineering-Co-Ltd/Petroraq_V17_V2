@@ -645,8 +645,12 @@ class PurchaseOrder(models.Model):
         items = []
         if self.payment_term_id:
             items.append(('Payment Terms', self.payment_term_id.display_name))
+            if self.payment_term_id.purchase_milestone_schedule:
+                items.append(('Payment Milestones', self.payment_term_id.purchase_schedule_summary))
         if self.incoterm_id:
             items.append(('Delivery Terms', self.incoterm_id.display_name))
+            if self.incoterm_location:
+                items.append(('Delivery Location', self.incoterm_location))
         if self.partner_ref:
             items.append(('Vendor Reference', self.partner_ref))
         terms_and_conditions = html2plaintext(self.notes or "").strip()

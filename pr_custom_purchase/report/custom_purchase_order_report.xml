@@ -341,6 +341,16 @@
                                 </td>
                                 <td width="75%" style="border:1px solid #000000;white-space:pre-line;">
                                     <span t-field="o.payment_term_id"/>
+                                    <div t-if="o.payment_term_id.purchase_milestone_schedule"
+                                         t-out="o.payment_term_id.purchase_schedule_summary"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <table t-if="o.incoterm_id" class="table table-border" style="margin-top:8px;">
+                            <tr>
+                                <td style="width:25%;font-weight:bold;">Delivery Terms</td>
+                                <td><span t-field="o.incoterm_id"/>
+                                    <span t-if="o.incoterm_location"> - <span t-field="o.incoterm_location"/></span>
                                 </td>
                             </tr>
                         </table>

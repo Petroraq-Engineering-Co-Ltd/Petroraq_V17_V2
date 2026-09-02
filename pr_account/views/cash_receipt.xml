@@ -43,20 +43,44 @@
                             invisible="state != 'draft'"
                     />
                     <button
-                            string="APPROVE"
-                            name="action_post"
+                            string="Approve"
+                            name="action_finance_approve"
                             type="object"
                             class="oe_highlight"
                             invisible="state != 'submit'"
                             groups="account.group_account_manager"
                     />
                     <button
+                            string="Final Approve"
+                            name="action_post"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'finance_approve'"
+                            groups="pr_account.custom_group_accounting_manager"
+                    />
+                    <button
                             string="REJECT"
-                            name="action_draft"
+                            name="action_open_reject_wizard"
                             type="object"
                             class="btn-danger"
                             invisible="state != 'submit'"
                             groups="account.group_account_manager"
+                    />
+                    <button
+                            string="REJECT"
+                            name="action_open_reject_wizard"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state != 'finance_approve'"
+                            groups="pr_account.custom_group_accounting_manager"
+                    />
+                    <button
+                            string="RESET TO DRAFT"
+                            name="action_reset_rejected_to_draft"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'reject'"
+                            groups="account.group_account_user"
                     />
                     <button
                             string="RESET TO DRAFT"
@@ -64,7 +88,7 @@
                             type="object"
                             class="btn-danger"
                             invisible="state != 'posted'"
-                            groups="account.group_account_manager"
+                            groups="account.group_account_user"
                     />
                     <!--                    <button-->
                     <!--                            string="CANCEL"-->
@@ -98,6 +122,8 @@
                     </div>
                     <widget name="web_ribbon" title="POSTED" bg_color="bg-success"
                             invisible="state != 'posted'"/>
+                    <widget name="web_ribbon" title="REJECTED" bg_color="bg-danger"
+                            invisible="state != 'reject'"/>
                     <widget name="web_ribbon" title="DRAFT" bg_color="bg-info"
                             invisible="state != 'draft'"/>
                     <widget name="web_ribbon" title="CANCELLED" bg_color="bg-danger"
@@ -142,6 +168,7 @@
                                    string="Cost Centers"
                                    invisible="1"/>
                             <field name="description" readonly="state != 'draft'"/>
+                            <field name="rejection_reason" invisible="state != 'reject'" readonly="1"/>
                         </group>
 
 
@@ -261,9 +288,9 @@
                 <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
-                       decoration-warning="state == 'submit'"
+                       decoration-warning="state in ['submit', 'finance_approve']"
                        decoration-success="state == 'posted'"
-                       decoration-danger="state == 'cancel'"/>
+                       decoration-danger="state in ['reject', 'cancel']"/>
             </tree>
         </field>
     </record>

@@ -43,26 +43,47 @@
                             class="btn-teal-custom"
                             invisible="state != 'draft'"/>
 
-                    <button name="action_post"
-                            string="APPROVE"
+                    <button name="action_finance_approve"
+                            string="Approve"
                             type="object"
                             class="btn-teal-custom"
                             invisible="state != 'submit'"
                             groups="account.group_account_manager"/>
 
-                    <button name="action_draft"
+                    <button name="action_post"
+                            string="Final Approve"
+                            type="object"
+                            class="btn-teal-custom"
+                            invisible="state != 'finance_approve'"
+                            groups="pr_account.custom_group_accounting_manager"/>
+
+                    <button name="action_open_reject_wizard"
                             string="REJECT"
                             type="object"
                             class="btn-danger"
                             invisible="state != 'submit'"
                             groups="account.group_account_manager"/>
 
+                    <button name="action_open_reject_wizard"
+                            string="REJECT"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state != 'finance_approve'"
+                            groups="pr_account.custom_group_accounting_manager"/>
+
+                    <button name="action_reset_rejected_to_draft"
+                            string="RESET TO DRAFT"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'reject'"
+                            groups="account.group_account_user"/>
+
                     <button name="action_draft"
                             string="RESET TO DRAFT"
                             type="object"
                             class="btn-danger"
                             invisible="state != 'posted'"
-                            groups="account.group_account_manager"/>
+                            groups="account.group_account_user"/>
 
                     <field name="state" widget="statusbar"/>
                 </header>
@@ -86,6 +107,8 @@
                             invisible="state != 'draft'"/>
                     <widget name="web_ribbon" title="CANCELLED" bg_color="bg-danger"
                             invisible="state != 'cancel'"/>
+                    <widget name="web_ribbon" title="REJECTED" bg_color="bg-danger"
+                            invisible="state != 'reject'"/>
 
                     <!-- DOCUMENT NUMBER -->
                     <div class="oe_title" style="margin-bottom:4px;">
@@ -130,6 +153,7 @@
                                    string="Cost Centers"
                                    invisible="1"/>
                             <field name="description" readonly="state != 'draft'"/>
+                            <field name="rejection_reason" invisible="state != 'reject'" readonly="1"/>
                         </group>
 
 
@@ -290,9 +314,9 @@
                 <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
-                       decoration-warning="state == 'submit'"
+                       decoration-warning="state in ['submit', 'finance_approve']"
                        decoration-success="state == 'posted'"
-                       decoration-danger="state == 'cancel'"/>
+                       decoration-danger="state in ['reject', 'cancel']"/>
             </tree>
         </field>
     </record>

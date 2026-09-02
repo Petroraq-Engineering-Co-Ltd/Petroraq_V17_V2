@@ -53,6 +53,15 @@ class StockPicking(models.Model):
     delivery_note_ship_to_address = fields.Text(string="Ship To Address")
     delivery_note_contact_person_name = fields.Char(string="Contact Person Name")
     delivery_note_contact_person_phone = fields.Char(string="Contact Person Contact")
+    delivery_note_attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "stock_picking_delivery_note_attachment_rel",
+        "picking_id",
+        "attachment_id",
+        string="Signed Delivery Note",
+        copy=False,
+        help="Attach the signed delivery note required before creating the sales invoice.",
+    )
 
     def _pr_format_partner_address(self, partner):
         if not partner:

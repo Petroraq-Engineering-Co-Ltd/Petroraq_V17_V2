@@ -1,0 +1,46 @@
+<odoo>
+    <record id="service_receipt_bill_form" model="ir.ui.view">
+        <field name="name">service.receipt.bill.form</field>
+        <field name="model">service.receipt.note</field>
+        <field name="inherit_id" ref="view_service_receipt_note_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_vendor_bill" type="object" string="Create / View Vendor Bill"
+                        groups="account.group_account_invoice" invisible="state != 'done' or not payment_requested"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="goods_receipt_bill_form" model="ir.ui.view">
+        <field name="name">stock.picking.receipt.bill</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="purchase_id" invisible="1"/>
+                <button name="action_create_receipt_vendor_bill" type="object" string="Create / View Vendor Bill"
+                        groups="account.group_account_invoice" invisible="state != 'done' or picking_type_code != 'incoming' or not purchase_id"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="purchase_receipt_only_billing" model="ir.ui.view">
+        <field name="name">purchase.order.receipt.only.billing</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_create_invoice']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="account_move_receipt_source" model="ir.ui.view">
+        <field name="name">account.move.receipt.source</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_origin']" position="after">
+                <field name="service_receipt_id" invisible="not service_receipt_id"/>
+                <field name="purchase_receipt_id" invisible="not purchase_receipt_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

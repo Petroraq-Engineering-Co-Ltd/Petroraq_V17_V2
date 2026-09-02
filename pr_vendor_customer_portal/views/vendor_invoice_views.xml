@@ -8,6 +8,9 @@
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="po_id"/>
+                <field name="picking_id" optional="show"/>
+                <field name="service_receipt_id" optional="show"/>
+                <field name="grn_ses_id" optional="hide"/>
                 <field name="vendor_invoice_number"/>
                 <field name="invoice_date"/>
                 <field name="amount_total"/>
@@ -40,6 +43,9 @@
                         <group>
                             <field name="partner_id"/>
                             <field name="po_id"/>
+                            <field name="picking_id" invisible="not picking_id"/>
+                            <field name="service_receipt_id" invisible="not service_receipt_id"/>
+                            <field name="grn_ses_id" invisible="not grn_ses_id"/>
                             <field name="vendor_invoice_number"/>
                             <field name="invoice_date"/>
                         </group>

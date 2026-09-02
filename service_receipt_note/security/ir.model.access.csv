@@ -1,4 +1,11 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_srn_actor,srn.actor,model_service_receipt_note,group_service_receipt_user,1,1,1,0
+access_srn_line_actor,srn.line.actor,model_service_receipt_note_line,group_service_receipt_user,1,1,1,1
+access_srn_accounts,srn.accounts,model_service_receipt_note,account.group_account_invoice,1,0,0,0
+access_srn_line_accounts,srn.line.accounts,model_service_receipt_note_line,account.group_account_invoice,1,0,0,0
+access_srn_reject_actor,srn.reject.actor,model_service_receipt_reject_wizard,group_service_receipt_user,1,1,1,1
+access_service_purchase_read,service.purchase.read,purchase.model_purchase_order,group_service_receipt_user,1,0,0,0
+access_service_purchase_line_read,service.purchase.line.read,purchase.model_purchase_order_line,group_service_receipt_user,1,0,0,0
 access_service_receipt_note_user,service.receipt.note.user,model_service_receipt_note,purchase.group_purchase_user,1,1,1,1
 access_service_receipt_note_line_user,service.receipt.note.line.user,model_service_receipt_note_line,purchase.group_purchase_user,1,1,1,1
 access_service_receipt_note_manager,service.receipt.note.manager,model_service_receipt_note,purchase.group_purchase_manager,1,1,1,1

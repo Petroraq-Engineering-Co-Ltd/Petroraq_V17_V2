@@ -38,6 +38,10 @@ class MailThread(models.AbstractModel):
         partners_cc = context.get("partner_cc_ids", None)
         if partners_cc:
             res["email_cc"] = format_emails(partners_cc)
+        if context.get("additional_cc_emails"):
+            res["email_cc"] = ", ".join(filter(None, [
+                res.get("email_cc"), context["additional_cc_emails"],
+            ]))
 
         partners_bcc = context.get("partner_bcc_ids", None)
         if partners_bcc:

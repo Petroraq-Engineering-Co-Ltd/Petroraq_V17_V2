@@ -3,7 +3,7 @@ from datetime import date
 from odoo import api, fields, models, _, Command
 from odoo.tools import float_compare
 from odoo.tools.misc import format_date
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountCashReceipt(models.Model):
@@ -48,14 +48,25 @@ class AccountCashReceipt(models.Model):
     state = fields.Selection([
         ("draft", "Draft"),
         ("submit", "Submitted"),
+        ("finance_approve", "Accounts Approval"),
         ("posted", "Finance Approval"),
+        ("reject", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="Status", tracking=True, default="draft")
+    accounting_manager_state = fields.Selection([
+        ("draft", "Draft"),
+        ("submit", "Pending Approval"),
+        ("finance_approve", "Pending Approval"),
+        ("posted", "Posted"),
+        ("reject", "Rejected"),
+        ("cancel", "Cancelled"),
+    ], string="Acc Man Status", tracking=True, default="draft")
     cash_receipt_line_ids = fields.One2many("pr.account.cash.receipt.line", "cash_receipt_id",
                                             string="Cash Receipt Lines")
     total_amount = fields.Float(string="Amount", compute="_compute_total_amount", store=True, tracking=True)
     journal_entry_id = fields.Many2one("account.move", string="Journal Entry", readonly=True, tracking=True)
     check_process_state = fields.Boolean(compute="_compute_check_process_state")
+    rejection_reason = fields.Text(string="Reject Reason", readonly=True, copy=False, tracking=True)
 
     @api.constrains("cash_receipt_line_ids")
     def _check_positive_amount_line(self):
@@ -124,17 +135,87 @@ class AccountCashReceipt(models.Model):
                 rec.sudo().action_post()
 
     def action_draft(self):
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a voucher to Draft."))
         for cash_receipt in self:
             if cash_receipt.journal_entry_id and cash_receipt.journal_entry_id.state != "draft":
                 cash_receipt.journal_entry_id.sudo().button_draft()
                 cash_receipt.journal_entry_id.unlink()
             cash_receipt.state = "draft"
+            cash_receipt.accounting_manager_state = "draft"
+
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        self._check_reject_stage_access()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reject Cash Receipt Voucher"),
+            "res_model": "receipt.reject.reason.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_cash_receipt_id": self.id},
+        }
+
+    def _check_reject_stage_access(self):
+        self.ensure_one()
+        is_final_approver = self.env.user.has_group("pr_account.custom_group_accounting_manager")
+        is_first_approver = self.env.user.has_group("account.group_account_manager")
+        if self.state == "submit" and not is_first_approver:
+            raise UserError(_("Only the first Accounts approver can reject a submitted Cash Receipt Voucher."))
+        if self.state == "finance_approve" and not is_final_approver:
+            raise UserError(_("Only the Accounting Manager can reject a Cash Receipt Voucher awaiting final approval."))
+        if self.state not in ("submit", "finance_approve"):
+            raise UserError(_("Only a voucher awaiting approval can be rejected."))
+        return True
+
+    def _reject_with_reason(self, reason):
+        reason = (reason or "").strip()
+        if not reason:
+            raise ValidationError(_("Reject Reason is mandatory."))
+        for receipt in self:
+            receipt._check_reject_stage_access()
+            receipt.write({
+                "state": "reject",
+                "accounting_manager_state": "reject",
+                "rejection_reason": reason,
+            })
+
+    def action_reset_rejected_to_draft(self):
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a rejected voucher to Draft."))
+        for receipt in self:
+            if receipt.state != "reject":
+                raise UserError(_("Only a rejected voucher can be reset to Draft."))
+            receipt.action_draft()
+            receipt.rejection_reason = False
 
     def action_submit(self):
-        for bank_payment in self:
-            bank_payment.state = "submit"
+        for cash_receipt in self:
+            cash_receipt.state = "submit"
+            cash_receipt.accounting_manager_state = "submit"
+            cash_receipt.rejection_reason = False
+
+    def action_finance_approve(self):
+        if (
+            not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and not self.env.user.has_group("account.group_account_manager")
+        ):
+            raise UserError(_("Only an Accountant can approve this stage."))
+        for cash_receipt in self:
+            cash_receipt.state = "finance_approve"
+            cash_receipt.accounting_manager_state = "finance_approve"
+            if self.env.user.has_group("pr_account.custom_group_accounting_manager"):
+                cash_receipt.action_post()
 
     def action_post(self):
+        if (
+            self.filtered(lambda receipt: receipt.state == "finance_approve")
+            and not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and not self.env.user.has_group("pr_account.custom_group_accounting_manager")
+        ):
+            raise UserError(_("Only the Accounting Manager can give final approval."))
         for cash_receipt in self:
             cash_receipt._check_lock_date()
             if cash_receipt.cash_receipt_line_ids:
@@ -163,6 +244,7 @@ class AccountCashReceipt(models.Model):
                     journal_entry_id.action_post()
                     cash_receipt.journal_entry_id = journal_entry_id.id
             cash_receipt.state = "posted"
+            cash_receipt.accounting_manager_state = "posted"
 
     def action_cancel(self):
         for cash_receipt in self:
@@ -170,6 +252,7 @@ class AccountCashReceipt(models.Model):
                 cash_receipt.journal_entry_id.sudo().button_draft()
                 cash_receipt.journal_entry_id.sudo().button_cancel()
             cash_receipt.state = "cancel"
+            cash_receipt.accounting_manager_state = "cancel"
 
     def open_journal_entry(self):
         self.ensure_one()
@@ -367,7 +450,9 @@ class AccountCashReceiptLine(models.Model):
     parent_state = fields.Selection([
         ("draft", "Draft"),
         ("submit", "Submitted"),
+        ("finance_approve", "Accounts Approval"),
         ("posted", "Finance Approval"),
+        ("reject", "Rejected"),
         ("cancel", "Cancelled"),
     ], related="cash_receipt_id.state", store=True, string="Parent Status")
     check_cost_centers_block = fields.Boolean(compute="_compute_check_cost_centers_block")

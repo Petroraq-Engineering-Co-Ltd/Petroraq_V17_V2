@@ -3,6 +3,8 @@
 
 
 from odoo import fields, models, tools
+from copy import deepcopy
+from email.utils import getaddresses
 
 from odoo.addons.base.models.ir_mail_server import extract_rfc2822_addresses
 
@@ -39,7 +41,8 @@ class MailMail(models.Model):
         partner_to = self.env["res.partner"].browse(partner_to_ids)
         email_to = format_emails(partner_to)
         email_to_raw = format_emails_raw(partner_to)
-        email_cc = format_emails(self.recipient_cc_ids)
+        # Preserve directly entered CC addresses as well as contact recipients.
+        email_cc = self.email_cc or format_emails(self.recipient_cc_ids)
         email_bcc = [r.email for r in self.recipient_bcc_ids if r.email]
 
         # Collect recipients (RCPT TO) and update all emails
@@ -74,5 +77,17 @@ class MailMail(models.Model):
                 }
             )
 
+        # This module sends one SMTP envelope per recipient. A CC header alone
+        # is insufficient because ir.mail_server replaces the SMTP recipients.
+        # Add envelopes for free-text addresses that have no partner notification.
+        known = {address.lower() for address in recipients}
+        for _name, address in getaddresses([email_cc or ""]):
+            normalized = tools.email_normalize(address)
+            if normalized and normalized.lower() not in known and res:
+                outgoing = deepcopy(res[0])
+                outgoing.get("headers", {}).pop("X-Odoo-Bcc", None)
+                res.append(outgoing)
+                recipients.append(normalized)
+                known.add(normalized.lower())
         self.env.context = {**self.env.context, "recipients": recipients}
         return res

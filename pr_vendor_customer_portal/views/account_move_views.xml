@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_move_form_payment_slips" model="ir.ui.view">
+        <field name="name">account.move.form.payment.slips</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_payment_term_id']" position="after">
+                <field name="pr_payment_slip_ids" widget="many2many_binary"
+                       string="Payment Slips"
+                       invisible="move_type not in ['in_invoice', 'in_refund']"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

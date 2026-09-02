@@ -9,7 +9,7 @@
     """,
     'author': 'Dynexcel',
     'website': 'https://www.dynexcel.com',
-    'version': '0.2',
+    'version': '0.3',
     'category': 'Human Resources',
 
     # any module necessary for this one to work correctly
@@ -20,6 +20,8 @@
         'views/menu.xml',
         'views/cash_payment.xml',
         'views/bank_payment.xml',
+        'views/cash_receipt.xml',
+        'views/bank_receipt.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
