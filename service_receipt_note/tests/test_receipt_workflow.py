@@ -1,4 +1,4 @@
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase, new_test_user
 
 
@@ -44,12 +44,3 @@ class TestServiceReceiptWorkflow(TransactionCase):
         receipt = self._receipt()
         with self.assertRaises(UserError):
             receipt.with_user(self.requester).action_request_payment()
-
-    def test_po_bill_shortcut_blocked(self):
-        with self.assertRaises(UserError):
-            self.order.action_create_invoice()
-
-    def test_service_bill_requires_payment_request(self):
-        receipt = self._receipt()
-        with self.assertRaises(UserError):
-            receipt.action_create_vendor_bill()

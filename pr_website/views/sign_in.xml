@@ -195,13 +195,13 @@
             </xpath>
             <xpath expr="//div[contains(concat(' ', normalize-space(@class), ' '), ' field-login ')]/input[@name='login']"
                    position="replace">
-                <input t-att-type="'text' if request.params.get('login_type') == 'vendor' else 'email'"
+                <input type="text"
                        t-att-placeholder="'CR. Number' if request.params.get('login_type') == 'vendor' else 'Email'"
                        name="login"
                        t-att-value="login"
                        id="login"
                        t-att-data-vendor-cr="'1' if request.params.get('login_type') == 'vendor' else False"
-                       t-att-inputmode="'numeric' if request.params.get('login_type') == 'vendor' else 'email'"
+                       t-att-inputmode="'numeric' if request.params.get('login_type') == 'vendor' else False"
                        t-att-pattern="'[0-9]{10}' if request.params.get('login_type') == 'vendor' else False"
                        t-att-minlength="10 if request.params.get('login_type') == 'vendor' else False"
                        t-att-maxlength="10 if request.params.get('login_type') == 'vendor' else False"

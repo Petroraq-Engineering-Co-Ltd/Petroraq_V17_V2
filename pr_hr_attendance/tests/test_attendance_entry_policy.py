@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytz
 
@@ -85,6 +85,66 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         attendance.sudo().with_context(
             attendance_policy_source="approved_shortage"
         ).write({"check_out": attendance.check_out + timedelta(minutes=30)})
+
+    def test_shortage_approval_preserves_actual_times_and_uses_schedule_as_fallback(self):
+        calendar = self.env["resource.calendar"].create({
+            "name": "Shortage fallback 07:30 to 16:30",
+            "tz": "Asia/Riyadh",
+            "company_id": self.env.company.id,
+            "attendance_ids": [Command.create({
+                "name": "Monday shift",
+                "dayofweek": "0",
+                "day_period": "morning",
+                "hour_from": 7.5,
+                "hour_to": 16.5,
+            })],
+        })
+        self.biometric_employee.write({"resource_calendar_id": calendar.id})
+        actual_check_in = datetime(2026, 6, 1, 5, 50)  # 08:50 Asia/Riyadh
+        attendance = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric"
+        ).create({
+            "employee_id": self.biometric_employee.id,
+            "check_in": actual_check_in,
+        })
+        shortage = self.env["pr.hr.shortage.request"].create({
+            "employee_id": self.biometric_employee.id,
+            "company_id": self.env.company.id,
+            "date": "2026-06-01",
+            "request_type": "shortage",
+            "check_in": actual_check_in,
+        })
+
+        shortage._apply_shortage_in_attendance()
+
+        attendance.invalidate_recordset(["check_in", "check_out", "attendance_entry_source"])
+        self.assertEqual(attendance.check_in, actual_check_in)
+        self.assertEqual(attendance.check_out, datetime(2026, 6, 1, 13, 30))
+        self.assertEqual(attendance.attendance_entry_source, "approved_shortage")
+
+    def test_shortage_approval_preserves_both_selected_actual_times(self):
+        actual_check_in = datetime(2026, 6, 2, 5, 45)
+        actual_check_out = datetime(2026, 6, 2, 14, 10)
+        attendance = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric"
+        ).create({
+            "employee_id": self.biometric_employee.id,
+            "check_in": actual_check_in,
+        })
+        shortage = self.env["pr.hr.shortage.request"].create({
+            "employee_id": self.biometric_employee.id,
+            "company_id": self.env.company.id,
+            "date": "2026-06-02",
+            "request_type": "shortage",
+            "check_in": actual_check_in,
+            "check_out": actual_check_out,
+        })
+
+        shortage._apply_shortage_in_attendance()
+
+        attendance.invalidate_recordset(["check_in", "check_out"])
+        self.assertEqual(attendance.check_in, actual_check_in)
+        self.assertEqual(attendance.check_out, actual_check_out)
 
     def test_archiving_manual_employee_closes_open_attendance(self):
         values = self.attendance_values(self.manual_employee, offset_days=20)
