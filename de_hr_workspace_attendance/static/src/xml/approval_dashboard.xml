@@ -49,8 +49,9 @@
 
                         <div class="row g-4 de-section-grid">
                             <t t-foreach="state.sections" t-as="section" t-key="section.key">
+                                <t t-set="display" t-value="sectionDisplay(section)"/>
                                 <div class="col-12 col-md-6 col-xl-4">
-                                    <button t-att-class="sectionClass(section)"
+                                    <button t-att-class="sectionClass(display)"
                                             t-att-data-section-key="section.key"
                                             t-on-click="openSection">
                                         <div class="de-tile-shine"/>
@@ -60,15 +61,15 @@
                                             </span>
                                         </t>
                                         <div class="de-dashboard-icon">
-                                            <div t-att-class="iconBoxClass(section)">
-                                                <i t-att-class="`fa ${section.icon || 'fa-cubes'}`"/>
+                                            <div t-att-class="iconBoxClass(display)">
+                                                <i t-att-class="`fa ${display.icon || 'fa-cubes'}`"/>
                                             </div>
                                         </div>
                                         <div class="de-dashboard-info">
                                             <div class="de-dashboard-count" t-esc="section.count"/>
-                                            <div class="de-dashboard-label" t-esc="section.name"/>
+                                            <div class="de-dashboard-label" t-esc="display.name"/>
                                             <div class="de-dashboard-hint">
-                                                <span t-esc="`${section.tiles.length} approval menu${section.tiles.length === 1 ? '' : 's'}`"/>
+                                                <span t-esc="display.hint"/>
                                                 <i class="fa fa-arrow-right ms-2 de-hint-arrow"/>
                                             </div>
                                         </div>
