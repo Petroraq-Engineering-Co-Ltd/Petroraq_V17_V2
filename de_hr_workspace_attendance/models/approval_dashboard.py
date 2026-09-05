@@ -1,3 +1,5 @@
+import re
+
 from odoo import _, api, models
 from odoo.tools.safe_eval import safe_eval
 from odoo.osv import expression
@@ -32,6 +34,17 @@ class HrApprovalDashboardService(models.AbstractModel):
             "tone": "success",
             "sequence": 40,
         },
+        "it": {
+            "name": _("IT Services"),
+            "icon": "fa-desktop",
+            "tone": "primary",
+            "sequence": 50,
+        },
+        # Fallback bucket. Kept deliberately: _build_sections() falls back
+        # to this definition for any section key it does not recognise, so
+        # removing it would raise a KeyError. It only renders when a menu
+        # matches none of the classifiers below - once every approval menu
+        # has a home, the "Other" card disappears on its own.
         "other": {
             "name": _("Other"),
             "icon": "fa-check-square-o",
@@ -39,6 +52,21 @@ class HrApprovalDashboardService(models.AbstractModel):
             "sequence": 99,
         },
     }
+
+    # Tokens that route an approval menu into the IT Services section.
+    # Matched against the menu name, its full menu path and the action's
+    # model, all lower-cased. Add to this list if an IT menu is renamed.
+    IT_SECTION_TOKENS = (
+        "it service",
+        "it services",
+        "it support",
+        "it request",
+        "it ticket",
+        "it asset",
+        "it approval",
+        "helpdesk",
+        "help desk",
+    )
 
     @api.model
     def _get_visible_approval_menus(self):
@@ -113,20 +141,20 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def _shortage_pending_domain(self):
         user = self.env.user
-        role_domains = [
-            [("employee_manager_id.user_id", "=", self.env.uid), ("state", "=", "draft")],
-        ]
         if user.has_group("hr_attendance.group_hr_attendance_manager"):
-            role_domains.append([
+            return [
                 ("state", "=", "hr_supervisor"),
                 ("hr_manager_ids", "in", self.env.uid),
-            ])
+            ]
         if user.has_group("pr_hr_attendance.custom_group_hr_attendance_supervisor"):
-            role_domains.append([
+            return [
                 ("state", "=", "manager_approve"),
                 ("hr_supervisor_ids", "in", self.env.uid),
-            ])
-        return expression.OR(role_domains)
+            ]
+        return [
+            ("employee_manager_id.user_id", "=", self.env.uid),
+            ("state", "=", "draft"),
+        ]
 
     @api.model
     def _leave_pending_domain(self):
@@ -140,23 +168,49 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def _leave_request_pending_domain(self):
         user = self.env.user
-        role_domains = [
-            [("employee_manager_id.user_id", "=", self.env.uid), ("state", "=", "draft")],
-            [("state", "=", "cancel_request")],
-        ]
-
         if user.has_group("hr_holidays.group_hr_holidays_manager"):
-            role_domains.append([
-                ("state", "=", "hr_supervisor"),
-                ("hr_manager_ids", "in", self.env.uid),
+            return expression.OR([
+                [("state", "=", "cancel_request")],
+                [
+                    ("state", "=", "hr_supervisor"),
+                    ("hr_manager_ids", "in", self.env.uid),
+                ],
             ])
         if user.has_group("pr_hr_holidays.custom_group_hr_holidays_supervisor"):
-            role_domains.append([
+            return [
                 ("state", "=", "manager_approve"),
                 ("hr_supervisor_ids", "in", self.env.uid),
-            ])
+            ]
+        return [
+            ("employee_manager_id.user_id", "=", self.env.uid),
+            ("state", "=", "draft"),
+        ]
 
-        return expression.OR(role_domains)
+    @api.model
+    def _recruitment_request_pending_domain(self):
+        user = self.env.user
+        if user.has_group("pr_hr_recruitment_request.group_onboarding_md"):
+            return [("state", "=", "md_approval")]
+        if user.has_group("pr_hr_recruitment_request.group_onboarding_manager"):
+            return [("state", "=", "hrm_approval")]
+        if user.has_group("pr_hr_recruitment_request.group_onboarding_supervisor"):
+            return [("state", "=", "hr_approval")]
+        return [("id", "=", False)]
+
+    @api.model
+    def _attendance_mode_pending_domain(self):
+        if self.env.user.has_group(
+            "pr_hr_recruitment_request.group_onboarding_md"
+        ):
+            return [("state", "=", "md_approval")]
+        if (
+            self.env.user.has_group("hr.group_hr_manager")
+            or self.env.user.has_group(
+                "pr_hr_recruitment_request.group_onboarding_manager"
+            )
+        ):
+            return [("state", "=", "hr_manager_approval")]
+        return [("id", "=", False)]
 
     @api.model
     def _work_order_pending_domain(self):
@@ -257,6 +311,10 @@ class HrApprovalDashboardService(models.AbstractModel):
             return self._shortage_pending_domain()
         if action.res_model == "pr.hr.leave.request":
             return self._leave_request_pending_domain()
+        if action.res_model == "hr.recruitment.request":
+            return self._recruitment_request_pending_domain()
+        if action.res_model == "hr.attendance.mode.change.request":
+            return self._attendance_mode_pending_domain()
         if action.res_model == "hr.leave" or "leave" in menu_name:
             return self._leave_pending_domain()
         if action.res_model == "pr.budget.requisition":
@@ -328,6 +386,11 @@ class HrApprovalDashboardService(models.AbstractModel):
             return "purchase"
         if any(token in text for token in ("sale", "estimation", "quotation", "work order")):
             return "sales"
+        # Checked before the HR block: an IT menu whose path happens to
+        # contain "employee" or "request" would otherwise be swallowed by
+        # the HR catch-all below.
+        if self._matches_it_section(text):
+            return "it"
         if model == "sign.request" or any(token in text for token in ("sign", "signature")):
             return "hr"
         if any(token in text for token in ("payroll", "payslip", "salary", "overtime")):
@@ -349,6 +412,19 @@ class HrApprovalDashboardService(models.AbstractModel):
         )):
             return "hr"
         return "other"
+
+    @api.model
+    def _matches_it_section(self, text):
+        """Whole-word token match for the IT Services section.
+
+        A plain substring test is not safe here: "it service" is a
+        substring of "unit services", which would drag an unrelated menu
+        into the IT card.
+        """
+        return any(
+            re.search(r"\b%s\b" % re.escape(token), text)
+            for token in self.IT_SECTION_TOKENS
+        )
 
     @api.model
     def _tile_record_payload(self, menu, action):
