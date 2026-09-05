@@ -9,7 +9,7 @@
             <!-- decoration keywords are restricted to Odoo's whitelist
                  (bf, it, danger, info, muted, primary, success,
                  warning) - anything else crashes the view. -->
-            <tree string="Employee Capacity" create="false" delete="false"
+            <tree string="Employee Hours" create="false" delete="false"
                   edit="false" decoration-danger="idle_hours &gt;= 4"
                   decoration-warning="idle_hours &gt; 0 and idle_hours &lt; 4"
                   decoration-success="idle_hours == 0">
@@ -118,7 +118,7 @@
     <!-- Manager view: the whole team, defaulting to today's idle time,
          which is the question he actually opens this menu to answer. -->
     <record id="action_idle_hours" model="ir.actions.act_window">
-        <field name="name">Employee Capacity &amp; Idle Hours</field>
+        <field name="name">Employee Hours &amp; Idle Hours</field>
         <field name="res_model">employee.task.idle.day</field>
         <field name="view_mode">tree,pivot,graph</field>
         <field name="search_view_id" ref="view_idle_day_search"/>
@@ -133,8 +133,18 @@
              That keeps this reversible - deleting these two lines
              restores forward planning, whereas not generating them
              would lose the data permanently, since the cron only ever
-             builds forward from today. -->
-        <field name="domain">[('date', '&lt;=', context_today().strftime('%Y-%m-%d'))]</field>
+             builds forward from today.
+
+             The second clause hides the VIEWER'S OWN row. This screen
+             is for supervising other people; a manager reviewing his
+             team's idle time does not want himself in the list, and he
+             already has his own figures under My Hours. It has to live
+             here rather than in the record rule because Odoo OR's
+             record rules across a user's groups - a manager also holds
+             Task Employee, so the "sees own rows" rule would keep
+             putting him back in no matter what the manager rule said. -->
+        <field name="domain">[('date', '&lt;=', context_today().strftime('%Y-%m-%d')),
+                              ('employee_id.user_id', '!=', uid)]</field>
         <field name="context">{'search_default_filter_today': 1, 'search_default_filter_has_idle': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No capacity rows yet</p>
@@ -154,6 +164,16 @@
         <field name="res_model">employee.task.idle.day</field>
         <field name="view_mode">tree,graph</field>
         <field name="search_view_id" ref="view_idle_day_search"/>
+        <!-- HARD domain restricting this menu to the logged-in user's
+             OWN rows.
+
+             The record rules cannot do this. Odoo OR's record rules
+             together across a user's groups, so a manager - who holds
+             Task Employee AND Task Manager - gets "my rows" OR "my
+             team's rows" on every screen, and his whole team appeared
+             here. The rule is right for Employee Capacity; this menu
+             needs the tighter scope, and only the action can impose it. -->
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
         <!-- No default date filter. Future days now only exist when
              work is actually planned on them, so there is nothing empty
              left to filter out - and defaulting to "Today and Later"

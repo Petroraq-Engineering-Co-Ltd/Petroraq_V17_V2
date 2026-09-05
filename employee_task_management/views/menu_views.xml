@@ -120,7 +120,7 @@
          for a DEDICATED menu item, and it is a daily working tool
          rather than a report. -->
     <menuitem id="menu_employee_capacity"
-              name="Employee Capacity"
+              name="Employee Hours"
               parent="menu_employee_task_root"
               action="action_idle_hours"
               groups="employee_task_management.group_task_manager"
