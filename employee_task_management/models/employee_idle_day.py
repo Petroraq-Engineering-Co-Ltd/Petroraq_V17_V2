@@ -390,10 +390,15 @@ class EmployeeTaskIdleDay(models.Model):
         # have not planned it. Past and today always get a row, because
         # there "nothing allocated" is a real finding.
         future_day = day > today
-        # Saturday is an OPTIONAL working day: the employee may come in
-        # to clear pending work, but he is not expected to. Generating a
-        # row for a Saturday nobody planned anything on would show the
-        # whole company sitting at 8 idle hours every weekend.
+        # An OPTIONAL working day is one that may be worked but is not
+        # expected - an employee with nothing planned on it is not idle,
+        # he is simply off, so no row is generated.
+        #
+        # There are none left: Saturday used to be optional and is now a
+        # full working day, so every employee gets a Saturday row with
+        # idle hours like any other day. This stays in place because a
+        # day could become optional again, and because Friday and public
+        # holidays are handled separately above.
         optional_day = day.weekday() not in payroll_days
 
         kept = self.browse()
