@@ -40,25 +40,27 @@ KANBAN_CORE_STATES = (
 
 # Python weekday(): Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
 #
-# TWO DIFFERENT WEEKS, deliberately. The client's PAYROLL is calculated
-# from the company's Odoo Working Schedule, which is Sunday-Thursday and
-# must NOT be changed. But Saturday is only a "soft" day off: an
-# employee with pending work may come into the office and clear it, so
-# task work may legitimately be PLANNED on a Saturday.
+# ONE WORKING WEEK: Saturday through Thursday. FRIDAY IS THE ONLY DAY
+# OFF, confirmed by the client.
 #
-#   PAYROLL week  (Sun-Thu) - what the company officially works.
-#                 Used for measuring LATENESS, so nobody is counted late
-#                 over a day they were never obliged to work.
-#   PLANNING week (payroll + Saturday) - days a task may be dated on and
-#                 that carry capacity. A Saturday task holds a full day
-#                 of hours like any other.
+# Saturday used to sit in OPTIONAL_WORK_DAYS - a "soft" day off that
+# work could be planned on but that nobody was expected to attend. That
+# distinction is gone: Saturday is a full working day like any other, so
+# it carries capacity, it counts toward lateness, and every employee
+# appears on it in the idle-hours report whether or not anything is
+# planned. Previously an employee with no Saturday task simply got no
+# row, and the report looked empty every Saturday.
 #
-# Friday is the only genuinely blocked day.
-DEFAULT_WORK_DAYS = {6, 0, 1, 2, 3}          # payroll: Sunday-Thursday
+# The week is FIXED IN CODE, not read from the Working Schedule - see
+# _get_work_schedule() for why. Changing it is a deployment, not a
+# settings change.
+DEFAULT_WORK_DAYS = {5, 6, 0, 1, 2, 3}       # Saturday-Thursday
 
-# Days that are officially off but may still be worked on request. Added
-# to the payroll week to give the planning week.
-OPTIONAL_WORK_DAYS = {5}                     # Saturday
+# Kept as an empty set rather than deleted: the payroll and planning
+# weeks are still combined through it in several places, and an empty
+# set makes them identical without touching that plumbing. If a day ever
+# becomes optional again, it goes here.
+OPTIONAL_WORK_DAYS = set()
 DEFAULT_HOUR_FROM = 8.0
 DEFAULT_HOUR_TO = 17.0
 DEFAULT_HOURS_PER_DAY = 8.0
