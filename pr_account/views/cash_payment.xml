@@ -206,7 +206,7 @@
                     <div>
                         <div style="display: inline-block !important; margin-right: 50px !important;"
                         >
-                            <button name="action_approve_remaining_lines" string="APPROVE REMAINING LINES" type="object"
+                            <button name="action_approve_remaining_lines" string="APPROVE ALL" type="object"
                                     class="btn-success"
                                     invisible="state != 'submit' or check_process_state == True"
                                     groups="account.group_account_manager"
