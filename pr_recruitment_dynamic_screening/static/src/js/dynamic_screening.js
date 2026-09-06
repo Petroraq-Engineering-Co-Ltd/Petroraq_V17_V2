@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { _t } from "@web/core/l10n/translation";
+import { _t, translationIsReady } from "@web/core/l10n/translation";
 
 const QUESTIONS_PER_PAGE = 6;
 const MAX_REPEATING_ROWS = 20;
@@ -455,8 +455,13 @@ function initializeDynamicScreening() {
     initializeRecruitmentStepper();
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeDynamicScreening);
-} else {
-    initializeDynamicScreening();
-}
+// Frontend assets are lazy-loaded: DOM ready does not mean translations are
+// ready. Interpolating _t() before this promise resolves throws and leaves the
+// application half-initialized (and can strand Odoo's error-dialog scroll lock).
+translationIsReady.then(() => {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeDynamicScreening, { once: true });
+    } else {
+        initializeDynamicScreening();
+    }
+});
