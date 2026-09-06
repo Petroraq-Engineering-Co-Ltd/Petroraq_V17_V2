@@ -547,16 +547,31 @@ class EmployeeTaskIdleDay(models.Model):
         by once. hr.employee inherits mail.thread, so the message lands
         in the employee's inbox and reaches his email through the
         normal follower channel.
+
+        SENT IMMEDIATELY, not queued. Odoo sends mail inline when a
+        person clicks something and queues everything else for the
+        "Mail: Email Queue Manager" cron to flush later. Because these
+        reminders come from a cron they were queued, and sat at
+        "Outgoing" until that other cron happened to run - which defeats
+        the point of firing them at 09:00, 11:00, 13:00 and 15:00. A
+        reminder that arrives two hours late is not a reminder.
+
+        The cost is that this cron now waits on the mail server for each
+        message. That is fine at this company's size, and the caller
+        already wraps every reminder in its own savepoint and
+        try/except, so one unreachable server cannot take down the run
+        or stop the slot bookkeeping for everybody else.
         """
         self.ensure_one()
         partner = self.employee_id.sudo().user_id.partner_id
         if not partner:
             return
-        self.employee_id.sudo().message_post(
-            body=body, subject=subject,
-            partner_ids=partner.ids,
-            message_type='notification',
-            subtype_xmlid='mail.mt_comment')
+        self.employee_id.sudo().with_context(
+            mail_notify_force_send=True).message_post(
+                body=body, subject=subject,
+                partner_ids=partner.ids,
+                message_type='notification',
+                subtype_xmlid='mail.mt_comment')
 
     # ==================================================================
     # UI HELPERS
