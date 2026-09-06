@@ -4,4 +4,5 @@
 from . import hr_attendance
 from . import hr_shortage_request
 from . import approval_dashboard
+from . import approval_dashboard_employee_task
 from . import attendance_management_dashboard

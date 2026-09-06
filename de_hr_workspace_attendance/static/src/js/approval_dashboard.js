@@ -32,7 +32,11 @@ class ApprovalDashboard extends Component {
         this.state.sections = sections;
         if (
             this.state.selectedSectionKey &&
-            !sections.some((section) => section.key === this.state.selectedSectionKey)
+            !sections.some(
+                (section) =>
+                    section.key === this.state.selectedSectionKey &&
+                    (section.tiles || []).length > 1
+            )
         ) {
             this.state.selectedSectionKey = "";
             this.storeSectionKey("");
@@ -42,8 +46,40 @@ class ApprovalDashboard extends Component {
 
     openSection(ev) {
         const sectionKey = ev.currentTarget.dataset.sectionKey || "";
+        const section = this.state.sections.find((item) => item.key === sectionKey);
+        // A section holding a single approval menu is shown as that menu
+        // itself, so clicking it must open the list straight away instead
+        // of drilling into a page with one card on it.
+        const tiles = section && section.tiles ? section.tiles : [];
+        if (tiles.length === 1) {
+            this.openTileRecord(tiles[0]);
+            return;
+        }
         this.state.selectedSectionKey = sectionKey;
         this.storeSectionKey(sectionKey);
+    }
+
+    sectionDisplay(section) {
+        const tiles = section.tiles || [];
+        if (tiles.length === 1) {
+            const tile = tiles[0];
+            return {
+                name: tile.name,
+                icon: tile.icon,
+                tone: tile.tone,
+                count: section.count,
+                hint: "Open approval list",
+                direct: true,
+            };
+        }
+        return {
+            name: section.name,
+            icon: section.icon,
+            tone: section.tone,
+            count: section.count,
+            hint: `${tiles.length} approval menu${tiles.length === 1 ? "" : "s"}`,
+            direct: false,
+        };
     }
 
     backToSections() {
@@ -73,7 +109,10 @@ class ApprovalDashboard extends Component {
 
     openTile(ev) {
         const key = ev.currentTarget.dataset.tileKey || "";
-        const tile = this.allTiles.find((item) => item.key === key);
+        this.openTileRecord(this.allTiles.find((item) => item.key === key));
+    }
+
+    openTileRecord(tile) {
         if (tile && tile.res_model) {
             const viewModes = (tile.view_mode || "list,form")
                 .split(",")
@@ -91,7 +130,7 @@ class ApprovalDashboard extends Component {
             return;
         }
 
-        const actionId = Number(ev.currentTarget.dataset.actionId || 0);
+        const actionId = Number((tile && tile.action_id) || 0);
         if (actionId) {
             this.action.doAction(actionId);
         }

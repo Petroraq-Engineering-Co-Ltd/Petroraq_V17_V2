@@ -40,25 +40,27 @@ KANBAN_CORE_STATES = (
 
 # Python weekday(): Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6
 #
-# TWO DIFFERENT WEEKS, deliberately. The client's PAYROLL is calculated
-# from the company's Odoo Working Schedule, which is Sunday-Thursday and
-# must NOT be changed. But Saturday is only a "soft" day off: an
-# employee with pending work may come into the office and clear it, so
-# task work may legitimately be PLANNED on a Saturday.
+# ONE WORKING WEEK: Saturday through Thursday. FRIDAY IS THE ONLY DAY
+# OFF, confirmed by the client.
 #
-#   PAYROLL week  (Sun-Thu) - what the company officially works.
-#                 Used for measuring LATENESS, so nobody is counted late
-#                 over a day they were never obliged to work.
-#   PLANNING week (payroll + Saturday) - days a task may be dated on and
-#                 that carry capacity. A Saturday task holds a full day
-#                 of hours like any other.
+# Saturday used to sit in OPTIONAL_WORK_DAYS - a "soft" day off that
+# work could be planned on but that nobody was expected to attend. That
+# distinction is gone: Saturday is a full working day like any other, so
+# it carries capacity, it counts toward lateness, and every employee
+# appears on it in the idle-hours report whether or not anything is
+# planned. Previously an employee with no Saturday task simply got no
+# row, and the report looked empty every Saturday.
 #
-# Friday is the only genuinely blocked day.
-DEFAULT_WORK_DAYS = {6, 0, 1, 2, 3}          # payroll: Sunday-Thursday
+# The week is FIXED IN CODE, not read from the Working Schedule - see
+# _get_work_schedule() for why. Changing it is a deployment, not a
+# settings change.
+DEFAULT_WORK_DAYS = {5, 6, 0, 1, 2, 3}       # Saturday-Thursday
 
-# Days that are officially off but may still be worked on request. Added
-# to the payroll week to give the planning week.
-OPTIONAL_WORK_DAYS = {5}                     # Saturday
+# Kept as an empty set rather than deleted: the payroll and planning
+# weeks are still combined through it in several places, and an empty
+# set makes them identical without touching that plumbing. If a day ever
+# becomes optional again, it goes here.
+OPTIONAL_WORK_DAYS = set()
 DEFAULT_HOUR_FROM = 8.0
 DEFAULT_HOUR_TO = 17.0
 DEFAULT_HOURS_PER_DAY = 8.0
@@ -94,7 +96,7 @@ class EmployeeTaskList(models.Model):
         help='Auto-generated reference number (PEC-TL-YEAR-00000)')
     employee_id = fields.Many2one(
         'hr.employee', string='Employee', required=True, tracking=True,
-        default=lambda self: self.env.user.employee_id,
+        default=lambda self: self.env.user.sudo().employee_id,
         help='Employee the task list belongs to')
     # precompute=True is REQUIRED here. Both fields are
     # required + computed + stored: without precompute Odoo runs the
@@ -269,42 +271,57 @@ class EmployeeTaskList(models.Model):
     def _get_work_schedule(self):
         """Return (tz_name, {working weekdays}, hour_from, hour_to).
 
-        resource.calendar.attendance.dayofweek is '0'=Monday..'6'=Sunday,
-        which is exactly Python's datetime.weekday(), so no conversion
-        is needed.
+        THE WORKING WEEK IS FIXED IN CODE. It is deliberately NOT read
+        from the Working Schedule any more.
+
+        Why: the calendar used to win, and it caused three separate
+        production problems.
+          1. A stock Odoo database ships a Mon-Fri calendar, so Friday
+             became a working day and generated idle rows for a day
+             nobody works.
+          2. The same calendar made SUNDAY a non-working day, so Sunday
+             carried no capacity at all and a task spanning a Sunday
+             silently dumped its hours onto the neighbouring days.
+          3. Worst of all, the answer depended on WHO was asking. The
+             cron runs as OdooBot and resolved `self.env.company` from
+             OdooBot's company; a manual run resolved it from the
+             user's. Two different calendars meant two different working
+             weeks, so the scheduled run kept deleting rows the manual
+             run had just created - exactly the "30 August appears then
+             vanishes" behaviour that was reported.
+
+        The client's week is set by the country and their contract, not
+        by a settings field: Sunday-Thursday, Saturday optional, Friday
+        off. Hard-coding it makes the answer identical for every caller
+        and removes an entire class of misconfiguration.
+
+        Hours and timezone ARE still read from the calendar - those are
+        genuinely tunable, and neither can change which days exist.
         """
         calendar = (self.company_id.resource_calendar_id
                     or self.env.company.resource_calendar_id)
-        if calendar and calendar.attendance_ids:
-            attendances = calendar.attendance_ids
-            configured_days = {int(a.dayofweek) for a in attendances}
-            # The configured calendar WINS - that is the whole point of
-            # reading it. But if it disagrees with the work week the
-            # client stated, say so loudly in the log: a stock Odoo
-            # database ships a Mon-Fri calendar, which silently makes
-            # Friday a working day and defeats every off-day rule in
-            # this module (validation, capacity, deadlines, delay
-            # counting). This cost a debugging round once.
-            # Compared against the PAYROLL week - this calendar drives
-            # their payroll, so a difference here is a real config
-            # problem, not the Saturday planning allowance.
-            if configured_days != DEFAULT_WORK_DAYS:
-                _logger.warning(
-                    "Working Schedule '%s' has working days %s, which "
-                    "differs from the expected %s. Off-day validation, "
-                    "capacity and delay counting all follow the "
-                    "CONFIGURED calendar. Fix it in Settings > "
-                    "Employees > Working Schedules if this is wrong.",
-                    calendar.display_name,
-                    sorted(configured_days), sorted(DEFAULT_WORK_DAYS))
-            return (
-                calendar.tz or DEFAULT_TZ,
-                configured_days,
-                min(attendances.mapped('hour_from')),
-                max(attendances.mapped('hour_to')),
-            )
-        return (DEFAULT_TZ, DEFAULT_WORK_DAYS,
-                DEFAULT_HOUR_FROM, DEFAULT_HOUR_TO)
+        tz_name = DEFAULT_TZ
+        hour_from, hour_to = DEFAULT_HOUR_FROM, DEFAULT_HOUR_TO
+        if calendar:
+            tz_name = calendar.tz or DEFAULT_TZ
+            if calendar.attendance_ids:
+                hour_from = min(calendar.attendance_ids.mapped('hour_from'))
+                hour_to = max(calendar.attendance_ids.mapped('hour_to'))
+                configured_days = {
+                    int(a.dayofweek) for a in calendar.attendance_ids}
+                if configured_days != DEFAULT_WORK_DAYS:
+                    # Informational only now - it no longer changes any
+                    # behaviour, but a calendar that disagrees with the
+                    # real work week is still a payroll problem worth
+                    # surfacing.
+                    _logger.info(
+                        "Working Schedule '%s' lists working days %s, "
+                        "which differs from this module's fixed week "
+                        "%s. The fixed week is used; the calendar only "
+                        "supplies hours and timezone.",
+                        calendar.display_name,
+                        sorted(configured_days), sorted(DEFAULT_WORK_DAYS))
+        return (tz_name, DEFAULT_WORK_DAYS, hour_from, hour_to)
 
     def _get_hours_per_day(self):
         """How many hours of work fit in one working day. Read from the
@@ -454,11 +471,27 @@ class EmployeeTaskList(models.Model):
     # ==================================================================
     @api.depends('employee_id')
     def _compute_employee_details(self):
-        """System auto-fills department, manager and company (TDD 6.1)."""
+        """System auto-fills department, manager and company (TDD 6.1).
+
+        Read through sudo(). hr.employee is restricted to HR officers,
+        and for anybody else Odoo silently falls back to
+        hr.employee.public. Odoo's ORM prefetches EVERY stored field of
+        a record when you touch one of them, so simply reading
+        department_id drags in every custom HR field on the database -
+        cost centres, contract type, attendance settings - and the read
+        is refused with "not available on the public employee profile".
+        The employee could not even open a new task list.
+
+        sudo() is safe here: this module has already decided who may see
+        which task list through its own record rules, and the only
+        fields taken are department, manager and the linked user - all
+        of which the form shows anyway.
+        """
         for rec in self:
-            if rec.employee_id:
-                rec.department_id = rec.employee_id.department_id
-                rec.manager_id = rec.employee_id.parent_id
+            employee = rec.employee_id.sudo()
+            if employee:
+                rec.department_id = employee.department_id
+                rec.manager_id = employee.parent_id
             else:
                 rec.department_id = False
                 rec.manager_id = False
@@ -577,10 +610,14 @@ class EmployeeTaskList(models.Model):
             'employee_task_management.group_task_admin')
         privileged = is_manager_group or is_admin_group
         for rec in self:
+            # sudo() for the same prefetch reason as
+            # _compute_employee_details above.
             rec.is_current_user_manager = (
-                rec.manager_id and rec.manager_id.user_id == self.env.user)
+                rec.manager_id
+                and rec.manager_id.sudo().user_id == self.env.user)
             rec.is_current_user_employee = (
-                rec.employee_id and rec.employee_id.user_id == self.env.user)
+                rec.employee_id
+                and rec.employee_id.sudo().user_id == self.env.user)
             # "Only HIS employees": the manager named on THIS task list,
             # not any manager. An Administrator is included as the usual
             # escape hatch.
@@ -598,9 +635,9 @@ class EmployeeTaskList(models.Model):
             # stays editable, otherwise the employee would face a
             # required-but-read-only field and could never save at all.
             rec.can_edit_department = (
-                privileged or not rec.employee_id.department_id)
+                privileged or not rec.employee_id.sudo().department_id)
             rec.can_edit_manager = (
-                privileged or not rec.employee_id.parent_id)
+                privileged or not rec.employee_id.sudo().parent_id)
 
     @api.depends('task_line_ids.subtask_ids')
     def _compute_has_task_without_activity(self):
@@ -619,13 +656,15 @@ class EmployeeTaskList(models.Model):
         a non-stored computed m2m consumed by domain="[('id','in',...)]".
         """
         user = self.env.user
-        employee_model = self.env['hr.employee']
-        department_model = self.env['hr.department']
+        # sudo() throughout: building the pick-list means searching and
+        # reading hr.employee, which a plain employee cannot do.
+        employee_model = self.env['hr.employee'].sudo()
+        department_model = self.env['hr.department'].sudo()
         is_admin = user.has_group(
             'employee_task_management.group_task_admin')
         is_manager = user.has_group(
             'employee_task_management.group_task_manager')
-        own_employee = user.employee_id
+        own_employee = user.sudo().employee_id
         if is_admin:
             employees = employee_model.search([])
             departments = department_model.search([])
@@ -840,7 +879,7 @@ class EmployeeTaskList(models.Model):
         if 'task_line_ids' in fields_list and not res.get('task_line_ids'):
             employee_id = res.get('employee_id')
             if not employee_id:
-                employee = self.env.user.employee_id
+                employee = self.env.user.sudo().employee_id
                 employee_id = employee.id if employee else False
             commands = self._carry_forward_commands(employee_id)
             if commands:
@@ -1204,12 +1243,12 @@ class EmployeeTaskList(models.Model):
 
     def _get_manager_partner(self):
         self.ensure_one()
-        return self.manager_id.user_id.partner_id or \
+        return self.manager_id.sudo().user_id.partner_id or \
             self.manager_id.work_contact_id
 
     def _get_employee_partner(self):
         self.ensure_one()
-        return self.employee_id.user_id.partner_id or \
+        return self.employee_id.sudo().user_id.partner_id or \
             self.employee_id.work_contact_id
 
     def _plan_is_incomplete(self):
@@ -1561,8 +1600,8 @@ class EmployeeTaskList(models.Model):
         """
         self.ensure_one()
         return bool(
-            self.employee_id.user_id
-            and self.employee_id.user_id == self.env.user)
+            self.employee_id.sudo().user_id
+            and self.employee_id.sudo().user_id == self.env.user)
 
     def _check_approver_rights(self):
         """Validations 5 & 10: manager approval cannot be done by the
@@ -1591,8 +1630,8 @@ class EmployeeTaskList(models.Model):
                 'employee_task_management.group_task_manager') and not \
                 self.env.user.has_group(
                 'employee_task_management.group_task_admin'):
-            if self.manager_id.user_id and \
-                    self.manager_id.user_id != self.env.user:
+            if self.manager_id.sudo().user_id and \
+                    self.manager_id.sudo().user_id != self.env.user:
                 raise AccessError(_(
                     'Only the immediate manager (%s) can approve or '
                     'return this task list.', self.manager_id.name))
@@ -1635,8 +1674,8 @@ class EmployeeTaskList(models.Model):
             # (e.g. the employee is on leave). Recorded on the record so
             # it is never mistaken for the employee's own action.
             return
-        if not (self.employee_id.user_id
-                and self.employee_id.user_id == self.env.user):
+        if not (self.employee_id.sudo().user_id
+                and self.employee_id.sudo().user_id == self.env.user):
             raise AccessError(_(
                 'Only %s can perform this action on task list %s.',
                 self.employee_id.name, self.name))
@@ -2048,8 +2087,8 @@ class EmployeeTaskList(models.Model):
             if rec.state != 'draft':
                 raise UserError(_(
                     'Only Draft task lists can be assigned to an employee.'))
-            if rec.employee_id.user_id and \
-                    rec.employee_id.user_id == self.env.user:
+            if rec.employee_id.sudo().user_id and \
+                    rec.employee_id.sudo().user_id == self.env.user:
                 raise UserError(_(
                     'This task list belongs to you. Use "Submit to '
                     'Manager" instead so your manager can approve it.'))

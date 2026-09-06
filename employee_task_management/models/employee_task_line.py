@@ -837,17 +837,17 @@ class EmployeeTaskLine(models.Model):
                     'Employee: %(emp)s\n'
                     'Task: %(task)s\n\n'
                     'Daily capacity: %(cap)s\n'
-                    'Already committed on other tasks: %(others)s\n'
-                    'Still available that day: %(avail)s\n'
+                    'Already consumed on other tasks: %(others)s\n'
+                    'Still available today: %(avail)s\n'
                     'This task needs: %(needs)s\n\n'
                     'What you can do:\n'
-                    '  - reduce the activity hours to %(avail)s or less\n'
-                    '  - move this task to a day with free capacity\n'
-                    '  - spread it over more days by extending the End '
-                    'Date, which divides the hours between them\n\n'
-                    'Note: hours already spent that day count even if '
-                    'the manager rejected the work. Rejected work is '
-                    'redone on a LATER day, not on the day it failed.',
+                    '  - Reduce the activity hours to %(avail)s or less.\n'
+                    '  - Move this task to a day with available capacity.\n'
+                    '  - Spread it over more days by extending the End '
+                    'Date, which will distribute the hours across those days.\n\n'
+                    'Note: Hours already spent on that day are counted even if '
+                    'the manager rejected the work. Rejected work may be redone'
+                    ' on subsequent days, but not on the same day it is rejected.',
                     day=day,
                     emp=employee.name or '',
                     task=(line.description or '')[:80],

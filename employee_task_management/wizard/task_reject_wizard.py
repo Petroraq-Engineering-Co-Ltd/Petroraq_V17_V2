@@ -42,6 +42,19 @@ class EmployeeTaskRejectWizard(models.TransientModel):
         # Rejected so the record of what was actually worked survives.
         task.task_line_ids.with_context(etm_workflow=True).write(
             {'task_status': 'closed'})
+        # Cascade the verdict down, exactly as rejecting a single TASK
+        # already cascades to its activities. Without this the hours
+        # would stay in the Pending column on a list the manager has
+        # plainly refused, and the Rejected column would read zero.
+        task.task_line_ids.subtask_ids.with_context(
+            etm_workflow=True).write({
+                'manager_verdict': 'rejected',
+                'verdict_reason': self.reject_reason,
+            })
+        task.task_line_ids.with_context(etm_workflow=True).write({
+            'manager_verdict': 'rejected',
+            'verdict_reason': self.reject_reason,
+        })
         if running_review:
             task.message_post(body=_(
                 'Rejected while in progress. Work already recorded has '
