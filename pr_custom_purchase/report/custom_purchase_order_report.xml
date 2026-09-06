@@ -368,6 +368,7 @@
                             <span t-if="o.payment_term_id.purchase_milestone_schedule"
                                   t-out="o.payment_term_id.purchase_schedule_summary"
                                   style="white-space:pre-line;"/>
+                            <span t-else="" t-field="o.payment_term_id"/>
                         </div>
 
 
