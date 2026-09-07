@@ -102,7 +102,7 @@ class HrContract(models.Model):
         if spec["allocation_type"] == "accrual":
             vals.update({
                 "name": f"{leave_type.name} Accrual Allocation - {self.employee_id.name}",
-                "date_to": self.date_start + relativedelta(years=1) - timedelta(days=1),
+                "date_to": False if accrual_plan.pr_annual_earning_limit else self.date_start + relativedelta(years=1) - timedelta(days=1),
                 "number_of_days": 0.0,
                 "accrual_plan_id": accrual_plan.id,
             })
@@ -148,7 +148,7 @@ class HrContract(models.Model):
                 )
                 allocation.action_validate()
                 if allocation.allocation_type == "accrual":
-                    process_until = min(today, allocation.date_to)
+                    process_until = min(today, allocation.date_to) if allocation.date_to else today
                     if contract.date_start <= process_until:
                         # Validation initializes lastcall/nextcall for the accrual
                         # plan.  Processing an unvalidated allocation after forcing
@@ -200,6 +200,8 @@ class HrContract(models.Model):
                 ):
                     allocation._pr_process_accrual_until(contract.date_end)
                 allocation.write({"date_to": contract.date_end})
+                if allocation.accrual_plan_id.pr_annual_earning_limit and contract.date_end < today:
+                    allocation._process_accrual_plans(contract.date_end + timedelta(days=1), log=False)
 
     @api.model_create_multi
     def create(self, vals_list):

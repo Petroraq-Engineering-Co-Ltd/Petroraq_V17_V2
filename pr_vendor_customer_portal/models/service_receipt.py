@@ -13,7 +13,7 @@ class ServiceReceiptNote(models.Model):
     def _compute_pr_vendor_portal_attachment_ids(self):
         Attachment = self.env["ir.attachment"].sudo()
         for receipt in self:
-            receipt.pr_vendor_portal_attachment_ids = Attachment.search([
+            receipt.pr_vendor_portal_attachment_ids = receipt.attachment_ids | Attachment.search([
                 ("res_model", "=", receipt._name),
                 ("res_id", "=", receipt.id),
                 ("res_field", "=", False),

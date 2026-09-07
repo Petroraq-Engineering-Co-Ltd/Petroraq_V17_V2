@@ -6,6 +6,8 @@
         <field name="inherit_id" ref="mail.email_compose_message_wizard_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_ids']/.." position="after">
+                <field name="email_cc_text" placeholder="person@example.com, other@example.com"
+                       invisible="subtype_is_log == True"/>
                 <field
                     name="partner_cc_ids"
                     widget="many2many_tags_email"

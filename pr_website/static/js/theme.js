@@ -176,3 +176,25 @@
         setupImagePreview();
     }
 })();
+
+(function () {
+    "use strict";
+
+    function setupConditionalLoginInput() {
+        const loginInput = document.querySelector("input[name='login'][data-vendor-cr='1']");
+        if (!loginInput) {
+            return;
+        }
+        const keepTenDigits = function () {
+            loginInput.value = loginInput.value.replace(/\D/g, "").slice(0, 10);
+        };
+        loginInput.addEventListener("input", keepTenDigits);
+        keepTenDigits();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupConditionalLoginInput);
+    } else {
+        setupConditionalLoginInput();
+    }
+})();

@@ -667,6 +667,9 @@ export class SimpleLeaveSummaryCard extends Component {
             start = `${now.getFullYear()}-${month}-01`;
         } else if (this.state.duration === "date_of_joining") {
             start = this.state.employee_profile.joining_date || `${new Date().getFullYear()}-01-01`;
+        } else if (this.state.duration === "current_leave_year") {
+            start = this.state.employee_profile.leave_year_start_date || this.state.employee_profile.joining_date;
+            end = this.state.employee_profile.leave_year_end_date || today;
         } else {
             start = this.state.employee_profile.current_contract_start_date || `${new Date().getFullYear()}-01-01`;
         }

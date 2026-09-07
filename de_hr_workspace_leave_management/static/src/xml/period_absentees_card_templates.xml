@@ -309,6 +309,7 @@
                 </div>
                 <select class="form-select de-summary-select" t-att-value="state.duration" t-on-change="onDurationChange">
                     <option value="current_contract">Current Contract</option>
+<!--                    <option value="current_leave_year">Current Leave Year</option>-->
                     <option value="date_of_joining">Date of Joining</option>
                     <option value="this_month">This Month</option>
                     <option value="this_year">This Year</option>

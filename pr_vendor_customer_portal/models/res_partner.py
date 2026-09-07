@@ -2,7 +2,8 @@
 
 from collections import OrderedDict
 
-from odoo import fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.osv import expression
 from odoo.tools import format_date
 
@@ -26,6 +27,13 @@ PORTAL_INVOICE_MOVE_TYPES = (
 
 class ResPartner(models.Model):
     _inherit = "res.partner"
+
+    @api.constrains("company_registry")
+    def _check_saudi_commercial_registration(self):
+        for partner in self.filtered("company_registry"):
+            value = partner.company_registry.strip()
+            if not value.isdigit() or len(value) != 10:
+                raise ValidationError(_("CR Number must contain exactly 10 numeric digits."))
 
     def _pr_portal_statement_partner_ids(self):
         self.ensure_one()

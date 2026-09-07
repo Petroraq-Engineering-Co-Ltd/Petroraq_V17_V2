@@ -1,7 +1,30 @@
 /** @odoo-module **/
 
+import { _t, translationIsReady } from "@web/core/l10n/translation";
+
 const QUESTIONS_PER_PAGE = 6;
 const MAX_REPEATING_ROWS = 20;
+
+const ARABIC_STEPPER_TEXT = {
+    "Previous": "السابق",
+    "Continue": "متابعة",
+    "Personal details": "البيانات الشخصية",
+    "Tell us how to reach you and where you are based.": "أخبرنا بكيفية التواصل معك ومكان إقامتك.",
+    "Professional details": "البيانات المهنية",
+    "Your qualifications, availability, and job-specific answers.": "مؤهلاتك ومدى جاهزيتك وإجاباتك المتعلقة بالوظيفة.",
+    "Resume and submit": "السيرة الذاتية والإرسال",
+    "Attach your CV, review your details, and send your application.": "أرفق سيرتك الذاتية وراجع بياناتك ثم أرسل طلبك.",
+    "Job questions": "أسئلة الوظيفة",
+    "Answer the requirements selected for this position.": "أجب عن المتطلبات المحددة لهذه الوظيفة.",
+    "Step": "الخطوة",
+    "of": "من",
+    "Application progress": "تقدم طلب التوظيف",
+};
+
+function careerText(source) {
+    const language = (document.documentElement.lang || "").toLowerCase();
+    return language.startsWith("ar") ? (ARABIC_STEPPER_TEXT[source] || _t(source)) : _t(source);
+}
 
 function createElement(tagName, className, html) {
     const element = document.createElement(tagName);
@@ -41,7 +64,7 @@ function appendNavigation(step, hasPrevious, hasNext, submitButton) {
         const previous = createElement(
             "button",
             "pr-step-button pr-previous",
-            '<i class="fa fa-arrow-left"></i><span>Previous</span>'
+            `<i class="fa fa-arrow-left"></i><span>${careerText("Previous")}</span>`
         );
         previous.type = "button";
         actions.append(previous);
@@ -50,7 +73,7 @@ function appendNavigation(step, hasPrevious, hasNext, submitButton) {
         const next = createElement(
             "button",
             "pr-step-button pr-next",
-            '<span>Continue</span><i class="fa fa-arrow-right"></i>'
+            `<span>${careerText("Continue")}</span><i class="fa fa-arrow-right"></i>`
         );
         next.type = "button";
         actions.append(next);
@@ -260,16 +283,16 @@ function initializeRecruitmentStepper() {
         "experience",
     ]);
     const personalStep = buildStep(
-        "Personal details",
-        "Tell us how to reach you and where you are based."
+        careerText("Personal details"),
+        careerText("Tell us how to reach you and where you are based.")
     );
     const professionalStep = buildStep(
-        "Professional details",
-        "Your qualifications, availability, and job-specific answers."
+        careerText("Professional details"),
+        careerText("Your qualifications, availability, and job-specific answers.")
     );
     const documentStep = buildStep(
-        "Resume and submit",
-        "Attach your CV, review your details, and send your application."
+        careerText("Resume and submit"),
+        careerText("Attach your CV, review your details, and send your application.")
     );
 
     for (const group of directGroups) {
@@ -297,8 +320,10 @@ function initializeRecruitmentStepper() {
                 const pageNumber = Math.floor(index / QUESTIONS_PER_PAGE) + 1;
                 const pageCount = Math.ceil(questionFields.length / QUESTIONS_PER_PAGE);
                 const questionStep = buildStep(
-                    pageCount > 1 ? `Job questions ${pageNumber} of ${pageCount}` : "Job questions",
-                    "Answer the requirements selected for this position."
+                    pageCount > 1
+                        ? `${careerText("Job questions")} ${pageNumber} ${careerText("of")} ${pageCount}`
+                        : careerText("Job questions"),
+                    careerText("Answer the requirements selected for this position.")
                 );
                 for (const field of questionFields.slice(index, index + QUESTIONS_PER_PAGE)) {
                     questionStep.grid.append(field);
@@ -313,10 +338,10 @@ function initializeRecruitmentStepper() {
     steps.push(documentStep);
 
     steps.forEach((step, index) => {
-        step.stepBadge.textContent = `Step ${index + 1}/${steps.length}`;
+        step.stepBadge.textContent = `${careerText("Step")} ${index + 1}/${steps.length}`;
         step.stepBadge.setAttribute(
             "aria-label",
-            `Step ${index + 1} of ${steps.length}`
+            `${careerText("Step")} ${index + 1} ${careerText("of")} ${steps.length}`
         );
     });
 
@@ -328,7 +353,7 @@ function initializeRecruitmentStepper() {
     );
 
     const progress = createElement("ol", "pr-form-progress");
-    progress.setAttribute("aria-label", "Application progress");
+    progress.setAttribute("aria-label", careerText("Application progress"));
     const progressItems = steps.map((step, index) => {
         const item = createElement("li", "pr-progress-item");
         item.innerHTML = `<span class="pr-progress-number">${index + 1}</span>`;
@@ -451,8 +476,13 @@ function initializeDynamicScreening() {
     initializeRecruitmentStepper();
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeDynamicScreening);
-} else {
-    initializeDynamicScreening();
-}
+// Frontend assets are lazy-loaded: DOM ready does not mean translations are
+// ready. Interpolating _t() before this promise resolves throws and leaves the
+// application half-initialized (and can strand Odoo's error-dialog scroll lock).
+translationIsReady.then(() => {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeDynamicScreening, { once: true });
+    } else {
+        initializeDynamicScreening();
+    }
+});

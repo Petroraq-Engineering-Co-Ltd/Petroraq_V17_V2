@@ -629,7 +629,54 @@ class HrApplicant(models.Model):
                     % (escape(_("Application automatically refused by screening rules.")), items)
                 )
                 applicant.sudo().write({"rejection_email_queued_at": False})
-                applicant.sudo()._queue_rejection_email(refusal_reason.template_id)
+                rejection_template = refusal_reason.template_id or self.env.ref(
+                    "pr_hr_recruitment.email_template_applicant_rejection",
+                    raise_if_not_found=False,
+                )
+                queued_mail = applicant.sudo()._queue_rejection_email(
+                    rejection_template
+                )
+                if not queued_mail and (
+                    applicant.email_from or applicant.partner_id.email
+                ):
+                    # Keep automatic screening reliable even when mail.template
+                    # declines to generate a message for an archived applicant.
+                    # The standard manual-refusal path continues to use the
+                    # configured template.
+                    recipient = applicant.email_from or applicant.partner_id.email
+                    sender = (
+                        applicant.company_id.email_formatted
+                        or self.env.user.email_formatted
+                        or "noreply@petroraq.com"
+                    )
+                    queued_mail = self.env["mail.mail"].sudo().create(
+                        {
+                            "subject": _("Update regarding your application"),
+                            "email_from": sender,
+                            "email_to": recipient,
+                            "body_html": Markup(
+                                "<div><p>Dear %s,</p>"
+                                "<p>Thank you for your interest and for the time "
+                                "you invested in your application.</p>"
+                                "<p>After reviewing your application, we will not "
+                                "be progressing it further at this time.</p>"
+                                "<p>We wish you success in your future "
+                                "opportunities.</p></div>"
+                            )
+                            % escape(applicant.partner_name or applicant.name),
+                            "scheduled_date": applicant._next_rejection_email_send_at(),
+                            "auto_delete": False,
+                        }
+                    )
+                    applicant.sudo().write(
+                        {"rejection_email_queued_at": fields.Datetime.now()}
+                    )
+                    applicant.sudo().message_post(
+                        body=_(
+                            "Candidate rejection email queued for delivery after "
+                            "8:00 PM."
+                        )
+                    )
             elif not failures and previous_status == "auto_refused":
                 applicant.sudo().write({"rejection_email_queued_at": False})
                 applicant.sudo().message_post(

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pr_accrual_plan_service_year_form" model="ir.ui.view">
+        <field name="name">pr.accrual.plan.service.year.form</field>
+        <field name="model">hr.leave.accrual.plan</field>
+        <field name="inherit_id" ref="hr_holidays.hr_accrual_plan_view_form"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="pr_annual_earning_limit"/>
+                <field name="pr_annual_entitlement" invisible="not pr_annual_earning_limit"/>
+                <field name="pr_earning_days" invisible="not pr_annual_earning_limit"/>
+            </field>
+            <xpath expr="//div[hasclass('o_hr_holidays_hierarchy')]" position="before">
+                <div class="alert alert-info" invisible="not pr_annual_earning_limit">
+                    Earn the annual entitlement over the configured calendar days, then pause.
+                    Use one ongoing allocation starting on the contract start date, with Run until set to No Limit.
+                    Daily accrual restarts on each anniversary in the same allocation; unused leave stays in its balance.
+                    An end date or the employee's Last Working Day stops accrual. Milestones, balance caps and worked-time
+                    rules do not apply to this plan. No milestone is required.
+                </div>
+            </xpath>
+            <xpath expr="//div[hasclass('o_hr_holidays_hierarchy')]" position="attributes">
+                <attribute name="invisible">pr_annual_earning_limit</attribute>
+            </xpath>
+            <field name="is_based_on_worked_time" position="attributes">
+                <attribute name="invisible">pr_annual_earning_limit</attribute>
+            </field>
+            <field name="carryover_date" position="attributes">
+                <attribute name="invisible">pr_annual_earning_limit</attribute>
+            </field>
+            <xpath expr="//label[@for='carryover_month']" position="attributes">
+                <attribute name="invisible">pr_annual_earning_limit or carryover_date != 'other'</attribute>
+            </xpath>
+            <xpath expr="//div[@name='carryover']" position="attributes">
+                <attribute name="invisible">pr_annual_earning_limit or carryover_date != 'other'</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

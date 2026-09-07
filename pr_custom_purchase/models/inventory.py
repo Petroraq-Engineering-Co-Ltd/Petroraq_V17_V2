@@ -26,6 +26,10 @@ class GrnSes(models.Model):
     is_reviewed = fields.Boolean("Reviewed", default=False)
     is_approved = fields.Boolean("Approved", default=False)
     line_ids = fields.One2many("grn.ses.line", "order_id", string="GRN/SES Lines")
+    attachment_ids = fields.Many2many(
+        "ir.attachment", "grn_ses_attachment_rel", "receipt_id", "attachment_id",
+        string="Supporting Documents", copy=False,
+    )
     bill_ids = fields.One2many("account.move", "grn_ses_id", string="Vendor Bills")
     bill_count = fields.Integer(string="Bill Count", compute="_compute_bill_count")
     stage = fields.Selection(
@@ -100,6 +104,8 @@ class GrnSes(models.Model):
 
     def action_create_vendor_bill(self):
         self.ensure_one()
+        if not self.env.user.has_group("account.group_account_invoice"):
+            raise UserError(_("Only Accounts can create vendor bills."))
         if not self.is_approved:
             raise UserError(_("Please approve the GRN/SES before creating a vendor bill."))
         if not self.partner_id:
@@ -107,7 +113,9 @@ class GrnSes(models.Model):
         if not self.line_ids:
             raise UserError(_("Cannot create vendor bill without GRN/SES lines."))
 
-        existing_draft = self.bill_ids.filtered(lambda b: b.state == "draft")[:1]
+        self.env.cr.execute("SELECT id FROM grn_ses WHERE id = %s FOR UPDATE", [self.id])
+        self.invalidate_recordset(["bill_ids"])
+        existing_draft = self.bill_ids.filtered(lambda b: b.state != "cancel")[:1]
         if existing_draft:
             if self.purchase_order_id:
                 self.purchase_order_id._copy_purchase_attachments_to_moves(existing_draft)
@@ -152,6 +160,7 @@ class GrnSes(models.Model):
             "grn_ses_id": self.id,
             "journal_id": purchase_journal.id,
             "company_id": company.id,
+            "invoice_payment_term_id": self.purchase_order_id.payment_term_id.id,
         })
         if self.purchase_order_id:
             self.purchase_order_id._copy_purchase_attachments_to_moves(bill)
