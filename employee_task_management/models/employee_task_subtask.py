@@ -85,7 +85,7 @@ class EmployeeTaskSubtask(models.Model):
             state = task_list.state
             rec.can_review = bool(
                 privileged and task_list
-                and (state == 'completed'
+                and (state in ('completed', 'closed', 'rejected')
                      or (state == 'in_progress'
                          and task_list.started_without_approval))
                 and task_list.employee_id.sudo().user_id != self.env.user)
@@ -115,6 +115,9 @@ class EmployeeTaskSubtask(models.Model):
                 task=(rec.task_line_id.description or '')[:80]))
         lines = self.mapped('task_line_id')
         lines._sync_verdict_from_activities()
+        for rec in self:
+            rec.task_line_id._log_post_closure_change(_(
+                'activity approved - %s', (rec.name or '')[:80]))
         # Re-open the Activities dialog instead of returning True.
         # An object button inside a dialog that returns no action makes
         # Odoo close that dialog, so the manager was thrown out after
