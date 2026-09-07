@@ -42,9 +42,11 @@ class EmployeeTaskLineRejectWizard(models.TransientModel):
         line.task_list_id.message_post(body=_(
             'Task rejected by %(user)s: %(task)s<br/>'
             'Reason: %(reason)s<br/>'
-            '<i>It will be added automatically to this employee\'s next '
-            'task list.</i>',
+            '<i>The employee should re-create this work in a new task '
+            'list.</i>',
             user=self.env.user.name,
             task=(line.description or '')[:80],
             reason=self.reason))
+        line._log_post_closure_change(_(
+            'task rejected - %s', (line.description or '')[:80]))
         return {'type': 'ir.actions.act_window_close'}

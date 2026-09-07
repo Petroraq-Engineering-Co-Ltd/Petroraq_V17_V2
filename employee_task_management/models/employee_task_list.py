@@ -840,8 +840,21 @@ class EmployeeTaskList(models.Model):
         show up THE MOMENT the form opens - previously they only
         appeared after the first save, which made them look like they
         had been added by something the employee did.
+
+        DISABLED on the client's instruction: rejected work is no longer
+        pulled into the next task list automatically - the employee
+        creates it himself. Returning nothing here switches off BOTH
+        entry points at once (default_get and the employee_id onchange),
+        so there is no path left that can still copy a task.
+
+        The machinery below is deliberately kept rather than deleted, in
+        the same way the Unlock feature was: `carry_forward_pending` is
+        still set when work is rejected, so the record of what was
+        refused survives and the feature can be switched back on by
+        removing this one return.
         """
-        if not employee_id:
+        return []
+        if not employee_id:  # pragma: no cover - disabled above
             return []
         pending = self.env['employee.task.line'].sudo().search([
             ('carry_forward_pending', '=', True),
@@ -910,7 +923,14 @@ class EmployeeTaskList(models.Model):
         working day so the employee re-plans them. The source task is un-flagged so it can
         never be pulled twice.
         """
-        for rec in self:
+        # DISABLED on the client's instruction - see
+        # _carry_forward_commands. The employee re-creates rejected work
+        # himself, so nothing is copied on save either. Without this the
+        # form would stay clean but the tasks would reappear the moment
+        # the record was saved, which is worse than either behaviour on
+        # its own.
+        return
+        for rec in self:  # pragma: no cover - disabled above
             if not rec.employee_id or rec.state != 'draft':
                 continue
             # Lines the form already pre-loaded (see _carry_forward_commands,
