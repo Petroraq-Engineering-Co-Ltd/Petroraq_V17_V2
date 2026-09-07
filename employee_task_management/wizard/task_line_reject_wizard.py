@@ -47,4 +47,6 @@ class EmployeeTaskLineRejectWizard(models.TransientModel):
             user=self.env.user.name,
             task=(line.description or '')[:80],
             reason=self.reason))
+        line._log_post_closure_change(_(
+            'task rejected - %s', (line.description or '')[:80]))
         return {'type': 'ir.actions.act_window_close'}
