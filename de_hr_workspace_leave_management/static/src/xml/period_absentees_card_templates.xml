@@ -377,16 +377,8 @@
                                  t-att-style="'width:' + Math.min((line.used_days / line.allocated_days) * 100, 100) + '%'"/>
                         </div>
                         <div class="de-leave-metrics">
-                            <div class="de-leave-metric" t-if="line.requires_allocation">
-                                <span>Opening</span>
-                                <strong><t t-esc="line.opening_days || 0"/></strong>
-                            </div>
-                            <div class="de-leave-metric" t-if="line.requires_allocation">
-                                <span>Earned</span>
-                                <strong><t t-esc="line.earned_days || 0"/></strong>
-                            </div>
                             <div class="de-leave-metric">
-                                <span>Available</span>
+                                <span>Total</span>
                                 <strong><t t-esc="line.allocated_days"/></strong>
                             </div>
                             <div class="de-leave-metric">

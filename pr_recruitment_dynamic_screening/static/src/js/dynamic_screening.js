@@ -5,6 +5,27 @@ import { _t, translationIsReady } from "@web/core/l10n/translation";
 const QUESTIONS_PER_PAGE = 6;
 const MAX_REPEATING_ROWS = 20;
 
+const ARABIC_STEPPER_TEXT = {
+    "Previous": "السابق",
+    "Continue": "متابعة",
+    "Personal details": "البيانات الشخصية",
+    "Tell us how to reach you and where you are based.": "أخبرنا بكيفية التواصل معك ومكان إقامتك.",
+    "Professional details": "البيانات المهنية",
+    "Your qualifications, availability, and job-specific answers.": "مؤهلاتك ومدى جاهزيتك وإجاباتك المتعلقة بالوظيفة.",
+    "Resume and submit": "السيرة الذاتية والإرسال",
+    "Attach your CV, review your details, and send your application.": "أرفق سيرتك الذاتية وراجع بياناتك ثم أرسل طلبك.",
+    "Job questions": "أسئلة الوظيفة",
+    "Answer the requirements selected for this position.": "أجب عن المتطلبات المحددة لهذه الوظيفة.",
+    "Step": "الخطوة",
+    "of": "من",
+    "Application progress": "تقدم طلب التوظيف",
+};
+
+function careerText(source) {
+    const language = (document.documentElement.lang || "").toLowerCase();
+    return language.startsWith("ar") ? (ARABIC_STEPPER_TEXT[source] || _t(source)) : _t(source);
+}
+
 function createElement(tagName, className, html) {
     const element = document.createElement(tagName);
     element.className = className || "";
@@ -43,7 +64,7 @@ function appendNavigation(step, hasPrevious, hasNext, submitButton) {
         const previous = createElement(
             "button",
             "pr-step-button pr-previous",
-            `<i class="fa fa-arrow-left"></i><span>${_t("Previous")}</span>`
+            `<i class="fa fa-arrow-left"></i><span>${careerText("Previous")}</span>`
         );
         previous.type = "button";
         actions.append(previous);
@@ -52,7 +73,7 @@ function appendNavigation(step, hasPrevious, hasNext, submitButton) {
         const next = createElement(
             "button",
             "pr-step-button pr-next",
-            `<span>${_t("Continue")}</span><i class="fa fa-arrow-right"></i>`
+            `<span>${careerText("Continue")}</span><i class="fa fa-arrow-right"></i>`
         );
         next.type = "button";
         actions.append(next);
@@ -262,16 +283,16 @@ function initializeRecruitmentStepper() {
         "experience",
     ]);
     const personalStep = buildStep(
-        _t("Personal details"),
-        _t("Tell us how to reach you and where you are based.")
+        careerText("Personal details"),
+        careerText("Tell us how to reach you and where you are based.")
     );
     const professionalStep = buildStep(
-        _t("Professional details"),
-        _t("Your qualifications, availability, and job-specific answers.")
+        careerText("Professional details"),
+        careerText("Your qualifications, availability, and job-specific answers.")
     );
     const documentStep = buildStep(
-        _t("Resume and submit"),
-        _t("Attach your CV, review your details, and send your application.")
+        careerText("Resume and submit"),
+        careerText("Attach your CV, review your details, and send your application.")
     );
 
     for (const group of directGroups) {
@@ -300,9 +321,9 @@ function initializeRecruitmentStepper() {
                 const pageCount = Math.ceil(questionFields.length / QUESTIONS_PER_PAGE);
                 const questionStep = buildStep(
                     pageCount > 1
-                        ? `${_t("Job questions")} ${pageNumber} ${_t("of")} ${pageCount}`
-                        : _t("Job questions"),
-                    _t("Answer the requirements selected for this position.")
+                        ? `${careerText("Job questions")} ${pageNumber} ${careerText("of")} ${pageCount}`
+                        : careerText("Job questions"),
+                    careerText("Answer the requirements selected for this position.")
                 );
                 for (const field of questionFields.slice(index, index + QUESTIONS_PER_PAGE)) {
                     questionStep.grid.append(field);
@@ -317,10 +338,10 @@ function initializeRecruitmentStepper() {
     steps.push(documentStep);
 
     steps.forEach((step, index) => {
-        step.stepBadge.textContent = `${_t("Step")} ${index + 1}/${steps.length}`;
+        step.stepBadge.textContent = `${careerText("Step")} ${index + 1}/${steps.length}`;
         step.stepBadge.setAttribute(
             "aria-label",
-            `${_t("Step")} ${index + 1} ${_t("of")} ${steps.length}`
+            `${careerText("Step")} ${index + 1} ${careerText("of")} ${steps.length}`
         );
     });
 
@@ -332,7 +353,7 @@ function initializeRecruitmentStepper() {
     );
 
     const progress = createElement("ol", "pr-form-progress");
-    progress.setAttribute("aria-label", _t("Application progress"));
+    progress.setAttribute("aria-label", careerText("Application progress"));
     const progressItems = steps.map((step, index) => {
         const item = createElement("li", "pr-progress-item");
         item.innerHTML = `<span class="pr-progress-number">${index + 1}</span>`;
