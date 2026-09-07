@@ -276,12 +276,12 @@
                                     <button name="action_approve_task" type="object"
                                             icon="fa-check" title="Approve this task"
                                             class="btn-link text-success"
-                                            invisible="(parent.state not in ('completed', 'closed') and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'approved' or parent.is_current_user_employee"
+                                            invisible="(parent.state not in ('completed', 'closed', 'rejected') and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'approved' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <button name="action_reject_task" type="object"
                                             icon="fa-times" title="Reject this task"
                                             class="btn-link text-danger"
-                                            invisible="(parent.state not in ('completed', 'closed') and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'rejected' or parent.is_current_user_employee"
+                                            invisible="(parent.state not in ('completed', 'closed', 'rejected') and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'rejected' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <!-- Remarks stay editable in every state, for
                                          both employee and manager. -->

@@ -333,12 +333,19 @@ class EmployeeTaskLine(models.Model):
         # every change is written to the chatter, and a task turned to
         # Rejected here still carries forward to the employee's next
         # task list exactly as it would have during review.
-        if self.task_list_id.state not in ('completed', 'closed') \
+        # REJECTED IS ALLOWED TOO, for the same reason as Closed: a
+        # whole-list rejection cascades a Rejected verdict onto every
+        # task and activity, so a manager who rejected in error - or who
+        # decides part of the work was acceptable after all - must be
+        # able to put it right. The list itself stays Rejected; only the
+        # verdicts underneath change.
+        if self.task_list_id.state not in ('completed', 'closed',
+                                           'rejected') \
                 and not running_review:
             raise UserError(_(
                 'Tasks can only be approved or rejected while the task '
-                'list is Completed or Closed, or while it is running '
-                'without having been approved.'))
+                'list is Completed, Closed or Rejected, or while it is '
+                'running without having been approved.'))
 
     def _log_post_closure_change(self, what):
         """Chatter note for a verdict changed AFTER the list was closed.
@@ -397,6 +404,15 @@ class EmployeeTaskLine(models.Model):
             if new_verdict in ('rejected', 'partial'):
                 line.with_context(etm_workflow=True).write(
                     {'carry_forward_pending': True})
+            elif new_verdict == 'approved' and line.carry_forward_pending:
+                # ...and a task that is no longer refused must STOP
+                # coming back. The flag was only ever set, never
+                # cleared, so a manager who rejected in error and then
+                # approved the work still had it reappear in the
+                # employee's next task list. Clearing it here is what
+                # makes correcting a rejection actually undo it.
+                line.with_context(etm_workflow=True).write(
+                    {'carry_forward_pending': False})
 
     def action_approve_task(self):
         """Manager accepts this individual task."""

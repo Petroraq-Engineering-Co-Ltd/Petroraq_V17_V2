@@ -85,7 +85,7 @@ class EmployeeTaskSubtask(models.Model):
             state = task_list.state
             rec.can_review = bool(
                 privileged and task_list
-                and (state in ('completed', 'closed')
+                and (state in ('completed', 'closed', 'rejected')
                      or (state == 'in_progress'
                          and task_list.started_without_approval))
                 and task_list.employee_id.sudo().user_id != self.env.user)
