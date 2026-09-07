@@ -326,11 +326,35 @@ class EmployeeTaskLine(models.Model):
         running_review = (
             self.task_list_id.state == 'in_progress'
             and self.task_list_id.started_without_approval)
-        if self.task_list_id.state != 'completed' and not running_review:
+        # CLOSED IS ALLOWED TOO. Closing a task list used to be final in
+        # one click, so a manager who mis-clicked had no way back and the
+        # verdicts were frozen wrong for good. The verdicts are the real
+        # record of the review, so they stay editable after closure -
+        # every change is written to the chatter, and a task turned to
+        # Rejected here still carries forward to the employee's next
+        # task list exactly as it would have during review.
+        if self.task_list_id.state not in ('completed', 'closed') \
+                and not running_review:
             raise UserError(_(
                 'Tasks can only be approved or rejected while the task '
-                'list is Completed, or while it is running without '
-                'having been approved.'))
+                'list is Completed or Closed, or while it is running '
+                'without having been approved.'))
+
+    def _log_post_closure_change(self, what):
+        """Chatter note for a verdict changed AFTER the list was closed.
+
+        Closure is supposed to be the end of the review, so a change
+        made afterwards must not look like part of the original one.
+        Anyone auditing the list later needs to see plainly that a
+        decision was revised, by whom, and when.
+        """
+        self.ensure_one()
+        if self.task_list_id.state != 'closed':
+            return
+        self.task_list_id.message_post(body=_(
+            '<b>Changed after closure:</b> %(what)s - by %(user)s. The '
+            'task list was already Closed when this decision was '
+            'revised.', what=what, user=self.env.user.name))
 
     def _sync_verdict_from_activities(self):
         """Roll the activity verdicts up into the task's own verdict.
@@ -407,6 +431,8 @@ class EmployeeTaskLine(models.Model):
                 'Task approved by %(user)s: %(task)s',
                 user=line.env.user.name,
                 task=(line.description or '')[:80]))
+            line._log_post_closure_change(_(
+                'task approved - %s', (line.description or '')[:80]))
         return True
 
     def action_reject_task(self):
