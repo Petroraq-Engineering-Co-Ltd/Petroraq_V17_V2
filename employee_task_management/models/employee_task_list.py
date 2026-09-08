@@ -1656,6 +1656,55 @@ class EmployeeTaskList(models.Model):
                     'Only the immediate manager (%s) can approve or '
                     'return this task list.', self.manager_id.name))
 
+    def _resync_terminal_state_from_verdicts(self):
+        """Keep a finished list's STATUS honest after its verdicts change.
+
+        Verdicts stay editable once a list is Closed or Rejected, so the
+        status printed on the form can end up contradicting the
+        decisions underneath it - a list stamped Rejected whose every
+        task the manager has since approved, or the reverse.
+
+        The rule, agreed with the client:
+            every task rejected            -> Rejected
+            anything else, once finished   -> Closed
+        Only ever moves BETWEEN those two terminal states. A list that
+        has not finished is left completely alone, and nothing here can
+        reopen a list or move it backwards into the workflow.
+
+        Both directions live in this one method deliberately. Written as
+        two separate rules they would drift apart the first time one was
+        edited, and the status would start disagreeing with the verdicts
+        again - which is the whole problem this fixes.
+        """
+        for rec in self:
+            if rec.state not in ('closed', 'rejected'):
+                continue
+            lines = rec.task_line_ids
+            if not lines:
+                continue
+            verdicts = set(lines.mapped('manager_verdict'))
+            # A review still in progress decides nothing.
+            if 'pending' in verdicts:
+                continue
+            target = 'rejected' if verdicts == {'rejected'} else 'closed'
+            if target == rec.state:
+                continue
+            labels = dict(rec._fields['state'].selection)
+            # bypass_closed_lock: the write guard refuses edits on a
+            # finished list, and this IS a finished list - the same
+            # context the Unlock feature uses.
+            rec.with_context(bypass_closed_lock=True)._set_state(target)
+            rec.message_post(body=_(
+                '<b>Status changed from %(old)s to %(new)s</b> by '
+                '%(user)s, because the task decisions on this list were '
+                'revised after it was finished.',
+                old=labels.get(rec.state), new=labels.get(target),
+                user=self.env.user.name))
+            rec._log_approval_history(
+                target,
+                _('Status re-synchronised after the task verdicts were '
+                  'changed post-closure.'))
+
     def _log_acted_on_behalf(self, what):
         """Chatter note whenever somebody other than the employee drives
         one of the employee's own actions, so the record never implies
