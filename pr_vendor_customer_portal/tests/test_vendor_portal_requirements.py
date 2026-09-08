@@ -1,9 +1,37 @@
 # -*- coding: utf-8 -*-
 
 from odoo.tests.common import TransactionCase
+from odoo.exceptions import ValidationError
 
 
 class TestVendorPortalRequirements(TransactionCase):
+
+    def test_cr_number_accepts_only_exactly_ten_digits(self):
+        partner = self.env["res.partner"].create({
+            "name": "Valid CR Vendor",
+            "company_registry": "1234567890",
+        })
+        self.assertEqual(partner.company_registry, "1234567890")
+        with self.assertRaises(ValidationError):
+            partner.company_registry = "12345ABC90"
+        with self.assertRaises(ValidationError):
+            partner.company_registry = "123456789"
+
+    def test_vendor_invoice_is_linked_to_one_receipt_and_payment_slips_exist(self):
+        invoice_fields = self.env["pr.portal.vendor.invoice"]._fields
+        self.assertIn("picking_id", invoice_fields)
+        self.assertIn("service_receipt_id", invoice_fields)
+        self.assertIn("grn_ses_id", invoice_fields)
+        self.assertIn("pr_payment_slip_ids", self.env["account.move"]._fields)
+        constraint_names = {
+            constraint[0]
+            for constraint in self.env["pr.portal.vendor.invoice"]._sql_constraints
+        }
+        self.assertTrue({
+            "unique_portal_goods_receipt",
+            "unique_portal_service_receipt",
+            "unique_portal_legacy_receipt",
+        }.issubset(constraint_names))
 
     def test_purchase_quotation_model_is_registered_for_rfq_portal(self):
         self.assertIn("purchase.quotation", self.env.registry.models)

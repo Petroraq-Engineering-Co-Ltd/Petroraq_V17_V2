@@ -203,32 +203,31 @@ class UserAttendance(models.Model):
 
         Attendance = self.env['hr.attendance'].sudo()
         timestamp = fields.Datetime.to_datetime(self.timestamp)
-        open_attendance = Attendance.search([
+        _local_date, day_start, _day_end = self._local_day_bounds()
+        previous_open = Attendance.search([
             ('employee_id', '=', self.employee_id.id),
             ('activity_id', 'in', [False, self.activity_id.id]),
+            ('check_out', '=', False),
+            ('check_in', '<', day_start),
+        ])
+        if previous_open:
+            # Preserve the missing checkout for the evidence/shortage workflow.
+            # Device attendance already permits separate unresolved daily records.
+            self.search([
+                ('hr_attendance_id', 'in', previous_open.ids),
+                ('interpreted_type', '=', 'checkin'),
+            ]).write({
+                'reconciliation_status': 'needs_review',
+                'reconciliation_note': _('Missing checkout; later attendance days continue syncing independently.'),
+            })
+        open_attendance = Attendance.search([
+            *self._attendance_domain_for_day(),
             ('check_out', '=', False),
             ('check_in', '<=', self.timestamp),
         ], order='check_in desc, id desc', limit=1)
 
         if open_attendance:
             open_checkin = fields.Datetime.to_datetime(open_attendance.check_in)
-            _local_date, day_start, day_end = self._local_day_bounds()
-            if not (day_start <= open_checkin < day_end):
-                linked_raw = self.search([
-                    ('hr_attendance_id', '=', open_attendance.id),
-                    ('interpreted_type', '=', 'checkin'),
-                ], order='timestamp asc, id asc', limit=1)
-                if linked_raw:
-                    linked_raw.write({
-                        'reconciliation_status': 'needs_review',
-                        'reconciliation_note': _('Missing checkout before the next attendance day.'),
-                    })
-                self._mark_reconciled(
-                    'needs_review',
-                    note=_('A previous-day attendance is still open. Resolve its missing checkout first.'),
-                )
-                return self.env['hr.attendance']
-
             if timestamp <= open_checkin:
                 self._mark_reconciled(
                     'needs_review',
@@ -309,10 +308,9 @@ class UserAttendance(models.Model):
         error_msg = {}
         punches = self.sorted(lambda punch: (punch.timestamp, punch.id))
         for punch in punches:
-            if (
-                punch.hr_attendance_id
-                and punch.reconciliation_status in ('synced', 'auto_corrected')
-            ):
+            if punch.hr_attendance_id:
+                # A linked check-in can still need a shortage correction. Never
+                # reinterpret it on retry or erase its link to the original day.
                 continue
             try:
                 with self.env.cr.savepoint(flush=False), tools.mute_logger('odoo.sql_db'):
@@ -358,8 +356,7 @@ class UserAttendance(models.Model):
                 continue
 
             open_attendance = Attendance.search([
-                ('employee_id', '=', punch.employee_id.id),
-                ('activity_id', 'in', [False, punch.activity_id.id]),
+                *punch._attendance_domain_for_day(),
                 ('check_out', '=', False),
                 ('check_in', '<=', punch.timestamp),
             ], order='check_in desc, id desc', limit=1)
@@ -435,7 +432,9 @@ class UserAttendance(models.Model):
             ('hr_attendance_id', '=', False),
             ('employee_id', '!=', False),
             ('synced', '=', False),
-            ('reconciliation_status', '=', 'pending'),
+            '|', ('reconciliation_status', '=', 'pending'),
+            '&', ('reconciliation_status', '=', 'needs_review'),
+            ('reconciliation_note', '=', 'A previous-day attendance is still open. Resolve its missing checkout first.'),
         ]
 
     @api.model

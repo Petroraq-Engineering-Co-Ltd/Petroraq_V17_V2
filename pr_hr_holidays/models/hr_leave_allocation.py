@@ -1,12 +1,75 @@
 from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
-from odoo import api, fields, models
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 from odoo.tools import float_is_zero, float_round
+
+from .annual_accrual import lifetime_entitlement
 
 
 class HrLeaveAllocation(models.Model):
     _inherit = "hr.leave.allocation"
+
+    pr_service_year_anchor = fields.Date(copy=False, string="Service anniversary anchor")
+
+    def _get_request_unit(self):
+        self.ensure_one()
+        if self.allocation_type == "accrual" and self.accrual_plan_id.pr_annual_earning_limit:
+            # These plans have no milestone from which Odoo can infer the unit.
+            return "day"
+        return super()._get_request_unit()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        vals_list = [dict(vals) for vals in vals_list]
+        for vals in vals_list:
+            plan = self.env["hr.leave.accrual.plan"].browse(vals.get("accrual_plan_id"))
+            if vals.get("allocation_type") == "accrual" and plan.pr_annual_earning_limit:
+                start = fields.Date.to_date(vals.get("date_from")) or fields.Date.context_today(self)
+                if not vals.get("pr_service_year_anchor"):
+                    vals["pr_service_year_anchor"] = start
+                vals.setdefault("number_of_days", 0.0)
+        return super().create(vals_list)
+
+    @api.constrains("accrual_plan_id", "allocation_type", "date_from", "date_to",
+                    "holiday_status_id", "number_of_days", "pr_service_year_anchor")
+    def _check_pr_service_year(self):
+        for allocation in self:
+            plan = allocation.accrual_plan_id
+            if allocation.allocation_type != "accrual" or not plan.pr_annual_earning_limit:
+                continue
+            if (allocation.holiday_status_id.leave_type != "annual_leave" or
+                    allocation.holiday_status_id.request_unit == "hour"):
+                raise ValidationError(_("Service-year plans require an Annual Leave type measured in days or half days."))
+            if allocation.number_of_days < 0:
+                raise ValidationError(_("Earned days cannot be negative."))
+
+    def _process_accrual_plans(self, date_to=False, force_period=False, log=True):
+        custom = self.filtered(lambda a: a.allocation_type == "accrual" and a.accrual_plan_id.pr_annual_earning_limit)
+        result = super(HrLeaveAllocation, self - custom)._process_accrual_plans(date_to, force_period, log)
+        target = fields.Date.to_date(date_to) if date_to else fields.Date.context_today(self)
+        for allocation in custom:
+            allocation._check_pr_service_year()
+            cutoffs = [d for d in (allocation.date_to, allocation.employee_id.last_working_date) if d]
+            cutoff = min(cutoffs) if cutoffs else False
+            final_credit = bool(cutoff and target > cutoff)
+            if target < allocation.date_from or (not final_credit and allocation.nextcall and allocation.nextcall > target):
+                continue
+            plan = allocation.accrual_plan_id
+            earned = lifetime_entitlement(
+                allocation.date_from, cutoff, target,
+                plan.pr_annual_entitlement, plan.pr_earning_days, plan.accrued_gain_time,
+            )
+            # number_of_days is gross granted leave; taking leave never reduces it.
+            # A cumulative target makes retries and missed cron runs idempotent.
+            allocation.update({
+                "number_of_days": earned if final_credit else max(allocation.number_of_days, earned),
+                "lastcall": min(target, cutoff + timedelta(days=1)) if cutoff else target,
+                "nextcall": target + timedelta(days=1),
+                "already_accrued": False,
+            })
+        return result
 
     pr_is_carryover_allocation = fields.Boolean(
         string="PR Carryover Allocation",
@@ -47,6 +110,7 @@ class HrLeaveAllocation(models.Model):
             "lastcall": date_from,
             "nextcall": False,
             "already_accrued": False,
+            "pr_service_year_anchor": self.pr_service_year_anchor or self.date_from,
         }
 
     def _pr_get_remaining_days_for_carryover(self, target_date):
@@ -83,6 +147,8 @@ class HrLeaveAllocation(models.Model):
 
     def _pr_create_carryover_allocation(self):
         self.ensure_one()
+        if self.accrual_plan_id.pr_annual_earning_limit:
+            return self.env["hr.leave.allocation"]
         if not self.date_to:
             return self.env["hr.leave.allocation"]
 
@@ -110,6 +176,8 @@ class HrLeaveAllocation(models.Model):
 
     def _pr_create_next_year_allocation(self):
         self.ensure_one()
+        if self.accrual_plan_id.pr_annual_earning_limit:
+            return self.env["hr.leave.allocation"]
         if not self.date_to:
             return self.env["hr.leave.allocation"]
 
@@ -137,20 +205,24 @@ class HrLeaveAllocation(models.Model):
     def _cron_pr_create_next_year_for_ending_annual_allocations(self):
         today = fields.Date.context_today(self)
         allocations = self.sudo().search([
-            ("allocation_type", "=", "accrual"),
+            ("allocation_type", "in", ["accrual", "regular"]),
             ("employee_id", "!=", False),
             ("holiday_status_id.leave_type", "=", "annual_leave"),
-            ("accrual_plan_id", "!=", False),
             ("date_from", "!=", False),
-            ("date_to", "=", today),
+            ("date_to", "<", today),
             ("state", "=", "validate"),
             ("active", "=", True),
         ])
 
         for allocation in allocations:
-            allocation._pr_process_accrual_until(today)
+            if allocation.allocation_type == "accrual":
+                end = allocation.date_to
+                if allocation.accrual_plan_id.pr_annual_earning_limit:
+                    end += timedelta(days=1)
+                allocation._pr_process_accrual_until(end)
             allocation._pr_create_carryover_allocation()
-            allocation._pr_create_next_year_allocation()
+            if allocation.allocation_type == "accrual" and allocation.accrual_plan_id:
+                allocation._pr_create_next_year_allocation()
 
     def _cron_pr_rollover_annual_leave_allocations(self):
         return self._cron_pr_create_next_year_for_ending_annual_allocations()

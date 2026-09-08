@@ -45,3 +45,23 @@ class PrAccountBankPayment(models.Model):
             self.env,
             "de_hr_workspace_account.pr_account_bank_payment_approvals_view_action",
         )
+
+
+class PrAccountCashReceipt(models.Model):
+    _inherit = "pr.account.cash.receipt"
+
+    def action_workspace_cash_receipt_approvals(self):
+        return _workspace_action(
+            self.env,
+            "de_hr_workspace_account.pr_account_cash_receipt_approvals_view_action",
+        )
+
+
+class PrAccountBankReceipt(models.Model):
+    _inherit = "pr.account.bank.receipt"
+
+    def action_workspace_bank_receipt_approvals(self):
+        return _workspace_action(
+            self.env,
+            "de_hr_workspace_account.pr_account_bank_receipt_approvals_view_action",
+        )

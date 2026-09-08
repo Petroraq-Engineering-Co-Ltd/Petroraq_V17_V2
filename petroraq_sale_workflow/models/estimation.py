@@ -409,27 +409,37 @@ class PetroraqEstimation(models.Model):
             order = previous_order.with_company(company).with_context(
                 revision_from_estimation=True
             ).copy_revision_with_context()
-            order.write(order_vals)
+            # A quotation revision is deliberately opened as a clean draft.
+            # The user can selectively populate it from the revised estimation
+            # with the dedicated "Get Products From Estimation" action.
+            order.write(dict(
+                order_vals,
+                order_line=[(5, 0, 0)],
+                overhead_percent=0.0,
+                risk_percent=0.0,
+                profit_percent=0.0,
+            ))
         else:
             order = self.env["sale.order"].with_company(company).create(order_vals)
 
         self.with_context(allow_estimation_write=True).sale_order_id = order.id
-        order.action_sync_products_from_estimation()
-        currency = order.currency_id or order.company_id.currency_id
-        if float_compare(
-            currency.round(order.amount_untaxed or 0.0),
-            currency.round(self.total_with_profit or 0.0),
-            precision_rounding=currency.rounding,
-        ) != 0:
-            raise ValidationError(_(
-                "The revised quotation total must match the revised estimation total."
-            ))
+        if not previous_order:
+            order.action_sync_products_from_estimation()
+            currency = order.currency_id or order.company_id.currency_id
+            if float_compare(
+                currency.round(order.amount_untaxed or 0.0),
+                currency.round(self.total_with_profit or 0.0),
+                precision_rounding=currency.rounding,
+            ) != 0:
+                raise ValidationError(_(
+                    "The quotation total must match the estimation total."
+                ))
         if previous_order:
             order.message_post(body=_(
-                "Quotation revision %(quotation)s was created from estimation revision %(estimation)s."
+                "Empty quotation revision %(quotation)s was created from estimation revision %(estimation)s."
             ) % {"quotation": order.name, "estimation": self.name})
             self.message_post(body=_(
-                "Revised quotation %s was generated and synchronized from this estimation."
+                "Empty revised quotation %s was generated. Products can be imported when required."
             ) % order.name)
         return order
 

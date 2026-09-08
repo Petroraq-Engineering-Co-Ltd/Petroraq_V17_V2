@@ -294,6 +294,16 @@ class HrApprovalDashboardService(models.AbstractModel):
                 "de_hr_workspace_account.pr_account_cash_payment_approvals_workspace_action",
                 "pr.account.cash.payment",
             ),
+            (
+                "de_hr_workspace_account.pr_account_bank_receipt_approvals_view_action_menu",
+                "de_hr_workspace_account.pr_account_bank_receipt_approvals_workspace_action",
+                "pr.account.bank.receipt",
+            ),
+            (
+                "de_hr_workspace_account.pr_account_cash_receipt_approvals_view_menu",
+                "de_hr_workspace_account.pr_account_cash_receipt_approvals_workspace_action",
+                "pr.account.cash.receipt",
+            ),
         )
         for menu_xmlid, action_xmlid, model_name in refs:
             payment_menu = self.env.ref(menu_xmlid, raise_if_not_found=False)
