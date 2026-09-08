@@ -413,6 +413,13 @@ class EmployeeTaskLine(models.Model):
                 # makes correcting a rejection actually undo it.
                 line.with_context(etm_workflow=True).write(
                     {'carry_forward_pending': False})
+        # Once every task has been re-rolled, bring the LIST's own status
+        # back in line with them - a list stamped Rejected whose tasks
+        # are now all approved would otherwise keep contradicting
+        # itself. Done AFTER the loop, not inside it, so a list is judged
+        # on its finished set of verdicts rather than re-evaluated
+        # halfway through and flipping twice.
+        self.mapped('task_list_id')._resync_terminal_state_from_verdicts()
 
     def action_approve_task(self):
         """Manager accepts this individual task."""
@@ -686,11 +693,15 @@ class EmployeeTaskLine(models.Model):
 
     @api.constrains('start_date')
     def _check_no_backdated_start(self):
-        """An EMPLOYEE may not plan a task that starts in the past.
+        """NOBODY may plan a task that starts in the past.
 
-        Managers and Administrators are exempt - they legitimately need
-        to record work that already began, e.g. assigning a task to
-        cover something started earlier in the week.
+        Managers and Administrators used to be exempt, on the grounds
+        that they might need to record work that had already begun. The
+        client has withdrawn that exemption: a backdated task quietly
+        rewrites history in the capacity report - it lands hours on days
+        that are already settled, moves the idle figures for those days,
+        and can push an employee over capacity on a date he can no
+        longer do anything about. The rule now applies to everyone.
 
         Scoped deliberately narrowly so it cannot trap anyone:
           * `@api.constrains('start_date')` fires on create, and on write
@@ -712,15 +723,18 @@ class EmployeeTaskLine(models.Model):
             task_list = line.task_list_id
             if not task_list or task_list.state not in EDITABLE_STATES:
                 continue
-            if line._is_privileged_user():
-                continue
+            # NO privileged exemption any more - see the docstring.
+            # Existing backdated lines stay editable: the constraint only
+            # fires when start_date is in the write payload, so records
+            # created under the old rule are never re-validated.
             today = task_list._today_local()
             if line.start_date < today:
                 raise ValidationError(_(
                     'Task "%(task)s" starts on %(start)s, which is in the '
                     'past. Please pick %(today)s or a later date.\n\n'
-                    'If this task really did start earlier, ask your '
-                    'manager to set it for you.',
+                    'Task lists record work going forward, so no one - '
+                    'including managers and administrators - can date a '
+                    'task in the past.',
                     task=(line.description or _('(no description)'))[:80],
                     start=line.start_date, today=today))
 
