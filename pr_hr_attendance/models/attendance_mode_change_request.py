@@ -170,8 +170,18 @@ class AttendanceModeChangeRequest(models.Model):
 
     @api.model
     def _check_hr_manager_user(self):
-        if not self._current_user_is_hr_manager():
+        if not self._current_user_is_hr_manager() or self._current_user_is_md():
             raise AccessError(_("Only the HR Manager can approve this stage."))
+
+    @api.model
+    def _has_distinct_hr_manager_approver(self):
+        hr_users = self.env["res.users"]
+        md_users = self.env["res.users"]
+        for xmlid in HR_MANAGER_GROUPS:
+            hr_users |= self.env.ref(xmlid).users.filtered("active")
+        for xmlid in MD_GROUPS:
+            md_users |= self.env.ref(xmlid).users.filtered("active")
+        return bool(hr_users - md_users)
 
     @api.model
     def _check_md_user(self):
@@ -366,8 +376,17 @@ class AttendanceModeChangeRequest(models.Model):
                 )
             request.sudo().with_context(
                 attendance_mode_internal_transition=True
-            ).write({"state": "hr_manager_approval"})
-            request._schedule_hr_manager_activities()
+            ).write({
+                "state": (
+                    "hr_manager_approval"
+                    if request._has_distinct_hr_manager_approver()
+                    else "md_approval"
+                )
+            })
+            if request.state == "hr_manager_approval":
+                request._schedule_hr_manager_activities()
+            else:
+                request._schedule_md_activities()
         return True
 
     def _approve_as_md(self, approval_date, feedback):

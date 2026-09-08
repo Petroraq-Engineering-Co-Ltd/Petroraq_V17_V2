@@ -2,14 +2,13 @@
 
 import base64
 import logging
-from math import isfinite
 from markupsafe import Markup, escape
 
 from odoo import _, fields, http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import content_disposition, request
 from odoo.osv import expression
-from odoo.tools import config, format_amount
+from odoo.tools import config
 
 from odoo.addons.account.controllers.portal import PortalAccount
 from odoo.addons.portal.controllers.portal import pager as portal_pager
@@ -398,6 +397,29 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         ])
 
     @http.route(
+        ["/vendor/payment-slip/<int:attachment_id>"],
+        type="http",
+        auth="user",
+        website=True,
+    )
+    def portal_vendor_payment_slip(self, attachment_id, **kw):
+        if not self._is_vendor_portal_partner():
+            return request.redirect("/my")
+        invoice = request.env["account.move"].sudo().search(expression.AND([
+            self._get_invoices_domain("in"),
+            [("pr_payment_slip_ids", "in", [attachment_id])],
+        ]), limit=1)
+        attachment = request.env["ir.attachment"].sudo().browse(attachment_id).exists()
+        if not invoice or not attachment or attachment.res_field:
+            raise MissingError(_("This payment slip does not exist or you do not have access to it."))
+        content = attachment.raw or b""
+        return request.make_response(content, [
+            ("Content-Type", attachment.mimetype or "application/octet-stream"),
+            ("Content-Length", str(len(content))),
+            ("Content-Disposition", content_disposition(attachment.name or "payment-slip")),
+        ])
+
+    @http.route(
         ["/vendor/srns", "/vendor/srns/page/<int:page>"],
         type="http",
         auth="user",
@@ -488,24 +510,122 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         return request.redirect("/my/purchase/%s" % po_id)
 
     def _prepare_vendor_upload_values(self, form_data=None, error_message=None):
-        PurchaseOrder = request.env["purchase.order"].sudo()
         form_data = form_data or {}
         try:
             selected_po_id = int(form_data.get("po_id") or 0)
         except ValueError:
             selected_po_id = 0
+        receipt_options = self._vendor_invoice_receipt_options()
+        po_ids = list(dict.fromkeys(option["po"].id for option in receipt_options))
+        purchase_orders = request.env["purchase.order"].sudo().browse(po_ids)
         values = self._prepare_portal_layout_values()
         values.update({
             "page_name": "vendor_invoice_upload",
-            "purchase_orders": PurchaseOrder.search(
-                self._prepare_purchase_order_domain(["purchase", "done"]),
-                order="date_order desc, id desc",
+            "purchase_orders": purchase_orders.sorted(
+                key=lambda po: (po.date_order or fields.Datetime.now(), po.id), reverse=True
             ),
+            "receipt_options": receipt_options,
             "form_data": form_data,
             "selected_po_id": selected_po_id,
             "error_message": error_message or [],
         })
         return values
+
+    def _vendor_invoice_receipt_options(self):
+        """Approved, vendor-owned receipts that do not already have a portal invoice."""
+        PortalInvoice = request.env["pr.portal.vendor.invoice"].sudo()
+        used_pickings = PortalInvoice.search([("picking_id", "!=", False)]).mapped("picking_id").ids
+        used_services = PortalInvoice.search([("service_receipt_id", "!=", False)]).mapped("service_receipt_id").ids
+        used_legacy = PortalInvoice.search([("grn_ses_id", "!=", False)]).mapped("grn_ses_id").ids
+
+        pickings = request.env["stock.picking"].sudo().search(expression.AND([
+            self._prepare_vendor_delivery_domain(),
+            [("state", "=", "done"), ("purchase_id.state", "in", ("purchase", "done")),
+             ("id", "not in", used_pickings)],
+        ]), order="date_done desc, id desc")
+        pickings = pickings.filtered(lambda picking: picking._get_receipt_approval_state() == "approved")
+
+        services = request.env["service.receipt.note"].sudo().search(expression.AND([
+            self._prepare_srn_domain(),
+            [("state", "=", "done"), ("approval_state", "=", "approved"),
+             ("purchase_id.state", "in", ("purchase", "done")),
+             ("id", "not in", used_services)],
+        ]), order="date desc, id desc")
+
+        vendor = self._commercial_partner()
+        legacy = request.env["grn.ses"].sudo().search([
+            ("stage", "=", "approved"),
+            ("is_approved", "=", True),
+            ("purchase_order_id.state", "in", ("purchase", "done")),
+            ("partner_id", "child_of", [vendor.id]),
+            ("id", "not in", used_legacy),
+        ], order="date_request desc, id desc")
+
+        options = []
+        options.extend({
+            "token": "picking:%s" % receipt.id,
+            "po": receipt.purchase_id,
+            "reference": receipt.vendor_gdn_number or receipt.name,
+            "type": _("GRN"),
+        } for receipt in pickings)
+        options.extend({
+            "token": "service:%s" % receipt.id,
+            "po": receipt.purchase_id,
+            "reference": receipt.name,
+            "type": _("SES"),
+        } for receipt in services)
+        options.extend({
+            "token": "legacy:%s" % receipt.id,
+            "po": receipt.purchase_order_id,
+            "reference": receipt.name,
+            "type": _("GRN/SES"),
+        } for receipt in legacy)
+        return options
+
+    def _get_vendor_invoice_receipt(self, token, po):
+        try:
+            receipt_type, receipt_id = (token or "").split(":", 1)
+            receipt_id = int(receipt_id)
+        except (TypeError, ValueError):
+            return False
+        model_field = {
+            "picking": ("stock.picking", "picking_id"),
+            "service": ("service.receipt.note", "service_receipt_id"),
+            "legacy": ("grn.ses", "grn_ses_id"),
+        }.get(receipt_type)
+        if not model_field:
+            return False
+        receipt = request.env[model_field[0]].sudo().browse(receipt_id).exists()
+        if not receipt:
+            return False
+        if receipt_type == "picking":
+            valid = (
+                receipt.purchase_id == po
+                and receipt.state == "done"
+                and receipt._get_receipt_approval_state() == "approved"
+                and bool(self._get_accessible_vendor_delivery(receipt.id))
+            )
+            reference, type_label = receipt.vendor_gdn_number or receipt.name, _("GRN")
+        elif receipt_type == "service":
+            valid = (
+                receipt.purchase_id == po
+                and receipt.state == "done"
+                and receipt.approval_state == "approved"
+                and bool(self._get_accessible_srn(receipt.id))
+            )
+            reference, type_label = receipt.name, _("SES")
+        else:
+            valid = (
+                receipt.purchase_order_id == po
+                and receipt.stage == "approved"
+                and receipt.is_approved
+                and receipt.partner_id.commercial_partner_id == self._commercial_partner()
+            )
+            reference, type_label = receipt.name, _("GRN/SES")
+        if not valid:
+            return False
+        option = {"token": token, "po": po, "reference": reference, "type": type_label}
+        return receipt, model_field[1], option
 
     def _vendor_document_type_options(self):
         return {
@@ -899,9 +1019,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         error_message = []
         form_data = dict(post)
         po_id = post.get("po_id")
-        vendor_invoice_number = (post.get("vendor_invoice_number") or "").strip()
-        invoice_date = post.get("invoice_date")
-        amount_total = post.get("amount_total")
+        receipt_token = post.get("receipt_token")
         invoice_file = request.httprequest.files.get("invoice_file")
 
         PurchaseOrder = request.env["purchase.order"].sudo()
@@ -921,10 +1039,9 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 )
         if not po:
             error_message.append(_("Please select a valid purchase order."))
-        if not vendor_invoice_number:
-            error_message.append(_("Please enter the vendor invoice number."))
-        if not invoice_date:
-            error_message.append(_("Please select the invoice date."))
+        receipt_data = self._get_vendor_invoice_receipt(receipt_token, po) if po else False
+        if not receipt_data:
+            error_message.append(_("Please select an approved GRN/SES for this purchase order."))
         if not invoice_file:
             error_message.append(_("Please attach the invoice PDF."))
 
@@ -940,23 +1057,6 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             elif not invoice_file_content.startswith(b"%PDF-"):
                 error_message.append(_("Please upload a valid PDF invoice."))
 
-        try:
-            parsed_date = fields.Date.to_date(invoice_date) if invoice_date else False
-        except (TypeError, ValueError):
-            parsed_date = False
-            error_message.append(_("Please enter a valid invoice date."))
-
-        try:
-            parsed_amount = float((amount_total or "0").replace(",", ""))
-        except ValueError:
-            parsed_amount = 0.0
-            error_message.append(_("Please enter a valid invoice amount."))
-        else:
-            if not isfinite(parsed_amount) or parsed_amount <= 0:
-                error_message.append(
-                    _("The invoice amount must be greater than zero.")
-                )
-
         if error_message:
             return request.render(
                 "pr_vendor_customer_portal.portal_vendor_invoice_upload",
@@ -965,20 +1065,13 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
         try:
             vendor = self._commercial_partner().sudo()
-            duplicate = request.env["ir.attachment"].sudo().search_count([
-                ("pr_vendor_portal_upload", "=", True),
-                ("pr_vendor_id", "child_of", [vendor.id]),
-                ("pr_vendor_invoice_number", "=ilike", vendor_invoice_number),
-            ])
-            duplicate += request.env["pr.portal.vendor.invoice"].sudo().search_count([
-                ("partner_id", "child_of", [vendor.id]),
-                ("vendor_invoice_number", "=ilike", vendor_invoice_number),
-            ])
-            if duplicate:
-                error_message.append(_(
-                    "Invoice number %(number)s has already been uploaded for this vendor.",
-                    number=vendor_invoice_number,
-                ))
+            receipt, source_field, option = receipt_data
+            request.env.cr.execute(
+                'SELECT id FROM "%s" WHERE id = %%s FOR UPDATE' % receipt._table,
+                [receipt.id],
+            )
+            if request.env["pr.portal.vendor.invoice"].sudo().search_count([(source_field, "=", receipt.id)]):
+                error_message.append(_("An invoice against this GRN/SES has been submitted already"))
                 return request.render(
                     "pr_vendor_customer_portal.portal_vendor_invoice_upload",
                     self._prepare_vendor_upload_values(
@@ -987,45 +1080,52 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                     ),
                 )
 
+            receipt_reference = option["reference"]
+            parsed_date = fields.Date.context_today(po)
+            parsed_amount = receipt.grand_total if source_field == "grn_ses_id" else 0.0
             attachment = request.env["ir.attachment"].sudo().create({
-                "name": invoice_file.filename or ("%s.pdf" % vendor_invoice_number),
+                "name": invoice_file.filename or ("Invoice-%s.pdf" % receipt_reference.replace("/", "-")),
                 "type": "binary",
                 "datas": base64.b64encode(invoice_file_content).decode(),
-                "res_model": "purchase.order",
-                "res_id": po.id,
+                "res_model": receipt._name,
+                "res_id": receipt.id,
                 "mimetype": "application/pdf",
-                "description": _("Vendor invoice %(number)s uploaded through the portal.", number=vendor_invoice_number),
+                "description": _("Vendor invoice uploaded against %(receipt)s.", receipt=receipt_reference),
                 "pr_vendor_portal_upload": True,
                 "pr_vendor_portal_visible": True,
                 "pr_vendor_portal_document_type": "invoice",
                 "pr_vendor_id": vendor.id,
-                "pr_vendor_invoice_number": vendor_invoice_number,
+                "pr_vendor_invoice_number": receipt_reference,
                 "pr_vendor_invoice_date": parsed_date,
                 "pr_vendor_invoice_amount": parsed_amount,
                 "pr_vendor_invoice_currency_id": po.currency_id.id,
-                "pr_vendor_document_number": vendor_invoice_number,
+                "pr_vendor_document_number": receipt_reference,
                 "pr_vendor_document_date": parsed_date,
                 "pr_vendor_portal_user_id": request.env.user.id,
             })
+            portal_invoice = request.env["pr.portal.vendor.invoice"].sudo().create({
+                "partner_id": vendor.id,
+                "po_id": po.id,
+                source_field: receipt.id,
+                "vendor_invoice_number": receipt_reference,
+                "invoice_date": parsed_date,
+                "amount_total": parsed_amount,
+                "currency_id": po.currency_id.id,
+                "attachment_id": attachment.id,
+                "portal_user_id": request.env.user.id,
+            })
 
-            note = (post.get("notes") or "").strip()
             message_body = Markup(
                 "<p><strong>Vendor invoice uploaded through the portal</strong></p>"
                 "<ul>"
                 "<li><strong>Vendor:</strong> {vendor}</li>"
-                "<li><strong>Invoice number:</strong> {number}</li>"
-                "<li><strong>Invoice date:</strong> {date}</li>"
-                "<li><strong>Amount:</strong> {amount}</li>"
-                "{notes}"
+                "<li><strong>GRN/SES:</strong> {number}</li>"
+                "<li><strong>Submission:</strong> {submission}</li>"
                 "</ul>"
             ).format(
                 vendor=escape(vendor.display_name),
-                number=escape(vendor_invoice_number),
-                date=escape(fields.Date.to_string(parsed_date)),
-                amount=escape(format_amount(request.env, parsed_amount, po.currency_id)),
-                notes=Markup("<li><strong>Vendor notes:</strong> {}</li>").format(
-                    escape(note)
-                ) if note else Markup(""),
+                number=escape(receipt_reference),
+                submission=escape(portal_invoice.name),
             )
             reviewers = self._vendor_invoice_reviewers(po)
             try:
@@ -1046,7 +1146,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                         po.sudo().activity_schedule(
                             "mail.mail_activity_data_todo",
                             user_id=reviewer.id,
-                            summary=_("Review Vendor Invoice %(number)s", number=vendor_invoice_number),
+                            summary=_("Review Vendor Invoice for %(number)s", number=receipt_reference),
                             note=message_body,
                         )
             except Exception:
@@ -1059,7 +1159,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             _logger.exception(
                 "Vendor portal invoice upload failed for PO %s and invoice %s",
                 po.id,
-                vendor_invoice_number,
+                receipt_token,
             )
             request.env.cr.rollback()
             error_message.extend(self._vendor_upload_error(

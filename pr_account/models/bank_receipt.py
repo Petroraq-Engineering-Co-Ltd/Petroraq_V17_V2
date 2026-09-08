@@ -3,7 +3,7 @@ from datetime import date
 from odoo import api, fields, models, _, Command
 from odoo.tools import float_compare
 from odoo.tools.misc import format_date
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountBankReceipt(models.Model):
@@ -48,13 +48,24 @@ class AccountBankReceipt(models.Model):
     state = fields.Selection([
         ("draft", "Draft"),
         ("submit", "Submitted"),
+        ("finance_approve", "Accounts Approval"),
         ("posted", "Finance Approval"),
+        ("reject", "Rejected"),
         ("cancel", "Cancelled"),
     ], string="Status", tracking=True, default="draft")
+    accounting_manager_state = fields.Selection([
+        ("draft", "Draft"),
+        ("submit", "Pending Approval"),
+        ("finance_approve", "Pending Approval"),
+        ("posted", "Posted"),
+        ("reject", "Rejected"),
+        ("cancel", "Cancelled"),
+    ], string="Acc Man Status", tracking=True, default="draft")
     bank_receipt_line_ids = fields.One2many("pr.account.bank.receipt.line", "bank_receipt_id",
                                             string="Bank Receipt Lines")
     total_amount = fields.Float(string="Amount", compute="_compute_total_amount", store=True, tracking=True)
     journal_entry_id = fields.Many2one("account.move", string="Journal Entry", readonly=True, tracking=True)
+    rejection_reason = fields.Text(string="Reject Reason", readonly=True, copy=False, tracking=True)
 
     @api.constrains("bank_receipt_line_ids")
     def _check_positive_amount_line(self):
@@ -127,17 +138,87 @@ class AccountBankReceipt(models.Model):
                 rec.sudo().action_post()
 
     def action_draft(self):
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a voucher to Draft."))
         for bank_receipt in self:
             if bank_receipt.journal_entry_id and bank_receipt.journal_entry_id.state != "draft":
                 bank_receipt.journal_entry_id.sudo().button_draft()
                 bank_receipt.journal_entry_id.unlink()
             bank_receipt.state = "draft"
+            bank_receipt.accounting_manager_state = "draft"
+
+    def action_open_reject_wizard(self):
+        self.ensure_one()
+        self._check_reject_stage_access()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Reject Bank Receipt Voucher"),
+            "res_model": "receipt.reject.reason.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_bank_receipt_id": self.id},
+        }
+
+    def _check_reject_stage_access(self):
+        self.ensure_one()
+        is_final_approver = self.env.user.has_group("pr_account.custom_group_accounting_manager")
+        is_first_approver = self.env.user.has_group("account.group_account_manager")
+        if self.state == "submit" and not is_first_approver:
+            raise UserError(_("Only the first Accounts approver can reject a submitted Bank Receipt Voucher."))
+        if self.state == "finance_approve" and not is_final_approver:
+            raise UserError(_("Only the Accounting Manager can reject a Bank Receipt Voucher awaiting final approval."))
+        if self.state not in ("submit", "finance_approve"):
+            raise UserError(_("Only a voucher awaiting approval can be rejected."))
+        return True
+
+    def _reject_with_reason(self, reason):
+        reason = (reason or "").strip()
+        if not reason:
+            raise ValidationError(_("Reject Reason is mandatory."))
+        for receipt in self:
+            receipt._check_reject_stage_access()
+            receipt.write({
+                "state": "reject",
+                "accounting_manager_state": "reject",
+                "rejection_reason": reason,
+            })
+
+    def action_reset_rejected_to_draft(self):
+        if not self.env.user.has_group("account.group_account_user"):
+            raise UserError(_("Only an Accountant or Accounting Manager can reset a rejected voucher to Draft."))
+        for receipt in self:
+            if receipt.state != "reject":
+                raise UserError(_("Only a rejected voucher can be reset to Draft."))
+            receipt.action_draft()
+            receipt.rejection_reason = False
 
     def action_submit(self):
-        for bank_payment in self:
-            bank_payment.state = "submit"
+        for bank_receipt in self:
+            bank_receipt.state = "submit"
+            bank_receipt.accounting_manager_state = "submit"
+            bank_receipt.rejection_reason = False
+
+    def action_finance_approve(self):
+        if (
+            not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and not self.env.user.has_group("account.group_account_manager")
+        ):
+            raise UserError(_("Only an Accountant can approve this stage."))
+        for bank_receipt in self:
+            bank_receipt.state = "finance_approve"
+            bank_receipt.accounting_manager_state = "finance_approve"
+            if self.env.user.has_group("pr_account.custom_group_accounting_manager"):
+                bank_receipt.action_post()
 
     def action_post(self):
+        if (
+            self.filtered(lambda receipt: receipt.state == "finance_approve")
+            and not self.env.su
+            and not self.env.user.has_group("base.group_system")
+            and not self.env.user.has_group("pr_account.custom_group_accounting_manager")
+        ):
+            raise UserError(_("Only the Accounting Manager can give final approval."))
         for bank_receipt in self:
             bank_receipt._check_lock_date()
             if bank_receipt.bank_receipt_line_ids:
@@ -166,6 +247,7 @@ class AccountBankReceipt(models.Model):
                     journal_entry_id.action_post()
                     bank_receipt.journal_entry_id = journal_entry_id.id
             bank_receipt.state = "posted"
+            bank_receipt.accounting_manager_state = "posted"
 
     def action_cancel(self):
         for bank_receipt in self:
@@ -173,6 +255,7 @@ class AccountBankReceipt(models.Model):
                 bank_receipt.journal_entry_id.sudo().button_draft()
                 bank_receipt.journal_entry_id.sudo().button_cancel()
             bank_receipt.state = "cancel"
+            bank_receipt.accounting_manager_state = "cancel"
 
     def open_journal_entry(self):
         self.ensure_one()
@@ -379,7 +462,9 @@ class AccountBankReceiptLine(models.Model):
     parent_state = fields.Selection([
         ("draft", "Draft"),
         ("submit", "Submitted"),
+        ("finance_approve", "Accounts Approval"),
         ("posted", "Finance Approval"),
+        ("reject", "Rejected"),
         ("cancel", "Cancelled"),
     ], related="bank_receipt_id.state", store=True, string="Parent Status")
     check_cost_centers_block = fields.Boolean(compute="_compute_check_cost_centers_block")

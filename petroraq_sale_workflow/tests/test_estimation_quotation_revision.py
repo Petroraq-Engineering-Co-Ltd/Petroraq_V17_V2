@@ -63,3 +63,31 @@ class TestEstimationQuotationRevision(TransactionCase):
         ).copy_revision_with_context()
         self.assertEqual(revision.name, "%s-R2" % original_name)
         self.assertEqual(revision.revision_number, 2)
+
+    def test_revised_estimation_opens_an_empty_quotation_revision(self):
+        quotation = self._create_quotation()
+        quotation.write({
+            "overhead_percent": 10.0,
+            "risk_percent": 5.0,
+            "profit_percent": 20.0,
+            "order_line": [(0, 0, {
+                "display_type": "line_note",
+                "name": "Previous quotation content",
+            })],
+        })
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        revised_estimation = estimation.with_context(
+            allow_estimation_write=True
+        ).copy_revision_with_context()
+
+        revised_quotation = revised_estimation._ensure_sale_order()
+
+        self.assertNotEqual(revised_quotation, quotation)
+        self.assertEqual(revised_quotation.estimation_id, revised_estimation)
+        self.assertFalse(revised_quotation.order_line)
+        self.assertEqual(revised_quotation.overhead_percent, 0.0)
+        self.assertEqual(revised_quotation.risk_percent, 0.0)
+        self.assertEqual(revised_quotation.profit_percent, 0.0)

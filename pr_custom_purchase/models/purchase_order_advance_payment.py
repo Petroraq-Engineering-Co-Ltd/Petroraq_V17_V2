@@ -124,6 +124,7 @@ class PurchaseOrder(models.Model):
             "ref": wizard.memo or _("Advance Payment for %s") % self.name,
             "purchase_order_id": self.id,
             "advance_payment_percentage": wizard.percentage,
+            "purchase_payment_stage": "advance",
         }
         Payment = self.env["account.payment"]
         if "destination_account_id" in Payment._fields:

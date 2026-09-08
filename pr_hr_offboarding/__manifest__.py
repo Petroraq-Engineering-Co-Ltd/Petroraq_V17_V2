@@ -10,7 +10,7 @@
     "author": "Muhammad Mudassir",
     "website": "https://www.petroraq.com",
     "category": "Human Resources",
-    "version": "17.0.1.0.1",
+    "version": "17.0.1.0.2",
     "license": "LGPL-3",
     "depends": [
         "hr",

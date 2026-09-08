@@ -749,6 +749,22 @@ class PrHrOffboardingRequest(models.Model):
                 elif request.state == "md_approval":
                     request._approve_md_step(approver_user, automatic=True)
 
+    def _advance_duplicate_authority_stages(self):
+        """Reserve approvers for their highest authority in this route."""
+        hr_managers = self.env.ref(HR_MANAGER_GROUP).users.filtered("active")
+        md_users = self.env.ref(MD_GROUP).users.filtered("active")
+        for request in self:
+            manager = request.department_manager_user_id
+            if request.state == "submitted" and manager and (
+                manager in hr_managers or manager in md_users
+            ):
+                request._approve_department_manager_step(manager, automatic=True)
+            eligible_hr_managers = hr_managers - md_users
+            if request.state == "hr_manager_approval" and not eligible_hr_managers:
+                duplicate = (hr_managers & md_users)[:1]
+                if duplicate:
+                    request._approve_hr_manager_step(duplicate, automatic=True)
+
     def _sync_exit_defaults(self, vals):
         employee = self.env["hr.employee"].browse(vals.get("employee_id")).exists()
         if not employee:
@@ -910,6 +926,7 @@ class PrHrOffboardingRequest(models.Model):
                 % request.department_manager_id.display_name
             )
             request._auto_approve_same_user_steps(self.env.user)
+            request._advance_duplicate_authority_stages()
         return True
 
     def action_accept(self):
@@ -921,6 +938,7 @@ class PrHrOffboardingRequest(models.Model):
                 )
             request._approve_department_manager_step(self.env.user)
             request._auto_approve_same_user_steps(self.env.user)
+            request._advance_duplicate_authority_stages()
         return True
 
     def action_hr_manager_approve(self):
@@ -932,6 +950,7 @@ class PrHrOffboardingRequest(models.Model):
                 )
             request._approve_hr_manager_step(self.env.user)
             request._auto_approve_same_user_steps(self.env.user)
+            request._advance_duplicate_authority_stages()
         return True
 
     def action_md_approve(self):

@@ -381,25 +381,25 @@ class HrShortageRequest(models.Model):
 
     def _apply_shortage_in_attendance(self):
         for rec in self:
-            day_start = datetime.combine(rec.date, time.min)
-            day_end = day_start + timedelta(days=1)
+            Attendance = self.env["hr.attendance"].sudo()
+            day_start, day_end, _timezone = Attendance._get_auto_attendance_day_bounds(
+                rec.employee_id, rec.date
+            )
             attendance_id = self.env["hr.attendance"].sudo().search([
                 ("employee_id", "=", rec.employee_id.id),
-                ("check_in", ">=", day_start),
-                ("check_in", "<", day_end),
+                ("check_in", ">=", fields.Datetime.to_string(day_start)),
+                ("check_in", "<", fields.Datetime.to_string(day_end)),
             ], limit=1)
 
             if rec.request_type == "no_punch":
                 check_in_dt = rec.check_in
                 check_out_dt = rec.check_out
             else:
-                # Existing shortage requests continue to normalize to policy hours.
-                employee_tz = rec.employee_id.tz or self.env.user.tz or 'UTC'
-                tzinfo = pytz.timezone(employee_tz)
-                local_check_in = tzinfo.localize(datetime.combine(rec.date, time(9, 0, 0)))
-                local_check_out = tzinfo.localize(datetime.combine(rec.date, time(18, 0, 0)))
-                check_in_dt = fields.Datetime.to_datetime(local_check_in.astimezone(pytz.utc).replace(tzinfo=None))
-                check_out_dt = fields.Datetime.to_datetime(local_check_out.astimezone(pytz.utc).replace(tzinfo=None))
+                scheduled_check_in, scheduled_check_out = Attendance._get_auto_attendance_datetimes(
+                    rec.employee_id, rec.date
+                )
+                check_in_dt = rec.check_in or scheduled_check_in
+                check_out_dt = rec.check_out or scheduled_check_out
 
             if attendance_id:
                 attendance_id.sudo().with_context(
