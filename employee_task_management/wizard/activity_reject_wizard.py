@@ -34,6 +34,8 @@ class EmployeeTaskActivityRejectWizard(models.TransientModel):
         # or Partially Rejected, and flags it for carry-forward either
         # way. It is the only place that decision is made.
         activity.task_line_id._sync_verdict_from_activities()
+        activity.task_line_id._log_post_closure_change(_(
+            'activity rejected - %s', (activity.name or '')[:80]))
         activity.task_line_id.task_list_id.message_post(body=_(
             'Activity rejected by %(user)s: %(activity)s '
             '(task: %(task)s)%(reason)s',
