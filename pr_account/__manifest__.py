@@ -20,6 +20,9 @@
     "license": "LGPL-3",
     # any module necessary for this one to work correctly
     'depends': ['account_accountant', 'account_reports', 'de_hr_workspace', 'l10n_sa_edi'],
+    'external_dependencies': {
+    'python': ['pypdf'],
+    },
 
     # always loaded
     'data': [
