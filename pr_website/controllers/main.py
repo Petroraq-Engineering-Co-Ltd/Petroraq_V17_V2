@@ -256,8 +256,14 @@ class CareersController(http.Controller):
                                   'skills': skills,
                                   'error_message': error_message,
                                   'career_is_arabic': self._career_lang_code().lower().startswith('ar'),
-                                  'nationality_placeholder': _('Select nationality'),
-                                  'qualification_placeholder': _('Select qualification'),
+                                  'nationality_placeholder': (
+                                      'اختر الجنسية' if self._career_lang_code().lower().startswith('ar')
+                                      else _('Select nationality')
+                                  ),
+                                  'qualification_placeholder': (
+                                      'اختر المؤهل' if self._career_lang_code().lower().startswith('ar')
+                                      else _('Select qualification')
+                                  ),
                               })
 
     def _career_lang_code(self):

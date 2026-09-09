@@ -326,11 +326,42 @@ class EmployeeTaskLine(models.Model):
         running_review = (
             self.task_list_id.state == 'in_progress'
             and self.task_list_id.started_without_approval)
-        if self.task_list_id.state != 'completed' and not running_review:
+        # CLOSED IS ALLOWED TOO. Closing a task list used to be final in
+        # one click, so a manager who mis-clicked had no way back and the
+        # verdicts were frozen wrong for good. The verdicts are the real
+        # record of the review, so they stay editable after closure -
+        # every change is written to the chatter, and a task turned to
+        # Rejected here still carries forward to the employee's next
+        # task list exactly as it would have during review.
+        # REJECTED IS ALLOWED TOO, for the same reason as Closed: a
+        # whole-list rejection cascades a Rejected verdict onto every
+        # task and activity, so a manager who rejected in error - or who
+        # decides part of the work was acceptable after all - must be
+        # able to put it right. The list itself stays Rejected; only the
+        # verdicts underneath change.
+        if self.task_list_id.state not in ('completed', 'closed',
+                                           'rejected') \
+                and not running_review:
             raise UserError(_(
                 'Tasks can only be approved or rejected while the task '
-                'list is Completed, or while it is running without '
-                'having been approved.'))
+                'list is Completed, Closed or Rejected, or while it is '
+                'running without having been approved.'))
+
+    def _log_post_closure_change(self, what):
+        """Chatter note for a verdict changed AFTER the list was closed.
+
+        Closure is supposed to be the end of the review, so a change
+        made afterwards must not look like part of the original one.
+        Anyone auditing the list later needs to see plainly that a
+        decision was revised, by whom, and when.
+        """
+        self.ensure_one()
+        if self.task_list_id.state != 'closed':
+            return
+        self.task_list_id.message_post(body=_(
+            '<b>Changed after closure:</b> %(what)s - by %(user)s. The '
+            'task list was already Closed when this decision was '
+            'revised.', what=what, user=self.env.user.name))
 
     def _sync_verdict_from_activities(self):
         """Roll the activity verdicts up into the task's own verdict.
@@ -373,6 +404,22 @@ class EmployeeTaskLine(models.Model):
             if new_verdict in ('rejected', 'partial'):
                 line.with_context(etm_workflow=True).write(
                     {'carry_forward_pending': True})
+            elif new_verdict == 'approved' and line.carry_forward_pending:
+                # ...and a task that is no longer refused must STOP
+                # coming back. The flag was only ever set, never
+                # cleared, so a manager who rejected in error and then
+                # approved the work still had it reappear in the
+                # employee's next task list. Clearing it here is what
+                # makes correcting a rejection actually undo it.
+                line.with_context(etm_workflow=True).write(
+                    {'carry_forward_pending': False})
+        # Once every task has been re-rolled, bring the LIST's own status
+        # back in line with them - a list stamped Rejected whose tasks
+        # are now all approved would otherwise keep contradicting
+        # itself. Done AFTER the loop, not inside it, so a list is judged
+        # on its finished set of verdicts rather than re-evaluated
+        # halfway through and flipping twice.
+        self.mapped('task_list_id')._resync_terminal_state_from_verdicts()
 
     def action_approve_task(self):
         """Manager accepts this individual task."""
@@ -407,6 +454,8 @@ class EmployeeTaskLine(models.Model):
                 'Task approved by %(user)s: %(task)s',
                 user=line.env.user.name,
                 task=(line.description or '')[:80]))
+            line._log_post_closure_change(_(
+                'task approved - %s', (line.description or '')[:80]))
         return True
 
     def action_reject_task(self):
@@ -644,11 +693,15 @@ class EmployeeTaskLine(models.Model):
 
     @api.constrains('start_date')
     def _check_no_backdated_start(self):
-        """An EMPLOYEE may not plan a task that starts in the past.
+        """NOBODY may plan a task that starts in the past.
 
-        Managers and Administrators are exempt - they legitimately need
-        to record work that already began, e.g. assigning a task to
-        cover something started earlier in the week.
+        Managers and Administrators used to be exempt, on the grounds
+        that they might need to record work that had already begun. The
+        client has withdrawn that exemption: a backdated task quietly
+        rewrites history in the capacity report - it lands hours on days
+        that are already settled, moves the idle figures for those days,
+        and can push an employee over capacity on a date he can no
+        longer do anything about. The rule now applies to everyone.
 
         Scoped deliberately narrowly so it cannot trap anyone:
           * `@api.constrains('start_date')` fires on create, and on write
@@ -670,15 +723,18 @@ class EmployeeTaskLine(models.Model):
             task_list = line.task_list_id
             if not task_list or task_list.state not in EDITABLE_STATES:
                 continue
-            if line._is_privileged_user():
-                continue
+            # NO privileged exemption any more - see the docstring.
+            # Existing backdated lines stay editable: the constraint only
+            # fires when start_date is in the write payload, so records
+            # created under the old rule are never re-validated.
             today = task_list._today_local()
             if line.start_date < today:
                 raise ValidationError(_(
                     'Task "%(task)s" starts on %(start)s, which is in the '
                     'past. Please pick %(today)s or a later date.\n\n'
-                    'If this task really did start earlier, ask your '
-                    'manager to set it for you.',
+                    'Task lists record work going forward, so no one - '
+                    'including managers and administrators - can date a '
+                    'task in the past.',
                     task=(line.description or _('(no description)'))[:80],
                     start=line.start_date, today=today))
 

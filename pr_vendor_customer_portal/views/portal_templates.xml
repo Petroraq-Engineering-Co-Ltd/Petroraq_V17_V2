@@ -303,7 +303,7 @@
                 <th>Expected Delivery Date</th>
                 <th class="text-end">PO Amount</th>
                 <th>Payment Terms</th>
-                <th>Incoterms / Delivery Terms</th>
+                <th>Delivery Terms</th>
             </tr>
         </xpath>
         <xpath expr="//t[@t-foreach='orders']/tr" position="replace">
@@ -420,7 +420,7 @@
                          t-out="order.payment_term_id.purchase_schedule_summary"/>
                 </div>
                 <div class="mb-3 col-6 col-lg-3">
-                    <strong>Incoterms / Delivery Terms:</strong>
+                    <strong>Delivery Terms:</strong>
                     <span t-out="order.incoterm_id.display_name if order.incoterm_id else '-'"/>
                 </div>
             </div>

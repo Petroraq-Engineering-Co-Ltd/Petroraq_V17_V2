@@ -58,7 +58,7 @@
                             type="object" class="btn-primary"
                             invisible="state not in ('in_progress', 'returned_after_completion') or not can_act_for_employee"
                             groups="employee_task_management.group_task_employee"/>
-                    <button name="action_close" string="Approve"
+                    <button name="action_close" string="Submit"
                             type="object" class="btn-success"
                             invisible="state != 'completed' or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
@@ -66,7 +66,7 @@
                          Rejecting is final: the task list ends as Rejected. -->
                     <button name="action_reject" string="Reject"
                             type="object" class="btn-danger"
-                            invisible="(state != 'completed' and not (state == 'in_progress' and started_without_approval)) or is_current_user_employee"
+                            invisible="not (state == 'in_progress' and started_without_approval) or is_current_user_employee"
                             groups="employee_task_management.group_task_manager"/>
                     <!-- Status bar (TDD 8.2). The exception states are shown
                          separately by the ribbons below when they are active. -->
@@ -276,12 +276,12 @@
                                     <button name="action_approve_task" type="object"
                                             icon="fa-check" title="Approve this task"
                                             class="btn-link text-success"
-                                            invisible="(parent.state != 'completed' and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'approved' or parent.is_current_user_employee"
+                                            invisible="(parent.state not in ('completed', 'closed', 'rejected') and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'approved' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <button name="action_reject_task" type="object"
                                             icon="fa-times" title="Reject this task"
                                             class="btn-link text-danger"
-                                            invisible="(parent.state != 'completed' and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'rejected' or parent.is_current_user_employee"
+                                            invisible="(parent.state not in ('completed', 'closed', 'rejected') and not (parent.state == 'in_progress' and parent.started_without_approval)) or manager_verdict == 'rejected' or parent.is_current_user_employee"
                                             groups="employee_task_management.group_task_manager"/>
                                     <!-- Remarks stay editable in every state, for
                                          both employee and manager. -->

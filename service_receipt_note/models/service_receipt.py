@@ -166,6 +166,10 @@ class ServiceReceiptNote(models.Model):
                 rec.approval_state = "pending"
                 rec.rejection_reason = False
 
+    def action_create_vendor_bill(self):
+        """Support stale database views from the former direct-billing flow."""
+        return self.action_request_payment()
+
     def action_approve(self):
         group = self.env.ref("pr_custom_purchase.inventory_admin", raise_if_not_found=False)
         if group and self.env.user not in group.users:
