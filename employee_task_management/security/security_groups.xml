@@ -32,5 +32,39 @@
             <field name="comment">Full access to all task lists, configuration and exceptional edits.</field>
         </record>
 
+        <!-- ============================================================
+             BOSS - a CHECKBOX, not a fourth role.
+             ============================================================
+             The three groups above form a ladder inside one category, so
+             Odoo renders them as a single dropdown: a user is Employee
+             OR Manager OR Administrator. Boss is not another rung on
+             that ladder - it is an extra flag that can sit on top of
+             whichever role the person already holds.
+
+             It therefore gets its OWN category. A category containing
+             exactly one group renders as a tick-box on the user form
+             rather than joining the dropdown, which is what lets the
+             boss keep his Task Manager role untouched.
+
+             It grants NO rights of its own and implies nothing. It only
+             narrows which Employee Tasks cards appear on the Approvals
+             Dashboard in de_hr_workspace_attendance - every record rule,
+             menu, button and approval check keys off the role groups
+             above and is completely unaffected by this. Deliberately so:
+             Task Manager is load-bearing across the whole module, and
+             changing what it means would alter behaviour for every
+             manager in the company. -->
+        <record id="module_category_task_oversight" model="ir.module.category">
+            <field name="name">Employee Task Oversight</field>
+            <field name="description">Narrows the Employee Tasks approval cards to executive-level ones.</field>
+            <field name="sequence">26</field>
+        </record>
+
+        <record id="group_task_boss" model="res.groups">
+            <field name="name">Boss</field>
+            <field name="category_id" ref="module_category_task_oversight"/>
+            <field name="comment">Shows only the executive Employee Tasks cards on the Approvals Dashboard - Task Lists to Approve, and Completed - Pending Review. The user's own cards are unaffected, and so is every right his Task role already grants him.</field>
+        </record>
+
     </data>
 </odoo>

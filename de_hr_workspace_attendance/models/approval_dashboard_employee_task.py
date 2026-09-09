@@ -38,6 +38,25 @@ TASK_MODEL = "employee.task.list"
 GROUP_EMPLOYEE = "employee_task_management.group_task_employee"
 GROUP_MANAGER = "employee_task_management.group_task_manager"
 GROUP_ADMIN = "employee_task_management.group_task_admin"
+# Defined in employee_task_management alongside the other task roles -
+# the flag is a property of somebody's TASK access, so it belongs with
+# them rather than here. Referencing it costs nothing: has_group()
+# resolves the xmlid with raise_if_not_found=False, so on a database
+# without that module it simply returns False - exactly how the three
+# role groups above are already used here without a dependency.
+GROUP_BOSS = "employee_task_management.group_task_boss"
+
+# The ONLY cards a Boss sees in this section - manager-side and
+# employee-side alike. Everything else is day-to-day chasing that an
+# executive does not want on his dashboard; these two are the decisions
+# that actually need him.
+#
+# Note this hides his own "Waiting for My Acceptance" and "Returned to
+# Me" as well, so if a task list is ever waiting on the Boss himself
+# nothing here will tell him - he reaches those through the Task Lists
+# menus instead. That is the client's explicit choice: this section is
+# an oversight panel, not his personal to-do list.
+BOSS_CARD_KEYS = ("to_approve", "pending_review")
 
 # Change to "hr" to fold these cards into the existing HR section
 # instead of giving them a section of their own.
@@ -99,7 +118,7 @@ class HrApprovalDashboardServiceTask(models.AbstractModel):
         manager_scope = self._employee_task_manager_scope()
 
         if manager_scope is not None:
-            specs.extend([
+            manager_specs = [
                 (
                     "to_approve",
                     _("Task Lists to Approve"),
@@ -131,10 +150,21 @@ class HrApprovalDashboardServiceTask(models.AbstractModel):
                     "success",
                     [("state", "=", "completed")] + manager_scope,
                 ),
-            ])
+            ]
+            # A Boss sees only the executive subset. Filtered by KEY
+            # rather than by rebuilding a second list, so a card added
+            # above is automatically hidden from him until it is
+            # deliberately named in BOSS_CARD_KEYS - the safe default
+            # for a dashboard whose whole point is to stay short.
+            if self.env.user.has_group(GROUP_BOSS):
+                manager_specs = [
+                    spec for spec in manager_specs
+                    if spec[0] in BOSS_CARD_KEYS
+                ]
+            specs.extend(manager_specs)
 
         employee_scope = self._employee_task_employee_scope()
-        specs.extend([
+        employee_specs = [
             (
                 "to_accept",
                 _("Waiting for My Acceptance"),
@@ -152,7 +182,16 @@ class HrApprovalDashboardServiceTask(models.AbstractModel):
                      ["returned_manager", "returned_after_completion"]),
                 ] + employee_scope,
             ),
-        ])
+        ]
+        # Filtered through the SAME key list as the manager cards above,
+        # rather than a second rule of its own - one list decides what a
+        # Boss sees, so the two halves cannot drift apart later.
+        if self.env.user.has_group(GROUP_BOSS):
+            employee_specs = [
+                spec for spec in employee_specs
+                if spec[0] in BOSS_CARD_KEYS
+            ]
+        specs.extend(employee_specs)
         return specs
 
     @api.model
