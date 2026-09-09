@@ -2,7 +2,7 @@
 {
     "name": "Petroraq Vendor Portal",
     "summary": "Vendor RFQs, purchase orders, invoices, delivery notes, and SRNs portal",
-    "version": "17.0.1.9.0",
+    "version": "17.0.1.10.0",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "category": "Portal",
     "license": "OPL-1",
@@ -34,6 +34,7 @@
         "views/portal_templates.xml",
         "views/portal_payment_overrides.xml",
         "report/portal_report_actions.xml",
+        "report/vendor_srn_report.xml",
     ],
     "assets": {
         "web.assets_frontend": [
