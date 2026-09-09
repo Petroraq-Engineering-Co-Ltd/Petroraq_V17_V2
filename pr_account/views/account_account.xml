@@ -9,7 +9,7 @@
                 <page name="petroraq_chart_of_account" string="Petroraq Chart Of Account">
                     <group>
                         <group>
-                            <!-- Main Head -->
+                            <!-- Man Head -->
                             <field name="main_head" string="Main Head" required="1"/>
                             <field name="assets_main_head" invisible="main_head != 'assets'" string="Assets Main Head"/>
                             <field name="liability_main_head" invisible="main_head != 'liabilities'"
