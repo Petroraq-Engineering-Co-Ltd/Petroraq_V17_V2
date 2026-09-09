@@ -48,9 +48,10 @@ class ServiceReceiptNote(models.Model):
                  "requested_user_id.employee_ids.department_id.manager_id.user_id")
     def _compute_department_manager(self):
         for receipt in self:
-            employee = receipt.requested_user_id.employee_ids.filtered(
-                lambda emp: emp.company_id == receipt.company_id
-            )[:1]
+            employee = self.env["hr.employee"].sudo().search([
+                ("user_id", "=", receipt.requested_user_id.id),
+                ("company_id", "=", receipt.company_id.id),
+            ], limit=1)
             receipt.department_manager_id = employee.department_id.manager_id.user_id
 
     @api.depends_context("uid")
