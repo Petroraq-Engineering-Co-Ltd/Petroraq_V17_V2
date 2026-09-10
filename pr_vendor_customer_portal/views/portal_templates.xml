@@ -488,7 +488,7 @@
                         <td>
                             <t t-out="delivery.purchase_id.name or delivery.origin or ''"/>
                         </td>
-                        <td><t t-out="delivery.vendor_gdn_number or delivery.name"/></td>
+                        <td><t t-out="delivery.name or '-'"/></td>
                         <td><t t-out="delivery_row['status']"/></td>
                         <td class="text-end"><t t-out="delivery_row['total_quantity']"/></td>
                         <td class="text-end"><t t-out="delivery_row['delivered_quantity']"/></td>
@@ -675,6 +675,11 @@
                         <strong>Status:</strong>
                         <span t-field="srn.state"/>
                     </div>
+                    <a t-if="srn.approval_state == 'approved'"
+                       class="btn btn-sm btn-outline-primary mt-2"
+                       t-att-href="'/vendor/srns/%s/download' % srn.id">
+                        <i class="fa fa-download me-1"/>Download Approved SRN
+                    </a>
                 </div>
             </div>
 
@@ -890,12 +895,18 @@
                                 <t t-foreach="receipt_options" t-as="receipt_option">
                                     <option t-att-value="receipt_option['token']"
                                             t-att-data-po-id="receipt_option['po'].id"
+                                            t-att-data-amount="receipt_option['amount']"
+                                            t-att-data-currency="receipt_option['currency'].name"
                                             t-att-selected="receipt_option['token'] == form_data.get('receipt_token')">
                                         <t t-out="receipt_option['type']"/> - <t t-out="receipt_option['reference']"/>
                                     </option>
                                 </t>
                             </select>
                             <div class="form-text">Only approved and not-yet-invoiced receipts are available.</div>
+                        </div>
+                        <div id="receipt_amount_panel" class="alert alert-info d-none" role="status">
+                            <strong>Amount against this delivery:</strong>
+                            <span id="receipt_amount_value"/>
                         </div>
                         <div class="mb-3">
                                 <label class="form-label" for="invoice_file">Invoice PDF</label>

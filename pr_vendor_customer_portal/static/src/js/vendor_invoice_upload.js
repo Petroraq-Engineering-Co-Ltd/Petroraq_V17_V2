@@ -4,24 +4,33 @@ function initializeVendorInvoiceReceiptFilter() {
     const poSelect = document.querySelector("#po_id");
     const receiptSelect = document.querySelector("#receipt_token");
     if (poSelect && receiptSelect) {
+        const originalOptions = Array.from(receiptSelect.options).map((option) => option.cloneNode(true));
+        const amountPanel = document.querySelector("#receipt_amount_panel");
+        const amountValue = document.querySelector("#receipt_amount_value");
         const filterReceipts = () => {
             const poId = poSelect.value;
-            let selectedIsVisible = !receiptSelect.value;
-            for (const option of receiptSelect.options) {
-                if (!option.value) {
-                    option.hidden = false;
-                    continue;
-                }
-                option.hidden = !poId || option.dataset.poId !== poId;
-                if (!option.hidden && option.selected) {
-                    selectedIsVisible = true;
-                }
+            const priorValue = receiptSelect.value;
+            const matchingOptions = originalOptions
+                .filter((option) => !option.value || (poId && option.dataset.poId === poId))
+                .map((option) => option.cloneNode(true));
+            receiptSelect.replaceChildren(...matchingOptions);
+            if (matchingOptions.some((option) => option.value === priorValue)) {
+                receiptSelect.value = priorValue;
             }
-            if (!selectedIsVisible) {
-                receiptSelect.value = "";
+            const selected = receiptSelect.selectedOptions[0];
+            if (amountPanel && amountValue && selected && selected.value) {
+                const amount = Number(selected.dataset.amount || 0);
+                amountValue.textContent = `${amount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                })} ${selected.dataset.currency || ""}`;
+                amountPanel.classList.remove("d-none");
+            } else if (amountPanel) {
+                amountPanel.classList.add("d-none");
             }
         };
         poSelect.addEventListener("change", filterReceipts);
+        receiptSelect.addEventListener("change", filterReceipts);
         filterReceipts();
     }
 
