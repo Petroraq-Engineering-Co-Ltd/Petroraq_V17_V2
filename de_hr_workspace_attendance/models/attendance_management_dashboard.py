@@ -185,8 +185,15 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
         result = records.browse()
         for record in records:
             record_start = fields.Datetime.to_datetime(record[start_field])
-            record_stop = fields.Datetime.to_datetime(record[stop_field]) if record[stop_field] else end_utc
-            if record_start and record_start < end_utc and record_stop > start_utc:
+            record_stop = fields.Datetime.to_datetime(record[stop_field]) if record[stop_field] else False
+            # An unfinished attendance belongs to the local day on which its
+            # check-in occurred. Treating it as open-ended makes yesterday's
+            # missing checkout overlap today and override today's new punch.
+            if not record_stop:
+                overlaps = record_start and start_utc <= record_start < end_utc
+            else:
+                overlaps = record_start and record_start < end_utc and record_stop > start_utc
+            if overlaps:
                 result |= record
         return result
 
@@ -398,10 +405,10 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             and attendances.filtered(lambda attendance: attendance.attendance_day_status == "absent")
         )
 
-        if core_absent:
-            status = "absent"
-        elif is_current_day_open_attendance:
+        if is_current_day_open_attendance:
             status = "checked_in"
+        elif core_absent:
+            status = "absent"
         elif open_attendances:
             status = "missing_checkout"
         elif attendances and shortage_hours:
