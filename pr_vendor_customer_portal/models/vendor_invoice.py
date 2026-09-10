@@ -34,7 +34,7 @@ class PrPortalVendorInvoice(models.Model):
     )
     po_id = fields.Many2one("purchase.order", string="Related Purchase Order", tracking=True)
     picking_id = fields.Many2one("stock.picking", string="GRN", tracking=True, copy=False)
-    service_receipt_id = fields.Many2one("service.receipt.note", string="SES", tracking=True, copy=False)
+    service_receipt_id = fields.Many2one("service.receipt.note", string="SRN", tracking=True, copy=False)
     grn_ses_id = fields.Many2one("grn.ses", string="Legacy GRN/SES", tracking=True, copy=False)
     vendor_invoice_number = fields.Char(tracking=True)
     invoice_date = fields.Date(tracking=True)
@@ -118,7 +118,7 @@ class PrPortalVendorInvoice(models.Model):
         if not group:
             return
         for invoice in self:
-            for user in group.users.filtered("active"):
+            for user in group.sudo().users.sudo().filtered("active"):
                 invoice.activity_schedule(
                     "mail.mail_activity_data_todo",
                     user_id=user.id,

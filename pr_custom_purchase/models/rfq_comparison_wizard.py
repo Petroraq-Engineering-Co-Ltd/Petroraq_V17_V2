@@ -221,7 +221,7 @@ class RFQComparisonWizard(models.TransientModel):
 
         existing_domain = [
             ("order_id.requisition_id", "=", self.requisition_id.id),
-            ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ("order_id.state", "in", ["draft", "sent", "pending", "purchase", "done"]),
         ]
         if selected_requisition_line_ids and len(selected_requisition_line_ids) == sum(len(lines) for lines in grouped_by_vendor.values()):
             existing_domain.append(("custom_requisition_line_id", "in", list(selected_requisition_line_ids)))
@@ -254,7 +254,7 @@ class RFQComparisonWizard(models.TransientModel):
             source_rfq = next((offer.rfq_id for _line, offer in vendor_lines if offer.rfq_id), False)
             po_vals = {
                 "name": self.env["ir.sequence"].sudo().next_by_code("purchase.order") or "PO0001",
-                "state": "pending",
+                "state": "draft",
                 "partner_id": vendor.id,
                 "origin": self.requisition_id.name,
                 "source_rfq_id": source_rfq.id if source_rfq else False,

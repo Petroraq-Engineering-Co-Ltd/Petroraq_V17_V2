@@ -434,7 +434,7 @@ class PurchaseOrder(models.Model):
         return action
 
     def action_create_po_from_rfq(self):
-        """Create a new PO draft/pending record from the selected RFQ."""
+        """Create an editable draft PO from the selected RFQ."""
         self.ensure_one()
 
         if self.requisition_id.pr_type == "budgetary":
@@ -534,7 +534,7 @@ class PurchaseOrder(models.Model):
         po_name = self.env["ir.sequence"].sudo().next_by_code("purchase.order") or "PO0001"
         po_vals = {
             "name": po_name,
-            "state": "pending",
+            "state": "draft",
             "origin": self.requisition_id.name or self.pr_name or self.origin or self.name,
             "source_rfq_id": self.id,
             "partner_id": self.partner_id.id,
@@ -575,44 +575,6 @@ class PurchaseOrder(models.Model):
             ],
         }
         new_po = self.env["purchase.order"].sudo().create(po_vals)
-
-        amount = new_po.subtotal
-        if amount <= 10000:
-            new_po._schedule_activity_for_group(
-                "pr_custom_purchase.project_engineer",
-                "Review Purchase Order",
-                f"PO {new_po.name} selected from RFQ {self.name}. Please review.",
-            )
-        elif amount <= 100000:
-            for group_xml_id in ["pr_custom_purchase.project_engineer", "pr_custom_purchase.project_manager"]:
-                new_po._schedule_activity_for_group(
-                    group_xml_id,
-                    "Review Purchase Order",
-                    f"PO {new_po.name} selected from RFQ {self.name}. Please review.",
-                )
-        elif amount <= 500000:
-            for group_xml_id in [
-                "pr_custom_purchase.project_engineer",
-                "pr_custom_purchase.project_manager",
-                "pr_custom_purchase.operations_director",
-            ]:
-                new_po._schedule_activity_for_group(
-                    group_xml_id,
-                    "Review Purchase Order",
-                    f"PO {new_po.name} selected from RFQ {self.name}. Please review.",
-                )
-        else:
-            for group_xml_id in [
-                "pr_custom_purchase.project_engineer",
-                "pr_custom_purchase.project_manager",
-                "pr_custom_purchase.operations_director",
-                "pr_custom_purchase.managing_director",
-            ]:
-                new_po._schedule_activity_for_group(
-                    group_xml_id,
-                    "Review Purchase Order",
-                    f"PO {new_po.name} selected from RFQ {self.name}. Please review.",
-                )
 
         if self.state == "draft":
             self.write({"state": "sent"})

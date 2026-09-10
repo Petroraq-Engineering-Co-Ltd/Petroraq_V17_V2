@@ -488,6 +488,22 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             "page_name": "vendor_srn",
         })
 
+    @http.route(["/vendor/srns/<int:srn_id>/download"], type="http", auth="user", website=True)
+    def portal_vendor_srn_download(self, srn_id, **kw):
+        if not self._is_vendor_portal_partner():
+            return request.redirect("/my")
+        srn = self._get_accessible_srn(srn_id)
+        if not srn or srn.approval_state != "approved":
+            raise MissingError(_("This approved SRN does not exist or you do not have access to it."))
+        report = request.env.ref("pr_vendor_customer_portal.action_report_vendor_srn").sudo()
+        content, _report_type = report._render_qweb_pdf(report.report_name, res_ids=srn.ids)
+        filename = "%s.pdf" % (srn.name or "SRN").replace("/", "_")
+        return request.make_response(content, [
+            ("Content-Type", "application/pdf"),
+            ("Content-Length", str(len(content))),
+            ("Content-Disposition", content_disposition(filename)),
+        ])
+
     @http.route(["/vendor", "/vendor/portal"], type="http", auth="user", website=True)
     def portal_vendor_home(self, **kw):
         return request.redirect("/my/home")
@@ -565,22 +581,61 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         options.extend({
             "token": "picking:%s" % receipt.id,
             "po": receipt.purchase_id,
-            "reference": receipt.vendor_gdn_number or receipt.name,
+            "reference": receipt.name,
             "type": _("GRN"),
+            "amount": self._receipt_invoice_amount(receipt),
+            "currency": receipt.purchase_id.currency_id,
         } for receipt in pickings)
         options.extend({
             "token": "service:%s" % receipt.id,
             "po": receipt.purchase_id,
             "reference": receipt.name,
-            "type": _("SES"),
+            "type": _("SRN"),
+            "amount": self._receipt_invoice_amount(receipt),
+            "currency": receipt.purchase_id.currency_id,
         } for receipt in services)
         options.extend({
             "token": "legacy:%s" % receipt.id,
             "po": receipt.purchase_order_id,
             "reference": receipt.name,
             "type": _("GRN/SES"),
+            "amount": receipt.grand_total,
+            "currency": receipt.purchase_order_id.currency_id,
         } for receipt in legacy)
         return options
+
+    def _receipt_invoice_amount(self, receipt):
+        """Return the tax-inclusive PO value accepted by a GRN or SRN."""
+        if receipt._name == "stock.picking":
+            quantity_lines = (
+                (move.purchase_line_id, move.quantity)
+                for move in receipt.move_ids_without_package
+                if move.purchase_line_id and move.quantity
+            )
+            currency = receipt.purchase_id.currency_id
+        elif receipt._name == "service.receipt.note":
+            quantity_lines = (
+                (line.purchase_line_id, line.done_qty)
+                for line in receipt.line_ids
+                if line.purchase_line_id and line.done_qty
+            )
+            currency = receipt.purchase_id.currency_id
+        else:
+            return receipt.grand_total
+
+        total = 0.0
+        for po_line, quantity in quantity_lines:
+            unit_price = po_line.price_unit * (
+                1.0 - (getattr(po_line, "discount", 0.0) or 0.0) / 100.0
+            )
+            total += po_line.taxes_id.compute_all(
+                unit_price,
+                currency=currency,
+                quantity=quantity,
+                product=po_line.product_id,
+                partner=po_line.order_id.partner_id,
+            )["total_included"]
+        return currency.round(total)
 
     def _get_vendor_invoice_receipt(self, token, po):
         try:
@@ -605,7 +660,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 and receipt._get_receipt_approval_state() == "approved"
                 and bool(self._get_accessible_vendor_delivery(receipt.id))
             )
-            reference, type_label = receipt.vendor_gdn_number or receipt.name, _("GRN")
+            reference, type_label = receipt.name, _("GRN")
         elif receipt_type == "service":
             valid = (
                 receipt.purchase_id == po
@@ -613,7 +668,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 and receipt.approval_state == "approved"
                 and bool(self._get_accessible_srn(receipt.id))
             )
-            reference, type_label = receipt.name, _("SES")
+            reference, type_label = receipt.name, _("SRN")
         else:
             valid = (
                 receipt.purchase_order_id == po
@@ -624,7 +679,8 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             reference, type_label = receipt.name, _("GRN/SES")
         if not valid:
             return False
-        option = {"token": token, "po": po, "reference": reference, "type": type_label}
+        amount = receipt.grand_total if receipt_type == "legacy" else self._receipt_invoice_amount(receipt)
+        option = {"token": token, "po": po, "reference": reference, "type": type_label, "amount": amount}
         return receipt, model_field[1], option
 
     def _vendor_document_type_options(self):
@@ -699,7 +755,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         for xmlid in reviewer_group_xmlids:
             group = request.env.ref(xmlid, raise_if_not_found=False)
             if group:
-                reviewers |= group.users.filtered("active")
+                reviewers |= group.sudo().users.sudo().filtered("active")
         reviewers = reviewers.filtered(lambda user: po.company_id in user.company_ids)
         if not reviewers and po.user_id and po.user_id.active:
             reviewers = po.user_id
@@ -720,7 +776,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             raise_if_not_found=False,
         )
         reviewers = (
-            reviewer_group.users.filtered("active")
+            reviewer_group.sudo().users.sudo().filtered("active")
             if reviewer_group
             else request.env["res.users"]
         )
@@ -731,7 +787,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 raise_if_not_found=False,
             )
             reviewers = (
-                accounting_group.users.filtered("active")
+                accounting_group.sudo().users.sudo().filtered("active")
                 if accounting_group
                 else request.env["res.users"]
             )
@@ -992,9 +1048,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             ("Content-Length", str(len(content))),
             (
                 "Content-Disposition",
-                content_disposition(
-                    attachment.name or "document"
-                ).replace("attachment", "inline", 1),
+                content_disposition(attachment.name or "document"),
             ),
         ])
 
@@ -1082,7 +1136,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
 
             receipt_reference = option["reference"]
             parsed_date = fields.Date.context_today(po)
-            parsed_amount = receipt.grand_total if source_field == "grn_ses_id" else 0.0
+            parsed_amount = option["amount"]
             attachment = request.env["ir.attachment"].sudo().create({
                 "name": invoice_file.filename or ("Invoice-%s.pdf" % receipt_reference.replace("/", "-")),
                 "type": "binary",
