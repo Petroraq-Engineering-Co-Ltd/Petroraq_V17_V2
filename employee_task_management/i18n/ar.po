@@ -1,0 +1,4222 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* employee_task_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-07 12:01+0000\n"
+"PO-Revision-Date: 2026-09-07 12:01+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+```po
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid " (%s)"
+msgstr " (%s)"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"%(count)s task(s) rejected on an earlier task list were added here "
+"automatically and must be redone. Only the activities that were not "
+"completed have come across, dated %(day)s - change the dates to suit your "
+"plan."
+msgstr ""
+"تمت إضافة %(count)s مهمة مرفوضة من قائمة مهام سابقة إلى هنا تلقائيًا، ويجب "
+"إعادة تنفيذها. تم نقل الأنشطة التي لم تكتمل فقط، وتاريخها %(day)s - قم "
+"بتغيير التواريخ بما يتناسب مع خطتك."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"%(who)s has planned the activities for task list %(ref)s and submitted them "
+"for your review. You can approve them, adjust the hours, or return the list."
+msgstr ""
+"قام %(who)s بتخطيط الأنشطة لقائمة المهام %(ref)s وأرسلها للمراجعة. يمكنك "
+"اعتمادها، أو تعديل الساعات، أو إعادة القائمة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"%(who)s planned the activities for this task list and submitted them for "
+"review."
+msgstr ""
+"قام %(who)s بتخطيط الأنشطة لقائمة المهام هذه وأرسلها للمراجعة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "%s task list \"%s\" is final and cannot be edited."
+msgstr "قائمة المهام %s \"%s\" نهائية ولا يمكن تعديلها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "<b>%(what)s</b> was done by %(actor)s on behalf of %(employee)s."
+msgstr "تم تنفيذ <b>%(what)s</b> بواسطة %(actor)s نيابةً عن %(employee)s."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"<b>Work started immediately</b> - %(now)s task(s) were due today. %(later)s "
+"task(s) dated later are still waiting for the manager's decision."
+msgstr ""
+"<b>بدأ العمل فورًا</b> - كان موعد استحقاق %(now)s مهمة/مهام اليوم. ولا تزال "
+"%(later)s مهمة/مهام ذات تواريخ لاحقة بانتظار قرار المدير."
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_assigned
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>A new task list <b><t t-out=\"object.name\"></t></b> has been created and\n"
+"       assigned to you by your manager. It is already approved and applicable.</p>\n"
+"    <table style=\"border-collapse:collapse;margin:12px 0;\">\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Department:</b></td><td><t t-out=\"object.department_id.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Assign Date:</b></td><td><t t-out=\"object.assign_date\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Number of Tasks:</b></td><td><t t-out=\"object.task_count\"></t></td></tr>\n"
+"    </table>\n"
+"    <p>Please log in, review the tasks and click <b>Start Work</b> to begin.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تم إنشاء قائمة مهام جديدة <b><t t-out=\"object.name\"></t></b> وتكليفك بها\n"
+"       من قِبل مديرك. وقد تمت الموافقة عليها وهي سارية بالفعل.</p>\n"
+"    <table style=\"border-collapse:collapse;margin:12px 0;\">\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>القسم:</b></td><td><t t-out=\"object.department_id.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>تاريخ التكليف:</b></td><td><t t-out=\"object.assign_date\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>عدد المهام:</b></td><td><t t-out=\"object.task_count\"></t></td></tr>\n"
+"    </table>\n"
+"    <p>يرجى تسجيل الدخول ومراجعة المهام ثم النقر على <b>بدء العمل</b> للبدء.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_auto_applied
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>Task list <b><t t-out=\"object.name\"></t></b> has been\n"
+"       <b>assigned automatically</b> because the start date of its work\n"
+"       arrived while it was still waiting.</p>\n"
+"    <p>You may now click <b>Start Work</b> and begin execution.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تم <b>تعيين قائمة المهام تلقائيًا</b> <b><t t-out=\"object.name\"></t></b>\n"
+"       لأن تاريخ بدء العمل عليها قد حان بينما كانت لا تزال قيد الانتظار.</p>\n"
+"    <p>يمكنك الآن النقر على <b>بدء العمل</b> والبدء في التنفيذ.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_resubmitted
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>Task list <b><t t-out=\"object.name\"></t></b> has been reviewed and updated by\n"
+"       your manager <b><t t-out=\"object.manager_id.name\"></t></b>. It is approved\n"
+"       and ready for you to work on again.</p>\n"
+"    <table style=\"border-collapse:collapse;margin:12px 0;\">\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Department:</b></td><td><t t-out=\"object.department_id.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Assign Date:</b></td><td><t t-out=\"object.assign_date\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Number of Tasks:</b></td><td><t t-out=\"object.task_count\"></t></td></tr>\n"
+"    </table>\n"
+"    <p>Please review the updated tasks and click <b>Start Work</b> to continue.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تمت مراجعة وتحديث قائمة المهام <b><t t-out=\"object.name\"></t></b> بواسطة\n"
+"       مديرك <b><t t-out=\"object.manager_id.name\"></t></b>. وقد تمت الموافقة عليها\n"
+"       وأصبحت جاهزة للعمل عليها مرة أخرى.</p>\n"
+"    <table style=\"border-collapse:collapse;margin:12px 0;\">\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>القسم:</b></td><td><t t-out=\"object.department_id.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>تاريخ التكليف:</b></td><td><t t-out=\"object.assign_date\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>عدد المهام:</b></td><td><t t-out=\"object.task_count\"></t></td></tr>\n"
+"    </table>\n"
+"    <p>يرجى مراجعة المهام المحدثة والنقر على <b>بدء العمل</b> للمتابعة.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_rejected
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>Your completed task list <b><t t-out=\"object.name\"></t></b> has been\n"
+"       <b style=\"color:#b3261e;\">rejected</b> by your manager\n"
+"       <t t-out=\"object.manager_id.name\"></t> and is now closed.</p>\n"
+"    <t t-if=\"object.reject_reason\">\n"
+"        <p><b>Reject Reason:</b><br><t t-out=\"object.reject_reason\"></t></p>\n"
+"    </t>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تم <b style=\"color:#b3261e;\">رفض</b> قائمة المهام المكتملة الخاصة بك\n"
+"       <b><t t-out=\"object.name\"></t></b> بواسطة مديرك\n"
+"       <t t-out=\"object.manager_id.name\"></t>، وأصبحت الآن مغلقة.</p>\n"
+"    <t t-if=\"object.reject_reason\">\n"
+"        <p><b>سبب الرفض:</b><br><t t-out=\"object.reject_reason\"></t></p>\n"
+"    </t>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_modified
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>Your modification request on task list <b><t t-out=\"object.name\"></t></b>\n"
+"       has been handled by your manager\n"
+"       <b><t t-out=\"object.manager_id.name\"></t></b>.</p>\n"
+"    <p>Please review the updated task list and click <b>Accept</b>.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تم التعامل مع طلب التعديل الخاص بك على قائمة المهام <b><t t-out=\"object.name\"></t></b>\n"
+"       بواسطة مديرك\n"
+"       <b><t t-out=\"object.manager_id.name\"></t></b>.</p>\n"
+"    <p>يرجى مراجعة قائمة المهام المحدثة والنقر على <b>قبول</b>.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_approved
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>Your task list <b><t t-out=\"object.name\"></t></b> has been approved by your\n"
+"       manager <b><t t-out=\"object.manager_id.name\"></t></b> and is now applicable.</p>\n"
+"    <p>You may now start work and update your activities and progress.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تمت الموافقة على قائمة المهام الخاصة بك <b><t t-out=\"object.name\"></t></b> من قِبل\n"
+"       مديرك <b><t t-out=\"object.manager_id.name\"></t></b>، وأصبحت الآن سارية.</p>\n"
+"    <p>يمكنك الآن بدء العمل وتحديث أنشطتك وتقدمك.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_returned
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>Your task list <b><t t-out=\"object.name\"></t></b> has been returned.\n"
+"       Please review the remarks, make corrections, and resubmit.</p>\n"
+"    <t t-if=\"object.return_reason\">\n"
+"        <p><b>Return Reason:</b><br><t t-out=\"object.return_reason\"></t></p>\n"
+"    </t>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تمت إعادة قائمة المهام الخاصة بك <b><t t-out=\"object.name\"></t></b>.\n"
+"       يرجى مراجعة الملاحظات وإجراء التصحيحات ثم إعادة إرسالها.</p>\n"
+"    <t t-if=\"object.return_reason\">\n"
+"        <p><b>سبب الإعادة:</b><br><t t-out=\"object.return_reason\"></t></p>\n"
+"    </t>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_closed
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.employee_id.name\"></t>,</p>\n"
+"    <p>Your task list <b><t t-out=\"object.name\"></t></b> has been reviewed and\n"
+"       <b>closed</b> by your manager. The record remains available for reporting.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.employee_id.name\"></t>،</p>\n"
+"    <p>تمت مراجعة قائمة المهام الخاصة بك <b><t t-out=\"object.name\"></t></b> و<b>إغلاقها</b>\n"
+"       بواسطة مديرك. ولا يزال السجل متاحًا لأغراض التقارير.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_submitted
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.manager_id.name or 'Manager'\"></t>,</p>\n"
+"    <p>A new task list has been submitted by employee\n"
+"       <b><t t-out=\"object.employee_id.name\"></t></b> and requires your approval.</p>\n"
+"    <table style=\"border-collapse:collapse;margin:12px 0;\">\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Reference:</b></td><td><t t-out=\"object.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Department:</b></td><td><t t-out=\"object.department_id.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Assign Date:</b></td><td><t t-out=\"object.assign_date\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>Number of Tasks:</b></td><td><t t-out=\"object.task_count\"></t></td></tr>\n"
+"    </table>\n"
+"    <p>Please log in to review, approve or return the task list.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.manager_id.name or 'Manager'\"></t>،</p>\n"
+"    <p>تم إرسال قائمة مهام جديدة بواسطة الموظف\n"
+"       <b><t t-out=\"object.employee_id.name\"></t></b>، وهي تتطلب موافقتك.</p>\n"
+"    <table style=\"border-collapse:collapse;margin:12px 0;\">\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>المرجع:</b></td><td><t t-out=\"object.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>القسم:</b></td><td><t t-out=\"object.department_id.name\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>تاريخ التكليف:</b></td><td><t t-out=\"object.assign_date\"></t></td></tr>\n"
+"        <tr><td style=\"padding:4px 12px 4px 0;\"><b>عدد المهام:</b></td><td><t t-out=\"object.task_count\"></t></td></tr>\n"
+"    </table>\n"
+"    <p>يرجى تسجيل الدخول لمراجعة قائمة المهام واعتمادها أو إعادتها.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_accepted
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.manager_id.name or 'Manager'\"></t>,</p>\n"
+"    <p>Employee <b><t t-out=\"object.employee_id.name\"></t></b> has <b>accepted</b>\n"
+"       task list <b><t t-out=\"object.name\"></t></b>. It is now applicable and the\n"
+"       employee can start the work.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.manager_id.name or 'Manager'\"></t>،</p>\n"
+"    <p>قام الموظف <b><t t-out=\"object.employee_id.name\"></t></b> <b>بقبول</b>\n"
+"       قائمة المهام <b><t t-out=\"object.name\"></t></b>. وأصبحت الآن سارية، ويمكن\n"
+"       للموظف بدء العمل.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_completed
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.manager_id.name or 'Manager'\"></t>,</p>\n"
+"    <p>Employee <b><t t-out=\"object.employee_id.name\"></t></b> has marked task list\n"
+"       <b><t t-out=\"object.name\"></t></b> as <b>Completed</b>.</p>\n"
+"    <p>Please review the progress and close the task list.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.manager_id.name or 'Manager'\"></t>،</p>\n"
+"    <p>قام الموظف <b><t t-out=\"object.employee_id.name\"></t></b> بوضع علامة على قائمة المهام\n"
+"       <b><t t-out=\"object.name\"></t></b> باعتبارها <b>مكتملة</b>.</p>\n"
+"    <p>يرجى مراجعة التقدم وإغلاق قائمة المهام.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model:mail.template,body_html:employee_task_management.mail_template_task_modification_request
+msgid ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>Dear <t t-out=\"object.manager_id.name or 'Manager'\"></t>,</p>\n"
+"    <p>Employee <b><t t-out=\"object.employee_id.name\"></t></b> has requested a\n"
+"       modification on task list <b><t t-out=\"object.name\"></t></b> before\n"
+"       accepting it.</p>\n"
+"    <t t-if=\"object.modification_reason\">\n"
+"        <p><b>Requested change:</b><br><t t-out=\"object.modification_reason\"></t></p>\n"
+"    </t>\n"
+"    <p>If this request is not handled before the <b>task start date</b>, the\n"
+"       task list will be assigned to the employee automatically.</p>\n"
+"    <p>Regards,<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+msgstr ""
+"<div style=\"margin:0;padding:20px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#333;\">\n"
+"    <p>عزيزي <t t-out=\"object.manager_id.name or 'Manager'\"></t>،</p>\n"
+"    <p>طلب الموظف <b><t t-out=\"object.employee_id.name\"></t></b> إجراء تعديل\n"
+"       على قائمة المهام <b><t t-out=\"object.name\"></t></b> قبل\n"
+"       قبولها.</p>\n"
+"    <t t-if=\"object.modification_reason\">\n"
+"        <p><b>التعديل المطلوب:</b><br><t t-out=\"object.modification_reason\"></t></p>\n"
+"    </t>\n"
+"    <p>إذا لم تتم معالجة هذا الطلب قبل <b>تاريخ بدء المهمة</b>، فسيتم\n"
+"       تعيين قائمة المهام للموظف تلقائيًا.</p>\n"
+"    <p>مع التحية،<br><t t-out=\"object.company_id.name\"></t></p>\n"
+"</div>\n"
+"            "
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_kanban
+msgid "<i class=\"fa fa-building-o me-1\" title=\"Department\"/>"
+msgstr "<i class=\"fa fa-building-o me-1\" title=\"القسم\"/>"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_kanban
+msgid "<i class=\"fa fa-calendar me-1\" title=\"Assign Date\"/>"
+msgstr "<i class=\"fa fa-calendar me-1\" title=\"تاريخ التكليف\"/>"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_kanban
+msgid "<i class=\"fa fa-tasks me-1\" title=\"Number of Tasks\"/>"
+msgstr "<i class=\"fa fa-tasks me-1\" title=\"عدد المهام\"/>"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__can_delete_activities
+msgid ""
+"A Manager / Administrator may remove an activity outright once the task list"
+" is locked, which is how surplus hours get taken off an employee's day. "
+"Never true on your own task list."
+msgstr ""
+"يمكن للمدير / المسؤول حذف أي نشاط نهائيًا بمجرد قفل قائمة المهام، وهي الطريقة "
+"التي يتم بها إزالة الساعات الزائدة من يوم الموظف. ولا تكون هذه الصلاحية "
+"متاحة أبدًا في قائمة مهامك الخاصة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"A modification can only be requested while the task list is waiting for your"
+" acceptance."
+msgstr ""
+"لا يمكن طلب التعديل إلا عندما تكون قائمة المهام في انتظار قبولك."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"A new task list %s has been submitted by employee %s and requires your "
+"approval."
+msgstr ""
+"تم إرسال قائمة مهام جديدة %s بواسطة الموظف %s، وهي تتطلب موافقتك."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_reject_wizard.py:0
+#, python-format
+msgid "A reject reason is mandatory when rejecting a task list."
+msgstr "يجب إدخال سبب الرفض عند رفض قائمة المهام."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__carry_forward_pending
+msgid ""
+"A rejected task waits here until the employee creates their next task list, "
+"at which point it is copied into it automatically and this flag is cleared."
+msgstr ""
+"تظل المهمة المرفوضة هنا إلى أن ينشئ الموظف قائمة المهام التالية، وعندها يتم "
+"نسخها إليها تلقائيًا وإلغاء تفعيل هذه العلامة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_line_reject_wizard.py:0
+#, python-format
+msgid "A rejection reason is required."
+msgstr "سبب الرفض مطلوب."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#, python-format
+msgid "Accept"
+msgstr "قبول"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Accepted by %s"
+msgstr "تم القبول بواسطة %s"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__accepted
+msgid "Accepted by Employee"
+msgstr "تم القبول بواسطة الموظف"
+
+#. module: employee_task_management
+#: model:ir.module.category,description:employee_task_management.module_category_employee_task
+msgid "Access rights for Employee Task Management module"
+msgstr "صلاحيات الوصول إلى وحدة إدارة مهام الموظفين"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__action
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_approval_history_search
+msgid "Action"
+msgstr "الإجراء"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_needaction
+msgid "Action Needed"
+msgstr "إجراء مطلوب"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__subtask_count
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__subtask_ids
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_ids
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_subtask_tree
+msgid "Activities"
+msgstr "الأنشطة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid "Activities - %s"
+msgstr "الأنشطة - %s"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__activities_locked
+msgid "Activities Fully Locked"
+msgstr "الأنشطة مقفلة بالكامل"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__subtask_label
+msgid "Activities Progress"
+msgstr "تقدم الأنشطة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Activities Submitted for Review"
+msgstr "تم إرسال الأنشطة للمراجعة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_update_log
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Activities Update Log"
+msgstr "سجل تحديثات الأنشطة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid ""
+"Activities can no longer be added to or removed from task list "%s" - it "
+"is in "%s" status. Plan the activities before accepting the task list."
+msgstr ""
+"لم يعد بالإمكان إضافة الأنشطة إلى قائمة المهام "%s" أو إزالتها منها - فهي "
+"في حالة "%s". قم بتخطيط الأنشطة قبل قبول قائمة المهام."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid ""
+"Activities can only be approved or rejected while the task list is "
+"Completed, or while it is running without having been approved - and never "
+"on your own task list."
+msgstr ""
+"يمكن اعتماد الأنشطة أو رفضها فقط عندما تكون قائمة المهام مكتملة، أو أثناء "
+"تشغيلها دون أن تكون قد اعتُمدت - ولا يمكن ذلك مطلقًا في قائمة مهامك الخاصة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Activities can only be submitted for review while the task list is pending "
+"your acceptance."
+msgstr ""
+"يمكن إرسال الأنشطة للمراجعة فقط أثناء انتظار قائمة المهام لقبولك."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid ""
+"Activities cannot be marked as Done yet. Task list "%s" is in "%s" state"
+" - the work has to be approved and started ("Start Work") first."
+msgstr ""
+"لا يمكن وضع علامة «تم» على الأنشطة بعد. قائمة المهام "%s" في حالة "%s" - "
+"يجب اعتماد العمل وبدؤه ("بدء العمل") أولًا."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__subtask_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__name
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Activity"
+msgstr "النشاط"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid ""
+"Activity <b>%(activity)s</b> (%(hours)s) was deleted from task "
+"<b>%(task)s</b> by %(user)s. Those hours no longer count against the "
+"employee's daily capacity."
+msgstr ""
+"تم حذف النشاط <b>%(activity)s</b> (%(hours)s) من المهمة "
+"<b>%(task)s</b> بواسطة %(user)s. لم تعد تلك الساعات تُحتسب ضمن "
+"السعة اليومية للموظف."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "علامة استثناء النشاط"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_state
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid "Activity approved by %(user)s: %(activity)s (task: %(task)s)"
+msgstr "تم اعتماد النشاط بواسطة %(user)s: %(activity)s (المهمة: %(task)s)"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/activity_reject_wizard.py:0
+#, python-format
+msgid "Activity rejected by %(user)s: %(activity)s (task: %(task)s)%(reason)s"
+msgstr "تم رفض النشاط بواسطة %(user)s: %(activity)s (المهمة: %(task)s)%(reason)s"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__approval_level__admin
+msgid "Administrator"
+msgstr "المسؤول"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists_all
+msgid "All Task Lists"
+msgstr "جميع قوائم المهام"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_tree
+#, python-format
+msgid "Allocated"
+msgstr "مخصص"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__allocated_hours
+msgid "Allocated Hours"
+msgstr "الساعات المخصصة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__pending_hours
+msgid ""
+"Allocated hours not yet reviewed. Falls to zero as the manager works through"
+" his approvals."
+msgstr ""
+"الساعات المخصصة التي لم تتم مراجعتها بعد. تنخفض إلى الصفر مع قيام المدير "
+"بمعالجة عمليات الاعتماد الخاصة به."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__approved_hours
+msgid ""
+"Allocated hours the manager has accepted. Includes tasks left at Pending "
+"Review on a Closed list, which count as approved."
+msgstr ""
+"الساعات المخصصة التي قبلها المدير. تشمل المهام المتبقية في حالة قيد المراجعة "
+"ضمن قائمة مغلقة، والتي تُحتسب على أنها معتمدة."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__rejected_hours
+msgid ""
+"Allocated hours the manager refused. Still counted in Allocated and still "
+"not idle - the employee spent that time. The redo is scheduled on a later "
+"day."
+msgstr ""
+"الساعات المخصصة التي رفضها المدير. لا تزال تُحتسب ضمن الساعات المخصصة وليست "
+"وقت خمول - فقد أمضى الموظف ذلك الوقت. تتم جدولة إعادة العمل في يوم لاحق."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Appears here if the manager rejects the completed task list."
+msgstr "يظهر هنا إذا رفض المدير قائمة المهام المكتملة."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Appears here when the employee requests a modification."
+msgstr "يظهر هنا عندما يطلب الموظف تعديلًا."
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_approval_history
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__approval_history_ids
+#: model:ir.ui.menu,name:employee_task_management.menu_config_approval_history
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_approval_history_tree
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Approval History"
+msgstr "سجل الاعتمادات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__approval_level
+msgid "Approval Level"
+msgstr "مستوى الاعتماد"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Approval Remarks"
+msgstr "ملاحظات الاعتماد"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Approve"
+msgstr "اعتماد"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Approve this activity"
+msgstr "اعتماد هذا النشاط"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Approve this task"
+msgstr "اعتماد هذه المهمة"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__approved
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__manager_verdict__approved
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_subtask__manager_verdict__approved
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_approval_history_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_tree
+msgid "Approved"
+msgstr "معتمد"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__user_id
+msgid "Approved / Returned By"
+msgstr "تم الاعتماد / الإعادة بواسطة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__approved_hours
+msgid "Approved Hours"
+msgstr "الساعات المعتمدة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Approved Task Lists"
+msgstr "قوائم المهام المعتمدة"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_task_list_approved
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists_approved
+msgid "Approved by Manager"
+msgstr "معتمد من المدير"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__assign_date
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#, python-format
+msgid "Assign Date"
+msgstr "تاريخ التعيين"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Assign Date cannot be before today's date."
+msgstr "لا يمكن أن يسبق تاريخ التعيين تاريخ اليوم."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Assign to Employee"
+msgstr "تعيين للموظف"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__assigned
+msgid "Assigned by Manager"
+msgstr "تم التعيين بواسطة المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_attachment_count
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__attachment_ids
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Attachments"
+msgstr "المرفقات"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__auto_applied
+msgid "Auto-Applied (No Manager Response)"
+msgstr "تم التطبيق تلقائيًا (دون رد من المدير)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__department_id
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__department_id
+msgid "Auto-filled from employee profile"
+msgstr "تعبئة تلقائية من ملف الموظف"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__name
+msgid "Auto-generated reference number (PEC-TL-YEAR-00000)"
+msgstr "رقم مرجعي يتم إنشاؤه تلقائيًا (PEC-TL-YEAR-00000)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__carry_forward_pending
+msgid "Awaiting Carry-Forward"
+msgstr "بانتظار الترحيل"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Awaiting Review"
+msgstr "بانتظار المراجعة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__can_act_for_employee
+msgid "Can Act For The Employee"
+msgstr "يمكنه التصرف نيابةً عن الموظف"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__can_select_employee
+msgid "Can Choose Another Employee"
+msgstr "يمكنه اختيار موظف آخر"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__can_edit_department
+msgid "Can Choose Department"
+msgstr "يمكنه اختيار القسم"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__can_edit_manager
+msgid "Can Choose Manager"
+msgstr "يمكنه اختيار المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__can_delete_activities
+msgid "Can Delete Activities"
+msgstr "يمكنه حذف الأنشطة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__can_edit_unlocked
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__can_edit_unlocked
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__can_edit_unlocked
+msgid "Can Edit While Unlocked"
+msgstr "يمكنه التعديل أثناء إلغاء القفل"
+
+#. module: employee_task_management
+#: model:res.groups,comment:employee_task_management.group_task_employee
+msgid ""
+"Can create task lists for themselves only, view own task lists, edit in "
+"Draft/Returned status, update progress after approval."
+msgstr ""
+"يمكنه إنشاء قوائم مهام لنفسه فقط، وعرض قوائم مهامه الخاصة، والتعديل في حالة "
+"المسودة/المُعادة، وتحديث التقدم بعد الاعتماد."
+
+#. module: employee_task_management
+#: model:res.groups,comment:employee_task_management.group_task_manager
+msgid ""
+"Can create/view task lists of employees under their department/team, approve"
+" or return submitted task lists, review progress and close completed task "
+"lists."
+msgstr ""
+"يمكنه إنشاء/عرض قوائم مهام الموظفين التابعين لقسمه/فريقه، واعتماد قوائم المهام "
+"المُرسلة أو إعادتها، ومراجعة التقدم وإغلاق قوائم المهام المكتملة."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_activity_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_modification_wizard_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_unlock_wizard_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Capacity"
+msgstr "السعة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_pivot
+msgid "Capacity & Idle Hours"
+msgstr "السعة وساعات الخمول"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__is_carried_forward
+msgid "Carried Forward"
+msgstr "مُرحّل"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__closed
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__task_status__closed
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__closed
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#, python-format
+msgid "Closed"
+msgstr "مغلقة"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_dash_closed
+#: model:ir.ui.menu,name:employee_task_management.menu_dash_closed
+msgid "Closed Tasks"
+msgstr "المهام المغلقة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Closed task lists cannot be unlocked."
+msgstr "لا يمكن إلغاء قفل قوائم المهام المغلقة."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__color
+msgid "Color Index"
+msgstr "مؤشر اللون"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__company_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__company_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__company_id
+msgid "Company"
+msgstr "الشركة"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__completed
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__task_status__completed
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__completed
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_search_report
+msgid "Completed"
+msgstr "مكتملة"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.ui.menu,name:employee_task_management.menu_dash_completed
+#, python-format
+msgid "Completed (Not Closed)"
+msgstr "مكتملة (غير مغلقة)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__subtask_done_count
+msgid "Completed Activities"
+msgstr "الأنشطة المكتملة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Completed After the Planned Date"
+msgstr "مكتملة بعد التاريخ المخطط"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_task_list_completed
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists_completed
+msgid "Completed Tasks"
+msgstr "المهام المكتملة"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_dash_completed
+msgid "Completed Tasks (not closed)"
+msgstr "المهام المكتملة (غير مغلقة)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__completion_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__completion_date
+msgid "Completion Date"
+msgstr "تاريخ الإكمال"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__completion_notes
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Completion Notes"
+msgstr "ملاحظات الإكمال"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_report_completion
+#: model:ir.ui.menu,name:employee_task_management.menu_report_completion
+msgid "Completion Report"
+msgstr "تقرير الإكمال"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_task_configuration
+msgid "Configuration"
+msgstr "الإعدادات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__activity_update_log
+msgid "Consolidated log of activities updated against task lines"
+msgstr "سجل موحد للأنشطة التي تم تحديثها ضمن بنود المهام"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_all
+msgid ""
+"Create a task list, submit it to your manager for approval, then track "
+"execution until closure."
+msgstr ""
+"أنشئ قائمة مهام، وأرسلها إلى مديرك لاعتمادها، ثم تابع تنفيذها حتى الإغلاق."
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_all
+msgid "Create your first task list"
+msgstr "أنشئ قائمة مهامك الأولى"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_my
+msgid "Create your own task list and submit it to your manager."
+msgstr "أنشئ قائمة مهامك الخاصة وأرسلها إلى مديرك."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_tree
+msgid "Created By"
+msgstr "أنشئ بواسطة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Created and assigned by manager %s"
+msgstr "تم إنشاؤها وتعيينها بواسطة المدير %s"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__create_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__create_uid
+msgid "Created by"
+msgstr "أنشأ بواسطة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__create_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__create_date
+msgid "Created on"
+msgstr "أنشئ في"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_task_dashboard
+msgid "Dashboard"
+msgstr "لوحة المعلومات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__date
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__action_datetime
+msgid "Date and Time"
+msgstr "التاريخ والوقت"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__assign_date
+msgid ""
+"Date on which the task list is raised. Filled in automatically when the "
+"record is created and not editable - the working dates of each task are its "
+"Start Date and End Date on the task lines."
+msgstr ""
+"التاريخ الذي تم فيه إنشاء قائمة المهام. يتم تعبئته تلقائيًا عند إنشاء "
+"السجل ولا يمكن تعديله - تواريخ العمل لكل مهمة هي تاريخ البدء وتاريخ "
+"الانتهاء في بنود المهام."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__completion_date
+msgid ""
+"Date the task list was actually marked Completed. Stamped automatically - "
+"this is when the work genuinely finished, not the planned End Date on any "
+"task line."
+msgstr ""
+"التاريخ الذي تم فيه وضع علامة مكتملة على قائمة المهام فعليًا. يتم تسجيله "
+"تلقائيًا - هذا هو الوقت الذي انتهى فيه العمل فعليًا، وليس تاريخ الانتهاء "
+"المخطط له في أي بند من بنود المهام."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__completion_date
+msgid ""
+"Date this task's activities reached 100%% and it was marked Completed. "
+"Cleared automatically if it drops back below 100%% (e.g. an activity gets "
+"un-ticked). Used to measure how many working days late it finished."
+msgstr ""
+"التاريخ الذي وصلت فيه أنشطة هذه المهمة إلى 100%% وتم وضع علامة مكتملة عليها. "
+"يتم مسحه تلقائيًا إذا انخفضت النسبة مرة أخرى إلى أقل من 100%% (على سبيل "
+"المثال، عند إلغاء تحديد نشاط). يُستخدم لقياس عدد أيام العمل التي تأخر فيها "
+"الإكمال."
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__is_delayed
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__is_delayed
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_kanban
+#, python-format
+msgid "Delayed"
+msgstr "متأخر"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__delayed_days
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__delayed_days
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_tree
+msgid "Delayed (Days)"
+msgstr "متأخر (بالأيام)"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_report_overdue
+#: model:ir.ui.menu,name:employee_task_management.menu_report_overdue
+msgid "Delayed Task Report"
+msgstr "تقرير المهام المتأخرة"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_dash_overdue
+#: model:ir.ui.menu,name:employee_task_management.menu_dash_overdue
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Delayed Tasks"
+msgstr "المهام المتأخرة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__department_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__department_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__department_id
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_search_report
+#, python-format
+msgid "Department"
+msgstr "القسم"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_report_department
+#: model:ir.ui.menu,name:employee_task_management.menu_report_department
+msgid "Department-Wise Task Report"
+msgstr "تقرير المهام حسب القسم"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_list_graph_department
+msgid "Department-Wise Tasks"
+msgstr "المهام حسب القسم"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_config_departments
+msgid "Departments"
+msgstr "الأقسام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__description
+msgid "Description"
+msgstr "الوصف"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Description is mandatory for every task line."
+msgstr "الوصف إلزامي لكل بند من بنود المهام."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Discard"
+msgstr "تجاهل"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__display_name
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__is_done
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Done"
+msgstr "تم"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__task_status__draft
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_subtask__can_review
+msgid "Drives the tick / cross buttons on the activity row."
+msgstr "يتحكم في أزرار علامة الصح / علامة الخطأ في صف النشاط."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__employee_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__employee_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__employee_id
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__approval_level__employee
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_search_report
+#, python-format
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Employee %(emp)s submitted task list %(name)s for work due today, so it has "
+"gone straight to In Progress. Please accept or reject it."
+msgstr ""
+"قام الموظف %(emp)s بإرسال قائمة المهام %(name)s للعمل المستحق اليوم، لذلك "
+"انتقلت مباشرة إلى قيد التنفيذ. يرجى قبولها أو رفضها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Employee %s has accepted task list %s. It is now applicable."
+msgstr "قام الموظف %s بقبول قائمة المهام %s. وأصبحت الآن سارية."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Employee %s has marked task list %s as completed. Please review and close "
+"it."
+msgstr ""
+"قام الموظف %s بوضع علامة مكتملة على قائمة المهام %s. يرجى مراجعتها وإغلاقها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_modification_wizard.py:0
+#, python-format
+msgid ""
+"Employee %s has requested a modification on task list %s.\n"
+"\n"
+"Request: %s\n"
+"\n"
+"If this request is not handled before the task start date, the task list will be assigned to the employee automatically."
+msgstr ""
+"طلب الموظف %s تعديلًا على قائمة المهام %s.\n"
+"\n"
+"الطلب: %s\n"
+"\n"
+"إذا لم تتم معالجة هذا الطلب قبل تاريخ بدء المهمة، فسيتم تعيين قائمة المهام للموظف تلقائيًا."
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_idle_day
+msgid "Employee Daily Capacity / Idle Hours"
+msgstr "السعة اليومية للموظف / ساعات الخمول"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_employee_capacity
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_tree
+msgid "Employee Hours"
+msgstr "ساعات الموظف"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_idle_hours
+msgid "Employee Hours & Idle Hours"
+msgstr "ساعات الموظف وساعات الخمول"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Employee Information"
+msgstr "معلومات الموظف"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__needs_employee_planning
+msgid "Employee Must Plan This"
+msgstr "يجب على الموظف التخطيط لهذا"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_subtask
+msgid "Employee Task Activity"
+msgstr "نشاط مهمة الموظف"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_approval_history
+msgid "Employee Task Approval History"
+msgstr "سجل اعتماد مهام الموظف"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_employee_task_pending_my_action
+#: model:ir.ui.menu,name:employee_task_management.menu_employee_task_pending_my_action
+msgid "Employee Task Approvals"
+msgstr "اعتمادات مهام الموظفين"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_line
+msgid "Employee Task Line"
+msgstr "بند مهمة الموظف"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_list
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Employee Task List"
+msgstr "قائمة مهام الموظف"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.module.category,name:employee_task_management.module_category_employee_task
+#: model:ir.ui.menu,name:employee_task_management.menu_employee_task_root
+#, python-format
+msgid "Employee Task Management"
+msgstr "إدارة مهام الموظفين"
+
+#. module: employee_task_management
+#: model:ir.actions.server,name:employee_task_management.ir_cron_auto_apply_modification_ir_actions_server
+msgid ""
+"Employee Task Management: Auto-assign task lists whose start date has "
+"arrived"
+msgstr ""
+"إدارة مهام الموظفين: تعيين قوائم المهام التي حان تاريخ بدئها تلقائيًا"
+
+#. module: employee_task_management
+#: model:ir.actions.server,name:employee_task_management.ir_cron_refresh_idle_hours_ir_actions_server
+msgid "Employee Task Management: Refresh Employee Idle Hours"
+msgstr "إدارة مهام الموظفين: تحديث ساعات خمول الموظفين"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_report_employee_summary
+#: model:ir.ui.menu,name:employee_task_management.menu_report_employee_summary
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_graph_report
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_pivot_report
+msgid "Employee Task Summary"
+msgstr "ملخص مهام الموظفين"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_task_list_employee_tasks
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists_employee_tasks
+msgid "Employee Tasks"
+msgstr "مهام الموظفين"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Employee and Manager cannot be the same person."
+msgstr "لا يمكن أن يكون الموظف والمدير الشخص نفسه."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__employee_id
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__employee_id
+msgid "Employee the task list belongs to"
+msgstr "الموظف الذي تنتمي إليه قائمة المهام"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_list_graph_employee
+msgid "Employee-Wise Completion"
+msgstr "الإكمال حسب الموظف"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_config_employees
+msgid "Employees"
+msgstr "الموظفون"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__end_date
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid "End Date (%s) should not be earlier than Start Date (%s) for task: %s"
+msgstr "يجب ألا يكون تاريخ الانتهاء (%s) أسبق من تاريخ البدء (%s) للمهمة: %s"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Every task must have at least one activity before the task list can be saved.\n"
+"\n"
+"Use the Activities button on the task line to add them - or remove the task if you no longer need it.\n"
+"\n"
+"Tasks without any activity:\n"
+"%s"
+msgstr ""
+"يجب أن تحتوي كل مهمة على نشاط واحد على الأقل قبل أن يتم حفظ قائمة المهام.\n"
+"\n"
+"استخدم زر الأنشطة في بند المهمة لإضافتها - أو احذف المهمة إذا لم تعد بحاجة إليها.\n"
+"\n"
+"المهام التي لا تحتوي على أي نشاط:\n"
+"%s"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_modification_wizard__modification_reason
+msgid ""
+"Explain what has to change - dates, hours, scope - so the manager can adjust"
+" the task list."
+msgstr ""
+"اشرح ما الذي يجب تغييره - التواريخ، الساعات، النطاق - حتى يتمكن المدير من تعديل"
+" قائمة المهام."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line_reject_wizard__reason
+msgid ""
+"Explain what is wrong with this task. The employee sees this when the task "
+"is carried into their next task list."
+msgstr ""
+"اشرح ما الخطأ في هذه المهمة. سيرى الموظف ذلك عند ترحيل المهمة إلى قائمة مهامه التالية."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_return_wizard_form
+msgid "Explain what needs to be corrected... (mandatory)"
+msgstr "اشرح ما الذي يحتاج إلى تصحيح... (إلزامي)"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_reject_wizard_form
+msgid "Explain why the completed work is not accepted..."
+msgstr "اشرح سبب عدم قبول العمل المكتمل..."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_follower_ids
+msgid "Followers"
+msgstr "المتابعون"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "المتابعون (جهات الاتصال)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة Font Awesome، مثل fa-tasks"
+
+#. module: employee_task_management
+#: model:res.groups,comment:employee_task_management.group_task_admin
+msgid "Full access to all task lists, configuration and exceptional edits."
+msgstr "وصول كامل إلى جميع قوائم المهام والإعدادات والتعديلات الاستثنائية."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Fully Booked"
+msgstr "محجوزة بالكامل"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_approval_history_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_search_report
+msgid "Group By"
+msgstr "تجميع حسب"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__has_subtasks
+msgid "Has Activities"
+msgstr "يحتوي على أنشطة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__has_idle
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Has Idle Time"
+msgstr "لديه وقت خمول"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__has_message
+msgid "Has Message"
+msgstr "يحتوي على رسالة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Has Rejected Hours"
+msgstr "لديه ساعات مرفوضة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__total_hours
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__hours
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Hours"
+msgstr "الساعات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__can_edit_hours
+msgid "Hours Editable"
+msgstr "الساعات قابلة للتعديل"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid ""
+"Hours are mandatory for every activity and must be greater than 0.\n"
+"\n"
+"Activity: %s"
+msgstr ""
+"الساعات إلزامية لكل نشاط ويجب أن تكون أكبر من 0.\n"
+"\n"
+"النشاط: %s"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Hours are mandatory on every activity of task "%s"."
+msgstr "الساعات إلزامية لكل نشاط من أنشطة المهمة "%s"."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid ""
+"Hours are mandatory on every activity. Plan all the activities\n"
+"                        now - once the task list is approved or accepted, activities can\n"
+"                        no longer be added, renamed or re-costed, only ticked off."
+msgstr ""
+"الساعات إلزامية لكل نشاط. خطط لجميع الأنشطة\n"
+"                        الآن - بمجرد اعتماد قائمة المهام أو قبولها، لا يمكن\n"
+"                        بعد ذلك إضافة الأنشطة أو إعادة تسميتها أو إعادة تحديد تكلفتها، وإنما يمكن فقط تحديدها كمكتملة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid ""
+"Hours changed on activity <b>%(activity)s</b> (task: %(task)s): %(old)s "
+"→ %(new)s"
+msgstr ""
+"تم تغيير الساعات في النشاط <b>%(activity)s</b> (المهمة: %(task)s): %(old)s "
+"→ %(new)s"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__allocated_hours
+msgid ""
+"Hours committed to tasks across ALL of this employee's task lists for this "
+"day. Equals Approved + Rejected + Pending."
+msgstr ""
+"الساعات المخصصة للمهام عبر جميع قوائم مهام هذا الموظف لهذا اليوم. تساوي المعتمدة + المرفوضة + قيد الانتظار."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_subtask__hours
+msgid ""
+"Hours estimated / spent on this activity. Mandatory - enforced by "
+"_check_hours and by required="1" in the view. Deliberately NOT required at"
+" field level, so upgrading an existing database can never fail on a NOT NULL"
+" alter."
+msgstr ""
+"الساعات المقدرة / المستغرقة في هذا النشاط. إلزامية - يتم فرضها بواسطة "
+"_check_hours وبواسطة required="1" في العرض. ليست مطلوبة عمدًا على مستوى"
+" الحقل، حتى لا يفشل ترقية قاعدة بيانات موجودة أبدًا بسبب تعديل NOT NULL."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_subtask__can_edit_hours
+msgid ""
+"Hours stay editable for a Manager / Administrator while the task list is "
+"running, so an estimate can be corrected without unwinding the whole "
+"workflow."
+msgstr ""
+"تظل الساعات قابلة للتعديل للمدير / المسؤول أثناء تشغيل قائمة المهام، بحيث يمكن تصحيح التقدير دون التراجع عن سير العمل بالكامل."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__capacity_hours
+msgid "Hours this employee is expected to work on this day."
+msgstr "الساعات التي يُتوقع أن يعملها هذا الموظف في هذا اليوم."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__notify_count
+msgid "How many idle-hour reminders the employee has been sent for this day."
+msgstr "عدد تذكيرات ساعات الخمول التي تم إرسالها إلى الموظف لهذا اليوم."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__id
+msgid "ID"
+msgstr "المعرّف"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_exception_icon
+msgid "Icon"
+msgstr "الأيقونة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "أيقونة للإشارة إلى نشاط استثنائي."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_tree
+msgid "Idle"
+msgstr "خمول"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__idle_hours
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_graph
+#, python-format
+msgid "Idle Hours"
+msgstr "ساعات الخمول"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_idle_day.py:0
+#, python-format
+msgid "Idle Hours Remaining Today"
+msgstr "ساعات الخمول المتبقية اليوم"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "إذا تم تحديده، فإن الرسائل الجديدة تتطلب انتباهك."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__message_has_error
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا تم تحديده، فإن بعض الرسائل بها خطأ في التسليم."
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__approval_level__manager
+msgid "Immediate Manager"
+msgstr "المدير المباشر"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__manager_id
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__manager_id
+msgid "Immediate manager of employee"
+msgstr "المدير المباشر للموظف"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__task_status__in_progress
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__in_progress
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_search_report
+#, python-format
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_dash_in_progress
+#: model:ir.ui.menu,name:employee_task_management.menu_dash_in_progress
+msgid "In Progress Tasks"
+msgstr "المهام قيد التنفيذ"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__is_current_user_employee
+msgid "Is Current User The Employee"
+msgstr "هل المستخدم الحالي هو الموظف"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__is_current_user_manager
+msgid "Is Current User The Manager"
+msgstr "هل المستخدم الحالي هو المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_is_follower
+msgid "Is Follower"
+msgstr "هل هو متابع"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Last 7 Days"
+msgstr "آخر 7 أيام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__last_notified_on
+msgid "Last Reminder"
+msgstr "آخر تذكير"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_tree
+msgid "Last Updated"
+msgstr "آخر تحديث"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__write_uid
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__write_date
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__was_delayed
+msgid ""
+"Latched. Set once the task list actually ran late and never cleared, so the "
+"delay is still visible after the work is completed and closed. is_delayed "
+"only reflects the live situation and goes False the moment the work "
+"finishes."
+msgstr ""
+"مثبّت. يتم تعيينه بمجرد أن تتأخر قائمة المهام فعليًا ولا يتم مسحه أبدًا، بحيث "
+"يظل التأخير ظاهرًا بعد اكتمال العمل وإغلاقه. يعكس is_delayed الوضع الحالي فقط "
+"ويصبح False في اللحظة التي ينتهي فيها العمل."
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#, python-format
+msgid "List (current view)"
+msgstr "القائمة (العرض الحالي)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__state
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__state
+msgid "List Status"
+msgstr "حالة القائمة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Manage Activities"
+msgstr "إدارة الأنشطة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__manager_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__manager_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__manager_id
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+#, python-format
+msgid "Manager"
+msgstr "المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__manager_approved
+msgid "Manager Approved"
+msgstr "اعتماد المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__manager_remarks
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Manager Remarks"
+msgstr "ملاحظات المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__manager_verdict
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__manager_verdict
+msgid "Manager Verdict"
+msgstr "قرار المدير"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Manager remarks..."
+msgstr "ملاحظات المدير..."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_reject_wizard__reject_reason
+msgid ""
+"Mandatory. Explains to the employee why the completed work was not accepted."
+msgstr ""
+"إلزامي. يوضح للموظف سبب عدم قبول العمل المكتمل."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#, python-format
+msgid "Mark Completed"
+msgstr "تحديد كمكتملة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_has_error
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسالة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_ids
+msgid "Messages"
+msgstr "الرسائل"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__modification_reason
+msgid "Modification Request"
+msgstr "طلب تعديل"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_modification_wizard.py:0
+#, python-format
+msgid "Modification Request Sent"
+msgstr "تم إرسال طلب التعديل"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__modification_requested
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__modification_requested
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Modification Requested"
+msgstr "تم طلب التعديل"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_modification_request
+msgid "Modification Requested - {{ object.name }}"
+msgstr "تم طلب التعديل - {{ object.name }}"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Modification Requested by Employee"
+msgstr "تم طلب التعديل بواسطة الموظف"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_modification_wizard.py:0
+#, python-format
+msgid "Modification Requested on Task List"
+msgstr "تم طلب التعديل على قائمة المهام"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__resent
+msgid "Modified & Re-sent to Employee"
+msgstr "تم التعديل وإعادة الإرسال إلى الموظف"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Modified and re-sent by %s"
+msgstr "تم التعديل وإعادة الإرسال بواسطة %s"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Modify & Re-send"
+msgstr "تعديل وإعادة الإرسال"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__pending_since
+msgid ""
+"Moment the task list entered its current waiting state. The auto-apply rules"
+" measure one full working day from here (Sat-Thu, 08:00-17:00, Asia/Riyadh "
+"by default)."
+msgstr ""
+"اللحظة التي دخلت فيها قائمة المهام حالة الانتظار الحالية. تقيس قواعد التطبيق "
+"التلقائي يوم عمل كاملًا واحدًا من هذه اللحظة (السبت-الخميس، 08:00-17:00، "
+"Asia/Riyadh افتراضيًا)."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Month"
+msgstr "الشهر"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_list_graph_monthly
+msgid "Monthly Task Completion Trend"
+msgstr "الاتجاه الشهري لإنجاز المهام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطي"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_my_hours
+#: model:ir.ui.menu,name:employee_task_management.menu_my_hours
+msgid "My Hours"
+msgstr "ساعاتي"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "My Task Lists"
+msgstr "قوائم مهامي"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_task_list_my
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists_my
+msgid "My Tasks"
+msgstr "مهامي"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "My Team (as Manager)"
+msgstr "فريقي (بصفتي مديرًا)"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "New"
+msgstr "جديد"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "New Task List Assigned - Acceptance Required"
+msgstr "تم تعيين قائمة مهام جديدة - يتطلب القبول"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_assigned
+msgid "New Task List Assigned - {{ object.name }}"
+msgstr "تم تعيين قائمة مهام جديدة - {{ object.name }}"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "حدث تقويم النشاط التالي"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_summary
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_type_id
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "No Reminder Yet"
+msgstr "لا يوجد تذكير بعد"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "No activities logged yet."
+msgstr "لم يتم تسجيل أي أنشطة بعد."
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_approved
+msgid "No approved task lists"
+msgstr "لا توجد قوائم مهام معتمدة"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_idle_hours
+msgid "No capacity rows yet"
+msgstr "لا توجد صفوف سعة بعد"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_completed
+msgid "No completed task lists yet"
+msgstr "لا توجد قوائم مهام مكتملة بعد"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_dashboard
+msgid "No data yet"
+msgstr "لا توجد بيانات بعد"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_employee_task_pending_my_action
+msgid "No employee task is waiting for your action."
+msgstr "لا توجد مهمة موظف بانتظار إجراء منك."
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_employee_tasks
+msgid "No task lists from your team yet"
+msgstr "لا توجد قوائم مهام من فريقك بعد"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_my
+msgid "No task lists yet"
+msgstr "لا توجد قوائم مهام بعد"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Not enough capacity on %(day)s.\n"
+"\n"
+"Employee: %(emp)s\n"
+"Task: %(task)s\n"
+"\n"
+"Daily capacity: %(cap)s\n"
+"Already consumed on other tasks: %(others)s\n"
+"Still available today: %(avail)s\n"
+"This task needs: %(needs)s\n"
+"\n"
+"What you can do:\n"
+"  - Reduce the activity hours to %(avail)s or less.\n"
+"  - Move this task to a day with available capacity.\n"
+"  - Spread it over more days by extending the End Date, which will distribute the hours across those days.\n"
+"\n"
+"Note: Hours already spent on that day are counted even if the manager rejected the work. Rejected work may be redone on subsequent days, but not on the same day it is rejected."
+msgstr ""
+"السعة غير كافية في %(day)s.\n"
+"\n"
+"الموظف: %(emp)s\n"
+"المهمة: %(task)s\n"
+"\n"
+"السعة اليومية: %(cap)s\n"
+"المستهلك بالفعل في مهام أخرى: %(others)s\n"
+"المتاح اليوم: %(avail)s\n"
+"احتياجات هذه المهمة: %(needs)s\n"
+"\n"
+"ما يمكنك فعله:\n"
+"  - قلّل ساعات النشاط إلى %(avail)s أو أقل.\n"
+"  - انقل هذه المهمة إلى يوم تتوفر فيه سعة.\n"
+"  - وزّعها على أيام أكثر من خلال تمديد تاريخ الانتهاء، مما سيؤدي إلى توزيع الساعات على تلك الأيام.\n"
+"\n"
+"ملاحظة: يتم احتساب الساعات التي تم قضاؤها بالفعل في ذلك اليوم حتى إذا رفض المدير العمل. يمكن إعادة تنفيذ العمل المرفوض في الأيام اللاحقة، ولكن ليس في اليوم نفسه الذي تم رفضه فيه."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Notes entered at completion time..."
+msgstr "ملاحظات تم إدخالها عند وقت الإكمال..."
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_pending
+msgid "Nothing pending approval"
+msgstr "لا يوجد شيء بانتظار الاعتماد"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_acceptance
+msgid "Nothing waiting for acceptance"
+msgstr "لا يوجد شيء بانتظار القبول"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_needaction_counter
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__task_count
+msgid "Number of Tasks"
+msgstr "عدد المهام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_has_error_counter
+msgid "Number of errors"
+msgstr "عدد الأخطاء"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب إجراءً"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل التي بها خطأ في التسليم"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only %s can perform this action on task list %s."
+msgstr "يمكن لـ %s فقط تنفيذ هذا الإجراء على قائمة المهام %s."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only Draft task lists can be assigned to an employee."
+msgstr "يمكن تعيين قوائم المهام التي تكون في حالة مسودة فقط إلى موظف."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only Draft task lists can be deleted. "%s" is in %s state."
+msgstr "يمكن حذف قوائم المهام التي تكون في حالة مسودة فقط. "%s" في حالة %s."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid "Only a Manager or Administrator can approve or reject a task."
+msgstr "يمكن للمدير أو المسؤول فقط اعتماد المهمة أو رفضها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only a Manager or Administrator can assign a task list to an employee."
+msgstr "يمكن للمدير أو المسؤول فقط تعيين قائمة مهام إلى موظف."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Only a Manager or Administrator can submit an unlocked task list back to the"
+" employee."
+msgstr ""
+"يمكن للمدير أو المسؤول فقط إعادة إرسال قائمة المهام غير المقفلة إلى الموظف."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_return_wizard.py:0
+#, python-format
+msgid ""
+"Only a task list in "Submitted to Manager" status can be returned for "
+"correction."
+msgstr ""
+"يمكن إعادة قائمة المهام التي تكون في حالة "مقدمة إلى المدير" فقط للتصحيح."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_reject_wizard.py:0
+#, python-format
+msgid ""
+"Only a task list marked as Completed - or one that started without approval "
+"- can be rejected."
+msgstr ""
+"يمكن رفض قائمة المهام المحددة كمكتملة فقط - أو التي بدأت دون اعتماد."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Only a task list that is In Progress (or returned after completion) can be "
+"marked as completed."
+msgstr ""
+"يمكن تحديد قائمة المهام التي تكون قيد التنفيذ فقط (أو التي أُعيدت بعد الإكمال) كمكتملة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Only a task list the employee marked as Completed - or one that started "
+"without approval - can be rejected."
+msgstr ""
+"يمكن رفض قائمة المهام التي حددها الموظف كمكتملة فقط - أو التي بدأت دون اعتماد."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only a task list waiting for your acceptance can be accepted."
+msgstr "يمكن قبول قائمة المهام التي تنتظر قبولك فقط."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Only a task list with a pending modification request can be re-sent to the "
+"employee."
+msgstr ""
+"يمكن إعادة إرسال قائمة المهام التي لديها طلب تعديل قيد الانتظار فقط إلى الموظف."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Only authorized users (Manager / Administrator) can approve or reject task "
+"lists."
+msgstr ""
+"يمكن للمستخدمين المصرح لهم فقط (المدير / المسؤول) اعتماد قوائم المهام أو رفضها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only completed task lists can be closed."
+msgstr "يمكن إغلاق قوائم المهام المكتملة فقط."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only task lists in "Submitted to Manager" state can be approved."
+msgstr "يمكن اعتماد قوائم المهام التي تكون في حالة "مقدمة إلى المدير" فقط."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Only the immediate manager (%s) can approve or return this task list."
+msgstr "يمكن للمدير المباشر (%s) فقط اعتماد قائمة المهام هذه أو إعادتها."
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#, python-format
+msgid "Open Graph view"
+msgstr "فتح عرض الرسم البياني"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#, python-format
+msgid "Open Kanban view"
+msgstr "فتح عرض كانبان"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_activity_reject_wizard_form
+msgid "Optional - what was wrong with this activity?"
+msgstr "اختياري - ما الخطأ في هذا النشاط؟"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_subtask__verdict_reason
+msgid ""
+"Optional note explaining why this activity was refused. The employee sees it"
+" when the activity is carried into their next task list."
+msgstr ""
+"ملاحظة اختيارية توضح سبب رفض هذا النشاط. يراها الموظف عند ترحيل النشاط إلى قائمة مهامه التالية."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_activity_reject_wizard__reason
+msgid ""
+"Optional. If given, the employee sees it when the activity is carried into "
+"their next task list."
+msgstr ""
+"اختياري. إذا تم إدخاله، يراه الموظف عند ترحيل النشاط إلى قائمة مهامه التالية."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "PEC-TL-2026-00001"
+msgstr "PEC-TL-2026-00001"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__manager_verdict__partial
+msgid "Partially Rejected"
+msgstr "مرفوض جزئيًا"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_tree
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_report_pending_approval
+#: model:ir.ui.menu,name:employee_task_management.menu_report_pending
+msgid "Pending Approval Report"
+msgstr "تقرير الاعتمادات المعلقة"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_task_list_pending
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists_pending
+msgid "Pending Approval Tasks"
+msgstr "المهام بانتظار الاعتماد"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__pending_acceptance
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Pending Employee Acceptance"
+msgstr "بانتظار قبول الموظف"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__pending_hours
+msgid "Pending Hours"
+msgstr "الساعات قيد الانتظار"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.actions.act_window,name:employee_task_management.action_dash_pending
+#: model:ir.ui.menu,name:employee_task_management.menu_dash_pending
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#, python-format
+msgid "Pending Manager Approval"
+msgstr "بانتظار اعتماد المدير"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_task_list_acceptance
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists_acceptance
+msgid "Pending My Acceptance"
+msgstr "بانتظار قبولي"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__manager_verdict__pending
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_subtask__manager_verdict__pending
+msgid "Pending Review"
+msgstr "قيد المراجعة"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#, python-format
+msgid "Please create tasks/activities for the available time."
+msgstr "يرجى إنشاء مهام/أنشطة للوقت المتاح."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_modification_wizard.py:0
+#, python-format
+msgid "Please describe the modification you are requesting."
+msgstr "يرجى وصف التعديل الذي تطلبه."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Please fill the required fields before submitting: %s"
+msgstr "يرجى تعبئة الحقول المطلوبة قبل الإرسال: %s"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__progress
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__progress
+msgid "Progress %"
+msgstr "نسبة التقدم %"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Progress % (auto-calculated from activities)"
+msgstr "نسبة التقدم % (محسوبة تلقائيًا من الأنشطة)"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid "Progress %% must be between 0 and 100."
+msgstr "يجب أن تكون نسبة التقدم %% بين 0 و100."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Progress Updates"
+msgstr "تحديثات التقدم"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Ran Late (incl. finished)"
+msgstr "تأخر (بما في ذلك المكتملة)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__rating_ids
+msgid "Ratings"
+msgstr "التقييمات"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Reason"
+msgstr "السبب"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__modification_reason
+msgid ""
+"Reason given by the employee when requesting a modification to an assigned "
+"task list"
+msgstr ""
+"السبب الذي يقدمه الموظف عند طلب تعديل قائمة المهام المسندة إليه"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__reject_reason
+msgid ""
+"Reason given by the manager when rejecting a completed task list. A rejected"
+" task list is final."
+msgstr ""
+"السبب الذي يقدمه المدير عند رفض قائمة مهام مكتملة. قائمة المهام المرفوضة نهائية."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__return_reason
+msgid "Reason provided by the manager when returning the task list"
+msgstr "السبب الذي يقدمه المدير عند إعادة قائمة المهام"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Reason will appear here if the task list is returned."
+msgstr "سيظهر السبب هنا إذا تمت إعادة قائمة المهام."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Redo"
+msgstr "إعادة التنفيذ"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__carried_from_line_id
+msgid "Redo Of"
+msgstr "إعادة تنفيذ لـ"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#, python-format
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_reject_wizard_form
+msgid "Reject"
+msgstr "رفض"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_activity_reject_wizard_form
+#, python-format
+msgid "Reject Activity"
+msgstr "رفض النشاط"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__reject_reason
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__reject_reason
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Reject Reason"
+msgstr "سبب الرفض"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_reject_wizard_form
+#, python-format
+msgid "Reject Task"
+msgstr "رفض المهمة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_reject_wizard_form
+#, python-format
+msgid "Reject Task List"
+msgstr "رفض قائمة المهام"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_reject_wizard
+msgid "Reject Task List Wizard"
+msgstr "معالج رفض قائمة المهام"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_activity_reject_wizard
+msgid "Reject an Individual Activity"
+msgstr "رفض نشاط فردي"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_line_reject_wizard
+msgid "Reject an Individual Task"
+msgstr "رفض مهمة فردية"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Reject this activity"
+msgstr "رفض هذا النشاط"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Reject this task"
+msgstr "رفض هذه المهمة"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_line__manager_verdict__rejected
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__rejected
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_subtask__manager_verdict__rejected
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_tree
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__rejected_hours
+msgid "Rejected Hours"
+msgstr "الساعات المرفوضة"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__rejected
+msgid "Rejected by Manager"
+msgstr "مرفوض من المدير"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_reject_wizard.py:0
+#, python-format
+msgid "Rejected while in progress. Work already recorded has been kept as-is."
+msgstr "تم الرفض أثناء التنفيذ. تم الاحتفاظ بالعمل المسجل بالفعل كما هو."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_reject_wizard_form
+msgid ""
+"Rejecting is <b>final</b>. The task list will be closed as\n"
+"                    <b>Rejected</b> and cannot be reopened or sent back to the\n"
+"                    employee."
+msgstr ""
+"الرفض <b>نهائي</b>. سيتم إغلاق قائمة المهام باعتبارها\n"
+"                    <b>مرفوضة</b> ولا يمكن إعادة فتحها أو إعادتها إلى\n"
+"                    الموظف."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__reason
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__verdict_reason
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__reason
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__verdict_reason
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__remarks
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__remarks
+msgid "Remarks"
+msgstr "ملاحظات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__manager_remarks
+msgid "Remarks from manager"
+msgstr "ملاحظات من المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__notified
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Reminder Sent"
+msgstr "تم إرسال التذكير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__notified_slots
+msgid "Reminder Slots Done"
+msgstr "خانات التذكير المنجزة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__notify_count
+msgid "Reminders Sent"
+msgstr "التذكيرات المرسلة"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_task_reports
+msgid "Reports"
+msgstr "التقارير"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_modification_wizard_form
+#, python-format
+msgid "Request Modification"
+msgstr "طلب تعديل"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_modification_wizard
+msgid "Request Modification Wizard"
+msgstr "معالج طلب التعديل"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__activity_user_id
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__resubmitted
+msgid "Resubmitted to Employee"
+msgstr "إعادة الإرسال إلى الموظف"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__return_reason
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__return_reason
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Return Reason"
+msgstr "سبب الإعادة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_return_wizard_form
+msgid "Return Task List"
+msgstr "إعادة قائمة المهام"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_return_wizard
+msgid "Return Task List Wizard"
+msgstr "معالج إعادة قائمة المهام"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Return Task List for Correction"
+msgstr "إعادة قائمة المهام للتصحيح"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Return for Correction"
+msgstr "إعادة للتصحيح"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Return for Correction is only available for task lists in \"Submitted to "
+"Manager\" state. A completed task list is either Closed or Rejected."
+msgstr ""
+"إعادة للتصحيح متاحة فقط لقوائم المهام التي تكون في حالة \"مقدمة إلى "
+"المدير\". قائمة المهام المكتملة تكون إما مغلقة أو مرفوضة."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_return_wizard__return_reason
+msgid ""
+"Return remarks are mandatory when a manager returns a task list (Validation "
+"Rule 7)."
+msgstr ""
+"ملاحظات الإعادة إلزامية عندما يقوم المدير بإعادة قائمة المهام (قاعدة التحقق 7)."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_return_wizard.py:0
+#, python-format
+msgid "Return remarks are mandatory when returning a task list."
+msgstr "ملاحظات الإعادة إلزامية عند إعادة قائمة المهام."
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__returned
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_approval_history_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Returned"
+msgstr "تمت الإعادة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Returned Task Lists"
+msgstr "قوائم المهام المعادة"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__returned_completed
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Returned after Completion"
+msgstr "تمت الإعادة بعد الإكمال"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__returned_manager
+msgid "Returned by Manager"
+msgstr "تمت الإعادة من المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__returned_after_completion
+msgid "Returned by Manager after Completion"
+msgstr "تمت الإعادة من المدير بعد الإكمال"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__can_review
+msgid "Reviewable"
+msgstr "قابل للمراجعة"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_idle_hours
+msgid ""
+"Rows are built by the scheduled action\n"
+"                \"Refresh Employee Idle Hours\". Run it once from\n"
+"                Settings &gt; Technical &gt; Scheduled Actions to\n"
+"                populate them immediately."
+msgstr ""
+"يتم إنشاء الصفوف بواسطة الإجراء المجدول\n"
+"                \"تحديث ساعات خمول الموظفين\". قم بتشغيله مرة واحدة من\n"
+"                الإعدادات &gt; تقني &gt; الإجراءات المجدولة لتعبئتها\n"
+"                فورًا."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Save & Close"
+msgstr "حفظ وإغلاق"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Search Task Lists"
+msgstr "البحث في قوائم المهام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__allowed_department_ids
+msgid "Selectable Departments"
+msgstr "الأقسام القابلة للاختيار"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__allowed_employee_ids
+msgid "Selectable Employees"
+msgstr "الموظفون القابلون للاختيار"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_modification_wizard_form
+msgid "Send Request"
+msgstr "إرسال الطلب"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__sequence
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__sequence
+msgid "Sequence"
+msgstr "التسلسل"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_config_sequences
+msgid "Sequences"
+msgstr "التسلسلات"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__sr_no
+msgid "Serial number of task line"
+msgstr "الرقم التسلسلي لسطر المهمة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__manager_verdict
+msgid ""
+"Set by the manager while reviewing a Completed task list, one task at a "
+"time. Left at Pending Review, a task counts as approved when the manager "
+"closes the whole list."
+msgstr ""
+"يحدده المدير أثناء مراجعة قائمة مهام مكتملة، مهمة واحدة في كل مرة. إذا تُركت "
+"المهمة في حالة قيد المراجعة، فتُحتسب كمُعتمدة عند إغلاق المدير للقائمة بأكملها."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_subtask__manager_verdict
+msgid ""
+"Set by the manager while reviewing the task list. An activity left at "
+"Pending Review inherits its task's verdict, which is what keeps figures "
+"recorded before activity-level review was introduced intact."
+msgstr ""
+"يحدده المدير أثناء مراجعة قائمة المهام. يرث النشاط المتروك في حالة قيد المراجعة "
+"حكم مهمته، وهو ما يحافظ على الأرقام المسجلة قبل إدخال المراجعة على مستوى النشاط كما هي."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__is_unlocked
+msgid ""
+"Set when a manager/admin unlocks a closed task list for exceptional edits. "
+"Cleared when the record is closed again."
+msgstr ""
+"يتم تعيينه عندما يقوم المدير/المسؤول بإلغاء قفل قائمة مهام مغلقة لإجراء تعديلات "
+"استثنائية. يتم مسحه عند إغلاق السجل مرة أخرى."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__has_task_without_activity
+msgid "Some Task Has No Activity"
+msgstr "بعض المهام ليس لها نشاط"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid ""
+"Some tasks still have <b>no activity</b>. Use the\n"
+"                        <b>Activities</b> button on the task line to add at least one\n"
+"                        activity with its hours. A task list cannot be submitted to the\n"
+"                        manager, nor marked completed, while a task has no activity."
+msgstr ""
+"لا تزال بعض المهام <b>بدون نشاط</b>. استخدم زر\n"
+"                        <b>الأنشطة</b> في سطر المهمة لإضافة نشاط واحد على الأقل\n"
+"                        مع ساعاته. لا يمكن إرسال قائمة المهام إلى\n"
+"                        المدير، ولا تحديدها كمكتملة، طالما أن هناك مهمة بدون نشاط."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__sr_no
+msgid "Sr. No"
+msgstr "الرقم التسلسلي"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__start_date
+msgid "Start Date"
+msgstr "تاريخ البدء"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#, python-format
+msgid "Start Work"
+msgstr "بدء العمل"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Start date had already arrived, so work began immediately without waiting "
+"for approval."
+msgstr ""
+"كان تاريخ البدء قد حان بالفعل، لذا بدأ العمل فورًا دون انتظار الاعتماد."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Start date reached while the task list was still in \"%s\" - assigned to the"
+" employee automatically."
+msgstr ""
+"حل تاريخ البدء بينما كانت قائمة المهام لا تزال في حالة \"%s\" - وتم إسنادها إلى"
+" الموظف تلقائيًا."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__started_without_approval
+msgid "Started Without Approval"
+msgstr "بدأت دون اعتماد"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__state
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__state
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_search_report
+msgid "Status"
+msgstr "الحالة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"الحالة بناءً على الأنشطة\n"
+"متأخر: تاريخ الاستحقاق قد مضى بالفعل\n"
+"اليوم: تاريخ النشاط هو اليوم\n"
+"مخطط: الأنشطة المستقبلية."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__has_idle
+msgid "Stored so the manager can filter on it directly."
+msgstr "يتم تخزينه حتى يتمكن المدير من التصفية بناءً عليه مباشرةً."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#, python-format
+msgid "Submit Activities for Review"
+msgstr "إرسال الأنشطة للمراجعة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Submit to Employee is only available right after unlocking a closed task "
+"list."
+msgstr ""
+"الإرسال إلى الموظف متاح فقط مباشرة بعد إلغاء قفل قائمة مهام مغلقة."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Submit to Manager"
+msgstr "إرسال إلى المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__submitted
+msgid "Submitted"
+msgstr "تم الإرسال"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_list__state__submitted_manager
+msgid "Submitted to Manager"
+msgstr "مقدمة إلى المدير"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__total_hours
+msgid "Sum of hours logged across this task's activities"
+msgstr "مجموع الساعات المسجلة عبر أنشطة هذه المهمة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Supporting files, site photos, drawings and work progress documents."
+msgstr "الملفات الداعمة، وصور الموقع، والرسومات، ومستندات تقدم العمل."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__attachment_ids
+msgid "Supporting files, site photos, drawings, work progress documents"
+msgstr "الملفات الداعمة، وصور الموقع، والرسومات، ومستندات تقدم العمل"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line_reject_wizard__task_line_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__task_line_id
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Task"
+msgstr "المهمة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task \"%(task)s\" does not fit in its own dates.\n"
+"\n"
+"Planned: %(start)s to %(end)s (%(days)s working day(s), %(capacity)s of capacity)\n"
+"Activities add up to: %(total)s\n"
+"\n"
+"Extend the End Date or reduce the activity hours."
+msgstr ""
+"المهمة \"%(task)s\" لا تتناسب مع تواريخها المحددة.\n"
+"\n"
+"مخطط: من %(start)s إلى %(end)s (%(days)s يوم/أيام عمل، %(capacity)s من السعة)\n"
+"إجمالي الأنشطة: %(total)s\n"
+"\n"
+"قم بتمديد تاريخ الانتهاء أو قلل ساعات النشاط."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task \"%(task)s\" has an End Date (%(end)s) earlier than its Start Date "
+"(%(start)s)."
+msgstr ""
+"المهمة \"%(task)s\" لها تاريخ انتهاء (%(end)s) أسبق من تاريخ البدء "
+"(%(start)s)."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task \"%(task)s\" is planned from %(start)s to %(end)s, which falls entirely"
+" on non-working days. Move the dates onto working days."
+msgstr ""
+"المهمة \"%(task)s\" مخطط لها من %(start)s إلى %(end)s، وتقع بالكامل"
+" في أيام غير العمل. انقل التواريخ إلى أيام العمل."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task \"%(task)s\" is planned on %(day)s, which is not a working day. Move it"
+" onto a working day."
+msgstr ""
+"المهمة \"%(task)s\" مخطط لها في %(day)s، وهو ليس يوم عمل. انقلها"
+" إلى يوم عمل."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task \"%(task)s\" starts on %(start)s, which is in the past. Please pick %(today)s or a later date.\n"
+"\n"
+"If this task really did start earlier, ask your manager to set it for you."
+msgstr ""
+"تبدأ المهمة \"%(task)s\" في %(start)s، وهو تاريخ في الماضي. يرجى اختيار %(today)s أو تاريخ لاحق.\n"
+"\n"
+"إذا كانت هذه المهمة قد بدأت فعليًا في وقت سابق، فاطلب من مديرك تعيينها لك."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task \"%s\" has no activity. Add the activities before the task list becomes"
+" applicable - once approved, activities can only be ticked off, not added."
+msgstr ""
+"المهمة \"%s\" ليس لها نشاط. أضف الأنشطة قبل أن تصبح قائمة المهام سارية - بمجرد اعتمادها،"
+" يمكن فقط وضع علامة على الأنشطة كمكتملة، وليس إضافتها."
+
+#. module: employee_task_management
+#: model:res.groups,name:employee_task_management.group_task_admin
+msgid "Task Administrator"
+msgstr "مسؤول المهام"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_list_pivot
+msgid "Task Analysis"
+msgstr "تحليل المهام"
+
+#. module: employee_task_management
+#: model:ir.ui.menu,name:employee_task_management.menu_report_task_analytics
+msgid "Task Analytics (Charts)"
+msgstr "تحليلات المهام (المخططات)"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.actions.act_window,name:employee_task_management.action_task_dashboard
+#: model:ir.actions.client,name:employee_task_management.action_task_dashboard_client
+#, python-format
+msgid "Task Dashboard"
+msgstr "لوحة معلومات المهام"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Task Details"
+msgstr "تفاصيل المهمة"
+
+#. module: employee_task_management
+#: model:res.groups,name:employee_task_management.group_task_employee
+msgid "Task Employee"
+msgstr "موظف المهام"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Task Information"
+msgstr "معلومات المهمة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__task_line_ids
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_tree_report
+msgid "Task Lines"
+msgstr "أسطر المهام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__task_list_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__task_list_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_reject_wizard__task_list_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_return_wizard__task_list_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_subtask__task_list_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__task_list_id
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_approval_history_search
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_search_report
+msgid "Task List"
+msgstr "قائمة المهام"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Accepted"
+msgstr "تم قبول قائمة المهام"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_accepted
+msgid "Task List Accepted - {{ object.name }}"
+msgstr "تم قبول قائمة المهام - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Approval Required"
+msgstr "مطلوب اعتماد قائمة المهام"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_submitted
+msgid "Task List Approval Required - {{ object.name }}"
+msgstr "مطلوب اعتماد قائمة المهام - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Approved"
+msgstr "تم اعتماد قائمة المهام"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_approved
+msgid "Task List Approved - {{ object.name }}"
+msgstr "تم اعتماد قائمة المهام - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Auto-Assigned"
+msgstr "تم إسناد قائمة المهام تلقائيًا"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_auto_applied
+msgid "Task List Auto-Assigned - {{ object.name }}"
+msgstr "تم إسناد قائمة المهام تلقائيًا - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Closed"
+msgstr "تم إغلاق قائمة المهام"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_closed
+msgid "Task List Closed - {{ object.name }}"
+msgstr "تم إغلاق قائمة المهام - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Completed - Review Required"
+msgstr "اكتملت قائمة المهام - المراجعة مطلوبة"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_completed
+msgid "Task List Completed - Review Required - {{ object.name }}"
+msgstr "اكتملت قائمة المهام - المراجعة مطلوبة - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Marked Completed"
+msgstr "تم تحديد قائمة المهام كمكتملة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_approval_history__task_list_id
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__name
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_search
+msgid "Task List Reference"
+msgstr "مرجع قائمة المهام"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_tree
+msgid "Task List Reference Number"
+msgstr "رقم مرجع قائمة المهام"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_reject_wizard.py:0
+#: code:addons/employee_task_management/wizard/task_reject_wizard.py:0
+#, python-format
+msgid "Task List Rejected"
+msgstr "تم رفض قائمة المهام"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_rejected
+msgid "Task List Rejected - {{ object.name }}"
+msgstr "تم رفض قائمة المهام - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_return_wizard.py:0
+#: code:addons/employee_task_management/wizard/task_return_wizard.py:0
+#, python-format
+msgid "Task List Returned for Correction"
+msgstr "تمت إعادة قائمة المهام للتصحيح"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_returned
+msgid "Task List Returned for Correction - {{ object.name }}"
+msgstr "تمت إعادة قائمة المهام للتصحيح - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Started - Review Required"
+msgstr "بدأت قائمة المهام - المراجعة مطلوبة"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Updated - Please Accept"
+msgstr "تم تحديث قائمة المهام - يرجى القبول"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_modified
+msgid "Task List Updated - Please Accept - {{ object.name }}"
+msgstr "تم تحديث قائمة المهام - يرجى القبول - {{ object.name }}"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task List Updated - Start Working"
+msgstr "تم تحديث قائمة المهام - ابدأ العمل"
+
+#. module: employee_task_management
+#: model:mail.template,subject:employee_task_management.mail_template_task_resubmitted
+msgid "Task List Updated - {{ object.name }}"
+msgstr "تم تحديث قائمة المهام - {{ object.name }}"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_accepted
+msgid "Task List: Accepted by Employee"
+msgstr "قائمة المهام: تم قبولها من الموظف"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_submitted
+msgid "Task List: Approval Required"
+msgstr "قائمة المهام: الاعتماد مطلوب"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_approved
+msgid "Task List: Approved"
+msgstr "قائمة المهام: معتمدة"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_assigned
+msgid "Task List: Assigned by Manager"
+msgstr "قائمة المهام: مسندة من المدير"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_auto_applied
+msgid "Task List: Auto-Assigned"
+msgstr "قائمة المهام: مسندة تلقائيًا"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_closed
+msgid "Task List: Closed"
+msgstr "قائمة المهام: مغلقة"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_completed
+msgid "Task List: Completed - Review Required"
+msgstr "قائمة المهام: مكتملة - المراجعة مطلوبة"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_modification_request
+msgid "Task List: Modification Requested"
+msgstr "قائمة المهام: تم طلب تعديل"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_modified
+msgid "Task List: Modified - Please Accept"
+msgstr "قائمة المهام: معدلة - يرجى القبول"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_rejected
+msgid "Task List: Rejected"
+msgstr "قائمة المهام: مرفوضة"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_returned
+msgid "Task List: Returned for Correction"
+msgstr "قائمة المهام: معادة للتصحيح"
+
+#. module: employee_task_management
+#: model:mail.template,name:employee_task_management.mail_template_task_resubmitted
+msgid "Task List: Updated - Start Working"
+msgstr "قائمة المهام: محدثة - ابدأ العمل"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.actions.act_window,name:employee_task_management.action_task_list_all
+#: model:ir.ui.menu,name:employee_task_management.menu_task_lists
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_activity
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_tree
+#, python-format
+msgid "Task Lists"
+msgstr "قوائم المهام"
+
+#. module: employee_task_management
+#: model:res.groups,name:employee_task_management.group_task_manager
+msgid "Task Manager"
+msgstr "مدير المهام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__task_status
+msgid "Task Status"
+msgstr "حالة المهمة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_list_graph_pie
+msgid "Task Status Distribution"
+msgstr "توزيع حالات المهام"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task approved by %(user)s except %(count)s previously rejected "
+"activity(ies): %(task)s"
+msgstr ""
+"تم اعتماد المهمة بواسطة %(user)s باستثناء %(count)s من الأنشطة المرفوضة "
+"سابقًا: %(task)s"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid "Task approved by %(user)s: %(task)s"
+msgstr "تم اعتماد المهمة بواسطة %(user)s: %(task)s"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task list \"%s\" has been approved, so the tasks are frozen. Only Remarks "
+"can still be changed here, and activities can only be ticked off as Done."
+msgstr ""
+"تم اعتماد قائمة المهام \"%s\"، لذا تم تجميد المهام. لا يزال من الممكن تغيير "
+"الملاحظات فقط هنا، ويمكن فقط وضع علامة على الأنشطة كمكتملة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_subtask.py:0
+#, python-format
+msgid ""
+"Task list \"%s\" is in \"%s\" status - its activities can no longer be "
+"modified this way."
+msgstr ""
+"قائمة المهام \"%s\" في حالة \"%s\" - لم يعد من الممكن تعديل أنشطتها بهذه الطريقة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid "Task list \"%s\" is in \"%s\" status and can no longer be modified."
+msgstr "قائمة المهام \"%s\" في حالة \"%s\" ولم يعد من الممكن تعديلها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task list \"%s\" is waiting for your manager to action your modification "
+"request - tasks cannot be added or removed until he does."
+msgstr ""
+"قائمة المهام \"%s\" تنتظر من مديرك اتخاذ إجراء بشأن طلب التعديل الخاص بك - لا "
+"يمكن إضافة المهام أو إزالتها حتى يقوم بذلك."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Task list \"%s\" is waiting for your manager to action your modification "
+"request. You cannot change the tasks or dates yourself - your manager will "
+"adjust them, or it will be assigned to you automatically when the start date"
+" arrives."
+msgstr ""
+"قائمة المهام \"%s\" تنتظر من مديرك اتخاذ إجراء بشأن طلب التعديل الخاص بك. لا "
+"يمكنك تغيير المهام أو التواريخ بنفسك - سيقوم مديرك بتعديلها، أو سيتم إسنادها "
+"إليك تلقائيًا عند حلول تاريخ البدء."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list %(name)s was completed on %(today)s, %(days)s working day(s) after"
+" the planned end date (%(planned)s). %(count)s task(s) finished late."
+msgstr ""
+"تم إكمال قائمة المهام %(name)s في %(today)s، بعد %(days)s يوم/أيام عمل من تاريخ "
+"الانتهاء المخطط (%(planned)s). اكتملت %(count)s مهمة/مهام متأخرة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list %s has been created and assigned to you by %s. Please review it "
+"and click \"Accept\" - or \"Request Modification\" if something needs to "
+"change."
+msgstr ""
+"تم إنشاء قائمة المهام %s وإسنادها إليك بواسطة %s. يرجى مراجعتها والنقر على "
+"\"قبول\" - أو \"طلب تعديل\" إذا كان هناك شيء يحتاج إلى تغيير."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_return_wizard.py:0
+#, python-format
+msgid "Task list %s has been returned to %s for correction."
+msgstr "تمت إعادة قائمة المهام %s إلى %s للتصحيح."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list %s has been updated by %s and is ready for you to work on. Please "
+"review the changes and click \"Start Work\"."
+msgstr ""
+"تم تحديث قائمة المهام %s بواسطة %s وهي جاهزة لتعمل عليها. يرجى مراجعة "
+"التغييرات والنقر على \"بدء العمل\"."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list %s has no task. Add the tasks and their activities before it "
+"becomes applicable - once approved, tasks and activities are frozen."
+msgstr ""
+"قائمة المهام %s لا تحتوي على أي مهمة. أضف المهام وأنشطتها قبل أن تصبح سارية - "
+"بمجرد اعتمادها، يتم تجميد المهام والأنشطة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_reject_wizard.py:0
+#, python-format
+msgid "Task list %s of %s has been rejected and closed."
+msgstr "تم رفض وإغلاق قائمة المهام %s الخاصة بـ %s."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list %s was assigned to %s automatically - its start date arrived while"
+" the task list was still in \"%s\"."
+msgstr ""
+"تم إسناد قائمة المهام %s إلى %s تلقائيًا - حل تاريخ البدء بينما كانت قائمة "
+"المهام لا تزال في حالة \"%s\"."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list accepted by %s while already in progress. %s task(s) approved."
+msgstr ""
+"تم قبول قائمة المهام بواسطة %s أثناء كونها قيد التنفيذ بالفعل. تم اعتماد "
+"%s مهمة/مهام."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task list can only be submitted from Draft or Returned state."
+msgstr "يمكن إرسال قائمة المهام فقط من حالة مسودة أو معادة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list cannot be completed - the following tasks have no activity:\n"
+"%s"
+msgstr ""
+"لا يمكن إكمال قائمة المهام - المهام التالية ليس لها نشاط:\n"
+"%s"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task list cannot be completed without any task."
+msgstr "لا يمكن إكمال قائمة المهام بدون أي مهمة."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list cannot be marked as Completed while its progress is below 100%%.\n"
+"\n"
+"Pending tasks:\n"
+"%s"
+msgstr ""
+"لا يمكن تحديد قائمة المهام كمكتملة بينما تكون نسبة تقدمها أقل من 100%%.\n"
+"\n"
+"المهام المعلقة:\n"
+"%s"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Task list cannot be submitted/assigned without at least one task line."
+msgstr "لا يمكن إرسال/إسناد قائمة المهام بدون سطر مهمة واحد على الأقل."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list cannot be submitted: hours are mandatory for every activity of "
+"task \"%s\"."
+msgstr ""
+"لا يمكن إرسال قائمة المهام: الساعات إلزامية لكل نشاط من أنشطة المهمة \"%s\"."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list cannot be submitted: task \"%s\" has no activity. Add at least one"
+" activity with hours."
+msgstr ""
+"لا يمكن إرسال قائمة المهام: المهمة \"%s\" ليس لها نشاط. أضف نشاطًا واحدًا على "
+"الأقل مع ساعات."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Task list closed with %(count)s rejected task(s). They will be added "
+"automatically to this employee's next task list."
+msgstr ""
+"تم إغلاق قائمة المهام مع %(count)s مهمة/مهام مرفوضة. ستتم إضافتها تلقائيًا إلى "
+"قائمة المهام التالية لهذا الموظف."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_unlock_wizard.py:0
+#, python-format
+msgid "Task list unlocked for exceptional editing by %s. Reason: %s"
+msgstr "تم إلغاء قفل قائمة المهام للتعديل الاستثنائي بواسطة %s. السبب: %s"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_acceptance
+msgid ""
+"Task lists assigned to you by your manager appear here until you accept "
+"them."
+msgstr ""
+"تظهر هنا قوائم المهام التي أسندها إليك مديرك حتى تقوم بقبولها."
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_list_employee_tasks
+msgid ""
+"Task lists belonging to the employees who report to you appear here. Your "
+"own task lists are under My Tasks."
+msgstr ""
+"تظهر هنا قوائم المهام الخاصة بالموظفين الذين يتبعون لك. قوائم المهام الخاصة "
+"بك موجودة ضمن مهامي."
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_employee_task_pending_my_action
+msgid ""
+"Task lists will appear here when your approval, review, modification, or "
+"acceptance is required."
+msgstr ""
+"ستظهر قوائم المهام هنا عندما يكون اعتمادك أو مراجعتك أو تعديلك أو قبولك "
+"مطلوبًا."
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#, python-format
+msgid ""
+"Task lists, approvals, activities, sub-activities and hours in one view."
+msgstr ""
+"قوائم المهام والاعتمادات والأنشطة والأنشطة الفرعية والساعات في عرض واحد."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_line_reject_wizard.py:0
+#, python-format
+msgid ""
+"Task rejected by %(user)s: %(task)s<br/>Reason: %(reason)s<br/><i>It will be"
+" added automatically to this employee's next task list.</i>"
+msgstr ""
+"تم رفض المهمة بواسطة %(user)s: %(task)s<br/>السبب: %(reason)s<br/><i>ستتم "
+"إضافتها تلقائيًا إلى قائمة المهام التالية لهذا الموظف.</i>"
+
+#. module: employee_task_management
+#: model_terms:ir.actions.act_window,help:employee_task_management.action_task_dashboard
+msgid ""
+"Task status pie chart, department-wise bar chart, employee-wise completion "
+"and monthly trend are available from the measures/views toolbar."
+msgstr ""
+"يتوفر مخطط دائري لحالات المهام، ومخطط شريطي حسب القسم، ونسبة الإكمال حسب "
+"الموظف، والاتجاه الشهري من شريط أدوات المقاييس/العروض."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_kanban
+msgid "Tasks"
+msgstr "المهام"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Tasks can no longer be added to or removed from task list \"%s\" - it is in "
+"\"%s\" status."
+msgstr ""
+"لم يعد من الممكن إضافة المهام إلى قائمة المهام \"%s\" أو إزالتها منها - فهي "
+"في حالة \"%s\"."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"Tasks can only be approved or rejected while the task list is Completed, or "
+"while it is running without having been approved."
+msgstr ""
+"يمكن اعتماد المهام أو رفضها فقط بينما تكون قائمة المهام مكتملة، أو بينما تكون "
+"قيد التنفيذ دون أن تكون معتمدة."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__notified_slots
+msgid ""
+"Technical: which of the daily reminder slots have already fired, so a cron "
+"re-run cannot send the same one twice."
+msgstr ""
+"تقني: أي خانات من خانات التذكير اليومية قد تم تشغيلها بالفعل، بحيث لا يتمكن "
+"إعادة تشغيل cron من إرسال الخانة نفسها مرتين."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__can_act_for_employee
+msgid ""
+"The employee himself, OR the manager this task list reports to (or an "
+"Administrator). A manager may drive his own people's Accept / Start Work / "
+"Mark Completed when they are away - and only his own people, never another "
+"team's."
+msgstr ""
+"الموظف نفسه، أو المدير الذي تتبع له قائمة المهام هذه (أو المسؤول). يمكن للمدير "
+"تنفيذ إجراءات قبول / بدء العمل / تحديد كمكتمل لموظفيه عندما يكونون غائبين - "
+"ولموظفيه فقط، وليس لموظفي فريق آخر."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__carried_from_line_id
+msgid "The rejected task this one was carried forward from."
+msgstr "المهمة المرفوضة التي تم ترحيل هذه المهمة منها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"The start date of task list %s has arrived while it was still waiting in "
+"\"%s\", so it has been assigned to you automatically. You may start work."
+msgstr ""
+"حل تاريخ بدء قائمة المهام %s بينما كانت لا تزال تنتظر في حالة \"%s\"، لذا "
+"تم إسنادها إليك تلقائيًا. يمكنك بدء العمل."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"The status of a task list can only be changed with the workflow buttons on "
+"the form (Submit, Approve, Accept, Start Work, Mark Completed, Close...)."
+msgstr ""
+"لا يمكن تغيير حالة قائمة المهام إلا باستخدام أزرار سير العمل في النموذج "
+"(إرسال، اعتماد، قبول، بدء العمل، تحديد كمكتملة، إغلاق...)."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__was_delayed_days
+msgid ""
+"The worst delayed_days this task has ever recorded. Latched - never "
+"decreases, even if the task is later corrected or re-completed on time."
+msgstr ""
+"أسوأ قيمة لـ delayed_days سجلتها هذه المهمة على الإطلاق. مثبتة - لا تنخفض "
+"أبدًا، حتى إذا تم تصحيح المهمة لاحقًا أو إعادة إكمالها في الوقت المحدد."
+
+#. module: employee_task_management
+#: model:ir.model.constraint,message:employee_task_management.constraint_employee_task_idle_day_employee_date_uniq
+msgid "There can only be one capacity row per employee per day."
+msgstr "يمكن أن يكون هناك صف سعة واحد فقط لكل موظف في اليوم."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"These tasks were carried forward because they were rejected on an earlier task list, so they have to be done:\n"
+"%s"
+msgstr ""
+"تم ترحيل هذه المهام لأنها رُفضت في قائمة مهام سابقة، لذا يجب تنفيذها:\n"
+"%s"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "This Month"
+msgstr "هذا الشهر"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"This task list belongs to you. Use "Submit to Manager" instead so your "
+"manager can approve it."
+msgstr ""
+"قائمة المهام هذه تخصك. استخدم "إرسال إلى المدير" بدلاً من ذلك حتى يتمكن "
+"مديرك من اعتمادها."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"This task list cannot be submitted - not enough capacity on %(day)s.\n"
+"\n"
+"Employee: %(emp)s\n"
+"Task list: %(name)s\n"
+"\n"
+"Daily capacity: %(cap)s\n"
+"Total once this list counts: %(total)s\n"
+"Over by: %(over)s\n"
+"\n"
+"What you can do:\n"
+"  - reduce the activity hours on this list\n"
+"  - move some tasks to a day with free capacity\n"
+"  - extend a task's End Date so its hours spread across more days\n"
+"\n"
+"Note: hours already spent that day count even if the manager rejected the work. Rejected work is redone on a LATER day, not on the day it failed."
+msgstr ""
+"لا يمكن إرسال قائمة المهام هذه - لا توجد سعة كافية في يوم %(day)s.\n"
+"\n"
+"الموظف: %(emp)s\n"
+"قائمة المهام: %(name)s\n"
+"\n"
+"السعة اليومية: %(cap)s\n"
+"الإجمالي بعد احتساب هذه القائمة: %(total)s\n"
+"التجاوز بمقدار: %(over)s\n"
+"\n"
+"يمكنك القيام بما يلي:\n"
+"  - تقليل ساعات الأنشطة في هذه القائمة\n"
+"  - نقل بعض المهام إلى يوم تتوفر فيه سعة إضافية\n"
+"  - تمديد تاريخ انتهاء المهمة حتى تتوزع ساعاتها على عدد أكبر من الأيام\n"
+"\n"
+"ملاحظة: تُحتسب الساعات التي تم قضاؤها بالفعل في ذلك اليوم حتى لو رفض المدير العمل. تتم إعادة العمل المرفوض في يوم لاحق، وليس في اليوم الذي تم فيه رفضه."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid ""
+"This task list is approved, so its activities are frozen. Tick\n"
+"                        them off as <b>Done</b> as you complete them - Progress % and the\n"
+"                        task status update automatically. A Manager can still correct\n"
+"                        the <b>Hours</b> on an activity, or delete an activity outright\n"
+"                        to take those hours off the employee's day; either change is\n"
+"                        recorded in the task list's chatter."
+msgstr ""
+"تم اعتماد قائمة المهام هذه، لذلك تم تجميد أنشطتها. قم بتحديدها كـ <b>مكتملة</b>\n"
+"                        عند الانتهاء منها - يتم تحديث نسبة التقدم وحالة المهمة تلقائياً.\n"
+"                        ولا يزال بإمكان المدير تصحيح <b>الساعات</b> الخاصة بأي نشاط، أو حذف\n"
+"                        النشاط بالكامل لإزالة تلك الساعات من يوم الموظف؛ ويتم تسجيل أي من\n"
+"                        هذين التغييرين في سجل المحادثة الخاص بقائمة المهام."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid ""
+"This task list is approved, so the tasks and activities are\n"
+"                                frozen. You can still update <b>Remarks</b> here, and tick\n"
+"                                activities off as <b>Done</b> from the Activities button."
+msgstr ""
+"تم اعتماد قائمة المهام هذه، لذلك تم تجميد المهام والأنشطة.\n"
+"                                ولا يزال بإمكانك تحديث <b>الملاحظات</b> هنا، وتحديد\n"
+"                                الأنشطة كـ <b>مكتملة</b> من زر الأنشطة."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid ""
+"This task list is locked for the employee. A Manager can still\n"
+"                        correct the <b>Hours</b> on an activity - every change is\n"
+"                        recorded in the task list's chatter. Nothing else can be\n"
+"                        changed here."
+msgstr ""
+"قائمة المهام هذه مقفلة بالنسبة للموظف. ولا يزال بإمكان المدير\n"
+"                        تصحيح <b>الساعات</b> الخاصة بأي نشاط - ويتم تسجيل كل تغيير\n"
+"                        في سجل المحادثة الخاص بقائمة المهام. ولا يمكن تغيير أي شيء\n"
+"                        آخر هنا."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__started_without_approval
+msgid ""
+"This task list started on its own start date, so the employee began work "
+"immediately. It still needs the manager to accept or reject it."
+msgstr ""
+"بدأت قائمة المهام هذه في تاريخ البدء المحدد لها، ولذلك بدأ الموظف العمل "
+"مباشرةً. ولا تزال بحاجة إلى قبول المدير أو رفضه."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__is_carried_forward
+msgid ""
+"This task was auto-added because a manager rejected it on an earlier task "
+"list. The employee cannot remove it."
+msgstr ""
+"تمت إضافة هذه المهمة تلقائياً لأن المدير رفضها في قائمة مهام سابقة. ولا يمكن "
+"للموظف حذفها."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_reject_wizard_form
+msgid ""
+"This task will be marked Rejected. It is added\n"
+"                    automatically to this employee's next task list -\n"
+"                    carrying only the activities that were not completed,\n"
+"                    with its dates left blank for them to re-plan. They\n"
+"                    cannot remove it. (If every activity was already\n"
+"                    ticked done, the whole set comes back reset, so there\n"
+"                    is always something to redo.)"
+msgstr ""
+"سيتم وضع علامة رفض على هذه المهمة. وستتم إضافتها\n"
+"                    تلقائياً إلى قائمة المهام التالية لهذا الموظف -\n"
+"                    مع نقل الأنشطة التي لم تكتمل فقط،\n"
+"                    وترك تواريخها فارغة ليتم التخطيط لها من جديد. ولا يمكنهم\n"
+"                    حذفها. (إذا كانت جميع الأنشطة قد تم تحديدها كمكتملة بالفعل،\n"
+"                    فستتم إعادة المجموعة بالكامل بحالتها المعاد ضبطها، بحيث يكون هناك\n"
+"                    دائماً شيء يجب إعادة تنفيذه.)"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Today"
+msgstr "اليوم"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_search
+msgid "Today and Later"
+msgstr "اليوم وما بعده"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+msgid "Total Activities"
+msgstr "إجمالي الأنشطة"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_subtask_tree
+msgid "Total Hours"
+msgstr "إجمالي الساعات"
+
+#. module: employee_task_management
+#: model:ir.actions.act_window,name:employee_task_management.action_dash_total
+msgid "Total Task Lists"
+msgstr "إجمالي قوائم المهام"
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#: model:ir.ui.menu,name:employee_task_management.menu_dash_total
+#, python-format
+msgid "Total Tasks"
+msgstr "إجمالي المهام"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_idle_day__capacity_hours
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_idle_day_tree
+msgid "Total Working Hours"
+msgstr "إجمالي ساعات العمل"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__activities_locked
+msgid ""
+"True when nothing at all can be touched in the activities grid. Drives the "
+"read-only state of the grid itself, which would otherwise override the per-"
+"column rules."
+msgstr ""
+"تكون القيمة صحيحة عندما لا يمكن تعديل أي شيء على الإطلاق في جدول الأنشطة. "
+"ويتحكم ذلك في جعل الجدول نفسه للقراءة فقط، وهو ما كان سيؤدي بخلاف ذلك إلى "
+"تجاوز القواعد المحددة لكل عمود."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__needs_employee_planning
+msgid ""
+"True when the manager assigned this task list WITHOUT activities, so the "
+"employee has to plan it himself. Drives which buttons he gets: nothing to "
+"agree to yet, so Accept and Request Modification are replaced by Submit "
+"Activities for Review."
+msgstr ""
+"تكون القيمة صحيحة عندما يقوم المدير بتعيين قائمة المهام هذه بدون أنشطة، بحيث "
+"يتعين على الموظف التخطيط لها بنفسه. ويحدد ذلك الأزرار التي تظهر له: لا يوجد "
+"شيء للموافقة عليه بعد، لذلك يتم استبدال زري قبول وطلب تعديل بزر إرسال الأنشطة "
+"للمراجعة."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "نوع نشاط الاستثناء المسجل."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_unlock_wizard_form
+msgid "Unlock"
+msgstr "إلغاء القفل"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_unlock_wizard_form
+msgid "Unlock Closed Task List"
+msgstr "إلغاء قفل قائمة المهام المغلقة"
+
+#. module: employee_task_management
+#: model:ir.model,name:employee_task_management.model_employee_task_unlock_wizard
+msgid "Unlock Closed Task List Wizard"
+msgstr "معالج إلغاء قفل قائمة المهام المغلقة"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_unlock_wizard__unlock_reason
+msgid "Unlock Reason"
+msgstr "سبب إلغاء القفل"
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__unlocked
+msgid "Unlocked"
+msgstr "تم إلغاء القفل"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__is_unlocked
+msgid "Unlocked for Editing"
+msgstr "تم إلغاء القفل للتحرير"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_unlock_wizard_form
+msgid ""
+"Unlocking a closed task list will move it back to\n"
+"                    <b>Completed</b> so exceptional edits can be made.\n"
+"                    This action is recorded in the approval history."
+msgstr ""
+"سيؤدي إلغاء قفل قائمة مهام مغلقة إلى إعادتها إلى حالة\n"
+"                    <b>مكتملة</b> حتى يمكن إجراء تعديلات استثنائية.\n"
+"                    ويتم تسجيل هذا الإجراء في سجل الموافقات."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Updated and resubmitted to employee by %s"
+msgstr "تم التحديث وإعادة الإرسال إلى الموظف بواسطة %s"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_approval_history_search
+msgid "User"
+msgstr "المستخدم"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Verdict"
+msgstr "القرار"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Waiting Acceptance"
+msgstr "في انتظار القبول"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__pending_since
+msgid "Waiting Since"
+msgstr "في الانتظار منذ"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__was_delayed
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_tree
+msgid "Was Delayed"
+msgstr "كان متأخراً"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__website_message_ids
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__website_message_ids
+msgid "Website communication history"
+msgstr "سجل اتصالات الموقع الإلكتروني"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_line_reject_wizard_form
+msgid "What is wrong with this task?"
+msgstr "ما المشكلة في هذه المهمة؟"
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_modification_wizard__modification_reason
+msgid "What needs to be modified?"
+msgstr "ما الذي يحتاج إلى تعديل؟"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid "Why Rejected"
+msgstr "سبب الرفض"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_unlock_wizard_form
+msgid "Why is this closed record being unlocked?"
+msgstr "لماذا يتم إلغاء قفل هذا السجل المغلق؟"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__verdict_reason
+msgid "Why the manager rejected this task. Mandatory on rejection."
+msgstr "سبب رفض المدير لهذه المهمة. هذا الحقل إلزامي عند الرفض."
+
+#. module: employee_task_management
+#: model:ir.model.fields.selection,name:employee_task_management.selection__employee_task_approval_history__action__started
+msgid "Work Started"
+msgstr "بدأ العمل"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Work Started Late"
+msgstr "بدأ العمل متأخراً"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Work can only be started once the task list is approved and applicable."
+msgstr ""
+"لا يمكن بدء العمل إلا بعد اعتماد قائمة المهام والتأكد من أنها سارية للتنفيذ."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Work on task list %(name)s started on %(today)s, %(days)s working day(s) "
+"after the planned start date (%(planned)s). %(count)s task(s) affected."
+msgstr ""
+"بدأ العمل على قائمة المهام %(name)s في تاريخ %(today)s، بعد %(days)s يوم/أيام "
+"عمل من تاريخ البدء المخطط له (%(planned)s). وقد تأثرت %(count)s مهمة/مهام."
+
+#. module: employee_task_management
+#. odoo-javascript
+#: code:addons/employee_task_management/static/src/xml/task_dashboard.xml:0
+#, python-format
+msgid "Working Hours Today"
+msgstr "ساعات العمل اليوم"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_line__delayed_days
+msgid ""
+"Working days past the planned End Date. 0 if on time or not yet due. Keeps "
+"counting while still running late, and settles at the final figure once "
+"Completed."
+msgstr ""
+"عدد أيام العمل التي تجاوزت تاريخ الانتهاء المخطط له. تكون القيمة 0 إذا كانت "
+"المهمة في الوقت المحدد أو لم يحِن موعدها بعد. ويستمر العدد في الزيادة طالما "
+"أن المهمة متأخرة، ويستقر على الرقم النهائي عند اكتمالها."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_idle_day__idle_hours
+msgid "Working hours not yet covered by any task."
+msgstr "ساعات العمل التي لم يتم تغطيتها بأي مهمة حتى الآن."
+
+#. module: employee_task_management
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_line__was_delayed_days
+#: model:ir.model.fields,field_description:employee_task_management.field_employee_task_list__was_delayed_days
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_tree
+msgid "Worst Delay (Days)"
+msgstr "أقصى تأخير (بالأيام)"
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__delayed_days
+msgid ""
+"Worst-line rollup of employee.task.line.delayed_days - how many working days"
+" late the most-delayed task is (or finished). 0 while waiting on "
+"approval/acceptance; that wait is tracked separately by "
+"is_delayed/pending_since."
+msgstr ""
+"إجمالي قيمة employee.task.line.delayed_days لأكثر المهام تأخيرًا - عدد أيام العمل"
+" التي تأخرت بها المهمة الأكثر تأخيرًا (أو عدد الأيام التي استغرقتها حتى الانتهاء). "
+"تكون القيمة 0 أثناء انتظار الموافقة/القبول؛ ويتم تتبع فترة الانتظار هذه بشكل منفصل "
+"من خلال is_delayed/pending_since."
+
+#. module: employee_task_management
+#: model:ir.model.fields,help:employee_task_management.field_employee_task_list__was_delayed_days
+msgid ""
+"Worst-line rollup of employee.task.line.was_delayed_days. Latched - never "
+"decreases, even after the work is completed and closed."
+msgstr ""
+"إجمالي قيمة employee.task.line.was_delayed_days لأكثر المهام تأخيرًا. "
+"تظل القيمة مثبتة ولا تنخفض أبدًا، حتى بعد اكتمال العمل وإغلاقه."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_line.py:0
+#, python-format
+msgid ""
+"You cannot approve or reject tasks on your own task list (%s). It has to be "
+"reviewed by your own manager."
+msgstr ""
+"لا يمكنك الموافقة على المهام أو رفضها في قائمة مهامك الخاصة (%s). "
+"يجب أن تتم مراجعتها من قِبل مديرك المباشر."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"You cannot approve, return, close or reject your own task list (%s). It has "
+"to be actioned by your own manager%s."
+msgstr ""
+"لا يمكنك الموافقة على قائمة مهامك الخاصة (%s) أو إعادتها أو إغلاقها أو رفضها. "
+"يجب أن يتخذ مديرك المباشر الإجراء اللازم بشأنها%s."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_idle_day.py:0
+#, python-format
+msgid ""
+"You have %(hours)s idle hours remaining for today. Please create "
+"tasks/activities for the available time."
+msgstr ""
+"لديك %(hours)s من ساعات العمل غير المستغلة المتبقية لهذا اليوم. "
+"يرجى إنشاء مهام/أنشطة للوقت المتاح."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_reject_wizard.py:0
+#, python-format
+msgid ""
+"Your completed task list %s has been REJECTED by your manager and is now closed.\n"
+"\n"
+"Reject Reason: %s"
+msgstr ""
+"تم رفض قائمة مهامك المكتملة %s من قِبل مديرك، وتم إغلاقها الآن.\n"
+"\n"
+"سبب الرفض: %s"
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_list_form
+msgid ""
+"Your manager has assigned these tasks without\n"
+"                        activities - it is up to you to plan them. Use the\n"
+"                        <b>Activities</b> button on each task to add the\n"
+"                        activities and their hours, then press\n"
+"                        <b>Submit Activities for Review</b>."
+msgstr ""
+"قام مديرك بتعيين هذه المهام دون\n"
+"                        أنشطة - ويتعين عليك تخطيطها بنفسك. استخدم زر\n"
+"                        <b>الأنشطة</b> في كل مهمة لإضافة الأنشطة\n"
+"                        وساعاتها، ثم اضغط على\n"
+"                        <b>إرسال الأنشطة للمراجعة</b>."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_modification_wizard_form
+msgid ""
+"Your manager will be notified. If the request is not\n"
+"                    handled before the <b>task start date</b>, this task list\n"
+"                    is assigned to you automatically."
+msgstr ""
+"سيتم إخطار مديرك. إذا لم تتم معالجة الطلب قبل\n"
+"                    <b>تاريخ بدء المهمة</b>، فسيتم تعيين قائمة المهام هذه\n"
+"                    لك تلقائيًا."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Your modification request on task list %s has been handled by %s. Please "
+"review and accept it."
+msgstr ""
+"تمت معالجة طلب التعديل الخاص بك على قائمة المهام %s بواسطة %s. "
+"يرجى مراجعته وقبوله."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_modification_wizard.py:0
+#, python-format
+msgid "Your modification request on task list %s has been sent to %s."
+msgstr "تم إرسال طلب التعديل الخاص بك على قائمة المهام %s إلى %s."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Your task list %s has been accepted by %s. Carry on with the work."
+msgstr "تم قبول قائمة مهامك %s بواسطة %s. تابع العمل."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Your task list %s has been approved by manager %s and is now applicable."
+msgstr ""
+"تمت الموافقة على قائمة مهامك %s من قِبل المدير %s، وأصبحت سارية الآن."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid ""
+"Your task list %s has been marked as completed and sent to your manager for "
+"final review."
+msgstr ""
+"تم وضع علامة على قائمة مهامك %s كمكتملة وإرسالها إلى مديرك للمراجعة النهائية."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/wizard/task_return_wizard.py:0
+#, python-format
+msgid ""
+"Your task list %s has been returned by your manager. Please review the remarks, make corrections and resubmit.\n"
+"\n"
+"Return Reason: %s"
+msgstr ""
+"قام مديرك بإعادة قائمة مهامك %s. يرجى مراجعة الملاحظات وإجراء التصحيحات ثم إعادة الإرسال.\n"
+"\n"
+"سبب الإعادة: %s"
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "Your task list %s has been reviewed and closed by your manager."
+msgstr "تمت مراجعة قائمة مهامك %s وإغلاقها بواسطة مديرك."
+
+#. module: employee_task_management
+#: model_terms:ir.ui.view,arch_db:employee_task_management.view_task_modification_wizard_form
+msgid ""
+"e.g. the dates overlap with another task list, please shift the end date..."
+msgstr ""
+"مثال: تتداخل التواريخ مع قائمة مهام أخرى، يرجى تعديل تاريخ الانتهاء..."
+
+#. module: employee_task_management
+#. odoo-python
+#: code:addons/employee_task_management/models/employee_task_list.py:0
+#, python-format
+msgid "the employee"
+msgstr "الموظف"
