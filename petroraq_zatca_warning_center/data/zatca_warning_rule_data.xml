@@ -1,0 +1,21 @@
+<odoo noupdate="1">
+    <record id="warning_rule_customer_data" model="petroraq.zatca.warning.rule">
+        <field name="code">PR-CUSTOMER-DATA</field>
+        <field name="name">Customer master data is incomplete</field>
+        <field name="severity">high</field>
+        <field name="target_type">customer</field>
+        <field name="recommended_action"><![CDATA[
+            <p>Open the customer and complete the address and Accounting/ZATCA fields. For a Saudi B2B customer, review VAT number, district, building number, and additional number.</p>
+        ]]></field>
+    </record>
+    <record id="warning_rule_br_ksa_en16931_09" model="petroraq.zatca.warning.rule">
+        <field name="code">BR-KSA-EN16931-09</field>
+        <field name="name">Tax currency requires a separate tax total</field>
+        <field name="severity">high</field>
+        <field name="target_type">invoice</field>
+        <field name="recommended_action"><![CDATA[
+            <p><strong>Correct the UBL XML generation for the next draft invoice.</strong> When <code>TaxCurrencyCode</code> is supplied, include a second document-level <code>TaxTotal</code> containing only <code>TaxAmount</code>, in that tax currency. Alternatively, do not output <code>TaxCurrencyCode</code> when it is not required.</p>
+            <p>Use the attached XML evidence and compare it with the standard Odoo ZATCA template. Do not edit or resubmit an invoice already accepted by ZATCA.</p>
+        ]]></field>
+    </record>
+</odoo>

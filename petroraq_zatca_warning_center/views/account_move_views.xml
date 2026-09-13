@@ -1,0 +1,30 @@
+<odoo>
+    <record id="view_move_form_zatca_warning_center" model="ir.ui.view">
+        <field name="name">account.move.form.zatca.warning.center</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">120</field>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="zatca_warning_count" invisible="1"/>
+                <field name="zatca_open_warning_count" invisible="1"/>
+                <button name="action_run_zatca_precheck" type="object" string="Run ZATCA Pre-check"
+                        class="btn-secondary" groups="account.group_account_invoice"
+                        invisible="state != 'draft' or move_type not in ('out_invoice', 'out_refund')"/>
+            </xpath>
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-warning" role="alert"
+                     invisible="zatca_open_warning_count == 0 or move_type not in ('out_invoice', 'out_refund')">
+                    This invoice has <field name="zatca_open_warning_count" class="fw-bold"/> open ZATCA warning case(s).
+                    <button name="action_view_zatca_warning_cases" type="object" string="Review warnings" class="btn btn-link p-0 alert-link"/>
+                </div>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_zatca_warning_cases" type="object" class="oe_stat_button"
+                        icon="fa-exclamation-triangle" invisible="zatca_warning_count == 0">
+                    <field name="zatca_warning_count" widget="statinfo" string="ZATCA Warnings"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

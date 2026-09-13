@@ -1,0 +1,142 @@
+<odoo>
+    <record id="view_zatca_warning_case_tree" model="ir.ui.view">
+        <field name="name">petroraq.zatca.warning.case.tree</field>
+        <field name="model">petroraq.zatca.warning.case</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="severity == 'high' and state in ('open', 'in_progress')"
+                  decoration-warning="severity == 'medium' and state in ('open', 'in_progress')">
+                <field name="create_date"/>
+                <field name="code"/>
+                <field name="invoice_id"/>
+                <field name="partner_id"/>
+                <field name="company_id" optional="hide"/>
+                <field name="source"/>
+                <field name="suggestion_origin" optional="hide"/>
+                <field name="severity"/>
+                <field name="owner_id"/>
+                <field name="recurrence_count"/>
+                <field name="state" widget="badge" decoration-success="state == 'resolved'" decoration-info="state == 'accepted_risk'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_zatca_warning_case_form" model="ir.ui.view">
+        <field name="name">petroraq.zatca.warning.case.form</field>
+        <field name="model">petroraq.zatca.warning.case</field>
+        <field name="arch" type="xml">
+            <form string="ZATCA Warning Case">
+                <header>
+                    <button name="action_start" type="object" string="Start Review" class="btn-primary"
+                            groups="petroraq_zatca_warning_center.group_zatca_compliance_officer"
+                            invisible="state != 'open'"/>
+                    <button name="action_resolve" type="object" string="Resolve" class="btn-primary"
+                            groups="petroraq_zatca_warning_center.group_zatca_compliance_officer"
+                            invisible="state not in ('open', 'in_progress')"/>
+                    <button name="action_accept_risk" type="object" string="Accept Risk" class="btn-secondary"
+                            groups="petroraq_zatca_warning_center.group_zatca_compliance_officer"
+                            invisible="state not in ('open', 'in_progress')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="open,in_progress,resolved,accepted_risk"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="invoice_id" readonly="1"/>
+                            <field name="edi_document_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="journal_id" readonly="1"/>
+                            <field name="source" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="code" readonly="1"/>
+                            <field name="severity" readonly="1"/>
+                            <field name="owner_id" readonly="state in ('resolved', 'accepted_risk')"/>
+                            <field name="recurrence_count" readonly="1"/>
+                            <field name="rule_id" options="{'no_create': True}"
+                                   groups="petroraq_zatca_warning_center.group_zatca_compliance_officer"/>
+                            <field name="target_type" readonly="1"/>
+                            <field name="suggestion_origin" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="ZATCA Message"/>
+                    <field name="message" readonly="1" nolabel="1" class="w-100"/>
+                    <div class="mt-3" invisible="not xml_diagnosis">
+                        <separator string="XML Evidence"/>
+                        <div class="mb-2">
+                            <label for="xml_attachment_id" string="Analysed UBL XML" class="fw-bold me-2"/>
+                            <field name="xml_attachment_id" readonly="1" class="oe_inline"/>
+                        </div>
+                        <field name="xml_diagnosis" readonly="1" nolabel="1" class="w-100"/>
+                    </div>
+                    <div class="mt-3" invisible="not recommended_action">
+                        <separator string="Suggested Fix"/>
+                        <field name="recommended_action" widget="html" readonly="1" nolabel="1" class="w-100"/>
+                        <button name="action_open_target" type="object" string="Open Record to Fix" class="btn-secondary mt-2"
+                                invisible="target_type == 'manual' or not target_type"/>
+                    </div>
+                    <group string="Resolution"><field name="resolution_note" readonly="state in ('resolved', 'accepted_risk')"/></group>
+                    <group string="Closure" invisible="not resolved_on">
+                        <field name="resolved_by_id" readonly="1"/>
+                        <field name="resolved_on" readonly="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_zatca_warning_case_search" model="ir.ui.view">
+        <field name="name">petroraq.zatca.warning.case.search</field>
+        <field name="model">petroraq.zatca.warning.case</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/><field name="invoice_id"/><field name="partner_id"/><field name="owner_id"/>
+                <filter name="open" string="Open" domain="[('state', 'in', ('open', 'in_progress'))]"/>
+                <filter name="high" string="High Severity" domain="[('severity', '=', 'high')]"/>
+                <filter name="zatca" string="ZATCA Response" domain="[('source', '=', 'zatca')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_code" string="Warning Code" domain="[]" context="{'group_by': 'code'}"/>
+                    <filter name="group_customer" string="Customer" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_owner" string="Owner" domain="[]" context="{'group_by': 'owner_id'}"/>
+                    <filter name="group_company" string="Company" domain="[]" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_zatca_warning_cases" model="ir.actions.act_window">
+        <field name="name">ZATCA Warning Cases</field>
+        <field name="res_model">petroraq.zatca.warning.case</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_open': 1, 'create': False}</field>
+    </record>
+
+    <record id="view_zatca_warning_rule_tree" model="ir.ui.view">
+        <field name="name">petroraq.zatca.warning.rule.tree</field>
+        <field name="model">petroraq.zatca.warning.rule</field>
+        <field name="arch" type="xml">
+            <tree><field name="code"/><field name="name"/><field name="severity"/><field name="target_type"/><field name="active"/></tree>
+        </field>
+    </record>
+
+    <record id="view_zatca_warning_rule_form" model="ir.ui.view">
+        <field name="name">petroraq.zatca.warning.rule.form</field>
+        <field name="model">petroraq.zatca.warning.rule</field>
+        <field name="arch" type="xml">
+            <form string="ZATCA Warning Rule"><sheet><group>
+                <field name="active"/><field name="code"/><field name="name"/><field name="severity"/><field name="target_type"/>
+            </group><group string="Recommended Action"><field name="recommended_action" widget="html" nolabel="1"/></group></sheet></form>
+        </field>
+    </record>
+
+    <record id="action_zatca_warning_rules" model="ir.actions.act_window">
+        <field name="name">ZATCA Warning Rules</field>
+        <field name="res_model">petroraq.zatca.warning.rule</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_zatca_warning_cases" name="ZATCA Warning Center" parent="account.menu_finance_reports"
+              action="action_zatca_warning_cases" sequence="65" groups="account.group_account_invoice"/>
+    <menuitem id="menu_zatca_warning_rules" name="ZATCA Warning Rules" parent="account.menu_finance_configuration"
+              action="action_zatca_warning_rules" sequence="70" groups="petroraq_zatca_warning_center.group_zatca_compliance_officer"/>
+</odoo>
