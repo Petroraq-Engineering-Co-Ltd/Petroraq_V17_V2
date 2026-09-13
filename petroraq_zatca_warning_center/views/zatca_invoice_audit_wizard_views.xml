@@ -1,0 +1,35 @@
+<odoo>
+    <record id="view_zatca_invoice_audit_wizard_form" model="ir.ui.view">
+        <field name="name">petroraq.zatca.invoice.audit.wizard.form</field>
+        <field name="model">petroraq.zatca.invoice.audit.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Audit Existing Customer Invoices">
+                <group>
+                    <field name="company_id"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="include_draft"/>
+                </group>
+                <div class="alert alert-info" role="status">
+                    Run a current customer-data audit, or import historic ZATCA warnings from invoice chatter and analyse the linked UBL XML. Neither action edits, cancels, or resubmits accepted invoices.
+                </div>
+                <footer>
+                    <button name="action_run_audit" type="object" string="Run Audit" class="btn-primary"/>
+                    <button name="action_import_chatter_warnings" type="object" string="Import Chatter Warnings" class="btn-secondary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_zatca_invoice_audit_wizard" model="ir.actions.act_window">
+        <field name="name">Audit Existing Customer Invoices</field>
+        <field name="res_model">petroraq.zatca.invoice.audit.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_zatca_invoice_audit" name="Audit Customer Invoices"
+              parent="account.menu_finance_reports" action="action_zatca_invoice_audit_wizard"
+              sequence="66" groups="petroraq_zatca_warning_center.group_zatca_compliance_officer"/>
+</odoo>
