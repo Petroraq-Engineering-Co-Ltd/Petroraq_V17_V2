@@ -1,0 +1,16 @@
+<odoo>
+    <record id="res_config_settings_view_form_zatca_warning_center" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.zatca.warning.center</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="ZATCA Warning Center" name="zatca_warning_center" groups="petroraq_zatca_warning_center.group_zatca_compliance_officer">
+                    <setting string="Default ZATCA Warning Owner" help="Assign new ZATCA warning cases to this user for the current company.">
+                        <field name="zatca_warning_owner_id"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

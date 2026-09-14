@@ -1,0 +1,7 @@
+<odoo>
+    <record id="group_zatca_compliance_officer" model="res.groups">
+        <field name="name">ZATCA Compliance Officer</field>
+        <field name="category_id" ref="base.module_category_accounting_accounting"/>
+        <field name="implied_ids" eval="[(4, ref('account.group_account_manager'))]"/>
+    </record>
+</odoo>
