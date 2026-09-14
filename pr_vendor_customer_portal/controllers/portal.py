@@ -8,7 +8,7 @@ from odoo import _, fields, http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import content_disposition, request
 from odoo.osv import expression
-from odoo.tools import config
+from odoo.tools import config, float_compare
 
 from odoo.addons.account.controllers.portal import PortalAccount
 from odoo.addons.portal.controllers.portal import pager as portal_pager
@@ -548,7 +548,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         return values
 
     def _vendor_invoice_receipt_options(self):
-        """Approved, vendor-owned receipts that do not already have a portal invoice."""
+        """Approved, unpaid vendor receipts without an existing portal invoice."""
         PortalInvoice = request.env["pr.portal.vendor.invoice"].sudo()
         used_pickings = PortalInvoice.search([("picking_id", "!=", False)]).mapped("picking_id").ids
         used_services = PortalInvoice.search([("service_receipt_id", "!=", False)]).mapped("service_receipt_id").ids
@@ -585,7 +585,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             "type": _("GRN"),
             "amount": self._receipt_invoice_amount(receipt),
             "currency": receipt.purchase_id.currency_id,
-        } for receipt in pickings)
+        } for receipt in pickings if not self._vendor_receipt_fully_paid(receipt))
         options.extend({
             "token": "service:%s" % receipt.id,
             "po": receipt.purchase_id,
@@ -593,7 +593,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             "type": _("SRN"),
             "amount": self._receipt_invoice_amount(receipt),
             "currency": receipt.purchase_id.currency_id,
-        } for receipt in services)
+        } for receipt in services if not self._vendor_receipt_fully_paid(receipt))
         options.extend({
             "token": "legacy:%s" % receipt.id,
             "po": receipt.purchase_order_id,
@@ -601,8 +601,66 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             "type": _("GRN/SES"),
             "amount": receipt.grand_total,
             "currency": receipt.purchase_order_id.currency_id,
-        } for receipt in legacy)
+        } for receipt in legacy if not self._vendor_receipt_fully_paid(receipt))
         return options
+
+    def _vendor_receipt_fully_paid(self, receipt):
+        """Use settled bills, retaining receipts whose payment is not established.
+
+        Modern receipts share PO-line billing rather than a direct bill link.
+        Require coverage of all received quantities on those lines so a paid
+        bill for an earlier delivery cannot hide an unpaid backorder.
+        """
+        po = receipt.purchase_order_id if receipt._name == "grn.ses" else receipt.purchase_id
+        advances = po.advance_payment_ids.filtered(
+            lambda payment: payment.state == "posted"
+            and payment.payment_type == "outbound"
+        )
+        advance_amount = sum(payment.currency_id._convert(
+            payment.amount, po.currency_id, po.company_id, payment.date
+        ) for payment in advances)
+        if po.amount_total > 0 and po.currency_id.compare_amounts(advance_amount, po.amount_total) >= 0:
+            return True
+
+        if receipt._name == "grn.ses":
+            bills = receipt.bill_ids.filtered(lambda bill: bill.state != "cancel")
+            settled = bool(bills) and all(
+                bill.state == "posted" and bill.payment_state == "paid"
+                and bill.move_type == "in_invoice"
+                for bill in bills
+            )
+            if not settled:
+                return False
+            paid_amount = sum(bill.currency_id._convert(
+                bill.amount_total, po.currency_id, po.company_id, bill.date
+            ) for bill in bills)
+            return po.currency_id.compare_amounts(paid_amount, receipt.grand_total) >= 0
+
+        if receipt._name == "stock.picking":
+            po_lines = receipt.move_ids_without_package.filtered(
+                lambda move: move.quantity > 0
+            ).mapped("purchase_line_id")
+        else:
+            po_lines = receipt.line_ids.filtered(
+                lambda line: line.done_qty > 0
+            ).mapped("purchase_line_id")
+        if not po_lines:
+            return False
+        for po_line in po_lines:
+            bill_lines = po_line.invoice_lines.filtered(lambda line: line.move_id.state != "cancel")
+            if not bill_lines or any(
+                line.move_id.state != "posted" or line.move_id.payment_state != "paid"
+                or line.move_id.move_type != "in_invoice"
+                for line in bill_lines
+            ):
+                return False
+            billed_qty = sum(line.product_uom_id._compute_quantity(
+                line.quantity, po_line.product_uom
+            ) for line in bill_lines)
+            if float_compare(billed_qty, po_line.qty_received,
+                             precision_rounding=po_line.product_uom.rounding) < 0:
+                return False
+        return True
 
     def _receipt_invoice_amount(self, receipt):
         """Return the tax-inclusive PO value accepted by a GRN or SRN."""
@@ -677,7 +735,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
                 and receipt.partner_id.commercial_partner_id == self._commercial_partner()
             )
             reference, type_label = receipt.name, _("GRN/SES")
-        if not valid:
+        if not valid or self._vendor_receipt_fully_paid(receipt):
             return False
         amount = receipt.grand_total if receipt_type == "legacy" else self._receipt_invoice_amount(receipt)
         option = {"token": token, "po": po, "reference": reference, "type": type_label, "amount": amount}
@@ -1095,7 +1153,7 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
             error_message.append(_("Please select a valid purchase order."))
         receipt_data = self._get_vendor_invoice_receipt(receipt_token, po) if po else False
         if not receipt_data:
-            error_message.append(_("Please select an approved GRN/SES for this purchase order."))
+            error_message.append(_("Please select an approved GRN/SES that is not fully paid for this purchase order."))
         if not invoice_file:
             error_message.append(_("Please attach the invoice PDF."))
 
