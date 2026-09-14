@@ -1253,6 +1253,46 @@ $pr-portal-radius: 1.15rem;
     max-width: 32rem;
 }
 
+.o_pr_resizable_column {
+    position: relative;
+    padding-inline-end: 14px !important;
+}
+
+.o_pr_column_resize_handle {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    touch-action: none;
+    z-index: 1;
+    border-inline-end: 2px solid rgba(98, 116, 138, 0.3);
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(98, 116, 138, 0.2);
+        border-inline-end-color: #62748a;
+    }
+}
+
+table.o_pr_columns_resized {
+    table-layout: fixed !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    th, td {
+        overflow-wrap: anywhere;
+        white-space: normal !important;
+    }
+}
+
+html.o_pr_column_resizing,
+html.o_pr_column_resizing * {
+    cursor: col-resize !important;
+    user-select: none !important;
+}
+
 .o_pr_portal_clickable_row {
     cursor: pointer;
 
