@@ -12,7 +12,7 @@
                     @media (min-width: 993px) and (max-width: 1420px) {
                         :root { --pr-navbar-height: 170px; }
                     }
-                    html { scroll-padding-top: var(--pr-navbar-height); }
+                    html, #wrapwrap { scroll-padding-top: var(--pr-navbar-height); }
                     a { text-decoration: none; color: inherit; }
                     ul { list-style: none; }
                     img { max-width: 100%; display: block; }
@@ -993,6 +993,20 @@
                             var getScrollTop = function () {
                                 return scrollHost === window ? window.scrollY : scrollHost.scrollTop;
                             };
+                            // Fixed navigation must leave the scroll host's scrollbar exposed,
+                            // including when RTL places that scrollbar on the left.
+                            var syncNavbarBounds = function () {
+                                var host = scrollHost === window ? document.documentElement : scrollHost;
+                                var bounds = host.getBoundingClientRect();
+                                navbar.style.left = (bounds.left + host.clientLeft) + 'px';
+                                navbar.style.right = 'auto';
+                                navbar.style.width = host.clientWidth + 'px';
+                                if (!navbar.classList.contains('scrolled')) {
+                                    document.documentElement.style.setProperty(
+                                        '--pr-navbar-height', navbar.getBoundingClientRect().height + 'px'
+                                    );
+                                }
+                            };
                             var updateNavbarScrollState = function () {
                                 if (getScrollTop() > 50) {
                                     navbar.classList.add('scrolled');
@@ -1001,6 +1015,14 @@
                                 }
                             };
                             scrollHost.addEventListener('scroll', updateNavbarScrollState, {passive: true});
+                            window.addEventListener('resize', syncNavbarBounds);
+                            window.addEventListener('load', syncNavbarBounds);
+                            if (window.ResizeObserver) {
+                                var navbarResizeObserver = new ResizeObserver(syncNavbarBounds);
+                                navbarResizeObserver.observe(navbar);
+                                navbarResizeObserver.observe(scrollHost === window ? document.documentElement : scrollHost);
+                            }
+                            syncNavbarBounds();
                             updateNavbarScrollState();
                         }
 
