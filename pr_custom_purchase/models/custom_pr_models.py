@@ -570,7 +570,10 @@ class CustomPR(models.Model):
             cost_center = item["cc"]
             required_amount = item["amount"]
             remaining = remaining_by_cost_center.get(cost_center.id, 0.0)
-            if required_amount > remaining:
+            if float_compare(
+                required_amount, remaining,
+                precision_rounding=(cost_center.company_id or self.env.company).currency_id.rounding,
+            ) > 0:
                 raise ValidationError(
                     f"This cost center {cost_center.display_name}has low budget for this PR "
                     f"Required budget is SAR. ({required_amount}) Remaining budget is SAR. ({remaining})."

@@ -539,11 +539,11 @@ msgstr "سجل تحديثات الأنشطة"
 #: code:addons/employee_task_management/models/employee_task_subtask.py:0
 #, python-format
 msgid ""
-"Activities can no longer be added to or removed from task list "%s" - it "
-"is in "%s" status. Plan the activities before accepting the task list."
+"Activities can no longer be added to or removed from task list \"%s\" - it "
+"is in \"%s\" status. Plan the activities before accepting the task list."
 msgstr ""
-"لم يعد بالإمكان إضافة الأنشطة إلى قائمة المهام "%s" أو إزالتها منها - فهي "
-"في حالة "%s". قم بتخطيط الأنشطة قبل قبول قائمة المهام."
+"لم يعد بالإمكان إضافة الأنشطة إلى قائمة المهام \"%s\" أو إزالتها منها - فهي "
+"في حالة \"%s\". قم بتخطيط الأنشطة قبل قبول قائمة المهام."
 
 #. module: employee_task_management
 #. odoo-python
@@ -572,11 +572,11 @@ msgstr ""
 #: code:addons/employee_task_management/models/employee_task_subtask.py:0
 #, python-format
 msgid ""
-"Activities cannot be marked as Done yet. Task list "%s" is in "%s" state"
-" - the work has to be approved and started ("Start Work") first."
+"Activities cannot be marked as Done yet. Task list \"%s\" is in \"%s\" state"
+" - the work has to be approved and started (\"Start Work\") first."
 msgstr ""
-"لا يمكن وضع علامة «تم» على الأنشطة بعد. قائمة المهام "%s" في حالة "%s" - "
-"يجب اعتماد العمل وبدؤه ("بدء العمل") أولًا."
+"لا يمكن وضع علامة «تم» على الأنشطة بعد. قائمة المهام \"%s\" في حالة \"%s\" - "
+"يجب اعتماد العمل وبدؤه (\"بدء العمل\") أولًا."
 
 #. module: employee_task_management
 #: model:ir.model.fields,field_description:employee_task_management.field_employee_task_activity_reject_wizard__subtask_id
@@ -1530,8 +1530,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/employee_task_management/models/employee_task_list.py:0
 #, python-format
-msgid "Hours are mandatory on every activity of task "%s"."
-msgstr "الساعات إلزامية لكل نشاط من أنشطة المهمة "%s"."
+msgid "Hours are mandatory on every activity of task \"%s\"."
+msgstr "الساعات إلزامية لكل نشاط من أنشطة المهمة \"%s\"."
 
 #. module: employee_task_management
 #: model_terms:ir.ui.view,arch_db:employee_task_management.view_employee_task_line_form_subtasks
@@ -1567,12 +1567,12 @@ msgstr ""
 #: model:ir.model.fields,help:employee_task_management.field_employee_task_subtask__hours
 msgid ""
 "Hours estimated / spent on this activity. Mandatory - enforced by "
-"_check_hours and by required="1" in the view. Deliberately NOT required at"
+"_check_hours and by required=\"1\" in the view. Deliberately NOT required at"
 " field level, so upgrading an existing database can never fail on a NOT NULL"
 " alter."
 msgstr ""
 "الساعات المقدرة / المستغرقة في هذا النشاط. إلزامية - يتم فرضها بواسطة "
-"_check_hours وبواسطة required="1" في العرض. ليست مطلوبة عمدًا على مستوى"
+"_check_hours وبواسطة required=\"1\" في العرض. ليست مطلوبة عمدًا على مستوى"
 " الحقل، حتى لا يفشل ترقية قاعدة بيانات موجودة أبدًا بسبب تعديل NOT NULL."
 
 #. module: employee_task_management
@@ -2115,8 +2115,8 @@ msgstr "يمكن تعيين قوائم المهام التي تكون في حا�
 #. odoo-python
 #: code:addons/employee_task_management/models/employee_task_list.py:0
 #, python-format
-msgid "Only Draft task lists can be deleted. "%s" is in %s state."
-msgstr "يمكن حذف قوائم المهام التي تكون في حالة مسودة فقط. "%s" في حالة %s."
+msgid "Only Draft task lists can be deleted. \"%s\" is in %s state."
+msgstr "يمكن حذف قوائم المهام التي تكون في حالة مسودة فقط. \"%s\" في حالة %s."
 
 #. module: employee_task_management
 #. odoo-python
@@ -2147,10 +2147,10 @@ msgstr ""
 #: code:addons/employee_task_management/wizard/task_return_wizard.py:0
 #, python-format
 msgid ""
-"Only a task list in "Submitted to Manager" status can be returned for "
+"Only a task list in \"Submitted to Manager\" status can be returned for "
 "correction."
 msgstr ""
-"يمكن إعادة قائمة المهام التي تكون في حالة "مقدمة إلى المدير" فقط للتصحيح."
+"يمكن إعادة قائمة المهام التي تكون في حالة \"مقدمة إلى المدير\" فقط للتصحيح."
 
 #. module: employee_task_management
 #. odoo-python
@@ -2220,8 +2220,8 @@ msgstr "يمكن إغلاق قوائم المهام المكتملة فقط."
 #. odoo-python
 #: code:addons/employee_task_management/models/employee_task_list.py:0
 #, python-format
-msgid "Only task lists in "Submitted to Manager" state can be approved."
-msgstr "يمكن اعتماد قوائم المهام التي تكون في حالة "مقدمة إلى المدير" فقط."
+msgid "Only task lists in \"Submitted to Manager\" state can be approved."
+msgstr "يمكن اعتماد قوائم المهام التي تكون في حالة \"مقدمة إلى المدير\" فقط."
 
 #. module: employee_task_management
 #. odoo-python
@@ -3684,10 +3684,10 @@ msgstr "هذا الشهر"
 #: code:addons/employee_task_management/models/employee_task_list.py:0
 #, python-format
 msgid ""
-"This task list belongs to you. Use "Submit to Manager" instead so your "
+"This task list belongs to you. Use \"Submit to Manager\" instead so your "
 "manager can approve it."
 msgstr ""
-"قائمة المهام هذه تخصك. استخدم "إرسال إلى المدير" بدلاً من ذلك حتى يتمكن "
+"قائمة المهام هذه تخصك. استخدم \"إرسال إلى المدير\" بدلاً من ذلك حتى يتمكن "
 "مديرك من اعتمادها."
 
 #. module: employee_task_management
