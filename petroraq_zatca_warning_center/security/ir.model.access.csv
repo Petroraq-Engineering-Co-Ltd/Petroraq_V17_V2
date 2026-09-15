@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zatca_warning_case_account_invoice,petroraq.zatca.warning.case account invoice,model_petroraq_zatca_warning_case,account.group_account_invoice,1,0,0,0
+access_zatca_warning_case_officer,petroraq.zatca.warning.case compliance officer,model_petroraq_zatca_warning_case,petroraq_zatca_warning_center.group_zatca_compliance_officer,1,1,1,1
+access_zatca_warning_rule_officer,petroraq.zatca.warning.rule compliance officer,model_petroraq_zatca_warning_rule,petroraq_zatca_warning_center.group_zatca_compliance_officer,1,1,1,1
+access_zatca_invoice_audit_wizard_officer,petroraq.zatca.invoice.audit.wizard compliance officer,model_petroraq_zatca_invoice_audit_wizard,petroraq_zatca_warning_center.group_zatca_compliance_officer,1,1,1,1
