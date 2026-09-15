@@ -842,7 +842,11 @@ class PurchaseRequisition(models.Model):
                 continue
             remaining_by_cost_center = rec._get_selected_budget_remaining_by_cost_center()
             rec.show_request_budget_increase_button = any(
-                item["amount"] > remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left)
+                float_compare(
+                    item["amount"],
+                    remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left),
+                    precision_rounding=rec.company_id.currency_id.rounding,
+                ) > 0
                 for item in rec._amount_by_cost_center().values()
             ) and bool(rec._get_selected_budget_requisition())
 
@@ -1126,7 +1130,9 @@ class PurchaseRequisition(models.Model):
             cc = item["cc"]
             amount = item["amount"]
             remaining = remaining_by_cost_center.get(cc.id, cc.budget_left)
-            if remaining < amount:
+            if float_compare(
+                remaining, amount, precision_rounding=self.company_id.currency_id.rounding
+            ) < 0:
                 raise exception_cls(
                     _("Insufficient budget for cost center %s. Remaining: %s, Required: %s")
                     % (cc.display_name, remaining, amount)
@@ -1207,7 +1213,11 @@ class PurchaseRequisition(models.Model):
 
         exceeded_cost_centers = [
             item for item in line_amounts.values()
-            if item["amount"] > remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left)
+            if float_compare(
+                item["amount"],
+                remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left),
+                precision_rounding=self.company_id.currency_id.rounding,
+            ) > 0
         ]
 
         if not exceeded_cost_centers:

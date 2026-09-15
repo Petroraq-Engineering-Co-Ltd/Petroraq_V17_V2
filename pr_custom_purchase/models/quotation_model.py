@@ -2,6 +2,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import AccessError
 from odoo.exceptions import UserError, ValidationError
 from odoo.osv import expression
+from odoo.tools import float_compare
 
 import logging
 
@@ -525,7 +526,10 @@ class PurchaseOrder(models.Model):
                 cc = cc_map.get(cc_id)
                 if not cc:
                     raise ValidationError(_("Invalid cost center found in RFQ analytic distribution."))
-                if cc.budget_left < amount:
+                if float_compare(
+                    cc.budget_left, amount,
+                    precision_rounding=self.company_id.currency_id.rounding,
+                ) < 0:
                     raise ValidationError(
                         _("Insufficient budget for cost center %s. Remaining: %s, Required: %s")
                         % (cc.display_name, cc.budget_left, amount)
