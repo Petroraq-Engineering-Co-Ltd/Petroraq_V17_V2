@@ -15,7 +15,6 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
-```po
 #. module: employee_task_management
 #. odoo-python
 #: code:addons/employee_task_management/models/employee_task_list.py:0

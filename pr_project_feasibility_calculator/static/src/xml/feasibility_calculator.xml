@@ -6,7 +6,7 @@
                 <div>
 <!--                    <span class="o_pfc_eyebrow">INVESTMENT DECISION WORKSPACE</span>-->
                     <h1 style="color: #fff;">Project Feasibility Calculator</h1>
-                    <p>Compare the proposed profit share with your required fixed return, or calculate the minimum viable split.</p>
+                    <p>Check whether the investor's expected profit meets the target.</p>
                 </div>
                 <div class="o_pfc_hero_actions">
                     <button class="btn btn-light" t-on-click="newCalculation">
@@ -25,13 +25,13 @@
                 <div class="o_pfc_mode">
                     <button t-att-class="state.mode === 'forward' ? 'active' : ''"
                             t-on-click="() => this.setMode('forward')">
-                        <i class="fa fa-line-chart"/> Feasibility Test
-                        <small>Is the proposed split sufficient?</small>
+                        <i class="fa fa-line-chart"/> Check Profit
+                        <small>Will the investor earn enough?</small>
                     </button>
                     <button t-att-class="state.mode === 'reverse' ? 'active' : ''"
                             t-on-click="() => this.setMode('reverse')">
-                        <i class="fa fa-exchange"/> Reverse Calculator
-                        <small>What split makes it feasible?</small>
+                        <i class="fa fa-exchange"/> Find Required Share
+                        <small>How much of the profit does the investor need?</small>
                     </button>
                 </div>
 
@@ -39,8 +39,7 @@
                     <section class="o_pfc_card o_pfc_inputs">
                         <div class="o_pfc_card_head">
                             <div>
-                                <span>PROJECT ASSUMPTIONS</span>
-                                <h2 t-esc="state.mode === 'forward' ? 'Test the proposed return' : 'Find the viable profit share'"/>
+                                <h2>Project details</h2>
                             </div>
                             <i class="fa fa-sliders"/>
                         </div>
@@ -51,7 +50,7 @@
                                        t-on-input="(ev) => this.updateText('project_name', ev)"/>
                             </label>
                             <label class="o_pfc_field">
-                                <span>Investment Amount</span>
+                                <span>Amount Invested by Investor</span>
                                 <div class="o_pfc_input_group">
                                     <b t-esc="state.currency.symbol"/>
                                     <input type="text" inputmode="decimal"
@@ -69,7 +68,7 @@
                                 </div>
                             </label>
                             <label class="o_pfc_field">
-                                <span>Projected Total Project Profit</span>
+                                <span>Expected Profit for the Whole Project</span>
                                 <div class="o_pfc_input_group">
                                     <b t-esc="state.currency.symbol"/>
                                     <input type="text" inputmode="decimal"
@@ -78,7 +77,7 @@
                                 </div>
                             </label>
                             <label class="o_pfc_field" style="display: none;">
-                                <span>Expected Fixed Return / Month</span>
+                                <span>Monthly Profit Target (%)</span>
                                 <div class="o_pfc_input_group">
                                     <input type="number" min="0" step="0.1"
                                            t-att-value="state.form.expected_monthly_rate"
@@ -98,7 +97,7 @@
                                 </div>
                             </label>
                             <label class="o_pfc_field o_pfc_full">
-                                <span>Investor Profit Share</span>
+                                <span>Investor's Share of Total Profit</span>
                                 <div class="o_pfc_ratio_line">
                                     <input type="range" min="1" max="100" step="0.01"
                                            t-att-value="state.form.investor_ratio"
@@ -132,60 +131,57 @@
                                     Increase the investor share to at least
                                     <strong t-esc="formatPercent(result.minimumRatio)"/>.
                                 </p>
-                                <p t-if="result.impossible">The projected total profit is below the required investor return.</p>
-                                <p t-if="result.feasible">The investor return meets or exceeds the required benchmark.</p>
+                                <p t-if="result.impossible">Even all the project's expected profit would not meet the investor's target.</p>
+                                <p t-if="result.feasible">The investor's expected profit meets the target.</p>
                             </div>
                         </div>
 
                         <div class="o_pfc_metric_grid">
                             <article>
-                                <span>Investor Projected Profit</span>
+                                <span>Investor's Expected Profit</span>
                                 <strong t-esc="formatMoney(result.investorProfit)"/>
-                                <small t-esc="formatPercent(result.roi) + ' ROI'"/>
                             </article>
                             <article>
-                                <span>Required Fixed Profit</span>
+                                <span>Investor's Profit Target</span>
                                 <strong t-esc="formatMoney(result.requiredProfit)"/>
-                                <small t-esc="formatPercent(state.form.expected_monthly_rate) + ' × ' + state.form.duration_months + ' months'"/>
                             </article>
                             <article t-att-class="result.variance &gt;= 0 ? 'positive' : 'negative'">
-                                <span>Profit Variance</span>
-                                <strong t-esc="formatMoney(result.variance)"/>
-                                <small>Projected less required</small>
+                                <span t-esc="result.variance &gt;= 0 ? 'Extra Profit Above Target' : 'Profit Shortfall'"/>
+                                <strong t-esc="formatMoney(result.variance &gt;= 0 ? result.variance : -result.variance)"/>
                             </article>
                             <article>
-                                <span>Monthly Investor Profit</span>
+                                <span>Investor's Average Profit per Month</span>
                                 <strong t-esc="formatMoney(result.monthlyProfit)"/>
-                                <small>Average over project duration</small>
                             </article>
                         </div>
 
                         <div class="o_pfc_reverse">
                             <div class="o_pfc_card_head">
                                 <div>
-                                    <span>REVERSE CALCULATOR</span>
-                                    <h2>Minimum terms for feasibility</h2>
+                                    <h2>What is needed to meet the target?</h2>
                                 </div>
                                 <i class="fa fa-bullseye"/>
                             </div>
                             <div class="o_pfc_reverse_values">
                                 <div>
-                                    <span>Minimum Investor Share</span>
+                                    <span>Investor's Minimum Share of Profit</span>
                                     <strong t-esc="formatPercent(result.minimumRatio)"/>
                                     <small t-if="result.minimumRatio &lt;= 100">Partner share may be up to <t t-esc="formatPercent(100 - result.minimumRatio)"/></small>
-                                    <small t-else="">Not achievable within a 100% split</small>
+                                    <small t-else="">Even a 100% share is not enough</small>
                                 </div>
                                 <div>
-                                    <span>Required Total Profit at Current Split</span>
+                                    <span>Total Project Profit Needed</span>
                                     <strong t-esc="formatMoney(result.requiredTotalProfit)"/>
                                     <small>At <t t-esc="formatPercent(state.form.investor_ratio)"/> investor share</small>
                                 </div>
                             </div>
-                            <div class="o_pfc_formula">
-                                <i class="fa fa-info-circle"/>
-                                Required profit = Investment × Monthly fixed return × Duration.
-                                Minimum share = Required profit ÷ Total project profit.
-                            </div>
+                            <details class="o_pfc_formula">
+                                <summary>Calculation details (optional)</summary>
+                                <p>Return on investment (ROI): <t t-esc="formatPercent(result.roi)"/></p>
+                                <p>Monthly profit target: <t t-esc="formatPercent(state.form.expected_monthly_rate)"/> of the amount invested, for <t t-esc="state.form.duration_months"/> months.</p>
+                                <p>Profit target = Amount invested × Monthly target percentage ÷ 100 × Number of months.</p>
+                                <p>Minimum investor share (%) = Profit target ÷ Expected total project profit × 100.</p>
+                            </details>
                         </div>
                     </section>
                 </div>

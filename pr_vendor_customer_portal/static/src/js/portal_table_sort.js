@@ -127,6 +127,102 @@ function addClickableRows(table) {
     });
 }
 
+function addColumnResizing(table) {
+    if (table.dataset.prResizeInitialized) {
+        return;
+    }
+    const headers = [...table.tHead.rows[0].cells];
+    // Grouped headers need a different column mapping.
+    if (table.tHead.rows.length !== 1 || headers.some((cell) => cell.colSpan !== 1)) {
+        return;
+    }
+    table.dataset.prResizeInitialized = "1";
+    if (!table.closest(".table-responsive")) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-responsive o_pr_resize_wrapper";
+        table.before(wrapper);
+        wrapper.appendChild(table);
+    }
+    let columns;
+    const minimumWidth = 64;
+    const prepare = () => {
+        if (columns) {
+            return;
+        }
+        const widths = headers.map((header) => header.getBoundingClientRect().width);
+        const width = table.getBoundingClientRect().width;
+        const group = document.createElement("colgroup");
+        columns = widths.map((value) => {
+            const column = document.createElement("col");
+            column.style.width = `${value}px`;
+            group.appendChild(column);
+            return column;
+        });
+        table.querySelectorAll(":scope > colgroup").forEach((old) => old.remove());
+        table.insertBefore(group, table.tHead);
+        table.classList.add("o_pr_columns_resized");
+        table.style.width = `${width}px`;
+    };
+    const resize = (index, width) => {
+        const column = columns[index];
+        const previous = parseFloat(column.style.width);
+        const next = Math.max(minimumWidth, width);
+        column.style.width = `${next}px`;
+        table.style.width = `${parseFloat(table.style.width) + next - previous}px`;
+    };
+    headers.forEach((header, index) => {
+        const handle = document.createElement("span");
+        handle.className = "o_pr_column_resize_handle";
+        handle.tabIndex = 0;
+        handle.setAttribute("role", "separator");
+        handle.setAttribute("aria-orientation", "vertical");
+        handle.setAttribute("aria-label", `Resize ${header.textContent.replace(/[↕↑↓]/g, "").trim()} column`);
+        handle.title = "Drag to resize column; use left/right arrow keys when focused";
+        header.classList.add("o_pr_resizable_column");
+        header.appendChild(handle);
+        let drag;
+        handle.addEventListener("click", (event) => event.stopPropagation());
+        handle.addEventListener("pointerdown", (event) => {
+            if (event.button !== 0) {
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            prepare();
+            drag = {
+                x: event.clientX,
+                width: parseFloat(columns[index].style.width),
+                direction: getComputedStyle(table).direction === "rtl" ? -1 : 1,
+            };
+            handle.setPointerCapture(event.pointerId);
+            document.documentElement.classList.add("o_pr_column_resizing");
+        });
+        handle.addEventListener("pointermove", (event) => {
+            if (drag) {
+                resize(index, drag.width + (event.clientX - drag.x) * drag.direction);
+            }
+        });
+        const finish = () => {
+            drag = null;
+            document.documentElement.classList.remove("o_pr_column_resizing");
+        };
+        handle.addEventListener("pointerup", finish);
+        handle.addEventListener("pointercancel", finish);
+        handle.addEventListener("lostpointercapture", finish);
+        handle.addEventListener("keydown", (event) => {
+            event.stopPropagation();
+            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+                return;
+            }
+            event.preventDefault();
+            prepare();
+            const direction = getComputedStyle(table).direction === "rtl" ? -1 : 1;
+            const delta = (event.key === "ArrowRight" ? 10 : -10) * direction;
+            resize(index, parseFloat(columns[index].style.width) + delta);
+        });
+    });
+}
+
 function initializePortalTables(root = document) {
     root.querySelectorAll(
         ".o_portal_wrap table, main table.table, #wrapwrap table.table"
@@ -137,6 +233,7 @@ function initializePortalTables(root = document) {
         addSorting(table);
         addSearch(table);
         addClickableRows(table);
+        addColumnResizing(table);
     });
 }
 
