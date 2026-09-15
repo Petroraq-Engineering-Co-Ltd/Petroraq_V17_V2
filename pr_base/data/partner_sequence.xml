@@ -16,7 +16,7 @@
             <field name="code">res.partner.vendor.code</field>
             <field name="prefix"></field>
             <field name="padding">0</field>
-            <field name="number_next">2001</field>
+            <field name="number_next">7001</field>
             <field name="number_increment">1</field>
             <field name="company_id" eval="False"/>
         </record>

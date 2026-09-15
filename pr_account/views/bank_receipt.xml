@@ -48,7 +48,7 @@
                             type="object"
                             class="btn-teal-custom"
                             invisible="state != 'submit'"
-                            groups="account.group_account_manager"/>
+                            groups="account.group_account_manager,pr_account.custom_group_account_supervisor,!pr_account.custom_group_accounting_manager"/>
 
                     <button name="action_post"
                             string="Final Approve"
@@ -62,7 +62,7 @@
                             type="object"
                             class="btn-danger"
                             invisible="state != 'submit'"
-                            groups="account.group_account_manager"/>
+                            groups="account.group_account_manager,pr_account.custom_group_account_supervisor,!pr_account.custom_group_accounting_manager"/>
 
                     <button name="action_open_reject_wizard"
                             string="REJECT"

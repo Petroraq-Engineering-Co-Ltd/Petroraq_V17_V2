@@ -63,8 +63,11 @@
             <xpath expr="//header/field[@name='state']" position="before">
                 <field name="pr_payment_approval_state"
                        widget="statusbar"
-                       statusbar_visible="draft,submit,finance_approve,reject,posted"
+                       statusbar_visible="draft,submit,finance_approve,posted"
                        invisible="not pr_requires_vendor_payment_approval"/>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="invisible" add="pr_requires_vendor_payment_approval" separator=" or "/>
             </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="button_open_pr_vendor_bills"
@@ -81,18 +84,42 @@
                 </button>
             </xpath>
             <xpath expr="//group[@name='main_group']" position="after">
-                <group string="Vendor Payment Approval" invisible="not pr_requires_vendor_payment_approval">
-                    <group>
-                        <field name="pr_payment_approval_state" readonly="1"/>
-                        <field name="pr_vendor_payment_reject_reason"
-                               readonly="1"
-                               invisible="pr_payment_approval_state != 'reject'"/>
-                        <field name="pr_vendor_bill_ids" widget="many2many_tags" readonly="1"/>
+                <div name="vendor_payment_approval_details" invisible="not pr_requires_vendor_payment_approval">
+                    <group string="Vendor Payment Approval">
+                        <group>
+                            <field name="pr_payment_approval_state" string="Approval Status" readonly="1"
+                                   widget="badge"
+                                   decoration-info="pr_payment_approval_state == 'submit'"
+                                   decoration-warning="pr_payment_approval_state == 'finance_approve'"
+                                   decoration-success="pr_payment_approval_state == 'posted'"
+                                   decoration-danger="pr_payment_approval_state in ('reject', 'cancel')"/>
+                            <field name="state" string="Accounting Status" readonly="1" widget="badge"/>
+                        </group>
+                        <group>
+                            <field name="pr_vendor_bill_ids" widget="many2many_tags" readonly="1"/>
+                        </group>
                     </group>
-                    <group>
-                        <field name="pr_vendor_payment_source_line_ids" readonly="1"/>
-                    </group>
-                </group>
+                    <div class="alert alert-warning" role="alert" invisible="pr_payment_approval_state != 'reject'">
+                        <strong>Payment rejected</strong>
+                        <field name="pr_vendor_payment_reject_reason" readonly="1" nolabel="1" class="d-block w-100 mb-0"/>
+                    </div>
+                    <div name="vendor_payment_bill_lines" invisible="not pr_vendor_payment_source_line_ids">
+                        <separator string="Vendor Bill Payment Lines"/>
+                        <field name="pr_vendor_payment_source_line_ids" readonly="1" nolabel="1">
+                            <tree create="false" edit="false" delete="false" default_order="date, id">
+                                <field name="date"/>
+                                <field name="move_id" string="Vendor Bill"/>
+                                <field name="date_maturity" string="Due Date"/>
+                                <field name="name" string="Description"/>
+                                <field name="account_id" optional="hide"/>
+                                <field name="company_currency_id" column_invisible="True"/>
+                                <field name="debit" widget="monetary" options="{'currency_field': 'company_currency_id'}" optional="hide"/>
+                                <field name="credit" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                                <field name="amount_residual" string="Remaining Balance" widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                            </tree>
+                        </field>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>

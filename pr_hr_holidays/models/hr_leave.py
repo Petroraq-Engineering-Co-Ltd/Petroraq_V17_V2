@@ -125,7 +125,6 @@ class HrHolidays(models.Model):
 
     def _calculate_sick_leave_amount(self, days_dict, sick_leave_days, employee_net_salary):
         for leave in self:
-            sick_leave_days = sick_leave_days  # Track sick leave days taken
             leave_amount = 0
 
             for month_key, month_values in days_dict.items():
@@ -136,32 +135,16 @@ class HrHolidays(models.Model):
                 # Calculate leave days for the current month
                 leave_days = (month_values.get("to_date") - month_values.get("from_date")).days + 1
 
-                # While there are still sick leave days remaining
-                while leave_days > 0:
-                    # Handle days from 0 to 30 days at 100% rate
-                    if sick_leave_days <= 30:
-                        si_30_days = min(30 - sick_leave_days, leave_days)
-                        leave_amount += (
-                                                    si_30_days * employee_net_salary) / month_days if employee_net_salary > 0 else 0
-                        sick_leave_days += si_30_days
-                        leave_days -= si_30_days
-
-                    # Handle days from 31 to 60 days at 75% rate
-                    elif 31 <= sick_leave_days <= 60:
-                        si_60_days = min(60 - sick_leave_days, leave_days)
-                        leave_amount += (((
-                                                      si_60_days * employee_net_salary) / month_days) * 0.75) if employee_net_salary > 0 else 0
-                        sick_leave_days += si_60_days
-                        leave_days -= si_60_days
-
-                    # Handle days from 61 to 90 days at 50% rate
-                    elif 61 <= sick_leave_days <= 90:
-                        si_90_days = min(90 - sick_leave_days, leave_days)
-                        # leave_amount += (((si_90_days * employee_net_salary) / month_days) * 0.50) if employee_net_salary > 0 else 0
-                        leave_amount += (((
-                                                      si_90_days * employee_net_salary) / month_days) * 0) if employee_net_salary > 0 else 0
-                        sick_leave_days += si_90_days
-                        leave_days -= si_90_days
+                # Calculate the overlap with each paid band directly. The old
+                # loop made no progress at exactly 30/60 days, between the
+                # integer bands, or above 90 days, blocking stored recomputes.
+                # Preserve the configured rates: 100%, 75%, then unpaid.
+                period_end = sick_leave_days + leave_days
+                full_pay_days = max(0.0, min(period_end, 30.0) - max(sick_leave_days, 0.0))
+                reduced_pay_days = max(0.0, min(period_end, 60.0) - max(sick_leave_days, 30.0))
+                if employee_net_salary > 0:
+                    leave_amount += (full_pay_days + reduced_pay_days * 0.75) * employee_net_salary / month_days
+                sick_leave_days = period_end
 
             return leave_amount
 

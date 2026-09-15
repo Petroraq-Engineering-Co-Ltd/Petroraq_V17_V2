@@ -19,6 +19,7 @@ class PurchaseOrder(models.Model):
         ],
         string="Billing Status",
         compute="_compute_workflow_billing_status",
+        search="_search_po_billing_status",
         compute_sudo=True,
     )
     workflow_payment_status = fields.Selection(
@@ -32,6 +33,7 @@ class PurchaseOrder(models.Model):
         ],
         string="Payment Status",
         compute="_compute_workflow_billing_status",
+        search="_search_po_payment_status",
         compute_sudo=True,
     )
 

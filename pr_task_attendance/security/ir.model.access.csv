@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+task_attendance_employee,Daily task attendance employee,model_hr_task_attendance_day,base.group_user,1,1,0,0
+task_attendance_hr_read,Task absence attendance HR read,hr_attendance.model_hr_attendance,hr.group_hr_manager,1,0,0,0
+task_attendance_onboarding_hr_read,Task absence attendance HR Manager read,hr_attendance.model_hr_attendance,pr_hr_recruitment_request.group_onboarding_manager,1,0,0,0

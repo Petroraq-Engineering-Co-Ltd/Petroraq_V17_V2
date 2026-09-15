@@ -9,7 +9,7 @@ from odoo.exceptions import UserError, ValidationError
 class AccountBankPayment(models.Model):
     # region [Initial]
     _name = 'pr.account.bank.payment'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'pr.account.voucher.approval.mixin']
     _description = 'Bank Payment'
     _order = "id"
     _rec_name = 'name'
@@ -198,17 +198,7 @@ class AccountBankPayment(models.Model):
 
     def _check_reject_stage_access(self):
         self.ensure_one()
-        is_accounting_manager = self.env.user.has_group(
-            "pr_account.custom_group_accounting_manager"
-        )
-        is_first_approver = self.env.user.has_group("account.group_account_manager")
-        if self.state == "submit" and not is_first_approver:
-            raise UserError(_("Only the first Accounts approver can reject a submitted Bank Payment Voucher."))
-        if self.state == "finance_approve" and not is_accounting_manager:
-            raise UserError(_("Only the Accounting Manager can reject a Bank Payment Voucher awaiting final approval."))
-        if self.state not in ("submit", "finance_approve"):
-            raise UserError(_("Only a voucher awaiting approval can be rejected."))
-        return True
+        return self._check_voucher_approval_stage(self.state)
 
     def _reject_with_reason(self, reason):
         reason = (reason or "").strip()
@@ -241,26 +231,13 @@ class AccountBankPayment(models.Model):
             bank_payment.rejection_reason = False
 
     def action_finance_approve(self):
-        if (
-            not self.env.su
-            and not self.env.user.has_group("base.group_system")
-            and not self.env.user.has_group("account.group_account_manager")
-        ):
-            raise UserError(_("Only an Accountant can approve this stage."))
+        self._check_voucher_approval_stage("submit")
         for bank_payment in self:
             bank_payment.state = "finance_approve"
             bank_payment.accounting_manager_state = "finance_approve"
-            if self.env.user.has_group("pr_account.custom_group_accounting_manager"):
-                bank_payment.action_post()
 
     def action_post(self):
-        if (
-            self.filtered(lambda payment: payment.state == "finance_approve")
-            and not self.env.su
-            and not self.env.user.has_group("base.group_system")
-            and not self.env.user.has_group("pr_account.custom_group_accounting_manager")
-        ):
-            raise UserError(_("Only the Accounting Manager can give final approval."))
+        self._check_voucher_approval_stage("finance_approve")
         for bank_payment in self:
             bank_payment._check_lock_date()
             if bank_payment.bank_payment_line_ids:
@@ -327,12 +304,14 @@ class AccountBankPayment(models.Model):
             return line_vals
 
     def action_approve_remaining_lines(self):
+        self._check_voucher_approval_stage("submit")
         for rec in self:
             for line in rec.bank_payment_line_ids:
                 if line.state == "submit":
                     line.sudo().write({"state": "approve"})
 
     def action_reject_remaining_lines(self):
+        self._check_voucher_approval_stage("submit")
         for rec in self:
             for line in rec.bank_payment_line_ids:
                 if line.state == "submit":
@@ -678,11 +657,13 @@ class AccountBankPaymentLine(models.Model):
     # region [Actions]
 
     def action_line_approve(self):
+        self.mapped("bank_payment_id")._check_voucher_approval_stage("submit")
         for line in self:
             line.sudo().write({"state": "approve"})
 
     def action_line_reject(self):
         self.ensure_one()
+        self.bank_payment_id._check_voucher_approval_stage("submit")
         return {
             'type': 'ir.actions.act_window',
             'name': "Reject Reason",
@@ -846,6 +827,7 @@ class BankPaymentRejectReasonWizard(models.TransientModel):
         if not line:
             raise ValidationError(_("Select a Bank Payment Voucher or voucher line to reject."))
         parent = line.bank_payment_id
+        parent._check_voucher_approval_stage("submit")
 
         line.sudo().write({
             'state': 'reject',

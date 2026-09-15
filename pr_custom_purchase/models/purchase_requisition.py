@@ -278,7 +278,18 @@ class PurchaseRequisition(models.Model):
     )
     rfq_ids = fields.One2many("purchase.order", "requisition_id", string="RFQs")
     rfq_count = fields.Integer(string="RFQ Count", compute="_compute_rfq_metrics")
-    rfq_sent_count = fields.Integer(string="RFQ Sent Count", compute="_compute_rfq_metrics")
+    rfq_sent_count = fields.Integer(
+        string="RFQs Sent", compute="_compute_linked_purchase_statuses", compute_sudo=True,
+        help="Number of RFQ documents marked sent, including those later cancelled. Resends count once.",
+    )
+    rfq_sent_to = fields.Char(
+        string="RFQ Sent To", compute="_compute_linked_purchase_statuses", compute_sudo=True,
+        help="Supplier names on RFQs marked sent, including additional RFQ vendors.",
+    )
+    po_issued_to = fields.Char(
+        string="PO Issued To", compute="_compute_linked_purchase_statuses", compute_sudo=True,
+        help="Suppliers selected on created POs, including drafts awaiting approval; excludes cancelled or rejected POs.",
+    )
 
     # Computed fields for button visibility logic
     show_create_rfq_button = fields.Boolean(
@@ -331,6 +342,22 @@ class PurchaseRequisition(models.Model):
                 lambda order: "RFQ" in (order.name or "").upper()
             )
             purchase_orders = linked_orders - rfqs
+
+            # Keep sent RFQs in the cycle after selection cancels the other
+            # quotations. Odoo records the transition using this subtype.
+            sent_messages = self.env["mail.message"].sudo().search([
+                ("model", "=", "purchase.order"),
+                ("res_id", "in", rfqs.ids),
+                ("subtype_id", "=", self.env.ref("purchase.mt_rfq_sent").id),
+            ]) if rfqs else self.env["mail.message"]
+            sent_ids = set(sent_messages.mapped("res_id"))
+            sent_rfqs = rfqs.filtered(lambda order: order.state == "sent" or order.id in sent_ids)
+            requisition.rfq_sent_count = len(sent_rfqs)
+            suppliers = set((sent_rfqs.mapped("partner_id") | sent_rfqs.mapped("vendor_ids")).mapped("display_name"))
+            suppliers.update(sent_rfqs.filtered(lambda order: not order.partner_id).mapped("rfq_vendor_name"))
+            requisition.rfq_sent_to = ", ".join(sorted(filter(None, suppliers))) or False
+            issued_orders = purchase_orders.filtered(lambda order: order.state not in ("cancel", "rejected"))
+            requisition.po_issued_to = ", ".join(sorted(set(issued_orders.mapped("partner_id.display_name")))) or False
 
             requisition.linked_rfq_status = (
                 max(rfqs, key=lambda order: state_priority.get(order.state, 0)).state
@@ -729,7 +756,6 @@ class PurchaseRequisition(models.Model):
     def _compute_rfq_metrics(self):
         for rec in self:
             rec.rfq_count = len(rec.rfq_ids)
-            rec.rfq_sent_count = len(rec.rfq_ids.filtered(lambda r: r.state == "sent"))
 
     @api.onchange("expense_type")
     def _onchange_expense_type(self):
@@ -845,10 +871,16 @@ class PurchaseRequisition(models.Model):
                 float_compare(
                     item["amount"],
                     remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left),
-                    precision_rounding=rec.company_id.currency_id.rounding,
+                    precision_rounding=rec._budget_currency_rounding(item["cc"]),
                 ) > 0
                 for item in rec._amount_by_cost_center().values()
             ) and bool(rec._get_selected_budget_requisition())
+
+    def _budget_currency_rounding(self, cost_center):
+        """PRs have no company field; budget amounts use their owner's currency."""
+        self.ensure_one()
+        company = self.expense_bucket_id.company_id or cost_center.company_id or self.env.company
+        return company.currency_id.rounding
 
     def _budget_usage_date(self):
         self.ensure_one()
@@ -1131,7 +1163,7 @@ class PurchaseRequisition(models.Model):
             amount = item["amount"]
             remaining = remaining_by_cost_center.get(cc.id, cc.budget_left)
             if float_compare(
-                remaining, amount, precision_rounding=self.company_id.currency_id.rounding
+                remaining, amount, precision_rounding=self._budget_currency_rounding(cc)
             ) < 0:
                 raise exception_cls(
                     _("Insufficient budget for cost center %s. Remaining: %s, Required: %s")
@@ -1216,7 +1248,7 @@ class PurchaseRequisition(models.Model):
             if float_compare(
                 item["amount"],
                 remaining_by_cost_center.get(item["cc"].id, item["cc"].budget_left),
-                precision_rounding=self.company_id.currency_id.rounding,
+                precision_rounding=self._budget_currency_rounding(item["cc"]),
             ) > 0
         ]
 

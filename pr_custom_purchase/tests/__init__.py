@@ -7,3 +7,6 @@ from . import test_cash_pr_attachments
 from . import test_purchase_requisition_reset
 from . import test_budgetary_purchase_requisition
 from . import test_purchase_tasks_10_17
+from . import test_purchase_order_reporting
+from . import test_pr_cycle
+from . import test_po_cycle_summary
