@@ -6,6 +6,36 @@ from odoo.tools import float_compare
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
+    workflow_payment_status = fields.Selection(selection_add=[
+        ("advance_partial", "Partially Paid in Advance"),
+        ("advance_paid", "Fully Paid in Advance"),
+    ])
+
+    @api.depends("state", "invoice_status", "invoice_ids.state", "invoice_ids.payment_state",
+                 "picking_ids.state", "amount_total", "currency_id",
+                 "advance_payment_ids.state", "advance_payment_ids.amount",
+                 "advance_payment_ids.currency_id", "advance_payment_ids.date",
+                 "advance_payment_ids.payment_type", "advance_payment_ids.move_id.reversal_move_id.state")
+    def _compute_workflow_billing_status(self):
+        super()._compute_workflow_billing_status()
+        for order in self:
+            if order.state not in ("purchase", "done") or order.workflow_payment_status == "paid":
+                continue
+            payments = order.sudo().advance_payment_ids.filtered(
+                lambda payment: payment.state == "posted" and payment.payment_type == "outbound"
+                and not payment.move_id.reversal_move_id.filtered(lambda move: move.state == "posted")
+            )
+            amount = sum((payment.currency_id or payment.company_id.currency_id)._convert(
+                payment.amount, order.currency_id, order.company_id,
+                payment.date or fields.Date.context_today(payment),
+            ) for payment in payments)
+            if float_compare(amount, 0, precision_rounding=order.currency_id.rounding) > 0:
+                order.workflow_payment_status = (
+                    "advance_paid" if float_compare(amount, order.amount_total,
+                                                     precision_rounding=order.currency_id.rounding) >= 0
+                    else "advance_partial"
+                )
+
     advance_payment_ids = fields.One2many(
         "account.payment",
         "purchase_order_id",

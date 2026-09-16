@@ -1,0 +1,30 @@
+<odoo>
+    <record id="task_attendance_company_rule" model="ir.rule">
+        <field name="name">Daily task attendance: allowed companies</field>
+        <field name="model_id" ref="model_hr_task_attendance_day"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="global" eval="True"/>
+    </record>
+    <record id="task_attendance_own_rule" model="ir.rule">
+        <field name="name">Daily task attendance: own records</field>
+        <field name="model_id" ref="model_hr_task_attendance_day"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+    </record>
+    <record id="task_attendance_hr_rule" model="ir.rule">
+        <field name="name">Daily task attendance: HR Manager review</field>
+        <field name="model_id" ref="model_hr_task_attendance_day"/>
+        <field name="groups" eval="[(4, ref('hr.group_hr_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+    <record id="task_attendance_hr_punch_rule" model="ir.rule">
+        <field name="name">HR Managers: actual punches for task absence review</field>
+        <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        <field name="groups" eval="[(4, ref('hr.group_hr_manager')), (4, ref('pr_hr_recruitment_request.group_onboarding_manager'))]"/>
+        <field name="domain_force">[('task_attendance_day_id', '!=', False), ('employee_id.company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

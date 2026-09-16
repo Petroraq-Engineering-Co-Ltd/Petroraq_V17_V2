@@ -22,6 +22,9 @@
                        decoration-danger="linked_rfq_status in ('rejected', 'cancel')"
                        decoration-muted="linked_rfq_status == 'missing'"/>
 
+                <field name="rfq_sent_count"/>
+                <field name="rfq_sent_to"/>
+
                 <field name="linked_po_status" widget="badge" string="PO Status"
                        decoration-success="linked_po_status in ('purchase', 'done')"
                        decoration-info="linked_po_status in ('draft', 'sent')"
@@ -29,39 +32,7 @@
                        decoration-danger="linked_po_status in ('rejected', 'cancel')"
                        decoration-muted="linked_po_status == 'missing'"/>
 
-                <field name="linked_delivery_status" widget="badge" string="Delivery Status"
-                       decoration-success="linked_delivery_status == 'done'"
-                       decoration-warning="linked_delivery_status == 'partial'"
-                       decoration-info="linked_delivery_status == 'pending'"
-                       decoration-muted="linked_delivery_status == 'missing'"/>
-
-                <field name="linked_payment_status" widget="badge" string="Payment Status"
-                       decoration-success="linked_payment_status == 'paid'"
-                       decoration-info="linked_payment_status == 'in_payment'"
-                       decoration-warning="linked_payment_status == 'partial'"
-                       decoration-danger="linked_payment_status in ('not_paid', 'reversed')"
-                       decoration-muted="linked_payment_status in ('missing', 'not_billed')"/>
-
-                <field name="payment_request_state" widget="badge"
-                       optional="show"
-                       decoration-info="payment_request_state == 'requested'"
-                       decoration-success="payment_request_state == 'voucher_created'"
-                       decoration-muted="payment_request_state == 'not_requested'"
-                       decoration-danger="payment_request_state == 'cancelled'"/>
-
-                <field name="cash_pr_voucher_state" widget="badge"
-                       optional="show"
-                       decoration-success="cash_pr_voucher_state == 'posted'"
-                       decoration-warning="cash_pr_voucher_state in ('submit', 'finance_approve')"
-                       decoration-muted="cash_pr_voucher_state == 'not_created'"
-                       decoration-danger="cash_pr_voucher_state == 'cancel'"/>
-
-
-                <!--                <field name="status" widget="badge"-->
-                <!--                       decoration-success="status in ('po', 'completed')"-->
-                <!--                       decoration-warning="status == 'rfq'"-->
-                <!--                       decoration-info="status in ('pr', 'payment')"/>-->
-
+                <field name="po_issued_to"/>
 
                 <field name="total_excl_vat"/>
             </tree>
@@ -195,7 +166,6 @@
                                    options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                             <field name="expense_scope" readonly="1"/>
                             <field name="status" invisible="1"/>
-                            <field name="rfq_sent_count" readonly="1" invisible="rfq_sent_count == 0"/>
                             <field name="requested_user_id" invisible="1"/>
                         </group>
                         <group>
@@ -210,6 +180,27 @@
                                    readonly="1"
                                    invisible="pr_type != 'cash'"
                                    groups="account.group_account_invoice,account.group_account_user,account.group_account_manager"/>
+                        </group>
+                    </group>
+                    <group name="pr_purchase_cycle" string="RFQ / PO Cycle" invisible="pr_type == 'cash'">
+                        <group string="RFQ">
+                            <field name="linked_rfq_status" widget="badge" readonly="1"
+                                   decoration-success="linked_rfq_status in ('purchase', 'done')"
+                                   decoration-info="linked_rfq_status in ('draft', 'sent')"
+                                   decoration-warning="linked_rfq_status == 'pending'"
+                                   decoration-danger="linked_rfq_status in ('rejected', 'cancel')"
+                                   decoration-muted="linked_rfq_status == 'missing'"/>
+                            <field name="rfq_sent_count" readonly="1"/>
+                            <field name="rfq_sent_to" readonly="1"/>
+                        </group>
+                        <group string="Purchase Order">
+                            <field name="linked_po_status" widget="badge" readonly="1"
+                                   decoration-success="linked_po_status in ('purchase', 'done')"
+                                   decoration-info="linked_po_status in ('draft', 'sent')"
+                                   decoration-warning="linked_po_status == 'pending'"
+                                   decoration-danger="linked_po_status in ('rejected', 'cancel')"
+                                   decoration-muted="linked_po_status == 'missing'"/>
+                            <field name="po_issued_to" readonly="1"/>
                         </group>
                     </group>
                     <notebook>

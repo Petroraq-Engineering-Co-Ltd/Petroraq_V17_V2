@@ -162,6 +162,7 @@ class PurchaseOrder(models.Model):
         ],
         string="Approval",
         compute="_compute_approval_status",
+        search="_search_po_approval_status",
         store=False,
     )
     can_confirm_order = fields.Boolean(
@@ -204,6 +205,7 @@ class PurchaseOrder(models.Model):
         string="Budget Remaining",
         currency_field="currency_id",
         compute="_compute_po_budget_info",
+        search="_search_po_budget_remaining",
         store=False,
     )
     budget_count = fields.Integer(

@@ -1,0 +1,102 @@
+<odoo>
+    <record id="task_attendance_tree" model="ir.ui.view">
+        <field name="name">hr.task.attendance.day.tree</field>
+        <field name="model">hr.task.attendance.day</field>
+        <field name="arch" type="xml">
+            <tree create="false" delete="false" decoration-danger="state in ('absent', 'rejected')" decoration-warning="state == 'pending'" decoration-success="state == 'approved'">
+                <field name="date"/>
+                <field name="employee_id"/>
+                <field name="state" widget="badge"/>
+                <field name="reason" optional="show"/>
+                <field name="requested_at" optional="show"/>
+                <field name="decision_by_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+    <record id="task_attendance_form" model="ir.ui.view">
+        <field name="name">hr.task.attendance.day.form</field>
+        <field name="model">hr.task.attendance.day</field>
+        <field name="arch" type="xml">
+            <form create="false" delete="false" duplicate="false">
+                <header>
+                    <button name="action_request_present" string="Request Mark Present" type="object" class="oe_highlight" invisible="not can_request"/>
+                    <button name="action_approve" string="Approve Actual Attendance" type="object" class="oe_highlight" invisible="not can_decide"/>
+                    <button name="action_reject" string="Reject" type="object" invisible="not can_decide"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <field name="can_request" invisible="1"/>
+                    <field name="can_decide" invisible="1"/>
+                    <div class="alert alert-warning" invisible="state == 'approved'">Attendance is marked absent because no task list for this working day was submitted before midnight. Your original attendance times are retained. You can ask the HR Manager to accept your actual attendance.</div>
+                    <div class="alert alert-success" invisible="state != 'approved'">HR approved the request. Your actual attendance applies, including any other attendance issues.</div>
+                    <group>
+                        <group><field name="employee_id"/><field name="date"/><field name="timezone"/><field name="company_id" groups="base.group_multi_company"/></group>
+                        <group><field name="requested_by_id"/><field name="requested_at"/><field name="decision_by_id"/><field name="decision_at"/></group>
+                    </group>
+                    <group><field name="reason" readonly="not can_request"/><field name="hr_comment" readonly="not can_decide"/></group>
+                    <field name="attendance_ids" readonly="1">
+                        <tree create="false" delete="false">
+                            <field name="check_in"/><field name="check_out"/><field name="worked_hours" widget="float_time"/><field name="attendance_day_status"/>
+                        </tree>
+                    </field>
+                </sheet>
+                <div class="oe_chatter"><field name="message_follower_ids"/><field name="activity_ids"/><field name="message_ids"/></div>
+            </form>
+        </field>
+    </record>
+    <record id="task_attendance_my_action" model="ir.actions.act_window">
+        <field name="name">My Mark Present Requests</field>
+        <field name="res_model">hr.task.attendance.day</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+    </record>
+    <record id="task_attendance_approval_action" model="ir.actions.act_window">
+        <field name="name">Mark Present Requests</field>
+        <field name="res_model">hr.task.attendance.day</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'pending')]</field>
+    </record>
+    <record id="task_attendance_all_action" model="ir.actions.act_window">
+        <field name="name">Daily Task Absences</field>
+        <field name="res_model">hr.task.attendance.day</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="task_attendance_my_menu" name="My Mark Present Requests" parent="de_hr_workspace_attendance.menu_my_attendance" action="task_attendance_my_action" sequence="25"/>
+    <menuitem id="task_attendance_approval_menu" name="Mark Present Requests" parent="de_hr_workspace.menu_my_employee_approvals" action="task_attendance_approval_action" groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager" sequence="35"/>
+    <menuitem id="task_attendance_all_menu" name="Daily Task Absences" parent="de_hr_workspace_attendance.menu_my_attendance" action="task_attendance_all_action" groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager" sequence="26"/>
+    <record id="task_attendance_workspace_form" model="ir.ui.view">
+        <field name="name">hr.attendance.workspace.task.absence</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="de_hr_workspace_attendance.hr_attendance_workspace_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='worked_hours']" position="after">
+                <field name="attendance_day_status" readonly="1"/>
+                <field name="attendance_status_reason" readonly="1"/>
+                <field name="task_attendance_day_id" invisible="1"/>
+                <button name="action_open_task_attendance_day" string="Mark Present Request" type="object" invisible="not task_attendance_day_id"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="task_attendance_workspace_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.workspace.task.status</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="de_hr_workspace_attendance.hr_attendance_workspace_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='worked_hours']" position="after">
+                <field name="attendance_day_status" decoration-danger="attendance_day_status == 'absent'"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="task_list_daily_submission_form" model="ir.ui.view">
+        <field name="name">employee.task.list.daily.submission</field>
+        <field name="model">employee.task.list</field>
+        <field name="inherit_id" ref="employee_task_management.view_employee_task_list_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <field name="can_submit_for_today" invisible="1"/>
+                <button name="action_submit_for_today" string="Submit for Today" type="object" class="oe_highlight" invisible="not can_submit_for_today"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

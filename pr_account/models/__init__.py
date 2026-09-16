@@ -8,6 +8,7 @@ from . import account_move_line
 from . import res_partner
 from . import payment_receipt
 from . import transaction_payment
+from . import voucher_approval_mixin
 from . import cash_receipt
 from . import cash_payment
 from . import bank_receipt

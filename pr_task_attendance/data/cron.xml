@@ -1,0 +1,19 @@
+<odoo noupdate="1">
+    <record id="task_attendance_enforce_from" model="ir.config_parameter">
+        <field name="key">pr_task_attendance.enforce_from</field>
+        <field name="value" eval="(DateTime.now() + relativedelta(hours=3)).strftime('%Y-%m-%d')"/>
+    </record>
+    <record id="cron_finalize_task_attendance" model="ir.cron">
+        <field name="name">Finalize Daily Task Attendance at Local Midnight</field>
+        <field name="model_id" ref="model_hr_task_attendance_day"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_finalize_task_attendance()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="active" eval="True"/>
+        <field name="nextcall" eval="(DateTime.now().replace(second=0, microsecond=0) + relativedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+</odoo>
