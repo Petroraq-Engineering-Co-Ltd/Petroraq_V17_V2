@@ -163,7 +163,7 @@ class ResPartner(models.Model):
             partner.partner_code = str(next_customer_code)
             next_customer_code += 1
 
-        next_vendor_code = 2001
+        next_vendor_code = 7001
         for partner in vendor_partners:
             partner.partner_code = str(next_vendor_code)
             next_vendor_code += 1
@@ -187,7 +187,7 @@ class ResPartner(models.Model):
                 "title": _("Customer/Vendor codes resequenced"),
                 "message": _(
                     "%(customers)s customer(s) resequenced from 1001. "
-                    "%(vendors)s vendor(s) resequenced from 2001. "
+                    "%(vendors)s vendor(s) resequenced from 7001. "
                     "%(cleared)s non-customer/vendor code(s) cleared."
                 ) % {
                     "customers": len(customer_partners),

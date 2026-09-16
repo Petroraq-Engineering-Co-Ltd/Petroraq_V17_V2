@@ -24,6 +24,11 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//group[@name='other_info']/field[@name='origin']" position="after">
+                <field name="workflow_delivery_status" widget="badge"
+                       decoration-success="workflow_delivery_status == 'done'"
+                       decoration-warning="workflow_delivery_status == 'partial'"
+                       decoration-info="workflow_delivery_status == 'pending'"
+                       decoration-muted="workflow_delivery_status in ('not_ordered', 'cancel')"/>
                 <field name="workflow_billing_status"
                        string="Billing Status"
                        widget="badge"
@@ -36,9 +41,9 @@
                        string="Payment Status"
                        widget="badge"
                        invisible="state in ('draft', 'sent', 'cancel')"
-                       decoration-success="workflow_payment_status == 'paid'"
+                       decoration-success="workflow_payment_status in ('paid', 'advance_paid')"
                        decoration-info="workflow_payment_status == 'in_payment'"
-                       decoration-warning="workflow_payment_status == 'partial'"
+                       decoration-warning="workflow_payment_status in ('partial', 'advance_partial')"
                        decoration-danger="workflow_payment_status in ('not_paid', 'reversed')"
                        decoration-muted="workflow_payment_status == 'no_bill'"/>
             </xpath>
@@ -50,16 +55,24 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_status']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </xpath>
             <xpath expr="//field[@name='invoice_status']" position="after">
+                <field name="workflow_delivery_status" widget="badge"
+                       decoration-success="workflow_delivery_status == 'done'"
+                       decoration-warning="workflow_delivery_status == 'partial'"
+                       decoration-info="workflow_delivery_status == 'pending'"
+                       decoration-muted="workflow_delivery_status in ('not_ordered', 'cancel')"/>
                 <field name="workflow_billing_status" string="Billing Status" widget="badge" optional="show"
                        decoration-success="workflow_billing_status == 'billed'"
                        decoration-info="workflow_billing_status == 'waiting'"
                        decoration-warning="workflow_billing_status == 'partial'"
                        decoration-muted="workflow_billing_status == 'nothing'"/>
                 <field name="workflow_payment_status" string="Payment Status" widget="badge" optional="show"
-                       decoration-success="workflow_payment_status == 'paid'"
+                       decoration-success="workflow_payment_status in ('paid', 'advance_paid')"
                        decoration-info="workflow_payment_status == 'in_payment'"
-                       decoration-warning="workflow_payment_status == 'partial'"
+                       decoration-warning="workflow_payment_status in ('partial', 'advance_partial')"
                        decoration-danger="workflow_payment_status in ('not_paid', 'reversed')"
                        decoration-muted="workflow_payment_status == 'no_bill'"/>
             </xpath>
@@ -151,6 +164,37 @@
                         invisible="state not in ('draft','sent')">
                     <field name="quotation_count" widget="statinfo" string="RFQs"/>
                 </button>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_purchase_order_search_workflow_reporting" model="ir.ui.view">
+        <field name="name">purchase.order.search.workflow.reporting</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="budget_remaining_amount" string="Budget Remaining"/>
+                <field name="approval_status" string="Approval"/>
+                <field name="workflow_billing_status" string="Billing Status"/>
+                <field name="workflow_payment_status" string="Payment Status"/>
+                <field name="workflow_delivery_status"/>
+                <separator/>
+                <filter name="po_budget_available" string="Budget Available" domain="[('budget_remaining_amount', '&gt;', 0)]"/>
+                <filter name="po_budget_exhausted" string="Budget Exhausted / Overrun" domain="[('budget_remaining_amount', '&lt;=', 0)]"/>
+                <separator/>
+                <filter name="po_approval_pending" string="Approval Pending" domain="[('approval_status', 'in', ['pending_pe', 'pending_pm', 'pending_od', 'pending_md'])]"/>
+                <filter name="po_approval_approved" string="Approved" domain="[('approval_status', '=', 'approved')]"/>
+                <filter name="po_approval_rejected" string="Rejected" domain="[('approval_status', '=', 'rejected')]"/>
+                <separator/>
+                <filter name="po_billing_waiting" string="Waiting for Bills" domain="[('workflow_billing_status', '=', 'waiting')]"/>
+                <filter name="po_billing_partial" string="Partially Billed" domain="[('workflow_billing_status', '=', 'partial')]"/>
+                <filter name="po_billing_full" string="Fully Billed" domain="[('workflow_billing_status', '=', 'billed')]"/>
+                <separator/>
+                <filter name="po_payment_advance" string="Advance Paid" domain="[('workflow_payment_status', 'in', ['advance_partial', 'advance_paid'])]"/>
+                <filter name="po_payment_unpaid" string="Not Paid" domain="[('workflow_payment_status', '=', 'not_paid')]"/>
+                <filter name="po_payment_partial" string="Partially Paid" domain="[('workflow_payment_status', '=', 'partial')]"/>
+                <filter name="po_payment_processing" string="Payment In Process" domain="[('workflow_payment_status', '=', 'in_payment')]"/>
+                <filter name="po_payment_paid" string="Fully Paid" domain="[('workflow_payment_status', '=', 'paid')]"/>
             </xpath>
         </field>
     </record>

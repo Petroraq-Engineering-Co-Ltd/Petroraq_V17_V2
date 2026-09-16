@@ -5,7 +5,11 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale_order_revision.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//button[@name='create_revision']" position="replace"/>
+            <!-- Keep the node for saved Studio xpaths targeting this button.
+                 Direct SO revision is also blocked by the model workflow. -->
+            <xpath expr="//button[@name='create_revision']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
         </field>
     </record>
 

@@ -323,7 +323,7 @@
                 <td><span t-field="order.date_planned" t-options="{'widget': 'date'}"/></td>
                 <td class="text-end"><span t-field="order.amount_total"/></td>
                 <td><t t-out="order.payment_term_id.display_name if order.payment_term_id else '-'"/></td>
-                <td><t t-out="order.incoterm_id.display_name if order.incoterm_id else '-'"/></td>
+                <td><t t-out="order.incoterm_id.name if order.incoterm_id else '-'"/></td>
             </tr>
         </xpath>
     </template>
@@ -421,7 +421,7 @@
                 </div>
                 <div class="mb-3 col-6 col-lg-3">
                     <strong>Delivery Terms:</strong>
-                    <span t-out="order.incoterm_id.display_name if order.incoterm_id else '-'"/>
+                    <span t-out="order.incoterm_id.name if order.incoterm_id else '-'"/>
                 </div>
             </div>
             <div class="card mb-3" id="po_vendor_documents">
@@ -868,6 +868,7 @@
                             <li>Select one approved GRN/SES belonging to that purchase order.</li>
                             <li>Attach a valid invoice PDF no larger than 10 MB.</li>
                             <li>Only one invoice can be submitted against each GRN/SES.</li>
+                            <li>Fully paid GRN/SES and purchase orders are not available for invoice upload.</li>
                         </ul>
                     </div>
                     <div t-if="error_message" class="alert alert-danger" role="alert">

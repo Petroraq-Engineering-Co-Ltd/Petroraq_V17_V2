@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from odoo.tools import float_compare
 
 
 class AccountAnalyticAccount(models.Model):
@@ -451,7 +452,10 @@ class AccountAnalyticAccount(models.Model):
         if rec.budget_left <= 0:
             raise ValidationError(_("No budget left for cost center %s.") % (rec.budget_code or rec.display_name))
 
-        if required_amount and rec.budget_left < required_amount:
+        if required_amount and float_compare(
+            rec.budget_left, required_amount,
+            precision_rounding=(rec.company_id or self.env.company).currency_id.rounding,
+        ) < 0:
             raise ValidationError(
                 _("Insufficient budget for cost center %s. Remaining: %s, Required: %s")
                 % (rec.budget_code or rec.display_name, rec.budget_left, required_amount)

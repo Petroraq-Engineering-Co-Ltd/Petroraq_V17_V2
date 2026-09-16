@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_canceled_sale_orders" model="ir.actions.act_window">
+        <field name="name">Canceled SO</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state', '=', 'cancel')]</field>
+        <field name="context">{'create': False, 'search_default_my_quotation': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No canceled sales orders.</p>
+            <p>Canceled sales orders appear here.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_canceled_sale_orders"
+              name="Canceled SO"
+              parent="sale.sale_order_menu"
+              action="action_canceled_sale_orders"
+              groups="sales_team.group_sale_salesman"
+              sequence="40"/>
+</odoo>

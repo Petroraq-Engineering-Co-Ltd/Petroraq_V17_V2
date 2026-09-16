@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -66,6 +69,51 @@ class TestPurchaseRequisitionBudgetReservation(TransactionCase):
         if requisition_line:
             vals["custom_requisition_line_id"] = requisition_line.id
         return vals
+
+    def test_budget_check_accepts_floating_point_roundoff(self):
+        requisition = self.env["purchase.requisition"].new({})
+        amounts = {self.cost_center.id: {
+            "cc": self.cost_center,
+            "amount": 122908.45000000001,
+        }}
+        with patch.object(
+            type(requisition), "_get_selected_budget_remaining_by_cost_center",
+            return_value={self.cost_center.id: 122908.45},
+        ):
+            requisition._check_amounts_against_selected_budget(amounts)
+
+    def test_budget_check_rejects_real_currency_overrun(self):
+        requisition = self.env["purchase.requisition"].new({})
+        amounts = {self.cost_center.id: {
+            "cc": self.cost_center,
+            "amount": 122908.45 + self.env.company.currency_id.rounding,
+        }}
+        with patch.object(
+            type(requisition), "_get_selected_budget_remaining_by_cost_center",
+            return_value={self.cost_center.id: 122908.45},
+        ):
+            for exception_cls in (UserError, ValidationError):
+                with self.subTest(exception_cls=exception_cls), self.assertRaises(exception_cls):
+                    requisition._check_amounts_against_selected_budget(
+                        amounts, exception_cls=exception_cls,
+                    )
+
+    def test_budget_button_and_revision_without_pr_company_field(self):
+        requisition = self.env["purchase.requisition"].new({})
+        amounts = {self.cost_center.id: {
+            "cc": self.cost_center, "amount": 122908.45000000001,
+        }}
+        with patch.object(type(requisition), "_amount_by_cost_center", return_value=amounts), \
+             patch.object(type(requisition), "_get_selected_budget_remaining_by_cost_center",
+                          return_value={self.cost_center.id: 122908.45}), \
+             patch.object(type(requisition), "_get_selected_budget_requisition", return_value=True):
+            requisition._compute_show_request_budget_increase_button()
+            self.assertFalse(requisition.show_request_budget_increase_button)
+            with self.assertRaisesRegex(ValidationError, "within budget"):
+                requisition.action_request_budget_increase()
+            amounts[self.cost_center.id]["amount"] += self.env.company.currency_id.rounding
+            requisition._compute_show_request_budget_increase_button()
+            self.assertTrue(requisition.show_request_budget_increase_button)
 
     def test_downstream_po_value_clears_stale_pr_reservation(self):
         requisition = self._create_requisition([(0, 0, {
