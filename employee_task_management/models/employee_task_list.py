@@ -1235,18 +1235,33 @@ class EmployeeTaskList(models.Model):
             'remarks': remarks or False,
         })
 
-    def _notify_user(self, partner, subject, body, template_xmlid=False):
+    def _notify_user(self, partner, subject, body, template_xmlid=False,
+                     inbox=True):
         """Send notification via inbox message, activity and email
-        (TDD Section 15)."""
+        (TDD Section 15).
+
+        THREE CHANNELS, WHICH MEANS UP TO THREE EMAILS. Naming the
+        partner on the chatter message emails him; scheduling the
+        activity emails him again; and the template is a third. That was
+        the original design, and it is why closing a task list arrived
+        as three messages at once.
+
+        `inbox=False` drops the first channel's EMAIL while keeping the
+        chatter record: the message is posted as an internal note with
+        no named recipient, so the task list still carries the history
+        but the employee is not mailed about it twice. Left defaulting
+        to True so every other notification in the module behaves
+        exactly as it always has - the client asked for closing only.
+        """
         self.ensure_one()
         if not partner:
             return
         # 1. System inbox (chatter notification)
         self.message_post(
             body=body, subject=subject,
-            partner_ids=partner.ids,
+            partner_ids=partner.ids if inbox else [],
             message_type='notification',
-            subtype_xmlid='mail.mt_comment')
+            subtype_xmlid='mail.mt_comment' if inbox else 'mail.mt_note')
         # 2. Activity scheduling
         user = partner.user_ids[:1]
         if user:
@@ -2140,12 +2155,17 @@ class EmployeeTaskList(models.Model):
                     'employee\'s next task list.', count=len(rejected)))
             rec._log_approval_history('closed', rec.manager_remarks)
             rec.activity_feedback(['mail.mail_activity_data_todo'])
+            # inbox=False: the employee gets the Task List Closed EMAIL
+            # and a To-Do activity, not a third copy through the chatter
+            # notification as well. Scoped to closing on the client's
+            # instruction - every other notification is unchanged.
             rec._notify_user(
                 rec._get_employee_partner(),
                 _('Task List Closed'),
                 _('Your task list %s has been reviewed and closed by '
                   'your manager.', rec.name),
-                'employee_task_management.mail_template_task_closed')
+                'employee_task_management.mail_template_task_closed',
+                inbox=False)
         return True
 
     def action_assign_to_employee(self):
