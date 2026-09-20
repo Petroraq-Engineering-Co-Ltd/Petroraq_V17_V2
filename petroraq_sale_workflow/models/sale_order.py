@@ -136,6 +136,32 @@ class SaleOrder(models.Model):
         ("rejected", "Rejected"),
     ], string="Sales Order Confirmation Approval", default="not_requested",
         tracking=True, copy=False, required=True)
+    show_sales_order_status = fields.Boolean(compute="_compute_sales_order_ui_status")
+    sales_order_ui_status = fields.Selection([
+        ("draft", "Draft"),
+        ("pending", "Under Review"),
+        ("approved", "Accepted"),
+        ("rejected", "Rejected"),
+        ("cancel", "Cancelled"),
+    ], string="Sales Order Status", compute="_compute_sales_order_ui_status")
+
+    @api.depends("state", "approval_state", "confirmation_approval_state")
+    def _compute_sales_order_ui_status(self):
+        for order in self:
+            order.show_sales_order_status = (
+                order.state in ("sale", "done")
+                or order.approval_state == "approved"
+                or order.confirmation_approval_state != "not_requested"
+            )
+            if order.state == "cancel":
+                order.sales_order_ui_status = "cancel"
+            elif order.state in ("sale", "done"):
+                order.sales_order_ui_status = "approved"
+            elif order.confirmation_approval_state in ("pending", "approved", "rejected"):
+                order.sales_order_ui_status = order.confirmation_approval_state
+            else:
+                order.sales_order_ui_status = "draft"
+
     confirmation_requested_by_id = fields.Many2one(
         "res.users", string="Confirmation Requested By", readonly=True, copy=False)
     confirmation_requested_date = fields.Datetime(

@@ -70,8 +70,8 @@
 						 			<!-- <span class="text-right arabic" t-esc="doc.get_product_arabic_name(l.product_id.id)"/> -->
 						 			<br/>
 						 		</td>
-						 		<td style="border-right:1pt solid grey;text-align:center;padding:3pt"><span t-field="l.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
-						 		<td style="border-right:1pt solid grey;text-align:center;padding:3pt"><span t-esc="'%.2f %s '%(l.quantity,l.product_uom_id.name)"/></td>
+                                <td style="border-right:1pt solid grey;text-align:center;padding:3pt"><span t-field="l.price_unit"/></td>
+                                <td style="border-right:1pt solid grey;text-align:center;padding:3pt"><span t-field="l.quantity"/> <span t-field="l.product_uom_id"/></td>
 						 		<td style="border-right:1pt solid grey;text-align:center;padding:3pt" >
 			                        <span t-field="l.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
 			                    </td>

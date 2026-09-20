@@ -680,22 +680,18 @@
                                         <span t-esc="l.name"/>
                                     </td>
                                     <td>
-                                        <t t-set="qty_raw" t-value="l.quantity or 0.0"/>
-                                        <t t-set="qty_str" t-value="'%.8f' % qty_raw"/>
-                                        <t t-set="qty_clean"
-                                           t-value="qty_str.rstrip('0').rstrip('.') if '.' in qty_str else qty_str"/>
-                                        <span t-esc="qty_clean"/>
+                                        <span t-field="l.quantity"/>
                                     </td>
                                     <td>
                                         <span t-esc="l.product_uom_id.name"/>
                                     </td>
                                     <td>
                                         <!--                                                <span t-esc="'{0:,.2f}'.format(l.price_unit)"-->
-                                        <span t-esc="l.price_unit"
-                                              t-options='{"widget": "monetary", "display_currency": l.currency_id}'/>
+                                        <span t-field="l.price_unit"/>
                                     </td>
                                     <td t-if="has_discount">
                                         <span t-esc="(l.price_unit * (1 - (l.discount or 0.0)/100.0))"
+                                              t-options='{"widget": "float", "decimal_precision": "Product Price"}'
                                         />
                                     </td>
                                     <td>
@@ -737,14 +733,13 @@
                                         <span t-esc="l.name"/>
                                     </td>
                                     <td>
-                                        <span t-esc="l.quantity"/>
+                                        <span t-field="l.quantity"/>
                                     </td>
                                     <td>
                                         <span t-esc="l.product_uom_id.name"/>
                                     </td>
                                     <td>
-                                        <span t-esc="l.price_unit"
-                                              t-options='{"widget": "monetary", "display_currency": l.currency_id}'/>
+                                        <span t-field="l.price_unit"/>
                                     </td>
                                     <td t-if="has_discount">
 

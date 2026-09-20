@@ -1,7 +1,7 @@
 {
     "name": "Petroraq: Sales Workflow",
     "summary": "Inquiry → Quotation → Manager Approval → MD Approval → Send to Client",
-    "version": "17.0.1.0.35",
+    "version": "17.0.1.0.38",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "website": "https://petroraq.com",
     "category": "Sales",
@@ -32,6 +32,8 @@
         "views/custom_format.xml",
         "views/pro_forma.xml",
         "report/estimation_report.xml",
+        "report/settlement_report.xml",
+        "views/settlement_report_views.xml",
         "views/sale_quotation_action_defaults.xml",
         "views/canceled_sale_orders.xml",
         "views/report_saleorder_petroraq_costing.xml",

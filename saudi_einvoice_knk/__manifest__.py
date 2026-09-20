@@ -4,7 +4,7 @@
 
 {
     'name': 'Electronic Invoice | Saudi VAT Invoice | Saudi E-Invoice | Saudi Electronic Invoice',
-    'version': '17.0.1.1',
+    'version': '17.0.1.2',
     'category': 'Accounting',
     'summary': 'Saudi Electronic Invoice',
     'description': """

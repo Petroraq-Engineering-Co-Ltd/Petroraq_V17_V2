@@ -19,14 +19,16 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <field name="show_sales_order_status" invisible="1"/>
                 <field name="approval_state" string="Quotation Approval" widget="statusbar"
-                       statusbar_visible="draft,confirmed,to_manager,to_md,approved,rejected"/>
+                       statusbar_visible="draft,confirmed,to_manager,to_md,approved,rejected"
+                       invisible="show_sales_order_status"/>
 
-                <field name="confirmation_approval_state"
-                       string="Sales Order Confirmation Approval"
+                <field name="sales_order_ui_status"
+                       string="Sales Order Status"
                        widget="statusbar"
-                       statusbar_visible="not_requested,pending,approved,rejected"
-                       invisible="approval_state != 'approved'"/>
+                       statusbar_visible="draft,pending,approved,rejected"
+                       invisible="not show_sales_order_status"/>
 
                 <field name="can_create_remaining_delivery" invisible="1"/>
                 <field name="approval_state" invisible="1"/>
@@ -127,6 +129,9 @@
                         invisible="show_reject_button == False"/>
 
 
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="invisible">show_sales_order_status</attribute>
             </xpath>
 
             <xpath expr="//field[@name='pricelist_id']" position="replace">
