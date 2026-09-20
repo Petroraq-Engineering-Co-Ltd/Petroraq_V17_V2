@@ -25,8 +25,8 @@ function initializeVendorInvoiceReceiptFilter() {
                     maximumFractionDigits: 2,
                 })} ${selected.dataset.currency || ""}`;
                 amountPanel.classList.remove("d-none");
-            } else if (amountPanel) {
-                amountPanel.classList.add("d-none");
+            } else if (amountValue) {
+                amountValue.textContent = "Select a GRN/SES to see its amount.";
             }
         };
         poSelect.addEventListener("change", filterReceipts);
@@ -49,4 +49,8 @@ function initializeVendorInvoiceReceiptFilter() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", initializeVendorInvoiceReceiptFilter);
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeVendorInvoiceReceiptFilter, { once: true });
+} else {
+    initializeVendorInvoiceReceiptFilter();
+}

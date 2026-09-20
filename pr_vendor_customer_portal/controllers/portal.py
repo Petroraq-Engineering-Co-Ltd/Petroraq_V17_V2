@@ -603,9 +603,11 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         """Return the tax-inclusive PO value accepted by a GRN or SRN."""
         if receipt._name == "stock.picking":
             quantity_lines = (
-                (move.purchase_line_id, move.quantity)
+                (move.purchase_line_id, move.product_uom._compute_quantity(
+                    move.quantity, move.purchase_line_id.product_uom, round=False
+                ))
                 for move in receipt.move_ids_without_package
-                if move.purchase_line_id and move.quantity
+                if move.state == "done" and move.purchase_line_id and move.quantity
             )
             currency = receipt.purchase_id.currency_id
         elif receipt._name == "service.receipt.note":

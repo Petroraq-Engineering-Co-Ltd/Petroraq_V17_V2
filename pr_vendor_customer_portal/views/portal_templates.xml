@@ -906,9 +906,10 @@
                             </select>
                             <div class="form-text">Only approved, validated receipts without a previous portal invoice submission are available.</div>
                         </div>
-                        <div id="receipt_amount_panel" class="alert alert-info d-none" role="status">
-                            <strong>Amount against this delivery:</strong>
-                            <span id="receipt_amount_value"/>
+                        <div id="receipt_amount_panel" class="alert alert-info" role="status" aria-live="polite">
+                            <strong>Selected GRN/SES Amount (including tax):</strong>
+                            <span id="receipt_amount_value">Select a GRN/SES to see its amount.</span>
+                            <div class="small mt-1">Based on the quantities received in this delivery and the purchase order prices, discounts and taxes. Advance payments are not deducted from this amount.</div>
                         </div>
                         <div class="mb-3">
                                 <label class="form-label" for="invoice_file">Invoice PDF</label>
