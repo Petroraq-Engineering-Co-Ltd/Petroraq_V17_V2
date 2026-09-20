@@ -110,20 +110,28 @@ class PrPortalVendorInvoice(models.Model):
                 "res_id": invoice.id,
             })
 
-    def _schedule_reviewer_activity(self):
+    @api.model
+    def _get_procurement_reviewers(self, po):
         group = self.env.ref(
-            "pr_vendor_customer_portal.group_vendor_invoice_reviewer",
+            "pr_custom_purchase.procurement_admin",
             raise_if_not_found=False,
         )
-        if not group:
-            return
+        reviewers = group.sudo().users if group else self.env["res.users"]
+        reviewers = reviewers.sudo().filtered(
+            lambda user: user.active and po.company_id in user.company_ids
+        )
+        if not reviewers and po.user_id.active and po.company_id in po.user_id.company_ids:
+            reviewers = po.user_id
+        return reviewers
+
+    def _schedule_reviewer_activity(self):
         for invoice in self:
-            for user in group.sudo().users.sudo().filtered("active"):
+            for user in self._get_procurement_reviewers(invoice.po_id):
                 invoice.activity_schedule(
                     "mail.mail_activity_data_todo",
                     user_id=user.id,
                     summary=_("New Vendor Invoice Submitted"),
-                    note=_("A new vendor invoice has been uploaded from the portal and requires review."),
+                    note=_("Review the vendor invoice against the approved receipt, then create the vendor bill for Accounts to process."),
                 )
 
     def action_set_review(self):
