@@ -20,12 +20,20 @@ class AccountMoveLine(models.Model):
 
     def _inverse_product_internal_reference(self):
         for line in self:
-            line.product_id = line.product_internal_reference.product_id
+            product = line.product_internal_reference.product_id
+            if line.product_id != product:
+                line.product_id = product
 
     @api.onchange("product_internal_reference")
     def _onchange_product_internal_reference(self):
         for line in self:
-            line.product_id = line.product_internal_reference.product_id
+            product = line.product_internal_reference.product_id
+            # The computed lookup can be sent back by the form on an imported
+            # SO/PO line. Keep its negotiated price, UoM, taxes and description
+            # when it still refers to the same product.
+            if line.product_id == product:
+                continue
+            line.product_id = product
             if line.product_id and line.display_type == "product" and line.move_id.is_invoice(True):
                 line._inverse_product_id()
                 line._compute_account_id()

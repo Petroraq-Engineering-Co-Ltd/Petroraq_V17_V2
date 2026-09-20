@@ -1,0 +1,52 @@
+<odoo>
+    <record id="view_settlement_report_wizard" model="ir.ui.view">
+        <field name="name">pr.settlement.report.wizard.form</field>
+        <field name="model">pr.settlement.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Receivables / Payables Report">
+                <group>
+                    <group>
+                        <field name="report_type"/>
+                        <field name="company_id" options="{'no_create': True}"/>
+                        <field name="partner_ids" widget="many2many_tags" string="Customers" invisible="report_type != 'sale'"
+                               domain="[('customer_rank', '&gt;', 0)]" options="{'no_create': True}"/>
+                        <field name="partner_ids" widget="many2many_tags" string="Vendors" invisible="report_type != 'purchase'"
+                               domain="[('supplier_rank', '&gt;', 0)]" options="{'no_create': True}"/>
+                    </group>
+                    <group>
+                        <field name="date_from"/>
+                        <field name="date_as_of"/>
+                        <field name="balance_filter"/>
+                        <field name="include_credit_notes"/>
+                    </group>
+                </group>
+                <p class="text-muted">Leave Customers/Vendors empty for all partners and Posting Date From empty for all earlier dates.
+                    Only posted invoices/bills are included. Balances and settlements use the selected cutoff date, in company currency.</p>
+                <footer>
+                    <button name="action_print_pdf" string="Export PDF" type="object" class="btn-primary"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_customer_receivable_report" model="ir.actions.act_window">
+        <field name="name">Customer Receivable Report</field>
+        <field name="res_model">pr.settlement.report.wizard</field>
+        <field name="view_mode">form</field><field name="target">new</field>
+        <field name="context">{'default_report_type': 'sale'}</field>
+    </record>
+    <record id="action_vendor_payable_report" model="ir.actions.act_window">
+        <field name="name">Vendor Payable Report</field>
+        <field name="res_model">pr.settlement.report.wizard</field>
+        <field name="view_mode">form</field><field name="target">new</field>
+        <field name="context">{'default_report_type': 'purchase'}</field>
+    </record>
+    <menuitem id="menu_sale_receivable_report" name="Customer Receivables" parent="sale.menu_sale_report"
+              action="action_customer_receivable_report" groups="account.group_account_user" sequence="40"/>
+    <menuitem id="menu_purchase_payable_report" name="Vendor Payables" parent="purchase.purchase_report_main"
+              action="action_vendor_payable_report" groups="account.group_account_user" sequence="40"/>
+    <menuitem id="menu_account_receivable_report" name="Customer Receivables Summary" parent="account.menu_finance_reports"
+              action="action_customer_receivable_report" groups="account.group_account_user" sequence="80"/>
+    <menuitem id="menu_account_payable_report" name="Vendor Payables Summary" parent="account.menu_finance_reports"
+              action="action_vendor_payable_report" groups="account.group_account_user" sequence="81"/>
+</odoo>
