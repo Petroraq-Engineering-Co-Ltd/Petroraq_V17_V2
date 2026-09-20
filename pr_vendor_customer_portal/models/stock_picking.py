@@ -49,17 +49,23 @@ class StockPicking(models.Model):
     def _pr_portal_delivery_status_from_quantities(self, state, demanded, delivered):
         if state == "cancel":
             return "cancel"
-        if state == "done" or (demanded and delivered >= demanded):
+        if state != "done":
+            return "pending"
+        if demanded and delivered >= demanded:
             return "received"
         if delivered:
             return "partial"
         return "pending"
 
-    @api.depends("state", "move_ids_without_package.product_uom_qty", "move_ids_without_package.quantity")
+    @api.depends("state", "move_ids_without_package.state", "move_ids_without_package.product_uom_qty", "move_ids_without_package.quantity")
     def _compute_pr_portal_delivery_summary(self):
         for picking in self:
             demanded = sum(picking.move_ids_without_package.mapped("product_uom_qty"))
-            delivered = sum(picking.move_ids_without_package.mapped("quantity"))
+            # In Odoo 17, quantity can already be populated on a ready receipt.
+            # Only validated stock moves represent goods actually received.
+            delivered = sum(picking.move_ids_without_package.filtered(
+                lambda move: move.state == "done"
+            ).mapped("quantity")) if picking.state == "done" else 0.0
             picking.pr_portal_delivered_quantity = delivered
             picking.pr_portal_pending_quantity = max(demanded - delivered, 0.0)
             picking.pr_portal_delivery_status = picking._pr_portal_delivery_status_from_quantities(

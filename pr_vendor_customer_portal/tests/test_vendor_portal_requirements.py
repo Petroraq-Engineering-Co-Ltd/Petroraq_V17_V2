@@ -39,7 +39,9 @@ class TestVendorPortalRequirements(TransactionCase):
     def test_delivery_status_labels_cover_requested_workflow(self):
         status = self.env["stock.picking"]._pr_portal_delivery_status_from_quantities
         self.assertEqual(status("assigned", 10.0, 0.0), "pending")
-        self.assertEqual(status("assigned", 10.0, 4.0), "partial")
+        self.assertEqual(status("assigned", 10.0, 4.0), "pending")
+        self.assertEqual(status("assigned", 65.0, 65.0), "pending")
+        self.assertEqual(status("done", 10.0, 4.0), "partial")
         self.assertEqual(status("done", 10.0, 10.0), "received")
         self.assertEqual(status("cancel", 10.0, 0.0), "cancel")
 

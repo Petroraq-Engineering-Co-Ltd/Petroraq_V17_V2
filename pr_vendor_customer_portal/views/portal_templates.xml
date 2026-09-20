@@ -865,10 +865,11 @@
                         <strong>Submit your invoice against an approved GRN/SES</strong>
                         <ul>
                             <li>Select a purchase order issued to your company.</li>
-                            <li>Select one approved GRN/SES belonging to that purchase order.</li>
+                            <li>Select one approved and validated GRN/SES belonging to that purchase order.</li>
                             <li>Attach a valid invoice PDF no larger than 10 MB.</li>
                             <li>Only one invoice can be submitted against each GRN/SES.</li>
-                            <li>Fully paid GRN/SES and purchase orders are not available for invoice upload.</li>
+                            <li>Advance payment does not prevent invoice submission.</li>
+                            <li>Procurement reviews your invoice and creates the vendor bill. Accounts then processes payment, accounting for any advance already paid.</li>
                         </ul>
                     </div>
                     <div t-if="error_message" class="alert alert-danger" role="alert">
@@ -903,7 +904,7 @@
                                     </option>
                                 </t>
                             </select>
-                            <div class="form-text">Only approved and not-yet-invoiced receipts are available.</div>
+                            <div class="form-text">Only approved, validated receipts without a previous portal invoice submission are available.</div>
                         </div>
                         <div id="receipt_amount_panel" class="alert alert-info d-none" role="status">
                             <strong>Amount against this delivery:</strong>
