@@ -83,7 +83,7 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                     {
                         "selected": False,
                         "product_name": boq_line.product_id.display_name,
-                        "line_description": boq_line.name or boq_line.product_id.display_name,
+                        "line_description": boq_line._get_purchase_requisition_description(),
                         "boq_line_db_id": boq_line.id,
                         "product_id": boq_line.product_id.id,
                         "cost_center_id": cc.analytic_account_id.id if cc and cc.analytic_account_id else False,

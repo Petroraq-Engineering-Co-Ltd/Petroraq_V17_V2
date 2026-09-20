@@ -852,12 +852,37 @@ class WorkOrderBOQ(models.Model):
 
     def _inverse_product_internal_reference(self):
         for line in self:
-            line.product_id = line.product_internal_reference.product_id
+            product = line.product_internal_reference.product_id
+            if line.product_id != product:
+                line.product_id = product
+
+    def _get_purchase_requisition_description(self):
+        """Keep WO wording, recovering source text when only a product label remains."""
+        self.ensure_one()
+        description = (self.name or "").strip()
+        product = self.product_id
+        product_labels = {
+            (product.name or "").strip(),
+            (product.display_name or "").strip(),
+            (product.with_context(display_default_code=False).display_name or "").strip(),
+        }
+        if description and description not in product_labels:
+            return description
+        # Use explicit source links: matching by product alone mixes separate
+        # lines that intentionally use the same product with different specs.
+        for field_name in ("sale_order_line_id", "estimation_line_id"):
+            source = self[field_name] if field_name in self._fields else False
+            if source and source.product_id == product and (source.name or "").strip():
+                return source.name.strip()
+        return description or product.with_context(display_default_code=False).display_name or ""
 
     @api.onchange("product_internal_reference")
     def _onchange_product_internal_reference(self):
         for line in self:
-            line.product_id = line.product_internal_reference.product_id
+            product = line.product_internal_reference.product_id
+            if line.product_id == product:
+                continue
+            line.product_id = product
             if line.product_id:
                 line.name = line.product_id.display_name
                 line.uom_id = line.product_id.uom_id

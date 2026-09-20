@@ -1081,7 +1081,7 @@ class PurchaseRequisition(models.Model):
                 unit = boq_line.uom_id or product.uom_id
                 unit_name = unit.name if unit else product.uom_id.name
                 unit_price = boq_line.unit_cost or product.standard_price or 0.0
-                line_description = _normalized_description(boq_line.name) or product.display_name
+                line_description = boq_line._get_purchase_requisition_description()
                 key = _source_key(cost_center, product, unit_name, unit_price, line_description)
                 if key in existing_keys:
                     continue

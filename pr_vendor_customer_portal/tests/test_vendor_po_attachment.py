@@ -5,6 +5,42 @@ from odoo.tests.common import TransactionCase
 
 class TestVendorPortalPurchaseOrderAttachment(TransactionCase):
 
+    def test_submission_owned_invoice_is_visible_without_po_chatter(self):
+        vendor = self.env["res.partner"].create({"name": "Submission Vendor", "supplier_rank": 1})
+        order = self.env["purchase.order"].create({"partner_id": vendor.id})
+        other_order = self.env["purchase.order"].create({"partner_id": vendor.id})
+        # Prime the computed fields before uploading to exercise invalidation.
+        self.assertEqual(order.pr_vendor_portal_invoice_count, 0)
+        receipt = self.env["service.receipt.note"].create({"purchase_id": order.id})
+        attachment = self.env["ir.attachment"].create({
+            "name": "portal-invoice.pdf", "type": "binary", "datas": "JVBERi0xLjQK",
+            "res_model": receipt._name, "res_id": receipt.id,
+            "pr_vendor_portal_upload": True, "pr_vendor_portal_document_type": "invoice",
+        })
+        submission = self.env["pr.portal.vendor.invoice"].create({
+            "partner_id": vendor.id, "po_id": order.id,
+            "service_receipt_id": receipt.id, "attachment_id": attachment.id,
+        })
+        self.assertEqual(attachment.res_model, submission._name)
+        self.assertEqual(attachment.res_id, submission.id)
+        self.assertEqual(order.pr_vendor_portal_invoice_count, 1)
+        self.assertEqual(order.pr_vendor_portal_invoice_attachment_ids, attachment)
+        self.assertEqual(self.env["ir.attachment"].search(
+            order.action_open_pr_vendor_portal_invoices()["domain"]), attachment)
+        self.assertEqual(other_order.pr_vendor_portal_invoice_count, 0)
+        self.assertFalse(self.env["ir.attachment"].search(
+            other_order.action_open_pr_vendor_portal_invoices()["domain"]))
+        self.assertEqual(order.pr_vendor_portal_document_count, 0)
+
+        # Historical files may match both paths; the action must not duplicate them.
+        attachment.write({"res_model": order._name, "res_id": order.id})
+        order._compute_pr_vendor_portal_invoice_count()
+        self.assertEqual(order.pr_vendor_portal_invoice_count, 1)
+        submission.attachment_id = False
+        attachment.write({"res_model": receipt._name, "res_id": receipt.id})
+        order._compute_pr_vendor_portal_invoice_count()
+        self.assertEqual(order.pr_vendor_portal_invoice_count, 0)
+
     def test_portal_invoice_attachment_is_counted_on_purchase_order(self):
         vendor = self.env["res.partner"].create({
             "name": "Portal Attachment Test Vendor",

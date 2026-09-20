@@ -1,6 +1,6 @@
 {
     'name': 'Order Line Sequences/Line Numbers',
-    'version': '17.0.1.0.0',
+    'version': '17.0.1.0.1',
     'category': 'Extra Tools',
     'summary': 'Sequence numbers in order lines of sales,purchase and delivery.',
     'description': """This module will help you to add sequence for order lines

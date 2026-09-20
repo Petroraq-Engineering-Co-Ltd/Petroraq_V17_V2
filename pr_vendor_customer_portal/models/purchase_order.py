@@ -1,11 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
+from odoo.osv import expression
 
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
 
+    pr_vendor_portal_submission_ids = fields.One2many(
+        "pr.portal.vendor.invoice", "po_id", string="Vendor Invoice Submissions",
+    )
+    pr_vendor_portal_invoice_attachment_ids = fields.Many2many(
+        "ir.attachment", string="Uploaded Vendor Invoices",
+        compute="_compute_pr_vendor_portal_invoice_count",
+    )
     pr_vendor_portal_invoice_count = fields.Integer(
         string="Vendor Invoices",
         compute="_compute_pr_vendor_portal_invoice_count",
@@ -82,18 +90,29 @@ class PurchaseOrder(models.Model):
                 ("res_field", "=", False),
             ])
 
-    @api.depends("message_ids.attachment_ids")
-    def _compute_pr_vendor_portal_invoice_count(self):
-        Attachment = self.env["ir.attachment"].sudo()
-        for order in self:
-            order.pr_vendor_portal_invoice_count = Attachment.search_count([
-                ("res_model", "=", order._name),
-                ("res_id", "=", order.id),
+    def _pr_vendor_portal_invoice_attachment_domain(self):
+        """Include legacy PO uploads and PDFs owned by receipt submissions."""
+        self.ensure_one()
+        submission_attachments = self.sudo().pr_vendor_portal_submission_ids.mapped("attachment_id")
+        return expression.OR([
+            [
+                ("res_model", "=", self._name),
+                ("res_id", "=", self.id),
                 ("pr_vendor_portal_upload", "=", True),
                 "|",
                 ("pr_vendor_portal_document_type", "=", False),
                 ("pr_vendor_portal_document_type", "=", "invoice"),
-            ])
+            ],
+            [("id", "in", submission_attachments.ids)],
+        ])
+
+    @api.depends("message_ids.attachment_ids", "pr_vendor_portal_submission_ids.attachment_id")
+    def _compute_pr_vendor_portal_invoice_count(self):
+        Attachment = self.env["ir.attachment"].sudo()
+        for order in self:
+            attachments = Attachment.search(order._pr_vendor_portal_invoice_attachment_domain())
+            order.pr_vendor_portal_invoice_attachment_ids = attachments
+            order.pr_vendor_portal_invoice_count = len(attachments)
 
     @api.depends("message_ids.attachment_ids")
     def _compute_pr_vendor_portal_document_count(self):
@@ -122,14 +141,7 @@ class PurchaseOrder(models.Model):
                 ),
                 (False, "form"),
             ],
-            "domain": [
-                ("res_model", "=", self._name),
-                ("res_id", "=", self.id),
-                ("pr_vendor_portal_upload", "=", True),
-                "|",
-                ("pr_vendor_portal_document_type", "=", False),
-                ("pr_vendor_portal_document_type", "=", "invoice"),
-            ],
+            "domain": self._pr_vendor_portal_invoice_attachment_domain(),
             "context": {
                 "create": False,
                 "delete": False,

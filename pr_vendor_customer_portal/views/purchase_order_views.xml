@@ -43,6 +43,13 @@
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page name="vendor_portal_invoices" string="Vendor Invoices"
+                      groups="purchase.group_purchase_user">
+                    <field name="pr_vendor_portal_invoice_attachment_ids"
+                           widget="many2many_binary" readonly="1"/>
+                </page>
+            </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_open_pr_vendor_portal_invoices"
                         type="object"

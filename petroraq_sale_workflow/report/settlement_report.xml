@@ -1,0 +1,99 @@
+<odoo>
+    <record id="paperformat_settlement_report" model="report.paperformat">
+        <field name="name">Receivables / Payables Landscape</field>
+        <field name="format">A3</field><field name="orientation">Landscape</field>
+        <field name="margin_top">12</field><field name="margin_bottom">12</field>
+        <field name="margin_left">8</field><field name="margin_right">8</field>
+        <field name="header_spacing">5</field><field name="dpi">90</field>
+    </record>
+    <record id="action_settlement_report_pdf" model="ir.actions.report">
+        <field name="name">Receivables / Payables</field>
+        <field name="model">pr.settlement.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">petroraq_sale_workflow.settlement_report_pdf</field>
+        <field name="report_file">petroraq_sale_workflow.settlement_report_pdf</field>
+        <field name="paperformat_id" ref="paperformat_settlement_report"/>
+        <field name="groups_id" eval="[(4, ref('account.group_account_user'))]"/>
+        <field name="print_report_name">('Vendor Payables' if object.report_type == 'purchase' else 'Customer Receivables') + ' - ' + str(object.date_as_of)</field>
+    </record>
+    <template id="settlement_report_pdf">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page pr-settlement">
+                        <style>
+                            .pr-settlement { font-family: 'DejaVu Sans', Arial, sans-serif; color: #182335; }
+                            .pr-settlement h2 { text-align: center; font-size: 23px; margin: 4px 0 8px; }
+                            .pr-settlement .company { text-align: center; font-size: 14px; margin-bottom: 10px; }
+                            .pr-settlement .meta { font-size: 11px; margin-bottom: 12px; }
+                            .pr-settlement table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; }
+                            .pr-settlement th, .pr-settlement td { border: 1px solid #919aa5; padding: 5px 4px; vertical-align: middle; overflow-wrap: break-word; word-wrap: break-word; }
+                            .pr-settlement th { background: #e4eaf1; text-align: center; font-weight: bold; }
+                            .pr-settlement thead { display: table-header-group; }
+                            .pr-settlement tr { page-break-inside: avoid; }
+                            .pr-settlement tbody tr:nth-child(even) { background: #f5f7fa; }
+                            .pr-settlement .num { text-align: right; white-space: nowrap; }
+                            .pr-settlement .center { text-align: center; }
+                            .pr-settlement .total td { background: #dae4ef; font-weight: bold; }
+                            .pr-settlement .notes { font-size: 10px; color: #4b5665; margin-top: 10px; }
+                        </style>
+                        <h2 t-out="report['title']"/>
+                        <div class="company" t-out="o.company_id.name"/>
+                        <div class="meta">
+                            <strong>As of: </strong><span t-out="date_text(o.date_as_of)"/>
+                            &#160;&#160; <strong>Posting dates: </strong><span t-out="date_text(o.date_from) if o.date_from else 'All earlier dates'"/>
+                            &#160;&#160; <strong>Currency: </strong><span t-out="report['currency'].name"/>
+                            &#160;&#160; <strong>Show: </strong><span t-out="report['filter_label']"/>
+                            <br/><strong t-out="'Vendors: ' if report['purchase'] else 'Customers: '"/><span t-out="report['partners']"/>
+                        </div>
+                        <table>
+                            <colgroup>
+                                <col style="width:3%"/><col style="width:11%"/><col style="width:8%"/><col style="width:7%"/>
+                                <col style="width:8%"/><col style="width:4%"/><col style="width:6%"/><col style="width:8%"/>
+                                <col style="width:7%"/><col style="width:7%"/><col style="width:7%"/><col style="width:6%"/>
+                                <col style="width:6%"/><col style="width:4%"/><col style="width:5%"/><col style="width:3%"/>
+                            </colgroup>
+                            <thead><tr>
+                                <th>Sr.</th><th t-out="'Vendor' if report['purchase'] else 'Customer'"/>
+                                <th t-out="'Vendor Reference' if report['purchase'] else 'Customer PO No.'"/>
+                                <th>PO Amount</th><th t-out="'Purchase Order' if report['purchase'] else 'Sales Order'"/>
+                                <th>Credit Days</th><th t-out="'Bill Date' if report['purchase'] else 'Invoice Date'"/>
+                                <th t-out="'Bill No.' if report['purchase'] else 'Invoice No.'"/>
+                                <th>Amount</th><th t-out="'Paid Amount' if report['purchase'] else 'Received Amount'"/>
+                                <th>Balance</th><th>Due Date</th><th t-out="'Paid Date' if report['purchase'] else 'Received Date'"/>
+                                <th>Overdue Days</th><th>Payment Status</th><th>Cycle Days</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr t-foreach="report['rows']" t-as="row">
+                                    <td class="center" t-out="row_index + 1"/><td t-out="row['partner']"/>
+                                    <td t-out="row['reference']"/><td class="num" t-out="money(row['order_amount'])"/>
+                                    <td t-out="row['order']"/><td class="center" t-out="row['credit_days']"/>
+                                    <td class="center" t-out="date_text(row['invoice_date'])"/><td t-out="row['invoice']"/>
+                                    <td class="num" t-out="money(row['amount'])"/><td class="num" t-out="money(row['paid'])"/>
+                                    <td class="num" t-out="money(row['balance'])"/><td class="center" t-out="date_text(row['due_date'])"/>
+                                    <td class="center" t-out="date_text(row['received_date'])"/><td class="center" t-out="row['overdue_days']"/>
+                                    <td t-out="row['status']"/><td class="center" t-out="row['cycle_days']"/>
+                                </tr>
+                                <tr t-if="not report['rows']"><td colspan="16">No posted invoices/bills match these filters.</td></tr>
+                                <tr class="total">
+                                    <td colspan="8">Total</td>
+                                    <td class="num" t-out="money(report['totals']['amount'])"/>
+                                    <td class="num" t-out="money(report['totals']['paid'])"/>
+                                    <td class="num" t-out="money(report['totals']['balance'])"/><td colspan="5"/>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="notes">
+                            Posted invoices/bills through the cutoff; credit notes appear as negative amounts when included.
+                            Received/Paid Amount includes reconciled credit notes, write-offs and exchange adjustments.
+                            Unapplied receipts and advances are excluded until allocated to an invoice/bill.
+                            Due Date is the earliest outstanding installment, or the final installment when settled.
+                            Received/Paid Date is the last settlement date through the cutoff.
+                            PO Amount is reference information and can repeat across invoices; it is not included in totals.
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
