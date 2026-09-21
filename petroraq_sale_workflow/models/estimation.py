@@ -1,3 +1,5 @@
+import re
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount, html_escape
@@ -403,22 +405,71 @@ class PetroraqEstimation(models.Model):
         previous_order = self._get_previous_revision_sale_order()
         if previous_order:
             if previous_order.state in ("sale", "done"):
-                raise UserError(_(
-                    "A confirmed Sales Order cannot be revised because downstream processing has already started."
+                # The previous order is already a confirmed Sales Order.
+                # Keep the confirmed SO active, but create a draft quotation revision
+                # for this estimation revision so it can go through normal review.
+                base_sq_name = False
+                if previous_order.unrevisioned_name and "-SQ-" in previous_order.unrevisioned_name:
+                    base_sq_name = re.sub(r"-R\d+$", "", previous_order.unrevisioned_name)
+                elif previous_order.origin:
+                    sq_matches = re.findall(r"[A-Za-z0-9_-]*-SQ-[A-Za-z0-9_]+", previous_order.origin)
+                    if sq_matches:
+                        base_sq_name = re.sub(r"-R\d+$", "", sq_matches[0])
+                if not base_sq_name:
+                    base_sq_name = re.sub(r"-R\d+$", "", previous_order.name.replace("-SO-", "-SQ-"))
+
+                sq_records = self.env["sale.order"].with_context(active_test=False).search([
+                    "|",
+                    ("name", "=like", f"{base_sq_name}%"),
+                    ("unrevisioned_name", "=", base_sq_name),
+                    ("company_id", "=", company.id),
+                ]).filtered(lambda o: "-SQ-" in (o.name or ""))
+
+                existing_sq_revs = [0]
+                for rec in sq_records:
+                    if rec.name == base_sq_name:
+                        existing_sq_revs.append(0)
+                    else:
+                        match = re.search(r"-R(\d+)$", rec.name or "")
+                        if match:
+                            existing_sq_revs.append(int(match.group(1)))
+                        elif rec.revision_number and rec.unrevisioned_name == base_sq_name:
+                            existing_sq_revs.append(rec.revision_number)
+
+                next_sq_rev = max(existing_sq_revs) + 1
+                new_sq_name = "%s-R%d" % (base_sq_name, next_sq_rev)
+
+                quotation_vals = dict(
+                    order_vals,
+                    name=new_sq_name,
+                    unrevisioned_name=base_sq_name,
+                    revision_number=next_sq_rev,
+                    state="draft",
+                    approval_state="draft",
+                    confirmation_approval_state="not_requested",
+                    order_line=[(5, 0, 0)],
+                    overhead_percent=0.0,
+                    risk_percent=0.0,
+                    profit_percent=0.0,
+                    old_revision_ids=[(4, previous_order.id)],
+                )
+                order = self.env["sale.order"].with_company(company).with_context(
+                    preserve_quotation_revision_name=True
+                ).create(quotation_vals)
+            else:
+                order = previous_order.with_company(company).with_context(
+                    revision_from_estimation=True
+                ).copy_revision_with_context()
+                # A quotation revision is deliberately opened as a clean draft.
+                # The user can selectively populate it from the revised estimation
+                # with the dedicated "Get Products From Estimation" action.
+                order.write(dict(
+                    order_vals,
+                    order_line=[(5, 0, 0)],
+                    overhead_percent=0.0,
+                    risk_percent=0.0,
+                    profit_percent=0.0,
                 ))
-            order = previous_order.with_company(company).with_context(
-                revision_from_estimation=True
-            ).copy_revision_with_context()
-            # A quotation revision is deliberately opened as a clean draft.
-            # The user can selectively populate it from the revised estimation
-            # with the dedicated "Get Products From Estimation" action.
-            order.write(dict(
-                order_vals,
-                order_line=[(5, 0, 0)],
-                overhead_percent=0.0,
-                risk_percent=0.0,
-                profit_percent=0.0,
-            ))
         else:
             order = self.env["sale.order"].with_company(company).create(order_vals)
 
@@ -441,6 +492,10 @@ class PetroraqEstimation(models.Model):
             self.message_post(body=_(
                 "Empty revised quotation %s was generated. Products can be imported when required."
             ) % order.name)
+            if previous_order.state in ("sale", "done"):
+                previous_order.message_post(body=_(
+                    "Quotation revision %(quotation)s was initiated from estimation revision %(estimation)s."
+                ) % {"quotation": order.name, "estimation": self.name})
         return order
 
     def _prepare_sale_order_vals(self, company, addresses, term):

@@ -33,6 +33,22 @@ class SaleOrder(models.Model):
         default["origin"] = (self.origin + ", " if self.origin else "") + self.name
         return super().copy(default)
 
+    def _prepare_confirmed_so_data(self):
+        self.ensure_one()
+        quo = (self.origin + ", " if self.origin else "") + self.name
+        so_seq = self.env["ir.sequence"].with_company(self.company_id).next_by_code("sale.order")
+        if not so_seq:
+            raise UserError(_("Missing sequence: sale.order for company %s") % self.company_id.display_name)
+        vals = {
+            "origin": quo,
+            "name": so_seq,
+        }
+        if "unrevisioned_name" in self._fields:
+            vals["unrevisioned_name"] = so_seq
+        if "revision_number" in self._fields:
+            vals["revision_number"] = 0
+        return vals
+
     def action_confirm(self):
         for order in self:
             # If config says use same numbering, do nothing special
@@ -48,12 +64,8 @@ class SaleOrder(models.Model):
             if order.state not in ("draft", "sent"):
                 continue
 
-            quo = (order.origin + ", " if order.origin else "") + order.name
-
-            so_seq = self.env["ir.sequence"].with_company(order.company_id).next_by_code("sale.order")
-            if not so_seq:
-                raise UserError(_("Missing sequence: sale.order for company %s") % order.company_id.display_name)
-
-            order.write({"origin": quo, "name": so_seq})
+            so_vals = order._prepare_confirmed_so_data()
+            order.write(so_vals)
 
         return super().action_confirm()
+
