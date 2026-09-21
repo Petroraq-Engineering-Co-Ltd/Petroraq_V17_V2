@@ -44,6 +44,42 @@ class generateQrCode():
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
+    def _get_custom_invoice_report_values(self):
+        """Classify report rows without changing invoice or journal amounts."""
+        self.ensure_one()
+        product_lines = self.invoice_line_ids.filtered(
+            lambda line: line.display_type not in ('line_section', 'line_note')
+        )
+        downpayments = product_lines.filtered(
+            lambda line: line.is_downpayment or line.dp_source_sale_line_id
+        )
+        deductions = downpayments.filtered(lambda line: line.price_subtotal < 0)
+        is_refund = self.move_type in ('out_refund', 'in_refund')
+        if is_refund:
+            title = 'Credit Note / إشعار دائن'
+        elif downpayments and len(downpayments) == len(product_lines):
+            title = (
+                'Down Payment Tax Invoice / فاتورة ضريبية لدفعة مقدمة'
+                if not self.currency_id.is_zero(self.amount_tax)
+                else 'Down Payment Invoice / فاتورة دفعة مقدمة'
+            )
+        elif not self.currency_id.is_zero(self.amount_tax):
+            title = 'Tax Invoice / فاتورة ضريبية'
+        else:
+            title = 'Invoice / فاتورة'
+        if self.state == 'draft':
+            title = 'Draft / مسودة - ' + title
+        elif self.state == 'cancel':
+            title = 'Cancelled / ملغاة - ' + title
+        deduction = sum(deductions.mapped('price_subtotal'))
+        return {
+            'title': title,
+            'has_discount': any(line.discount for line in product_lines),
+            'deduction': deduction,
+            'before_deduction': self.amount_untaxed - deduction,
+            'is_refund': is_refund,
+        }
+
     custom_qr_image = fields.Binary("QR Code", compute='_generate_qr_code')
     po_number = fields.Char(
         string="PO Name",
@@ -142,6 +178,8 @@ class AccountMove(models.Model):
 
     @api.model
     def translate_invoice_name(self, invoice_name):
+        if not invoice_name or invoice_name == '/':
+            return 'مسودة'
         translated_name = invoice_name.replace('INV', 'فاتورة')
         numerals_map = str.maketrans('0123456789', '٠١٢٣٤٥٦٧٨٩')
         return translated_name.translate(numerals_map)
