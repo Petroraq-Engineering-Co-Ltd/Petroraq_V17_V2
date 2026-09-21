@@ -242,4 +242,77 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertFalse(rev_quo_1.active)
         self.assertEqual(rev_quo_1.state, "cancel")
 
+    def test_work_order_revision_sequence_in_sale_order_chain(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        original_so_name = quotation.name
+        self.assertIn("-SO-", original_so_name)
+
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+
+        # 1. Create first Work Order for the original Sale Order
+        wo_original = self.env["pr.work.order"].create({
+            "sale_order_id": quotation.id,
+            "partner_id": self.partner.id,
+        })
+        quotation.write({"work_order_id": wo_original.id})
+        estimation.with_context(allow_estimation_write=True).write({"work_order_id": wo_original.id})
+        original_wo_name = wo_original.name
+        self.assertNotIn("-R", original_wo_name)
+        self.assertEqual(wo_original.revision_number, 0)
+        self.assertEqual(wo_original.unrevisioned_name, original_wo_name)
+
+        # 2. Revise estimation -> Quotation Revision 1 -> Confirm to Sale Order Revision 1
+        rev_est_1 = estimation.with_context(allow_estimation_write=True).copy_revision_with_context()
+        rev_quo_1 = rev_est_1._ensure_sale_order()
+        self._prepare_confirmable_quotation(rev_quo_1)
+        rev_quo_1.action_confirm()
+        self.assertEqual(rev_quo_1.name, "%s-R1" % original_so_name)
+        # Verify the new SO revision starts with work_order_id = False
+        self.assertFalse(rev_quo_1.work_order_id)
+
+        # 3. Create Work Order for revised Sale Order -> Must be Work Order Revision 1
+        wo_rev_1 = self.env["pr.work.order"].create({
+            "sale_order_id": rev_quo_1.id,
+            "partner_id": self.partner.id,
+        })
+        rev_quo_1.write({"work_order_id": wo_rev_1.id})
+        rev_est_1.with_context(allow_estimation_write=True).write({"work_order_id": wo_rev_1.id})
+
+        self.assertEqual(wo_rev_1.name, "%s-R1" % original_wo_name)
+        self.assertEqual(wo_rev_1.revision_number, 1)
+        self.assertEqual(wo_rev_1.unrevisioned_name, original_wo_name)
+
+        # 4. Revise estimation again -> Quotation Revision 2 -> Confirm to Sale Order Revision 2
+        rev_est_2 = rev_est_1.with_context(allow_estimation_write=True).copy_revision_with_context()
+        rev_quo_2 = rev_est_2._ensure_sale_order()
+        self._prepare_confirmable_quotation(rev_quo_2)
+        rev_quo_2.action_confirm()
+        self.assertEqual(rev_quo_2.name, "%s-R2" % original_so_name)
+
+        # 5. Create Work Order for second revision -> Must be Work Order Revision 2
+        wo_rev_2 = self.env["pr.work.order"].create({
+            "sale_order_id": rev_quo_2.id,
+            "partner_id": self.partner.id,
+        })
+        rev_quo_2.write({"work_order_id": wo_rev_2.id})
+        rev_est_2.with_context(allow_estimation_write=True).write({"work_order_id": wo_rev_2.id})
+
+        self.assertEqual(wo_rev_2.name, "%s-R2" % original_wo_name)
+        self.assertEqual(wo_rev_2.revision_number, 2)
+        self.assertEqual(wo_rev_2.unrevisioned_name, original_wo_name)
+
+        # 6. Further Work Order creation in the same chain continues incrementing
+        wo_rev_3 = self.env["pr.work.order"].create({
+            "sale_order_id": rev_quo_2.id,
+            "partner_id": self.partner.id,
+        })
+        self.assertEqual(wo_rev_3.name, "%s-R3" % original_wo_name)
+        self.assertEqual(wo_rev_3.revision_number, 3)
+        self.assertEqual(wo_rev_3.unrevisioned_name, original_wo_name)
+
+
 

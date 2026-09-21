@@ -1392,17 +1392,10 @@ class SaleOrder(models.Model):
         )
 
         transfer_vals = {}
-        if existing_so.work_order_id and not self.work_order_id:
-            transfer_vals["work_order_id"] = existing_so.work_order_id.id
-            if not self.project_id and existing_so.project_id:
-                transfer_vals["project_id"] = existing_so.project_id.id
-            if not self.analytic_account_id and existing_so.analytic_account_id:
-                transfer_vals["analytic_account_id"] = existing_so.analytic_account_id.id
-            existing_so.work_order_id.sudo().write({"sale_order_id": self.id})
-            if self.estimation_id and not self.estimation_id.work_order_id:
-                self.estimation_id.with_context(allow_estimation_write=True).write({
-                    "work_order_id": existing_so.work_order_id.id,
-                })
+        if not self.project_id and existing_so.project_id:
+            transfer_vals["project_id"] = existing_so.project_id.id
+        if not self.analytic_account_id and existing_so.analytic_account_id:
+            transfer_vals["analytic_account_id"] = existing_so.analytic_account_id.id
 
         if "trading_expense_bucket_id" in self._fields and existing_so.trading_expense_bucket_id and not self.trading_expense_bucket_id:
             transfer_vals["trading_expense_bucket_id"] = existing_so.trading_expense_bucket_id.id

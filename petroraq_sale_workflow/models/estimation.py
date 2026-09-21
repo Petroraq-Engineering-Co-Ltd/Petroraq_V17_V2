@@ -641,15 +641,17 @@ class PetroraqEstimation(models.Model):
         Project = self.env["project.project"]
         WorkOrder = self.env["pr.work.order"]
 
-        project_vals = {
-            "name": order.order_inquiry_id.description if order.order_inquiry_id else (order.name or self.name),
-            "partner_id": order.partner_id.id,
-            "company_id": order.company_id.id,
-        }
-        if order.analytic_account_id:
-            project_vals["analytic_account_id"] = order.analytic_account_id.id
+        project = order.project_id
+        if not project:
+            project_vals = {
+                "name": order.order_inquiry_id.description if order.order_inquiry_id else (order.name or self.name),
+                "partner_id": order.partner_id.id,
+                "company_id": order.company_id.id,
+            }
+            if order.analytic_account_id:
+                project_vals["analytic_account_id"] = order.analytic_account_id.id
 
-        project = Project.create(project_vals)
+            project = Project.create(project_vals)
 
         work_order_vals = {
             "company_id": order.company_id.id,
@@ -1006,6 +1008,18 @@ class PetroraqEstimation(models.Model):
 class PRWorkOrder(models.Model):
     _inherit = "pr.work.order"
 
+    unrevisioned_name = fields.Char(
+        string="Base Work Order Name",
+        readonly=True,
+        copy=False,
+        index=True,
+    )
+    revision_number = fields.Integer(
+        string="Revision Number",
+        readonly=True,
+        copy=False,
+        default=0,
+    )
     source_estimation_id = fields.Many2one(
         "petroraq.estimation",
         string="Source Estimation",
@@ -1036,6 +1050,184 @@ class PRWorkOrder(models.Model):
             "view_mode": "form",
             "target": "current",
         }
+
+    @api.model
+    def _get_related_sale_order_chain(self, sale_order):
+        """Find all sale.order records associated with the given sale_order across
+        the revision chain, estimation chain, and order inquiry."""
+        if not sale_order:
+            return self.env["sale.order"]
+
+        SaleOrder = self.env["sale.order"].with_context(active_test=False)
+        chain = SaleOrder.browse(sale_order.id)
+        visited = set()
+        to_visit = {sale_order.id}
+
+        # 1. Traverse old_revision_ids and current_revision_id
+        while to_visit:
+            current_id = to_visit.pop()
+            if current_id in visited:
+                continue
+            visited.add(current_id)
+            rec = SaleOrder.browse(current_id)
+            if not rec.exists():
+                continue
+            chain |= rec
+            if hasattr(rec, "old_revision_ids"):
+                for old in rec.old_revision_ids:
+                    if old.id not in visited:
+                        to_visit.add(old.id)
+            if hasattr(rec, "current_revision_id") and rec.current_revision_id:
+                if rec.current_revision_id.id not in visited:
+                    to_visit.add(rec.current_revision_id.id)
+
+        # 2. Search by base SO name and unrevisioned_name
+        base_names = set()
+        for rec in chain:
+            if rec.name:
+                base_names.add(re.sub(r"-R\d+$", "", rec.name))
+            if getattr(rec, "unrevisioned_name", False):
+                base_names.add(re.sub(r"-R\d+$", "", rec.unrevisioned_name))
+
+        for base_name in base_names:
+            if base_name and "-SO-" in base_name:
+                matching_orders = SaleOrder.search([
+                    "|",
+                    ("name", "=like", f"{base_name}%"),
+                    ("unrevisioned_name", "=", base_name),
+                    ("company_id", "=", sale_order.company_id.id),
+                ])
+                chain |= matching_orders
+
+        # 3. Search via estimation chain
+        if "estimation_id" in chain._fields:
+            est_ids = chain.mapped("estimation_id")
+            for est in est_ids:
+                base_est = est.unrevisioned_name or (re.sub(r"-R\d+$", "", est.name) if est.name else False)
+                if base_est:
+                    related_ests = self.env["petroraq.estimation"].with_context(active_test=False).search([
+                        "|",
+                        ("name", "=like", f"{base_est}%"),
+                        ("unrevisioned_name", "=", base_est),
+                        ("company_id", "=", sale_order.company_id.id),
+                    ])
+                    chain |= related_ests.mapped("sale_order_id")
+
+        # 4. Search via order inquiry
+        if "order_inquiry_id" in chain._fields:
+            for inq in chain.mapped("order_inquiry_id"):
+                inq_orders = inq.sale_order_ids.filtered(lambda o: "-SO-" in (o.name or ""))
+                chain |= inq_orders
+
+        return chain
+
+    @api.model
+    def _get_existing_work_orders_for_chain(self, so_chain, company=None):
+        if not so_chain:
+            return self.env["pr.work.order"]
+
+        WorkOrder = self.env["pr.work.order"].with_context(active_test=False)
+        company_id = company.id if company else so_chain[0].company_id.id
+
+        # 1. Search WOs linked to any SO in the chain
+        wos = WorkOrder.search([
+            "|",
+            ("sale_order_id", "in", so_chain.ids),
+            ("id", "in", [wo_id for wo_id in so_chain.mapped("work_order_id").ids if wo_id]),
+        ])
+
+        # 2. Check estimations in chain
+        if "estimation_id" in so_chain._fields:
+            ests = so_chain.mapped("estimation_id")
+            for est in ests:
+                if est.work_order_id:
+                    wos |= est.work_order_id
+
+        # 3. For any found WO, expand search by base WO name to ensure all revisions are caught
+        base_wo_names = set()
+        for wo in wos:
+            if wo.name and wo.name not in (_("New"), "/", "New"):
+                base_name = getattr(wo, "unrevisioned_name", False) or re.sub(r"-R\d+$", "", wo.name)
+                if base_name:
+                    base_wo_names.add(base_name)
+
+        for base_wo in base_wo_names:
+            matching_wos = WorkOrder.search([
+                "|",
+                ("name", "=like", f"{base_wo}%"),
+                ("unrevisioned_name", "=", base_wo),
+                ("company_id", "=", company_id),
+            ])
+            wos |= matching_wos
+
+        return wos.filtered(lambda w: w.name and w.name not in (_("New"), "/", "New"))
+
+    @api.model
+    def _compute_next_work_order_name(self, sale_order=None, company=None):
+        """Determine the next work order name, base sequence, and revision number.
+        Returns: (name, base_name, revision_number)
+        """
+        company_rec = company or (sale_order.company_id if sale_order else self.env.company)
+
+        if not sale_order:
+            # Standalone Work Order: normal sequence
+            seq_name = self.env["ir.sequence"].with_company(company_rec).next_by_code("pr.work.order") or _("New")
+            return seq_name, seq_name, 0
+
+        so_chain = self._get_related_sale_order_chain(sale_order)
+        existing_wos = self._get_existing_work_orders_for_chain(so_chain, company=company_rec)
+
+        if not existing_wos:
+            # No existing Work Order in chain: generate new base sequence
+            seq_name = self.env["ir.sequence"].with_company(company_rec).next_by_code("pr.work.order") or _("New")
+            return seq_name, seq_name, 0
+
+        # Existing Work Order found in chain: determine base sequence and highest revision
+        base_wo_name = False
+        # Prefer the base name of the oldest/original WO (no -R suffix)
+        for wo in existing_wos.sorted(lambda w: w.id):
+            candidate = getattr(wo, "unrevisioned_name", False) or re.sub(r"-R\d+$", "", wo.name)
+            if candidate:
+                base_wo_name = candidate
+                break
+
+        if not base_wo_name:
+            base_wo_name = re.sub(r"-R\d+$", "", existing_wos[0].name)
+
+        existing_revs = [0]
+        for wo in existing_wos:
+            if wo.name == base_wo_name:
+                existing_revs.append(0)
+            else:
+                match = re.search(r"-R(\d+)$", wo.name or "")
+                if match and (wo.name.startswith(base_wo_name) or getattr(wo, "unrevisioned_name", False) == base_wo_name):
+                    existing_revs.append(int(match.group(1)))
+                elif getattr(wo, "revision_number", 0):
+                    existing_revs.append(wo.revision_number)
+
+        next_rev = max(existing_revs) + 1
+        new_wo_name = f"{base_wo_name}-R{next_rev}"
+        return new_wo_name, base_wo_name, next_rev
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("name", _("New")) in (False, _("New"), "New", "/"):
+                sale_order = False
+                if vals.get("sale_order_id"):
+                    sale_order = self.env["sale.order"].browse(vals["sale_order_id"])
+                company = self.env["res.company"].browse(vals["company_id"]) if vals.get("company_id") else False
+                name, base_name, rev_num = self._compute_next_work_order_name(sale_order=sale_order, company=company)
+                vals["name"] = name
+                vals["unrevisioned_name"] = base_name
+                vals["revision_number"] = rev_num
+            elif not vals.get("unrevisioned_name"):
+                vals["unrevisioned_name"] = re.sub(r"-R\d+$", "", vals["name"])
+                match = re.search(r"-R(\d+)$", vals["name"])
+                if match:
+                    vals["revision_number"] = int(match.group(1))
+
+        return super().create(vals_list)
 
 
 class WorkOrderBOQ(models.Model):
