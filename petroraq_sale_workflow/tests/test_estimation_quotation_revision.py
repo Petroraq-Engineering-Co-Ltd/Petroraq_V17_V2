@@ -314,5 +314,66 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertEqual(wo_rev_3.revision_number, 3)
         self.assertEqual(wo_rev_3.unrevisioned_name, original_wo_name)
 
+    def test_work_order_new_revision_action(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+
+        # 1. Create original Work Order
+        wo_0 = self.env["pr.work.order"].create({
+            "sale_order_id": quotation.id,
+            "partner_id": self.partner.id,
+        })
+        base_name = wo_0.name
+        self.assertNotIn("-R", base_name)
+        self.assertEqual(wo_0.revision_number, 0)
+        self.assertEqual(wo_0.state, "draft")
+
+        # 2. Click "New Revision" on wo_0 -> creates R1
+        action_1 = wo_0.action_new_revision()
+        self.assertEqual(action_1.get("res_model"), "pr.work.order")
+        wo_1 = self.env["pr.work.order"].browse(action_1["res_id"])
+
+        self.assertEqual(wo_1.name, "%s-R1" % base_name)
+        self.assertEqual(wo_1.revision_number, 1)
+        self.assertEqual(wo_1.unrevisioned_name, base_name)
+        self.assertEqual(wo_1.previous_revision_id.id, wo_0.id)
+        self.assertEqual(wo_1.sale_order_id.id, quotation.id)
+        self.assertEqual(wo_1.state, "draft")
+        # Ensure original wo_0 is unchanged
+        self.assertEqual(wo_0.name, base_name)
+        self.assertEqual(wo_0.state, "draft")
+
+        # 3. Click "New Revision" on wo_1 -> creates R2
+        action_2 = wo_1.action_new_revision()
+        wo_2 = self.env["pr.work.order"].browse(action_2["res_id"])
+
+        self.assertEqual(wo_2.name, "%s-R2" % base_name)
+        self.assertEqual(wo_2.revision_number, 2)
+        self.assertEqual(wo_2.unrevisioned_name, base_name)
+        self.assertEqual(wo_2.previous_revision_id.id, wo_1.id)
+        self.assertEqual(wo_2.sale_order_id.id, quotation.id)
+        # Ensure wo_1 is unchanged
+        self.assertEqual(wo_1.name, "%s-R1" % base_name)
+
+        # 4. Click "New Revision" on wo_2 -> creates R3
+        action_3 = wo_2.action_new_revision()
+        wo_3 = self.env["pr.work.order"].browse(action_3["res_id"])
+
+        self.assertEqual(wo_3.name, "%s-R3" % base_name)
+        self.assertEqual(wo_3.revision_number, 3)
+        self.assertEqual(wo_3.unrevisioned_name, base_name)
+        self.assertEqual(wo_3.previous_revision_id.id, wo_2.id)
+
+        # 5. Check revision count and action_view_revisions
+        self.assertEqual(wo_0.revision_count, 4)
+        self.assertEqual(wo_3.revision_count, 4)
+
+        view_action = wo_3.action_view_revisions()
+        self.assertEqual(view_action["res_model"], "pr.work.order")
+        all_revisions = self.env["pr.work.order"].search(view_action["domain"])
+        self.assertEqual(len(all_revisions), 4)
+        self.assertSetEqual(set(all_revisions.ids), {wo_0.id, wo_1.id, wo_2.id, wo_3.id})
+
+
 
 

@@ -207,6 +207,12 @@
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
                 <field name="has_estimation_source" invisible="1"/>
+                <button name="action_new_revision"
+                        type="object"
+                        string="New Revision"
+                        class="btn-secondary"
+                        groups="pr_work_order.custom_group_work_order_user"
+                        invisible="state == 'cancel'"/>
                 <button name="action_sync_from_estimation"
                         type="object"
                         string="Sync From Estimation"
@@ -214,7 +220,19 @@
                         groups="pr_work_order.custom_group_work_order_user"
                         invisible="not has_estimation_source or state in ['done', 'cancel']"/>
             </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="revision_count" invisible="1"/>
+                <button class="oe_stat_button"
+                        name="action_view_revisions"
+                        type="object"
+                        icon="fa-files-o"
+                        invisible="revision_count &lt;= 1">
+                    <field name="revision_count" widget="statinfo" string="Revisions"/>
+                </button>
+            </xpath>
             <xpath expr="//field[@name='sale_order_id']" position="after">
+                <field name="previous_revision_id" readonly="1" invisible="not previous_revision_id"/>
+                <field name="revision_number" readonly="1" invisible="revision_number == 0"/>
                 <field name="source_estimation_id" readonly="1"/>
                 <field name="last_source_sync_date" readonly="1"/>
             </xpath>
@@ -227,6 +245,7 @@
         <field name="inherit_id" ref="pr_work_order.view_pr_work_order_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='sale_order_id']" position="after">
+                <field name="revision_number" optional="show"/>
                 <field name="source_estimation_id" optional="show"/>
                 <field name="last_source_sync_date" optional="hide"/>
             </xpath>

@@ -1020,6 +1020,16 @@ class PRWorkOrder(models.Model):
         copy=False,
         default=0,
     )
+    previous_revision_id = fields.Many2one(
+        "pr.work.order",
+        string="Previous Revision",
+        readonly=True,
+        copy=False,
+    )
+    revision_count = fields.Integer(
+        string="Revisions Count",
+        compute="_compute_revision_count",
+    )
     source_estimation_id = fields.Many2one(
         "petroraq.estimation",
         string="Source Estimation",
@@ -1034,6 +1044,102 @@ class PRWorkOrder(models.Model):
             estimation = work_order.sale_order_id.estimation_id
             work_order.source_estimation_id = estimation
             work_order.has_estimation_source = bool(estimation)
+
+    @api.depends("name", "unrevisioned_name")
+    def _compute_revision_count(self):
+        for rec in self:
+            base_name = rec.unrevisioned_name or (re.sub(r"-R\d+$", "", rec.name) if rec.name else False)
+            if not base_name:
+                rec.revision_count = 0
+                continue
+            count = self.search_count([
+                "|",
+                ("unrevisioned_name", "=", base_name),
+                ("name", "=like", f"{base_name}%"),
+                ("company_id", "=", rec.company_id.id),
+            ])
+            rec.revision_count = count
+
+    def action_view_revisions(self):
+        self.ensure_one()
+        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else False)
+        domain = [
+            "|",
+            ("unrevisioned_name", "=", base_name),
+            ("name", "=like", f"{base_name}%"),
+            ("company_id", "=", self.company_id.id),
+        ]
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Work Order Revisions"),
+            "res_model": "pr.work.order",
+            "view_mode": "tree,form",
+            "domain": domain,
+            "context": {"default_sale_order_id": self.sale_order_id.id if self.sale_order_id else False},
+        }
+
+    def action_new_revision(self):
+        self.ensure_one()
+        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else "")
+
+        # Find all existing Work Orders in the company sharing this base sequence
+        existing_wos = self.env["pr.work.order"].with_context(active_test=False).search([
+            "|",
+            ("name", "=like", f"{base_name}%"),
+            ("unrevisioned_name", "=", base_name),
+            ("company_id", "=", self.company_id.id),
+        ])
+
+        existing_revs = [0]
+        for wo in existing_wos:
+            if wo.name == base_name:
+                existing_revs.append(0)
+            else:
+                match = re.search(r"-R(\d+)$", wo.name or "")
+                if match:
+                    existing_revs.append(int(match.group(1)))
+                elif getattr(wo, "revision_number", 0):
+                    existing_revs.append(wo.revision_number)
+
+        next_rev = max(existing_revs) + 1
+        new_name = f"{base_name}-R{next_rev}"
+
+        default_vals = {
+            "name": new_name,
+            "unrevisioned_name": base_name,
+            "revision_number": next_rev,
+            "previous_revision_id": self.id,
+            "sale_order_id": self.sale_order_id.id if self.sale_order_id else False,
+            "state": "draft",
+            "expense_bucket_id": False,
+            "ops_approver_id": False,
+            "ops_approved_date": False,
+            "acc_approver_id": False,
+            "acc_approved_date": False,
+            "final_approver_id": False,
+            "final_approved_date": False,
+            "rejected_by": False,
+            "rejected_date": False,
+            "rejection_reason": False,
+        }
+        if self.project_id:
+            default_vals["project_id"] = self.project_id.id
+        if self.analytic_account_id:
+            default_vals["analytic_account_id"] = self.analytic_account_id.id
+
+        new_wo = self.copy(default=default_vals)
+
+        self.message_post(body=_("New revision %(new)s created from this Work Order.") % {"new": new_wo.name})
+        new_wo.message_post(body=_("Created as revision %(new)s of %(orig)s.") % {"new": new_wo.name, "orig": self.name})
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Work Order"),
+            "res_model": "pr.work.order",
+            "res_id": new_wo.id,
+            "view_mode": "form",
+            "target": "current",
+        }
 
     def action_sync_from_estimation(self):
         self.ensure_one()
