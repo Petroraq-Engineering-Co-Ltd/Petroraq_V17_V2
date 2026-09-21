@@ -9,10 +9,10 @@
         <field name="orientation">Portrait</field>
         <field name="margin_top">55</field>
         <field name="margin_bottom">30</field>
-        <field name="margin_left">8</field>
-        <field name="margin_right">8</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">5</field>
+        <field name="header_spacing">55</field>
         <field name="dpi">95</field>
     </record>
     <record id="petroraq_invoice_report_action_id" model="ir.actions.report">
@@ -34,7 +34,7 @@
                     <div class="page pr-invoice">
                         <style>
 @font-face {font-family: InvoiceArabic; src: url('/pr_tax_Invoice_report_custom/static/src/font/droid-arabic-naskh-regular/Droid%20Arabic%20Naskh%20Regular/Droid%20Arabic%20Naskh%20Regular.ttf') format('truetype');}
-.pr-invoice {font-family: InvoiceArabic, Arial, sans-serif; font-size: 14px; color: #111;}
+.pr-invoice {padding:0 15px; font-family: InvoiceArabic, Arial, sans-serif; font-size: 14px; color: #111;}
 .pr-invoice table {width:100%; border-collapse:collapse; table-layout:fixed;}
 .pr-invoice td, .pr-invoice th {padding:5px; vertical-align:top; line-height:1.4; word-wrap:break-word;}
 .pr-invoice .invoice-heading {text-align:center; font-size:21px; margin:0 0 12px;}
