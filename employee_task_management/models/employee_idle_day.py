@@ -329,6 +329,26 @@ class EmployeeTaskIdleDay(models.Model):
                 "everybody as present", day)
             return set()
 
+
+    @api.model
+    def _employees_on_public_holiday(self, employees, day):
+        """Return employee ids who have an approved public holiday on `day`."""
+        if 'hr.public.holiday' not in self.env:
+            return set()
+        try:
+            holidays = self.env['hr.public.holiday'].sudo().search([
+                ('approval_state', '=', 'approved'),
+                ('state', '=', 'active'),
+                ('date_from', '<=', day),
+                ('date_to', '>=', day),
+                ('emp_ids', 'in', employees.ids),
+            ])
+            return set(holidays.mapped('emp_ids').ids) & set(employees.ids)
+        except Exception:
+            _logger.exception(
+                "Idle hours: could not read hr.public.holiday for %s", day)
+            return set()
+
     # ==================================================================
     # REFRESH
     # ==================================================================
@@ -381,6 +401,8 @@ class EmployeeTaskIdleDay(models.Model):
             return self.browse()
 
         on_leave = self._employees_on_leave(employees, day)
+        on_leave = on_leave | self._employees_on_public_holiday(employees, day)
+        
         capacity = TaskList._get_hours_per_day()
         today = TaskList._today_local()
         # A FUTURE day only earns a row once something is actually
