@@ -44,6 +44,26 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertEqual(revision_2.name, "%s-R2" % original_name)
         self.assertEqual(revision_2.revision_number, 2)
 
+    def test_estimation_own_revision_uses_r_labels(self):
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+        })
+        original_name = estimation.name
+
+        revision_1 = estimation.with_context(
+            allow_estimation_write=True
+        ).copy_revision_with_context()
+        self.assertNotEqual(revision_1.id, estimation.id)
+        self.assertEqual(revision_1.name, "%s-R1" % original_name)
+        self.assertEqual(revision_1.revision_number, 1)
+        self.assertFalse(estimation.active)
+
+        revision_2 = revision_1.with_context(
+            allow_estimation_write=True
+        ).copy_revision_with_context()
+        self.assertEqual(revision_2.name, "%s-R2" % original_name)
+        self.assertEqual(revision_2.revision_number, 2)
+
     def test_revision_uses_next_available_number_when_r1_already_exists(self):
         self.env.company.keep_name_so = False
         quotation = self._create_quotation()

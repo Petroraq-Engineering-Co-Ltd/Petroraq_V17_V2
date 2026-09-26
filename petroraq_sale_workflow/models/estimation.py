@@ -385,6 +385,36 @@ class PetroraqEstimation(models.Model):
             "target": "current",
         }
 
+    def _get_new_rev_data(self, new_rev_number):
+        """Use the same revision label style as the linked Quotation: EST/2026/0061-R1, ..."""
+        self.ensure_one()
+        base_name = self.unrevisioned_name or self.name
+        base_name = re.sub(r"-R\d+$", "", base_name)
+        est_records = self.with_context(active_test=False).search(
+            [
+                "|",
+                ("name", "=like", f"{base_name}%"),
+                ("unrevisioned_name", "=", base_name),
+                ("company_id", "=", self.company_id.id),
+            ],
+        )
+        existing_revs = [0]
+        for rec in est_records:
+            if rec.name == base_name:
+                existing_revs.append(0)
+            else:
+                match = re.search(r"-R(\d+)$", rec.name or "")
+                if match:
+                    existing_revs.append(int(match.group(1)))
+                elif rec.revision_number and rec.unrevisioned_name == base_name:
+                    existing_revs.append(rec.revision_number)
+
+        next_revision = max(new_rev_number, max(existing_revs) + 1)
+        vals = super()._get_new_rev_data(next_revision)
+        vals["name"] = "%s-R%d" % (base_name, next_revision)
+        vals["unrevisioned_name"] = base_name
+        return vals
+
     def create_revision(self):
         return super(PetroraqEstimation, self.with_context(allow_estimation_write=True)).create_revision()
 
