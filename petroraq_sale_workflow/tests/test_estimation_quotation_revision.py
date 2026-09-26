@@ -242,6 +242,103 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertFalse(rev_quo_1.active)
         self.assertEqual(rev_quo_1.state, "cancel")
 
+    def test_direct_confirm_blocked_by_posted_invoice_bypassing_estimation_flow(self):
+        """The guard in _prepare_confirmed_so_data() must independently block
+        a quotation confirmed straight into the same estimation/SO chain,
+        without ever going through _ensure_sale_order()."""
+        so_quotation = self._prepare_confirmable_quotation()
+        so_quotation.action_confirm()
+        invoice = so_quotation._create_invoices()
+        invoice.action_post()
+
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": so_quotation.id,
+        })
+        new_quotation = self._prepare_confirmable_quotation()
+        new_quotation.write({"estimation_id": estimation.id})
+
+        with self.assertRaises(UserError):
+            new_quotation.action_confirm()
+
+    def _revise_via_estimation(self, quotation):
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        revised_estimation = estimation.with_context(
+            allow_estimation_write=True
+        ).copy_revision_with_context()
+        revised_quotation = revised_estimation._ensure_sale_order()
+        self._prepare_confirmable_quotation(revised_quotation)
+        return revised_quotation
+
+    def test_revision_blocked_by_posted_invoice(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        invoice = quotation._create_invoices()
+        invoice.action_post()
+
+        # Blocked immediately when "Revise Quotation" is clicked on the
+        # Estimation - before any draft quotation revision is even created.
+        with self.assertRaises(UserError):
+            self._revise_via_estimation(quotation)
+
+    def test_revision_allowed_with_draft_invoice(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        invoice = quotation._create_invoices()
+        self.assertEqual(invoice.state, "draft")
+
+        revised_quotation = self._revise_via_estimation(quotation)
+        revised_quotation.action_confirm()
+        self.assertEqual(revised_quotation.state, "sale")
+        self.assertFalse(quotation.active)
+        self.assertEqual(quotation.state, "cancel")
+
+    def test_revision_allowed_with_cancelled_invoice(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        invoice = quotation._create_invoices()
+        invoice.button_cancel()
+        self.assertEqual(invoice.state, "cancel")
+
+        revised_quotation = self._revise_via_estimation(quotation)
+        revised_quotation.action_confirm()
+        self.assertEqual(revised_quotation.state, "sale")
+
+    def test_revision_blocked_by_active_delivery(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        picking_type = self.env["stock.picking.type"].search([("code", "=", "outgoing")], limit=1)
+        picking = self.env["stock.picking"].create({
+            "sale_id": quotation.id,
+            "partner_id": self.partner.id,
+            "picking_type_id": picking_type.id,
+            "location_id": picking_type.default_location_src_id.id,
+            "location_dest_id": picking_type.default_location_dest_id.id,
+        })
+        picking.write({"state": "confirmed"})
+
+        with self.assertRaises(UserError):
+            self._revise_via_estimation(quotation)
+
+    def test_revision_allowed_with_draft_delivery(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        picking_type = self.env["stock.picking.type"].search([("code", "=", "outgoing")], limit=1)
+        self.env["stock.picking"].create({
+            "sale_id": quotation.id,
+            "partner_id": self.partner.id,
+            "picking_type_id": picking_type.id,
+            "location_id": picking_type.default_location_src_id.id,
+            "location_dest_id": picking_type.default_location_dest_id.id,
+        })
+
+        revised_quotation = self._revise_via_estimation(quotation)
+        revised_quotation.action_confirm()
+        self.assertEqual(revised_quotation.state, "sale")
+
     def test_work_order_revision_sequence_in_sale_order_chain(self):
         quotation = self._prepare_confirmable_quotation()
         quotation.action_confirm()

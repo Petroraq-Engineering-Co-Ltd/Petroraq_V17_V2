@@ -405,6 +405,7 @@ class PetroraqEstimation(models.Model):
         previous_order = self._get_previous_revision_sale_order()
         if previous_order:
             if previous_order.state in ("sale", "done"):
+                previous_order._check_can_be_revised()
                 # The previous order is already a confirmed Sales Order.
                 # Keep the confirmed SO active, but create a draft quotation revision
                 # for this estimation revision so it can go through normal review.

@@ -1337,11 +1337,38 @@ class SaleOrder(models.Model):
 
         return self.env["sale.order"]
 
+    def _check_can_be_revised(self):
+        """Block revising a confirmed Sales Order that already has active
+        (non-draft) invoices or deliveries - those represent real downstream
+        processing that a revision must not silently orphan. A cancelled
+        invoice/delivery never actually processed anything, so it is treated
+        the same as draft and does not block."""
+        self.ensure_one()
+        active_invoices = self.invoice_ids.filtered(lambda inv: inv.state not in ("draft", "cancel"))
+        if active_invoices:
+            raise UserError(_(
+                "%(order)s cannot be revised: it already has non-draft invoice(s): %(invoices)s."
+            ) % {
+                "order": self.display_name,
+                "invoices": ", ".join(active_invoices.mapped("name")),
+            })
+
+        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state not in ("draft", "cancel"))
+        if active_deliveries:
+            raise UserError(_(
+                "%(order)s cannot be revised: it already has non-draft delivery/deliveries: %(deliveries)s."
+            ) % {
+                "order": self.display_name,
+                "deliveries": ", ".join(active_deliveries.mapped("name")),
+            })
+
     def _prepare_confirmed_so_data(self):
         self.ensure_one()
         existing_so = self._find_existing_confirmed_sale_order()
         if not existing_so:
             return super()._prepare_confirmed_so_data()
+
+        existing_so._check_can_be_revised()
 
         # An existing confirmed Sales Order was found: create a revision of it instead of a new sequence!
         so_name = existing_so.name or ""
