@@ -26,5 +26,13 @@ class HrEmployee(models.Model):
 
     compute_attendance = fields.Boolean(string="Check Attendance")
 
+    allow_gosi_recovery = fields.Boolean(
+        string="Allow GOSI",
+        help="Only relevant for archived (terminated) employees. When enabled, this "
+             "employee is still included in attendance sheet batch generation after "
+             "being archived, so post-termination GOSI recovery can keep being "
+             "processed for them.",
+    )
+
     # endregion [Fields]
 

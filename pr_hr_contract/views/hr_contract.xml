@@ -64,6 +64,11 @@
                             <field name="special_company_gosi_rate" invisible="not is_saudi_employee"/>
                             <field name="is_special_employee_gosi" invisible="not is_saudi_employee"/>
                             <field name="special_employee_gosi_rate" invisible="not is_saudi_employee"/>
+                            <field name="is_contract_expired" invisible="1"/>
+                            <field name="calculate_payslip_gosi" widget="boolean_toggle"
+                                   invisible="not is_contract_expired"/>
+                            <field name="post_termination_gosi_amount"
+                                   invisible="not is_contract_expired or not calculate_payslip_gosi"/>
 
                             <!--                            <field name="struct_id" required="0" invisible="1"/>-->
                             <field name="structure_type_id" required="0" invisible="1"/>

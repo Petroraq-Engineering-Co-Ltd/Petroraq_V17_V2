@@ -205,6 +205,33 @@ class AttendanceSheetBatch(models.Model):
     def action_att_gen(self):
         return self.write({'state': 'att_gen'})
 
+    def _pr_get_gosi_recovery_contract(self, employee, from_date, to_date):
+        """Return the contract to use for this employee/period.
+
+        Falls back to the employee's last Closed contract when it already ended
+        before the batch period started (so ``_get_contracts`` finds no overlap),
+        but only for employees explicitly flagged for post-termination GOSI
+        recovery. Returns an empty recordset otherwise.
+        """
+        contract = employee._get_contracts(from_date, to_date, states=["open", "close"])
+        if contract or not employee.allow_gosi_recovery:
+            return contract
+        return self.env['hr.contract'].search([
+            ('employee_id', '=', employee.id),
+            ('state', '=', 'close'),
+            ('date_end', '!=', False),
+            ('date_end', '<', from_date),
+        ], order='date_end desc', limit=1)
+
+    def _pr_get_att_sheet_date_to(self, contract, from_date, to_date):
+        """Cap the sheet at the contract's Last Working Day only if it falls
+        inside the batch period. A contract that already ended before the
+        period started is a pure recovery case, so the sheet spans the full
+        batch period instead of collapsing to an inverted date range."""
+        if contract.date_end and not contract.employee_id.allow_gosi_recovery and from_date <= contract.date_end < to_date:
+            return contract.date_end
+        return to_date
+
     def gen_att_sheet(self):
 
         att_sheets = self.env['attendance.sheet']
@@ -213,19 +240,20 @@ class AttendanceSheetBatch(models.Model):
             from_date = batch.date_from
             to_date = batch.date_to
             if self.type == 'department':
-                employee_ids = self.env['hr.employee'].search(
-                    [('department_id', '=', batch.department_id.id)])
+                employee_ids = self.env['hr.employee'].with_context(active_test=False).search([
+                    ('department_id', '=', batch.department_id.id),
+                    '|', ('active', '=', True),
+                    '&', ('active', '=', False), ('allow_gosi_recovery', '=', True),
+                ])
 
                 if not employee_ids:
                     raise UserError(_("There is no  Employees In This Department"))
                 for employee in employee_ids:
 
-                    contract_ids = employee._get_contracts(
-                        from_date, to_date, states=["open", "close"]
-                    )
+                    contract_ids = batch._pr_get_gosi_recovery_contract(employee, from_date, to_date)
                     if contract_ids:
                         contract = contract_ids.sorted(lambda item: item.date_start, reverse=True)[0]
-                        sheet_date_to = min(to_date, contract.date_end) if contract.date_end else to_date
+                        sheet_date_to = batch._pr_get_att_sheet_date_to(contract, from_date, to_date)
                         new_sheet = att_sheet_obj.new({
                             'employee_id': employee.id,
                             'date_from': from_date,
@@ -242,19 +270,20 @@ class AttendanceSheetBatch(models.Model):
                         att_sheet_id.get_attendances()
                         att_sheets += att_sheet_id
             if self.type == 'company':
-                employee_ids = self.env['hr.employee'].search(
-                    [('company_id', '=', batch.company_id.id)])
+                employee_ids = self.env['hr.employee'].with_context(active_test=False).search([
+                    ('company_id', '=', batch.company_id.id),
+                    '|', ('active', '=', True),
+                    '&', ('active', '=', False), ('allow_gosi_recovery', '=', True),
+                ])
 
                 if not employee_ids:
                     raise UserError(_("There is no  Employees In This Company"))
                 for employee in employee_ids:
 
-                    contract_ids = employee._get_contracts(
-                        from_date, to_date, states=["open", "close"]
-                    )
+                    contract_ids = batch._pr_get_gosi_recovery_contract(employee, from_date, to_date)
                     if contract_ids:
                         contract = contract_ids.sorted(lambda item: item.date_start, reverse=True)[0]
-                        sheet_date_to = min(to_date, contract.date_end) if contract.date_end else to_date
+                        sheet_date_to = batch._pr_get_att_sheet_date_to(contract, from_date, to_date)
                         new_sheet = att_sheet_obj.new({
                             'employee_id': employee.id,
                             'date_from': from_date,

@@ -81,6 +81,28 @@ class HrContract(models.Model):
                                     help='Amount paid to GOSI by Saudi Employee based on GOSI Configuration')
     # endregion [GOSI Fields]
 
+    # region [Post-Termination GOSI Recovery Fields]
+    is_contract_expired = fields.Boolean(
+        string="Contract Expired",
+        compute="_compute_is_contract_expired",
+        help="True when the contract is Closed and its Last Working Day has passed.",
+    )
+    calculate_payslip_gosi = fields.Boolean(
+        string="Calculate Payslip GOSI",
+        tracking=True,
+        help="Only available once the contract is expired. Enable to recover GOSI for the "
+             "period the employee remains registered after termination, using the GOSI "
+             "Amount entered below instead of the automatic calculation.",
+    )
+    post_termination_gosi_amount = fields.Float(
+        string="GOSI Amount",
+        tracking=True,
+        help="Actual employee GOSI amount for the month, entered by HR from the GOSI bill. "
+             "Re-enter this each payroll period while the employee remains registered after "
+             "termination.",
+    )
+    # endregion [Post-Termination GOSI Recovery Fields]
+
     # region [Contract Data]
     contract_employment_type = fields.Selection([('employment', 'Employment'),
                                                  ('recruitment', 'Recruitment'),
@@ -129,6 +151,14 @@ class HrContract(models.Model):
             country = contract.employee_id.country_id
             contract.is_saudi_employee = bool(
                 country and (country.code or '').upper() == 'SA'
+            )
+
+    @api.depends('state', 'date_end')
+    def _compute_is_contract_expired(self):
+        today = fields.Date.today()
+        for contract in self:
+            contract.is_contract_expired = bool(
+                contract.state == 'close' and contract.date_end and contract.date_end < today
             )
 
     # region [Methods]

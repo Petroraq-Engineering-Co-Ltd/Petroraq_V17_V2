@@ -79,4 +79,21 @@ class HrEmployee(models.Model):
         action['target'] = 'current'
         return action
 
+    def _get_contracts(self, date_from, date_to, states=None, kanban_state=False):
+        states = states or ['open']
+        contracts = super()._get_contracts(date_from, date_to, states=states, kanban_state=kanban_state)
+        if 'close' not in states:
+            return contracts
+        missing_employees = self - contracts.employee_id
+        if not missing_employees:
+            return contracts
+        recovery_contracts = self.env['hr.contract'].search([
+            ('employee_id', 'in', missing_employees.ids),
+            ('state', '=', 'close'),
+            ('calculate_payslip_gosi', '=', True),
+            ('date_end', '!=', False),
+            ('date_end', '<', date_from),
+        ])
+        return contracts | recovery_contracts
+
     # endregion [Methods]

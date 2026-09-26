@@ -151,21 +151,23 @@ class HrPayslip(models.Model):
             contract = self.env["hr.contract"].browse(vals.get("contract_id")).exists()
             date_from = fields.Date.to_date(vals.get("date_from"))
             date_to = fields.Date.to_date(vals.get("date_to"))
-            if contract and contract.date_end and date_from:
+            if contract and contract.date_end and date_from and not contract.calculate_payslip_gosi:
                 if date_from > contract.date_end:
                     raise ValidationError(_(
                         "A payslip cannot start after the Last Working Day (%s) for %s.",
                         contract.date_end,
                         contract.employee_id.display_name,
                     ))
-                if date_to and date_to > contract.date_end:
-                    vals["date_to"] = contract.date_end
+                # if date_to and date_to > contract.date_end:
+                #     vals["date_to"] = contract.date_end
             prepared_vals_list.append(vals)
         return super().create(prepared_vals_list)
 
     @api.constrains("contract_id", "date_from", "date_to")
     def _check_last_working_day(self):
         for payslip in self:
+            if payslip.contract_id.calculate_payslip_gosi:
+                continue
             cutoff = payslip.contract_id.date_end
             if cutoff and payslip.date_from and payslip.date_from > cutoff:
                 raise ValidationError(_(
@@ -388,6 +390,77 @@ class HrPayslip(models.Model):
             'slip_id': payslip.id,
         })
 
+    def _pr_apply_gosi_only_payslip_lines(self, line_vals, contract_id):
+        """Zero every other rule and replace them with the single manual GOSI
+        recovery amount, for a contract flagged `calculate_payslip_gosi`."""
+        self.ensure_one()
+        for vals in line_vals:
+            if vals.get("slip_id") == self.id and vals.get("code") not in ("GROSS", "NET"):
+                vals["amount"] = 0.0
+                vals["total"] = 0.0
+
+        recovery_amount = contract_id.post_termination_gosi_amount or 0.0
+        gosi_salary_rule = self.env.ref(
+            "pr_hr_payroll.hr_salary_rule_saudi_gosi",
+            raise_if_not_found=False,
+        )
+        gosi_allow_salary_rule = self.env.ref("pr_hr_payroll.hr_salary_rule_saudi_gosi_allow", raise_if_not_found=False)
+        if gosi_salary_rule and recovery_amount:
+            # line_vals.append({
+            #     "sequence": gosi_recovery_rule.sequence,
+            #     "code": gosi_recovery_rule.code,
+            #     "name": gosi_recovery_rule.name,
+            #     "salary_rule_id": gosi_recovery_rule.id,
+            #     "contract_id": contract_id.id,
+            #     "employee_id": self.employee_id.id,
+            #     "amount": recovery_amount,
+            #     "quantity": 1,
+            #     "rate": 100,
+            #     "total": recovery_amount,
+            #     "slip_id": self.id,
+            # })
+
+            # Company GOSI → ADD to GROSS
+            line_vals.append({
+                'sequence': 44,
+                'code': 'GOSI_COMP_ADD',
+                'name': 'GOSI Company Contribution',
+                'salary_rule_id': gosi_allow_salary_rule.id,
+                'contract_id': contract_id.id,
+                'employee_id': self.employee_id.id,
+                'amount': abs(recovery_amount),
+                'quantity': 1,
+                'rate': 100,
+                'total': abs(recovery_amount),
+                'slip_id': self.id,
+            })
+
+            # Company GOSI → DEDUCT from NET
+            line_vals.append({
+                'sequence': 46,
+                'code': 'GOSI_COMP_DED',
+                'name': 'GOSI Company Deduction',
+                'salary_rule_id': gosi_salary_rule.id,
+                'contract_id': contract_id.id,
+                'employee_id': self.employee_id.id,
+                'amount': -abs(recovery_amount),
+                'quantity': 1,
+                'rate': 100,
+                'total': -abs(recovery_amount),
+                'slip_id': self.id,
+            })
+
+        payslip_line_vals = [vals for vals in line_vals if vals.get("slip_id") == self.id]
+        gross_amount, net_amount, _gosi_company_add = self._compute_gross_net_amounts(payslip_line_vals)
+        for val_line in payslip_line_vals:
+            code = val_line.get("code")
+            if code == "NET":
+                val_line["amount"] = net_amount
+                val_line["total"] = net_amount
+            elif code == "GROSS":
+                val_line["amount"] = gross_amount
+                val_line["total"] = gross_amount
+
     def _get_payslip_lines(self):
         line_vals = super()._get_payslip_lines()
         for payslip in self:
@@ -395,6 +468,9 @@ class HrPayslip(models.Model):
 
             contract_id = payslip.contract_id or payslip.employee_id.contract_id
             if not contract_id:
+                continue
+            if contract_id.calculate_payslip_gosi:
+                payslip._pr_apply_gosi_only_payslip_lines(line_vals, contract_id)
                 continue
             joining_arrears = self.env["payroll.joining.arrears"]._prepare_for_payslip(payslip)
             if joining_arrears and abs(joining_arrears.net_amount or 0.0) >= 1e-6:

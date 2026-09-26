@@ -66,6 +66,18 @@
             <field name="note">One-time net salary arrears for an employee's unpaid joining-period dates.</field>
         </record>
 
+        <record id="hr_salary_rule_gosi_recovery_post_termination" model="hr.salary.rule">
+            <field name="code">GOSI_RECOVERY_POST_TERM</field>
+            <field name="name">GOSI Recovery - Post Termination</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="struct_id" ref="hr_payroll.structure_worker_001"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+            <field name="sequence" eval="47"/>
+            <field name="note">Recovery of the actual employee GOSI amount for a terminated employee who remains registered under the company. Entered manually on the contract (GOSI Amount), applied instead of every other salary rule.</field>
+        </record>
+
         <record id="seq_payroll_joining_arrears" model="ir.sequence">
             <field name="name">Payroll Joining Arrears</field>
             <field name="code">payroll.joining.arrears</field>

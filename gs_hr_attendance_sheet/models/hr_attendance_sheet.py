@@ -680,7 +680,7 @@ class AttendanceSheet(models.Model):
             raise ValidationError(
                 _('There Is No Valid Contract For Employee %s' % employee.name))
         self.contract_id = contracts.sorted(lambda item: item.date_start, reverse=True)[0]
-        if self.contract_id.date_end and self.date_to > self.contract_id.date_end:
+        if self.contract_id.date_end and self.date_to > self.contract_id.date_end and not self.employee_id.allow_gosi_recovery:
             self.date_to = self.contract_id.date_end
         if not self.contract_id.att_policy_id:
             raise ValidationError(_(
