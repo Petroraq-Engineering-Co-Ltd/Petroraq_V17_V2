@@ -1348,6 +1348,44 @@ class WorkOrderBOQ(models.Model):
         ondelete="set null",
     )
 
+    @api.constrains("qty", "unit_cost")
+    def _check_against_estimation_line(self):
+        """A BOQ line synced from an Estimation line may only be edited down,
+        never up: qty/unit_cost can be <= the source Estimation line's own
+        values, never greater."""
+        precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+        for line in self:
+            estimation_line = line.estimation_line_id
+            if not estimation_line:
+                continue
+
+            max_qty = (
+                estimation_line.quantity_hours
+                if estimation_line.section_type in ("labor", "equipment")
+                else (estimation_line.quantity or 0.0)
+            )
+            if float_compare(line.qty or 0.0, max_qty, precision_digits=precision_qty) > 0:
+                raise ValidationError(_(
+                    "BOQ line \"%(line)s\": Qty (%(qty)s) cannot exceed the source Estimation "
+                    "line's quantity (%(max_qty)s)."
+                ) % {
+                    "line": line.name or line.display_name,
+                    "qty": line.qty,
+                    "max_qty": max_qty,
+                })
+
+            max_cost = estimation_line.unit_cost or 0.0
+            if float_compare(line.unit_cost or 0.0, max_cost, precision_digits=precision_cost) > 0:
+                raise ValidationError(_(
+                    "BOQ line \"%(line)s\": Unit Cost (%(cost)s) cannot exceed the source "
+                    "Estimation line's unit cost (%(max_cost)s)."
+                ) % {
+                    "line": line.name or line.display_name,
+                    "cost": line.unit_cost,
+                    "max_cost": max_cost,
+                })
+
 
 class PetroraqEstimationLine(models.Model):
     _name = "petroraq.estimation.line"
