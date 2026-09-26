@@ -1339,7 +1339,7 @@ class SaleOrder(models.Model):
 
     def _check_can_be_revised(self):
         """Block revising a confirmed Sales Order that already has active
-        (non-draft) invoices or deliveries - those represent real downstream
+        (posted) invoices or deliveries - those represent real downstream
         processing that a revision must not silently orphan. A cancelled
         invoice/delivery never actually processed anything, so it is treated
         the same as draft and does not block."""
@@ -1347,16 +1347,16 @@ class SaleOrder(models.Model):
         active_invoices = self.invoice_ids.filtered(lambda inv: inv.state not in ("draft", "cancel"))
         if active_invoices:
             raise UserError(_(
-                "%(order)s cannot be revised: it already has non-draft invoice(s): %(invoices)s."
+                "%(order)s cannot be revised: it already has posted invoice(s): %(invoices)s."
             ) % {
                 "order": self.display_name,
                 "invoices": ", ".join(active_invoices.mapped("name")),
             })
 
-        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state not in ("draft", "cancel"))
+        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state not in ("draft", "assigned", "cancel"))
         if active_deliveries:
             raise UserError(_(
-                "%(order)s cannot be revised: it already has non-draft delivery/deliveries: %(deliveries)s."
+                "%(order)s cannot be revised: it already has posted delivery/deliveries: %(deliveries)s."
             ) % {
                 "order": self.display_name,
                 "deliveries": ", ".join(active_deliveries.mapped("name")),

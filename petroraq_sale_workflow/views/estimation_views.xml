@@ -209,10 +209,10 @@
                 <field name="has_estimation_source" invisible="1"/>
                 <button name="action_new_revision"
                         type="object"
-                        string="New Revision"
+                        string="Revise WO"
                         class="btn-secondary"
                         groups="pr_work_order.custom_group_work_order_user"
-                        invisible="state == 'cancel'"/>
+                        invisible="state in ('in_progress', 'done')"/>
                 <button name="action_sync_from_estimation"
                         type="object"
                         string="Sync From Estimation"
