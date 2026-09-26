@@ -449,25 +449,20 @@ class PetroraqEstimation(models.Model):
                 if not base_sq_name:
                     base_sq_name = re.sub(r"-R\d+$", "", previous_order.name.replace("-SO-", "-SQ-"))
 
-                sq_records = self.env["sale.order"].with_context(active_test=False).search([
-                    "|",
-                    ("name", "=like", f"{base_sq_name}%"),
+                # The draft quotation revision must be numbered to match the SO
+                # revision it will become on confirm (previous_order.revision_number
+                # + 1). Searching for prior draft rows still named "-SQ-..." does
+                # NOT work here: confirming a quotation renames that same row in
+                # place into an "-SO-..." name (see _prepare_confirmed_so_data),
+                # so no "-SQ-" row ever survives past its own confirmation - a
+                # name-based search would always find zero and reset to R1.
+                next_sq_rev = (previous_order.revision_number or 0) + 1
+                existing_sq = self.env["sale.order"].with_context(active_test=False).search([
                     ("unrevisioned_name", "=", base_sq_name),
                     ("company_id", "=", company.id),
-                ]).filtered(lambda o: "-SQ-" in (o.name or ""))
-
-                existing_sq_revs = [0]
-                for rec in sq_records:
-                    if rec.name == base_sq_name:
-                        existing_sq_revs.append(0)
-                    else:
-                        match = re.search(r"-R(\d+)$", rec.name or "")
-                        if match:
-                            existing_sq_revs.append(int(match.group(1)))
-                        elif rec.revision_number and rec.unrevisioned_name == base_sq_name:
-                            existing_sq_revs.append(rec.revision_number)
-
-                next_sq_rev = max(existing_sq_revs) + 1
+                ], order="revision_number desc", limit=1)
+                if existing_sq and (existing_sq.revision_number or 0) >= next_sq_rev:
+                    next_sq_rev = existing_sq.revision_number + 1
                 new_sq_name = "%s-R%d" % (base_sq_name, next_sq_rev)
 
                 quotation_vals = dict(
