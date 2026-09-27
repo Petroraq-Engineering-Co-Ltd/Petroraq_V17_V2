@@ -59,6 +59,10 @@ class AttendanceReportWizard(models.TransientModel):
         if not calendar:
             return 0.0
 
+        saturday_working = day_date.weekday() == 5
+        if saturday_working and employee._etm_saturday_is_off(day_date):
+            return 0.0
+
         day_start = datetime.combine(day_date, time.min)
         day_end = datetime.combine(day_date, time.max)
 
@@ -113,6 +117,15 @@ class AttendanceReportWizard(models.TransientModel):
         planned_hours = 0.0
         for line in calendar.attendance_ids.filtered(lambda l: l.dayofweek == weekday):
             planned_hours += max(0.0, line.hour_to - line.hour_from)
+        if saturday_working and not planned_hours:
+            weekday_totals = {}
+            for line in calendar.attendance_ids.filtered(
+                lambda item: item.dayofweek in ("6", "0", "1", "2", "3")
+            ):
+                weekday_totals[line.dayofweek] = weekday_totals.get(line.dayofweek, 0.0) + max(
+                    0.0, line.hour_to - line.hour_from
+                )
+            planned_hours = max(weekday_totals.values(), default=calendar.hours_per_day or 8.0)
         return planned_hours
 
     def _get_attendance_data(self, employee):
@@ -167,7 +180,7 @@ class AttendanceReportWizard(models.TransientModel):
                     'difference': 0,
                     'overtime': 0,
                     'absent': False,
-                    'is_weekend': single_date.weekday() in [5, 6],
+                    'is_weekend': planned_hours <= 0,
                 })
                 continue
 
@@ -185,7 +198,7 @@ class AttendanceReportWizard(models.TransientModel):
                     'difference': 0,
                     'overtime': 0,
                     'absent': False,
-                    'is_weekend': single_date.weekday() in [5, 6],
+                    'is_weekend': planned_hours <= 0,
                 })
                 continue
 
@@ -214,7 +227,7 @@ class AttendanceReportWizard(models.TransientModel):
                         'difference': planned_hours,
                         'overtime': 0,
                         'absent': True,
-                        'is_weekend': single_date.weekday() in [5, 6],
+                        'is_weekend': planned_hours <= 0,
                     })
                     continue
 
@@ -237,7 +250,7 @@ class AttendanceReportWizard(models.TransientModel):
                     'difference': difference,
                     'overtime': overtime,
                     'absent': False,
-                    'is_weekend': single_date.weekday() in [5, 6],
+                    'is_weekend': planned_hours <= 0,
                 })
             else:
                 total_absent_days += 1
@@ -252,7 +265,7 @@ class AttendanceReportWizard(models.TransientModel):
                     'difference': planned_hours,
                     'overtime': 0,
                     'absent': True,
-                    'is_weekend': single_date.weekday() in [5, 6],
+                    'is_weekend': planned_hours <= 0,
                 })
 
         if self.show_remaining_leaves:

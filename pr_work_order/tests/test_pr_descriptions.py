@@ -72,3 +72,17 @@ class TestPrDescriptions(unittest.TestCase):
         self.onchange([self.line])
         self.assertEqual(self.line.name, "New product")
         self.assertEqual(self.line.unit_cost, 75)
+
+    def test_work_order_creation_keeps_the_source_description_link(self):
+        models_dir = Path(__file__).parents[1] / "models"
+        work_order_source = (models_dir / "work_order.py").read_text(encoding="utf-8-sig")
+        sale_source = (models_dir / "sale_order_inherit.py").read_text(encoding="utf-8-sig")
+        self.assertIn("sale_order_line_id = fields.Many2one", work_order_source)
+        self.assertIn('"sale_order_line_id": line.id', sale_source)
+
+    def test_work_order_revision_revalidates_sale_order_ceiling(self):
+        source = (Path(__file__).parents[1] / "models" / "work_order.py").read_text(
+            encoding="utf-8-sig"
+        )
+        self.assertIn("def _validate_budget_within_sale_order", source)
+        self.assertIn("rec._validate_budget_within_sale_order()", source)

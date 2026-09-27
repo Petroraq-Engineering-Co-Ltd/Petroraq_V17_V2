@@ -74,6 +74,8 @@ class GrnSes(models.Model):
     def action_approve(self):
         """Mark record as approved"""
         for rec in self:
+            if not (rec.partner_ref or "").strip():
+                raise UserError(_("Enter the Vendor GRN Number before approving the GRN/SES."))
             rec.is_approved = True
             rec.stage = "approved"
             group = self.env.ref("pr_custom_purchase.inventory_admin", raise_if_not_found=False)

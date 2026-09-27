@@ -1,4 +1,4 @@
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, new_test_user
 
 
@@ -25,12 +25,24 @@ class TestServiceReceiptWorkflow(TransactionCase):
                                   "price_unit": 10})],
         })
 
-    def _receipt(self):
+    def _receipt(self, vendor_srn_number="VENDOR-SRN-001"):
         return self.env["service.receipt.note"].sudo().create({
             "purchase_id": self.order.id,
+            "vendor_srn_number": vendor_srn_number,
             "line_ids": [(0, 0, {"purchase_line_id": self.order.order_line.id,
                                   "name": "Accepted service", "done_qty": 1})],
         }).sudo(False)
+
+    def test_vendor_srn_number_is_required_for_approval_and_validation(self):
+        receipt = self._receipt(vendor_srn_number=False)
+        with self.assertRaisesRegex(UserError, "Vendor SRN Number"):
+            receipt.with_user(self.manager).action_approve()
+
+        receipt.with_user(self.manager).vendor_srn_number = "VENDOR-SRN-002"
+        receipt.with_user(self.manager).action_approve()
+        receipt.with_user(self.manager).vendor_srn_number = False
+        with self.assertRaisesRegex(UserError, "Vendor SRN Number"):
+            receipt.with_user(self.manager).action_validate()
 
     def test_only_department_manager_approves(self):
         receipt = self._receipt()

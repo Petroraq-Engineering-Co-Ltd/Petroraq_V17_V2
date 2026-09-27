@@ -402,10 +402,6 @@ class PetroraqEstimation(models.Model):
         order_vals = self._prepare_sale_order_vals(company, addresses, term)
         previous_order = self._get_previous_revision_sale_order()
         if previous_order:
-            if previous_order.state in ("sale", "done"):
-                raise UserError(_(
-                    "A confirmed Sales Order cannot be revised because downstream processing has already started."
-                ))
             order = previous_order.with_company(company).with_context(
                 revision_from_estimation=True
             ).copy_revision_with_context()
@@ -418,6 +414,7 @@ class PetroraqEstimation(models.Model):
                 overhead_percent=0.0,
                 risk_percent=0.0,
                 profit_percent=0.0,
+                work_order_id=False,
             ))
         else:
             order = self.env["sale.order"].with_company(company).create(order_vals)
@@ -571,6 +568,32 @@ class PetroraqEstimation(models.Model):
         order = self._ensure_sale_order()
         if order.state != "sale":
             raise UserError(_("You can only create a work order after the quotation is confirmed."))
+
+        previous_work_orders = self.with_context(active_test=False).old_revision_ids.mapped(
+            "work_order_id"
+        ).exists()
+        if previous_work_orders:
+            work_order = previous_work_orders.sorted(lambda record: record.id)[-1]
+            if work_order.state in ("done", "cancel"):
+                raise UserError(_(
+                    "The previous Work Order is completed or cancelled and cannot be revised."
+                ))
+            work_order.write({"state": "draft"})
+            work_order._reset_approval_metadata()
+            work_order._sync_work_order_budget_state("draft")
+            self._sync_work_order_from_estimation(work_order)
+            work_order.message_post(body=_(
+                "Work Order revision synchronized from Estimation %(estimation)s and "
+                "Sales Order %(order)s. Full WO approval is required again."
+            ) % {"estimation": self.name, "order": order.name})
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Revised Work Order"),
+                "res_model": "pr.work.order",
+                "res_id": work_order.id,
+                "view_mode": "form",
+                "target": "current",
+            }
 
         if order.work_order_id:
             self.with_context(allow_estimation_write=True).work_order_id = order.work_order_id.id

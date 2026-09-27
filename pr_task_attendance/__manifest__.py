@@ -1,6 +1,6 @@
 {
     "name": "Daily Task Attendance Approval",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.1.1",
     "category": "Human Resources/Attendance",
     "summary": "Daily task submission attendance policy and HR mark-present requests",
     "license": "LGPL-3",

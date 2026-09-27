@@ -1,5 +1,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_amount
+from odoo.tools.float_utils import float_compare
 
 
 class PRWorkOrder(models.Model):
@@ -47,11 +49,38 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state == "draft":
                 continue
-
+            if rec.state in ("done", "cancel"):
+                raise UserError(_("Completed or cancelled Work Orders cannot be revised."))
             rec.write({"state": "draft"})
             rec._reset_approval_metadata()
             rec._sync_work_order_budget_state("draft")
-            rec.message_post(body=_("Work Order has been reset to draft."))
+            if rec.sale_order_id and hasattr(rec.sale_order_id, "_sync_work_order_from_quotation"):
+                rec.sale_order_id._sync_work_order_from_quotation(rec)
+            rec.message_post(body=_(
+                "Work Order revision started in Draft and synchronized with its Sales Order. "
+                "It must complete the full approval workflow again."
+            ))
+        return True
+
+    def _validate_budget_within_sale_order(self):
+        for rec in self:
+            if not rec.sale_order_id:
+                continue
+            currency = rec.currency_id or rec.company_id.currency_id
+            contract_amount = rec.sale_order_id.amount_total or 0.0
+            if float_compare(
+                rec.budgeted_cost or 0.0,
+                contract_amount,
+                precision_rounding=currency.rounding,
+            ) > 0:
+                raise ValidationError(_(
+                    "Work Order budget (%(budget)s) cannot exceed linked Sales Order total "
+                    "(%(sale)s). Revise the Estimation/Sales Order first or reduce the WO budget."
+                ) % {
+                    "budget": format_amount(rec.env, rec.budgeted_cost or 0.0, currency),
+                    "sale": format_amount(rec.env, contract_amount, currency),
+                })
+        return True
 
     def _remove_linked_expense_bucket(self):
         for rec in self:
@@ -487,6 +516,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "draft":
                 raise UserError(_("Only draft work orders can be submitted for approval"))
+            rec._validate_budget_within_sale_order()
             rec._ensure_project_expense_bucket(sync_budget=True)
             rec.state = "ops_approval"
             rec.rejection_reason = ""
@@ -555,6 +585,7 @@ class PRWorkOrder(models.Model):
             if rec.state != "ops_approval":
                 continue
 
+            rec._validate_budget_within_sale_order()
             rec.ops_approver_id = self.env.user
             rec.ops_approved_date = fields.Datetime.now()
             rec.state = "acc_approval"
@@ -647,6 +678,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "acc_approval":
                 continue
+            rec._validate_budget_within_sale_order()
             rec.acc_approver_id = self.env.user
             rec.acc_approved_date = fields.Datetime.now()
             rec.state = "final_approval"
@@ -665,6 +697,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "final_approval":
                 continue
+            rec._validate_budget_within_sale_order()
             rec.final_approver_id = self.env.user
             rec.final_approved_date = fields.Datetime.now()
             rec.state = "approved"
@@ -798,6 +831,13 @@ class WorkOrderBOQ(models.Model):
     _order = "sequence, id"
 
     work_order_id = fields.Many2one("pr.work.order", ondelete="cascade")
+    sale_order_line_id = fields.Many2one(
+        "sale.order.line",
+        string="Source Sales Order Line",
+        readonly=True,
+        copy=False,
+        ondelete="set null",
+    )
     sequence = fields.Integer(default=10)
     section_name = fields.Char("Section")
 

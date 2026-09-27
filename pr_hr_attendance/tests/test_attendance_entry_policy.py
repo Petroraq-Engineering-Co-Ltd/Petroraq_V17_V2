@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import pytz
 
@@ -11,6 +11,21 @@ from .common import AttendancePolicyCase
 
 @tagged("post_install", "-at_install")
 class TestAttendanceEntryPolicy(AttendancePolicyCase):
+
+    def test_saturday_is_off_only_after_40_approved_etm_hours(self):
+        saturday = date(2026, 6, 6)
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.scheduled_employee.id,
+                "date": date(2026, 5, 31) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+        self.assertTrue(self.scheduled_employee._etm_saturday_is_off(saturday))
+        self.env["employee.task.idle.day"].search([
+            ("employee_id", "=", self.scheduled_employee.id),
+            ("date", "=", date(2026, 6, 4)),
+        ]).approved_hours = 7.0
+        self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
 
     def test_manual_hr_create_modify_and_delete_is_allowed(self):
         attendance = self.Attendance.with_user(self.hr_user).create(

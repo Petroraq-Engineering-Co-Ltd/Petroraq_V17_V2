@@ -158,6 +158,8 @@ class TaskAttendanceDay(models.Model):
         calendar = employee.resource_calendar_id or employee.company_id.resource_calendar_id
         if not calendar or self.env["hr.attendance"]._is_auto_attendance_public_holiday(employee, day):
             return False
+        if day.weekday() == 5:
+            return not employee._etm_saturday_is_off(day)
         intervals = calendar._work_intervals_batch(
             start, end, resources=employee.resource_id, tz=pytz.timezone(timezone),
         )

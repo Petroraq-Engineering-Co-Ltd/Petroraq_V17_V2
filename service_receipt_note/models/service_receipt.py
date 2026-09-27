@@ -62,6 +62,11 @@ class ServiceReceiptNote(models.Model):
         default=fields.Datetime.now,
         tracking=True,
     )
+    vendor_srn_number = fields.Char(
+        string="Vendor SRN Number",
+        tracking=True,
+        help="The service receipt or delivery reference supplied by the vendor.",
+    )
     state = fields.Selection(
         [
             ("draft", "Draft"),
@@ -222,6 +227,8 @@ class ServiceReceiptNote(models.Model):
 
     def _validate_lines(self):
         for rec in self:
+            if not (rec.vendor_srn_number or "").strip():
+                raise UserError(_("Enter the Vendor SRN Number before approving or validating the SRN."))
             if not rec.line_ids:
                 raise UserError(_("You cannot validate an SRN without lines."))
 

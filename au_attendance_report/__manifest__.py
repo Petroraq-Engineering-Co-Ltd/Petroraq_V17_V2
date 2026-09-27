@@ -1,6 +1,6 @@
 {
     'name': 'Custom Attendance Report',
-    'version': '17.0.1.0.0',
+    'version': '17.0.1.1.0',
     'summary': 'Advanced Attendance Reporting with Detailed Insights',
     'description': """
 Custom Attendance Report
@@ -30,6 +30,7 @@ Perfect for organizations needing a reliable and professional way to analyze emp
         'hr',
         'mail',
         'calendar',
+        'pr_hr_attendance',
     ],
     'data': [
         'security/ir.model.access.csv',

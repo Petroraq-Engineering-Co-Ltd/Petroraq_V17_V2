@@ -294,6 +294,8 @@ class SaleOrder(models.Model):
 
             work_order.boq_line_ids.create({
                 "work_order_id": work_order.id,
+                "sale_order_line_id": line.id,
+                "sequence": line.sequence,
                 "display_type": line.display_type or False,
                 "name": line.name,
                 "product_id": line.product_id.id if not line.display_type else False,
