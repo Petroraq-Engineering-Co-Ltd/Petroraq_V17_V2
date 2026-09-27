@@ -359,6 +359,88 @@ class TestEstimationQuotationRevision(TransactionCase):
         revised_quotation.action_confirm()
         self.assertEqual(revised_quotation.state, "sale")
 
+    def test_estimation_revision_blocked_by_posted_invoice_via_create_revision_button(self):
+        """The "New Revision" button on the Estimation form (create_revision)
+        must also be blocked, not just the lower-level copy_revision_with_context."""
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        invoice = quotation._create_invoices()
+        invoice.action_post()
+
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        with self.assertRaises(UserError):
+            estimation.create_revision()
+
+    def test_estimation_revision_allowed_with_draft_invoice(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        quotation._create_invoices()
+
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        revision = estimation.with_context(
+            allow_estimation_write=True
+        ).copy_revision_with_context()
+        self.assertTrue(revision)
+        self.assertFalse(estimation.active)
+
+    def test_action_revise_so_creates_estimation_revision_only(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        quotation.write({"estimation_id": estimation.id})
+        original_est_name = estimation.name
+
+        result = quotation.action_revise_so()
+
+        self.assertEqual(result["res_model"], "petroraq.estimation")
+        new_estimation = self.env["petroraq.estimation"].browse(result["res_id"])
+        self.assertEqual(new_estimation.name, "%s-R1" % original_est_name)
+        self.assertFalse(estimation.active)
+
+        # The Sales Order/Quotation itself must be completely untouched.
+        self.assertTrue(quotation.active)
+        self.assertEqual(quotation.state, "sale")
+        self.assertFalse(new_estimation.sale_order_id)
+
+    def test_action_revise_so_requires_sale_state(self):
+        quotation = self._prepare_confirmable_quotation()
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        quotation.write({"estimation_id": estimation.id})
+        with self.assertRaises(UserError):
+            quotation.action_revise_so()
+
+    def test_action_revise_so_requires_estimation(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        with self.assertRaises(UserError):
+            quotation.action_revise_so()
+
+    def test_action_revise_so_blocked_by_posted_invoice(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        quotation.write({"estimation_id": estimation.id})
+        invoice = quotation._create_invoices()
+        invoice.action_post()
+
+        with self.assertRaises(UserError):
+            quotation.action_revise_so()
+
     def test_work_order_revision_sequence_in_sale_order_chain(self):
         quotation = self._prepare_confirmable_quotation()
         quotation.action_confirm()

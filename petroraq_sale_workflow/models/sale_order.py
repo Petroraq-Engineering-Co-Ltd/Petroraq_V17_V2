@@ -1362,6 +1362,40 @@ class SaleOrder(models.Model):
                 "deliveries": ", ".join(active_deliveries.mapped("name")),
             })
 
+    def action_revise_so(self):
+        """Create an Estimation revision for this confirmed Sales Order.
+
+        Only the Estimation is revised here - the user reviews/edits it and
+        creates the Quotation revision themselves ("Revise Quotation" on the
+        Estimation) when ready, matching the Estimation-driven revision flow
+        used everywhere else in this module.
+        """
+        self.ensure_one()
+        if self.state != "sale":
+            raise UserError(_("Only a confirmed Sales Order can be revised."))
+        estimation = self.estimation_id
+        if not estimation:
+            raise UserError(_("This Sales Order has no linked Estimation to revise."))
+        self._check_can_be_revised()
+
+        return estimation.create_revision()
+
+        # new_estimation = estimation.with_context(
+        #     allow_estimation_write=True
+        # ).copy_revision_with_context()
+        # msg = _("New revision created: %s") % new_estimation.name
+        # new_estimation.message_post(body=msg)
+        # estimation.message_post(body=msg)
+        #
+        # return {
+        #     "type": "ir.actions.act_window",
+        #     "name": _("Estimation Revision"),
+        #     "res_model": "petroraq.estimation",
+        #     "res_id": new_estimation.id,
+        #     "view_mode": "form",
+        #     "target": "current",
+        # }
+
     def _prepare_confirmed_so_data(self):
         self.ensure_one()
         existing_so = self._find_existing_confirmed_sale_order()

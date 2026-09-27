@@ -103,6 +103,14 @@
                         groups="pr_work_order.custom_group_work_order_user"
                         invisible="not work_order_id or state not in ('sale', 'done')"/>
 
+                <button name="action_revise_so"
+                        type="object"
+                        string="Revise SO"
+                        class="btn-secondary"
+                        invisible="not estimation_id or state != 'sale'"
+                        groups="petroraq_sale_workflow.group_sale_approval_manager"
+                        confirm="This will create a new Estimation revision from this Sales Order's linked Estimation. Continue?"/>
+
                 <!--                <button string="Reset Draft"-->
                 <!--                        type="object"-->
                 <!--                        name="action_reset_to_draft"-->

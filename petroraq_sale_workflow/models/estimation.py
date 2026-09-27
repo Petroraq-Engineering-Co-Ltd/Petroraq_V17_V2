@@ -418,6 +418,17 @@ class PetroraqEstimation(models.Model):
     def create_revision(self):
         return super(PetroraqEstimation, self.with_context(allow_estimation_write=True)).create_revision()
 
+    def copy_revision_with_context(self):
+        # Block revising the Estimation itself as early as possible if its
+        # linked Sales Order already has active (non-draft) invoices or
+        # deliveries - the same rule enforced further down the chain when the
+        # Quotation/SO revision is actually created.
+        if self.sale_order_id:
+            self.sale_order_id._check_can_be_revised()
+        return super(
+            PetroraqEstimation, self.with_context(allow_estimation_write=True)
+        ).copy_revision_with_context()
+
     def _ensure_sale_order(self):
         self.ensure_one()
         if not self.partner_id:
