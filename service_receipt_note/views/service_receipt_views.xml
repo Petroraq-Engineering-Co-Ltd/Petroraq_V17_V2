@@ -88,6 +88,9 @@
                             <field name="purchase_id" readonly="1"/>
                             <field name="work_order_id" readonly="1"/>
                             <field name="partner_id" readonly="1"/>
+                            <field name="vendor_srn_number"
+                                   placeholder="Enter the vendor's service receipt reference"
+                                   readonly="state in ('done', 'cancel')"/>
                             <field name="date" readonly="state == 'done'"/>
                         </group>
                         <group>

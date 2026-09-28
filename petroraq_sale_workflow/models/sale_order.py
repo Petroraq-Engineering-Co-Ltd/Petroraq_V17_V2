@@ -38,6 +38,29 @@ class SaleOrder(models.Model):
             self.with_context(preserve_quotation_revision_name=True),
         ).copy_revision_with_context()
 
+    def action_start_sales_order_revision(self):
+        """Start the controlled SO revision chain from a new Estimation revision."""
+        self.ensure_one()
+        if self.state not in ("sale", "done"):
+            raise UserError(_("Only a confirmed Sales Order can be revised."))
+        if not self.estimation_id:
+            raise UserError(_("This Sales Order has no linked Estimation to revise."))
+        revised_estimation = self.estimation_id.with_context(
+            allow_estimation_write=True
+        ).copy_revision_with_context()
+        revised_estimation.message_post(body=_(
+            "Revision started from confirmed Sales Order %s. Complete the Estimation, "
+            "then create and approve its revised quotation."
+        ) % self.name)
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Revised Estimation"),
+            "res_model": "petroraq.estimation",
+            "res_id": revised_estimation.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
     def _notify_get_reply_to(self, default=None):
         """Route customer replies to the SO email's visible sender."""
         reply_to_by_record = super()._notify_get_reply_to(default=default)

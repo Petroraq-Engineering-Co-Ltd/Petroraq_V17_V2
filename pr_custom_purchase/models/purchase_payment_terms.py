@@ -1,6 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools.float_utils import float_compare
+from odoo.tools.float_utils import float_compare, float_is_zero
 
 
 class PaymentTerm(models.Model):
@@ -27,12 +27,20 @@ class PaymentTerm(models.Model):
                  "completion_percent", "purchase_credit_days")
     def _compute_purchase_schedule_summary(self):
         for term in self:
-            term.purchase_schedule_summary = (
-                _("Advance: %(advance)s%% | Progressive: %(progressive)s%% | At Completion: %(completion)s%% | Credit: %(days)s days")
-                % {"advance": term.advance_percent, "progressive": term.progressive_percent,
-                   "completion": term.completion_percent, "days": term.purchase_credit_days}
-                if term.purchase_milestone_schedule else ""
-            )
+            if not term.purchase_milestone_schedule:
+                term.purchase_schedule_summary = ""
+                continue
+
+            parts = []
+            if not float_is_zero(term.advance_percent, precision_digits=2):
+                parts.append(_("Advance: %(value)s%%", value=term.advance_percent))
+            if not float_is_zero(term.progressive_percent, precision_digits=2):
+                parts.append(_("Progressive: %(value)s%%", value=term.progressive_percent))
+            if not float_is_zero(term.completion_percent, precision_digits=2):
+                parts.append(_("At Completion: %(value)s%%", value=term.completion_percent))
+            if term.purchase_credit_days:
+                parts.append(_("Credit: %(days)s days", days=term.purchase_credit_days))
+            term.purchase_schedule_summary = " | ".join(parts)
 
 
 class AccountPayment(models.Model):

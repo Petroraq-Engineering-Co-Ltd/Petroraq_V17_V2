@@ -1,0 +1,3 @@
+<odoo>
+    <function model="decimal.precision" name="ensure_product_uom_precision"/>
+</odoo>

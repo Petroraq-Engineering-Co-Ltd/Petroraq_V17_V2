@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
@@ -16,10 +18,35 @@ class TestEstimationQuotationRevision(TransactionCase):
             "partner_id": self.partner.id,
         })
 
-    def test_direct_quotation_revision_is_blocked(self):
+    def test_uncontrolled_quotation_revision_is_blocked(self):
         quotation = self._create_quotation()
         with self.assertRaises(UserError):
             quotation.copy_revision_with_context()
+
+    def test_confirmed_so_revision_starts_from_estimation(self):
+        quotation = self._create_quotation()
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        quotation.state = "sale"
+        action = quotation.action_start_sales_order_revision()
+        revised = self.env["petroraq.estimation"].browse(action["res_id"])
+        self.assertNotEqual(revised, estimation)
+        self.assertEqual(revised.revision_number, 1)
+
+    def test_sales_invoice_quantity_precision_is_at_least_three(self):
+        precision = self.env["decimal.precision"].search([
+            ("name", "=", "Product Unit of Measure"),
+        ], limit=1)
+        self.assertTrue(precision)
+        self.assertGreaterEqual(precision.digits, 3)
+
+    def test_revised_estimation_reuses_previous_work_order(self):
+        source = Path(__file__).parents[1] / "models" / "estimation.py"
+        content = source.read_text(encoding="utf-8-sig")
+        self.assertIn('old_revision_ids.mapped(\n            "work_order_id"', content)
+        self.assertIn("self._sync_work_order_from_estimation(work_order)", content)
 
     def test_estimation_revision_creates_new_record_and_uses_r_labels(self):
         self.env.company.keep_name_so = False

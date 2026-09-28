@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.tools import date_utils
+from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
 from dateutil.relativedelta import relativedelta
 from odoo.exceptions import ValidationError
@@ -31,31 +32,18 @@ class HrEmployee(models.Model):
         help="When enabled, daily attendance alert emails are sent for late, early check-out, or absence.",
     )
     attendance_entry_mode = fields.Selection(
-        [
-            ("automated", "Automated Attendance"),
-            ("manual", "Manual / Site Attendance"),
-        ],
-        string="Attendance Entry Mode",
-        required=True,
-        default="automated",
-        readonly=True,
-        copy=False,
-        tracking=True,
-        help=(
-            "Automated employees are controlled by biometric or scheduled processes. "
-            "Only Manual / Site employees can have attendance entered by HR."
-        ),
+        [("automated", "Automated Attendance"), ("manual", "Manual / Site Attendance")],
+        string="Attendance Entry Mode", required=True, default="automated",
+        readonly=True, copy=False, tracking=True,
+        help=("Automated employees are controlled by biometric or scheduled processes. "
+              "Only Manual / Site employees can have attendance entered by HR."),
     )
     include_in_scheduled_attendance = fields.Boolean(
-        string="Generate Attendance from Working Schedule",
-        default=False,
-        copy=False,
-        tracking=True,
-        help=(
-            "For Manual / Site Attendance employees only. When enabled, the scheduled "
-            "attendance cron creates check-in and check-out from the employee's working "
-            "calendar. HR can still manually add or correct attendance records."
-        ),
+        string="Generate Attendance from Working Schedule", default=False,
+        copy=False, tracking=True,
+        help=("For Manual / Site Attendance employees only. When enabled, the scheduled "
+              "attendance cron creates check-in and check-out from the employee's working "
+              "calendar. HR can still manually add or correct attendance records."),
     )
     attendance_mode_change_request_count = fields.Integer(
         string="Attendance Mode Requests",
@@ -67,56 +55,45 @@ class HrEmployee(models.Model):
     @api.depends("attendance_entry_mode")
     def _compute_attendance_mode_change_request_count(self):
         counts = self.env["hr.attendance.mode.change.request"].sudo()._read_group(
-            [("employee_id", "in", self.ids)],
-            ["employee_id"],
-            ["__count"],
+            [("employee_id", "in", self.ids)], ["employee_id"], ["__count"],
         )
         count_by_employee = {employee.id: count for employee, count in counts}
         for employee in self:
-            employee.attendance_mode_change_request_count = count_by_employee.get(
-                employee.id, 0
-            )
+            employee.attendance_mode_change_request_count = count_by_employee.get(employee.id, 0)
 
     @api.model_create_multi
     def create(self, vals_list):
         if not self.env.context.get("install_mode"):
             for values in vals_list:
                 if values.get("attendance_entry_mode", "automated") != "automated":
-                    raise ValidationError(
-                        _(
-                            "New employees must start with Automated Attendance. "
-                            "Use an approved Attendance Mode Change request to switch modes."
-                        )
-                    )
+                    raise ValidationError(_(
+                        "New employees must start with Automated Attendance. "
+                        "Use an approved Attendance Mode Change request to switch modes."
+                    ))
         return super().create(vals_list)
 
     def write(self, values):
         values = dict(values)
         if "attendance_entry_mode" in values:
             changing = self.filtered(
-                lambda employee: employee.attendance_entry_mode
-                != values["attendance_entry_mode"]
+                lambda employee: employee.attendance_entry_mode != values["attendance_entry_mode"]
             )
             if changing:
                 request = self.env["hr.attendance.mode.change.request"].sudo().browse(
                     self.env.context.get("attendance_mode_approval_request_id")
                 )
                 authorized = (
-                    self.env.su
-                    and len(changing) == 1
-                    and request.exists()
+                    self.env.su and len(changing) == 1 and request.exists()
                     and request.state in ("hr_manager_approval", "md_approval")
                     and request.employee_id == changing
                     and request.current_mode == changing.attendance_entry_mode
                     and request.requested_mode == values["attendance_entry_mode"]
                 )
                 if not authorized:
-                    raise ValidationError(
-                        _(
-                            "Attendance Entry Mode can only be changed through an "
-                            "approved Attendance Mode Change request."
-                        )
-                    )
+                    raise ValidationError(_(
+                        "Attendance Entry Mode can only be changed through an "
+                        "approved Attendance Mode Change request."
+                    ))
             if values.get("attendance_entry_mode") != "manual":
                 values["include_in_scheduled_attendance"] = False
         if values.get("active") is False:
@@ -136,19 +113,15 @@ class HrEmployee(models.Model):
         checkout_time = fields.Datetime.now()
         for employee in self.with_context(active_test=False):
             open_attendances = Attendance.search([
-                ("employee_id", "=", employee.id),
-                ("check_out", "=", False),
+                ("employee_id", "=", employee.id), ("check_out", "=", False),
             ])
             if not open_attendances:
                 continue
-
             attendance_context = {}
             source = employee._attendance_policy_source_for_archive_checkout()
             if source:
                 attendance_context["attendance_policy_source"] = source
-            open_attendances.with_context(**attendance_context).write({
-                "check_out": checkout_time,
-            })
+            open_attendances.with_context(**attendance_context).write({"check_out": checkout_time})
 
     def action_archive(self):
         self._close_open_attendances_for_archive()
@@ -159,19 +132,13 @@ class HrEmployee(models.Model):
         self.check_access_rights("read")
         self.check_access_rule("read")
         return {
-            "type": "ir.actions.act_window",
-            "name": _("Request Attendance Mode Change"),
-            "res_model": "hr.attendance.mode.change.request",
-            "view_mode": "form",
+            "type": "ir.actions.act_window", "name": _("Request Attendance Mode Change"),
+            "res_model": "hr.attendance.mode.change.request", "view_mode": "form",
             "target": "current",
             "context": {
                 "default_employee_id": self.id,
                 "default_current_mode": self.attendance_entry_mode,
-                "default_requested_mode": (
-                    "manual"
-                    if self.attendance_entry_mode == "automated"
-                    else "automated"
-                ),
+                "default_requested_mode": "manual" if self.attendance_entry_mode == "automated" else "automated",
             },
         }
 
@@ -183,3 +150,26 @@ class HrEmployee(models.Model):
         action["domain"] = [("employee_id", "=", self.id)]
         action["context"] = {"default_employee_id": self.id, "create": False}
         return action
+
+    @api.model
+    def _etm_week_bounds_for_saturday(self, saturday):
+        """Return the Sunday-Thursday earning window for a Saturday."""
+        return saturday - timedelta(days=6), saturday - timedelta(days=2)
+
+    def _etm_approved_hours_before_saturday(self, saturday):
+        self.ensure_one()
+        if not saturday or saturday.weekday() != 5:
+            return 0.0
+        date_from, date_to = self._etm_week_bounds_for_saturday(saturday)
+        rows = self.env["employee.task.idle.day"].sudo().search([
+            ("employee_id", "=", self.id), ("date", ">=", date_from), ("date", "<=", date_to),
+        ])
+        return sum(rows.mapped("approved_hours"))
+
+    def _etm_saturday_is_off(self, saturday):
+        self.ensure_one()
+        if not saturday or saturday.weekday() != 5:
+            return False
+        return float_compare(
+            self._etm_approved_hours_before_saturday(saturday), 40.0, precision_digits=2,
+        ) >= 0

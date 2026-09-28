@@ -68,7 +68,7 @@ class TestPurchaseRequisitionReset(TransactionCase):
         self.assertFalse(payment_request.exists())
         self.assertEqual(requisition.approval, "draft")
 
-    def test_advanced_payment_request_blocks_cash_pr_reset(self):
+    def test_advanced_payment_request_is_deleted_on_confirmed_cash_pr_reset(self):
         requisition = self._create_pr("cash")
         payment_request = self.env[
             "purchase.requisition.payment.request"
@@ -77,8 +77,10 @@ class TestPurchaseRequisitionReset(TransactionCase):
         })
         payment_request.state = "voucher_created"
 
-        with self.assertRaises(UserError):
-            requisition.action_reset_to_draft()
+        self._confirm_reset(requisition)
+
+        self.assertFalse(payment_request.exists())
+        self.assertEqual(requisition.approval, "draft")
 
     def test_draft_rfqs_are_deleted_on_regular_pr_reset(self):
         requisition = self._create_pr("pr")
@@ -92,7 +94,7 @@ class TestPurchaseRequisitionReset(TransactionCase):
         self.assertFalse(rfq.exists())
         self.assertEqual(requisition.approval, "draft")
 
-    def test_non_draft_rfq_blocks_regular_pr_reset(self):
+    def test_non_draft_rfq_is_cancelled_and_deleted_on_regular_pr_reset(self):
         requisition = self._create_pr("pr")
         rfq = self.env["purchase.order"].create({
             "partner_id": self.vendor.id,
@@ -100,5 +102,7 @@ class TestPurchaseRequisitionReset(TransactionCase):
         })
         rfq.state = "sent"
 
-        with self.assertRaises(UserError):
-            requisition.action_reset_to_draft()
+        self._confirm_reset(requisition)
+
+        self.assertFalse(rfq.exists())
+        self.assertEqual(requisition.approval, "draft")

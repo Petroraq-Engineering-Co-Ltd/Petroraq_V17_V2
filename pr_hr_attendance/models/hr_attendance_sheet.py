@@ -97,6 +97,7 @@ class HrAttendanceSheet(models.Model):
     def get_attendances(self):
         res = super().get_attendances()
         for att_sheet in self:
+            att_sheet._apply_etm_saturday_policy()
             for line in att_sheet.line_ids:
                 has_actual_attendance = (
                         line.ac_sign_in is not False
@@ -205,6 +206,46 @@ class HrAttendanceSheet(models.Model):
             att_sheet._sync_line_overtime_approval_from_attendance()
             att_sheet._mark_late_checkins_as_absent()
         return res
+
+    def _apply_etm_saturday_policy(self):
+        """Make Saturday conditional on the prior Sun-Thu ETM approvals."""
+        for sheet in self:
+            employee = sheet.employee_id
+            calendar = employee.contract_id.resource_calendar_id
+            fallback_lines = calendar.attendance_ids.filtered(
+                lambda item: item.dayofweek in ("6", "0", "1", "2", "3")
+            ) if calendar else self.env["resource.calendar.attendance"]
+            start_hour = min(fallback_lines.mapped("hour_from"), default=8.0)
+            end_hour = max(fallback_lines.mapped("hour_to"), default=17.0)
+            planned_hours = max(end_hour - start_hour, 0.0)
+
+            for line in sheet.line_ids.filtered(lambda item: item.date and item.date.weekday() == 5):
+                saturday_off = employee._etm_saturday_is_off(line.date)
+                if saturday_off:
+                    line.write({
+                        "status": "weekend",
+                        "note": _("Saturday off: 40 approved ETM hours completed Sunday-Thursday."),
+                        "pl_sign_in": 0.0,
+                        "pl_sign_out": 0.0,
+                        "late_in": 0.0,
+                        "diff_time": 0.0,
+                        "act_diff_time": 0.0,
+                    })
+                    continue
+
+                has_attendance = bool(
+                    line.ac_sign_out and line.ac_sign_out > line.ac_sign_in
+                )
+                line.write({
+                    "status": "" if has_attendance else "ab",
+                    "note": _("Saturday working day: fewer than 40 approved ETM hours Sunday-Thursday."),
+                    "pl_sign_in": start_hour,
+                    "pl_sign_out": end_hour,
+                    "overtime": 0.0,
+                    "act_overtime": 0.0,
+                    "diff_time": max(planned_hours - (line.worked_hours or 0.0), 0.0),
+                    "act_diff_time": max(planned_hours - (line.worked_hours or 0.0), 0.0),
+                })
 
     def _sync_line_overtime_approval_from_attendance(self):
         for sheet in self:

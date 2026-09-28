@@ -47,6 +47,15 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             or self.env["res.country"].create({"name": "Saudi Arabia", "code": "SA"})
         )
 
+    def test_payment_voucher_status_accepts_rejected_vouchers(self):
+        """Opening a request linked to a rejected CPV/BPV must not crash."""
+        selection = dict(
+            self.env["pr.employee.service.request"]
+            ._fields["payment_voucher_state"]
+            ._description_selection(self.env)
+        )
+        self.assertEqual(selection.get("reject"), "Rejected")
+
     def _create_open_contract(self, employee=None, date_start=date(2098, 1, 1), benefit_type="executive"):
         employee = employee or self.employee
         return self.env["hr.contract"].create({
