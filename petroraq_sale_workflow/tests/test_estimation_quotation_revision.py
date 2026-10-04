@@ -614,6 +614,52 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertEqual(rev_quo.work_order_id.id, wo_2.id)
         self.assertEqual(rev_est.work_order_id.id, wo_2.id)
 
+    def test_approving_work_order_revision_cancels_other_work_orders(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        self.assertEqual(quotation.state, "sale")
+
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        self._add_estimation_line(estimation, "material", 5.0, 200.0)
+
+        # 1. Create first Work Order from estimation and approve it
+        action_wo = estimation.action_create_work_order()
+        wo_0 = self.env["pr.work.order"].browse(action_wo["res_id"])
+        self.assertEqual(wo_0.state, "draft")
+        wo_0.write({"state": "approved"})
+        self.assertEqual(wo_0.state, "approved")
+        self.assertEqual(quotation.work_order_id.id, wo_0.id)
+
+        # 2. Create revision wo_1 from wo_0
+        action_rev1 = wo_0.action_new_revision()
+        wo_1 = self.env["pr.work.order"].browse(action_rev1["res_id"])
+        self.assertEqual(wo_1.state, "draft")
+        self.assertEqual(wo_0.state, "approved")
+
+        # 3. Approve wo_1 via write({"state": "approved"})
+        wo_1.write({"state": "approved"})
+        self.assertEqual(wo_1.state, "approved")
+        self.assertEqual(wo_0.state, "cancel")
+        self.assertEqual(quotation.work_order_id.id, wo_1.id)
+
+        # 4. Create another revision wo_2 from wo_1
+        action_rev2 = wo_1.action_new_revision()
+        wo_2 = self.env["pr.work.order"].browse(action_rev2["res_id"])
+        self.assertEqual(wo_2.state, "draft")
+        self.assertEqual(wo_1.state, "approved")
+
+        # 5. Approve wo_2 via action_final_approve
+        wo_2.state = "final_approval"
+        wo_2.action_final_approve()
+        self.assertEqual(wo_2.state, "approved")
+        self.assertEqual(wo_1.state, "cancel")
+        self.assertEqual(wo_0.state, "cancel")
+        self.assertEqual(quotation.work_order_id.id, wo_2.id)
+
+
 
 
 

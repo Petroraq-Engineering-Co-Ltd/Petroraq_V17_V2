@@ -1376,6 +1376,113 @@ class PRWorkOrder(models.Model):
 
         return super().create(vals_list)
 
+    def _get_other_work_orders_in_chain(self):
+        self.ensure_one()
+        WorkOrder = self.env["pr.work.order"].sudo().with_context(active_test=False)
+        other_wos = WorkOrder
+
+        # 1. Base sequence name in company
+        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else False)
+        if base_name and base_name not in (_("New"), "/", "New"):
+            other_wos |= WorkOrder.search([
+                ("id", "!=", self.id),
+                ("company_id", "=", self.company_id.id),
+                "|",
+                ("unrevisioned_name", "=", base_name),
+                ("name", "=like", f"{base_name}%"),
+            ])
+
+        # 2. Previous revision id chain (upstream and downstream)
+        curr = self.previous_revision_id
+        while curr:
+            if curr.id != self.id:
+                other_wos |= curr
+            curr = curr.previous_revision_id
+
+        downstream = WorkOrder.search([("previous_revision_id", "=", self.id)])
+        if downstream:
+            other_wos |= downstream
+
+        # 3. Via Sale Order chain if linked
+        if self.sale_order_id:
+            so_chain = self._get_related_sale_order_chain(self.sale_order_id)
+            chain_wos = self._get_existing_work_orders_for_chain(so_chain, company=self.company_id)
+            other_wos |= chain_wos
+
+        # 4. Via Estimation chain if linked
+        if self.source_estimation_id:
+            est_chain = self.source_estimation_id
+            if hasattr(est_chain, "old_revision_ids"):
+                est_chain |= est_chain.old_revision_ids
+            if hasattr(est_chain, "current_revision_id") and est_chain.current_revision_id:
+                est_chain |= est_chain.current_revision_id
+            for est in est_chain:
+                if est.work_order_id and est.work_order_id != self:
+                    other_wos |= est.work_order_id
+
+        return (other_wos - self).filtered(lambda w: w.exists())
+
+    def _cancel_other_work_order_revisions(self):
+        self.ensure_one()
+        other_wos = self._get_other_work_orders_in_chain()
+        to_cancel = other_wos.filtered(lambda w: w.state not in ("cancel", "done"))
+        if not to_cancel:
+            return
+
+        to_cancel.with_context(cancelling_other_work_orders=True).write({"state": "cancel"})
+        for wo in to_cancel:
+            if hasattr(wo, "_sync_work_order_budget_state"):
+                wo._sync_work_order_budget_state("cancel")
+            wo.message_post(body=_(
+                "Work Order cancelled automatically because revision %s was approved."
+            ) % self.name)
+
+        # Clear obsolete work order pointers pointing to cancelled work orders
+        for wo in to_cancel:
+            if wo.sale_order_id and wo.sale_order_id.work_order_id == wo:
+                wo.sale_order_id.sudo().write({"work_order_id": False})
+            if (
+                wo.source_estimation_id
+                and wo.source_estimation_id.work_order_id == wo
+            ):
+                wo.source_estimation_id.sudo().with_context(
+                    allow_estimation_write=True
+                ).write({"work_order_id": False})
+
+        # Point active Sales Order and Estimation to this approved revision
+        if self.sale_order_id and self.sale_order_id.work_order_id != self:
+            self.sale_order_id.sudo().write({"work_order_id": self.id})
+        if (
+            self.source_estimation_id
+            and self.source_estimation_id.work_order_id != self
+        ):
+            self.source_estimation_id.sudo().with_context(
+                allow_estimation_write=True
+            ).write({"work_order_id": self.id})
+
+        cancelled_names = ", ".join(to_cancel.mapped("name"))
+        self.message_post(body=_(
+            "Work Order revision %(new)s approved. Previous/competing Work Order(s) (%(cancelled)s) have been cancelled."
+        ) % {
+            "new": self.name,
+            "cancelled": cancelled_names,
+        })
+
+    def action_final_approve(self):
+        res = super().action_final_approve()
+        for rec in self:
+            if rec.state == "approved":
+                rec._cancel_other_work_order_revisions()
+        return res
+
+    def write(self, vals):
+        res = super().write(vals)
+        if vals.get("state") == "approved" and not self.env.context.get("cancelling_other_work_orders"):
+            for rec in self:
+                rec._cancel_other_work_order_revisions()
+        return res
+
+
 
 class WorkOrderBOQ(models.Model):
     _inherit = "pr.work.order.boq"
