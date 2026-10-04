@@ -45,6 +45,20 @@ class HrEmployee(models.Model):
               "attendance cron creates check-in and check-out from the employee's working "
               "calendar. HR can still manually add or correct attendance records."),
     )
+    saturday_attendance_policy = fields.Selection(
+        [
+            ("scheduled_working", "Saturday Working (Scheduled Attendance)"),
+            ("etm_conditional", "Conditional Off (40 Approved ETM Hours)"),
+        ],
+        string="Saturday Policy",
+        compute="_compute_saturday_attendance_policy",
+        store=True,
+        copy=False,
+        readonly=True,
+        help=("Stored employee-level Saturday rule. Scheduled management and opted-in "
+              "site employees remain working on Saturday. Other employees receive "
+              "Saturday off only after completing 40 approved ETM hours Sunday-Thursday."),
+    )
     attendance_mode_change_request_count = fields.Integer(
         string="Attendance Mode Requests",
         compute="_compute_attendance_mode_change_request_count",
@@ -60,6 +74,19 @@ class HrEmployee(models.Model):
         count_by_employee = {employee.id: count for employee, count in counts}
         for employee in self:
             employee.attendance_mode_change_request_count = count_by_employee.get(employee.id, 0)
+
+    @api.depends(
+        "attendance_entry_mode",
+        "include_in_scheduled_attendance",
+        "compute_attendance",
+    )
+    def _compute_saturday_attendance_policy(self):
+        for employee in self:
+            employee.saturday_attendance_policy = (
+                "scheduled_working"
+                if employee._uses_scheduled_auto_attendance()
+                else "etm_conditional"
+            )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -166,9 +193,49 @@ class HrEmployee(models.Model):
         ])
         return sum(rows.mapped("approved_hours"))
 
+    def _uses_scheduled_auto_attendance(self):
+        """Whether attendance punches are generated from the work schedule."""
+        self.ensure_one()
+        return bool(
+            (
+                self.attendance_entry_mode == "automated"
+                and not self.compute_attendance
+            )
+            or (
+                self.attendance_entry_mode == "manual"
+                and self.include_in_scheduled_attendance
+            )
+        )
+
+    @api.model
+    def _scheduled_saturday_rule_effective_from(self):
+        """Start date for excluding scheduled employees from ETM Saturday off."""
+        value = self.env["ir.config_parameter"].sudo().get_param(
+            "pr_hr_attendance.scheduled_saturday_working_effective_from",
+            "2026-10-01",
+        )
+        try:
+            return fields.Date.to_date(value)
+        except (TypeError, ValueError):
+            _logger.warning(
+                "Invalid scheduled Saturday policy effective date %r; using 2026-10-01.",
+                value,
+            )
+            return fields.Date.to_date("2026-10-01")
+
     def _etm_saturday_is_off(self, saturday):
         self.ensure_one()
         if not saturday or saturday.weekday() != 5:
+            return False
+        # Management and opted-in Site employees receive scheduled punches.
+        # Their Saturday follows that attendance process and must not be
+        # converted to an ETM-earned day off.
+        effective_from = self._scheduled_saturday_rule_effective_from()
+        if (
+            self._uses_scheduled_auto_attendance()
+            and effective_from
+            and saturday >= effective_from
+        ):
             return False
         return float_compare(
             self._etm_approved_hours_before_saturday(saturday), 40.0, precision_digits=2,

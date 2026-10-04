@@ -756,6 +756,7 @@ class PetroraqEstimation(models.Model):
         self._sync_work_order_cost_centers(work_order, order)
         self._sync_work_order_boq_lines(work_order)
         self._sync_work_order_tasks(work_order)
+        work_order._validate_budget_within_source_documents()
         work_order._ensure_project_expense_bucket(sync_budget=True)
         work_order.write({"last_source_sync_date": fields.Datetime.now()})
 
@@ -894,6 +895,7 @@ class PetroraqEstimation(models.Model):
         target_lines = self._prepare_work_order_boq_lines(work_order)
         existing_lines = work_order.boq_line_ids.sorted(lambda line: (line.sequence, line.id))
         used_lines = self.env["pr.work.order.boq"]
+        sync_context = {"skip_wo_source_ceiling_validation": True}
         sequence = 10
 
         for target in target_lines:
@@ -903,20 +905,29 @@ class PetroraqEstimation(models.Model):
             sequence += 10
             match = self._match_existing_boq_line(existing_lines, used_lines, target)
             if match:
-                match.with_context(skip_estimation_sync=True).write(target)
+                match.with_context(
+                    skip_estimation_sync=True,
+                    **sync_context,
+                ).write(target)
                 used_lines |= match
             else:
-                used_lines |= work_order.boq_line_ids.create(dict(target, work_order_id=work_order.id))
+                used_lines |= work_order.boq_line_ids.with_context(**sync_context).create(
+                    dict(target, work_order_id=work_order.id)
+                )
 
         obsolete_lines = existing_lines - used_lines
         for line in obsolete_lines:
             if line.display_type == "product" and self._boq_line_has_commitments(line, work_order):
-                line.write({"qty": 0.0, "unit_cost": 0.0, "sequence": sequence})
+                line.with_context(**sync_context).write({
+                    "qty": 0.0,
+                    "unit_cost": 0.0,
+                    "sequence": sequence,
+                })
                 sequence += 10
             elif line.display_type == "product":
-                line.unlink()
+                line.with_context(**sync_context).unlink()
             else:
-                line.write({"sequence": sequence})
+                line.with_context(**sync_context).write({"sequence": sequence})
                 sequence += 10
 
     def _sync_work_order_tasks(self, work_order):

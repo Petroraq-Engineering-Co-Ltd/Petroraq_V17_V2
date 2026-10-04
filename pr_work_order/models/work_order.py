@@ -62,25 +62,56 @@ class PRWorkOrder(models.Model):
             ))
         return True
 
-    def _validate_budget_within_sale_order(self):
+    def _get_source_budget_ceilings(self):
+        """Return every commercial ceiling that applies to this Work Order."""
+        self.ensure_one()
+        ceilings = []
+        sale_order = self.sale_order_id
+        if not sale_order:
+            return ceilings
+
+        ceilings.append((
+            _("Sales Order"),
+            sale_order.display_name,
+            sale_order.amount_total or 0.0,
+        ))
+        estimation = (
+            sale_order.estimation_id
+            if "estimation_id" in sale_order._fields
+            else False
+        )
+        if estimation:
+            ceilings.append((
+                _("Estimation"),
+                estimation.display_name,
+                estimation.total_with_profit or 0.0,
+            ))
+        return ceilings
+
+    def _validate_budget_within_source_documents(self):
         for rec in self:
-            if not rec.sale_order_id:
-                continue
             currency = rec.currency_id or rec.company_id.currency_id
-            contract_amount = rec.sale_order_id.amount_total or 0.0
-            if float_compare(
-                rec.budgeted_cost or 0.0,
-                contract_amount,
-                precision_rounding=currency.rounding,
-            ) > 0:
-                raise ValidationError(_(
-                    "Work Order budget (%(budget)s) cannot exceed linked Sales Order total "
-                    "(%(sale)s). Revise the Estimation/Sales Order first or reduce the WO budget."
-                ) % {
-                    "budget": format_amount(rec.env, rec.budgeted_cost or 0.0, currency),
-                    "sale": format_amount(rec.env, contract_amount, currency),
-                })
+            for source_label, source_name, ceiling_amount in rec._get_source_budget_ceilings():
+                if float_compare(
+                    rec.budgeted_cost or 0.0,
+                    ceiling_amount,
+                    precision_rounding=currency.rounding,
+                ) > 0:
+                    raise ValidationError(_(
+                        "Work Order budget (%(budget)s) cannot exceed linked %(source)s "
+                        "%(source_name)s value (%(ceiling)s). Reduce the WO budget or revise "
+                        "the source document first."
+                    ) % {
+                        "budget": format_amount(rec.env, rec.budgeted_cost or 0.0, currency),
+                        "source": source_label,
+                        "source_name": source_name,
+                        "ceiling": format_amount(rec.env, ceiling_amount, currency),
+                    })
         return True
+
+    def _validate_budget_within_sale_order(self):
+        """Backward-compatible entry point used by older integrations."""
+        return self._validate_budget_within_source_documents()
 
     def _remove_linked_expense_bucket(self):
         for rec in self:
@@ -470,6 +501,11 @@ class PRWorkOrder(models.Model):
     def write(self, vals):
         res = super().write(vals)
         sync_fields = {"name", "date_start", "date_end", "cost_center_ids", "boq_line_ids"}
+        if (
+            not self.env.context.get("skip_wo_source_ceiling_validation")
+            and {"sale_order_id", "boq_line_ids"}.intersection(vals.keys())
+        ):
+            self._validate_budget_within_source_documents()
         if sync_fields.intersection(vals.keys()):
             self._ensure_project_expense_bucket(sync_budget=True)
         return res
@@ -516,7 +552,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "draft":
                 raise UserError(_("Only draft work orders can be submitted for approval"))
-            rec._validate_budget_within_sale_order()
+            rec._validate_budget_within_source_documents()
             rec._ensure_project_expense_bucket(sync_budget=True)
             rec.state = "ops_approval"
             rec.rejection_reason = ""
@@ -585,7 +621,7 @@ class PRWorkOrder(models.Model):
             if rec.state != "ops_approval":
                 continue
 
-            rec._validate_budget_within_sale_order()
+            rec._validate_budget_within_source_documents()
             rec.ops_approver_id = self.env.user
             rec.ops_approved_date = fields.Datetime.now()
             rec.state = "acc_approval"
@@ -678,7 +714,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "acc_approval":
                 continue
-            rec._validate_budget_within_sale_order()
+            rec._validate_budget_within_source_documents()
             rec.acc_approver_id = self.env.user
             rec.acc_approved_date = fields.Datetime.now()
             rec.state = "final_approval"
@@ -697,7 +733,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "final_approval":
                 continue
-            rec._validate_budget_within_sale_order()
+            rec._validate_budget_within_source_documents()
             rec.final_approver_id = self.env.user
             rec.final_approved_date = fields.Datetime.now()
             rec.state = "approved"
@@ -933,12 +969,19 @@ class WorkOrderBOQ(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        records.mapped("work_order_id")._ensure_project_expense_bucket(sync_budget=True)
+        work_orders = records.mapped("work_order_id")
+        if not self.env.context.get("skip_wo_source_ceiling_validation"):
+            work_orders._validate_budget_within_source_documents()
+        work_orders._ensure_project_expense_bucket(sync_budget=True)
         return records
 
     def write(self, vals):
+        work_orders = self.mapped("work_order_id")
         res = super().write(vals)
-        self.mapped("work_order_id")._ensure_project_expense_bucket(sync_budget=True)
+        work_orders |= self.mapped("work_order_id")
+        if not self.env.context.get("skip_wo_source_ceiling_validation"):
+            work_orders._validate_budget_within_source_documents()
+        work_orders._ensure_project_expense_bucket(sync_budget=True)
         return res
 
     def unlink(self):

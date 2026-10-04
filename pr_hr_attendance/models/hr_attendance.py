@@ -3,6 +3,7 @@ from datetime import datetime, time, timedelta
 import pytz
 
 from odoo import _, api, fields, models
+from odoo.addons.resource.models.utils import Intervals
 from odoo.exceptions import AccessError, ValidationError
 
 
@@ -213,6 +214,50 @@ class HrAttendance(models.Model):
         )
         timezone = pytz.timezone(tz_name)
         return pytz.UTC.localize(fields.Datetime.to_datetime(value)).astimezone(timezone)
+
+    @api.depends("check_in", "check_out", "employee_id")
+    def _compute_worked_hours(self):
+        """Keep the real punch, but never count worked time before 07:00 local."""
+        for attendance in self:
+            if not (
+                attendance.check_in
+                and attendance.check_out
+                and attendance.employee_id
+            ):
+                attendance.worked_hours = False
+                continue
+
+            calendar = attendance._get_employee_calendar()
+            timezone = pytz.timezone(calendar.tz or "UTC")
+            check_in_utc = fields.Datetime.to_datetime(attendance.check_in)
+            check_out_utc = fields.Datetime.to_datetime(attendance.check_out)
+            if check_in_utc.tzinfo is None:
+                check_in_utc = pytz.UTC.localize(check_in_utc)
+            if check_out_utc.tzinfo is None:
+                check_out_utc = pytz.UTC.localize(check_out_utc)
+            check_in_local = check_in_utc.astimezone(timezone)
+            check_out_local = check_out_utc.astimezone(timezone)
+            calculation_floor = check_in_local.replace(
+                hour=7, minute=0, second=0, microsecond=0,
+            )
+            effective_check_in = max(check_in_local, calculation_floor)
+            if check_out_local <= effective_check_in:
+                attendance.worked_hours = 0.0
+                continue
+
+            lunch_intervals = attendance.employee_id._employee_attendance_intervals(
+                effective_check_in,
+                check_out_local,
+                lunch=True,
+            )
+            attendance_intervals = Intervals([
+                (effective_check_in, check_out_local, attendance),
+            ]) - lunch_intervals
+            seconds = sum(
+                (interval[1] - interval[0]).total_seconds()
+                for interval in attendance_intervals
+            )
+            attendance.worked_hours = seconds / 3600.0
 
     def _refresh_daily_attendance_status(self, now=None):
         """Keep a durable status on the core attendance record.

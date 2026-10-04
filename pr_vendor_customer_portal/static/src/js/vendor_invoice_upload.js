@@ -20,13 +20,12 @@ function initializeVendorInvoiceReceiptFilter() {
             const selected = receiptSelect.selectedOptions[0];
             if (amountPanel && amountValue && selected && selected.value) {
                 const amount = Number(selected.dataset.amount || 0);
-                amountValue.textContent = `${amount.toLocaleString(undefined, {
+                amountValue.value = `${amount.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                 })} ${selected.dataset.currency || ""}`;
-                amountPanel.classList.remove("d-none");
             } else if (amountValue) {
-                amountValue.textContent = "Select a GRN/SES to see its amount.";
+                amountValue.value = "";
             }
         };
         poSelect.addEventListener("change", filterReceipts);

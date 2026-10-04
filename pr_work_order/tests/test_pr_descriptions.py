@@ -19,13 +19,18 @@ class TestPrDescriptions(unittest.TestCase):
         tree = ast.parse(path.read_text(encoding="utf-8-sig"))
         methods = [node for model in tree.body if isinstance(model, ast.ClassDef)
                    for node in model.body if isinstance(node, ast.FunctionDef)
-                   and node.name in ("_get_purchase_requisition_description", "_onchange_product_internal_reference")]
+                   and node.name in (
+                       "_get_purchase_requisition_description",
+                       "_onchange_product_internal_reference",
+                       "_get_source_budget_ceilings",
+                   )]
         for method in methods:
             method.decorator_list = []
-        namespace = {}
+        namespace = {"_": lambda value: value}
         exec(compile(ast.Module(body=methods, type_ignores=[]), str(path), "exec"), namespace)
         cls.describe = staticmethod(namespace["_get_purchase_requisition_description"])
         cls.onchange = staticmethod(namespace["_onchange_product_internal_reference"])
+        cls.get_ceilings = staticmethod(namespace["_get_source_budget_ceilings"])
 
     def setUp(self):
         self.product = Record(name="Cable", display_name="[CBL] Cable")
@@ -84,5 +89,58 @@ class TestPrDescriptions(unittest.TestCase):
         source = (Path(__file__).parents[1] / "models" / "work_order.py").read_text(
             encoding="utf-8-sig"
         )
-        self.assertIn("def _validate_budget_within_sale_order", source)
-        self.assertIn("rec._validate_budget_within_sale_order()", source)
+        self.assertIn("def _validate_budget_within_source_documents", source)
+        self.assertIn("work_orders._validate_budget_within_source_documents()", source)
+
+    def test_work_order_budget_uses_so_and_estimation_ceilings(self):
+        estimation = Record(
+            display_name="EST/2026/001",
+            total_with_profit=900.0,
+        )
+        sale_order = Record(
+            display_name="SO/2026/001",
+            amount_total=1000.0,
+            estimation_id=estimation,
+            _fields={"estimation_id"},
+        )
+        work_order = Record(sale_order_id=sale_order)
+
+        self.assertEqual(
+            self.get_ceilings(work_order),
+            [
+                ("Sales Order", "SO/2026/001", 1000.0),
+                ("Estimation", "EST/2026/001", 900.0),
+            ],
+        )
+
+    def test_work_order_budget_ceiling_supports_sales_without_estimation_module(self):
+        sale_order = Record(
+            display_name="SO/2026/002",
+            amount_total=750.0,
+            _fields=set(),
+        )
+        work_order = Record(sale_order_id=sale_order)
+
+        self.assertEqual(
+            self.get_ceilings(work_order),
+            [("Sales Order", "SO/2026/002", 750.0)],
+        )
+
+    def test_create_pr_reloads_live_boq_description(self):
+        source = (
+            Path(__file__).parents[1] / "models" / "work_order_pr_wizard.py"
+        ).read_text(encoding="utf-8-sig")
+        self.assertIn(
+            "line_description = boq_line._get_purchase_requisition_description()",
+            source,
+        )
+        self.assertIn('"boq_line_id": source_boq_line.id', source)
+
+    def test_readonly_wizard_description_is_force_saved(self):
+        source = (
+            Path(__file__).parents[1] / "views" / "work_order_pr_wizard_views.xml"
+        ).read_text(encoding="utf-8-sig")
+        self.assertIn(
+            '<field name="line_description" readonly="1" force_save="1"/>',
+            source,
+        )

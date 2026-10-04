@@ -261,6 +261,15 @@ class PurchaseOrderAdvancePaymentWizard(models.TransientModel):
     memo = fields.Char(
         string="Memo",
     )
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "purchase_advance_payment_wizard_attachment_rel",
+        "wizard_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Supporting documents that will be attached to the created vendor payment.",
+    )
 
     @api.model
     def default_get(self, fields_list):
@@ -320,6 +329,25 @@ class PurchaseOrderAdvancePaymentWizard(models.TransientModel):
             ) > 0:
                 raise ValidationError(_("Advance amount cannot exceed the remaining PO amount."))
 
+    def _transfer_attachments_to_payment(self, payment):
+        """Move wizard uploads to the permanent payment and return them."""
+        self.ensure_one()
+        payment.ensure_one()
+        attachments = self.attachment_ids.exists()
+        if not attachments:
+            return attachments
+
+        # Do not let an RPC caller use sudo below to take over an attachment
+        # that the current user cannot access.
+        attachments.check_access_rights("read")
+        attachments.check_access_rule("read")
+        attachments.sudo().write({
+            "res_model": payment._name,
+            "res_id": payment.id,
+            "res_field": False,
+        })
+        return attachments.sudo()
+
     def action_create_payment(self):
         self.ensure_one()
         order = self.purchase_order_id
@@ -330,7 +358,11 @@ class PurchaseOrderAdvancePaymentWizard(models.TransientModel):
         self._check_amount()
         payment_vals = order.sudo()._prepare_advance_payment_vals(self)
         payment = self.env["account.payment"].sudo().with_company(order.company_id).create(payment_vals)
-        payment.message_post(body=_("Advance payment initiated from Purchase Order %s.") % order.name)
+        attachments = self._transfer_attachments_to_payment(payment)
+        payment.message_post(
+            body=_("Advance payment initiated from Purchase Order %s.") % order.name,
+            attachment_ids=attachments.ids,
+        )
         order.message_post(body=_("Advance payment %s was initiated from this purchase order.") % payment.display_name)
         return {
             "name": _("Advance Payment"),

@@ -10,3 +10,4 @@ from . import test_purchase_tasks_10_17
 from . import test_purchase_order_reporting
 from . import test_pr_cycle
 from . import test_po_cycle_summary
+from . import test_purchase_advance_payment_attachments

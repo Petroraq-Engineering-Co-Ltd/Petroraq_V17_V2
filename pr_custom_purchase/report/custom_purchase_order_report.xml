@@ -372,6 +372,20 @@
                         </div>
 
 
+                        <!-- Delivery Time / Expected Arrival -->
+                        <div t-if="o.date_planned"
+                             style="margin-top:4px;
+            margin-bottom:0;
+            font-size:16px;
+            line-height:1.25;
+            font-family:'DroidArabicNaskh';">
+
+                            <span style="font-weight:bold;">Delivery Time (Expected Arrival):</span>
+
+                            <span t-field="o.date_planned" t-options="{'widget': 'date'}"/>
+                        </div>
+
+
                         <!-- Incoterms / Delivery Terms -->
                         <div t-if="o.incoterm_id"
                              style="margin-top:4px;

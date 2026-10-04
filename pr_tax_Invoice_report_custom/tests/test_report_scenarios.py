@@ -54,9 +54,16 @@ class TestInvoiceReportScenarios(unittest.TestCase):
         result = self.values([self.line(is_downpayment=True, discount=5),
                               self.line(0, display_type="line_note"),
                               self.line(0, display_type="line_section")])
-        self.assertIn("Down Payment", result["title"])
+        self.assertEqual(result["title"], "Tax Invoice / فاتورة ضريبية")
+        self.assertNotIn("Down Payment", result["title"])
         self.assertTrue(result["has_discount"])
         self.assertEqual(result["deduction"], 0)
+
+    def test_downpayment_invoice_uses_the_same_heading_as_regular_invoice(self):
+        downpayment = self.values([self.line(is_downpayment=True)])
+        regular = self.values([self.line()])
+        self.assertEqual(downpayment["title"], regular["title"])
+        self.assertNotIn("Down Payment", downpayment["title"])
 
     def test_zero_tax_invoice_has_no_hardcoded_rate(self):
         self.assertEqual(self.values([self.line()], tax=0)["title"], "Invoice / فاتورة")

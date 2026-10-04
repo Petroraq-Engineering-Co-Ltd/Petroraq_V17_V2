@@ -527,14 +527,14 @@ class PrVendorCustomerPortal(PurchasePortal, PortalAccount, SalePortal):
         except ValueError:
             selected_po_id = 0
         receipt_options = self._vendor_invoice_receipt_options()
-        po_ids = list(dict.fromkeys(option["po"].id for option in receipt_options))
-        purchase_orders = request.env["purchase.order"].sudo().browse(po_ids)
+        purchase_orders = request.env["purchase.order"].sudo().search(
+            self._prepare_purchase_order_domain(["purchase", "done"]),
+            order="date_order desc, id desc",
+        )
         values = self._prepare_portal_layout_values()
         values.update({
             "page_name": "vendor_invoice_upload",
-            "purchase_orders": purchase_orders.sorted(
-                key=lambda po: (po.date_order or fields.Datetime.now(), po.id), reverse=True
-            ),
+            "purchase_orders": purchase_orders,
             "receipt_options": receipt_options,
             "form_data": form_data,
             "selected_po_id": selected_po_id,

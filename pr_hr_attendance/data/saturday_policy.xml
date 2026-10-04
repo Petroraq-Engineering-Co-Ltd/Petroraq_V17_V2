@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="scheduled_saturday_working_effective_from" model="ir.config_parameter">
+        <field name="key">pr_hr_attendance.scheduled_saturday_working_effective_from</field>
+        <field name="value">2026-10-01</field>
+    </record>
+</odoo>

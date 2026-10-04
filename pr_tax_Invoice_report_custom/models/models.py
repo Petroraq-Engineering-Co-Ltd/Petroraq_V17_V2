@@ -57,12 +57,6 @@ class AccountMove(models.Model):
         is_refund = self.move_type in ('out_refund', 'in_refund')
         if is_refund:
             title = 'Credit Note / إشعار دائن'
-        elif downpayments and len(downpayments) == len(product_lines):
-            title = (
-                'Down Payment Tax Invoice / فاتورة ضريبية لدفعة مقدمة'
-                if not self.currency_id.is_zero(self.amount_tax)
-                else 'Down Payment Invoice / فاتورة دفعة مقدمة'
-            )
         elif not self.currency_id.is_zero(self.amount_tax):
             title = 'Tax Invoice / فاتورة ضريبية'
         else:

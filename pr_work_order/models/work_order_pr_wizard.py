@@ -43,6 +43,48 @@ class WorkOrderCreatePRWizard(models.TransientModel):
             source_lines = scratch_pr._prepare_source_product_line_values()
 
         if source_lines:
+            cost_centers_by_section = {
+                cc.section_name: cc.analytic_account_id
+                for cc in work_order.cost_center_ids.filtered("analytic_account_id")
+            }
+
+            def _source_key(product_id, cost_center_id, unit_name, unit_price, description):
+                return (
+                    product_id,
+                    cost_center_id,
+                    unit_name or "",
+                    round(unit_price or 0.0, 8),
+                    (description or "").strip(),
+                )
+
+            boq_lines_by_source = {}
+            for boq_line in work_order.boq_line_ids.sorted(key=lambda item: (item.sequence, item.id)):
+                if boq_line.display_type in ("line_section", "line_note") or not boq_line.product_id:
+                    continue
+                cost_center = cost_centers_by_section.get(boq_line.section_name)
+                unit = boq_line.uom_id or boq_line.product_id.uom_id
+                key = _source_key(
+                    boq_line.product_id.id,
+                    cost_center.id if cost_center else False,
+                    unit.name if unit else "",
+                    boq_line.unit_cost or boq_line.product_id.standard_price,
+                    boq_line._get_purchase_requisition_description(),
+                )
+                boq_lines_by_source.setdefault(key, []).append(boq_line)
+
+            def _source_boq_line(source_line):
+                product = self.env["product.product"].browse(source_line["description"])
+                unit = self._get_source_line_uom(source_line)
+                key = _source_key(
+                    product.id,
+                    source_line.get("cost_center_id"),
+                    unit.name if unit else "",
+                    source_line.get("unit_price"),
+                    source_line.get("line_description"),
+                )
+                candidates = boq_lines_by_source.get(key, [])
+                return candidates.pop(0) if candidates else self.env["pr.work.order.boq"]
+
             values["line_ids"] = [
                 (
                     0,
@@ -51,6 +93,8 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                         "selected": False,
                         "product_name": self.env["product.product"].browse(line["description"]).display_name,
                         "line_description": line.get("line_description"),
+                        "boq_line_db_id": source_boq_line.id,
+                        "boq_line_id": source_boq_line.id,
                         "product_id": line["description"],
                         "cost_center_id": line["cost_center_id"],
                         "quantity": line["quantity"],
@@ -59,6 +103,7 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                     },
                 )
                 for line in source_lines
+                for source_boq_line in [_source_boq_line(line)]
             ]
             return values
 
@@ -151,10 +196,13 @@ class WorkOrderCreatePRWizard(models.TransientModel):
         commands = []
         for line in selected_lines:
             product = line.product_id
+            boq_line = line.boq_line_id.sudo().exists()
+            if not boq_line and line.boq_line_db_id:
+                boq_line = self.env["pr.work.order.boq"].sudo().browse(line.boq_line_db_id).exists()
             if not product and line.boq_line_db_id:
-                product = self.env["pr.work.order.boq"].sudo().browse(line.boq_line_db_id).product_id
-            if not product and line.boq_line_id:
-                product = line.boq_line_id.sudo().product_id
+                product = boq_line.product_id
+            if not product and boq_line:
+                product = boq_line.product_id
             if not product:
                 raise ValidationError(
                     _("Selected line has no product. Please refresh and try again.")
@@ -163,13 +211,22 @@ class WorkOrderCreatePRWizard(models.TransientModel):
                 raise ValidationError(
                     _("Please set a Cost Center for product '%s'.") % product.display_name
                 )
+            line_description = line.line_description or product.display_name
+            if (
+                boq_line
+                and boq_line.work_order_id == self.work_order_id
+                and boq_line.product_id == product
+            ):
+                # Re-read the live BOQ value so edits made after opening the
+                # wizard are also reflected in the newly created PR.
+                line_description = boq_line._get_purchase_requisition_description()
             commands.append(
                 (
                     0,
                     0,
                     {
                         "description": product.id,
-                        "line_description": line.line_description or product.display_name,
+                        "line_description": line_description,
                         "cost_center_id": line.cost_center_id.id,
                         "quantity": line.quantity,
                         "type": "service" if product.detailed_type == "service" else "material",

@@ -16,16 +16,60 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         saturday = date(2026, 6, 6)
         for offset in range(5):
             self.env["employee.task.idle.day"].create({
-                "employee_id": self.scheduled_employee.id,
+                "employee_id": self.biometric_employee.id,
                 "date": date(2026, 5, 31) + timedelta(days=offset),
                 "approved_hours": 8.0,
             })
-        self.assertTrue(self.scheduled_employee._etm_saturday_is_off(saturday))
+        self.assertTrue(self.biometric_employee._etm_saturday_is_off(saturday))
         self.env["employee.task.idle.day"].search([
-            ("employee_id", "=", self.scheduled_employee.id),
+            ("employee_id", "=", self.biometric_employee.id),
             ("date", "=", date(2026, 6, 4)),
         ]).approved_hours = 7.0
+        self.assertFalse(self.biometric_employee._etm_saturday_is_off(saturday))
+
+    def test_scheduled_management_employee_is_excluded_from_etm_saturday_off(self):
+        saturday = date(2026, 10, 3)
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.scheduled_employee.id,
+                "date": date(2026, 9, 27) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+
+        self.assertTrue(self.scheduled_employee._uses_scheduled_auto_attendance())
+        self.assertEqual(
+            self.scheduled_employee.saturday_attendance_policy,
+            "scheduled_working",
+        )
         self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
+
+    def test_scheduled_employee_keeps_old_saturday_rule_before_effective_date(self):
+        saturday = date(2026, 9, 26)
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.scheduled_employee.id,
+                "date": date(2026, 9, 20) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+
+        self.assertTrue(self.scheduled_employee._etm_saturday_is_off(saturday))
+
+    def test_opted_in_site_employee_is_excluded_from_etm_saturday_off(self):
+        saturday = date(2026, 10, 3)
+        self.manual_employee.sudo().write({"include_in_scheduled_attendance": True})
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.manual_employee.id,
+                "date": date(2026, 9, 27) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+
+        self.assertTrue(self.manual_employee._uses_scheduled_auto_attendance())
+        self.assertEqual(
+            self.manual_employee.saturday_attendance_policy,
+            "scheduled_working",
+        )
+        self.assertFalse(self.manual_employee._etm_saturday_is_off(saturday))
 
     def test_manual_hr_create_modify_and_delete_is_allowed(self):
         attendance = self.Attendance.with_user(self.hr_user).create(
@@ -160,6 +204,48 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         attendance.invalidate_recordset(["check_in", "check_out"])
         self.assertEqual(attendance.check_in, actual_check_in)
         self.assertEqual(attendance.check_out, actual_check_out)
+
+    def test_worked_hours_do_not_count_time_before_seven_am(self):
+        calendar = self.env["resource.calendar"].create({
+            "name": "Worked Hours Floor 07:00",
+            "tz": "Asia/Riyadh",
+            "company_id": self.env.company.id,
+            "attendance_ids": [Command.create({
+                "name": "Monday shift",
+                "dayofweek": "0",
+                "day_period": "morning",
+                "hour_from": 7.0,
+                "hour_to": 17.0,
+            })],
+        })
+        self.manual_employee.with_user(self.hr_user).write({
+            "resource_calendar_id": calendar.id,
+        })
+        attendance = self.Attendance.with_user(self.hr_user).create({
+            "employee_id": self.manual_employee.id,
+            "check_in": datetime(2026, 6, 1, 2, 0),   # 05:00 local
+            "check_out": datetime(2026, 6, 1, 13, 0), # 16:00 local
+        })
+
+        self.assertEqual(attendance.check_in, datetime(2026, 6, 1, 2, 0))
+        self.assertAlmostEqual(attendance.worked_hours, 9.0)
+
+    def test_checkout_before_seven_am_counts_zero_worked_hours(self):
+        calendar = self.env["resource.calendar"].create({
+            "name": "Early Attendance Floor 07:00",
+            "tz": "Asia/Riyadh",
+            "company_id": self.env.company.id,
+        })
+        self.manual_employee.with_user(self.hr_user).write({
+            "resource_calendar_id": calendar.id,
+        })
+        attendance = self.Attendance.with_user(self.hr_user).create({
+            "employee_id": self.manual_employee.id,
+            "check_in": datetime(2026, 6, 1, 2, 0),  # 05:00 local
+            "check_out": datetime(2026, 6, 1, 3, 0), # 06:00 local
+        })
+
+        self.assertEqual(attendance.worked_hours, 0.0)
 
     def test_archiving_manual_employee_closes_open_attendance(self):
         values = self.attendance_values(self.manual_employee, offset_days=20)

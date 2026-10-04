@@ -13,6 +13,9 @@
                     </group>
                     <group name="employee_attendance_entry_policy" string="Attendance Entry Policy">
                         <field name="attendance_entry_mode" readonly="1"/>
+                        <field name="saturday_attendance_policy"
+                               widget="badge"
+                               readonly="1"/>
                         <field name="include_in_scheduled_attendance"
                                widget="boolean_toggle"
                                invisible="attendance_entry_mode != 'manual'"

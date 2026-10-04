@@ -20,6 +20,22 @@ class ResPartner(models.Model):
     def _pr_context_requires_partner_identifiers(self):
         return self.env.context.get("res_partner_search_mode") in {"customer", "supplier"}
 
+    def _pr_context_defaults_commercial_partner_to_company(self):
+        """Return whether this is a main customer/vendor creation flow.
+
+        Customer and vendor many2one fields pass ``res_partner_search_mode``
+        when opening the partner form, but unlike the dedicated menu actions
+        they do not always pass ``default_is_company``.  Child address/contact
+        creation must keep Odoo's normal Individual default.
+        """
+        context = self.env.context
+        is_customer_or_vendor = (
+            self._pr_context_requires_partner_identifiers()
+            or bool(context.get("default_customer_rank"))
+            or bool(context.get("default_supplier_rank"))
+        )
+        return is_customer_or_vendor and not context.get("default_parent_id")
+
     def _pr_requires_partner_vat(self):
         """
         VAT is required only for main company records.
@@ -94,6 +110,22 @@ class ResPartner(models.Model):
     @api.model
     def default_get(self, fields_list):
         values = super().default_get(fields_list)
+
+        # Apply a default only.  An explicit caller choice (including
+        # Individual/False) must continue to win.
+        company_type_is_explicit = (
+            "default_company_type" in self.env.context
+            or "default_is_company" in self.env.context
+        )
+        if (
+            self._pr_context_defaults_commercial_partner_to_company()
+            and not company_type_is_explicit
+        ):
+            if "is_company" in fields_list:
+                values["is_company"] = True
+            if "company_type" in fields_list:
+                values["company_type"] = "company"
+
         if (
             self._pr_context_requires_partner_identifiers()
             and "l10n_sa_additional_identification_scheme" in fields_list

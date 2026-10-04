@@ -15,6 +15,7 @@
                     <field name="amount"/>
                     <field name="payment_date"/>
                     <field name="memo"/>
+                    <field name="attachment_ids" widget="many2many_binary"/>
                 </group>
                 <footer>
                     <button name="action_create_payment" string="Create Payment" type="object" class="btn-primary"/>
