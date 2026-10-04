@@ -573,6 +573,47 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertEqual(len(all_revisions), 4)
         self.assertSetEqual(set(all_revisions.ids), {wo_0.id, wo_1.id, wo_2.id, wo_3.id})
 
+    def test_revising_sale_order_cancels_draft_work_orders_and_allows_new_wo_from_revised_estimation(self):
+        quotation = self._prepare_confirmable_quotation()
+        quotation.action_confirm()
+        self.assertEqual(quotation.state, "sale")
+
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "sale_order_id": quotation.id,
+        })
+        self._add_estimation_line(estimation, "material", 2.0, 100.0)
+
+        # 1. Create Work Order from estimation
+        action_wo = estimation.action_create_work_order()
+        wo_1 = self.env["pr.work.order"].browse(action_wo["res_id"])
+        self.assertEqual(wo_1.state, "draft")
+        self.assertEqual(quotation.work_order_id.id, wo_1.id)
+        self.assertEqual(estimation.work_order_id.id, wo_1.id)
+
+        # 2. Revise the Sale Order
+        action_rev = quotation.action_revise_so()
+        rev_est = self.env["petroraq.estimation"].browse(action_rev["res_id"])
+        self.assertNotEqual(rev_est.id, estimation.id)
+
+        # 3. Verify original draft Work Order was moved to 'cancel'
+        self.assertEqual(wo_1.state, "cancel")
+
+        # 4. Generate and confirm revised quotation
+        rev_quo = rev_est._ensure_sale_order()
+        self.assertFalse(rev_quo.work_order_id)
+        self._prepare_confirmable_quotation(rev_quo)
+        rev_quo.action_confirm()
+        self.assertEqual(rev_quo.state, "sale")
+
+        # 5. Create new Work Order from the revised estimation
+        action_wo_2 = rev_est.action_create_work_order()
+        wo_2 = self.env["pr.work.order"].browse(action_wo_2["res_id"])
+        self.assertNotEqual(wo_2.id, wo_1.id)
+        self.assertEqual(wo_2.state, "draft")
+        self.assertEqual(rev_quo.work_order_id.id, wo_2.id)
+        self.assertEqual(rev_est.work_order_id.id, wo_2.id)
+
 
 
 

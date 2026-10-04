@@ -10,6 +10,13 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
     _description = "Quotation"
 
+    work_order_id = fields.Many2one(
+        "pr.work.order",
+        string="Work Order",
+        readonly=True,
+        copy=False,
+    )
+
     def _get_new_rev_data(self, new_rev_number):
         """Use the company quotation revision label: BASE-R1, BASE-R2, ..."""
         self.ensure_one()
@@ -45,10 +52,13 @@ class SaleOrder(models.Model):
             raise UserError(_(
                 "Quotations can only be revised from a revised Estimation."
             ))
-        return super(
+        self._cancel_draft_work_orders()
+        new_rev = super(
             SaleOrder,
             self.with_context(preserve_quotation_revision_name=True),
         ).copy_revision_with_context()
+        new_rev.work_order_id = False
+        return new_rev
 
     def _notify_get_reply_to(self, default=None):
         """Route customer replies to the SO email's visible sender."""
@@ -1362,6 +1372,41 @@ class SaleOrder(models.Model):
                 "deliveries": ", ".join(active_deliveries.mapped("name")),
             })
 
+    def _cancel_draft_work_orders(self):
+        """When an SO revision is created or confirmed, any work order associated
+        with this SO that is still in draft state must be moved to cancelled state."""
+        WorkOrder = self.env["pr.work.order"].sudo()
+        for order in self:
+            wo_ids = set()
+            if order.work_order_id:
+                wo_ids.add(order.work_order_id.id)
+            if order.estimation_id and order.estimation_id.work_order_id:
+                wo_ids.add(order.estimation_id.work_order_id.id)
+
+            domain = [
+                ("state", "=", "draft"),
+                "|",
+                ("sale_order_id", "=", order.id),
+                ("id", "in", list(wo_ids) or [0]),
+            ]
+            draft_wos = WorkOrder.search(domain)
+            for wo in draft_wos:
+                wo.write({"state": "cancel"})
+                if hasattr(wo, "_sync_work_order_budget_state"):
+                    wo._sync_work_order_budget_state("cancel")
+                wo.message_post(body=_(
+                    "Work Order cancelled automatically because a new revision of Sales Order %s was created."
+                ) % order.name)
+
+            if order.work_order_id and order.work_order_id.state == "cancel":
+                order.work_order_id = False
+            if (
+                order.estimation_id
+                and order.estimation_id.work_order_id
+                and order.estimation_id.work_order_id.state == "cancel"
+            ):
+                order.estimation_id.with_context(allow_estimation_write=True).work_order_id = False
+
     def action_revise_so(self):
         """Create an Estimation revision for this confirmed Sales Order.
 
@@ -1377,6 +1422,7 @@ class SaleOrder(models.Model):
         if not estimation:
             raise UserError(_("This Sales Order has no linked Estimation to revise."))
         self._check_can_be_revised()
+        self._cancel_draft_work_orders()
 
         return estimation.create_revision()
 
@@ -1387,6 +1433,7 @@ class SaleOrder(models.Model):
             return super()._prepare_confirmed_so_data()
 
         existing_so._check_can_be_revised()
+        existing_so._cancel_draft_work_orders()
 
         # An existing confirmed Sales Order was found: create a revision of it instead of a new sequence!
         so_name = existing_so.name or ""
@@ -1452,6 +1499,7 @@ class SaleOrder(models.Model):
             "unrevisioned_name": base_so_name,
             "revision_number": next_revision,
             "old_revision_ids": [(4, existing_so.id)],
+            "work_order_id": False,
         }
         vals.update(transfer_vals)
         return vals

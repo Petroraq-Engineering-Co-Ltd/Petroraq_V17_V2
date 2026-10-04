@@ -425,6 +425,7 @@ class PetroraqEstimation(models.Model):
         # Quotation/SO revision is actually created.
         if self.sale_order_id:
             self.sale_order_id._check_can_be_revised()
+            self.sale_order_id._cancel_draft_work_orders()
         return super(
             PetroraqEstimation, self.with_context(allow_estimation_write=True)
         ).copy_revision_with_context()
@@ -445,6 +446,7 @@ class PetroraqEstimation(models.Model):
         order_vals = self._prepare_sale_order_vals(company, addresses, term)
         previous_order = self._get_previous_revision_sale_order()
         if previous_order:
+            previous_order._cancel_draft_work_orders()
             if previous_order.state in ("sale", "done"):
                 previous_order._check_can_be_revised()
                 # The previous order is already a confirmed Sales Order.
@@ -489,6 +491,7 @@ class PetroraqEstimation(models.Model):
                     risk_percent=0.0,
                     profit_percent=0.0,
                     old_revision_ids=[(4, previous_order.id)],
+                    work_order_id=False,
                 )
                 order = self.env["sale.order"].with_company(company).with_context(
                     preserve_quotation_revision_name=True
@@ -506,6 +509,7 @@ class PetroraqEstimation(models.Model):
                     overhead_percent=0.0,
                     risk_percent=0.0,
                     profit_percent=0.0,
+                    work_order_id=False,
                 ))
         else:
             order = self.env["sale.order"].with_company(company).create(order_vals)
@@ -651,7 +655,7 @@ class PetroraqEstimation(models.Model):
 
     def action_create_work_order(self):
         self.ensure_one()
-        if self.work_order_id:
+        if self.work_order_id and self.work_order_id.state != "cancel":
             return {
                 "type": "ir.actions.act_window",
                 "name": _("Work Order"),
@@ -664,7 +668,7 @@ class PetroraqEstimation(models.Model):
         if order.state != "sale":
             raise UserError(_("You can only create a work order after the quotation is confirmed."))
 
-        if order.work_order_id:
+        if order.work_order_id and order.work_order_id.state != "cancel":
             self.with_context(allow_estimation_write=True).work_order_id = order.work_order_id.id
             return {
                 "type": "ir.actions.act_window",
