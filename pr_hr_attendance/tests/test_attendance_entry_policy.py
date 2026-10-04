@@ -229,6 +229,16 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
 
         self.assertEqual(attendance.check_in, datetime(2026, 6, 1, 2, 0))
         self.assertAlmostEqual(attendance.worked_hours, 9.0)
+        intervals = self.env["attendance.sheet"].get_attendance_intervals(
+            self.manual_employee,
+            datetime(2026, 6, 1, 0, 0),
+            datetime(2026, 6, 1, 23, 59, 59),
+            pytz.timezone("Asia/Riyadh"),
+        )
+        self.assertEqual(
+            intervals,
+            [(datetime(2026, 6, 1, 4, 0), datetime(2026, 6, 1, 13, 0))],
+        )
 
     def test_checkout_before_seven_am_counts_zero_worked_hours(self):
         calendar = self.env["resource.calendar"].create({
@@ -246,6 +256,13 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         })
 
         self.assertEqual(attendance.worked_hours, 0.0)
+        intervals = self.env["attendance.sheet"].get_attendance_intervals(
+            self.manual_employee,
+            datetime(2026, 6, 1, 0, 0),
+            datetime(2026, 6, 1, 23, 59, 59),
+            pytz.timezone("Asia/Riyadh"),
+        )
+        self.assertFalse(intervals)
 
     def test_archiving_manual_employee_closes_open_attendance(self):
         values = self.attendance_values(self.manual_employee, offset_days=20)

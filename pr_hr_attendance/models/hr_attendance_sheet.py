@@ -45,6 +45,23 @@ class HrAttendanceSheet(models.Model):
 
     # endregion [Fields]
 
+    def get_attendance_intervals(self, employee, day_start, day_end, tz):
+        """Exclude the part of every attendance interval before 07:00 local."""
+        intervals = super().get_attendance_intervals(
+            employee, day_start, day_end, tz,
+        )
+        calculation_floor_local = tz.localize(
+            datetime.combine(day_start.date(), datetime.min.time()).replace(hour=7)
+        )
+        calculation_floor_utc = calculation_floor_local.astimezone(
+            pytz.UTC
+        ).replace(tzinfo=None)
+        return [
+            (max(check_in, calculation_floor_utc), check_out)
+            for check_in, check_out in intervals
+            if check_out > calculation_floor_utc
+        ]
+
     # region [Compute Methods]
 
     @api.depends('line_ids.status',
