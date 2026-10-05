@@ -73,3 +73,10 @@ class TestWorkOrderRevision(TransactionCase):
         wo_1.write({"state": "approved"})
         self.assertEqual(wo_1.state, "approved")
         self.assertEqual(wo_0.state, "cancel")
+
+    def test_revise_wo_button_groups(self):
+        view = self.env.ref("pr_work_order.view_pr_work_order_form")
+        arch = view.arch
+        self.assertIn('name="action_new_revision"', arch)
+        self.assertIn('groups="sales_team.group_sale_manager,sales_team.group_sale_salesman,pr_work_order.custom_group_work_order_user"', arch)
+
