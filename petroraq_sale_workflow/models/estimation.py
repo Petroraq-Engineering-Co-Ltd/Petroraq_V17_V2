@@ -3,7 +3,7 @@ import re
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount, html_escape
-from odoo.tools.float_utils import float_compare
+from odoo.tools.float_utils import float_compare, float_round
 
 SECTION_TYPES = [
     ("material", "Material"),
@@ -315,28 +315,43 @@ class PetroraqEstimation(models.Model):
         "profit_percent",
     )
     def _compute_totals(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for record in self:
-            material_total = sum(record.line_ids.filtered(lambda l: l.section_type == "material").mapped("subtotal"))
-            labor_total = sum(record.line_ids.filtered(lambda l: l.section_type == "labor").mapped("subtotal"))
-            equipment_total = sum(record.line_ids.filtered(lambda l: l.section_type == "equipment").mapped("subtotal"))
-            subcontract_total = sum(
-                record.line_ids.filtered(lambda l: l.section_type == "subcontract").mapped("subtotal"))
+            material_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "material").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
+            labor_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "labor").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
+            equipment_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "equipment").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
+            subcontract_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "subcontract").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
             record.material_total = material_total
             record.labor_total = labor_total
             record.equipment_total = equipment_total
             record.subcontract_total = subcontract_total
-            base_total = material_total + labor_total + equipment_total + subcontract_total
-            overhead_amount = base_total * (record.overhead_percent or 0.0) / 100.0
-            risk_amount = base_total * (record.risk_percent or 0.0) / 100.0
-            buffer_total = base_total + overhead_amount + risk_amount
-            profit_amount = buffer_total * (record.profit_percent or 0.0) / 100.0
+            base_total = float_round(
+                material_total + labor_total + equipment_total + subcontract_total,
+                precision_digits=precision_cost,
+            )
+            overhead_amount = float_round(base_total * (record.overhead_percent or 0.0) / 100.0, precision_digits=precision_cost)
+            risk_amount = float_round(base_total * (record.risk_percent or 0.0) / 100.0, precision_digits=precision_cost)
+            buffer_total = float_round(base_total + overhead_amount + risk_amount, precision_digits=precision_cost)
+            profit_amount = float_round(buffer_total * (record.profit_percent or 0.0) / 100.0, precision_digits=precision_cost)
 
             record.total_amount = base_total
             record.overhead_amount = overhead_amount
             record.risk_amount = risk_amount
             record.buffer_total_amount = buffer_total
             record.profit_amount = profit_amount
-            record.total_with_profit = buffer_total + profit_amount
+            record.total_with_profit = float_round(buffer_total + profit_amount, precision_digits=precision_cost)
 
     @api.onchange("overhead_percent", "risk_percent", "profit_percent")
     def _onchange_percent_validation(self):
@@ -517,11 +532,11 @@ class PetroraqEstimation(models.Model):
         self.with_context(allow_estimation_write=True).sale_order_id = order.id
         if not previous_order:
             order.action_sync_products_from_estimation()
-            currency = order.currency_id or order.company_id.currency_id
+            precision_cost = self.env["decimal.precision"].precision_get("Product Price")
             if float_compare(
-                currency.round(order.amount_untaxed or 0.0),
-                currency.round(self.total_with_profit or 0.0),
-                precision_rounding=currency.rounding,
+                float_round(order.amount_untaxed or 0.0, precision_digits=precision_cost),
+                float_round(self.total_with_profit or 0.0, precision_digits=precision_cost),
+                precision_digits=precision_cost,
             ) != 0:
                 raise ValidationError(_(
                     "The quotation total must match the estimation total."
@@ -565,6 +580,8 @@ class PetroraqEstimation(models.Model):
         return previous_revision.sale_order_id
 
     def _prepare_work_order_boq_lines(self, work_order):
+        precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         section_map = {
             "material": _("Material"),
             "labor": _("Labor"),
@@ -594,6 +611,8 @@ class PetroraqEstimation(models.Model):
                     })
                     continue
                 qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
+                qty = float_round(qty, precision_digits=precision_qty)
+                unit_cost = float_round(line.unit_cost or 0.0, precision_digits=precision_cost)
                 uom = line.uom_id or line.product_id.uom_id
                 lines.append({
                     "work_order_id": work_order.id,
@@ -602,7 +621,7 @@ class PetroraqEstimation(models.Model):
                     "product_id": line.product_id.id,
                     "uom_id": uom.id if uom else False,
                     "qty": qty,
-                    "unit_cost": line.unit_cost or 0.0,
+                    "unit_cost": unit_cost,
                     "section_name": section_name,
                     "estimation_line_id": line.id,
                     "sale_order_line_id": False,
@@ -853,11 +872,13 @@ class PetroraqEstimation(models.Model):
 
     def _get_estimation_section_amounts(self):
         self.ensure_one()
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         amounts = {}
         for section_type, _label in SECTION_TYPES:
             section_name = self._get_estimation_section_name(section_type)
-            amounts[section_name] = sum(
-                self.line_ids.filtered(lambda l: l.section_type == section_type).mapped("subtotal")
+            amounts[section_name] = float_round(
+                sum(self.line_ids.filtered(lambda l: l.section_type == section_type).mapped("subtotal")),
+                precision_digits=precision_cost,
             )
         return amounts
 
@@ -981,7 +1002,9 @@ class PetroraqEstimation(models.Model):
                 match.with_context(skip_estimation_sync=True).write(target)
                 used_lines |= match
             else:
-                used_lines |= work_order.boq_line_ids.create(dict(target, work_order_id=work_order.id))
+                used_lines |= work_order.boq_line_ids.with_context(skip_estimation_sync=True).create(
+                    dict(target, work_order_id=work_order.id)
+                )
 
         obsolete_lines = existing_lines - used_lines
         for line in obsolete_lines:
@@ -1500,6 +1523,8 @@ class WorkOrderBOQ(models.Model):
         """A BOQ line synced from an Estimation line may only be edited down,
         never up: qty/unit_cost can be <= the source Estimation line's own
         values, never greater."""
+        if self.env.context.get("skip_estimation_sync"):
+            return
         precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
         precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
@@ -1512,24 +1537,27 @@ class WorkOrderBOQ(models.Model):
                 if estimation_line.section_type in ("labor", "equipment")
                 else (estimation_line.quantity or 0.0)
             )
-            if float_compare(line.qty or 0.0, max_qty, precision_digits=precision_qty) > 0:
+            max_qty = float_round(max_qty, precision_digits=precision_qty)
+            line_qty = float_round(line.qty or 0.0, precision_digits=precision_qty)
+            if float_compare(line_qty, max_qty, precision_digits=precision_qty) > 0:
                 raise ValidationError(_(
                     "BOQ line \"%(line)s\": Qty (%(qty)s) cannot exceed the source Estimation "
                     "line's quantity (%(max_qty)s)."
                 ) % {
                     "line": line.name or line.display_name,
-                    "qty": line.qty,
+                    "qty": line_qty,
                     "max_qty": max_qty,
                 })
 
-            max_cost = estimation_line.unit_cost or 0.0
-            if float_compare(line.unit_cost or 0.0, max_cost, precision_digits=precision_cost) > 0:
+            max_cost = float_round(estimation_line.unit_cost or 0.0, precision_digits=precision_cost)
+            line_cost = float_round(line.unit_cost or 0.0, precision_digits=precision_cost)
+            if float_compare(line_cost, max_cost, precision_digits=precision_cost) > 0:
                 raise ValidationError(_(
                     "BOQ line \"%(line)s\": Unit Cost (%(cost)s) cannot exceed the source "
                     "Estimation line's unit cost (%(max_cost)s)."
                 ) % {
                     "line": line.name or line.display_name,
-                    "cost": line.unit_cost,
+                    "cost": line_cost,
                     "max_cost": max_cost,
                 })
 
@@ -1565,9 +1593,9 @@ class PetroraqEstimationLine(models.Model):
 
     # For Labor/Equipment the business wants:
     # (count) * (days) * (8 hours/day) = qty (hours)
-    resource_count = fields.Float(string="Count", default=1.0)
-    days = fields.Float(string="Days", default=1.0)
-    hours_per_day = fields.Float(string="Hours/Day", default=8.0)
+    resource_count = fields.Float(string="Count", default=1.0, digits="Product Unit of Measure")
+    days = fields.Float(string="Days", default=1.0, digits="Product Unit of Measure")
+    hours_per_day = fields.Float(string="Hours/Day", default=8.0, digits="Product Unit of Measure")
 
     quantity_hours = fields.Float(
         string="Total Hours",
@@ -1588,16 +1616,19 @@ class PetroraqEstimationLine(models.Model):
         string="On Hand",
         related="product_id.qty_available",
         readonly=True,
+        digits="Product Unit of Measure",
     )
     virtual_available = fields.Float(
         string="Forecast",
         related="product_id.virtual_available",
         readonly=True,
+        digits="Product Unit of Measure",
     )
     free_qty = fields.Float(
         string="Free to Use",
         related="product_id.free_qty",
         readonly=True,
+        digits="Product Unit of Measure",
     )
 
     uom_id = fields.Many2one("uom.uom", string="Unit of Measure")
@@ -1609,11 +1640,10 @@ class PetroraqEstimationLine(models.Model):
         readonly=True,
     )
 
-    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
+    unit_cost = fields.Float(string="Unit Cost", digits="Product Price")
 
-    subtotal = fields.Monetary(
+    subtotal = fields.Float(
         string="Subtotal",
-        currency_field="currency_id",
         compute="_compute_subtotal",
         store=False,
         digits="Product Price",
@@ -1669,9 +1699,11 @@ class PetroraqEstimationLine(models.Model):
 
     @api.depends("section_type", "resource_count", "days", "hours_per_day")
     def _compute_quantity_hours(self):
+        precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
         for line in self:
             if line.section_type in ("labor", "equipment"):
-                line.quantity_hours = (line.resource_count or 0.0) * (line.days or 0.0) * (line.hours_per_day or 0.0)
+                raw_hours = (line.resource_count or 0.0) * (line.days or 0.0) * (line.hours_per_day or 0.0)
+                line.quantity_hours = float_round(raw_hours, precision_digits=precision_qty)
             else:
                 line.quantity_hours = 0.0
 
@@ -1682,9 +1714,10 @@ class PetroraqEstimationLine(models.Model):
         "unit_cost",
     )
     def _compute_subtotal(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
             qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
-            line.subtotal = qty * (line.unit_cost or 0.0)
+            line.subtotal = float_round(qty * (line.unit_cost or 0.0), precision_digits=precision_cost)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -1744,19 +1777,17 @@ class PetroraqEstimationDisplayLine(models.Model):
         store=True,
         readonly=True,
     )
-    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
-    subtotal = fields.Monetary(
+    unit_cost = fields.Float(string="Unit Cost", digits="Product Price")
+    subtotal = fields.Float(
         string="Subtotal",
-        currency_field="currency_id",
         compute="_compute_subtotal",
         store=False,
         digits="Product Price",
     )
-    section_subtotal_amount = fields.Monetary(
+    section_subtotal_amount = fields.Float(
         string="Section Subtotal",
         compute="_compute_section_subtotal_amount",
         store=False,
-        currency_field="currency_id",
         help="Subtotal of the lines within this section.",
         digits="Product Price",
     )
@@ -1774,9 +1805,10 @@ class PetroraqEstimationDisplayLine(models.Model):
         "unit_cost",
     )
     def _compute_subtotal(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
             qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
-            line.subtotal = qty * (line.unit_cost or 0.0)
+            line.subtotal = float_round(qty * (line.unit_cost or 0.0), precision_digits=precision_cost)
 
     @api.depends(
         "display_type",
@@ -1794,6 +1826,7 @@ class PetroraqEstimationDisplayLine(models.Model):
     )
     def _compute_section_subtotal_amount(self):
         label = _("Sub Total")
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
             line.section_subtotal_amount = 0.0
             line.section_subtotal_display = False
@@ -1806,7 +1839,7 @@ class PetroraqEstimationDisplayLine(models.Model):
             for line in ordered_lines:
                 if line.display_type == "line_section":
                     if current_section:
-                        current_section._set_section_subtotal_values(subtotal, label)
+                        current_section._set_section_subtotal_values(float_round(subtotal, precision_digits=precision_cost), label)
                     current_section = line
                     subtotal = 0.0
                     line.section_subtotal_amount = 0.0
@@ -1820,7 +1853,7 @@ class PetroraqEstimationDisplayLine(models.Model):
                 subtotal += qty * (line.unit_cost or 0.0)
 
             if current_section:
-                current_section._set_section_subtotal_values(subtotal, label)
+                current_section._set_section_subtotal_values(float_round(subtotal, precision_digits=precision_cost), label)
 
     def _set_section_subtotal_values(self, amount, label):
         self.ensure_one()

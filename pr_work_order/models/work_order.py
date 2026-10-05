@@ -1,7 +1,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount
-from odoo.tools.float_utils import float_compare
+from odoo.tools.float_utils import float_compare, float_round
 
 
 class PRWorkOrder(models.Model):
@@ -67,11 +67,13 @@ class PRWorkOrder(models.Model):
             if not rec.sale_order_id:
                 continue
             currency = rec.currency_id or rec.company_id.currency_id
-            contract_amount = rec.sale_order_id.amount_total or 0.0
+            precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+            contract_amount = float_round(rec.sale_order_id.amount_total or 0.0, precision_digits=precision_cost)
+            budgeted_cost = float_round(rec.budgeted_cost or 0.0, precision_digits=precision_cost)
             if float_compare(
-                rec.budgeted_cost or 0.0,
+                budgeted_cost,
                 contract_amount,
-                precision_rounding=currency.rounding,
+                precision_digits=precision_cost,
             ) > 0:
                 raise ValidationError(_(
                     "Work Order budget (%(budget)s) cannot exceed linked Sales Order total "
@@ -219,9 +221,11 @@ class PRWorkOrder(models.Model):
 
     @api.depends("boq_line_ids.total")
     def _compute_budgeted_cost(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for order in self:
-            order.budgeted_cost = sum(
-                order.boq_line_ids.mapped("total")
+            order.budgeted_cost = float_round(
+                sum(order.boq_line_ids.mapped("total")),
+                precision_digits=precision_cost,
             )
             order.contract_amount = order.sale_order_id.amount_total
 
@@ -881,8 +885,12 @@ class WorkOrderBOQ(models.Model):
 
     @api.depends("qty", "unit_cost")
     def _compute_total(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for rec in self:
-            rec.total = (rec.qty or 0.0) * (rec.unit_cost or 0.0)
+            rec.total = float_round(
+                (rec.qty or 0.0) * (rec.unit_cost or 0.0),
+                precision_digits=precision_cost,
+            )
 
     @api.depends("product_id")
     def _compute_product_internal_reference(self):
@@ -1011,12 +1019,13 @@ class WorkOrderCostCenter(models.Model):
         "analytic_account_id",
     )
     def _compute_estimated_cost(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for rec in self:
             lines = rec.work_order_id.boq_line_ids.filtered(
                 lambda l: l.display_type not in ("line_section", "line_note")
                           and l.section_name == rec.section_name
             )
-            rec.estimated_cost = sum(lines.mapped("total"))
+            rec.estimated_cost = float_round(sum(lines.mapped("total")), precision_digits=precision_cost)
 
             analytic = rec.analytic_account_id
             if not analytic:
