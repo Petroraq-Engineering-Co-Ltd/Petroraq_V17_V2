@@ -45,23 +45,6 @@ class PRWorkOrder(models.Model):
             "rejection_reason": False,
         })
 
-    def action_reset_to_draft(self):
-        for rec in self:
-            if rec.state == "draft":
-                continue
-            if rec.state in ("done", "cancel"):
-                raise UserError(_("Completed or cancelled Work Orders cannot be revised."))
-            rec.write({"state": "draft"})
-            rec._reset_approval_metadata()
-            rec._sync_work_order_budget_state("draft")
-            if rec.sale_order_id and hasattr(rec.sale_order_id, "_sync_work_order_from_quotation"):
-                rec.sale_order_id._sync_work_order_from_quotation(rec)
-            rec.message_post(body=_(
-                "Work Order revision started in Draft and synchronized with its Sales Order. "
-                "It must complete the full approval workflow again."
-            ))
-        return True
-
     def _validate_budget_within_sale_order(self):
         for rec in self:
             if not rec.sale_order_id:

@@ -72,13 +72,7 @@
                             groups="pr_work_order.custom_group_work_order_management"
                             invisible="state in ['done','cancel']"/>
 
-                    <button name="action_reset_to_draft"
-                            type="object"
-                            string="Revise / Reset to Draft"
-                            class="btn-secondary"
-                            groups="pr_work_order.custom_group_work_order_management"
-                            confirm="This will synchronize the Work Order with its Sales Order and restart all WO approvals. Continue?"
-                            invisible="state not in ['approved','in_progress']"/>
+
 
                     <button name="action_reject"
                             type="object"
