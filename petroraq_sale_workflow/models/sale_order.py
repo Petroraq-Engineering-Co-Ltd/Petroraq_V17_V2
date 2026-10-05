@@ -1368,7 +1368,7 @@ class SaleOrder(models.Model):
                 "invoices": ", ".join(active_invoices.mapped("name")),
             })
 
-        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state not in ("draft", "assigned", "cancel"))
+        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state in ("done"))
         if active_deliveries:
             raise UserError(_(
                 "%(order)s cannot be revised: it already has posted delivery/deliveries: %(deliveries)s."
