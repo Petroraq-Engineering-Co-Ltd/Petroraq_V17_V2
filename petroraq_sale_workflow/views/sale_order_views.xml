@@ -108,7 +108,7 @@
                         string="Revise SO"
                         class="btn-secondary"
                         invisible="not estimation_id or state != 'sale'"
-                        groups="petroraq_sale_workflow.group_sale_approval_manager"
+                        groups="petroraq_sale_workflow.group_sale_approval_manager,pr_work_order.custom_group_work_order_user"
                         confirm="This will create a new Estimation revision from this Sales Order's linked Estimation. Continue?"/>
 
                 <!--                <button string="Reset Draft"-->

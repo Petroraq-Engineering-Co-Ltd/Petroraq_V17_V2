@@ -659,6 +659,13 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertEqual(wo_0.state, "cancel")
         self.assertEqual(quotation.work_order_id.id, wo_2.id)
 
+    def test_revise_so_button_groups(self):
+        view = self.env.ref("petroraq_sale_workflow.view_order_form_inherit_petroraq_workflow")
+        arch = view.arch
+        self.assertIn('name="action_revise_so"', arch)
+        self.assertIn('groups="petroraq_sale_workflow.group_sale_approval_manager,pr_work_order.custom_group_work_order_user"', arch)
+
+
 
 
 
