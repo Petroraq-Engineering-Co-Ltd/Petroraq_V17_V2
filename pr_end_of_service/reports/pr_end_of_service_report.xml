@@ -49,6 +49,12 @@
                 <t t-set="data" t-value="doc._get_final_settlement_report_data()"/>
                 <t t-call="pr_end_of_service.pr_end_of_service_standalone_layout">
                     <style>
+                        @font-face {
+                        font-family: 'PrEOSSaudiRiyal';
+                        src: url('/pr_end_of_service/static/src/fonts/saudi_riyal.woff') format('woff');
+                        font-weight: normal;
+                        font-style: normal;
+                        }
                         .pr-eos-page {
                         font-family: Arial, Helvetica, sans-serif;
                         color: #111827;
@@ -97,6 +103,7 @@
                         width: 28%;
                         }
                         .pr-eos-amount {
+                        font-family: 'PrEOSSaudiRiyal', Arial, Helvetica, sans-serif;
                         text-align: right;
                         white-space: nowrap;
                         }
