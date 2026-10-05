@@ -1,3 +1,5 @@
+import re
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount, format_date, html_escape, is_html_empty
@@ -8,24 +10,41 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
     _description = "Quotation"
 
+    work_order_id = fields.Many2one(
+        "pr.work.order",
+        string="Work Order",
+        readonly=True,
+        copy=False,
+    )
+
     def _get_new_rev_data(self, new_rev_number):
         """Use the company quotation revision label: BASE-R1, BASE-R2, ..."""
         self.ensure_one()
         base_name = self.unrevisioned_name or self.name
-        latest_existing = self.with_context(active_test=False).search(
+        base_name = re.sub(r"-R\d+$", "", base_name)
+        sq_records = self.with_context(active_test=False).search(
             [
+                "|",
+                ("name", "=like", f"{base_name}%"),
                 ("unrevisioned_name", "=", base_name),
                 ("company_id", "=", self.company_id.id),
             ],
-            order="revision_number desc, id desc",
-            limit=1,
         )
-        next_revision = max(
-            new_rev_number,
-            (latest_existing.revision_number or 0) + 1,
-        )
+        existing_revs = [0]
+        for rec in sq_records:
+            if rec.name == base_name:
+                existing_revs.append(0)
+            else:
+                match = re.search(r"-R(\d+)$", rec.name or "")
+                if match:
+                    existing_revs.append(int(match.group(1)))
+                elif rec.revision_number and rec.unrevisioned_name == base_name:
+                    existing_revs.append(rec.revision_number)
+
+        next_revision = max(new_rev_number, max(existing_revs) + 1)
         vals = super()._get_new_rev_data(next_revision)
         vals["name"] = "%s-R%d" % (base_name, next_revision)
+        vals["unrevisioned_name"] = base_name
         return vals
 
     def copy_revision_with_context(self):
@@ -33,33 +52,13 @@ class SaleOrder(models.Model):
             raise UserError(_(
                 "Quotations can only be revised from a revised Estimation."
             ))
-        return super(
+        self._cancel_draft_work_orders()
+        new_rev = super(
             SaleOrder,
             self.with_context(preserve_quotation_revision_name=True),
         ).copy_revision_with_context()
-
-    def action_start_sales_order_revision(self):
-        """Start the controlled SO revision chain from a new Estimation revision."""
-        self.ensure_one()
-        if self.state not in ("sale", "done"):
-            raise UserError(_("Only a confirmed Sales Order can be revised."))
-        if not self.estimation_id:
-            raise UserError(_("This Sales Order has no linked Estimation to revise."))
-        revised_estimation = self.estimation_id.with_context(
-            allow_estimation_write=True
-        ).copy_revision_with_context()
-        revised_estimation.message_post(body=_(
-            "Revision started from confirmed Sales Order %s. Complete the Estimation, "
-            "then create and approve its revised quotation."
-        ) % self.name)
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Revised Estimation"),
-            "res_model": "petroraq.estimation",
-            "res_id": revised_estimation.id,
-            "view_mode": "form",
-            "target": "current",
-        }
+        new_rev.work_order_id = False
+        return new_rev
 
     def _notify_get_reply_to(self, default=None):
         """Route customer replies to the SO email's visible sender."""
@@ -1314,6 +1313,197 @@ class SaleOrder(models.Model):
                 order.locked = False
                 order.approval_state = "draft"
 
+    def _find_existing_confirmed_sale_order(self):
+        """Find the latest confirmed Sales Order associated with this quotation/revision chain."""
+        self.ensure_one()
+
+        # 1. Look in old_revision_ids (if this quotation was created as a revision)
+        old_orders = self.with_context(active_test=False).old_revision_ids.filtered(
+            lambda o: o.id != self.id and (o.state in ("sale", "done") or (o.name and "-SO-" in o.name))
+        )
+        if old_orders:
+            return old_orders.sorted(lambda o: (o.revision_number or 0, o.id))[-1]
+
+        # 2. Look in estimation revision hierarchy (if linked to an estimation)
+        if self.estimation_id:
+            unrevisioned_est = self.estimation_id.unrevisioned_name or self.estimation_id.name
+            estimations = self.env["petroraq.estimation"].with_context(active_test=False).search([
+                ("unrevisioned_name", "=", unrevisioned_est),
+                ("company_id", "=", self.company_id.id),
+            ])
+            est_orders = estimations.mapped("sale_order_id").filtered(
+                lambda o: o.id != self.id and (o.state in ("sale", "done") or (o.name and "-SO-" in o.name))
+            )
+            if est_orders:
+                return est_orders.sorted(lambda o: (o.revision_number or 0, o.id))[-1]
+
+        # 3. Look in order inquiry (if linked to an inquiry)
+        if self.order_inquiry_id:
+            inq_orders = self.order_inquiry_id.sale_order_ids.filtered(
+                lambda o: o.id != self.id and (o.state in ("sale", "done") or (o.name and "-SO-" in o.name))
+            )
+            if inq_orders:
+                return inq_orders.sorted(lambda o: (o.revision_number or 0, o.id))[-1]
+
+        return self.env["sale.order"]
+
+    def _check_can_be_revised(self):
+        """Block revising a confirmed Sales Order that already has active
+        (posted) invoices or deliveries - those represent real downstream
+        processing that a revision must not silently orphan. A cancelled
+        invoice/delivery never actually processed anything, so it is treated
+        the same as draft and does not block."""
+        self.ensure_one()
+        active_invoices = self.invoice_ids.filtered(lambda inv: inv.state not in ("draft", "cancel"))
+        if active_invoices:
+            raise UserError(_(
+                "%(order)s cannot be revised: it already has posted invoice(s): %(invoices)s."
+            ) % {
+                "order": self.display_name,
+                "invoices": ", ".join(active_invoices.mapped("name")),
+            })
+
+        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state not in ("draft", "assigned", "cancel"))
+        if active_deliveries:
+            raise UserError(_(
+                "%(order)s cannot be revised: it already has posted delivery/deliveries: %(deliveries)s."
+            ) % {
+                "order": self.display_name,
+                "deliveries": ", ".join(active_deliveries.mapped("name")),
+            })
+
+    def _cancel_draft_work_orders(self):
+        """When an SO revision is created or confirmed, any work order associated
+        with this SO that is still in draft state must be moved to cancelled state."""
+        WorkOrder = self.env["pr.work.order"].sudo()
+        for order in self:
+            wo_ids = set()
+            if order.work_order_id:
+                wo_ids.add(order.work_order_id.id)
+            if order.estimation_id and order.estimation_id.work_order_id:
+                wo_ids.add(order.estimation_id.work_order_id.id)
+
+            domain = [
+                ("state", "=", "draft"),
+                "|",
+                ("sale_order_id", "=", order.id),
+                ("id", "in", list(wo_ids) or [0]),
+            ]
+            draft_wos = WorkOrder.search(domain)
+            for wo in draft_wos:
+                wo.write({"state": "cancel"})
+                if hasattr(wo, "_sync_work_order_budget_state"):
+                    wo._sync_work_order_budget_state("cancel")
+                wo.message_post(body=_(
+                    "Work Order cancelled automatically because a new revision of Sales Order %s was created."
+                ) % order.name)
+
+            if order.work_order_id and order.work_order_id.state == "cancel":
+                order.work_order_id = False
+            if (
+                order.estimation_id
+                and order.estimation_id.work_order_id
+                and order.estimation_id.work_order_id.state == "cancel"
+            ):
+                order.estimation_id.with_context(allow_estimation_write=True).work_order_id = False
+
+    def action_revise_so(self):
+        """Create an Estimation revision for this confirmed Sales Order.
+
+        Only the Estimation is revised here - the user reviews/edits it and
+        creates the Quotation revision themselves ("Revise Quotation" on the
+        Estimation) when ready, matching the Estimation-driven revision flow
+        used everywhere else in this module.
+        """
+        self.ensure_one()
+        if self.state != "sale":
+            raise UserError(_("Only a confirmed Sales Order can be revised."))
+        estimation = self.estimation_id
+        if not estimation:
+            raise UserError(_("This Sales Order has no linked Estimation to revise."))
+        self._check_can_be_revised()
+        self._cancel_draft_work_orders()
+
+        return estimation.create_revision()
+
+    def _prepare_confirmed_so_data(self):
+        self.ensure_one()
+        existing_so = self._find_existing_confirmed_sale_order()
+        if not existing_so:
+            return super()._prepare_confirmed_so_data()
+
+        existing_so._check_can_be_revised()
+        existing_so._cancel_draft_work_orders()
+
+        # An existing confirmed Sales Order was found: create a revision of it instead of a new sequence!
+        so_name = existing_so.name or ""
+        if "-SO-" in so_name:
+            base_so_name = re.sub(r"-R\d+$", "", so_name)
+        elif existing_so.unrevisioned_name and "-SO-" in existing_so.unrevisioned_name:
+            base_so_name = re.sub(r"-R\d+$", "", existing_so.unrevisioned_name)
+        else:
+            base_so_name = re.sub(r"-R\d+$", "", so_name.replace("-SQ-", "-SO-"))
+
+        so_records = self.env["sale.order"].with_context(active_test=False).search([
+            "|",
+            ("name", "=like", f"{base_so_name}%"),
+            ("unrevisioned_name", "=", base_so_name),
+            ("company_id", "=", self.company_id.id),
+        ]).filtered(lambda o: "-SO-" in (o.name or ""))
+
+        existing_so_revs = [0]
+        for rec in so_records:
+            if rec.name == base_so_name:
+                existing_so_revs.append(0)
+            else:
+                match = re.search(r"-R(\d+)$", rec.name or "")
+                if match:
+                    existing_so_revs.append(int(match.group(1)))
+                elif rec.revision_number and rec.unrevisioned_name == base_so_name:
+                    existing_so_revs.append(rec.revision_number)
+
+        next_revision = max(existing_so_revs) + 1
+        new_so_name = "%s-R%d" % (base_so_name, next_revision)
+        quo = (self.origin + ", " if self.origin else "") + self.name
+
+        # Ensure existing_so unrevisioned_name matches base_so_name for consistency
+        existing_so_write = {
+            "active": False,
+            "current_revision_id": self.id,
+            "state": "cancel",
+        }
+        if existing_so.unrevisioned_name != base_so_name:
+            existing_so_write["unrevisioned_name"] = base_so_name
+        existing_so.write(existing_so_write)
+
+        existing_so.with_context(active_test=False).old_revision_ids.write({
+            "current_revision_id": self.id,
+        })
+        existing_so.message_post(
+            body=_("Superseded by new revision %(new)s.") % {"new": new_so_name}
+        )
+
+        transfer_vals = {}
+        if not self.project_id and existing_so.project_id:
+            transfer_vals["project_id"] = existing_so.project_id.id
+        if not self.analytic_account_id and existing_so.analytic_account_id:
+            transfer_vals["analytic_account_id"] = existing_so.analytic_account_id.id
+
+        if "trading_expense_bucket_id" in self._fields and existing_so.trading_expense_bucket_id and not self.trading_expense_bucket_id:
+            transfer_vals["trading_expense_bucket_id"] = existing_so.trading_expense_bucket_id.id
+            existing_so.trading_expense_bucket_id.sudo().write({"sale_order_id": self.id})
+
+        vals = {
+            "origin": quo,
+            "name": new_so_name,
+            "unrevisioned_name": base_so_name,
+            "revision_number": next_revision,
+            "old_revision_ids": [(4, existing_so.id)],
+            "work_order_id": False,
+        }
+        vals.update(transfer_vals)
+        return vals
+
     def action_confirm(self):
         for order in self:
             if not order.order_line:
@@ -1331,6 +1521,8 @@ class SaleOrder(models.Model):
             if is_html_empty(order.note):
                 raise ValidationError(_("Please enter the Terms & Conditions before confirming the Sales Order."))
 
+        existing_so_by_order = {order.id: order._find_existing_confirmed_sale_order() for order in self}
+
         locked_orders = self.filtered("locked")
         if locked_orders:
             locked_orders.action_unlock()
@@ -1342,6 +1534,21 @@ class SaleOrder(models.Model):
         finally:
             if locked_orders:
                 locked_orders.action_lock()
+
+        for order in self:
+            existing_so = existing_so_by_order.get(order.id)
+            if existing_so:
+                order.message_post(
+                    body=_("Confirmed as revision %(new)s of Sales Order %(old)s.") % {
+                        "new": order.name,
+                        "old": existing_so.name,
+                    }
+                )
+                if order.work_order_id:
+                    try:
+                        order._sync_work_order_from_quotation(order.work_order_id)
+                    except Exception:
+                        pass
 
         return res
 

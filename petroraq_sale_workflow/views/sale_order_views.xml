@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_order_form_disable_direct_revision" model="ir.ui.view">
-        <field name="name">sale.order.form.sales.order.revision</field>
+        <field name="name">sale.order.form.disable.direct.revision</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale_order_revision.view_order_form"/>
         <field name="arch" type="xml">
+            <!-- Keep the node for saved Studio xpaths targeting this button.
+                 Direct SO revision is also blocked by the model workflow. -->
             <xpath expr="//button[@name='create_revision']" position="attributes">
-                <attribute name="name">action_start_sales_order_revision</attribute>
-                <attribute name="string">Revise Sales Order</attribute>
-                <attribute name="invisible">state not in ('sale', 'done')</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
         </field>
     </record>
@@ -102,6 +102,14 @@
                         class="btn-secondary"
                         groups="pr_work_order.custom_group_work_order_user"
                         invisible="not work_order_id or state not in ('sale', 'done')"/>
+
+                <button name="action_revise_so"
+                        type="object"
+                        string="Revise SO"
+                        class="btn-secondary"
+                        invisible="not estimation_id or state != 'sale'"
+                        groups="petroraq_sale_workflow.group_sale_approval_manager"
+                        confirm="This will create a new Estimation revision from this Sales Order's linked Estimation. Continue?"/>
 
                 <!--                <button string="Reset Draft"-->
                 <!--                        type="object"-->
