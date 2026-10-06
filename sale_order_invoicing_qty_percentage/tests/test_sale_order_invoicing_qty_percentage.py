@@ -1,7 +1,9 @@
 # Copyright 2023 Tecnativa - Pedro M. Baeza
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from odoo.exceptions import ValidationError
 from odoo.tests import Form
+from odoo.tools import float_compare
 
 from odoo.addons.base.tests.common import BaseCommon
 
@@ -39,3 +41,17 @@ class TestSaleOrderInvoicingQtyPercentage(BaseCommon):
         self.wizard.create_invoices()
         self.assertEqual(self.order.invoice_ids.invoice_line_ids.quantity, 10)
         self.assertEqual(self.order.order_line.qty_to_invoice, 10)
+
+    def test_quantity_is_rounded_to_uom(self):
+        self.wizard.qty_percentage = 1 / 3
+        self.wizard.create_invoices()
+        line = self.order.invoice_ids.invoice_line_ids
+        rounding = self.order.order_line.product_uom.rounding
+        self.assertEqual(
+            float_compare(line.quantity, 6.67, precision_rounding=rounding), 0
+        )
+
+    def test_invalid_percentage_rejected(self):
+        for value in (0.0, -0.1, 1.5):
+            with self.assertRaises(ValidationError), self.cr.savepoint():
+                self.wizard.qty_percentage = value

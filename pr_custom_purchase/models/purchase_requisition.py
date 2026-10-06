@@ -2,7 +2,7 @@ import logging
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.exceptions import UserError
-from odoo.tools import float_compare
+from odoo.tools import float_compare, float_round
 from dateutil.relativedelta import relativedelta
 
 _logger = logging.getLogger(__name__)
@@ -963,7 +963,7 @@ class PurchaseRequisition(models.Model):
             return []
 
         def _normalized_price(value):
-            return round(value or 0.0, 8)
+            return float_round(value or 0.0, precision_digits=8)
 
         def _normalized_description(value):
             return (value or "").strip()

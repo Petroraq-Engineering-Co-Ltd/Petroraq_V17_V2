@@ -591,7 +591,7 @@ class SaleOrder(models.Model):
 
     approval_comment = fields.Text("Approval Comment", tracking=True)
     show_reject_button = fields.Boolean(compute="_compute_show_reject_button")
-    dp_percent = fields.Float(string="Down Payment %", copy=False)
+    dp_percent = fields.Float(string="Down Payment %", copy=False, digits=(16, 6))
     po_date = fields.Date(string="PO Date", copy=False)
     po_number = fields.Char(string="PO Number", copy=False)
 

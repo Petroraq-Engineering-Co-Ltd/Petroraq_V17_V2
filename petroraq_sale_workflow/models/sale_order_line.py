@@ -209,9 +209,6 @@ class SaleOrderLine(models.Model):
         vals = super()._prepare_invoice_line(**optional_values)
 
         if not self.display_type and not getattr(self, "is_downpayment", False):
-            order = self.order_id
-            currency = self.currency_id or order.currency_id or order.company_id.currency_id
-
             return vals
 
         # Downpayment deduction line: force amount-based deduction
