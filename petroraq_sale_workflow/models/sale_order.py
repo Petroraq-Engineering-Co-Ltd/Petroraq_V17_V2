@@ -473,11 +473,16 @@ class SaleOrder(models.Model):
                     adjustable_product_lines.append((line_vals, qty))
                 sequence += 10
 
-        target_total = currency.round(estimation.total_with_profit or 0.0)
-        diff = currency.round(target_total - synced_untaxed_total)
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+        target_total = float_round(estimation.total_with_profit or 0.0, precision_digits=precision_cost)
+        synced_untaxed_total = float_round(synced_untaxed_total, precision_digits=precision_cost)
+        diff = float_round(target_total - synced_untaxed_total, precision_digits=precision_cost)
         if adjustable_product_lines and diff:
             line_vals, qty = adjustable_product_lines[-1]
-            line_vals["price_unit"] = (line_vals["price_unit"] or 0.0) + (diff / qty)
+            line_vals["price_unit"] = float_round(
+                (line_vals["price_unit"] or 0.0) + (diff / qty),
+                precision_digits=precision_cost,
+            )
 
         return commands
 
@@ -1163,10 +1168,10 @@ class SaleOrder(models.Model):
                     "Use an explicit 0%% or Exempt tax where VAT does not apply. Missing on: %s"
                 ) % ", ".join(missing_tax_lines.mapped("name")))
             if order.estimation_id:
-                currency = order.currency_id or order.company_id.currency_id
-                estimation_total = currency.round(order.estimation_id.total_with_profit or 0.0)
-                quotation_total = currency.round(order.amount_untaxed or 0.0)
-                if float_compare(estimation_total, quotation_total, precision_rounding=currency.rounding) != 0:
+                precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+                estimation_total = float_round(order.estimation_id.total_with_profit or 0.0, precision_digits=precision_cost)
+                quotation_total = float_round(order.amount_untaxed or 0.0, precision_digits=precision_cost)
+                if float_compare(estimation_total, quotation_total, precision_digits=precision_cost) != 0:
                     raise UserError(_("The quotation total must match the estimation total before submission."))
 
         self.write({
@@ -1363,7 +1368,7 @@ class SaleOrder(models.Model):
                 "invoices": ", ".join(active_invoices.mapped("name")),
             })
 
-        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state not in ("draft", "assigned", "cancel"))
+        active_deliveries = self.picking_ids.filtered(lambda picking: picking.state in ("done"))
         if active_deliveries:
             raise UserError(_(
                 "%(order)s cannot be revised: it already has posted delivery/deliveries: %(deliveries)s."
@@ -1652,13 +1657,15 @@ class SaleOrder(models.Model):
             if line.is_downpayment or not line.product_id:
                 continue
             section_name = current_section or _("General")
+            precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
+            precision_cost = self.env["decimal.precision"].precision_get("Product Price")
             lines.append({
                 "display_type": "product",
                 "name": line.name or line.product_id.display_name,
                 "product_id": line.product_id.id,
                 "uom_id": (line.product_uom or line.product_id.uom_id).id,
-                "qty": line.product_uom_qty or 0.0,
-                "unit_cost": line.cost_price_unit or 0.0,
+                "qty": float_round(line.product_uom_qty or 0.0, precision_digits=precision_qty),
+                "unit_cost": float_round(line.cost_price_unit or 0.0, precision_digits=precision_cost),
                 "section_name": section_name,
                 "sale_order_line_id": line.id,
                 "estimation_line_id": False,
@@ -1742,7 +1749,9 @@ class SaleOrder(models.Model):
                 match.with_context(skip_estimation_sync=True).write(target)
                 used_lines |= match
             else:
-                used_lines |= self.env["pr.work.order.boq"].create(dict(target, work_order_id=work_order.id))
+                used_lines |= self.env["pr.work.order.boq"].with_context(skip_estimation_sync=True).create(
+                    dict(target, work_order_id=work_order.id)
+                )
 
         obsolete_lines = existing_lines - used_lines
         for line in obsolete_lines:

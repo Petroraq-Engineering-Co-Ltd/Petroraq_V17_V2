@@ -3,7 +3,7 @@ import re
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_amount, html_escape
-from odoo.tools.float_utils import float_compare
+from odoo.tools.float_utils import float_compare, float_round
 
 SECTION_TYPES = [
     ("material", "Material"),
@@ -315,28 +315,43 @@ class PetroraqEstimation(models.Model):
         "profit_percent",
     )
     def _compute_totals(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for record in self:
-            material_total = sum(record.line_ids.filtered(lambda l: l.section_type == "material").mapped("subtotal"))
-            labor_total = sum(record.line_ids.filtered(lambda l: l.section_type == "labor").mapped("subtotal"))
-            equipment_total = sum(record.line_ids.filtered(lambda l: l.section_type == "equipment").mapped("subtotal"))
-            subcontract_total = sum(
-                record.line_ids.filtered(lambda l: l.section_type == "subcontract").mapped("subtotal"))
+            material_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "material").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
+            labor_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "labor").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
+            equipment_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "equipment").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
+            subcontract_total = float_round(
+                sum(record.line_ids.filtered(lambda l: l.section_type == "subcontract").mapped("subtotal")),
+                precision_digits=precision_cost,
+            )
             record.material_total = material_total
             record.labor_total = labor_total
             record.equipment_total = equipment_total
             record.subcontract_total = subcontract_total
-            base_total = material_total + labor_total + equipment_total + subcontract_total
-            overhead_amount = base_total * (record.overhead_percent or 0.0) / 100.0
-            risk_amount = base_total * (record.risk_percent or 0.0) / 100.0
-            buffer_total = base_total + overhead_amount + risk_amount
-            profit_amount = buffer_total * (record.profit_percent or 0.0) / 100.0
+            base_total = float_round(
+                material_total + labor_total + equipment_total + subcontract_total,
+                precision_digits=precision_cost,
+            )
+            overhead_amount = float_round(base_total * (record.overhead_percent or 0.0) / 100.0, precision_digits=precision_cost)
+            risk_amount = float_round(base_total * (record.risk_percent or 0.0) / 100.0, precision_digits=precision_cost)
+            buffer_total = float_round(base_total + overhead_amount + risk_amount, precision_digits=precision_cost)
+            profit_amount = float_round(buffer_total * (record.profit_percent or 0.0) / 100.0, precision_digits=precision_cost)
 
             record.total_amount = base_total
             record.overhead_amount = overhead_amount
             record.risk_amount = risk_amount
             record.buffer_total_amount = buffer_total
             record.profit_amount = profit_amount
-            record.total_with_profit = buffer_total + profit_amount
+            record.total_with_profit = float_round(buffer_total + profit_amount, precision_digits=precision_cost)
 
     @api.onchange("overhead_percent", "risk_percent", "profit_percent")
     def _onchange_percent_validation(self):
@@ -517,11 +532,11 @@ class PetroraqEstimation(models.Model):
         self.with_context(allow_estimation_write=True).sale_order_id = order.id
         if not previous_order:
             order.action_sync_products_from_estimation()
-            currency = order.currency_id or order.company_id.currency_id
+            precision_cost = self.env["decimal.precision"].precision_get("Product Price")
             if float_compare(
-                currency.round(order.amount_untaxed or 0.0),
-                currency.round(self.total_with_profit or 0.0),
-                precision_rounding=currency.rounding,
+                float_round(order.amount_untaxed or 0.0, precision_digits=precision_cost),
+                float_round(self.total_with_profit or 0.0, precision_digits=precision_cost),
+                precision_digits=precision_cost,
             ) != 0:
                 raise ValidationError(_(
                     "The quotation total must match the estimation total."
@@ -565,6 +580,8 @@ class PetroraqEstimation(models.Model):
         return previous_revision.sale_order_id
 
     def _prepare_work_order_boq_lines(self, work_order):
+        precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         section_map = {
             "material": _("Material"),
             "labor": _("Labor"),
@@ -594,6 +611,8 @@ class PetroraqEstimation(models.Model):
                     })
                     continue
                 qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
+                qty = float_round(qty, precision_digits=precision_qty)
+                unit_cost = float_round(line.unit_cost or 0.0, precision_digits=precision_cost)
                 uom = line.uom_id or line.product_id.uom_id
                 lines.append({
                     "work_order_id": work_order.id,
@@ -602,7 +621,7 @@ class PetroraqEstimation(models.Model):
                     "product_id": line.product_id.id,
                     "uom_id": uom.id if uom else False,
                     "qty": qty,
-                    "unit_cost": line.unit_cost or 0.0,
+                    "unit_cost": unit_cost,
                     "section_name": section_name,
                     "estimation_line_id": line.id,
                     "sale_order_line_id": False,
@@ -853,11 +872,13 @@ class PetroraqEstimation(models.Model):
 
     def _get_estimation_section_amounts(self):
         self.ensure_one()
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         amounts = {}
         for section_type, _label in SECTION_TYPES:
             section_name = self._get_estimation_section_name(section_type)
-            amounts[section_name] = sum(
-                self.line_ids.filtered(lambda l: l.section_type == section_type).mapped("subtotal")
+            amounts[section_name] = float_round(
+                sum(self.line_ids.filtered(lambda l: l.section_type == section_type).mapped("subtotal")),
+                precision_digits=precision_cost,
             )
         return amounts
 
@@ -981,7 +1002,9 @@ class PetroraqEstimation(models.Model):
                 match.with_context(skip_estimation_sync=True).write(target)
                 used_lines |= match
             else:
-                used_lines |= work_order.boq_line_ids.create(dict(target, work_order_id=work_order.id))
+                used_lines |= work_order.boq_line_ids.with_context(skip_estimation_sync=True).create(
+                    dict(target, work_order_id=work_order.id)
+                )
 
         obsolete_lines = existing_lines - used_lines
         for line in obsolete_lines:
@@ -1049,28 +1072,6 @@ class PetroraqEstimation(models.Model):
 class PRWorkOrder(models.Model):
     _inherit = "pr.work.order"
 
-    unrevisioned_name = fields.Char(
-        string="Base Work Order Name",
-        readonly=True,
-        copy=False,
-        index=True,
-    )
-    revision_number = fields.Integer(
-        string="Revision Number",
-        readonly=True,
-        copy=False,
-        default=0,
-    )
-    previous_revision_id = fields.Many2one(
-        "pr.work.order",
-        string="Previous Revision",
-        readonly=True,
-        copy=False,
-    )
-    revision_count = fields.Integer(
-        string="Revisions Count",
-        compute="_compute_revision_count",
-    )
     source_estimation_id = fields.Many2one(
         "petroraq.estimation",
         string="Source Estimation",
@@ -1085,102 +1086,6 @@ class PRWorkOrder(models.Model):
             estimation = work_order.sale_order_id.estimation_id
             work_order.source_estimation_id = estimation
             work_order.has_estimation_source = bool(estimation)
-
-    @api.depends("name", "unrevisioned_name")
-    def _compute_revision_count(self):
-        for rec in self:
-            base_name = rec.unrevisioned_name or (re.sub(r"-R\d+$", "", rec.name) if rec.name else False)
-            if not base_name:
-                rec.revision_count = 0
-                continue
-            count = self.search_count([
-                "|",
-                ("unrevisioned_name", "=", base_name),
-                ("name", "=like", f"{base_name}%"),
-                ("company_id", "=", rec.company_id.id),
-            ])
-            rec.revision_count = count
-
-    def action_view_revisions(self):
-        self.ensure_one()
-        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else False)
-        domain = [
-            "|",
-            ("unrevisioned_name", "=", base_name),
-            ("name", "=like", f"{base_name}%"),
-            ("company_id", "=", self.company_id.id),
-        ]
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Work Order Revisions"),
-            "res_model": "pr.work.order",
-            "view_mode": "tree,form",
-            "domain": domain,
-            "context": {"default_sale_order_id": self.sale_order_id.id if self.sale_order_id else False},
-        }
-
-    def action_new_revision(self):
-        self.ensure_one()
-        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else "")
-
-        # Find all existing Work Orders in the company sharing this base sequence
-        existing_wos = self.env["pr.work.order"].with_context(active_test=False).search([
-            "|",
-            ("name", "=like", f"{base_name}%"),
-            ("unrevisioned_name", "=", base_name),
-            ("company_id", "=", self.company_id.id),
-        ])
-
-        existing_revs = [0]
-        for wo in existing_wos:
-            if wo.name == base_name:
-                existing_revs.append(0)
-            else:
-                match = re.search(r"-R(\d+)$", wo.name or "")
-                if match:
-                    existing_revs.append(int(match.group(1)))
-                elif getattr(wo, "revision_number", 0):
-                    existing_revs.append(wo.revision_number)
-
-        next_rev = max(existing_revs) + 1
-        new_name = f"{base_name}-R{next_rev}"
-
-        default_vals = {
-            "name": new_name,
-            "unrevisioned_name": base_name,
-            "revision_number": next_rev,
-            "previous_revision_id": self.id,
-            "sale_order_id": self.sale_order_id.id if self.sale_order_id else False,
-            "state": "draft",
-            "expense_bucket_id": False,
-            "ops_approver_id": False,
-            "ops_approved_date": False,
-            "acc_approver_id": False,
-            "acc_approved_date": False,
-            "final_approver_id": False,
-            "final_approved_date": False,
-            "rejected_by": False,
-            "rejected_date": False,
-            "rejection_reason": False,
-        }
-        if self.project_id:
-            default_vals["project_id"] = self.project_id.id
-        if self.analytic_account_id:
-            default_vals["analytic_account_id"] = self.analytic_account_id.id
-
-        new_wo = self.copy(default=default_vals)
-
-        self.message_post(body=_("New revision %(new)s created from this Work Order.") % {"new": new_wo.name})
-        new_wo.message_post(body=_("Created as revision %(new)s of %(orig)s.") % {"new": new_wo.name, "orig": self.name})
-
-        return {
-            "type": "ir.actions.act_window",
-            "name": _("Work Order"),
-            "res_model": "pr.work.order",
-            "res_id": new_wo.id,
-            "view_mode": "form",
-            "target": "current",
-        }
 
     def action_sync_from_estimation(self):
         self.ensure_one()
@@ -1197,290 +1102,6 @@ class PRWorkOrder(models.Model):
             "view_mode": "form",
             "target": "current",
         }
-
-    @api.model
-    def _get_related_sale_order_chain(self, sale_order):
-        """Find all sale.order records associated with the given sale_order across
-        the revision chain, estimation chain, and order inquiry."""
-        if not sale_order:
-            return self.env["sale.order"]
-
-        SaleOrder = self.env["sale.order"].with_context(active_test=False)
-        chain = SaleOrder.browse(sale_order.id)
-        visited = set()
-        to_visit = {sale_order.id}
-
-        # 1. Traverse old_revision_ids and current_revision_id
-        while to_visit:
-            current_id = to_visit.pop()
-            if current_id in visited:
-                continue
-            visited.add(current_id)
-            rec = SaleOrder.browse(current_id)
-            if not rec.exists():
-                continue
-            chain |= rec
-            if hasattr(rec, "old_revision_ids"):
-                for old in rec.old_revision_ids:
-                    if old.id not in visited:
-                        to_visit.add(old.id)
-            if hasattr(rec, "current_revision_id") and rec.current_revision_id:
-                if rec.current_revision_id.id not in visited:
-                    to_visit.add(rec.current_revision_id.id)
-
-        # 2. Search by base SO name and unrevisioned_name
-        base_names = set()
-        for rec in chain:
-            if rec.name:
-                base_names.add(re.sub(r"-R\d+$", "", rec.name))
-            if getattr(rec, "unrevisioned_name", False):
-                base_names.add(re.sub(r"-R\d+$", "", rec.unrevisioned_name))
-
-        for base_name in base_names:
-            if base_name and "-SO-" in base_name:
-                matching_orders = SaleOrder.search([
-                    "|",
-                    ("name", "=like", f"{base_name}%"),
-                    ("unrevisioned_name", "=", base_name),
-                    ("company_id", "=", sale_order.company_id.id),
-                ])
-                chain |= matching_orders
-
-        # 3. Search via estimation chain
-        if "estimation_id" in chain._fields:
-            est_ids = chain.mapped("estimation_id")
-            for est in est_ids:
-                base_est = est.unrevisioned_name or (re.sub(r"-R\d+$", "", est.name) if est.name else False)
-                if base_est:
-                    related_ests = self.env["petroraq.estimation"].with_context(active_test=False).search([
-                        "|",
-                        ("name", "=like", f"{base_est}%"),
-                        ("unrevisioned_name", "=", base_est),
-                        ("company_id", "=", sale_order.company_id.id),
-                    ])
-                    chain |= related_ests.mapped("sale_order_id")
-
-        # 4. Search via order inquiry
-        if "order_inquiry_id" in chain._fields:
-            for inq in chain.mapped("order_inquiry_id"):
-                inq_orders = inq.sale_order_ids.filtered(lambda o: "-SO-" in (o.name or ""))
-                chain |= inq_orders
-
-        return chain
-
-    @api.model
-    def _get_existing_work_orders_for_chain(self, so_chain, company=None):
-        if not so_chain:
-            return self.env["pr.work.order"]
-
-        WorkOrder = self.env["pr.work.order"].with_context(active_test=False)
-        company_id = company.id if company else so_chain[0].company_id.id
-
-        # 1. Search WOs linked to any SO in the chain
-        wos = WorkOrder.search([
-            "|",
-            ("sale_order_id", "in", so_chain.ids),
-            ("id", "in", [wo_id for wo_id in so_chain.mapped("work_order_id").ids if wo_id]),
-        ])
-
-        # 2. Check estimations in chain
-        if "estimation_id" in so_chain._fields:
-            ests = so_chain.mapped("estimation_id")
-            for est in ests:
-                if est.work_order_id:
-                    wos |= est.work_order_id
-
-        # 3. For any found WO, expand search by base WO name to ensure all revisions are caught
-        base_wo_names = set()
-        for wo in wos:
-            if wo.name and wo.name not in (_("New"), "/", "New"):
-                base_name = getattr(wo, "unrevisioned_name", False) or re.sub(r"-R\d+$", "", wo.name)
-                if base_name:
-                    base_wo_names.add(base_name)
-
-        for base_wo in base_wo_names:
-            matching_wos = WorkOrder.search([
-                "|",
-                ("name", "=like", f"{base_wo}%"),
-                ("unrevisioned_name", "=", base_wo),
-                ("company_id", "=", company_id),
-            ])
-            wos |= matching_wos
-
-        return wos.filtered(lambda w: w.name and w.name not in (_("New"), "/", "New"))
-
-    @api.model
-    def _compute_next_work_order_name(self, sale_order=None, company=None):
-        """Determine the next work order name, base sequence, and revision number.
-        Returns: (name, base_name, revision_number)
-        """
-        company_rec = company or (sale_order.company_id if sale_order else self.env.company)
-
-        if not sale_order:
-            # Standalone Work Order: normal sequence
-            seq_name = self.env["ir.sequence"].with_company(company_rec).next_by_code("pr.work.order") or _("New")
-            return seq_name, seq_name, 0
-
-        so_chain = self._get_related_sale_order_chain(sale_order)
-        existing_wos = self._get_existing_work_orders_for_chain(so_chain, company=company_rec)
-
-        if not existing_wos:
-            # No existing Work Order in chain: generate new base sequence
-            seq_name = self.env["ir.sequence"].with_company(company_rec).next_by_code("pr.work.order") or _("New")
-            return seq_name, seq_name, 0
-
-        # Existing Work Order found in chain: determine base sequence and highest revision
-        base_wo_name = False
-        # Prefer the base name of the oldest/original WO (no -R suffix)
-        for wo in existing_wos.sorted(lambda w: w.id):
-            candidate = getattr(wo, "unrevisioned_name", False) or re.sub(r"-R\d+$", "", wo.name)
-            if candidate:
-                base_wo_name = candidate
-                break
-
-        if not base_wo_name:
-            base_wo_name = re.sub(r"-R\d+$", "", existing_wos[0].name)
-
-        existing_revs = [0]
-        for wo in existing_wos:
-            if wo.name == base_wo_name:
-                existing_revs.append(0)
-            else:
-                match = re.search(r"-R(\d+)$", wo.name or "")
-                if match and (wo.name.startswith(base_wo_name) or getattr(wo, "unrevisioned_name", False) == base_wo_name):
-                    existing_revs.append(int(match.group(1)))
-                elif getattr(wo, "revision_number", 0):
-                    existing_revs.append(wo.revision_number)
-
-        next_rev = max(existing_revs) + 1
-        new_wo_name = f"{base_wo_name}-R{next_rev}"
-        return new_wo_name, base_wo_name, next_rev
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            if vals.get("name", _("New")) in (False, _("New"), "New", "/"):
-                sale_order = False
-                if vals.get("sale_order_id"):
-                    sale_order = self.env["sale.order"].browse(vals["sale_order_id"])
-                company = self.env["res.company"].browse(vals["company_id"]) if vals.get("company_id") else False
-                name, base_name, rev_num = self._compute_next_work_order_name(sale_order=sale_order, company=company)
-                vals["name"] = name
-                vals["unrevisioned_name"] = base_name
-                vals["revision_number"] = rev_num
-            elif not vals.get("unrevisioned_name"):
-                vals["unrevisioned_name"] = re.sub(r"-R\d+$", "", vals["name"])
-                match = re.search(r"-R(\d+)$", vals["name"])
-                if match:
-                    vals["revision_number"] = int(match.group(1))
-
-        return super().create(vals_list)
-
-    def _get_other_work_orders_in_chain(self):
-        self.ensure_one()
-        WorkOrder = self.env["pr.work.order"].sudo().with_context(active_test=False)
-        other_wos = WorkOrder
-
-        # 1. Base sequence name in company
-        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else False)
-        if base_name and base_name not in (_("New"), "/", "New"):
-            other_wos |= WorkOrder.search([
-                ("id", "!=", self.id),
-                ("company_id", "=", self.company_id.id),
-                "|",
-                ("unrevisioned_name", "=", base_name),
-                ("name", "=like", f"{base_name}%"),
-            ])
-
-        # 2. Previous revision id chain (upstream and downstream)
-        curr = self.previous_revision_id
-        while curr:
-            if curr.id != self.id:
-                other_wos |= curr
-            curr = curr.previous_revision_id
-
-        downstream = WorkOrder.search([("previous_revision_id", "=", self.id)])
-        if downstream:
-            other_wos |= downstream
-
-        # 3. Via Sale Order chain if linked
-        if self.sale_order_id:
-            so_chain = self._get_related_sale_order_chain(self.sale_order_id)
-            chain_wos = self._get_existing_work_orders_for_chain(so_chain, company=self.company_id)
-            other_wos |= chain_wos
-
-        # 4. Via Estimation chain if linked
-        if self.source_estimation_id:
-            est_chain = self.source_estimation_id
-            if hasattr(est_chain, "old_revision_ids"):
-                est_chain |= est_chain.old_revision_ids
-            if hasattr(est_chain, "current_revision_id") and est_chain.current_revision_id:
-                est_chain |= est_chain.current_revision_id
-            for est in est_chain:
-                if est.work_order_id and est.work_order_id != self:
-                    other_wos |= est.work_order_id
-
-        return (other_wos - self).filtered(lambda w: w.exists())
-
-    def _cancel_other_work_order_revisions(self):
-        self.ensure_one()
-        other_wos = self._get_other_work_orders_in_chain()
-        to_cancel = other_wos.filtered(lambda w: w.state not in ("cancel", "done"))
-        if not to_cancel:
-            return
-
-        to_cancel.with_context(cancelling_other_work_orders=True).write({"state": "cancel"})
-        for wo in to_cancel:
-            if hasattr(wo, "_sync_work_order_budget_state"):
-                wo._sync_work_order_budget_state("cancel")
-            wo.message_post(body=_(
-                "Work Order cancelled automatically because revision %s was approved."
-            ) % self.name)
-
-        # Clear obsolete work order pointers pointing to cancelled work orders
-        for wo in to_cancel:
-            if wo.sale_order_id and wo.sale_order_id.work_order_id == wo:
-                wo.sale_order_id.sudo().write({"work_order_id": False})
-            if (
-                wo.source_estimation_id
-                and wo.source_estimation_id.work_order_id == wo
-            ):
-                wo.source_estimation_id.sudo().with_context(
-                    allow_estimation_write=True
-                ).write({"work_order_id": False})
-
-        # Point active Sales Order and Estimation to this approved revision
-        if self.sale_order_id and self.sale_order_id.work_order_id != self:
-            self.sale_order_id.sudo().write({"work_order_id": self.id})
-        if (
-            self.source_estimation_id
-            and self.source_estimation_id.work_order_id != self
-        ):
-            self.source_estimation_id.sudo().with_context(
-                allow_estimation_write=True
-            ).write({"work_order_id": self.id})
-
-        cancelled_names = ", ".join(to_cancel.mapped("name"))
-        self.message_post(body=_(
-            "Work Order revision %(new)s approved. Previous/competing Work Order(s) (%(cancelled)s) have been cancelled."
-        ) % {
-            "new": self.name,
-            "cancelled": cancelled_names,
-        })
-
-    def action_final_approve(self):
-        res = super().action_final_approve()
-        for rec in self:
-            if rec.state == "approved":
-                rec._cancel_other_work_order_revisions()
-        return res
-
-    def write(self, vals):
-        res = super().write(vals)
-        if vals.get("state") == "approved" and not self.env.context.get("cancelling_other_work_orders"):
-            for rec in self:
-                rec._cancel_other_work_order_revisions()
-        return res
 
 
 
@@ -1500,6 +1121,8 @@ class WorkOrderBOQ(models.Model):
         """A BOQ line synced from an Estimation line may only be edited down,
         never up: qty/unit_cost can be <= the source Estimation line's own
         values, never greater."""
+        if self.env.context.get("skip_estimation_sync"):
+            return
         precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
         precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
@@ -1512,24 +1135,27 @@ class WorkOrderBOQ(models.Model):
                 if estimation_line.section_type in ("labor", "equipment")
                 else (estimation_line.quantity or 0.0)
             )
-            if float_compare(line.qty or 0.0, max_qty, precision_digits=precision_qty) > 0:
+            max_qty = float_round(max_qty, precision_digits=precision_qty)
+            line_qty = float_round(line.qty or 0.0, precision_digits=precision_qty)
+            if float_compare(line_qty, max_qty, precision_digits=precision_qty) > 0:
                 raise ValidationError(_(
                     "BOQ line \"%(line)s\": Qty (%(qty)s) cannot exceed the source Estimation "
                     "line's quantity (%(max_qty)s)."
                 ) % {
                     "line": line.name or line.display_name,
-                    "qty": line.qty,
+                    "qty": line_qty,
                     "max_qty": max_qty,
                 })
 
-            max_cost = estimation_line.unit_cost or 0.0
-            if float_compare(line.unit_cost or 0.0, max_cost, precision_digits=precision_cost) > 0:
+            max_cost = float_round(estimation_line.unit_cost or 0.0, precision_digits=precision_cost)
+            line_cost = float_round(line.unit_cost or 0.0, precision_digits=precision_cost)
+            if float_compare(line_cost, max_cost, precision_digits=precision_cost) > 0:
                 raise ValidationError(_(
                     "BOQ line \"%(line)s\": Unit Cost (%(cost)s) cannot exceed the source "
                     "Estimation line's unit cost (%(max_cost)s)."
                 ) % {
                     "line": line.name or line.display_name,
-                    "cost": line.unit_cost,
+                    "cost": line_cost,
                     "max_cost": max_cost,
                 })
 
@@ -1565,9 +1191,9 @@ class PetroraqEstimationLine(models.Model):
 
     # For Labor/Equipment the business wants:
     # (count) * (days) * (8 hours/day) = qty (hours)
-    resource_count = fields.Float(string="Count", default=1.0)
-    days = fields.Float(string="Days", default=1.0)
-    hours_per_day = fields.Float(string="Hours/Day", default=8.0)
+    resource_count = fields.Float(string="Count", default=1.0, digits="Product Unit of Measure")
+    days = fields.Float(string="Days", default=1.0, digits="Product Unit of Measure")
+    hours_per_day = fields.Float(string="Hours/Day", default=8.0, digits="Product Unit of Measure")
 
     quantity_hours = fields.Float(
         string="Total Hours",
@@ -1588,16 +1214,19 @@ class PetroraqEstimationLine(models.Model):
         string="On Hand",
         related="product_id.qty_available",
         readonly=True,
+        digits="Product Unit of Measure",
     )
     virtual_available = fields.Float(
         string="Forecast",
         related="product_id.virtual_available",
         readonly=True,
+        digits="Product Unit of Measure",
     )
     free_qty = fields.Float(
         string="Free to Use",
         related="product_id.free_qty",
         readonly=True,
+        digits="Product Unit of Measure",
     )
 
     uom_id = fields.Many2one("uom.uom", string="Unit of Measure")
@@ -1609,11 +1238,10 @@ class PetroraqEstimationLine(models.Model):
         readonly=True,
     )
 
-    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
+    unit_cost = fields.Float(string="Unit Cost", digits="Product Price")
 
-    subtotal = fields.Monetary(
+    subtotal = fields.Float(
         string="Subtotal",
-        currency_field="currency_id",
         compute="_compute_subtotal",
         store=False,
         digits="Product Price",
@@ -1669,9 +1297,11 @@ class PetroraqEstimationLine(models.Model):
 
     @api.depends("section_type", "resource_count", "days", "hours_per_day")
     def _compute_quantity_hours(self):
+        precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
         for line in self:
             if line.section_type in ("labor", "equipment"):
-                line.quantity_hours = (line.resource_count or 0.0) * (line.days or 0.0) * (line.hours_per_day or 0.0)
+                raw_hours = (line.resource_count or 0.0) * (line.days or 0.0) * (line.hours_per_day or 0.0)
+                line.quantity_hours = float_round(raw_hours, precision_digits=precision_qty)
             else:
                 line.quantity_hours = 0.0
 
@@ -1682,9 +1312,10 @@ class PetroraqEstimationLine(models.Model):
         "unit_cost",
     )
     def _compute_subtotal(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
             qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
-            line.subtotal = qty * (line.unit_cost or 0.0)
+            line.subtotal = float_round(qty * (line.unit_cost or 0.0), precision_digits=precision_cost)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -1744,19 +1375,17 @@ class PetroraqEstimationDisplayLine(models.Model):
         store=True,
         readonly=True,
     )
-    unit_cost = fields.Monetary(string="Unit Cost", currency_field="currency_id", digits="Product Price", )
-    subtotal = fields.Monetary(
+    unit_cost = fields.Float(string="Unit Cost", digits="Product Price")
+    subtotal = fields.Float(
         string="Subtotal",
-        currency_field="currency_id",
         compute="_compute_subtotal",
         store=False,
         digits="Product Price",
     )
-    section_subtotal_amount = fields.Monetary(
+    section_subtotal_amount = fields.Float(
         string="Section Subtotal",
         compute="_compute_section_subtotal_amount",
         store=False,
-        currency_field="currency_id",
         help="Subtotal of the lines within this section.",
         digits="Product Price",
     )
@@ -1774,9 +1403,10 @@ class PetroraqEstimationDisplayLine(models.Model):
         "unit_cost",
     )
     def _compute_subtotal(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
             qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
-            line.subtotal = qty * (line.unit_cost or 0.0)
+            line.subtotal = float_round(qty * (line.unit_cost or 0.0), precision_digits=precision_cost)
 
     @api.depends(
         "display_type",
@@ -1794,6 +1424,7 @@ class PetroraqEstimationDisplayLine(models.Model):
     )
     def _compute_section_subtotal_amount(self):
         label = _("Sub Total")
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
             line.section_subtotal_amount = 0.0
             line.section_subtotal_display = False
@@ -1806,7 +1437,7 @@ class PetroraqEstimationDisplayLine(models.Model):
             for line in ordered_lines:
                 if line.display_type == "line_section":
                     if current_section:
-                        current_section._set_section_subtotal_values(subtotal, label)
+                        current_section._set_section_subtotal_values(float_round(subtotal, precision_digits=precision_cost), label)
                     current_section = line
                     subtotal = 0.0
                     line.section_subtotal_amount = 0.0
@@ -1820,7 +1451,7 @@ class PetroraqEstimationDisplayLine(models.Model):
                 subtotal += qty * (line.unit_cost or 0.0)
 
             if current_section:
-                current_section._set_section_subtotal_values(subtotal, label)
+                current_section._set_section_subtotal_values(float_round(subtotal, precision_digits=precision_cost), label)
 
     def _set_section_subtotal_values(self, amount, label):
         self.ensure_one()
