@@ -2,7 +2,7 @@
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools.float_utils import float_compare, float_is_zero
+from odoo.tools.float_utils import float_compare, float_is_zero, float_round
 
 
 class ServiceReceiptNote(models.Model):
@@ -462,10 +462,17 @@ class ServiceReceiptNoteLine(models.Model):
 
             prior_done_lines = ReceiptLine.search(domain)
 
-            already_received = sum(prior_done_lines.mapped("done_qty"))
+            rounding = line.purchase_line_id.product_uom.rounding or 0.001
+            already_received = float_round(
+                sum(prior_done_lines.mapped("done_qty")), precision_rounding=rounding
+            )
             ordered = line.purchase_line_id.product_qty
-            remaining_before = max(ordered - already_received, 0.0)
-            balance = max(remaining_before - line.done_qty, 0.0)
+            remaining_before = max(
+                float_round(ordered - already_received, precision_rounding=rounding), 0.0
+            )
+            balance = max(
+                float_round(remaining_before - line.done_qty, precision_rounding=rounding), 0.0
+            )
 
             line.already_received_qty = already_received
             line.remaining_qty_before = remaining_before

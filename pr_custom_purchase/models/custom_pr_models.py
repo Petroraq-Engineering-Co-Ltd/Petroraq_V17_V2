@@ -1,6 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import float_compare
+from odoo.tools import float_compare, float_round
 from dateutil.relativedelta import relativedelta
 
 
@@ -336,7 +336,7 @@ class CustomPR(models.Model):
             return []
 
         def _normalized_price(value):
-            return round(value or 0.0, 8)
+            return float_round(value or 0.0, precision_digits=8)
 
         def _normalized_description(value):
             return (value or "").strip()
