@@ -2,6 +2,7 @@
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.tools.float_utils import float_compare, float_round
 
 
 class PurchaseOrder(models.Model):
@@ -207,8 +208,9 @@ class PurchaseOrderLine(models.Model):
                 ("purchase_line_id", "=", line.id),
                 ("receipt_id.state", "=", "done"),
             ])
-            received = sum(done_lines.mapped("done_qty"))
-            if line.qty_received != received:
+            rounding = line.product_uom.rounding
+            received = float_round(sum(done_lines.mapped("done_qty")), precision_rounding=rounding)
+            if float_compare(line.qty_received, received, precision_rounding=rounding) != 0:
                 # Authorized SRN validation updates only the computed received quantity.
                 line.sudo().qty_received = received
 
@@ -225,6 +227,12 @@ class PurchaseOrderLine(models.Model):
                 ("purchase_line_id", "=", line.id),
                 ("receipt_id.state", "=", "done"),
             ])
-            received = sum(done_lines.mapped("done_qty"))
+            received = float_round(
+                sum(done_lines.mapped("done_qty")),
+                precision_rounding=line.product_uom.rounding,
+            )
             line.srn_received_qty = received
-            line.srn_remaining_qty = max(line.product_qty - received, 0.0)
+            line.srn_remaining_qty = max(
+                float_round(line.product_qty - received, precision_rounding=line.product_uom.rounding),
+                0.0,
+            )

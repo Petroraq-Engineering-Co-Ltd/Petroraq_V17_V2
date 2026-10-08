@@ -1,5 +1,5 @@
 from odoo import api, fields, models, _
-from odoo.tools import float_is_zero
+from odoo.tools import float_compare, float_is_zero
 from itertools import groupby
 from odoo.exceptions import UserError
 from odoo.fields import Command
@@ -155,9 +155,11 @@ class PurchaseOrder(models.Model):
             if line.display_type == 'line_section':
                 pending_section = line
                 continue
-            if line.display_type != 'line_note' and float_is_zero(line.qty_to_invoice, precision_digits=precision):
+            rounding = line.product_uom.rounding if line.product_uom else 10 ** -precision
+            if line.display_type != 'line_note' and float_is_zero(line.qty_to_invoice, precision_rounding=rounding):
                 continue
-            if line.qty_to_invoice > 0 or (line.qty_to_invoice < 0 and final) or line.display_type == 'line_note':
+            qty_sign = float_compare(line.qty_to_invoice, 0.0, precision_rounding=rounding)
+            if qty_sign > 0 or (qty_sign < 0 and final) or line.display_type == 'line_note':
                 if line.is_downpayment:
                     down_payment_line_ids.append(line.id)
                     continue

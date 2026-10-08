@@ -46,9 +46,10 @@ class GrnSes(models.Model):
     @api.depends("line_ids.subtotal")
     def _compute_totals(self):
         for rec in self:
-            rec.subtotal = sum(line.subtotal for line in rec.line_ids)
-            rec.tax_15 = rec.subtotal * 0.15 if rec.subtotal else 0.0
-            rec.grand_total = rec.subtotal + rec.tax_15
+            currency = (rec.company_id or self.env.company).currency_id
+            rec.subtotal = currency.round(sum(line.subtotal for line in rec.line_ids))
+            rec.tax_15 = currency.round(rec.subtotal * 0.15) if rec.subtotal else 0.0
+            rec.grand_total = currency.round(rec.subtotal + rec.tax_15)
 
     @api.depends("bill_ids")
     def _compute_bill_count(self):
@@ -74,6 +75,8 @@ class GrnSes(models.Model):
     def action_approve(self):
         """Mark record as approved"""
         for rec in self:
+            if not (rec.partner_ref or "").strip():
+                raise UserError(_("Enter the Vendor GRN Number before approving the GRN/SES."))
             rec.is_approved = True
             rec.stage = "approved"
             group = self.env.ref("pr_custom_purchase.inventory_admin", raise_if_not_found=False)
@@ -133,8 +136,8 @@ class GrnSes(models.Model):
             product = self.env["product.product"].sudo().search([("name", "=", line.name)], limit=1)
             vals = {
                 "name": line.name or _("GRN/SES Item"),
-                "quantity": line.quantity or 1.0,
-                "price_unit": line.price_unit or 0.0,
+                "quantity": line.quantity,
+                "price_unit": line.price_unit,
             }
             if product:
                 vals["product_id"] = product.id
@@ -207,7 +210,7 @@ class GrnSesLine(models.Model):
 
     order_id = fields.Many2one("grn.ses", string="GRN/SES", ondelete="cascade", required=True)
     name = fields.Char(string="Description")
-    quantity = fields.Float(string="Quantity")
+    quantity = fields.Float(string="Quantity", digits="Product Unit of Measure")
     unit = fields.Char(string="Unit")
     type = fields.Selection(
         [("material", "Material"), ("service", "Service")],
@@ -215,14 +218,15 @@ class GrnSesLine(models.Model):
         default="material",
         required=True,
     )
-    price_unit = fields.Float(string="Unit Price")
+    price_unit = fields.Float(string="Unit Price", digits="Product Price")
     remarks = fields.Char(string="Remarks")
-    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True)
+    subtotal = fields.Float(string="Subtotal", compute="_compute_subtotal", store=True, digits="Product Price")
 
     @api.depends("quantity", "price_unit")
     def _compute_subtotal(self):
         for line in self:
-            line.subtotal = line.quantity * line.price_unit
+            currency = (line.order_id.company_id or self.env.company).currency_id
+            line.subtotal = currency.round(line.quantity * line.price_unit)
 
 
 class GrnSesWizard(models.TransientModel):

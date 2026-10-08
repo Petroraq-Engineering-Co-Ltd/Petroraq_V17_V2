@@ -2,7 +2,7 @@ import logging
 from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.exceptions import UserError
-from odoo.tools import float_compare
+from odoo.tools import float_compare, float_round
 from dateutil.relativedelta import relativedelta
 
 _logger = logging.getLogger(__name__)
@@ -963,7 +963,7 @@ class PurchaseRequisition(models.Model):
             return []
 
         def _normalized_price(value):
-            return round(value or 0.0, 8)
+            return float_round(value or 0.0, precision_digits=8)
 
         def _normalized_description(value):
             return (value or "").strip()
@@ -1359,48 +1359,22 @@ class PurchaseRequisition(models.Model):
             cash_vouchers |= payment_requests.mapped("cash_payment_id").sudo().exists()
             bank_vouchers |= payment_requests.mapped("bank_payment_id").sudo().exists()
 
-            if cash_vouchers or bank_vouchers:
-                voucher_names = ", ".join(
-                    cash_vouchers.mapped("display_name")
-                    + bank_vouchers.mapped("display_name")
-                )
-                raise UserError(_(
-                    "This Cash PR cannot be reset because CPV/BPV record(s) already exist: %s. "
-                    "Cancel or reverse the downstream voucher process first."
-                ) % (voucher_names or _("Unnamed voucher")))
-
-            advanced_requests = payment_requests.filtered(
-                lambda request: request.state != "requested"
+            downstream_names = (
+                payment_requests.mapped("display_name")
+                + cash_vouchers.mapped("display_name")
+                + bank_vouchers.mapped("display_name")
             )
-            if advanced_requests:
-                request_states = ", ".join(
-                    "%s (%s)" % (
-                        request.display_name,
-                        dict(request._fields["state"].selection).get(
-                            request.state,
-                            request.state,
-                        ),
-                    )
-                    for request in advanced_requests
-                )
-                raise UserError(_(
-                    "This Cash PR cannot be reset because its Payment Request is no longer "
-                    "in the draft/requested stage: %s."
-                ) % request_states)
-
-            if payment_requests:
-                warning_message = _(
-                    "Payment Request %(requests)s is still in the draft/requested stage. "
-                    "Confirming will permanently delete the Payment Request and its owned "
-                    "attachments, then reset this Cash PR to Draft."
-                ) % {"requests": ", ".join(payment_requests.mapped("display_name"))}
-            else:
-                warning_message = _(
-                    "No Payment Request, CPV, or BPV exists. Confirming will reset this "
-                    "Cash PR to Draft."
-                )
+            warning_message = _(
+                "Confirming will cancel and permanently delete every linked Payment Request, "
+                "CPV/BPV, and its Journal Entry, then reset this Cash PR to Draft. Records: %s"
+            ) % (", ".join(downstream_names) or _("none"))
             return {
                 "payment_requests": payment_requests,
+                "cash_vouchers": cash_vouchers,
+                "bank_vouchers": bank_vouchers,
+                "vendor_payments": self.env["account.payment"],
+                "vendor_bills": self.env["account.move"],
+                "pickings": self.env["stock.picking"],
                 "rfqs": self.env["purchase.order"],
                 "warning_message": warning_message,
             }
@@ -1408,43 +1382,102 @@ class PurchaseRequisition(models.Model):
         rfqs = self.env["purchase.order"].sudo().search([
             ("requisition_id", "=", self.id),
         ])
-        non_draft_rfqs = rfqs.filtered(lambda order: order.state != "draft")
-        if non_draft_rfqs:
-            rfq_states = ", ".join(
-                "%s (%s)" % (
-                    order.display_name,
-                    dict(order._fields["state"].selection).get(
-                        order.state,
-                        order.state,
-                    ),
-                )
-                for order in non_draft_rfqs
-            )
+        pickings = rfqs.mapped("picking_ids").sudo().exists()
+        done_pickings = pickings.filtered(lambda picking: picking.state == "done")
+        if done_pickings:
             raise UserError(_(
-                "This Purchase Requisition cannot be reset because these RFQ/PO records "
-                "are no longer in Draft: %s."
-            ) % rfq_states)
+                "Completed receipt(s) %s must be returned/reversed before resetting this PR."
+            ) % ", ".join(done_pickings.mapped("display_name")))
 
-        if rfqs:
-            warning_message = _(
-                "Draft RFQ record(s) %(rfqs)s will be permanently deleted before this "
-                "Purchase Requisition is reset to Draft."
-            ) % {"rfqs": ", ".join(rfqs.mapped("display_name"))}
-        else:
-            warning_message = _(
-                "No RFQ or Purchase Order exists. Confirming will reset this Purchase "
-                "Requisition to Draft."
-            )
+        vendor_bills = rfqs.mapped("invoice_ids").sudo().exists()
+        payable_lines = vendor_bills.line_ids.filtered(
+            lambda line: line.account_id.account_type == "liability_payable"
+        )
+        partials = payable_lines.matched_debit_ids | payable_lines.matched_credit_ids
+        counterpart_lines = (partials.debit_move_id | partials.credit_move_id) - payable_lines
+        payment_moves = counterpart_lines.mapped("move_id").filtered("payment_id")
+        vendor_payments = payment_moves.mapped("payment_id").sudo().exists()
+        shared_payments = vendor_payments.filtered(
+            lambda payment: bool(payment.reconciled_bill_ids - vendor_bills)
+        )
+        if shared_payments:
+            raise UserError(_(
+                "Vendor payment(s) %s also settle bills outside this PR and cannot be deleted. "
+                "Unreconcile/split those payments first."
+            ) % ", ".join(shared_payments.mapped("display_name")))
+        downstream_names = (
+            vendor_payments.mapped("display_name")
+            + vendor_bills.mapped("display_name")
+            + pickings.mapped("display_name")
+            + rfqs.mapped("display_name")
+        )
+        warning_message = _(
+            "Confirming will cancel and permanently delete linked vendor payments and "
+            "journal entries, vendor bills, pending receipts, RFQs/POs, then reset this PR "
+            "to Draft. Records: %s"
+        ) % (", ".join(downstream_names) or _("none"))
         return {
             "payment_requests": self.env["purchase.requisition.payment.request"],
+            "cash_vouchers": self.env["pr.account.cash.payment"],
+            "bank_vouchers": self.env["pr.account.bank.payment"],
+            "vendor_payments": vendor_payments,
+            "vendor_bills": vendor_bills,
+            "pickings": pickings,
             "rfqs": rfqs,
             "warning_message": warning_message,
         }
+
+    def _delete_reset_vouchers(self, vouchers):
+        """Remove only vouchers and journal entries explicitly linked to this PR."""
+        deleted = []
+        for voucher in vouchers.exists():
+            deleted.append(voucher.display_name)
+            journal_entry = voucher.journal_entry_id.sudo().exists()
+            if journal_entry:
+                reconciled_lines = journal_entry.line_ids.filtered("reconciled")
+                if reconciled_lines:
+                    reconciled_lines.remove_move_reconcile()
+                if journal_entry.state != "draft":
+                    journal_entry.button_draft()
+                journal_entry.with_context(force_delete=True).unlink()
+            voucher.sudo().unlink()
+        return deleted
+
+    def _delete_reset_vendor_payments(self, payments):
+        deleted = []
+        for payment in payments.exists():
+            deleted.append(payment.display_name)
+            reconciled_lines = payment.move_id.line_ids.filtered("reconciled")
+            if reconciled_lines:
+                reconciled_lines.remove_move_reconcile()
+            if payment.state == "posted":
+                payment.action_draft()
+            if payment.state != "cancel":
+                payment.action_cancel()
+            payment.sudo().unlink()
+        return deleted
+
+    def _delete_reset_vendor_bills(self, bills):
+        deleted = []
+        for bill in bills.exists():
+            deleted.append(bill.display_name)
+            reconciled_lines = bill.line_ids.filtered("reconciled")
+            if reconciled_lines:
+                reconciled_lines.remove_move_reconcile()
+            if bill.state != "draft":
+                bill.button_draft()
+            bill.with_context(force_delete=True).unlink()
+        return deleted
 
     def _confirm_reset_to_draft(self):
         self.ensure_one()
         impact = self._get_reset_to_draft_impact()
         deleted_documents = []
+
+        deleted_documents.extend(self._delete_reset_vouchers(impact["cash_vouchers"]))
+        deleted_documents.extend(self._delete_reset_vouchers(impact["bank_vouchers"]))
+        deleted_documents.extend(self._delete_reset_vendor_payments(impact["vendor_payments"]))
+        deleted_documents.extend(self._delete_reset_vendor_bills(impact["vendor_bills"]))
 
         for payment_request in impact["payment_requests"]:
             deleted_documents.append(payment_request.display_name)
@@ -1457,8 +1490,18 @@ class PurchaseRequisition(models.Model):
             payment_request.sudo().unlink()
             owned_attachments.sudo().exists().unlink()
 
+        if impact["pickings"]:
+            deleted_documents.extend(impact["pickings"].mapped("display_name"))
+            active_pickings = impact["pickings"].filtered(lambda picking: picking.state != "cancel")
+            if active_pickings:
+                active_pickings.action_cancel()
+            impact["pickings"].sudo().unlink()
+
         if impact["rfqs"]:
             deleted_documents.extend(impact["rfqs"].mapped("display_name"))
+            active_orders = impact["rfqs"].filtered(lambda order: order.state != "cancel")
+            if active_orders:
+                active_orders.button_cancel()
             impact["rfqs"].sudo().unlink()
 
         self.sudo().write({
@@ -1474,7 +1517,7 @@ class PurchaseRequisition(models.Model):
         if deleted_documents:
             self.message_post(
                 body=_(
-                    "Purchase Requisition reset to Draft. Deleted draft downstream "
+                    "Purchase Requisition reset to Draft. Deleted downstream "
                     "record(s): %s"
                 ) % ", ".join(deleted_documents)
             )
@@ -2305,7 +2348,7 @@ class PurchaseRequisitionResetWizard(models.TransientModel):
         readonly=True,
     )
     confirm_reset = fields.Boolean(
-        string="I understand that the listed draft records will be permanently deleted.",
+        string="I understand that the listed downstream records and journal entries will be permanently deleted.",
     )
 
     def action_confirm_reset(self):

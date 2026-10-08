@@ -32,11 +32,15 @@ class AccountMove(models.Model):
 
             so = sale_orders[0]
 
-            # ✅ EXCLUDE down payment lines
+            # Exclude down payment lines and their deduction lines (the latter are
+            # created without sale_line_ids so they are not flagged as down payments).
             valid_lines = move.invoice_line_ids.filtered(
-                lambda l: not l.is_downpayment)
+                lambda l: not l.display_type
+                and not l.is_downpayment
+                and not ("dp_source_sale_line_id" in l._fields and l.dp_source_sale_line_id)
+            )
 
-            base = sum(valid_lines.mapped('price_subtotal'))
+            base = move.currency_id.round(sum(valid_lines.mapped('price_subtotal')))
 
             move.retention_deduct_amount = move.currency_id.round(
                 base * (so.retention_percent / 100.0)

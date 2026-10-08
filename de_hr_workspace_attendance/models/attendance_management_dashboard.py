@@ -212,12 +212,19 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
         if not calendar:
             return self._empty_schedule()
 
+        if day.weekday() == 5 and employee._etm_saturday_is_off(day):
+            return self._empty_schedule()
+
         attendances = calendar.attendance_ids.filtered(
             lambda attendance:
                 attendance.dayofweek == str(day.weekday())
                 and (not attendance.date_from or attendance.date_from <= day)
                 and (not attendance.date_to or attendance.date_to >= day)
         )
+        if not attendances and day.weekday() == 5:
+            attendances = calendar.attendance_ids.filtered(
+                lambda attendance: attendance.dayofweek in ("6", "0", "1", "2", "3")
+            )
         if not attendances:
             return self._empty_schedule()
 

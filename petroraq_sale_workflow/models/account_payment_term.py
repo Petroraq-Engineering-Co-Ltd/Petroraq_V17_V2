@@ -208,8 +208,11 @@ class SaleOrder(models.Model):
             )
 
             invoice_base = 0.0
+            qty_percentage = self.env.context.get("qty_percentage")
             for l in base_lines:
                 qty = l.qty_to_invoice or 0.0
+                if qty_percentage:
+                    qty = float_round(qty * qty_percentage, precision_rounding=l.product_uom.rounding)
                 if not qty:
                     continue
                 unit = l.price_unit or 0.0

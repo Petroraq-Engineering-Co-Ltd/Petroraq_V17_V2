@@ -1,7 +1,7 @@
 {
     "name": "Petroraq: Sales Workflow",
     "summary": "Inquiry → Quotation → Manager Approval → MD Approval → Send to Client",
-    "version": "17.0.1.0.38",
+    "version": "17.0.1.0.41",
     "author": "Petroraq Engineering & Construction Co. Ltd.",
     "website": "https://petroraq.com",
     "category": "Sales",
@@ -9,6 +9,7 @@
     "depends": [
         "sale",
         "mail",
+        "web_editor",
         "account",
         "stock",
         "pr_base",
@@ -23,6 +24,7 @@
         "security/security.xml",
         "security/ir.model.access.csv",
         "data/payment_terms.xml",
+        "data/decimal_precision.xml",
         "data/estimation_sequence.xml",
         # "data/sequence.xml",
         "views/sale_order_views.xml",
@@ -45,6 +47,7 @@
     ],
     "assets": {
         "web.assets_backend": [
+            "petroraq_sale_workflow/static/src/js/mail_html_inline_guard.js",
             "petroraq_sale_workflow/static/src/scss/section_subtotals.scss",
             "petroraq_sale_workflow/static/src/css/sales_style.css",
             "petroraq_sale_workflow/static/src/xml/section_subtotals.xml",

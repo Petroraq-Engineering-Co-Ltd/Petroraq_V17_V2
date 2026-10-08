@@ -1,5 +1,9 @@
+import re
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_amount
+from odoo.tools.float_utils import float_compare, float_round
 
 
 class PRWorkOrder(models.Model):
@@ -43,15 +47,27 @@ class PRWorkOrder(models.Model):
             "rejection_reason": False,
         })
 
-    def action_reset_to_draft(self):
+    def _validate_budget_within_sale_order(self):
         for rec in self:
-            if rec.state == "draft":
+            if not rec.sale_order_id:
                 continue
-
-            rec.write({"state": "draft"})
-            rec._reset_approval_metadata()
-            rec._sync_work_order_budget_state("draft")
-            rec.message_post(body=_("Work Order has been reset to draft."))
+            currency = rec.currency_id or rec.company_id.currency_id
+            precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+            contract_amount = float_round(rec.sale_order_id.amount_total or 0.0, precision_digits=precision_cost)
+            budgeted_cost = float_round(rec.budgeted_cost or 0.0, precision_digits=precision_cost)
+            if float_compare(
+                budgeted_cost,
+                contract_amount,
+                precision_digits=precision_cost,
+            ) > 0:
+                raise ValidationError(_(
+                    "Work Order budget (%(budget)s) cannot exceed linked Sales Order total "
+                    "(%(sale)s). Revise the Estimation/Sales Order first or reduce the WO budget."
+                ) % {
+                    "budget": format_amount(rec.env, rec.budgeted_cost or 0.0, currency),
+                    "sale": format_amount(rec.env, contract_amount, currency),
+                })
+        return True
 
     def _remove_linked_expense_bucket(self):
         for rec in self:
@@ -122,6 +138,28 @@ class PRWorkOrder(models.Model):
         default=lambda self: _("New"),
         tracking=True,
     )
+    unrevisioned_name = fields.Char(
+        string="Base Work Order Name",
+        readonly=True,
+        copy=False,
+        index=True,
+    )
+    revision_number = fields.Integer(
+        string="Revision Number",
+        readonly=True,
+        copy=False,
+        default=0,
+    )
+    previous_revision_id = fields.Many2one(
+        "pr.work.order",
+        string="Previous Revision",
+        readonly=True,
+        copy=False,
+    )
+    revision_count = fields.Integer(
+        string="Revisions Count",
+        compute="_compute_revision_count",
+    )
     # budget_id = fields.Many2one("crossovered.budget", string="Budget", readonly=True)
 
     company_id = fields.Many2one(
@@ -190,9 +228,11 @@ class PRWorkOrder(models.Model):
 
     @api.depends("boq_line_ids.total")
     def _compute_budgeted_cost(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for order in self:
-            order.budgeted_cost = sum(
-                order.boq_line_ids.mapped("total")
+            order.budgeted_cost = float_round(
+                sum(order.boq_line_ids.mapped("total")),
+                precision_digits=precision_cost,
             )
             order.contract_amount = order.sale_order_id.amount_total
 
@@ -427,13 +467,377 @@ class PRWorkOrder(models.Model):
             rec.actual_margin = revenue - cost
 
     # -------------------------------------------------
+    # Revision workflow
+    # -------------------------------------------------
+    @api.depends("name", "unrevisioned_name")
+    def _compute_revision_count(self):
+        for rec in self:
+            base_name = rec.unrevisioned_name or (re.sub(r"-R\d+$", "", rec.name) if rec.name else False)
+            if not base_name:
+                rec.revision_count = 0
+                continue
+            count = self.search_count([
+                "|",
+                ("unrevisioned_name", "=", base_name),
+                ("name", "=like", f"{base_name}%"),
+                ("company_id", "=", rec.company_id.id),
+            ])
+            rec.revision_count = count
+
+    def action_view_revisions(self):
+        self.ensure_one()
+        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else False)
+        domain = [
+            "|",
+            ("unrevisioned_name", "=", base_name),
+            ("name", "=like", f"{base_name}%"),
+            ("company_id", "=", self.company_id.id),
+        ]
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Work Order Revisions"),
+            "res_model": "pr.work.order",
+            "view_mode": "tree,form",
+            "domain": domain,
+            "context": {"default_sale_order_id": self.sale_order_id.id if self.sale_order_id else False},
+        }
+
+    def action_new_revision(self):
+        self.ensure_one()
+        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else "")
+
+        # Find all existing Work Orders in the company sharing this base sequence
+        existing_wos = self.env["pr.work.order"].with_context(active_test=False).search([
+            "|",
+            ("name", "=like", f"{base_name}%"),
+            ("unrevisioned_name", "=", base_name),
+            ("company_id", "=", self.company_id.id),
+        ])
+
+        existing_revs = [0]
+        for wo in existing_wos:
+            if wo.name == base_name:
+                existing_revs.append(0)
+            else:
+                match = re.search(r"-R(\d+)$", wo.name or "")
+                if match:
+                    existing_revs.append(int(match.group(1)))
+                elif getattr(wo, "revision_number", 0):
+                    existing_revs.append(wo.revision_number)
+
+        next_rev = max(existing_revs) + 1
+        new_name = f"{base_name}-R{next_rev}"
+
+        default_vals = {
+            "name": new_name,
+            "unrevisioned_name": base_name,
+            "revision_number": next_rev,
+            "previous_revision_id": self.id,
+            "sale_order_id": self.sale_order_id.id if self.sale_order_id else False,
+            "state": "draft",
+            "expense_bucket_id": False,
+            "ops_approver_id": False,
+            "ops_approved_date": False,
+            "acc_approver_id": False,
+            "acc_approved_date": False,
+            "final_approver_id": False,
+            "final_approved_date": False,
+            "rejected_by": False,
+            "rejected_date": False,
+            "rejection_reason": False,
+        }
+        if self.project_id:
+            default_vals["project_id"] = self.project_id.id
+        if self.analytic_account_id:
+            default_vals["analytic_account_id"] = self.analytic_account_id.id
+
+        new_wo = self.copy(default=default_vals)
+
+        self.message_post(body=_("New revision %(new)s created from this Work Order.") % {"new": new_wo.name})
+        new_wo.message_post(body=_("Created as revision %(new)s of %(orig)s.") % {"new": new_wo.name, "orig": self.name})
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Work Order"),
+            "res_model": "pr.work.order",
+            "res_id": new_wo.id,
+            "view_mode": "form",
+            "target": "current",
+        }
+
+    @api.model
+    def _get_related_sale_order_chain(self, sale_order):
+        """Find all sale.order records associated with the given sale_order across
+        the revision chain, estimation chain, and order inquiry."""
+        if not sale_order:
+            return self.env["sale.order"]
+
+        SaleOrder = self.env["sale.order"].with_context(active_test=False)
+        chain = SaleOrder.browse(sale_order.id)
+        visited = set()
+        to_visit = {sale_order.id}
+
+        # 1. Traverse old_revision_ids and current_revision_id
+        while to_visit:
+            current_id = to_visit.pop()
+            if current_id in visited:
+                continue
+            visited.add(current_id)
+            rec = SaleOrder.browse(current_id)
+            if not rec.exists():
+                continue
+            chain |= rec
+            if hasattr(rec, "old_revision_ids"):
+                for old in rec.old_revision_ids:
+                    if old.id not in visited:
+                        to_visit.add(old.id)
+            if hasattr(rec, "current_revision_id") and rec.current_revision_id:
+                if rec.current_revision_id.id not in visited:
+                    to_visit.add(rec.current_revision_id.id)
+
+        # 2. Search by base SO name and unrevisioned_name
+        base_names = set()
+        for rec in chain:
+            if rec.name:
+                base_names.add(re.sub(r"-R\d+$", "", rec.name))
+            if getattr(rec, "unrevisioned_name", False):
+                base_names.add(re.sub(r"-R\d+$", "", rec.unrevisioned_name))
+
+        for base_name in base_names:
+            if base_name and "-SO-" in base_name:
+                matching_orders = SaleOrder.search([
+                    "|",
+                    ("name", "=like", f"{base_name}%"),
+                    ("unrevisioned_name", "=", base_name),
+                    ("company_id", "=", sale_order.company_id.id),
+                ])
+                chain |= matching_orders
+
+        # 3. Search via estimation chain
+        if "estimation_id" in chain._fields:
+            est_ids = chain.mapped("estimation_id")
+            for est in est_ids:
+                base_est = getattr(est, "unrevisioned_name", False) or (re.sub(r"-R\d+$", "", est.name) if est.name else False)
+                if base_est and "petroraq.estimation" in self.env:
+                    related_ests = self.env["petroraq.estimation"].with_context(active_test=False).search([
+                        "|",
+                        ("name", "=like", f"{base_est}%"),
+                        ("unrevisioned_name", "=", base_est),
+                        ("company_id", "=", sale_order.company_id.id),
+                    ])
+                    chain |= related_ests.mapped("sale_order_id")
+
+        # 4. Search via order inquiry
+        if "order_inquiry_id" in chain._fields:
+            for inq in chain.mapped("order_inquiry_id"):
+                inq_orders = inq.sale_order_ids.filtered(lambda o: "-SO-" in (o.name or ""))
+                chain |= inq_orders
+
+        return chain
+
+    @api.model
+    def _get_existing_work_orders_for_chain(self, so_chain, company=None):
+        if not so_chain:
+            return self.env["pr.work.order"]
+
+        WorkOrder = self.env["pr.work.order"].with_context(active_test=False)
+        company_id = company.id if company else so_chain[0].company_id.id
+
+        # 1. Search WOs linked to any SO in the chain
+        wos = WorkOrder.search([
+            "|",
+            ("sale_order_id", "in", so_chain.ids),
+            ("id", "in", [wo_id for wo_id in so_chain.mapped("work_order_id").ids if wo_id]),
+        ])
+
+        # 2. Check estimations in chain
+        if "estimation_id" in so_chain._fields:
+            ests = so_chain.mapped("estimation_id")
+            for est in ests:
+                if getattr(est, "work_order_id", False):
+                    wos |= est.work_order_id
+
+        # 3. For any found WO, expand search by base WO name to ensure all revisions are caught
+        base_wo_names = set()
+        for wo in wos:
+            if wo.name and wo.name not in (_("New"), "/", "New"):
+                base_name = getattr(wo, "unrevisioned_name", False) or re.sub(r"-R\d+$", "", wo.name)
+                if base_name:
+                    base_wo_names.add(base_name)
+
+        for base_wo in base_wo_names:
+            matching_wos = WorkOrder.search([
+                "|",
+                ("name", "=like", f"{base_wo}%"),
+                ("unrevisioned_name", "=", base_wo),
+                ("company_id", "=", company_id),
+            ])
+            wos |= matching_wos
+
+        return wos.filtered(lambda w: w.name and w.name not in (_("New"), "/", "New"))
+
+    @api.model
+    def _compute_next_work_order_name(self, sale_order=None, company=None):
+        """Determine the next work order name, base sequence, and revision number.
+        Returns: (name, base_name, revision_number)
+        """
+        company_rec = company or (sale_order.company_id if sale_order else self.env.company)
+
+        if not sale_order:
+            # Standalone Work Order: normal sequence
+            seq_name = self.env["ir.sequence"].with_company(company_rec).next_by_code("pr.work.order") or _("New")
+            return seq_name, seq_name, 0
+
+        so_chain = self._get_related_sale_order_chain(sale_order)
+        existing_wos = self._get_existing_work_orders_for_chain(so_chain, company=company_rec)
+
+        if not existing_wos:
+            # No existing Work Order in chain: generate new base sequence
+            seq_name = self.env["ir.sequence"].with_company(company_rec).next_by_code("pr.work.order") or _("New")
+            return seq_name, seq_name, 0
+
+        # Existing Work Order found in chain: determine base sequence and highest revision
+        base_wo_name = False
+        # Prefer the base name of the oldest/original WO (no -R suffix)
+        for wo in existing_wos.sorted(lambda w: w.id):
+            candidate = getattr(wo, "unrevisioned_name", False) or re.sub(r"-R\d+$", "", wo.name)
+            if candidate:
+                base_wo_name = candidate
+                break
+
+        if not base_wo_name:
+            base_wo_name = re.sub(r"-R\d+$", "", existing_wos[0].name)
+
+        existing_revs = [0]
+        for wo in existing_wos:
+            if wo.name == base_wo_name:
+                existing_revs.append(0)
+            else:
+                match = re.search(r"-R(\d+)$", wo.name or "")
+                if match and (wo.name.startswith(base_wo_name) or getattr(wo, "unrevisioned_name", False) == base_wo_name):
+                    existing_revs.append(int(match.group(1)))
+                elif getattr(wo, "revision_number", 0):
+                    existing_revs.append(wo.revision_number)
+
+        next_rev = max(existing_revs) + 1
+        new_wo_name = f"{base_wo_name}-R{next_rev}"
+        return new_wo_name, base_wo_name, next_rev
+
+    def _get_other_work_orders_in_chain(self):
+        self.ensure_one()
+        WorkOrder = self.env["pr.work.order"].sudo().with_context(active_test=False)
+        other_wos = WorkOrder
+
+        # 1. Base sequence name in company
+        base_name = self.unrevisioned_name or (re.sub(r"-R\d+$", "", self.name) if self.name else False)
+        if base_name and base_name not in (_("New"), "/", "New"):
+            other_wos |= WorkOrder.search([
+                ("id", "!=", self.id),
+                ("company_id", "=", self.company_id.id),
+                "|",
+                ("unrevisioned_name", "=", base_name),
+                ("name", "=like", f"{base_name}%"),
+            ])
+
+        # 2. Previous revision id chain (upstream and downstream)
+        curr = self.previous_revision_id
+        while curr:
+            if curr.id != self.id:
+                other_wos |= curr
+            curr = curr.previous_revision_id
+
+        downstream = WorkOrder.search([("previous_revision_id", "=", self.id)])
+        if downstream:
+            other_wos |= downstream
+
+        # 3. Via Sale Order chain if linked
+        if self.sale_order_id:
+            so_chain = self._get_related_sale_order_chain(self.sale_order_id)
+            chain_wos = self._get_existing_work_orders_for_chain(so_chain, company=self.company_id)
+            other_wos |= chain_wos
+
+        # 4. Via Estimation chain if linked
+        if hasattr(self, "source_estimation_id") and self.source_estimation_id:
+            est_chain = self.source_estimation_id
+            if hasattr(est_chain, "old_revision_ids"):
+                est_chain |= est_chain.old_revision_ids
+            if hasattr(est_chain, "current_revision_id") and est_chain.current_revision_id:
+                est_chain |= est_chain.current_revision_id
+            for est in est_chain:
+                if getattr(est, "work_order_id", False) and est.work_order_id != self:
+                    other_wos |= est.work_order_id
+
+        return (other_wos - self).filtered(lambda w: w.exists())
+
+    def _cancel_other_work_order_revisions(self):
+        self.ensure_one()
+        other_wos = self._get_other_work_orders_in_chain()
+        to_cancel = other_wos.filtered(lambda w: w.state not in ("cancel", "done"))
+        if not to_cancel:
+            return
+
+        to_cancel.with_context(cancelling_other_work_orders=True).write({"state": "cancel"})
+        for wo in to_cancel:
+            if hasattr(wo, "_sync_work_order_budget_state"):
+                wo._sync_work_order_budget_state("cancel")
+            wo.message_post(body=_(
+                "Work Order cancelled automatically because revision %s was approved."
+            ) % self.name)
+
+        # Clear obsolete work order pointers pointing to cancelled work orders
+        for wo in to_cancel:
+            if wo.sale_order_id and wo.sale_order_id.work_order_id == wo:
+                wo.sale_order_id.sudo().write({"work_order_id": False})
+            if (
+                hasattr(wo, "source_estimation_id")
+                and wo.source_estimation_id
+                and getattr(wo.source_estimation_id, "work_order_id", False) == wo
+            ):
+                wo.source_estimation_id.sudo().with_context(
+                    allow_estimation_write=True
+                ).write({"work_order_id": False})
+
+        # Point active Sales Order and Estimation to this approved revision
+        if self.sale_order_id and self.sale_order_id.work_order_id != self:
+            self.sale_order_id.sudo().write({"work_order_id": self.id})
+        if (
+            hasattr(self, "source_estimation_id")
+            and self.source_estimation_id
+            and getattr(self.source_estimation_id, "work_order_id", False) != self
+        ):
+            self.source_estimation_id.sudo().with_context(
+                allow_estimation_write=True
+            ).write({"work_order_id": self.id})
+
+        cancelled_names = ", ".join(to_cancel.mapped("name"))
+        self.message_post(body=_(
+            "Work Order revision %(new)s approved. Previous/competing Work Order(s) (%(cancelled)s) have been cancelled."
+        ) % {
+            "new": self.name,
+            "cancelled": cancelled_names,
+        })
+
+    # -------------------------------------------------
     # Business logic / workflow
     # -------------------------------------------------
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get("name", _("New")) == _("New"):
-                vals["name"] = self.env["ir.sequence"].next_by_code("pr.work.order") or _("New")
+            if vals.get("name", _("New")) in (False, _("New"), "New", "/"):
+                sale_order = False
+                if vals.get("sale_order_id"):
+                    sale_order = self.env["sale.order"].browse(vals["sale_order_id"])
+                company = self.env["res.company"].browse(vals["company_id"]) if vals.get("company_id") else False
+                name, base_name, rev_num = self._compute_next_work_order_name(sale_order=sale_order, company=company)
+                vals["name"] = name
+                vals["unrevisioned_name"] = base_name
+                vals["revision_number"] = rev_num
+            elif not vals.get("unrevisioned_name"):
+                vals["unrevisioned_name"] = re.sub(r"-R\d+$", "", vals["name"])
+                match = re.search(r"-R(\d+)$", vals["name"])
+                if match:
+                    vals["revision_number"] = int(match.group(1))
+
         records = super().create(vals_list)
         records._ensure_project_expense_bucket(sync_budget=True)
         return records
@@ -443,6 +847,9 @@ class PRWorkOrder(models.Model):
         sync_fields = {"name", "date_start", "date_end", "cost_center_ids", "boq_line_ids"}
         if sync_fields.intersection(vals.keys()):
             self._ensure_project_expense_bucket(sync_budget=True)
+        if vals.get("state") == "approved" and not self.env.context.get("cancelling_other_work_orders"):
+            for rec in self:
+                rec._cancel_other_work_order_revisions()
         return res
 
 
@@ -487,6 +894,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "draft":
                 raise UserError(_("Only draft work orders can be submitted for approval"))
+            rec._validate_budget_within_sale_order()
             rec._ensure_project_expense_bucket(sync_budget=True)
             rec.state = "ops_approval"
             rec.rejection_reason = ""
@@ -555,6 +963,7 @@ class PRWorkOrder(models.Model):
             if rec.state != "ops_approval":
                 continue
 
+            rec._validate_budget_within_sale_order()
             rec.ops_approver_id = self.env.user
             rec.ops_approved_date = fields.Datetime.now()
             rec.state = "acc_approval"
@@ -647,6 +1056,7 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "acc_approval":
                 continue
+            rec._validate_budget_within_sale_order()
             rec.acc_approver_id = self.env.user
             rec.acc_approved_date = fields.Datetime.now()
             rec.state = "final_approval"
@@ -665,10 +1075,12 @@ class PRWorkOrder(models.Model):
         for rec in self:
             if rec.state != "final_approval":
                 continue
+            rec._validate_budget_within_sale_order()
             rec.final_approver_id = self.env.user
             rec.final_approved_date = fields.Datetime.now()
             rec.state = "approved"
             rec._sync_work_order_budget_state("md_approved")
+            rec._cancel_other_work_order_revisions()
 
     def action_reject(self):
         self.ensure_one()
@@ -798,6 +1210,13 @@ class WorkOrderBOQ(models.Model):
     _order = "sequence, id"
 
     work_order_id = fields.Many2one("pr.work.order", ondelete="cascade")
+    sale_order_line_id = fields.Many2one(
+        "sale.order.line",
+        string="Source Sales Order Line",
+        readonly=True,
+        copy=False,
+        ondelete="set null",
+    )
     sequence = fields.Integer(default=10)
     section_name = fields.Char("Section")
 
@@ -841,8 +1260,12 @@ class WorkOrderBOQ(models.Model):
 
     @api.depends("qty", "unit_cost")
     def _compute_total(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for rec in self:
-            rec.total = (rec.qty or 0.0) * (rec.unit_cost or 0.0)
+            rec.total = float_round(
+                (rec.qty or 0.0) * (rec.unit_cost or 0.0),
+                precision_digits=precision_cost,
+            )
 
     @api.depends("product_id")
     def _compute_product_internal_reference(self):
@@ -971,12 +1394,13 @@ class WorkOrderCostCenter(models.Model):
         "analytic_account_id",
     )
     def _compute_estimated_cost(self):
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for rec in self:
             lines = rec.work_order_id.boq_line_ids.filtered(
                 lambda l: l.display_type not in ("line_section", "line_note")
                           and l.section_name == rec.section_name
             )
-            rec.estimated_cost = sum(lines.mapped("total"))
+            rec.estimated_cost = float_round(sum(lines.mapped("total")), precision_digits=precision_cost)
 
             analytic = rec.analytic_account_id
             if not analytic:

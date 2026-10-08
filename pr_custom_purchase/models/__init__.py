@@ -24,3 +24,4 @@ from . import native_budget
 from . import budgetary_rfq_email
 from . import purchase_payment_terms
 from . import purchase_order_reporting
+from . import decimal_precision

@@ -8,6 +8,7 @@
             <tree>
                 <field name="name"/>
                 <field name="sale_order_id"/>
+                <field name="revision_number" optional="show"/>
                 <field name="partner_id"/>
                 <field name="project_id"/>
                 <field name="analytic_account_id"/>
@@ -72,6 +73,13 @@
                             groups="pr_work_order.custom_group_work_order_management"
                             invisible="state in ['done','cancel']"/>
 
+                    <button name="action_new_revision"
+                            type="object"
+                            string="Revise WO"
+                            class="btn-secondary"
+                            groups="sales_team.group_sale_manager,sales_team.group_sale_salesman,pr_work_order.custom_group_work_order_user"
+                            invisible="state in ('in_progress', 'done')"/>
+
                     <button name="action_reject"
                             type="object"
                             string="Reject"
@@ -120,6 +128,14 @@
 
                 <sheet>
                     <div class="oe_button_box" name="button_box">
+                        <field name="revision_count" invisible="1"/>
+                        <button class="oe_stat_button"
+                                name="action_view_revisions"
+                                type="object"
+                                icon="fa-files-o"
+                                invisible="revision_count &lt;= 1">
+                            <field name="revision_count" widget="statinfo" string="Revisions"/>
+                        </button>
                         <field name="expense_bucket_id" invisible="1"/>
                         <button class="oe_stat_button"
                                 name="action_view_expense_bucket"
@@ -155,6 +171,8 @@
 
                             <field name="company_id"/>
                             <field name="sale_order_id"/>
+                            <field name="previous_revision_id" readonly="1" invisible="not previous_revision_id"/>
+                            <field name="revision_number" readonly="1" invisible="revision_number == 0"/>
                             <field name="partner_id" readonly="1"/>
                             <!--                            <field name="po_number"/>-->
                             <field name="project_id"/>

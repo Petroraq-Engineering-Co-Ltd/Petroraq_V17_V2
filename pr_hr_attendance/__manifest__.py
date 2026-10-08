@@ -16,12 +16,13 @@
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
     'category': 'Human Resources/Attendance',
-    'version': '17.0.1.2.1',
+    'version': '17.0.1.3.0',
     # any module necessary for this one to work correctly
     'depends': [
         'pr_hr_contract',
         'gs_hr_attendance_sheet',
         'pr_hr_recruitment_request',
+        'employee_task_management',
     ],
 
     # always loaded

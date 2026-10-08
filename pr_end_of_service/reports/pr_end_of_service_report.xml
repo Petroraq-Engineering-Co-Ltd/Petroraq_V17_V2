@@ -49,6 +49,12 @@
                 <t t-set="data" t-value="doc._get_final_settlement_report_data()"/>
                 <t t-call="pr_end_of_service.pr_end_of_service_standalone_layout">
                     <style>
+                        @font-face {
+                        font-family: 'PrEOSRiyal';
+                        src: url('/am_sar_symbol/static/src/fonts/sar-symbol.ttf') format('truetype');
+                        font-weight: normal;
+                        font-style: normal;
+                        }
                         .pr-eos-page {
                         font-family: Arial, Helvetica, sans-serif;
                         color: #111827;
@@ -99,6 +105,10 @@
                         .pr-eos-amount {
                         text-align: right;
                         white-space: nowrap;
+                        }
+                        .pr-eos-amount,
+                        .pr-eos-amount * {
+                        font-family: 'PrEOSRiyal', Arial, Helvetica, sans-serif !important;
                         }
                         .pr-eos-total td {
                         background: #e8eef8;
@@ -218,31 +228,36 @@
                                 <tr>
                                     <td class="pr-eos-label">Basic Salary</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['basic_salary'])"/>
+                                        <span t-esc="data['basic_salary']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Housing Allowance</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['housing_allowance'])"/>
+                                        <span t-esc="data['housing_allowance']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Transportation Allowance</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['transport_allowance'])"/>
+                                        <span t-esc="data['transport_allowance']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Other Allowances</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['other_allowances'])"/>
+                                        <span t-esc="data['other_allowances']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr class="pr-eos-total">
                                     <td>Gross Salary</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['gross_salary'])"/>
+                                        <span t-esc="data['gross_salary']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                             </table>
@@ -254,7 +269,8 @@
                                 <tr class="pr-eos-total">
                                     <td>EOSB Amount</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(doc.eos_benefit_amount)"/>
+                                        <span t-esc="doc.eos_benefit_amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                             </table>
@@ -266,49 +282,57 @@
                                 <tr>
                                     <td class="pr-eos-label">Salary Payable</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['salary_payable'])"/>
+                                        <span t-esc="data['salary_payable']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Unused Annual Leave</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(doc.leave_settlement_amount)"/>
+                                        <span t-esc="doc.leave_settlement_amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Leave Salary</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(0.0)"/>
+                                        <span t-esc="0.0"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Overtime</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['overtime'])"/>
+                                        <span t-esc="data['overtime']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Commission / Incentives</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['commission'])"/>
+                                        <span t-esc="data['commission']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Any Addition</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(doc.other_amount)"/>
+                                        <span t-esc="doc.other_amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Other Payables</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['other_payables'])"/>
+                                        <span t-esc="data['other_payables']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr class="pr-eos-total">
                                     <td>TOTAL EMPLOYEE PAYABLES</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['employee_payables'])"/>
+                                        <span t-esc="data['employee_payables']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                             </table>
@@ -320,55 +344,64 @@
                                 <tr>
                                     <td class="pr-eos-label">Advance Salary</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['advance_salary'])"/>
+                                        <span t-esc="data['advance_salary']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Advance HRA</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['advance_hra'])"/>
+                                        <span t-esc="data['advance_hra']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Loan Recovery</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['loan_recovery'])"/>
+                                        <span t-esc="data['loan_recovery']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Company Assets Damage</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['asset_damage'])"/>
+                                        <span t-esc="data['asset_damage']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Traffic Violations</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['traffic_violations'])"/>
+                                        <span t-esc="data['traffic_violations']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Personal Expenses</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['personal_expenses'])"/>
+                                        <span t-esc="data['personal_expenses']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Other Recoveries</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['other_recoveries'])"/>
+                                        <span t-esc="data['other_recoveries']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr t-if="doc.previously_disbursed_amount">
                                     <td class="pr-eos-label">Previously Disbursed</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(doc.previously_disbursed_amount)"/>
+                                        <span t-esc="doc.previously_disbursed_amount"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr class="pr-eos-total">
                                     <td>Total Deductions</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['total_deductions'])"/>
+                                        <span t-esc="data['total_deductions']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                             </table>
@@ -380,19 +413,22 @@
                                 <tr>
                                     <td class="pr-eos-label">Total Payable (Including EOSB)</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['gross_settlement'])"/>
+                                        <span t-esc="data['gross_settlement']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="pr-eos-label">Total Deductions</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['total_deductions'])"/>
+                                        <span t-esc="data['total_deductions']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                                 <tr class="pr-eos-net">
                                     <td>NET FINAL SETTLEMENT PAYABLE</td>
                                     <td class="pr-eos-amount">
-                                        <span t-esc="doc._format_final_settlement_amount(data['net_settlement'])"/>
+                                        <span t-esc="data['net_settlement']"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                 </tr>
                             </table>

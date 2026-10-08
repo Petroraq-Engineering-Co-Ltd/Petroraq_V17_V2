@@ -85,6 +85,12 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='worked_hours']" position="after">
                 <field name="attendance_day_status" decoration-danger="attendance_day_status == 'absent'"/>
+                <field name="task_attendance_day_id" column_invisible="True"/>
+                <button name="action_open_task_attendance_day"
+                        string="Mark Present Request"
+                        type="object"
+                        icon="fa-check-circle"
+                        invisible="not task_attendance_day_id"/>
             </xpath>
         </field>
     </record>

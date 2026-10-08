@@ -305,6 +305,7 @@ class PrEmployeeServiceRequest(models.Model):
             ("submit", "Submitted"),
             ("finance_approve", "Accounts Approval"),
             ("posted", "Posted"),
+            ("reject", "Rejected"),
             ("cancel", "Cancelled"),
         ],
         string="Voucher Status",
