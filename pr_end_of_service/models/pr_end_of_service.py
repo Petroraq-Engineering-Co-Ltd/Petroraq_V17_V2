@@ -8,6 +8,34 @@ from .eos_calculation import MIN_EOS_SERVICE_YEARS, get_eosb_breakdown, get_serv
 MD_GROUP = "pr_hr_recruitment_request.group_onboarding_md"
 
 
+def _classify_contract_salary_rule(code, name):
+    """Return the final-settlement salary bucket for a contract rule."""
+    normalized_code = (code or "").strip().upper()
+    normalized_text = "%s %s" % (
+        normalized_code.lower().replace("_", " ").replace("-", " "),
+        (name or "").strip().lower().replace("_", " ").replace("-", " "),
+    )
+    words = set(normalized_text.split())
+
+    if (
+        normalized_code in {"ACCOMMODATION", "HOUSING", "HRA"}
+        or "accommodation" in words
+        or "housing" in words
+        or "house" in words
+        or "hra" in words
+    ):
+        return "housing"
+    if (
+        normalized_code in {"TRANSPORT", "TRANSPORTATION", "TRAVEL", "CONVEYANCE"}
+        or "transport" in words
+        or "transportation" in words
+        or "travel" in words
+        or "conveyance" in words
+    ):
+        return "transport"
+    return "other"
+
+
 class PrEndOfService(models.Model):
     _name = "pr.end.of.service"
     _inherit = ["mail.thread", "mail.activity.mixin"]
@@ -1306,18 +1334,19 @@ class PrEndOfService(models.Model):
 
         salary_rules = contract.contract_salary_rule_ids if contract else self.env["hr.contract.salary.rule"]
 
-        def rule_matches(line, keywords):
-            text = "%s %s" % (
-                (line.salary_rule_id.code or "").lower(),
-                (line.salary_rule_id.name or "").lower(),
-            )
-            return any(keyword in text for keyword in keywords)
-
         housing_rules = salary_rules.filtered(
-            lambda line: rule_matches(line, ("housing", "house", "hra"))
+            lambda line: _classify_contract_salary_rule(
+                line.salary_rule_id.code,
+                line.salary_rule_id.name,
+            )
+            == "housing"
         )
         transport_rules = salary_rules.filtered(
-            lambda line: rule_matches(line, ("transport", "travel", "conveyance"))
+            lambda line: _classify_contract_salary_rule(
+                line.salary_rule_id.code,
+                line.salary_rule_id.name,
+            )
+            == "transport"
         )
         other_rules = salary_rules - housing_rules - transport_rules
 
@@ -1488,20 +1517,6 @@ class PrEndOfService(models.Model):
             "iban": bank_account.acc_number if bank_account else "",
             "voucher": voucher.display_name if voucher else "",
         }
-
-    def _format_final_settlement_amount(self, amount):
-        self.ensure_one()
-        amount = float(amount or 0.0)
-        currency = self.currency_id
-        symbol = currency.symbol or currency.name or ""
-        formatted = "{:,.2f}".format(amount)
-        if not symbol:
-            return formatted
-        return (
-            "%s %s" % (symbol, formatted)
-            if currency.position == "before"
-            else "%s %s" % (formatted, symbol)
-        )
 
     def action_view_payment_request(self):
         self.ensure_one()

@@ -9,7 +9,7 @@
     "author": "Mudassir Amin",
     "website": "https://webmail.petroraq.com/",
     "category": "Human Resources",
-    "version": "17.0.1.2.1",
+    "version": "17.0.1.2.4",
     "license": "LGPL-3",
     "depends": [
         "pr_hr_payroll",
@@ -20,6 +20,7 @@
         "pr_employee_service_requests",
         "mail_composer_cc_bcc",
         "pr_hr_recruitment_request",
+        "am_sar_symbol",
         "mail",
     ],
     "data": [
