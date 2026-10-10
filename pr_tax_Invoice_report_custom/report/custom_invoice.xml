@@ -258,52 +258,52 @@
                         <table class="o_pr_invoice_lines" style="width:100%;">
                             <thead>
                                 <tr>
-                                    <th style="width:4%">رقم<br/>#</th>
-                                    <th style="width:30%">الوصف<br/>Description</th>
-                                    <th style="width:9%">الكمية<br/>Qty</th>
+                                    <th style="width:7%">الرقم التسلسلي<br/># SL</th>
+                                    <th style="width:30%">البند أو الوصف<br/>Description</th>
+                                    <th style="width:8%">الكمية<br/>Qty</th>
                                     <th style="width:7%">الوحدة<br/>Unit</th>
-                                    <th style="width:13%">سعر الوحدة<br/>Unit Price</th>
+                                    <th style="width:13%">وحدة السعر<br/>UNIT PRICE</th>
                                     <th style="width:7%" t-if="has_discount">الخصم<br/>Discount %</th>
-                                    <th style="width:13%">المبلغ قبل الضريبة<br/>Untaxed Amount</th>
-                                    <th style="width:11%">الضريبة<br/>Tax Amount</th>
-                                    <th style="width:13%">الإجمالي<br/>Total</th>
+                                    <th style="width:11%">المبلغ قبل الضريبة<br/>TAXABLE AMOUNT</th>
+                                    <th style="width:11%">الضريبة<br/>TAX AMOUNT (15%)</th>
+                                    <th style="width:13%">المبلغ الإجمالي<br/>TOTAL AMOUNT</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-set="line_number" t-value="0"/>
                                 <t t-foreach="o.invoice_line_ids" t-as="l">
-                                    <tr t-if="l.display_type in ('line_section', 'line_note')" t-att-class="'section-row' if l.display_type == 'line_section' else 'note-row'">
-                                        <td t-att-colspan="9 if has_discount else 8">
-                                            <span t-field="l.name"/>
-                                        </td>
-                                    </tr>
-                                    <tr t-else="">
+<!--                                    <tr t-if="l.display_type in ('line_section', 'line_note')" t-att-class="'section-row' if l.display_type == 'line_section' else 'note-row'">-->
+<!--                                        <td t-att-colspan="9 if has_discount else 8">-->
+<!--                                            <span t-field="l.name"/>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+                                    <tr t-if="l.display_type not in ('line_section', 'line_note')">
                                         <t t-set="line_number" t-value="line_number + 1"/>
-                                        <td>
+                                        <td class="text-center">
                                             <span t-out="line_number"/>
                                         </td>
                                         <td class="description">
                                             <span t-field="l.name"/>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <span t-field="l.quantity"/>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <span t-field="l.product_uom_id.name"/>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <span t-field="l.price_unit"/>
                                         </td>
-                                        <td t-if="has_discount">
+                                        <td t-if="has_discount" class="text-center">
                                             <span t-out="l.discount" t-options="{'widget':'float', 'precision':2}"/>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <span t-field="l.price_subtotal"/>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <span t-out="l.price_total - l.price_subtotal" t-options="{'widget':'monetary', 'display_currency':o.currency_id}"/>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <span t-field="l.price_total"/>
                                         </td>
                                     </tr>
