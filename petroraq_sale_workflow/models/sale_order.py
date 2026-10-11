@@ -8,7 +8,6 @@ from odoo.tools.float_utils import float_round, float_compare
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
-    _description = "Quotation"
 
     work_order_id = fields.Many2one(
         "pr.work.order",
@@ -234,14 +233,6 @@ class SaleOrder(models.Model):
         compute="_compute_can_create_remaining_delivery",
     )
 
-    @api.depends(
-        "state",
-        "order_line.display_type",
-        "order_line.product_id",
-        "order_line.product_uom_qty",
-        "order_line.qty_delivered",
-        "order_line.product_uom",
-    )
     @api.constrains("inquiry_type", "project_attachment_ids")
     def _check_project_attachments(self):
         for order in self:
@@ -250,6 +241,15 @@ class SaleOrder(models.Model):
                     _("Please upload at least one attachment for project-type quotations.")
                 )
 
+    @api.depends(
+        "state",
+        "order_line.display_type",
+        "order_line.product_id",
+        "order_line.product_uom_qty",
+        "order_line.qty_delivered",
+        "order_line.product_uom",
+        "picking_ids.state",
+    )
     def _compute_can_create_remaining_delivery(self):
         Picking = self.env["stock.picking"]
         for order in self:
@@ -500,8 +500,6 @@ class SaleOrder(models.Model):
                 "overhead_percent": estimation.overhead_percent or 0.0,
                 "risk_percent": estimation.risk_percent or 0.0,
                 "profit_percent": estimation.profit_percent or 0.0,
-            })
-            order.write({
                 "order_line": order._prepare_sale_order_lines_from_estimation(),
             })
             order.message_post(body=_("Quotation products were synced from estimation %s.") % estimation.name)
@@ -853,25 +851,25 @@ class SaleOrder(models.Model):
         for order in self:
             term = order.payment_term_id
             if not term:
-                raise UserError(_("Please select a payment term before saving the quotation."))
+                raise ValidationError(_("Please select a payment term before saving the quotation."))
 
             if not getattr(term, "petroraq_selectable", False):
-                raise UserError(
+                raise ValidationError(
                     _("The selected payment term is not allowed. Please choose one of the Petroraq payment terms.")
                 )
 
             if order.inquiry_type == "trading":
                 if not term.is_trading_term:
-                    raise UserError(_("For Trading inquiries, only Advance and Credit payment terms are allowed."))
+                    raise ValidationError(_("For Trading inquiries, only Advance and Credit payment terms are allowed."))
             else:
                 if term.is_trading_term:
-                    raise UserError(_("Advance/Credit payment terms are only allowed for Trading inquiries."))
+                    raise ValidationError(_("Advance/Credit payment terms are only allowed for Trading inquiries."))
 
     @api.constrains("proforma_dp")
     def _check_proforma_dp(self):
         for order in self:
             if order.proforma_dp > 100 or order.proforma_dp < 0:
-                raise UserError(_("Down payment percentage must be between 0 and 100"))
+                raise ValidationError(_("Down payment percentage must be between 0 and 100"))
 
     def _iter_costing_lines(self):
         """Only normal product lines (no sections/notes, no downpayment)."""
@@ -905,7 +903,8 @@ class SaleOrder(models.Model):
 
         sale_line = currency.round(buffer_line + profit_line)
 
-        unit_sale = sale_line / qty if qty else 0.0
+        # Divide then round so price_unit * qty == sale_line within currency precision
+        unit_sale = currency.round(sale_line / qty) if qty else 0.0
 
         return {
             "base_u": base_u,
@@ -1017,8 +1016,6 @@ class SaleOrder(models.Model):
         self.ensure_one()
         currency = self.currency_id or self.company_id.currency_id
         b = self._costing_line_breakdown(base_unit=base or 0.0, qty=1.0, currency=currency)
-        print(f"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq{b['final_u']}")
-
         return b["final_u"]
 
     def _costing_total_no_vat_without_profit(self):
@@ -1067,7 +1064,6 @@ class SaleOrder(models.Model):
                     qty=line.product_uom_qty or 0.0,
                     currency=order.currency_id or order.company_id.currency_id,
                 )
-                print(f"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq{b['final_u']}")
                 line.price_unit = b["final_u"]
 
     def write(self, vals):

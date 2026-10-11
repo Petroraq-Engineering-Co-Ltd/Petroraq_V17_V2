@@ -1,7 +1,6 @@
-from string import digits
-
 from odoo import api, fields, models, _
 from odoo.tools import format_amount, html_escape
+from odoo.tools.float_utils import float_compare
 
 
 class SaleOrderLine(models.Model):
@@ -49,14 +48,13 @@ class SaleOrderLine(models.Model):
         precompute=True
     )
 
-    @api.depends("price_unit", "discount", "currency_id")
+    @api.depends("price_unit", "discount")
     def _compute_net_unit_price(self):
         for line in self:
             price = line.price_unit or 0.0
             disc = line.discount or 0.0
             net = price * (1 - disc / 100.0)
             line.net_unit_price = net
-            print(f"nnnnnnnnnnnnnnnnnnnnnn{net}")
 
     @api.depends("product_id.standard_price", "manual_cost_price_unit", "use_manual_cost_price_unit")
     def _compute_cost_price_unit(self):
@@ -71,7 +69,7 @@ class SaleOrderLine(models.Model):
             line.manual_cost_price_unit = line.cost_price_unit
             line.use_manual_cost_price_unit = True
 
-    def _compute_sale_price_from_cost(self, cost):
+    def _get_sale_price_from_cost(self, cost):
         self.ensure_one()
         order = self.order_id
         currency = self.currency_id or order.currency_id or order.company_id.currency_id
@@ -93,10 +91,9 @@ class SaleOrderLine(models.Model):
             line.use_manual_cost_price_unit = True
             line.manual_cost_price_unit = cost
             line.cost_price_unit = cost
-            line.price_unit = line._compute_sale_price_from_cost(cost)
+            line.price_unit = line._get_sale_price_from_cost(cost)
 
-    @api.onchange("order_id.overhead_percent", "order_id.risk_percent", "order_id.profit_percent",
-                  "product_uom_qty", "cost_price_unit")
+    @api.onchange("product_uom_qty", "cost_price_unit")
     def _onchange_set_sale_price_from_cost(self):
         for line in self:
             if line.display_type or getattr(line, "is_downpayment", False) or not line.order_id:
@@ -106,7 +103,7 @@ class SaleOrderLine(models.Model):
             cost = line.cost_price_unit or 0.0
             line.use_manual_cost_price_unit = True
             line.manual_cost_price_unit = cost
-            line.price_unit = line._compute_sale_price_from_cost(cost)
+            line.price_unit = line._get_sale_price_from_cost(cost)
 
     def _sync_price_unit_from_product_cost(self):
         for line in self:
@@ -116,8 +113,12 @@ class SaleOrderLine(models.Model):
                 continue
 
             cost = line.manual_cost_price_unit if line.use_manual_cost_price_unit else line.cost_price_unit
-            sale_price = line._compute_sale_price_from_cost(cost)
-            if not self.env.context.get("skip_sync_price_unit") and line.price_unit != sale_price:
+            sale_price = line._get_sale_price_from_cost(cost)
+            prec = line.product_uom.rounding if line.product_uom else 0.01
+            if (
+                not self.env.context.get("skip_sync_price_unit")
+                and float_compare(line.price_unit, sale_price, precision_rounding=prec) != 0
+            ):
                 line.with_context(skip_sync_price_unit=True).price_unit = sale_price
 
     @api.model_create_multi
@@ -191,15 +192,7 @@ class SaleOrderLine(models.Model):
             orders._reset_confirmation_approval()
         return res
 
-    @api.depends(
-        "price_unit",
-        "order_id.overhead_percent",
-        "order_id.risk_percent",
-        "order_id.profit_percent",
-        "currency_id",
-        "display_type",
-        "is_downpayment",
-    )
+    @api.depends("price_unit")
     def _compute_final_price_unit(self):
         for line in self:
             line.final_price_unit = line.price_unit or 0.0
@@ -226,8 +219,7 @@ class SaleOrderLine(models.Model):
                     # Create deduction as a regular invoice line (same as manual add):
                     # keep taxes, but remove sale_line_ids linkage that forces
                     # account.move.line.is_downpayment=True.
-                    vals["sale_line_ids"] = [(5, 0, 0)]
-                    # vals["is_downpayment"] = False
+                    vals["sale_line_ids"] = [fields.Command.clear()]
                     vals["dp_source_sale_line_id"] = self.id
 
         return vals
@@ -240,7 +232,6 @@ class SaleOrderLine(models.Model):
         "sequence",
         "order_id.order_line.display_type",
         "order_id.order_line.sequence",
-        "order_id.order_line.price_unit",
         "order_id.order_line.cost_price_unit",
         "order_id.order_line.product_uom_qty",
         "order_id.order_line.is_downpayment",
