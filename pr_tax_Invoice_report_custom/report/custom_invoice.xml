@@ -57,6 +57,9 @@
 .pr-invoice .o_pr_invoice_qr_block {margin:12px 0; text-align:center; page-break-inside:avoid;}
 .pr-invoice .o_pr_invoice_qr_block img {width:120px; height:120px;}
 .pr-invoice .invoice-terms {margin-top:14px; font-size:12px;}
+.pr-invoice .o_pr_invoice_lines thead th {
+    background-color: #DBDBD9 !important;
+}
 </style>
                         <t t-set="report_values" t-value="o._get_custom_invoice_report_values()"/>
                         <t t-set="downpayment_subtotal" t-value="report_values['deduction']"/>
@@ -258,15 +261,15 @@
                         <table class="o_pr_invoice_lines" style="width:100%;">
                             <thead>
                                 <tr>
-                                    <th style="width:7%" class="text-center align-middle bg-secondary">الرقم التسلسلي<br/># SL</th>
-                                    <th style="width:30%" class="text-center align-middle bg-secondary">البند أو الوصف<br/>Description</th>
-                                    <th style="width:8%" class="text-center align-middle bg-secondary">الكمية<br/>Qty</th>
-                                    <th style="width:7%" class="text-center align-middle bg-secondary">الوحدة<br/>Unit</th>
-                                    <th style="width:13%" class="text-center align-middle bg-secondary">سعر الوحدة<br/>UNIT PRICE</th>
-                                    <th style="width:7%" t-if="has_discount" class="text-center align-middle bg-secondary">الخصم<br/>Discount %</th>
-                                    <th style="width:11%" class="text-center align-middle bg-secondary">المبلغ القابل للضريبة<br/>TAXABLE AMOUNT</th>
-                                    <th style="width:11%" class="text-center align-middle bg-secondary">معدل الضريبة<br/>TAX AMOUNT (15%)</th>
-                                    <th style="width:13%" class="text-center align-middle bg-secondary">المبلغ الإجمالي<br/>TOTAL AMOUNT</th>
+                                    <th style="width:7%" class="text-center align-middle">الرقم التسلسلي<br/># SL</th>
+                                    <th style="width:30%" class="text-center align-middle">البند أو الوصف<br/>Description</th>
+                                    <th style="width:8%" class="text-center align-middle">الكمية<br/>Qty</th>
+                                    <th style="width:7%" class="text-center align-middle">الوحدة<br/>Unit</th>
+                                    <th style="width:13%" class="text-center align-middle">سعر الوحدة<br/>UNIT PRICE</th>
+                                    <th style="width:7%" t-if="has_discount" class="text-center align-middle">الخصم<br/>Discount %</th>
+                                    <th style="width:11%" class="text-center align-middle">المبلغ القابل للضريبة<br/>TAXABLE AMOUNT</th>
+                                    <th style="width:11%" class="text-center align-middle">معدل الضريبة<br/>TAX AMOUNT (15%)</th>
+                                    <th style="width:13%" class="text-center align-middle">المبلغ الإجمالي<br/>TOTAL AMOUNT</th>
                                 </tr>
                             </thead>
                             <tbody>
