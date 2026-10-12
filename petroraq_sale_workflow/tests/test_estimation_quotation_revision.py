@@ -723,6 +723,48 @@ class TestEstimationQuotationRevision(TransactionCase):
             0,
         )
 
+    def test_sync_products_from_estimation_diff_absorption_with_multi_qty(self):
+        product = self.env["product.product"].create({
+            "name": "Sync Multi Qty Product",
+            "type": "consu",
+            "standard_price": 100.0,
+        })
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "overhead_percent": 10.0,
+            "risk_percent": 5.0,
+            "profit_percent": 15.0,
+        })
+        estimation.line_ids.create({
+            "estimation_id": estimation.id,
+            "section_type": "material",
+            "product_id": product.id,
+            "quantity": 3.0,
+            "unit_cost": 100.0,
+        })
+        estimation.line_ids.create({
+            "estimation_id": estimation.id,
+            "section_type": "material",
+            "product_id": product.id,
+            "quantity": 7.0,
+            "unit_cost": 100.0,
+        })
+
+        quotation = self.env["sale.order"].create({
+            "partner_id": self.partner.id,
+            "estimation_id": estimation.id,
+            "state": "draft",
+            "approval_state": "draft",
+        })
+        quotation.action_sync_products_from_estimation()
+
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+        est_total = float_round(estimation.total_with_profit, precision_digits=precision_cost)
+        so_untaxed = float_round(quotation.amount_untaxed, precision_digits=precision_cost)
+        self.assertEqual(float_compare(est_total, so_untaxed, precision_digits=precision_cost), 0)
+        self.assertEqual(float_compare(est_total, quotation.amount_to_invoice, precision_digits=precision_cost), 0)
+
+
 
 
 

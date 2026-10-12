@@ -480,11 +480,37 @@ class SaleOrder(models.Model):
         synced_untaxed_total = float_round(synced_untaxed_total, precision_digits=precision_cost)
         diff = float_round(target_total - synced_untaxed_total, precision_digits=precision_cost)
         if adjustable_product_lines and diff:
-            line_vals, qty = adjustable_product_lines[-1]
-            line_vals["price_unit"] = float_round(
-                (line_vals["price_unit"] or 0.0) + (diff / qty),
-                precision_digits=precision_cost,
+            # 1. Prefer a line with qty == 1.0 so price_unit cleanly absorbs diff without division rounding error
+            line_with_unit_qty = next(
+                (item for item in reversed(adjustable_product_lines) if float_compare(item[1], 1.0, precision_digits=precision_qty) == 0),
+                None,
             )
+            if line_with_unit_qty:
+                line_vals, qty = line_with_unit_qty
+                line_vals["price_unit"] = float_round(
+                    (line_vals["price_unit"] or 0.0) + diff,
+                    precision_digits=precision_cost,
+                )
+            else:
+                # 2. Try to find any line whose qty evenly divides diff within precision_cost
+                absorbed = False
+                for item_vals, item_qty in reversed(adjustable_product_lines):
+                    if item_qty:
+                        step = float_round(diff / item_qty, precision_digits=precision_cost)
+                        if float_compare(float_round(step * item_qty, precision_digits=precision_cost), diff, precision_digits=precision_cost) == 0:
+                            item_vals["price_unit"] = float_round(
+                                (item_vals["price_unit"] or 0.0) + step,
+                                precision_digits=precision_cost,
+                            )
+                            absorbed = True
+                            break
+                if not absorbed:
+                    # 3. Otherwise adjust the last line
+                    line_vals, qty = adjustable_product_lines[-1]
+                    line_vals["price_unit"] = float_round(
+                        (line_vals["price_unit"] or 0.0) + (diff / qty),
+                        precision_digits=precision_cost,
+                    )
 
         return commands
 
@@ -771,6 +797,24 @@ class SaleOrder(models.Model):
                 )
 
             order.amount_to_invoice_untaxed = currency.round((order.amount_untaxed or 0.0) - invoiced_untaxed)
+
+    @api.depends("order_line.price_subtotal", "order_line.price_tax", "order_line.price_total")
+    def _compute_amounts(self):
+        super()._compute_amounts()
+        for order in self:
+            currency = order.currency_id or order.company_id.currency_id
+            if currency:
+                order.amount_untaxed = currency.round(order.amount_untaxed)
+                order.amount_tax = currency.round(order.amount_tax)
+                order.amount_total = currency.round(order.amount_total)
+
+    @api.depends("invoice_ids.state", "currency_id", "amount_total")
+    def _compute_amount_to_invoice(self):
+        super()._compute_amount_to_invoice()
+        for order in self:
+            currency = order.currency_id or order.company_id.currency_id
+            if currency and order.amount_to_invoice:
+                order.amount_to_invoice = currency.round(order.amount_to_invoice)
 
     @api.depends(
         "order_line.price_unit",
@@ -1175,10 +1219,13 @@ class SaleOrder(models.Model):
                     "Use an explicit 0%% or Exempt tax where VAT does not apply. Missing on: %s"
                 ) % ", ".join(missing_tax_lines.mapped("name")))
             if order.estimation_id:
+                currency = order.currency_id or order.company_id.currency_id
                 precision_cost = self.env["decimal.precision"].precision_get("Product Price")
                 estimation_total = float_round(order.estimation_id.total_with_profit or 0.0, precision_digits=precision_cost)
                 quotation_total = float_round(order.amount_untaxed or 0.0, precision_digits=precision_cost)
-                if float_compare(estimation_total, quotation_total, precision_digits=precision_cost) != 0:
+                diff = abs(float_round(estimation_total - quotation_total, precision_digits=precision_cost))
+                rounding_tolerance = currency.rounding if currency else 0.01
+                if float_compare(diff, rounding_tolerance, precision_rounding=rounding_tolerance) > 0:
                     raise UserError(_("The quotation total must match the estimation total before submission."))
 
         self.write({
