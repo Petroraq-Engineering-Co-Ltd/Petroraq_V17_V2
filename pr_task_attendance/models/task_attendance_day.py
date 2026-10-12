@@ -155,8 +155,8 @@ class TaskAttendanceDay(models.Model):
 
     @api.model
     def _requires_submission(self, employee, day, start, end, timezone):
-        # Missing daily ETM submissions can affect attendance only for an
-        # employee whose linked active user actually has an ETM role.
+        # Missing daily ETM submissions can affect attendance only when HR
+        # explicitly enables the employee-level attendance policy.
         if not employee._is_etm_participant():
             return False
         calendar = employee.resource_calendar_id or employee.company_id.resource_calendar_id
@@ -185,7 +185,7 @@ class TaskAttendanceDay(models.Model):
         )
 
     @api.model
-    def _repair_non_etm_absences(self, from_date=None):
+    def _repair_non_etm_absences(self, from_date=None, employee_ids=None):
         """Restore attendance wrongly blocked by ETM for non-participants.
 
         The absence record remains as an approved audit record.  Actual
@@ -197,7 +197,11 @@ class TaskAttendanceDay(models.Model):
         days = self.sudo().search([
             ("date", ">=", from_date),
             ("state", "!=", "approved"),
-        ]).filtered(lambda day: not day.employee_id._is_etm_participant())
+        ] + ([
+            ("employee_id", "in", employee_ids),
+        ] if employee_ids else [])).filtered(
+            lambda day: not day.employee_id._is_etm_participant()
+        )
         if not days:
             return 0
 
@@ -205,8 +209,8 @@ class TaskAttendanceDay(models.Model):
         days.write({
             "state": "approved",
             "hr_comment": _(
-                "Automatically restored: the employee did not have an ETM "
-                "role and was not subject to the daily task-submission policy."
+                "Manually restored: the employee's Task Management Attendance "
+                "Policy was disabled."
             ),
             "decision_by_id": self.env.ref("base.user_root").id,
             "decision_at": fields.Datetime.now(),

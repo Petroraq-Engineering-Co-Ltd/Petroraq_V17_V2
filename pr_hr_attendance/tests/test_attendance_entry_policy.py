@@ -25,6 +25,8 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
             ).ids)],
         })
         self.scheduled_employee.user_id = task_user
+        self.assertFalse(self.scheduled_employee._is_etm_participant())
+        self.scheduled_employee.etm_attendance_policy_enabled = True
         for offset in range(5):
             self.env["employee.task.idle.day"].create({
                 "employee_id": self.scheduled_employee.id,

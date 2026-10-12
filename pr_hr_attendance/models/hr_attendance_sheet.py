@@ -253,7 +253,7 @@ class HrAttendanceSheet(models.Model):
                 })
 
     @api.model
-    def _repair_non_etm_saturday_results(self, from_date=None):
+    def _repair_non_etm_saturday_results(self, from_date=None, employee_ids=None):
         """Rebuild wrongly ETM-adjusted, still-open attendance sheets.
 
         The ETM Saturday policy was introduced on 2026-09-27.  Its old
@@ -265,7 +265,9 @@ class HrAttendanceSheet(models.Model):
         sheets = self.sudo().search([
             ("state", "in", ("draft", "confirm")),
             ("date_to", ">=", from_date),
-        ])
+        ] + ([
+            ("employee_id", "in", employee_ids),
+        ] if employee_ids else []))
         affected = sheets.filtered(
             lambda sheet: not sheet.employee_id._is_etm_participant()
             and any(
