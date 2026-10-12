@@ -151,6 +151,26 @@ class HrEmployee(models.Model):
         action["context"] = {"default_employee_id": self.id, "create": False}
         return action
 
+    def _is_etm_participant(self):
+        """Whether this employee is subject to ETM attendance policies.
+
+        ETM access is user-based.  Managers and administrators imply the
+        employee role, but checking all three roles explicitly keeps this
+        policy correct even if that security-group hierarchy changes later.
+        The Boss oversight checkbox deliberately does not count as an ETM
+        role because it grants no task rights of its own.
+        """
+        self.ensure_one()
+        user = self.sudo().user_id
+        if not user or not user.active:
+            return False
+        role_groups = self.env["res.groups"].sudo().browse([
+            self.env.ref("employee_task_management.group_task_employee").id,
+            self.env.ref("employee_task_management.group_task_manager").id,
+            self.env.ref("employee_task_management.group_task_admin").id,
+        ])
+        return bool(user.sudo().groups_id & role_groups)
+
     @api.model
     def _etm_week_bounds_for_saturday(self, saturday):
         """Return the Sunday-Thursday earning window for a Saturday."""
@@ -168,7 +188,9 @@ class HrEmployee(models.Model):
 
     def _etm_saturday_is_off(self, saturday):
         self.ensure_one()
-        if not saturday or saturday.weekday() != 5:
+        if (
+            not self._is_etm_participant() or not saturday or saturday.weekday() != 5
+        ):
             return False
         return float_compare(
             self._etm_approved_hours_before_saturday(saturday), 40.0, precision_digits=2,

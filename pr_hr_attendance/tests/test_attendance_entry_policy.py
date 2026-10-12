@@ -14,6 +14,17 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
 
     def test_saturday_is_off_only_after_40_approved_etm_hours(self):
         saturday = date(2026, 6, 6)
+        task_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Saturday ETM Employee",
+            "login": "saturday.etm.employee.test",
+            "company_id": self.env.company.id,
+            "company_ids": [Command.set(self.env.company.ids)],
+            "groups_id": [Command.set((
+                self.env.ref("base.group_user")
+                | self.env.ref("employee_task_management.group_task_employee")
+            ).ids)],
+        })
+        self.scheduled_employee.user_id = task_user
         for offset in range(5):
             self.env["employee.task.idle.day"].create({
                 "employee_id": self.scheduled_employee.id,
@@ -26,6 +37,20 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
             ("date", "=", date(2026, 6, 4)),
         ]).approved_hours = 7.0
         self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
+
+    def test_non_etm_employee_never_receives_etm_saturday_off(self):
+        saturday = date(2026, 6, 6)
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.scheduled_employee.id,
+                "date": date(2026, 5, 31) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+
+        self.assertFalse(self.scheduled_employee._is_etm_participant())
+        self.assertFalse(
+            self.scheduled_employee._etm_saturday_is_off(saturday)
+        )
 
     def test_manual_hr_create_modify_and_delete_is_allowed(self):
         attendance = self.Attendance.with_user(self.hr_user).create(
