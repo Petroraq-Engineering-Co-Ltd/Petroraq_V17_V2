@@ -211,6 +211,11 @@ class HrAttendanceSheet(models.Model):
         """Make Saturday conditional on the prior Sun-Thu ETM approvals."""
         for sheet in self:
             employee = sheet.employee_id
+            # Non-ETM staff keep their normal calendar/attendance result.
+            # This policy must neither grant them Saturday off nor mark them
+            # absent for not completing ETM hours.
+            if not employee._is_etm_participant():
+                continue
             calendar = employee.contract_id.resource_calendar_id
             fallback_lines = calendar.attendance_ids.filtered(
                 lambda item: item.dayofweek in ("6", "0", "1", "2", "3")

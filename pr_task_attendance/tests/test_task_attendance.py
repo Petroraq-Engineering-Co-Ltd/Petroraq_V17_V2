@@ -92,6 +92,28 @@ class TestTaskAttendance(TransactionCase):
         self.assertEqual(self.Day.search_count([("employee_id", "=", self.employee.id)]), 1)
         self.assertEqual(actual, (attendance.check_in, attendance.check_out, attendance.worked_hours, attendance.attendance_entry_source))
 
+    def test_non_etm_employee_is_not_absent_for_missing_daily_submission(self):
+        employee = self.env["hr.employee"].create({
+            "name": "Employee Outside ETM",
+            "user_id": self.other_user.id,
+            "company_id": self.env.company.id,
+            "resource_calendar_id": self.calendar.id,
+            "compute_attendance": True,
+        })
+        attendance = self.env["hr.attendance"].sudo().with_context(
+            attendance_policy_source="biometric"
+        ).create({
+            "employee_id": employee.id,
+            "check_in": datetime(2026, 9, 14, 5),
+            "check_out": datetime(2026, 9, 14, 14),
+        })
+
+        self.Day.cron_finalize_task_attendance(now=self.midnight)
+
+        self.assertTrue(attendance.task_attendance_checked)
+        self.assertFalse(attendance.task_attendance_day_id)
+        self.assertEqual(attendance.attendance_day_status, "normal")
+
     def test_fresh_daily_submission_counts_but_previous_day_does_not(self):
         self._submission(datetime(2026, 9, 14, 12), end=self.day + timedelta(days=1))
         first = self._attendance()

@@ -155,6 +155,10 @@ class TaskAttendanceDay(models.Model):
 
     @api.model
     def _requires_submission(self, employee, day, start, end, timezone):
+        # Missing daily ETM submissions can affect attendance only for an
+        # employee whose linked active user actually has an ETM role.
+        if not employee._is_etm_participant():
+            return False
         calendar = employee.resource_calendar_id or employee.company_id.resource_calendar_id
         if not calendar or self.env["hr.attendance"]._is_auto_attendance_public_holiday(employee, day):
             return False
