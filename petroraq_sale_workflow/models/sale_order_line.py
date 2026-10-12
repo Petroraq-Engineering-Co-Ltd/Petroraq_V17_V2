@@ -114,10 +114,10 @@ class SaleOrderLine(models.Model):
 
             cost = line.manual_cost_price_unit if line.use_manual_cost_price_unit else line.cost_price_unit
             sale_price = line._get_sale_price_from_cost(cost)
-            prec = line.product_uom.rounding if line.product_uom else 0.01
+            precision_cost = self.env["decimal.precision"].precision_get("Product Price")
             if (
                 not self.env.context.get("skip_sync_price_unit")
-                and float_compare(line.price_unit, sale_price, precision_rounding=prec) != 0
+                and float_compare(line.price_unit, sale_price, precision_digits=precision_cost) != 0
             ):
                 line.with_context(skip_sync_price_unit=True).price_unit = sale_price
 

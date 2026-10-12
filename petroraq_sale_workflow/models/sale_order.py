@@ -405,6 +405,8 @@ class SaleOrder(models.Model):
         self.ensure_one()
         estimation = self.estimation_id
         currency = self.currency_id or self.company_id.currency_id
+        precision_qty = self.env["decimal.precision"].precision_get("Product Unit of Measure")
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         section_map = {
             "material": _("Material"),
             "labor": _("Labor"),
@@ -453,7 +455,8 @@ class SaleOrder(models.Model):
                     if estimation_line.section_type in ("labor", "equipment")
                     else estimation_line.quantity
                 ) or 0.0
-                unit_cost = estimation_line.unit_cost or 0.0
+                qty = float_round(qty, precision_digits=precision_qty)
+                unit_cost = float_round(estimation_line.unit_cost or 0.0, precision_digits=precision_cost)
                 price_unit = self._costing_line_breakdown(
                     base_unit=unit_cost,
                     qty=qty,
@@ -468,12 +471,11 @@ class SaleOrder(models.Model):
                     "price_unit": price_unit,
                 }
                 commands.append((0, 0, line_vals))
-                synced_untaxed_total += currency.round(price_unit * qty)
+                synced_untaxed_total += float_round(price_unit * qty, precision_digits=precision_cost)
                 if qty:
                     adjustable_product_lines.append((line_vals, qty))
                 sequence += 10
 
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         target_total = float_round(estimation.total_with_profit or 0.0, precision_digits=precision_cost)
         synced_untaxed_total = float_round(synced_untaxed_total, precision_digits=precision_cost)
         diff = float_round(target_total - synced_untaxed_total, precision_digits=precision_cost)
@@ -500,7 +502,10 @@ class SaleOrder(models.Model):
                 "overhead_percent": estimation.overhead_percent or 0.0,
                 "risk_percent": estimation.risk_percent or 0.0,
                 "profit_percent": estimation.profit_percent or 0.0,
-                "order_line": order._prepare_sale_order_lines_from_estimation(),
+            })
+            lines = order.with_context(skip_costing_reprice=True)._prepare_sale_order_lines_from_estimation()
+            order.with_context(skip_costing_reprice=True, skip_sync_price_unit=True).write({
+                "order_line": lines,
             })
             order.message_post(body=_("Quotation products were synced from estimation %s.") % estimation.name)
 
@@ -876,41 +881,42 @@ class SaleOrder(models.Model):
         self.ensure_one()
         return self.order_line.filtered(lambda l: not l.display_type and not l.is_downpayment)
 
-    def _costing_line_breakdown(self, base_unit, qty, currency):
+    def _costing_line_breakdown(self, base_unit, qty, currency=None):
         """
-        Line-total based costing:
+        Line-total based costing using 'Product Price' decimal precision:
           cost_line = round(cost_unit * qty)
           risk_line = round(cost_line * risk%)
           oh_line   = round(cost_line * oh%)
           buffer_line = cost_line + risk_line + oh_line
           profit_line = round(buffer_line * profit%)
           sale_line = buffer_line + profit_line
-          unit_sale = round(sale_line / qty)  (currency rounding)
+          unit_sale = round(sale_line / qty)
         """
         self.ensure_one()
         qty = qty or 0.0
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
 
-        base_u = currency.round(base_unit or 0.0)
+        base_u = float_round(base_unit or 0.0, precision_digits=precision_cost)
 
-        cost_line = currency.round((base_unit or 0.0) * qty) if qty else 0.0
+        cost_line = float_round((base_unit or 0.0) * qty, precision_digits=precision_cost) if qty else 0.0
 
-        oh_line = currency.round(cost_line * (self.overhead_percent or 0.0) / 100.0)
-        risk_line = currency.round(cost_line * (self.risk_percent or 0.0) / 100.0)
+        oh_line = float_round(cost_line * (self.overhead_percent or 0.0) / 100.0, precision_digits=precision_cost)
+        risk_line = float_round(cost_line * (self.risk_percent or 0.0) / 100.0, precision_digits=precision_cost)
 
-        buffer_line = currency.round(cost_line + oh_line + risk_line)
+        buffer_line = float_round(cost_line + oh_line + risk_line, precision_digits=precision_cost)
 
-        profit_line = currency.round(buffer_line * (self.profit_percent or 0.0) / 100.0)
+        profit_line = float_round(buffer_line * (self.profit_percent or 0.0) / 100.0, precision_digits=precision_cost)
 
-        sale_line = currency.round(buffer_line + profit_line)
+        sale_line = float_round(buffer_line + profit_line, precision_digits=precision_cost)
 
-        # Divide then round so price_unit * qty == sale_line within currency precision
-        unit_sale = currency.round(sale_line / qty) if qty else 0.0
+        # Divide then round so price_unit * qty == sale_line within Product Price decimal precision
+        unit_sale = float_round(sale_line / qty, precision_digits=precision_cost) if qty else 0.0
 
         return {
             "base_u": base_u,
-            "oh_u": currency.round(oh_line / qty) if qty else 0.0,
-            "risk_u": currency.round(risk_line / qty) if qty else 0.0,
-            "profit_u": currency.round(profit_line / qty) if qty else 0.0,
+            "oh_u": float_round(oh_line / qty, precision_digits=precision_cost) if qty else 0.0,
+            "risk_u": float_round(risk_line / qty, precision_digits=precision_cost) if qty else 0.0,
+            "profit_u": float_round(profit_line / qty, precision_digits=precision_cost) if qty else 0.0,
             "final_u": unit_sale,
 
             "base_line": cost_line,
@@ -924,6 +930,7 @@ class SaleOrder(models.Model):
     def _costing_compute_totals(self):
         self.ensure_one()
         currency = self.currency_id or self.company_id.currency_id
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         rounding_method = self.company_id.tax_calculation_rounding_method  # 'round_globally' / 'round_per_line'
         vat_rate = 0.15
 
@@ -950,9 +957,12 @@ class SaleOrder(models.Model):
                 line_net = currency.round(line_gross * (1.0 - disc))
                 vat_total += currency.round(line_net * vat_rate)
 
-        buffer_total_no_vat = currency.round(base_total + oh_total + risk_total)
-        profit_total = currency.round(profit_total)
-        gross_sale = currency.round(gross_sale)
+        base_total = float_round(base_total, precision_digits=precision_cost)
+        oh_total = float_round(oh_total, precision_digits=precision_cost)
+        risk_total = float_round(risk_total, precision_digits=precision_cost)
+        buffer_total_no_vat = float_round(base_total + oh_total + risk_total, precision_digits=precision_cost)
+        profit_total = float_round(profit_total, precision_digits=precision_cost)
+        gross_sale = float_round(gross_sale, precision_digits=precision_cost)
 
         discount_total = 0.0
         for line in self._iter_costing_lines():
@@ -963,15 +973,15 @@ class SaleOrder(models.Model):
             )["total_line"]
             disc = (line.discount or 0.0) / 100.0
             if disc:
-                discount_total += currency.round(line_gross * disc)
+                discount_total += float_round(line_gross * disc, precision_digits=precision_cost)
 
         for line in self.order_line.filtered(lambda l: not l.display_type and not l.is_downpayment):
             if (line.price_subtotal or 0.0) < 0:
                 discount_total += currency.round(-(line.price_subtotal or 0.0))
 
-        discount_total = currency.round(discount_total)
+        discount_total = float_round(discount_total, precision_digits=precision_cost)
 
-        net_sale = currency.round(gross_sale - discount_total)
+        net_sale = float_round(gross_sale - discount_total, precision_digits=precision_cost)
         if rounding_method != "round_per_line":
             vat_total = currency.round(net_sale * vat_rate)
 
@@ -1089,18 +1099,19 @@ class SaleOrder(models.Model):
         res = super().write(vals)
 
         if any(k in vals for k in ("overhead_percent", "risk_percent", "profit_percent")):
-            for order in self:
-                currency = order.currency_id or order.company_id.currency_id
-                lines = order.order_line.filtered(
-                    lambda l: not l.display_type and not l.is_downpayment and l.product_id
-                )
-                for line in lines:
-                    b = order._costing_line_breakdown(
-                        base_unit=line.cost_price_unit or 0.0,
-                        qty=line.product_uom_qty or 0.0,
-                        currency=currency,
+            if not self.env.context.get("skip_costing_reprice"):
+                for order in self:
+                    currency = order.currency_id or order.company_id.currency_id
+                    lines = order.order_line.filtered(
+                        lambda l: not l.display_type and not l.is_downpayment and l.product_id
                     )
-                    line.price_unit = b["final_u"]
+                    for line in lines:
+                        b = order._costing_line_breakdown(
+                            base_unit=line.cost_price_unit or 0.0,
+                            qty=line.product_uom_qty or 0.0,
+                            currency=currency,
+                        )
+                        line.price_unit = b["final_u"]
         return res
 
     @api.depends_context("uid")
