@@ -114,6 +114,25 @@ class TestTaskAttendance(TransactionCase):
         self.assertFalse(attendance.task_attendance_day_id)
         self.assertEqual(attendance.attendance_day_status, "normal")
 
+    def test_repair_restores_existing_absence_after_etm_access_is_removed(self):
+        attendance, day = self._absence()
+        self.assertEqual(attendance.attendance_day_status, "absent")
+        self.employee_user.write({
+            "groups_id": [Command.set((
+                self.env.ref("base.group_user")
+                | self.env.ref("de_hr_workspace.group_hr_employee_workspace")
+            ).ids)],
+        })
+
+        repaired = self.Day._repair_non_etm_absences(from_date=self.day)
+
+        self.assertEqual(repaired, 1)
+        self.assertEqual(day.state, "approved")
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertEqual((attendance.check_in, attendance.check_out), (
+            datetime(2026, 9, 14, 5), datetime(2026, 9, 14, 14),
+        ))
+
     def test_fresh_daily_submission_counts_but_previous_day_does_not(self):
         self._submission(datetime(2026, 9, 14, 12), end=self.day + timedelta(days=1))
         first = self._attendance()

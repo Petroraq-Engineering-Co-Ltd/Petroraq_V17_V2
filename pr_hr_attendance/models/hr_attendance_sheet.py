@@ -252,6 +252,36 @@ class HrAttendanceSheet(models.Model):
                     "act_diff_time": max(planned_hours - (line.worked_hours or 0.0), 0.0),
                 })
 
+    @api.model
+    def _repair_non_etm_saturday_results(self, from_date=None):
+        """Rebuild wrongly ETM-adjusted, still-open attendance sheets.
+
+        The ETM Saturday policy was introduced on 2026-09-27.  Its old
+        implementation left a distinctive ETM note, which lets this repair
+        avoid touching ordinary absences or weekends.  Approved sheets are
+        deliberately not rebuilt because they may already be tied to payroll.
+        """
+        from_date = fields.Date.to_date(from_date or "2026-09-27")
+        sheets = self.sudo().search([
+            ("state", "in", ("draft", "confirm")),
+            ("date_to", ">=", from_date),
+        ])
+        affected = sheets.filtered(
+            lambda sheet: not sheet.employee_id._is_etm_participant()
+            and any(
+                line.date
+                and line.date >= from_date
+                and line.date.weekday() == 5
+                and "etm" in (line.note or "").lower()
+                for line in sheet.line_ids
+            )
+        )
+        for sheet in affected:
+            # Normal regeneration restores the employee's calendar and actual
+            # punches; the ETM override now skips this employee.
+            sheet.get_attendances()
+        return len(affected)
+
     def _sync_line_overtime_approval_from_attendance(self):
         for sheet in self:
             timezone_name = sheet.employee_id.tz or self.env.user.tz or "UTC"
