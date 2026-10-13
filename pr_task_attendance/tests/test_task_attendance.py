@@ -51,6 +51,7 @@ class TestTaskAttendance(TransactionCase):
             "company_id": cls.env.company.id, "resource_calendar_id": cls.calendar.id,
             "department_id": cls.department.id, "parent_id": cls.manager.id,
             "compute_attendance": True,
+            "etm_attendance_policy_enabled": True,
         })
 
     def _attendance(self, offset=0, start_hour=5, end_hour=14):
@@ -114,19 +115,27 @@ class TestTaskAttendance(TransactionCase):
         self.assertFalse(attendance.task_attendance_day_id)
         self.assertEqual(attendance.attendance_day_status, "normal")
 
+    def test_disabling_policy_does_not_change_existing_attendance(self):
+        attendance, day = self._absence()
+        original_state = day.state
+
+        self.employee.etm_attendance_policy_enabled = False
+
+        self.assertEqual(day.state, original_state)
+        self.assertEqual(attendance.attendance_day_status, "absent")
+        self.assertEqual(attendance.task_attendance_day_id, day)
+
     def test_repair_restores_existing_absence_after_etm_access_is_removed(self):
         attendance, day = self._absence()
         self.assertEqual(attendance.attendance_day_status, "absent")
-        self.employee_user.write({
-            "groups_id": [Command.set((
-                self.env.ref("base.group_user")
-                | self.env.ref("de_hr_workspace.group_hr_employee_workspace")
-            ).ids)],
-        })
+        self.employee.etm_attendance_policy_enabled = False
 
-        repaired = self.Day._repair_non_etm_absences(from_date=self.day)
+        action = self.employee.with_user(self.hr_user).action_repair_etm_attendance(
+            from_date=self.day,
+        )
 
-        self.assertEqual(repaired, 1)
+        self.assertEqual(action["tag"], "display_notification")
+        self.assertIn("1 daily absence record(s) restored", action["params"]["message"])
         self.assertEqual(day.state, "approved")
         self.assertEqual(attendance.attendance_day_status, "normal")
         self.assertEqual((attendance.check_in, attendance.check_out), (

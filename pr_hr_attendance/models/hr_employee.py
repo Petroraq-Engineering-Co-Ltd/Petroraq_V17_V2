@@ -45,6 +45,15 @@ class HrEmployee(models.Model):
               "attendance cron creates check-in and check-out from the employee's working "
               "calendar. HR can still manually add or correct attendance records."),
     )
+    etm_attendance_policy_enabled = fields.Boolean(
+        string="Task Management Attendance Policy",
+        default=False,
+        copy=False,
+        tracking=True,
+        help=("When enabled, the employee is subject to the daily task-submission "
+              "attendance check and the 40-hour Saturday rule. Changing this toggle "
+              "does not alter existing attendance records."),
+    )
     attendance_mode_change_request_count = fields.Integer(
         string="Attendance Mode Requests",
         compute="_compute_attendance_mode_change_request_count",
@@ -152,24 +161,9 @@ class HrEmployee(models.Model):
         return action
 
     def _is_etm_participant(self):
-        """Whether this employee is subject to ETM attendance policies.
-
-        ETM access is user-based.  Managers and administrators imply the
-        employee role, but checking all three roles explicitly keeps this
-        policy correct even if that security-group hierarchy changes later.
-        The Boss oversight checkbox deliberately does not count as an ETM
-        role because it grants no task rights of its own.
-        """
+        """Whether this employee is subject to ETM attendance policies."""
         self.ensure_one()
-        user = self.sudo().user_id
-        if not user or not user.active:
-            return False
-        role_groups = self.env["res.groups"].sudo().browse([
-            self.env.ref("employee_task_management.group_task_employee").id,
-            self.env.ref("employee_task_management.group_task_manager").id,
-            self.env.ref("employee_task_management.group_task_admin").id,
-        ])
-        return bool(user.sudo().groups_id & role_groups)
+        return bool(self.sudo().etm_attendance_policy_enabled)
 
     @api.model
     def _etm_week_bounds_for_saturday(self, saturday):
