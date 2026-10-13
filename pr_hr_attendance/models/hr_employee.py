@@ -45,6 +45,17 @@ class HrEmployee(models.Model):
               "attendance cron creates check-in and check-out from the employee's working "
               "calendar. HR can still manually add or correct attendance records."),
     )
+    etm_attendance_policy_enabled = fields.Boolean(
+        string="Task Management Attendance Policy",
+        default=False,
+        copy=False,
+        tracking=True,
+        help=("When enabled, the employee is subject to the daily task-submission "
+              "attendance check and must complete 40 approved hours to earn Saturday "
+              "off from the configured enforcement date. When disabled, Saturday is "
+              "off from that date. Changing this toggle does "
+              "not alter existing attendance records."),
+    )
     attendance_mode_change_request_count = fields.Integer(
         string="Attendance Mode Requests",
         compute="_compute_attendance_mode_change_request_count",
@@ -151,6 +162,34 @@ class HrEmployee(models.Model):
         action["context"] = {"default_employee_id": self.id, "create": False}
         return action
 
+    def _is_etm_participant(self):
+        """Whether this employee is subject to ETM attendance policies."""
+        self.ensure_one()
+        return bool(self.sudo().etm_attendance_policy_enabled)
+
+    @api.model
+    def _etm_attendance_enforce_from(self):
+        """Return the configured first business date for ETM attendance."""
+        value = self.env["ir.config_parameter"].sudo().get_param(
+            "pr_task_attendance.enforce_from"
+        )
+        if not value:
+            return False
+        try:
+            return fields.Date.to_date(value)
+        except (TypeError, ValueError):
+            _logger.warning(
+                "Ignoring invalid pr_task_attendance.enforce_from value %r; "
+                "expected YYYY-MM-DD.", value,
+            )
+            return False
+
+    def _etm_attendance_policy_applies(self, day):
+        """Whether ETM attendance rules are active on this date."""
+        enforce_from = self._etm_attendance_enforce_from()
+        day = fields.Date.to_date(day) if day else False
+        return bool(enforce_from and day and day >= enforce_from)
+
     @api.model
     def _etm_week_bounds_for_saturday(self, saturday):
         """Return the Sunday-Thursday earning window for a Saturday."""
@@ -168,8 +207,17 @@ class HrEmployee(models.Model):
 
     def _etm_saturday_is_off(self, saturday):
         self.ensure_one()
-        if not saturday or saturday.weekday() != 5:
+        saturday = fields.Date.to_date(saturday) if saturday else False
+        if (
+            not saturday or saturday.weekday() != 5
+            or not self._etm_attendance_policy_applies(saturday)
+        ):
             return False
+        # Employees outside the task-management attendance policy always
+        # retain Saturday as an off day. Only opted-in employees have to earn
+        # it by completing 40 approved hours from Sunday through Thursday.
+        if not self._is_etm_participant():
+            return True
         return float_compare(
             self._etm_approved_hours_before_saturday(saturday), 40.0, precision_digits=2,
         ) >= 0
