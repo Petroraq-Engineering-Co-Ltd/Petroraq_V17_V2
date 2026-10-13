@@ -1,6 +1,8 @@
 from datetime import date, datetime, timedelta
 from unittest.mock import patch
 
+import pytz
+
 from odoo import Command
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, tagged
@@ -124,6 +126,23 @@ class TestTaskAttendance(TransactionCase):
         self.assertEqual(day.state, original_state)
         self.assertEqual(attendance.attendance_day_status, "absent")
         self.assertEqual(attendance.task_attendance_day_id, day)
+
+    def test_dashboard_uses_toggle_for_saturday_schedule(self):
+        saturday = date(2026, 9, 19)
+        timezone = pytz.timezone("Asia/Riyadh")
+        dashboard = self.env["de.hr.attendance.management.dashboard"]
+
+        self.employee.etm_attendance_policy_enabled = False
+        opted_out_schedule = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertFalse(opted_out_schedule["working_day"])
+
+        self.employee.etm_attendance_policy_enabled = True
+        opted_in_schedule = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertTrue(opted_in_schedule["working_day"])
 
     def test_repair_restores_existing_absence_after_etm_access_is_removed(self):
         attendance, day = self._absence()

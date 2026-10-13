@@ -211,11 +211,6 @@ class HrAttendanceSheet(models.Model):
         """Make Saturday conditional on the prior Sun-Thu ETM approvals."""
         for sheet in self:
             employee = sheet.employee_id
-            # Non-ETM staff keep their normal calendar/attendance result.
-            # This policy must neither grant them Saturday off nor mark them
-            # absent for not completing ETM hours.
-            if not employee._is_etm_participant():
-                continue
             calendar = employee.contract_id.resource_calendar_id
             fallback_lines = calendar.attendance_ids.filtered(
                 lambda item: item.dayofweek in ("6", "0", "1", "2", "3")
@@ -227,9 +222,14 @@ class HrAttendanceSheet(models.Model):
             for line in sheet.line_ids.filtered(lambda item: item.date and item.date.weekday() == 5):
                 saturday_off = employee._etm_saturday_is_off(line.date)
                 if saturday_off:
+                    off_note = _(
+                        "Saturday off: Task Management Attendance Policy is disabled."
+                    ) if not employee._is_etm_participant() else _(
+                        "Saturday off: 40 approved ETM hours completed Sunday-Thursday."
+                    )
                     line.write({
                         "status": "weekend",
-                        "note": _("Saturday off: 40 approved ETM hours completed Sunday-Thursday."),
+                        "note": off_note,
                         "pl_sign_in": 0.0,
                         "pl_sign_out": 0.0,
                         "late_in": 0.0,
@@ -254,12 +254,11 @@ class HrAttendanceSheet(models.Model):
 
     @api.model
     def _repair_non_etm_saturday_results(self, from_date=None, employee_ids=None):
-        """Rebuild wrongly ETM-adjusted, still-open attendance sheets.
+        """Rebuild selected opted-out employees' open Saturday sheets.
 
-        The ETM Saturday policy was introduced on 2026-09-27.  Its old
-        implementation left a distinctive ETM note, which lets this repair
-        avoid touching ordinary absences or weekends.  Approved sheets are
-        deliberately not rebuilt because they may already be tied to payroll.
+        Selected employees with the policy disabled are always off on
+        Saturday. Approved sheets are deliberately not rebuilt because they
+        may already be tied to payroll.
         """
         from_date = fields.Date.to_date(from_date or "2026-09-27")
         sheets = self.sudo().search([
@@ -271,16 +270,13 @@ class HrAttendanceSheet(models.Model):
         affected = sheets.filtered(
             lambda sheet: not sheet.employee_id._is_etm_participant()
             and any(
-                line.date
-                and line.date >= from_date
-                and line.date.weekday() == 5
-                and "etm" in (line.note or "").lower()
+                line.date and line.date >= from_date and line.date.weekday() == 5
                 for line in sheet.line_ids
             )
         )
         for sheet in affected:
-            # Normal regeneration restores the employee's calendar and actual
-            # punches; the ETM override now skips this employee.
+            # Regeneration applies the employee's explicit Saturday-off rule
+            # while preserving actual punches.
             sheet.get_attendances()
         return len(affected)
 
