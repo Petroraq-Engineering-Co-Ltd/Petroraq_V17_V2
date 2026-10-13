@@ -132,6 +132,17 @@ class TestTaskAttendance(TransactionCase):
         timezone = pytz.timezone("Asia/Riyadh")
         dashboard = self.env["de.hr.attendance.management.dashboard"]
 
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-09-20"
+        )
+        historical_schedule = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertFalse(historical_schedule["working_day"])
+
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-09-14"
+        )
         self.employee.etm_attendance_policy_enabled = False
         opted_out_schedule = dashboard._get_schedule(
             self.employee, saturday, timezone,
@@ -155,6 +166,22 @@ class TestTaskAttendance(TransactionCase):
 
         self.assertEqual(action["tag"], "display_notification")
         self.assertIn("1 daily absence record(s) restored", action["params"]["message"])
+        self.assertEqual(day.state, "approved")
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertEqual((attendance.check_in, attendance.check_out), (
+            datetime(2026, 9, 14, 5), datetime(2026, 9, 14, 14),
+        ))
+
+    def test_upgrade_repair_restores_absence_before_enforcement_date(self):
+        attendance, day = self._absence()
+        self.assertEqual(attendance.attendance_day_status, "absent")
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", str(self.day + timedelta(days=1))
+        )
+
+        repaired = self.Day._repair_pre_enforcement_absences()
+
+        self.assertEqual(repaired, 1)
         self.assertEqual(day.state, "approved")
         self.assertEqual(attendance.attendance_day_status, "normal")
         self.assertEqual((attendance.check_in, attendance.check_out), (

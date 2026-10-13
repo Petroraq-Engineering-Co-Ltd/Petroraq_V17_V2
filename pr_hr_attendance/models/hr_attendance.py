@@ -383,7 +383,11 @@ class HrAttendance(models.Model):
             or employee.company_id.resource_calendar_id
             or self.env.company.resource_calendar_id
         )
-        if target_date.weekday() == 5 and employee._etm_saturday_is_off(target_date):
+        saturday_policy_applies = (
+            target_date.weekday() == 5
+            and employee._etm_attendance_policy_applies(target_date)
+        )
+        if saturday_policy_applies and employee._etm_saturday_is_off(target_date):
             return False
         if not calendar:
             return False
@@ -395,7 +399,7 @@ class HrAttendance(models.Model):
                 and (not attendance.date_from or attendance.date_from <= target_date)
                 and (not attendance.date_to or attendance.date_to >= target_date)
         )
-        if not attendance_lines and target_date.weekday() != 5:
+        if not attendance_lines and not saturday_policy_applies:
             return False
 
         leave_domain = [

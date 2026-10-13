@@ -16,7 +16,7 @@
                         <field name="etm_attendance_policy_enabled"
                                widget="boolean_toggle"
                                groups="hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"
-                               help="Enabled: daily task-submission checks apply and 40 approved hours are required for Saturday off. Disabled: Saturday is always off. Changing it does not modify existing attendance; use the employee Action menu to repair history."/>
+                               help="From the configured enforcement date: enabled means daily task-submission checks apply and 40 approved hours are required for Saturday off; disabled means Saturday is off. Earlier dates keep their original attendance behavior. Changing the toggle does not modify existing attendance; use the employee Action menu to repair history."/>
                         <field name="include_in_scheduled_attendance"
                                widget="boolean_toggle"
                                invisible="attendance_entry_mode != 'manual'"
