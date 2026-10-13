@@ -12,6 +12,13 @@ from .common import AttendancePolicyCase
 @tagged("post_install", "-at_install")
 class TestAttendanceEntryPolicy(AttendancePolicyCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-06-01"
+        )
+
     def test_saturday_is_off_only_after_40_approved_etm_hours(self):
         saturday = date(2026, 6, 6)
         task_user = self.env["res.users"].with_context(no_reset_password=True).create({
@@ -53,6 +60,18 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         self.assertTrue(
             self.scheduled_employee._etm_saturday_is_off(saturday)
         )
+
+    def test_saturday_policy_does_not_apply_before_enforcement_date(self):
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-10-04"
+        )
+        saturday = date(2026, 10, 3)
+        self.scheduled_employee.etm_attendance_policy_enabled = False
+
+        self.assertFalse(
+            self.scheduled_employee._etm_attendance_policy_applies(saturday)
+        )
+        self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
 
     def test_manual_hr_create_modify_and_delete_is_allowed(self):
         attendance = self.Attendance.with_user(self.hr_user).create(

@@ -211,6 +211,12 @@ class HrAttendanceSheet(models.Model):
         """Make Saturday conditional on the prior Sun-Thu ETM approvals."""
         for sheet in self:
             employee = sheet.employee_id
+            saturday_lines = sheet.line_ids.filtered(
+                lambda item: item.date and item.date.weekday() == 5
+                and employee._etm_attendance_policy_applies(item.date)
+            )
+            if not saturday_lines:
+                continue
             calendar = employee.contract_id.resource_calendar_id
             fallback_lines = calendar.attendance_ids.filtered(
                 lambda item: item.dayofweek in ("6", "0", "1", "2", "3")
@@ -219,7 +225,7 @@ class HrAttendanceSheet(models.Model):
             end_hour = max(fallback_lines.mapped("hour_to"), default=17.0)
             planned_hours = max(end_hour - start_hour, 0.0)
 
-            for line in sheet.line_ids.filtered(lambda item: item.date and item.date.weekday() == 5):
+            for line in saturday_lines:
                 saturday_off = employee._etm_saturday_is_off(line.date)
                 if saturday_off:
                     off_note = _(
@@ -260,7 +266,11 @@ class HrAttendanceSheet(models.Model):
         Saturday. Approved sheets are deliberately not rebuilt because they
         may already be tied to payroll.
         """
-        from_date = fields.Date.to_date(from_date or "2026-09-27")
+        from_date = fields.Date.to_date(
+            from_date or self.env["hr.employee"]._etm_attendance_enforce_from()
+        )
+        if not from_date:
+            return 0
         sheets = self.sudo().search([
             ("state", "in", ("draft", "confirm")),
             ("date_to", ">=", from_date),
@@ -277,6 +287,33 @@ class HrAttendanceSheet(models.Model):
         for sheet in affected:
             # Regeneration applies the employee's explicit Saturday-off rule
             # while preserving actual punches.
+            sheet.get_attendances()
+        return len(affected)
+
+    @api.model
+    def _repair_pre_enforcement_saturday_results(self):
+        """Restore open Saturday sheets changed before enforcement began."""
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if not enforce_from:
+            return 0
+        sheets = self.sudo().search([
+            ("state", "in", ("draft", "confirm")),
+            ("date_from", "<", enforce_from),
+        ])
+        markers = ("etm", "task management attendance policy")
+        affected = sheets.filtered(
+            lambda sheet: any(
+                line.date
+                and line.date < enforce_from
+                and line.date.weekday() == 5
+                and any(marker in (line.note or "").lower() for marker in markers)
+                for line in sheet.line_ids
+            )
+        )
+        for sheet in affected:
+            # The date gate makes pre-enforcement Saturdays use the original
+            # employee calendar while post-enforcement Saturdays retain the
+            # new task-management policy. Actual punches are preserved.
             sheet.get_attendances()
         return len(affected)
 

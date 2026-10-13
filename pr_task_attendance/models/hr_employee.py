@@ -45,7 +45,8 @@ class HrEmployee(models.Model):
                 "message": _(
                     "%(employees)s employee(s) checked; %(days)s daily absence "
                     "record(s) restored and %(sheets)s attendance sheet(s) rebuilt. "
-                    "The attendance dashboard now treats their Saturdays as off days.",
+                    "From the configured enforcement date, the attendance dashboard "
+                    "treats their Saturdays as off days.",
                     employees=len(employees), days=repaired_days, sheets=rebuilt_sheets,
                 ),
                 "type": "success",
