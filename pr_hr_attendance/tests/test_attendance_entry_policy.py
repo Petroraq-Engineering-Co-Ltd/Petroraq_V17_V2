@@ -40,7 +40,7 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         ]).approved_hours = 7.0
         self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
 
-    def test_non_etm_employee_never_receives_etm_saturday_off(self):
+    def test_policy_disabled_employee_always_has_saturday_off(self):
         saturday = date(2026, 6, 6)
         for offset in range(5):
             self.env["employee.task.idle.day"].create({
@@ -50,7 +50,7 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
             })
 
         self.assertFalse(self.scheduled_employee._is_etm_participant())
-        self.assertFalse(
+        self.assertTrue(
             self.scheduled_employee._etm_saturday_is_off(saturday)
         )
 

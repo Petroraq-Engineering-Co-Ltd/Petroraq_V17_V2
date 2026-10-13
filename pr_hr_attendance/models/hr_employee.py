@@ -51,8 +51,9 @@ class HrEmployee(models.Model):
         copy=False,
         tracking=True,
         help=("When enabled, the employee is subject to the daily task-submission "
-              "attendance check and the 40-hour Saturday rule. Changing this toggle "
-              "does not alter existing attendance records."),
+              "attendance check and must complete 40 approved hours to earn Saturday "
+              "off. When disabled, Saturday is always off. Changing this toggle does "
+              "not alter existing attendance records."),
     )
     attendance_mode_change_request_count = fields.Integer(
         string="Attendance Mode Requests",
@@ -182,10 +183,13 @@ class HrEmployee(models.Model):
 
     def _etm_saturday_is_off(self, saturday):
         self.ensure_one()
-        if (
-            not self._is_etm_participant() or not saturday or saturday.weekday() != 5
-        ):
+        if not saturday or saturday.weekday() != 5:
             return False
+        # Employees outside the task-management attendance policy always
+        # retain Saturday as an off day. Only opted-in employees have to earn
+        # it by completing 40 approved hours from Sunday through Thursday.
+        if not self._is_etm_participant():
+            return True
         return float_compare(
             self._etm_approved_hours_before_saturday(saturday), 40.0, precision_digits=2,
         ) >= 0

@@ -44,7 +44,8 @@ class HrEmployee(models.Model):
                 "title": _("Task Management Attendance Repaired"),
                 "message": _(
                     "%(employees)s employee(s) checked; %(days)s daily absence "
-                    "record(s) restored and %(sheets)s attendance sheet(s) rebuilt.",
+                    "record(s) restored and %(sheets)s attendance sheet(s) rebuilt. "
+                    "The attendance dashboard now treats their Saturdays as off days.",
                     employees=len(employees), days=repaired_days, sheets=rebuilt_sheets,
                 ),
                 "type": "success",
