@@ -255,18 +255,24 @@ class HrAttendance(models.Model):
                 })
 
     @api.model
-    def _repair_etm_saturday_attendance_statuses(self):
+    def _repair_etm_saturday_attendance_statuses(self, from_date=None, employee_ids=None):
         """Re-evaluate existing Saturday punches from the enforcement date."""
         enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
         if not enforce_from:
             return 0
+        from_date = max(
+            fields.Date.to_date(from_date or enforce_from), enforce_from,
+        )
 
         # Include the preceding UTC day because an employee's local Saturday
         # can begin on Friday UTC in positive-offset time zones.
-        search_from = datetime.combine(enforce_from - timedelta(days=1), time.min)
-        candidates = self.sudo().search([
+        search_from = datetime.combine(from_date - timedelta(days=1), time.min)
+        domain = [
             ("check_in", ">=", search_from),
-        ])
+        ]
+        if employee_ids:
+            domain.append(("employee_id", "in", employee_ids))
+        candidates = self.sudo().search(domain)
         affected = candidates.filtered(
             lambda attendance: attendance.employee_id._etm_saturday_is_off(
                 attendance._attendance_local_datetime(attendance.check_in).date()
@@ -284,6 +290,14 @@ class HrAttendance(models.Model):
             ("attendance_day_status", "!=", "absent"),
         ])
         candidates._refresh_daily_attendance_status()
+
+        # Database restores can bring back completed records that were already
+        # marked absent. Recheck the recent window so the repair is idempotent
+        # even when Odoo does not rerun an already-installed migration.
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if enforce_from:
+            recent_from = fields.Date.context_today(self) - timedelta(days=8)
+            self._repair_etm_saturday_attendance_statuses(from_date=recent_from)
 
     def unlink(self):
         if not self:

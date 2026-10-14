@@ -318,19 +318,25 @@ class HrAttendanceSheet(models.Model):
         return len(affected)
 
     @api.model
-    def _repair_etm_saturday_off_results(self):
+    def _repair_etm_saturday_off_results(self, from_date=None, employee_ids=None):
         """Rebuild open sheets containing Saturdays that are now earned off."""
         enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
         if not enforce_from:
             return 0
-        sheets = self.sudo().search([
+        from_date = max(
+            fields.Date.to_date(from_date or enforce_from), enforce_from,
+        )
+        domain = [
             ("state", "in", ("draft", "confirm")),
-            ("date_to", ">=", enforce_from),
-        ])
+            ("date_to", ">=", from_date),
+        ]
+        if employee_ids:
+            domain.append(("employee_id", "in", employee_ids))
+        sheets = self.sudo().search(domain)
         affected = sheets.filtered(
             lambda sheet: any(
                 line.date
-                and line.date >= enforce_from
+                and line.date >= from_date
                 and line.date.weekday() == 5
                 and sheet.employee_id._etm_saturday_is_off(line.date)
                 for line in sheet.line_ids

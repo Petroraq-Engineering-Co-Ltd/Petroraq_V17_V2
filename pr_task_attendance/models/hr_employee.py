@@ -13,29 +13,37 @@ class HrEmployee(models.Model):
     _inherit = "hr.employee"
 
     def action_repair_etm_attendance(self, from_date=None):
-        """Explicitly repair ETM attendance for selected opted-out staff."""
+        """Explicitly repair ETM attendance for the selected employees."""
         if not self.env.su and not any(
             self.env.user.has_group(group) for group in REPAIR_GROUPS
         ):
             raise AccessError(_(
                 "Only an HR or Attendance Manager can repair task-management attendance."
             ))
-        employees = self.exists().filtered(
+        employees = self.exists()
+        if not employees:
+            raise UserError(_("Select at least one employee to repair."))
+
+        non_participants = employees.filtered(
             lambda employee: not employee.etm_attendance_policy_enabled
         )
-        if not employees:
-            raise UserError(_(
-                "Select at least one employee whose Task Management Attendance "
-                "Policy toggle is disabled."
-            ))
-
-        repaired_days = self.env["hr.task.attendance.day"].sudo()._repair_non_etm_absences(
+        repaired_days = 0
+        if non_participants:
+            repaired_days = self.env[
+                "hr.task.attendance.day"
+            ].sudo()._repair_non_etm_absences(
+                from_date=from_date, employee_ids=non_participants.ids,
+            )
+        repaired_attendances = self.env[
+            "hr.attendance"
+        ].sudo()._repair_etm_saturday_attendance_statuses(
             from_date=from_date,
             employee_ids=employees.ids,
         )
-        rebuilt_sheets = self.env["attendance.sheet"].sudo()._repair_non_etm_saturday_results(
-            from_date=from_date,
-            employee_ids=employees.ids,
+        rebuilt_sheets = self.env[
+            "attendance.sheet"
+        ].sudo()._repair_etm_saturday_off_results(
+            from_date=from_date, employee_ids=employees.ids,
         )
         return {
             "type": "ir.actions.client",
@@ -44,10 +52,12 @@ class HrEmployee(models.Model):
                 "title": _("Task Management Attendance Repaired"),
                 "message": _(
                     "%(employees)s employee(s) checked; %(days)s daily absence "
-                    "record(s) restored and %(sheets)s attendance sheet(s) rebuilt. "
+                    "record(s) restored, %(attendances)s Saturday attendance "
+                    "record(s) rechecked, and %(sheets)s attendance sheet(s) rebuilt. "
                     "From the configured enforcement date, the attendance dashboard "
-                    "treats their Saturdays as off days.",
-                    employees=len(employees), days=repaired_days, sheets=rebuilt_sheets,
+                    "uses each employee's 40-hour Saturday policy.",
+                    employees=len(employees), days=repaired_days,
+                    attendances=repaired_attendances, sheets=rebuilt_sheets,
                 ),
                 "type": "success",
                 "sticky": True,
