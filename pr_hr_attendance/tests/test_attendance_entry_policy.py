@@ -71,6 +71,17 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         self.assertEqual(attendance.attendance_day_status, "normal")
         self.assertFalse(attendance.attendance_status_reason)
 
+        attendance.with_context(skip_daily_attendance_status=True).write({
+            "attendance_day_status": "absent",
+            "attendance_status_reason": "Restored stale database value",
+        })
+        repaired = self.Attendance._repair_etm_saturday_attendance_statuses(
+            from_date=saturday, employee_ids=self.scheduled_employee.ids,
+        )
+        self.assertEqual(repaired, 1)
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertFalse(attendance.attendance_status_reason)
+
     def test_policy_disabled_employee_always_has_saturday_off(self):
         saturday = date(2026, 6, 6)
         for offset in range(5):
