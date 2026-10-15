@@ -236,6 +236,16 @@ class TestTaskAttendance(TransactionCase):
         self.assertFalse(old.task_attendance_day_id)
         self.assertEqual(late.attendance_day_status, "absent")
 
+    def test_employee_request_opens_in_edit_mode(self):
+        attendance, day = self._absence()
+
+        action = attendance.with_user(
+            self.employee_user
+        ).action_open_task_attendance_day()
+
+        self.assertEqual(action["res_id"], day.id)
+        self.assertEqual(action["context"]["form_view_initial_mode"], "edit")
+
     def test_hr_approval_restores_actual_attendance_and_survives_refresh(self):
         attendance, day = self._absence()
         actual = (attendance.check_in, attendance.check_out, attendance.worked_hours)
