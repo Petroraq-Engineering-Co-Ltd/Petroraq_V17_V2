@@ -47,6 +47,41 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         ]).approved_hours = 7.0
         self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
 
+    def test_late_optional_punch_on_earned_off_saturday_is_not_absent(self):
+        saturday = date(2026, 6, 6)
+        self.scheduled_employee.etm_attendance_policy_enabled = True
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.scheduled_employee.id,
+                "date": date(2026, 5, 31) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+
+        # 10:00 UTC is after the 09:00 cutoff in UTC and Riyadh, so this
+        # proves the earned Saturday-off exception wins over the late rule.
+        attendance = self.Attendance.sudo().with_context(
+            attendance_policy_source="scheduled"
+        ).create({
+            "employee_id": self.scheduled_employee.id,
+            "check_in": datetime(2026, 6, 6, 10, 0),
+            "check_out": datetime(2026, 6, 6, 18, 0),
+        })
+
+        self.assertTrue(self.scheduled_employee._etm_saturday_is_off(saturday))
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertFalse(attendance.attendance_status_reason)
+
+        attendance.with_context(skip_daily_attendance_status=True).write({
+            "attendance_day_status": "absent",
+            "attendance_status_reason": "Restored stale database value",
+        })
+        repaired = self.Attendance._repair_etm_saturday_attendance_statuses(
+            from_date=saturday, employee_ids=self.scheduled_employee.ids,
+        )
+        self.assertEqual(repaired, 1)
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertFalse(attendance.attendance_status_reason)
+
     def test_policy_disabled_employee_always_has_saturday_off(self):
         saturday = date(2026, 6, 6)
         for offset in range(5):

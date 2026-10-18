@@ -317,6 +317,37 @@ class HrAttendanceSheet(models.Model):
             sheet.get_attendances()
         return len(affected)
 
+    @api.model
+    def _repair_etm_saturday_off_results(self, from_date=None, employee_ids=None):
+        """Rebuild open sheets containing Saturdays that are now earned off."""
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if not enforce_from:
+            return 0
+        from_date = max(
+            fields.Date.to_date(from_date or enforce_from), enforce_from,
+        )
+        domain = [
+            ("state", "in", ("draft", "confirm")),
+            ("date_to", ">=", from_date),
+        ]
+        if employee_ids:
+            domain.append(("employee_id", "in", employee_ids))
+        sheets = self.sudo().search(domain)
+        affected = sheets.filtered(
+            lambda sheet: any(
+                line.date
+                and line.date >= from_date
+                and line.date.weekday() == 5
+                and sheet.employee_id._etm_saturday_is_off(line.date)
+                for line in sheet.line_ids
+            )
+        )
+        for sheet in affected:
+            # Recalculation keeps actual punches for overtime but removes any
+            # late, shortage, or absence penalty from an earned-off Saturday.
+            sheet.get_attendances()
+        return len(affected)
+
     def _sync_line_overtime_approval_from_attendance(self):
         for sheet in self:
             timezone_name = sheet.employee_id.tz or self.env.user.tz or "UTC"
@@ -338,6 +369,15 @@ class HrAttendanceSheet(models.Model):
         cutoff = 9 + (0 / 1)
         for sheet in self:
             for line in sheet.line_ids:
+                if line.date and sheet.employee_id._etm_saturday_is_off(line.date):
+                    # This explicit guard also protects payroll's direct call
+                    # to this method if a stale line was previously marked ab.
+                    line.status = "weekend"
+                    line.late_in = 0
+                    line.late_in_minutes = 0
+                    line.early_check_out = 0
+                    line.early_check_out_minutes = 0
+                    continue
                 if line.status in ("leave", "weekend"):
                     continue
                 if line.ac_sign_in and line.ac_sign_in >= cutoff:
