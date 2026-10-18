@@ -2,6 +2,7 @@ from datetime import date
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
+from odoo.tools.float_utils import float_compare, float_round
 
 
 class TestEstimationQuotationRevision(TransactionCase):
@@ -664,6 +665,106 @@ class TestEstimationQuotationRevision(TransactionCase):
         arch = view.arch
         self.assertIn('name="action_revise_so"', arch)
         self.assertIn('groups="petroraq_sale_workflow.group_sale_approval_manager,pr_work_order.custom_group_work_order_user"', arch)
+
+    def test_sync_products_from_estimation_decimal_accuracy(self):
+        product_1 = self.env["product.product"].create({
+            "name": "Sync Test Product 1",
+            "type": "consu",
+            "standard_price": 12.345,
+        })
+        product_2 = self.env["product.product"].create({
+            "name": "Sync Test Product 2",
+            "type": "consu",
+            "standard_price": 50.125,
+        })
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "overhead_percent": 10.0,
+            "risk_percent": 5.0,
+            "profit_percent": 15.0,
+        })
+        estimation.line_ids.create({
+            "estimation_id": estimation.id,
+            "section_type": "material",
+            "product_id": product_1.id,
+            "quantity": 3.333,
+            "unit_cost": 12.345,
+        })
+        estimation.line_ids.create({
+            "estimation_id": estimation.id,
+            "section_type": "material",
+            "product_id": product_2.id,
+            "quantity": 1.5,
+            "unit_cost": 50.125,
+        })
+        self.assertTrue(estimation.total_with_profit > 0.0)
+
+        quotation = self.env["sale.order"].create({
+            "partner_id": self.partner.id,
+            "estimation_id": estimation.id,
+            "state": "draft",
+            "approval_state": "draft",
+        })
+
+        quotation.action_sync_products_from_estimation()
+
+        self.assertEqual(quotation.overhead_percent, 10.0)
+        self.assertEqual(quotation.risk_percent, 5.0)
+        self.assertEqual(quotation.profit_percent, 15.0)
+
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+        est_total = float_round(estimation.total_with_profit, precision_digits=precision_cost)
+        so_untaxed = float_round(quotation.amount_untaxed, precision_digits=precision_cost)
+        self.assertEqual(float_compare(est_total, so_untaxed, precision_digits=precision_cost), 0)
+
+        costing_totals = quotation._costing_compute_totals()
+        self.assertEqual(
+            float_compare(costing_totals["grand_no_vat"], est_total, precision_digits=precision_cost),
+            0,
+        )
+
+    def test_sync_products_from_estimation_diff_absorption_with_multi_qty(self):
+        product = self.env["product.product"].create({
+            "name": "Sync Multi Qty Product",
+            "type": "consu",
+            "standard_price": 100.0,
+        })
+        estimation = self.env["petroraq.estimation"].create({
+            "partner_id": self.partner.id,
+            "overhead_percent": 10.0,
+            "risk_percent": 5.0,
+            "profit_percent": 15.0,
+        })
+        estimation.line_ids.create({
+            "estimation_id": estimation.id,
+            "section_type": "material",
+            "product_id": product.id,
+            "quantity": 3.0,
+            "unit_cost": 100.0,
+        })
+        estimation.line_ids.create({
+            "estimation_id": estimation.id,
+            "section_type": "material",
+            "product_id": product.id,
+            "quantity": 7.0,
+            "unit_cost": 100.0,
+        })
+
+        quotation = self.env["sale.order"].create({
+            "partner_id": self.partner.id,
+            "estimation_id": estimation.id,
+            "state": "draft",
+            "approval_state": "draft",
+        })
+        quotation.action_sync_products_from_estimation()
+
+        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+        est_total = float_round(estimation.total_with_profit, precision_digits=precision_cost)
+        so_untaxed = float_round(quotation.amount_untaxed, precision_digits=precision_cost)
+        self.assertEqual(float_compare(est_total, so_untaxed, precision_digits=precision_cost), 0)
+        self.assertEqual(float_compare(est_total, quotation.amount_to_invoice, precision_digits=precision_cost), 0)
+
+
 
 
 

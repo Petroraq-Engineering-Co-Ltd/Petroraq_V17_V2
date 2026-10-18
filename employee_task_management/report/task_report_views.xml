@@ -115,7 +115,13 @@
         <field name="name">Closed Tasks</field>
         <field name="res_model">employee.task.list</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="domain">[('state', 'in', ['closed', 'rejected'])]</field>
+        <field name="domain">[('state', 'in', ['closed'])]</field>
+    </record>
+    <record id="action_dash_rejected" model="ir.actions.act_window">
+        <field name="name">Rejected Tasks</field>
+        <field name="res_model">employee.task.list</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain">[('state', 'in', ['rejected'])]</field>
     </record>
 
     <!-- ============================================================ -->

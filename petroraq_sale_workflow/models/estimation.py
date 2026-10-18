@@ -530,17 +530,17 @@ class PetroraqEstimation(models.Model):
             order = self.env["sale.order"].with_company(company).create(order_vals)
 
         self.with_context(allow_estimation_write=True).sale_order_id = order.id
-        if not previous_order:
-            order.action_sync_products_from_estimation()
-            precision_cost = self.env["decimal.precision"].precision_get("Product Price")
-            if float_compare(
-                float_round(order.amount_untaxed or 0.0, precision_digits=precision_cost),
-                float_round(self.total_with_profit or 0.0, precision_digits=precision_cost),
-                precision_digits=precision_cost,
-            ) != 0:
-                raise ValidationError(_(
-                    "The quotation total must match the estimation total."
-                ))
+        # if not previous_order:
+        #     order.action_sync_products_from_estimation()
+        #     precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+        #     if float_compare(
+        #         float_round(order.amount_untaxed or 0.0, precision_digits=precision_cost),
+        #         float_round(self.total_with_profit or 0.0, precision_digits=precision_cost),
+        #         precision_digits=precision_cost,
+        #     ) != 0:
+        #         raise ValidationError(_(
+        #             "The quotation total must match the estimation total."
+        #         ))
         if previous_order:
             order.message_post(body=_(
                 "Empty quotation revision %(quotation)s was created from estimation revision %(estimation)s."
