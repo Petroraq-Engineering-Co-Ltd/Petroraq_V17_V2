@@ -712,14 +712,14 @@ class TestEstimationQuotationRevision(TransactionCase):
         self.assertEqual(quotation.risk_percent, 5.0)
         self.assertEqual(quotation.profit_percent, 15.0)
 
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
-        est_total = float_round(estimation.total_with_profit, precision_digits=precision_cost)
-        so_untaxed = float_round(quotation.amount_untaxed, precision_digits=precision_cost)
-        self.assertEqual(float_compare(est_total, so_untaxed, precision_digits=precision_cost), 0)
+        currency = quotation.currency_id or quotation.company_id.currency_id
+        est_total = currency.round(estimation.total_with_profit)
+        so_untaxed = currency.round(quotation.amount_untaxed)
+        self.assertEqual(float_compare(est_total, so_untaxed, precision_rounding=currency.rounding), 0)
 
         costing_totals = quotation._costing_compute_totals()
         self.assertEqual(
-            float_compare(costing_totals["grand_no_vat"], est_total, precision_digits=precision_cost),
+            float_compare(costing_totals["grand_no_vat"], est_total, precision_rounding=currency.rounding),
             0,
         )
 
@@ -758,11 +758,11 @@ class TestEstimationQuotationRevision(TransactionCase):
         })
         quotation.action_sync_products_from_estimation()
 
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
-        est_total = float_round(estimation.total_with_profit, precision_digits=precision_cost)
-        so_untaxed = float_round(quotation.amount_untaxed, precision_digits=precision_cost)
-        self.assertEqual(float_compare(est_total, so_untaxed, precision_digits=precision_cost), 0)
-        self.assertEqual(float_compare(est_total, quotation.amount_to_invoice, precision_digits=precision_cost), 0)
+        currency = quotation.currency_id or quotation.company_id.currency_id
+        est_total = currency.round(estimation.total_with_profit)
+        so_untaxed = currency.round(quotation.amount_untaxed)
+        self.assertEqual(float_compare(est_total, so_untaxed, precision_rounding=currency.rounding), 0)
+        self.assertEqual(float_compare(est_total, quotation.amount_to_invoice, precision_rounding=currency.rounding), 0)
 
 
 

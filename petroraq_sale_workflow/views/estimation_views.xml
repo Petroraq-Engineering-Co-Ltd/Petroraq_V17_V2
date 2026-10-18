@@ -183,7 +183,7 @@
                         <field name="overhead_percent"/>
                         <field name="overhead_amount" readonly="1"/>
                         <field name="risk_percent" string="Contingencies (%)"/>
-                        <field name="risk_amount" readonly="1" string="Contingencies Amount" digits="[16, 8]"/>
+                        <field name="risk_amount" readonly="1" string="Contingencies Amount"/>
                         <field name="buffer_total_amount" readonly="1"/>
                         <field name="profit_percent"/>
                         <field name="profit_amount" readonly="1"/>
