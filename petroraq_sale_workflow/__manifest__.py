@@ -28,6 +28,7 @@
         "data/estimation_sequence.xml",
         # "data/sequence.xml",
         "views/sale_order_views.xml",
+        "views/account_move_views.xml",
         "views/estimation_views.xml",
         "views/sale_order_tree_inherit_petroraq.xml",
         "views/reject_wizard_views.xml",

@@ -5,7 +5,7 @@ from odoo import models
 from odoo.tools import float_round
 
 
-class SaleOrder(models.Model):
+class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     def _prepare_invoice_line(self, **optional_values):
