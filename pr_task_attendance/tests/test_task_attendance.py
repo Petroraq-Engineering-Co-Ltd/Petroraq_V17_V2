@@ -149,6 +149,20 @@ class TestTaskAttendance(TransactionCase):
         )
         self.assertFalse(opted_out_schedule["working_day"])
 
+        self.calendar.write({
+            "attendance_ids": [Command.create({
+                "name": "Saturday Shift",
+                "dayofweek": "5",
+                "day_period": "morning",
+                "hour_from": 8.0,
+                "hour_to": 17.0,
+            })],
+        })
+        opted_out_scheduled_saturday = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertTrue(opted_out_scheduled_saturday["working_day"])
+
         self.employee.etm_attendance_policy_enabled = True
         opted_in_schedule = dashboard._get_schedule(
             self.employee, saturday, timezone,

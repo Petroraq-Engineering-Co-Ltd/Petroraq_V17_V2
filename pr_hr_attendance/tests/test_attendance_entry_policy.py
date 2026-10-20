@@ -82,7 +82,7 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
         self.assertEqual(attendance.attendance_day_status, "normal")
         self.assertFalse(attendance.attendance_status_reason)
 
-    def test_policy_disabled_employee_always_has_saturday_off(self):
+    def test_policy_disabled_employee_does_not_receive_etm_saturday_off(self):
         saturday = date(2026, 6, 6)
         for offset in range(5):
             self.env["employee.task.idle.day"].create({
@@ -92,7 +92,7 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
             })
 
         self.assertFalse(self.scheduled_employee._is_etm_participant())
-        self.assertTrue(
+        self.assertFalse(
             self.scheduled_employee._etm_saturday_is_off(saturday)
         )
 
