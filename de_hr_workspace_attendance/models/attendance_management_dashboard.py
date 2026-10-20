@@ -213,7 +213,9 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             return self._empty_schedule()
 
         saturday_policy_applies = (
-            day.weekday() == 5 and employee._etm_attendance_policy_applies(day)
+            day.weekday() == 5
+            and employee._is_etm_participant()
+            and employee._etm_attendance_policy_applies(day)
         )
         if saturday_policy_applies and employee._etm_saturday_is_off(day):
             return self._empty_schedule()

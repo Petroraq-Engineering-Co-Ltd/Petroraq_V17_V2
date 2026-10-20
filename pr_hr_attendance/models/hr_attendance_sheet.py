@@ -211,6 +211,8 @@ class HrAttendanceSheet(models.Model):
         """Make Saturday conditional on the prior Sun-Thu ETM approvals."""
         for sheet in self:
             employee = sheet.employee_id
+            if not employee._is_etm_participant():
+                continue
             saturday_lines = sheet.line_ids.filtered(
                 lambda item: item.date and item.date.weekday() == 5
                 and employee._etm_attendance_policy_applies(item.date)
@@ -229,8 +231,6 @@ class HrAttendanceSheet(models.Model):
                 saturday_off = employee._etm_saturday_is_off(line.date)
                 if saturday_off:
                     off_note = _(
-                        "Saturday off: Task Management Attendance Policy is disabled."
-                    ) if not employee._is_etm_participant() else _(
                         "Saturday off: 40 approved ETM hours completed Sunday-Thursday."
                     )
                     line.write({
@@ -260,11 +260,10 @@ class HrAttendanceSheet(models.Model):
 
     @api.model
     def _repair_non_etm_saturday_results(self, from_date=None, employee_ids=None):
-        """Rebuild selected opted-out employees' open Saturday sheets.
+        """Restore opted-out employees' open Saturdays from their calendars.
 
-        Selected employees with the policy disabled are always off on
-        Saturday. Approved sheets are deliberately not rebuilt because they
-        may already be tied to payroll.
+        Approved sheets are deliberately not rebuilt because they may already
+        be tied to payroll.
         """
         from_date = fields.Date.to_date(
             from_date or self.env["hr.employee"]._etm_attendance_enforce_from()
@@ -285,8 +284,8 @@ class HrAttendanceSheet(models.Model):
             )
         )
         for sheet in affected:
-            # Regeneration applies the employee's explicit Saturday-off rule
-            # while preserving actual punches.
+            # Regeneration follows the employee's calendar and preserves
+            # actual punches.
             sheet.get_attendances()
         return len(affected)
 

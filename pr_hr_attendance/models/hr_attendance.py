@@ -425,6 +425,7 @@ class HrAttendance(models.Model):
         )
         saturday_policy_applies = (
             target_date.weekday() == 5
+            and employee._is_etm_participant()
             and employee._etm_attendance_policy_applies(target_date)
         )
         if saturday_policy_applies and employee._etm_saturday_is_off(target_date):

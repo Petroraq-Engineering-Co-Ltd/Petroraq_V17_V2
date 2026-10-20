@@ -28,10 +28,16 @@ class HrEmployee(models.Model):
             lambda employee: not employee.etm_attendance_policy_enabled
         )
         repaired_days = 0
+        rebuilt_sheets = 0
         if non_participants:
             repaired_days = self.env[
                 "hr.task.attendance.day"
             ].sudo()._repair_non_etm_absences(
+                from_date=from_date, employee_ids=non_participants.ids,
+            )
+            rebuilt_sheets += self.env[
+                "attendance.sheet"
+            ].sudo()._repair_non_etm_saturday_results(
                 from_date=from_date, employee_ids=non_participants.ids,
             )
         repaired_attendances = self.env[
@@ -40,7 +46,7 @@ class HrEmployee(models.Model):
             from_date=from_date,
             employee_ids=employees.ids,
         )
-        rebuilt_sheets = self.env[
+        rebuilt_sheets += self.env[
             "attendance.sheet"
         ].sudo()._repair_etm_saturday_off_results(
             from_date=from_date, employee_ids=employees.ids,
