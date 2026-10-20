@@ -298,6 +298,12 @@
             <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom_qty']" position="attributes">
                 <attribute name="digits">[16,8]</attribute>
             </xpath>
+            <xpath expr="//field[@name='order_line']/tree//field[@name='qty_delivered']" position="attributes">
+                <attribute name="digits">[16,8]</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/tree//field[@name='qty_invoiced']" position="attributes">
+                <attribute name="digits">[16,8]</attribute>
+            </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="after"
             >
                 <field name="proforma_dp"
