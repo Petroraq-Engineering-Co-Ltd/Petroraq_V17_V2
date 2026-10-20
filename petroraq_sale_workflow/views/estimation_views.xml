@@ -97,7 +97,7 @@
                                            optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
-                                    <field name="quantity"/>
+                                    <field name="quantity" digits="[16, 8]"/>
                                     <field name="uom_id"/>
                                     <field name="qty_available" optional="show"/>
                                     <field name="virtual_available" optional="show"/>
@@ -117,8 +117,8 @@
                                            optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
-                                    <field name="resource_count"/>
-                                    <field name="days"/>
+                                    <field name="resource_count" digits="[16, 8]"/>
+                                    <field name="days" digits="[16, 8]"/>
                                     <field name="hours_per_day" readonly="1"/>
                                     <field name="quantity_hours" readonly="1"/>
                                     <field name="uom_id"/>
@@ -140,8 +140,8 @@
                                            optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
-                                    <field name="resource_count"/>
-                                    <field name="days"/>
+                                    <field name="resource_count" digits="[16, 8]"/>
+                                    <field name="days" digits="[16, 8]"/>
                                     <field name="hours_per_day" readonly="1"/>
                                     <field name="quantity_hours" readonly="1"/>
                                     <field name="uom_id"/>
@@ -163,7 +163,7 @@
                                            optional="show"/>
                                     <field name="product_id"/>
                                     <field name="name"/>
-                                    <field name="quantity"/>
+                                    <field name="quantity" digits="[16, 8]"/>
                                     <field name="uom_id"/>
                                     <field name="qty_available" optional="show"/>
                                     <field name="virtual_available" optional="show"/>

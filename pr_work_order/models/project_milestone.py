@@ -6,8 +6,7 @@ from odoo.tools.float_utils import float_compare
 class ProjectMilestone(models.Model):
     _inherit = "project.milestone"
 
-    quantity_percentage = fields.Float(digits=(16, 10))
-    product_uom_qty = fields.Float(digits=(16, 10))
+    product_uom_qty = fields.Float(digits=(16, 8))
     petroraq_currency_id = fields.Many2one(
         "res.currency",
         compute="_compute_petroraq_currency_id",
@@ -56,19 +55,19 @@ class ProjectMilestone(models.Model):
 
             if amount < 0.0:
                 if raise_if_invalid:
-                    raise ValidationError(_("Milestone invoice amount cannot be negative."))
+                    raise ValidationError(self.env._("Milestone invoice amount cannot be negative."))
                 continue
 
             if not sale_line:
                 if amount and raise_if_invalid:
-                    raise ValidationError(_("Please select a sales order item before entering a milestone invoice amount."))
+                    raise ValidationError(self.env._("Please select a sales order item before entering a milestone invoice amount."))
                 continue
 
             sale_line_amount = sale_line.price_subtotal or 0.0
             sale_line_qty = sale_line.product_uom_qty or 0.0
             if not sale_line_amount:
                 if amount and raise_if_invalid:
-                    raise ValidationError(_("The selected sales order item has no subtotal to calculate a milestone percentage from."))
+                    raise ValidationError(self.env._("The selected sales order item has no subtotal to calculate a milestone percentage from."))
                 milestone.quantity_percentage = 0.0
                 milestone.product_uom_qty = 0.0
                 continue
@@ -86,20 +85,23 @@ class ProjectMilestone(models.Model):
         NOTE:
         - In standard Odoo, quantity_percentage is a ratio (0..1), not 0..100.
         """
-        for milestone in self:
-            sale_line = milestone.sale_line_id
-            if not sale_line:
-                continue
+        sale_lines = self.sale_line_id
+        if not sale_lines:
+            return
 
-            milestones = self.search([("sale_line_id", "=", sale_line.id)])
-            total_ratio = sum(milestones.mapped("quantity_percentage"))  # 0..1
+        milestones = self.search([("sale_line_id", "in", sale_lines.ids)])
+        milestones_by_sale_line = {}
+        for milestone in milestones:
+            milestones_by_sale_line.setdefault(milestone.sale_line_id, []).append(milestone)
 
-            # total_ratio > 1.0 means > 100%
-            if float_compare(total_ratio, 1.0, precision_digits=10) > 0:
-                raise ValidationError(_(
-                    "The total milestone percentage for the sales order item '%(line)s' "
-                    "cannot exceed 100%%. Current total: %(total).6f%%."
-                ) % {
-                    "line": sale_line.display_name,
-                    "total": total_ratio * 100.0,
-                })
+        for sale_line, m_list in milestones_by_sale_line.items():
+            total_ratio = sum(m.quantity_percentage for m in m_list)
+            if float_compare(total_ratio, 1.0, precision_digits=8) > 0:
+                raise ValidationError(
+                    self.env._(
+                        "The total milestone percentage for the sales order item '%(line)s' "
+                        "cannot exceed 100%%. Current total: %(total).6f%%.",
+                        line=sale_line.display_name,
+                        total=total_ratio * 100.0,
+                    )
+                )
