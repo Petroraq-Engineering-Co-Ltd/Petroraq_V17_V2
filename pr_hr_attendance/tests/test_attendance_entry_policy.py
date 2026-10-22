@@ -12,8 +12,28 @@ from .common import AttendancePolicyCase
 @tagged("post_install", "-at_install")
 class TestAttendanceEntryPolicy(AttendancePolicyCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-06-01"
+        )
+
     def test_saturday_is_off_only_after_40_approved_etm_hours(self):
         saturday = date(2026, 6, 6)
+        task_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Saturday ETM Employee",
+            "login": "saturday.etm.employee.test",
+            "company_id": self.env.company.id,
+            "company_ids": [Command.set(self.env.company.ids)],
+            "groups_id": [Command.set((
+                self.env.ref("base.group_user")
+                | self.env.ref("employee_task_management.group_task_employee")
+            ).ids)],
+        })
+        self.scheduled_employee.user_id = task_user
+        self.assertFalse(self.scheduled_employee._is_etm_participant())
+        self.scheduled_employee.etm_attendance_policy_enabled = True
         for offset in range(5):
             self.env["employee.task.idle.day"].create({
                 "employee_id": self.scheduled_employee.id,
@@ -25,6 +45,67 @@ class TestAttendanceEntryPolicy(AttendancePolicyCase):
             ("employee_id", "=", self.scheduled_employee.id),
             ("date", "=", date(2026, 6, 4)),
         ]).approved_hours = 7.0
+        self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
+
+    def test_late_optional_punch_on_earned_off_saturday_is_not_absent(self):
+        saturday = date(2026, 6, 6)
+        self.scheduled_employee.etm_attendance_policy_enabled = True
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.scheduled_employee.id,
+                "date": date(2026, 5, 31) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+
+        # 10:00 UTC is after the 09:00 cutoff in UTC and Riyadh, so this
+        # proves the earned Saturday-off exception wins over the late rule.
+        attendance = self.Attendance.sudo().with_context(
+            attendance_policy_source="scheduled"
+        ).create({
+            "employee_id": self.scheduled_employee.id,
+            "check_in": datetime(2026, 6, 6, 10, 0),
+            "check_out": datetime(2026, 6, 6, 18, 0),
+        })
+
+        self.assertTrue(self.scheduled_employee._etm_saturday_is_off(saturday))
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertFalse(attendance.attendance_status_reason)
+
+        attendance.with_context(skip_daily_attendance_status=True).write({
+            "attendance_day_status": "absent",
+            "attendance_status_reason": "Restored stale database value",
+        })
+        repaired = self.Attendance._repair_etm_saturday_attendance_statuses(
+            from_date=saturday, employee_ids=self.scheduled_employee.ids,
+        )
+        self.assertEqual(repaired, 1)
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertFalse(attendance.attendance_status_reason)
+
+    def test_policy_disabled_employee_does_not_receive_etm_saturday_off(self):
+        saturday = date(2026, 6, 6)
+        for offset in range(5):
+            self.env["employee.task.idle.day"].create({
+                "employee_id": self.scheduled_employee.id,
+                "date": date(2026, 5, 31) + timedelta(days=offset),
+                "approved_hours": 8.0,
+            })
+
+        self.assertFalse(self.scheduled_employee._is_etm_participant())
+        self.assertFalse(
+            self.scheduled_employee._etm_saturday_is_off(saturday)
+        )
+
+    def test_saturday_policy_does_not_apply_before_enforcement_date(self):
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-10-04"
+        )
+        saturday = date(2026, 10, 3)
+        self.scheduled_employee.etm_attendance_policy_enabled = False
+
+        self.assertFalse(
+            self.scheduled_employee._etm_attendance_policy_applies(saturday)
+        )
         self.assertFalse(self.scheduled_employee._etm_saturday_is_off(saturday))
 
     def test_manual_hr_create_modify_and_delete_is_allowed(self):

@@ -155,6 +155,12 @@ class TaskAttendanceDay(models.Model):
 
     @api.model
     def _requires_submission(self, employee, day, start, end, timezone):
+        # Missing daily ETM submissions can affect attendance only when HR
+        # explicitly enables the employee-level attendance policy.
+        if not employee._etm_attendance_policy_applies(day):
+            return False
+        if not employee._is_etm_participant():
+            return False
         calendar = employee.resource_calendar_id or employee.company_id.resource_calendar_id
         if not calendar or self.env["hr.attendance"]._is_auto_attendance_public_holiday(employee, day):
             return False
@@ -179,6 +185,86 @@ class TaskAttendanceDay(models.Model):
             line.start_date and line.end_date and line.start_date <= day <= line.end_date
             for line in submissions.mapped("task_list_id.task_line_ids")
         )
+
+    @api.model
+    def _repair_non_etm_absences(self, from_date=None, employee_ids=None):
+        """Restore attendance wrongly blocked by ETM for non-participants.
+
+        The absence record remains as an approved audit record.  Actual
+        punches are never changed.  Attendance status is recalculated by the
+        normal attendance policy, and exact pre-ETM attendance-sheet values
+        are restored from their snapshots, including finalized sheets.
+        """
+        from_date = fields.Date.to_date(
+            from_date or self.env["hr.employee"]._etm_attendance_enforce_from()
+        )
+        if not from_date:
+            return 0
+        days = self.sudo().search([
+            ("date", ">=", from_date),
+            ("state", "!=", "approved"),
+        ] + ([
+            ("employee_id", "in", employee_ids),
+        ] if employee_ids else [])).filtered(
+            lambda day: not day.employee_id._is_etm_participant()
+        )
+        if not days:
+            return 0
+        return self._restore_task_absence_days(days, _(
+            "Manually restored: the employee's Task Management Attendance "
+            "Policy was disabled."
+        ))
+
+    @api.model
+    def _restore_task_absence_days(self, days, comment):
+        """Restore attendance and sheet snapshots for the supplied ETM days."""
+        days = days.sudo().exists()
+        if not days:
+            return 0
+
+        corrected_pairs = {(day.employee_id.id, day.date) for day in days}
+        days.write({
+            "state": "approved",
+            "hr_comment": comment,
+            "decision_by_id": self.env.ref("base.user_root").id,
+            "decision_at": fields.Datetime.now(),
+        })
+
+        attendances = days.mapped("attendance_ids")
+        if attendances:
+            attendances._refresh_daily_attendance_status()
+
+        # _sync_unfinalized_sheets only handles open sheets.  A snapshot is
+        # exact and safe to restore on any state, so also repair a finalized
+        # sheet if this ETM absence had already reached it.
+        snapshot_lines = self.env["attendance.sheet.line"].sudo().search([
+            ("task_absence_snapshot", "!=", False),
+            ("employee_id", "in", days.mapped("employee_id").ids),
+            ("date", ">=", min(days.mapped("date"))),
+            ("date", "<=", max(days.mapped("date"))),
+        ])
+        for line in snapshot_lines:
+            if (line.employee_id.id, line.date) not in corrected_pairs:
+                continue
+            values = dict(line.task_absence_snapshot)
+            values["task_absence_snapshot"] = False
+            line.write(values)
+        return len(days)
+
+    @api.model
+    def _repair_pre_enforcement_absences(self):
+        """Restore ETM absences recorded before the configured start date."""
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if not enforce_from:
+            return 0
+        days = self.sudo().search([
+            ("date", "<", enforce_from),
+            ("state", "!=", "approved"),
+        ])
+        return self._restore_task_absence_days(days, _(
+            "Automatically restored: this date is before the Task Management "
+            "Attendance enforcement date."
+        ))
 
     @api.model
     def cron_finalize_task_attendance(self, now=None):

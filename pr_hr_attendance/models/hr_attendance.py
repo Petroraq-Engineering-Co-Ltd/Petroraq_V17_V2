@@ -217,15 +217,20 @@ class HrAttendance(models.Model):
     def _refresh_daily_attendance_status(self, now=None):
         """Keep a durable status on the core attendance record.
 
-        A check-in at 09:00:00 or later is absent.  A single punch remains a
-        visible missing-punch issue during its local day and becomes absent as
-        soon as that day has ended.
+        A check-in at 09:00:00 or later is absent on a working day. A punch on
+        a Saturday earned off under the ETM policy is optional attendance and
+        must never create a late, missing-punch, or absence penalty. A single
+        punch on any other day remains a visible missing-punch issue during
+        its local day and becomes absent as soon as that day has ended.
         """
         utc_now = fields.Datetime.to_datetime(now or fields.Datetime.now())
         for attendance in self.filtered("check_in"):
             local_check_in = attendance._attendance_local_datetime(attendance.check_in)
             local_now = attendance._attendance_local_datetime(utc_now)
-            if attendance.attendance_entry_source == "approved_shortage":
+            saturday_is_off = attendance.employee_id._etm_saturday_is_off(
+                local_check_in.date()
+            )
+            if attendance.attendance_entry_source == "approved_shortage" or saturday_is_off:
                 status = "normal"
                 reason = False
             elif local_check_in.time() >= time(9, 0, 0):
@@ -250,6 +255,33 @@ class HrAttendance(models.Model):
                 })
 
     @api.model
+    def _repair_etm_saturday_attendance_statuses(self, from_date=None, employee_ids=None):
+        """Re-evaluate existing Saturday punches from the enforcement date."""
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if not enforce_from:
+            return 0
+        from_date = max(
+            fields.Date.to_date(from_date or enforce_from), enforce_from,
+        )
+
+        # Include the preceding UTC day because an employee's local Saturday
+        # can begin on Friday UTC in positive-offset time zones.
+        search_from = datetime.combine(from_date - timedelta(days=1), time.min)
+        domain = [
+            ("check_in", ">=", search_from),
+        ]
+        if employee_ids:
+            domain.append(("employee_id", "in", employee_ids))
+        candidates = self.sudo().search(domain)
+        affected = candidates.filtered(
+            lambda attendance: attendance.employee_id._etm_saturday_is_off(
+                attendance._attendance_local_datetime(attendance.check_in).date()
+            )
+        )
+        affected._refresh_daily_attendance_status()
+        return len(affected)
+
+    @api.model
     def cron_finalize_daily_attendance_statuses(self):
         candidates = self.sudo().search([
             ("check_in", "!=", False),
@@ -258,6 +290,14 @@ class HrAttendance(models.Model):
             ("attendance_day_status", "!=", "absent"),
         ])
         candidates._refresh_daily_attendance_status()
+
+        # Database restores can bring back completed records that were already
+        # marked absent. Recheck the recent window so the repair is idempotent
+        # even when Odoo does not rerun an already-installed migration.
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if enforce_from:
+            recent_from = fields.Date.context_today(self) - timedelta(days=8)
+            self._repair_etm_saturday_attendance_statuses(from_date=recent_from)
 
     def unlink(self):
         if not self:
@@ -383,7 +423,12 @@ class HrAttendance(models.Model):
             or employee.company_id.resource_calendar_id
             or self.env.company.resource_calendar_id
         )
-        if target_date.weekday() == 5 and employee._etm_saturday_is_off(target_date):
+        saturday_policy_applies = (
+            target_date.weekday() == 5
+            and employee._is_etm_participant()
+            and employee._etm_attendance_policy_applies(target_date)
+        )
+        if saturday_policy_applies and employee._etm_saturday_is_off(target_date):
             return False
         if not calendar:
             return False
@@ -395,7 +440,7 @@ class HrAttendance(models.Model):
                 and (not attendance.date_from or attendance.date_from <= target_date)
                 and (not attendance.date_to or attendance.date_to >= target_date)
         )
-        if not attendance_lines and target_date.weekday() != 5:
+        if not attendance_lines and not saturday_policy_applies:
             return False
 
         leave_domain = [

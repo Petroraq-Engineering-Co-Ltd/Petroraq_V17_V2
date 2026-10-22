@@ -149,35 +149,30 @@ class PetroraqEstimation(models.Model):
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     labor_total = fields.Monetary(
         string="Labor Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     equipment_total = fields.Monetary(
         string="Equipment Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     subcontract_total = fields.Monetary(
         string="Sub Contract / TPS Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     total_amount = fields.Monetary(
         string="Total",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     overhead_percent = fields.Float(
         string="Over Head (%)",
@@ -200,14 +195,12 @@ class PetroraqEstimation(models.Model):
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     risk_amount = fields.Monetary(
         string="Risk Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     buffer_total_amount = fields.Monetary(
         string="Computed Total Amount",
@@ -215,21 +208,18 @@ class PetroraqEstimation(models.Model):
         currency_field="currency_id",
         store=False,
         help="Total amount including overhead and risk (no profit).",
-        digits="Product Price",
     )
     profit_amount = fields.Monetary(
         string="Profit Amount",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
     total_with_profit = fields.Monetary(
         string="Total With Profit",
         compute="_compute_totals",
         currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
 
     @api.model
@@ -313,45 +303,48 @@ class PetroraqEstimation(models.Model):
         "overhead_percent",
         "risk_percent",
         "profit_percent",
+        "currency_id",
+        "company_id.currency_id",
     )
     def _compute_totals(self):
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for record in self:
-            material_total = float_round(
-                sum(record.line_ids.filtered(lambda l: l.section_type == "material").mapped("subtotal")),
-                precision_digits=precision_cost,
-            )
-            labor_total = float_round(
-                sum(record.line_ids.filtered(lambda l: l.section_type == "labor").mapped("subtotal")),
-                precision_digits=precision_cost,
-            )
-            equipment_total = float_round(
-                sum(record.line_ids.filtered(lambda l: l.section_type == "equipment").mapped("subtotal")),
-                precision_digits=precision_cost,
-            )
-            subcontract_total = float_round(
-                sum(record.line_ids.filtered(lambda l: l.section_type == "subcontract").mapped("subtotal")),
-                precision_digits=precision_cost,
-            )
+            currency = record.currency_id or record.company_id.currency_id
+            material_total = sum(record.line_ids.filtered(lambda l: l.section_type == "material").mapped("subtotal"))
+            labor_total = sum(record.line_ids.filtered(lambda l: l.section_type == "labor").mapped("subtotal"))
+            equipment_total = sum(record.line_ids.filtered(lambda l: l.section_type == "equipment").mapped("subtotal"))
+            subcontract_total = sum(record.line_ids.filtered(lambda l: l.section_type == "subcontract").mapped("subtotal"))
+            if currency:
+                material_total = currency.round(material_total)
+                labor_total = currency.round(labor_total)
+                equipment_total = currency.round(equipment_total)
+                subcontract_total = currency.round(subcontract_total)
+
             record.material_total = material_total
             record.labor_total = labor_total
             record.equipment_total = equipment_total
             record.subcontract_total = subcontract_total
-            base_total = float_round(
-                material_total + labor_total + equipment_total + subcontract_total,
-                precision_digits=precision_cost,
-            )
-            overhead_amount = float_round(base_total * (record.overhead_percent or 0.0) / 100.0, precision_digits=precision_cost)
-            risk_amount = float_round(base_total * (record.risk_percent or 0.0) / 100.0, precision_digits=precision_cost)
-            buffer_total = float_round(base_total + overhead_amount + risk_amount, precision_digits=precision_cost)
-            profit_amount = float_round(buffer_total * (record.profit_percent or 0.0) / 100.0, precision_digits=precision_cost)
+
+            base_total = material_total + labor_total + equipment_total + subcontract_total
+            overhead_amount = base_total * (record.overhead_percent or 0.0) / 100.0
+            risk_amount = base_total * (record.risk_percent or 0.0) / 100.0
+            if currency:
+                base_total = currency.round(base_total)
+                overhead_amount = currency.round(overhead_amount)
+                risk_amount = currency.round(risk_amount)
+
+            buffer_total = base_total + overhead_amount + risk_amount
+            profit_amount = buffer_total * (record.profit_percent or 0.0) / 100.0
+            if currency:
+                buffer_total = currency.round(buffer_total)
+                profit_amount = currency.round(profit_amount)
 
             record.total_amount = base_total
             record.overhead_amount = overhead_amount
             record.risk_amount = risk_amount
             record.buffer_total_amount = buffer_total
             record.profit_amount = profit_amount
-            record.total_with_profit = float_round(buffer_total + profit_amount, precision_digits=precision_cost)
+            total_with_profit = buffer_total + profit_amount
+            record.total_with_profit = currency.round(total_with_profit) if currency else total_with_profit
 
     @api.onchange("overhead_percent", "risk_percent", "profit_percent")
     def _onchange_percent_validation(self):
@@ -872,14 +865,12 @@ class PetroraqEstimation(models.Model):
 
     def _get_estimation_section_amounts(self):
         self.ensure_one()
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
+        currency = self.currency_id or self.company_id.currency_id
         amounts = {}
         for section_type, _label in SECTION_TYPES:
             section_name = self._get_estimation_section_name(section_type)
-            amounts[section_name] = float_round(
-                sum(self.line_ids.filtered(lambda l: l.section_type == section_type).mapped("subtotal")),
-                precision_digits=precision_cost,
-            )
+            sec_sum = sum(self.line_ids.filtered(lambda l: l.section_type == section_type).mapped("subtotal"))
+            amounts[section_name] = currency.round(sec_sum) if currency else sec_sum
         return amounts
 
     def _sync_work_order_cost_centers(self, work_order, order):
@@ -1240,11 +1231,11 @@ class PetroraqEstimationLine(models.Model):
 
     unit_cost = fields.Float(string="Unit Cost", digits="Product Price")
 
-    subtotal = fields.Float(
+    subtotal = fields.Monetary(
         string="Subtotal",
         compute="_compute_subtotal",
+        currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
 
     @api.depends("estimation_id.currency_id")
@@ -1310,12 +1301,14 @@ class PetroraqEstimationLine(models.Model):
         "quantity",
         "quantity_hours",
         "unit_cost",
+        "currency_id",
     )
     def _compute_subtotal(self):
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
+            currency = line.currency_id or line.estimation_id.currency_id or line.company_id.currency_id
             qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
-            line.subtotal = float_round(qty * (line.unit_cost or 0.0), precision_digits=precision_cost)
+            raw = qty * (line.unit_cost or 0.0)
+            line.subtotal = currency.round(raw) if currency else raw
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -1376,18 +1369,18 @@ class PetroraqEstimationDisplayLine(models.Model):
         readonly=True,
     )
     unit_cost = fields.Float(string="Unit Cost", digits="Product Price")
-    subtotal = fields.Float(
+    subtotal = fields.Monetary(
         string="Subtotal",
         compute="_compute_subtotal",
+        currency_field="currency_id",
         store=False,
-        digits="Product Price",
     )
-    section_subtotal_amount = fields.Float(
+    section_subtotal_amount = fields.Monetary(
         string="Section Subtotal",
         compute="_compute_section_subtotal_amount",
+        currency_field="currency_id",
         store=False,
         help="Subtotal of the lines within this section.",
-        digits="Product Price",
     )
     section_subtotal_display = fields.Html(
         string="Section Subtotal Display",
@@ -1401,12 +1394,14 @@ class PetroraqEstimationDisplayLine(models.Model):
         "quantity",
         "quantity_hours",
         "unit_cost",
+        "currency_id",
     )
     def _compute_subtotal(self):
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
+            currency = line.currency_id or line.estimation_id.currency_id or line.company_id.currency_id
             qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
-            line.subtotal = float_round(qty * (line.unit_cost or 0.0), precision_digits=precision_cost)
+            raw = qty * (line.unit_cost or 0.0)
+            line.subtotal = currency.round(raw) if currency else raw
 
     @api.depends(
         "display_type",
@@ -1421,15 +1416,16 @@ class PetroraqEstimationDisplayLine(models.Model):
         "estimation_id.display_line_ids.quantity",
         "estimation_id.display_line_ids.quantity_hours",
         "estimation_id.display_line_ids.unit_cost",
+        "estimation_id.currency_id",
     )
     def _compute_section_subtotal_amount(self):
         label = _("Sub Total")
-        precision_cost = self.env["decimal.precision"].precision_get("Product Price")
         for line in self:
             line.section_subtotal_amount = 0.0
             line.section_subtotal_display = False
 
         for estimation in self.mapped("estimation_id"):
+            currency = estimation.currency_id or estimation.company_id.currency_id
             subtotal = 0.0
             current_section = None
             ordered_lines = estimation.display_line_ids.sorted(key=lambda l: (l.sequence or 0, l.id or 0))
@@ -1437,7 +1433,9 @@ class PetroraqEstimationDisplayLine(models.Model):
             for line in ordered_lines:
                 if line.display_type == "line_section":
                     if current_section:
-                        current_section._set_section_subtotal_values(float_round(subtotal, precision_digits=precision_cost), label)
+                        current_section._set_section_subtotal_values(
+                            currency.round(subtotal) if currency else subtotal, label
+                        )
                     current_section = line
                     subtotal = 0.0
                     line.section_subtotal_amount = 0.0
@@ -1448,10 +1446,14 @@ class PetroraqEstimationDisplayLine(models.Model):
                     continue
 
                 qty = line.quantity_hours if line.section_type in ("labor", "equipment") else (line.quantity or 0.0)
-                subtotal += qty * (line.unit_cost or 0.0)
+                raw = qty * (line.unit_cost or 0.0)
+                line_sub = currency.round(raw) if currency else raw
+                subtotal += line_sub
 
             if current_section:
-                current_section._set_section_subtotal_values(float_round(subtotal, precision_digits=precision_cost), label)
+                current_section._set_section_subtotal_values(
+                    currency.round(subtotal) if currency else subtotal, label
+                )
 
     def _set_section_subtotal_values(self, amount, label):
         self.ensure_one()

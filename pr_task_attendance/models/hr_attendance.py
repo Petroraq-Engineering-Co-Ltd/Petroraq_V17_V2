@@ -70,4 +70,5 @@ class HrAttendance(models.Model):
             "res_id": day.id,
             "view_mode": "form",
             "target": "current",
+            "context": {"form_view_initial_mode": "edit"},
         }

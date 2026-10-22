@@ -1,6 +1,8 @@
 from datetime import date, datetime, timedelta
 from unittest.mock import patch
 
+import pytz
+
 from odoo import Command
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, tagged
@@ -51,6 +53,7 @@ class TestTaskAttendance(TransactionCase):
             "company_id": cls.env.company.id, "resource_calendar_id": cls.calendar.id,
             "department_id": cls.department.id, "parent_id": cls.manager.id,
             "compute_attendance": True,
+            "etm_attendance_policy_enabled": True,
         })
 
     def _attendance(self, offset=0, start_hour=5, end_hour=14):
@@ -91,6 +94,113 @@ class TestTaskAttendance(TransactionCase):
         self.Day.cron_finalize_task_attendance(now=self.midnight + timedelta(minutes=1))
         self.assertEqual(self.Day.search_count([("employee_id", "=", self.employee.id)]), 1)
         self.assertEqual(actual, (attendance.check_in, attendance.check_out, attendance.worked_hours, attendance.attendance_entry_source))
+
+    def test_non_etm_employee_is_not_absent_for_missing_daily_submission(self):
+        employee = self.env["hr.employee"].create({
+            "name": "Employee Outside ETM",
+            "user_id": self.other_user.id,
+            "company_id": self.env.company.id,
+            "resource_calendar_id": self.calendar.id,
+            "compute_attendance": True,
+        })
+        attendance = self.env["hr.attendance"].sudo().with_context(
+            attendance_policy_source="biometric"
+        ).create({
+            "employee_id": employee.id,
+            "check_in": datetime(2026, 9, 14, 5),
+            "check_out": datetime(2026, 9, 14, 14),
+        })
+
+        self.Day.cron_finalize_task_attendance(now=self.midnight)
+
+        self.assertTrue(attendance.task_attendance_checked)
+        self.assertFalse(attendance.task_attendance_day_id)
+        self.assertEqual(attendance.attendance_day_status, "normal")
+
+    def test_disabling_policy_does_not_change_existing_attendance(self):
+        attendance, day = self._absence()
+        original_state = day.state
+
+        self.employee.etm_attendance_policy_enabled = False
+
+        self.assertEqual(day.state, original_state)
+        self.assertEqual(attendance.attendance_day_status, "absent")
+        self.assertEqual(attendance.task_attendance_day_id, day)
+
+    def test_dashboard_uses_toggle_for_saturday_schedule(self):
+        saturday = date(2026, 9, 19)
+        timezone = pytz.timezone("Asia/Riyadh")
+        dashboard = self.env["de.hr.attendance.management.dashboard"]
+
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-09-20"
+        )
+        historical_schedule = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertFalse(historical_schedule["working_day"])
+
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-09-14"
+        )
+        self.employee.etm_attendance_policy_enabled = False
+        opted_out_schedule = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertFalse(opted_out_schedule["working_day"])
+
+        self.calendar.write({
+            "attendance_ids": [Command.create({
+                "name": "Saturday Shift",
+                "dayofweek": "5",
+                "day_period": "morning",
+                "hour_from": 8.0,
+                "hour_to": 17.0,
+            })],
+        })
+        opted_out_scheduled_saturday = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertTrue(opted_out_scheduled_saturday["working_day"])
+
+        self.employee.etm_attendance_policy_enabled = True
+        opted_in_schedule = dashboard._get_schedule(
+            self.employee, saturday, timezone,
+        )
+        self.assertTrue(opted_in_schedule["working_day"])
+
+    def test_repair_restores_existing_absence_after_etm_access_is_removed(self):
+        attendance, day = self._absence()
+        self.assertEqual(attendance.attendance_day_status, "absent")
+        self.employee.etm_attendance_policy_enabled = False
+
+        action = self.employee.with_user(self.hr_user).action_repair_etm_attendance(
+            from_date=self.day,
+        )
+
+        self.assertEqual(action["tag"], "display_notification")
+        self.assertIn("1 daily absence record(s) restored", action["params"]["message"])
+        self.assertEqual(day.state, "approved")
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertEqual((attendance.check_in, attendance.check_out), (
+            datetime(2026, 9, 14, 5), datetime(2026, 9, 14, 14),
+        ))
+
+    def test_upgrade_repair_restores_absence_before_enforcement_date(self):
+        attendance, day = self._absence()
+        self.assertEqual(attendance.attendance_day_status, "absent")
+        self.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", str(self.day + timedelta(days=1))
+        )
+
+        repaired = self.Day._repair_pre_enforcement_absences()
+
+        self.assertEqual(repaired, 1)
+        self.assertEqual(day.state, "approved")
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertEqual((attendance.check_in, attendance.check_out), (
+            datetime(2026, 9, 14, 5), datetime(2026, 9, 14, 14),
+        ))
 
     def test_fresh_daily_submission_counts_but_previous_day_does_not(self):
         self._submission(datetime(2026, 9, 14, 12), end=self.day + timedelta(days=1))
@@ -139,6 +249,16 @@ class TestTaskAttendance(TransactionCase):
         self.Day.cron_finalize_task_attendance(now=self.midnight + timedelta(days=3))
         self.assertFalse(old.task_attendance_day_id)
         self.assertEqual(late.attendance_day_status, "absent")
+
+    def test_employee_request_opens_in_edit_mode(self):
+        attendance, day = self._absence()
+
+        action = attendance.with_user(
+            self.employee_user
+        ).action_open_task_attendance_day()
+
+        self.assertEqual(action["res_id"], day.id)
+        self.assertEqual(action["context"]["form_view_initial_mode"], "edit")
 
     def test_hr_approval_restores_actual_attendance_and_survives_refresh(self):
         attendance, day = self._absence()
