@@ -237,12 +237,15 @@ class PurchaseOrder(models.Model):
     @api.depends("name", "state", "requisition_id", "requisition_id.pr_type")
     def _compute_can_create_po_from_rfq(self):
         for order in self:
+            has_remaining = True
+            if order.requisition_id:
+                has_remaining = order.requisition_id._has_remaining_product_quantities()
             order.can_create_po_from_rfq = bool(
                 "RFQ" in (order.name or "").upper()
                 and order.state in ("draft", "sent", "pending")
                 and (
                     not order.requisition_id
-                    or order.requisition_id.pr_type != "budgetary"
+                    or (order.requisition_id.pr_type != "budgetary" and has_remaining)
                 )
             )
 
@@ -453,25 +456,35 @@ class PurchaseOrder(models.Model):
             raise UserError(_("This RFQ has no order lines."))
 
         rfq_lines = self.order_line.filtered("product_id")
-        rfq_product_ids = rfq_lines.mapped("product_id").ids
-        rfq_requisition_line_ids = rfq_lines.filtered("custom_requisition_line_id").mapped("custom_requisition_line_id").ids
+        if not rfq_lines:
+            raise UserError(_("This RFQ has no product lines."))
+
+        lines_to_order = rfq_lines.filtered(lambda l: l.product_qty > 1e-6)
+        if not lines_to_order:
+            raise UserError(_("All lines in this RFQ have a quantity of 0 or have already been fully ordered."))
+
+        rfq_product_ids = lines_to_order.mapped("product_id").ids
+
         if self.requisition_id:
-            existing_domain = [
-                ("order_id.requisition_id", "=", self.requisition_id.id),
-                ("order_id.state", "in", ["draft", "pending", "purchase", "done", "rejected"]),
-                ("order_id.name", "not ilike", "RFQ"),
-            ]
-            if rfq_requisition_line_ids and len(rfq_requisition_line_ids) == len(rfq_lines):
-                existing_domain.append(("custom_requisition_line_id", "in", rfq_requisition_line_ids))
-            else:
-                existing_domain.append(("product_id", "in", rfq_product_ids))
-            existing_po_lines = self.env["purchase.order.line"].sudo().search(existing_domain)
-            if existing_po_lines:
-                duplicate_products = ", ".join(sorted(set(existing_po_lines.mapped("product_id.display_name"))))
-                raise UserError(
-                    _("A Purchase Order already exists for RFQ %(rfq)s product(s): %(products)s.")
-                    % {"rfq": self.name, "products": duplicate_products}
-                )
+            purchased_quantities = self.requisition_id._get_purchased_requisition_line_quantities()
+            for line in lines_to_order:
+                req_line = line.custom_requisition_line_id
+                if not req_line and self.requisition_id:
+                    req_line = self.requisition_id.line_ids.filtered(lambda rl: rl.description == line.product_id)[:1]
+                if req_line:
+                    ordered_so_far = purchased_quantities.get(req_line.id, 0.0)
+                    remaining_demand = max((req_line.quantity or 0.0) - ordered_so_far, 0.0)
+                    if float_compare(line.product_qty, remaining_demand, precision_digits=3) > 0:
+                        raise UserError(
+                            _("Requested quantity %(qty)s for product '%(product)s' exceeds remaining requisition quantity %(rem)s (Demand: %(demand)s, Already Ordered: %(ordered)s).")
+                            % {
+                                "qty": line.product_qty,
+                                "product": line.product_id.display_name,
+                                "rem": remaining_demand,
+                                "demand": req_line.quantity,
+                                "ordered": ordered_so_far,
+                            }
+                        )
         else:
             existing_po = self.env["purchase.order"].sudo().search_count([
                 "|", ("source_rfq_id", "=", self.id), ("origin", "=", self.name),
@@ -492,7 +505,7 @@ class PurchaseOrder(models.Model):
         requisition_cost_center_ids = set(
             self.requisition_id.line_ids.mapped("cost_center_id").ids
         ) if self.requisition_id else set()
-        for line in self.order_line:
+        for line in lines_to_order:
             distribution = line.analytic_distribution or {}
             for analytic_key, percentage in distribution.items():
                 try:
@@ -577,7 +590,7 @@ class PurchaseOrder(models.Model):
                     "analytic_distribution": line.analytic_distribution,
                     "custom_requisition_line_id": line.custom_requisition_line_id.id,
                 })
-                for line in self.order_line if line.product_id
+                for line in lines_to_order
             ],
         }
         new_po = self.env["purchase.order"].sudo().create(po_vals)
@@ -586,10 +599,11 @@ class PurchaseOrder(models.Model):
             self.write({"state": "sent"})
         self.message_post(body=_("Purchase Order %s created from this RFQ.") % new_po.name)
 
-        if sibling_rfqs:
+        if sibling_rfqs and self.requisition_id and not self.requisition_id._has_remaining_product_quantities():
             sibling_rfqs.write({"state": "cancel"})
             for sibling_rfq in sibling_rfqs:
-                sibling_rfq.message_post(body=_("Cancelled because another RFQ was selected as Purchase Order."))
+                sibling_rfq.message_post(body=_("Cancelled because requisition demand has been fully ordered."))
+
 
         return {
             "type": "ir.actions.act_window",
