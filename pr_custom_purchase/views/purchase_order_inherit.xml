@@ -12,6 +12,15 @@
                         invisible="state not in ('draft','sent')"
                         groups="pr_custom_purchase.procurement_admin"/>
             </xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='product_qty']" position="attributes">
+                <attribute name="digits">[16,8]</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='qty_received']" position="attributes">
+                <attribute name="digits">[16,8]</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="attributes">
+                <attribute name="digits">[16,8]</attribute>
+            </xpath>
         </field>
     </record>
 

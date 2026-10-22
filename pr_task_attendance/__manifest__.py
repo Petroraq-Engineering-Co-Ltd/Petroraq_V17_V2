@@ -1,6 +1,6 @@
 {
     "name": "Daily Task Attendance Approval",
-    "version": "17.0.1.1.1",
+    "version": "17.0.1.1.8",
     "category": "Human Resources/Attendance",
     "summary": "Daily task submission attendance policy and HR mark-present requests",
     "license": "LGPL-3",
@@ -8,6 +8,7 @@
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
+        "data/employee_attendance_repair_action.xml",
         "views/task_attendance_views.xml",
         "data/cron.xml",
     ],

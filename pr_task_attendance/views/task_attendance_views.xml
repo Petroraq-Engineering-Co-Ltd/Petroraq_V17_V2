@@ -50,6 +50,7 @@
         <field name="res_model">hr.task.attendance.day</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'form_view_initial_mode': 'edit'}</field>
     </record>
     <record id="task_attendance_approval_action" model="ir.actions.act_window">
         <field name="name">Mark Present Requests</field>

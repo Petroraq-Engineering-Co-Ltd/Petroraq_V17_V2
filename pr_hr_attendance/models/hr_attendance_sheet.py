@@ -211,6 +211,14 @@ class HrAttendanceSheet(models.Model):
         """Make Saturday conditional on the prior Sun-Thu ETM approvals."""
         for sheet in self:
             employee = sheet.employee_id
+            if not employee._is_etm_participant():
+                continue
+            saturday_lines = sheet.line_ids.filtered(
+                lambda item: item.date and item.date.weekday() == 5
+                and employee._etm_attendance_policy_applies(item.date)
+            )
+            if not saturday_lines:
+                continue
             calendar = employee.contract_id.resource_calendar_id
             fallback_lines = calendar.attendance_ids.filtered(
                 lambda item: item.dayofweek in ("6", "0", "1", "2", "3")
@@ -219,12 +227,15 @@ class HrAttendanceSheet(models.Model):
             end_hour = max(fallback_lines.mapped("hour_to"), default=17.0)
             planned_hours = max(end_hour - start_hour, 0.0)
 
-            for line in sheet.line_ids.filtered(lambda item: item.date and item.date.weekday() == 5):
+            for line in saturday_lines:
                 saturday_off = employee._etm_saturday_is_off(line.date)
                 if saturday_off:
+                    off_note = _(
+                        "Saturday off: 40 approved ETM hours completed Sunday-Thursday."
+                    )
                     line.write({
                         "status": "weekend",
-                        "note": _("Saturday off: 40 approved ETM hours completed Sunday-Thursday."),
+                        "note": off_note,
                         "pl_sign_in": 0.0,
                         "pl_sign_out": 0.0,
                         "late_in": 0.0,
@@ -247,6 +258,95 @@ class HrAttendanceSheet(models.Model):
                     "act_diff_time": max(planned_hours - (line.worked_hours or 0.0), 0.0),
                 })
 
+    @api.model
+    def _repair_non_etm_saturday_results(self, from_date=None, employee_ids=None):
+        """Restore opted-out employees' open Saturdays from their calendars.
+
+        Approved sheets are deliberately not rebuilt because they may already
+        be tied to payroll.
+        """
+        from_date = fields.Date.to_date(
+            from_date or self.env["hr.employee"]._etm_attendance_enforce_from()
+        )
+        if not from_date:
+            return 0
+        sheets = self.sudo().search([
+            ("state", "in", ("draft", "confirm")),
+            ("date_to", ">=", from_date),
+        ] + ([
+            ("employee_id", "in", employee_ids),
+        ] if employee_ids else []))
+        affected = sheets.filtered(
+            lambda sheet: not sheet.employee_id._is_etm_participant()
+            and any(
+                line.date and line.date >= from_date and line.date.weekday() == 5
+                for line in sheet.line_ids
+            )
+        )
+        for sheet in affected:
+            # Regeneration follows the employee's calendar and preserves
+            # actual punches.
+            sheet.get_attendances()
+        return len(affected)
+
+    @api.model
+    def _repair_pre_enforcement_saturday_results(self):
+        """Restore open Saturday sheets changed before enforcement began."""
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if not enforce_from:
+            return 0
+        sheets = self.sudo().search([
+            ("state", "in", ("draft", "confirm")),
+            ("date_from", "<", enforce_from),
+        ])
+        markers = ("etm", "task management attendance policy")
+        affected = sheets.filtered(
+            lambda sheet: any(
+                line.date
+                and line.date < enforce_from
+                and line.date.weekday() == 5
+                and any(marker in (line.note or "").lower() for marker in markers)
+                for line in sheet.line_ids
+            )
+        )
+        for sheet in affected:
+            # The date gate makes pre-enforcement Saturdays use the original
+            # employee calendar while post-enforcement Saturdays retain the
+            # new task-management policy. Actual punches are preserved.
+            sheet.get_attendances()
+        return len(affected)
+
+    @api.model
+    def _repair_etm_saturday_off_results(self, from_date=None, employee_ids=None):
+        """Rebuild open sheets containing Saturdays that are now earned off."""
+        enforce_from = self.env["hr.employee"]._etm_attendance_enforce_from()
+        if not enforce_from:
+            return 0
+        from_date = max(
+            fields.Date.to_date(from_date or enforce_from), enforce_from,
+        )
+        domain = [
+            ("state", "in", ("draft", "confirm")),
+            ("date_to", ">=", from_date),
+        ]
+        if employee_ids:
+            domain.append(("employee_id", "in", employee_ids))
+        sheets = self.sudo().search(domain)
+        affected = sheets.filtered(
+            lambda sheet: any(
+                line.date
+                and line.date >= from_date
+                and line.date.weekday() == 5
+                and sheet.employee_id._etm_saturday_is_off(line.date)
+                for line in sheet.line_ids
+            )
+        )
+        for sheet in affected:
+            # Recalculation keeps actual punches for overtime but removes any
+            # late, shortage, or absence penalty from an earned-off Saturday.
+            sheet.get_attendances()
+        return len(affected)
+
     def _sync_line_overtime_approval_from_attendance(self):
         for sheet in self:
             timezone_name = sheet.employee_id.tz or self.env.user.tz or "UTC"
@@ -268,6 +368,15 @@ class HrAttendanceSheet(models.Model):
         cutoff = 9 + (0 / 1)
         for sheet in self:
             for line in sheet.line_ids:
+                if line.date and sheet.employee_id._etm_saturday_is_off(line.date):
+                    # This explicit guard also protects payroll's direct call
+                    # to this method if a stale line was previously marked ab.
+                    line.status = "weekend"
+                    line.late_in = 0
+                    line.late_in_minutes = 0
+                    line.early_check_out = 0
+                    line.early_check_out_minutes = 0
+                    continue
                 if line.status in ("leave", "weekend"):
                     continue
                 if line.ac_sign_in and line.ac_sign_in >= cutoff:
