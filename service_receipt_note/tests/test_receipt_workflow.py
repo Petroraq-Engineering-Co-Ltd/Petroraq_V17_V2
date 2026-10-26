@@ -8,8 +8,10 @@ class TestServiceReceiptWorkflow(TransactionCase):
         super().setUpClass()
         cls.requester = new_test_user(cls.env, login="srn_requester",
                                      groups="service_receipt_note.group_service_receipt_user")
+        cls.qc = new_test_user(cls.env, login="srn_qc",
+                               groups="service_receipt_note.group_service_receipt_qc")
         cls.manager = new_test_user(cls.env, login="srn_manager",
-                                   groups="service_receipt_note.group_service_receipt_user")
+                                   groups="service_receipt_note.group_service_receipt_manager")
         cls.outsider = new_test_user(cls.env, login="srn_outsider",
                                     groups="purchase.group_purchase_user")
         manager_employee = cls.env["hr.employee"].create({"name": "Department Manager", "user_id": cls.manager.id})
@@ -36,23 +38,50 @@ class TestServiceReceiptWorkflow(TransactionCase):
     def test_vendor_srn_number_is_required_for_approval_and_validation(self):
         receipt = self._receipt(vendor_srn_number=False)
         with self.assertRaisesRegex(UserError, "Vendor SRN Number"):
-            receipt.with_user(self.manager).action_approve()
+            receipt.with_user(self.qc).action_approve()
 
-        receipt.with_user(self.manager).vendor_srn_number = "VENDOR-SRN-002"
-        receipt.with_user(self.manager).action_approve()
+        receipt.with_user(self.requester).vendor_srn_number = "VENDOR-SRN-002"
+        receipt.with_user(self.qc).action_approve()
         receipt.with_user(self.manager).vendor_srn_number = False
         with self.assertRaisesRegex(UserError, "Vendor SRN Number"):
             receipt.with_user(self.manager).action_validate()
 
-    def test_only_department_manager_approves(self):
+    def test_role_permissions_receiver_qc_manager(self):
         receipt = self._receipt()
         self.assertEqual(receipt.department_manager_id, self.manager)
+
+        # Receiver cannot approve or validate
+        with self.assertRaises(AccessError):
+            receipt.with_user(self.requester).action_approve()
+        with self.assertRaises(AccessError):
+            receipt.with_user(self.requester).action_validate()
+
+        # Outsider cannot approve
         with self.assertRaises(AccessError):
             receipt.with_user(self.outsider).action_approve()
-        receipt.with_user(self.manager).action_approve()
+
+        # Manager cannot approve (QC does)
+        with self.assertRaises(AccessError):
+            receipt.with_user(self.manager).action_approve()
+
+        # QC approves
+        receipt.with_user(self.qc).action_approve()
         self.assertEqual(receipt.approval_state, "approved")
+
+        # QC cannot validate
+        with self.assertRaises(AccessError):
+            receipt.with_user(self.qc).action_validate()
+
+        # Department Manager validates
+        receipt.with_user(self.manager).action_validate()
+        self.assertEqual(receipt.state, "done")
 
     def test_payment_request_requires_validation(self):
         receipt = self._receipt()
         with self.assertRaises(UserError):
             receipt.with_user(self.requester).action_request_payment()
+
+        receipt.with_user(self.qc).action_approve()
+        receipt.with_user(self.manager).action_validate()
+        receipt.with_user(self.requester).action_request_payment()
+        self.assertTrue(receipt.payment_requested)
