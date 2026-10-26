@@ -1758,16 +1758,19 @@ class PurchaseRequisition(models.Model):
             quantities[line.description.id] += line.quantity or 0.0
         return quantities
 
-    def _get_purchased_requisition_line_quantities(self):
+    def _get_purchased_requisition_line_quantities(self, exclude_order_ids=None):
         self.ensure_one()
         requisition_lines = self.line_ids if self.pr_type == "budgetary" else self.line_ids.filtered("description")
         quantities = {line.id: 0.0 for line in requisition_lines}
-        po_lines = self.env["purchase.order.line"].sudo().search([
+        domain = [
             ("order_id.requisition_id", "=", self.id),
-            ("order_id.state", "in", ["draft", "sent", "pending", "purchase", "done"]),
+            ("order_id.state", "in", ["sent", "pending", "purchase", "done"]),
             ("order_id.name", "not ilike", "RFQ"),
             ("product_id", "!=", False),
-        ])
+        ]
+        if exclude_order_ids:
+            domain.append(("order_id.id", "not in", list(exclude_order_ids)))
+        po_lines = self.env["purchase.order.line"].sudo().search(domain)
 
         for line in po_lines:
             requisition_line = line.custom_requisition_line_id
