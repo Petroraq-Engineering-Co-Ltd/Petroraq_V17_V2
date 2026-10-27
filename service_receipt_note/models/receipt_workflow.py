@@ -22,7 +22,7 @@ class ServiceReceiptNote(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        if not self.env.su:
+        if not self.env.su and not self.env.context.get("auto_create_from_po"):
             for vals in vals_list:
                 order = self.env["purchase.order"].browse(vals.get("purchase_id")).exists()
                 order.check_access_rights("read")
@@ -62,8 +62,8 @@ class ServiceReceiptNote(models.Model):
     @api.depends_context("uid")
     @api.depends("department_manager_id", "requested_user_id", "state", "approval_state", "payment_requested")
     def _compute_workflow_permissions(self):
-        is_qc_user = self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
-        is_manager_group = self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
+        is_qc_user = self.env.user.has_group("service_receipt_note.group_service_receipt_qc") or self.env.is_admin()
+        is_manager_group = self.env.user.has_group("service_receipt_note.group_service_receipt_manager") or self.env.is_admin()
         for receipt in self:
             receipt.can_approve_service = (
                 (is_qc_user or self.env.su)
@@ -76,28 +76,29 @@ class ServiceReceiptNote(models.Model):
                 and receipt.approval_state == "approved"
             )
             receipt.can_request_payment = (
-                (receipt.requested_user_id == self.env.user or self.env.su)
+                (receipt.requested_user_id == self.env.user or self.env.is_admin() or self.env.su)
                 and receipt.state == "done"
                 and not receipt.payment_requested
             )
 
     def _require_service_qc(self):
-        if not self.env.su and not self.env.user.has_group("service_receipt_note.group_service_receipt_qc"):
+        if not self.env.su and not self.env.is_admin() and not self.env.user.has_group("service_receipt_note.group_service_receipt_qc"):
             raise AccessError(_("Only Quality Control (QC) can approve this Service Receipt Note."))
 
     def _require_service_manager(self):
+        if self.env.su or self.env.is_admin():
+            return
         for receipt in self:
             if not receipt.department_manager_id:
                 raise UserError(_("Configure the requester's employee department and department manager first."))
             if (
-                not self.env.su
-                and receipt.department_manager_id != self.env.user
+                receipt.department_manager_id != self.env.user
                 and not self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
             ):
                 raise AccessError(_("Only the requester's department manager can validate this SRN."))
 
     def _require_service_qc_or_manager(self):
-        if self.env.su:
+        if self.env.su or self.env.is_admin():
             return
         is_qc = self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
         is_manager = self.env.user.has_group("service_receipt_note.group_service_receipt_manager") or any(
@@ -108,6 +109,7 @@ class ServiceReceiptNote(models.Model):
 
     def action_approve(self):
         self._require_service_qc()
+        self._check_attachments_before_approval()
         for receipt in self:
             if receipt.state not in ("draft", "ready"):
                 raise UserError(_("Only open SRNs can be approved."))
@@ -170,6 +172,9 @@ class ServiceReceiptNote(models.Model):
                 self._require_service_qc_or_manager()
             if vals.get("state") == "done":
                 self._require_service_manager()
+            if vals.get("approval_state") == "approved":
+                self._check_attachments_before_approval()
+            if vals.get("state") == "done":
                 if any(r.approval_state != "approved" or r.purchase_id.state not in ("purchase", "done") for r in self):
                     raise UserError(_("Approval and a confirmed purchase order are required before validation."))
                 self._validate_lines()

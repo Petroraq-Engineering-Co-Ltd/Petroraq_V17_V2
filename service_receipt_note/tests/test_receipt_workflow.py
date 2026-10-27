@@ -27,13 +27,20 @@ class TestServiceReceiptWorkflow(TransactionCase):
                                   "price_unit": 10})],
         })
 
-    def _receipt(self, vendor_srn_number="VENDOR-SRN-001"):
-        return self.env["service.receipt.note"].sudo().create({
+    def _receipt(self, vendor_srn_number="VENDOR-SRN-001", with_attachment=True):
+        receipt = self.env["service.receipt.note"].sudo().create({
             "purchase_id": self.order.id,
             "vendor_srn_number": vendor_srn_number,
             "line_ids": [(0, 0, {"purchase_line_id": self.order.order_line.id,
                                   "name": "Accepted service", "done_qty": 1})],
         }).sudo(False)
+        if with_attachment:
+            attachment = self.env["ir.attachment"].create({
+                "name": "test_service_evidence.pdf",
+                "datas": "dGVzdA==",
+            })
+            receipt.sudo().attachment_ids = [(4, attachment.id)]
+        return receipt
 
     def test_vendor_srn_number_is_required_for_approval_and_validation(self):
         receipt = self._receipt(vendor_srn_number=False)
@@ -75,6 +82,71 @@ class TestServiceReceiptWorkflow(TransactionCase):
         # Department Manager validates
         receipt.with_user(self.manager).action_validate()
         self.assertEqual(receipt.state, "done")
+
+    def test_attachment_required_before_approval(self):
+        receipt = self._receipt(with_attachment=False)
+        with self.assertRaisesRegex(UserError, "attach supporting documents in the Attachments tab"):
+            receipt.with_user(self.qc).action_approve()
+
+        attachment = self.env["ir.attachment"].create({
+            "name": "invoice_evidence.pdf",
+            "datas": "dGVzdA==",
+        })
+        receipt.sudo().attachment_ids = [(4, attachment.id)]
+        receipt.with_user(self.qc).action_approve()
+        self.assertEqual(receipt.approval_state, "approved")
+
+    def test_auto_create_srn_on_po_confirm(self):
+        pr = self.env["purchase.requisition"].create({"requested_user_id": self.requester.id})
+        vendor = self.env["res.partner"].create({"name": "Auto SRN Test Vendor"})
+        service_product = self.env["product.product"].create({
+            "name": "Auto SRN Service",
+            "detailed_type": "service",
+        })
+        order = self.env["purchase.order"].create({
+            "partner_id": vendor.id,
+            "requisition_id": pr.id,
+            "notes": "Terms and conditions applied",
+            "order_line": [(0, 0, {
+                "product_id": service_product.id,
+                "name": service_product.name,
+                "product_qty": 5,
+                "product_uom": service_product.uom_po_id.id,
+                "price_unit": 20,
+            })],
+        })
+        self.assertEqual(order.service_receipt_note_count, 0)
+        order.button_confirm()
+        self.assertEqual(order.state, "purchase")
+        self.assertEqual(order.service_receipt_note_count, 1)
+        srn = order.service_receipt_note_ids
+        self.assertEqual(srn.state, "ready")
+        self.assertEqual(srn.approval_state, "pending")
+        self.assertEqual(len(srn.line_ids), 1)
+        self.assertEqual(srn.line_ids.done_qty, 0.0)
+
+    def test_no_srn_created_for_non_service_po(self):
+        pr = self.env["purchase.requisition"].create({"requested_user_id": self.requester.id})
+        vendor = self.env["res.partner"].create({"name": "Consu Test Vendor"})
+        consu_product = self.env["product.product"].create({
+            "name": "Physical Consumable",
+            "detailed_type": "consu",
+        })
+        order = self.env["purchase.order"].create({
+            "partner_id": vendor.id,
+            "requisition_id": pr.id,
+            "notes": "Terms and conditions applied",
+            "order_line": [(0, 0, {
+                "product_id": consu_product.id,
+                "name": consu_product.name,
+                "product_qty": 2,
+                "product_uom": consu_product.uom_po_id.id,
+                "price_unit": 50,
+            })],
+        })
+        order.button_confirm()
+        self.assertEqual(order.state, "purchase")
+        self.assertEqual(order.service_receipt_note_count, 0)
 
     def test_payment_request_requires_validation(self):
         receipt = self._receipt()

@@ -182,8 +182,17 @@ class PurchaseOrder(models.Model):
         return line_commands
 
     def button_confirm(self):
-        # The end user initiates service acceptance; PO confirmation must not.
-        return super().button_confirm()
+        res = super().button_confirm()
+        for order in self:
+            if order.has_service_lines and not order._get_open_service_receipt_notes():
+                service_lines = order._get_service_lines_for_srn()
+                line_commands = order._prepare_srn_line_commands(service_lines)
+                if line_commands:
+                    srn = order.with_context(auto_create_from_po=True)._create_service_receipt_note(line_commands)
+                    order.message_post(
+                        body=_("Service Receipt Note %s was automatically created.") % srn.display_name
+                    )
+        return res
 
 
 class PurchaseOrderLine(models.Model):

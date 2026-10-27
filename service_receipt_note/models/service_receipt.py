@@ -175,10 +175,18 @@ class ServiceReceiptNote(models.Model):
         """Support stale database views from the former direct-billing flow."""
         return self.action_request_payment()
 
+    def _check_attachments_before_approval(self):
+        for rec in self:
+            if not rec.attachment_ids:
+                raise UserError(
+                    _("Please attach supporting documents in the Attachments tab before approving the Service Receipt Note.")
+                )
+
     def action_approve(self):
         group = self.env.ref("pr_custom_purchase.inventory_admin", raise_if_not_found=False)
         if group and self.env.user not in group.users:
             raise UserError(_("Only Inventory Administration can approve SRN."))
+        self._check_attachments_before_approval()
         for rec in self.filtered(lambda r: r.state not in ("done", "cancel")):
             rec._validate_lines()
             rec.write({"approval_state": "approved", "rejection_reason": False})
