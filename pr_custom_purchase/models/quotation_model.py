@@ -453,89 +453,12 @@ class PurchaseOrder(models.Model):
             raise UserError(_("This RFQ has no order lines."))
 
         rfq_lines = self.order_line.filtered("product_id")
-        rfq_product_ids = rfq_lines.mapped("product_id").ids
-        rfq_requisition_line_ids = rfq_lines.filtered("custom_requisition_line_id").mapped("custom_requisition_line_id").ids
-        if self.requisition_id:
-            existing_domain = [
-                ("order_id.requisition_id", "=", self.requisition_id.id),
-                ("order_id.state", "in", ["draft", "pending", "purchase", "done", "rejected"]),
-                ("order_id.name", "not ilike", "RFQ"),
-            ]
-            if rfq_requisition_line_ids and len(rfq_requisition_line_ids) == len(rfq_lines):
-                existing_domain.append(("custom_requisition_line_id", "in", rfq_requisition_line_ids))
-            else:
-                existing_domain.append(("product_id", "in", rfq_product_ids))
-            existing_po_lines = self.env["purchase.order.line"].sudo().search(existing_domain)
-            if existing_po_lines:
-                duplicate_products = ", ".join(sorted(set(existing_po_lines.mapped("product_id.display_name"))))
-                raise UserError(
-                    _("A Purchase Order already exists for RFQ %(rfq)s product(s): %(products)s.")
-                    % {"rfq": self.name, "products": duplicate_products}
-                )
-        else:
-            existing_po = self.env["purchase.order"].sudo().search_count([
-                "|", ("source_rfq_id", "=", self.id), ("origin", "=", self.name),
-                ("state", "in", ["draft", "pending", "purchase", "done", "rejected"]),
-                ("name", "not ilike", "RFQ"),
-            ])
-            if existing_po:
-                raise UserError(_("A Purchase Order already exists for RFQ %s.") % self.name)
+        if not rfq_lines:
+            raise UserError(_("This RFQ has no product lines."))
 
-        sibling_rfqs = self.env["purchase.order"].sudo().search([
-            ("requisition_id", "=", self.requisition_id.id),
-            ("id", "!=", self.id),
-            ("state", "in", ["draft", "sent"]),
-            ("order_line.product_id", "in", rfq_product_ids),
-        ]) if self.requisition_id else self.env["purchase.order"]
-
-        line_amounts = {}
-        requisition_cost_center_ids = set(
-            self.requisition_id.line_ids.mapped("cost_center_id").ids
-        ) if self.requisition_id else set()
-        for line in self.order_line:
-            distribution = line.analytic_distribution or {}
-            for analytic_key, percentage in distribution.items():
-                try:
-                    share = (line.price_subtotal or 0.0) * (float(percentage) / 100.0)
-                except (TypeError, ValueError):
-                    share = 0.0
-                if share <= 0.0:
-                    continue
-                for key_part in str(analytic_key).split(","):
-                    key_part = key_part.strip()
-                    if not key_part.isdigit():
-                        continue
-                    cc_id = int(key_part)
-                    if requisition_cost_center_ids and cc_id not in requisition_cost_center_ids:
-                        continue
-                    line_amounts.setdefault(cc_id, 0.0)
-                    line_amounts[cc_id] += share
-
-        if line_amounts and self.requisition_id:
-            amount_by_cost_center = {}
-            cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
-            cc_map = {cc.id: cc for cc in cost_centers}
-            for cc_id, amount in line_amounts.items():
-                cc = cc_map.get(cc_id)
-                if not cc:
-                    raise ValidationError(_("Invalid cost center found in RFQ analytic distribution."))
-                amount_by_cost_center[cc_id] = {"cc": cc, "amount": amount}
-            self.requisition_id._check_amounts_against_selected_budget(amount_by_cost_center, exception_cls=ValidationError)
-        elif line_amounts:
-            cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
-            cc_map = {cc.id: cc for cc in cost_centers}
-            for cc_id, amount in line_amounts.items():
-                cc = cc_map.get(cc_id)
-                if not cc:
-                    raise ValidationError(_("Invalid cost center found in RFQ analytic distribution."))
-                if float_compare(
-                    cc.budget_left, amount,
-                    precision_rounding=self.company_id.currency_id.rounding,
-                ) < 0:
-                    raise ValidationError(
-                        _("Insufficient budget for cost center %s. Remaining: %s, Required: %s")
-                        % (cc.display_name, cc.budget_left, amount)
-                    )
+        lines_to_order = rfq_lines.filtered(lambda l: l.product_qty > 1e-6)
+        if not lines_to_order:
+            raise UserError(_("All lines in this RFQ have a quantity of 0 or have already been fully ordered."))
 
         po_name = self.env["ir.sequence"].sudo().next_by_code("purchase.order") or "PO0001"
         po_vals = {
@@ -577,7 +500,7 @@ class PurchaseOrder(models.Model):
                     "analytic_distribution": line.analytic_distribution,
                     "custom_requisition_line_id": line.custom_requisition_line_id.id,
                 })
-                for line in self.order_line if line.product_id
+                for line in lines_to_order
             ],
         }
         new_po = self.env["purchase.order"].sudo().create(po_vals)
@@ -586,10 +509,6 @@ class PurchaseOrder(models.Model):
             self.write({"state": "sent"})
         self.message_post(body=_("Purchase Order %s created from this RFQ.") % new_po.name)
 
-        if sibling_rfqs:
-            sibling_rfqs.write({"state": "cancel"})
-            for sibling_rfq in sibling_rfqs:
-                sibling_rfq.message_post(body=_("Cancelled because another RFQ was selected as Purchase Order."))
 
         return {
             "type": "ir.actions.act_window",
@@ -688,6 +607,96 @@ class PurchaseOrder(models.Model):
                 note or _("PO %s is waiting for approval. Please review.") % order.name
             )
 
+    def _validate_requisition_demand_and_budget(self):
+        """Validate PR demand quantity and cost center budgets when moving PO from draft."""
+        for order in self:
+            if order.requisition_id:
+                # 1. PR Demand Quantity validation
+                purchased_quantities = order.requisition_id._get_purchased_requisition_line_quantities(
+                    exclude_order_ids=order.ids
+                )
+                qty_by_req_line = {}
+                req_line_map = {}
+                for line in order.order_line.filtered(lambda l: l.product_id and not l.display_type):
+                    req_line = line.custom_requisition_line_id
+                    if not req_line and order.requisition_id:
+                        req_line = order.requisition_id.line_ids.filtered(
+                            lambda rl: rl.description == line.product_id
+                        )[:1]
+                    if req_line:
+                        qty_by_req_line[req_line.id] = qty_by_req_line.get(req_line.id, 0.0) + (line.product_qty or 0.0)
+                        req_line_map[req_line.id] = (req_line, line.product_id)
+
+                for req_line_id, po_qty in qty_by_req_line.items():
+                    req_line, product = req_line_map[req_line_id]
+                    already_ordered = purchased_quantities.get(req_line.id, 0.0)
+                    remaining_demand = max((req_line.quantity or 0.0) - already_ordered, 0.0)
+                    if float_compare(po_qty, remaining_demand, precision_digits=3) > 0:
+                        raise ValidationError(
+                            _("Requested quantity %(qty)s for product '%(product)s' in Purchase Order %(po)s "
+                              "exceeds remaining requisition demand %(rem)s (PR Demand: %(demand)s, Already Ordered: %(ordered)s).")
+                            % {
+                                "qty": po_qty,
+                                "product": product.display_name,
+                                "po": order.name,
+                                "rem": remaining_demand,
+                                "demand": req_line.quantity,
+                                "ordered": already_ordered,
+                            }
+                        )
+
+            # 2. Budget validation against cost centers
+            line_amounts = {}
+            requisition_cost_center_ids = set(
+                order.requisition_id.line_ids.mapped("cost_center_id").ids
+            ) if order.requisition_id else set()
+            for line in order.order_line.filtered(lambda l: l.product_id and not l.display_type):
+                distribution = line.analytic_distribution or {}
+                for analytic_key, percentage in distribution.items():
+                    try:
+                        share = (line.price_subtotal or 0.0) * (float(percentage) / 100.0)
+                    except (TypeError, ValueError):
+                        share = 0.0
+                    if share <= 0.0:
+                        continue
+                    for key_part in str(analytic_key).split(","):
+                        key_part = key_part.strip()
+                        if not key_part.isdigit():
+                            continue
+                        cc_id = int(key_part)
+                        if requisition_cost_center_ids and cc_id not in requisition_cost_center_ids:
+                            continue
+                        line_amounts.setdefault(cc_id, 0.0)
+                        line_amounts[cc_id] += share
+
+            if line_amounts and order.requisition_id:
+                cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
+                cc_map = {cc.id: cc for cc in cost_centers}
+                amount_by_cost_center = {}
+                for cc_id, amount in line_amounts.items():
+                    cc = cc_map.get(cc_id)
+                    if not cc:
+                        raise ValidationError(_("Invalid cost center found in PO analytic distribution."))
+                    amount_by_cost_center[cc_id] = {"cc": cc, "amount": amount}
+                order.requisition_id._check_amounts_against_selected_budget(
+                    amount_by_cost_center, exception_cls=ValidationError
+                )
+            elif line_amounts:
+                cost_centers = self.env["account.analytic.account"].sudo().browse(list(line_amounts.keys()))
+                cc_map = {cc.id: cc for cc in cost_centers}
+                for cc_id, amount in line_amounts.items():
+                    cc = cc_map.get(cc_id)
+                    if not cc:
+                        raise ValidationError(_("Invalid cost center found in PO analytic distribution."))
+                    if float_compare(
+                        cc.budget_left, amount,
+                        precision_rounding=order.company_id.currency_id.rounding,
+                    ) < 0:
+                        raise ValidationError(
+                            _("Insufficient budget for cost center %s. Remaining: %s, Required: %s")
+                            % (cc.display_name, cc.budget_left, amount)
+                        )
+
     def _submit_for_po_approval(self):
         # Keep the validation on the canonical transition itself. This method is
         # reached by both the explicit Submit button and the Confirm/resubmit
@@ -706,6 +715,7 @@ class PurchaseOrder(models.Model):
                     "Select VAT/Tax on every Purchase Order line before submitting. "
                     "Use an explicit 0%% or Exempt tax where VAT does not apply. Missing on: %s"
                 ) % ", ".join(missing_tax_lines.mapped("name")))
+            order._validate_requisition_demand_and_budget()
             order.write({
                 "state": "pending",
                 "pe_approved": False,
@@ -731,6 +741,7 @@ class PurchaseOrder(models.Model):
             if not order.can_confirm_order:
                 raise UserError(
                     _("All required approvals must be completed before confirming this Purchase Order."))
+            order._validate_requisition_demand_and_budget()
             # Re-enter the native purchase confirmation flow so stock pickings/
             # receipts are generated by standard Odoo logic.
             order.write({"state": "draft"})

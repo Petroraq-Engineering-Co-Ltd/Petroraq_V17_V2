@@ -121,11 +121,16 @@
                     <notebook>
                         <page string="Products">
 
-                            <field name="order_line" readonly="1">
-                                <tree>
+                            <field name="order_line" readonly="state in ('purchase', 'done', 'cancel')">
+                                <tree editable="bottom">
                                     <field name="product_id"/>
                                     <field name="name"/>
+                                    <field name="custom_requisition_line_id" column_invisible="True"/>
+                                    <field name="requisition_demand_qty" string="PR Demand Qty" optional="show" readonly="1" force_save="1" column_invisible="not parent.requisition_id"/>
+                                    <field name="requisition_po_qty" string="PO Created Qty" optional="show" readonly="1" force_save="1" column_invisible="not parent.requisition_id"/>
+                                    <field name="requisition_remaining_qty" string="Remaining Qty" optional="show" readonly="1" force_save="1" column_invisible="not parent.requisition_id"/>
                                     <field name="product_qty"/>
+                                    <field name="product_uom_category_id" column_invisible="True"/>
                                     <field name="product_uom"/>
                                     <field name="price_unit"/>
                                     <field name="price_subtotal"/>

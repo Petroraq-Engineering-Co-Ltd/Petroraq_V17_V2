@@ -1758,15 +1758,19 @@ class PurchaseRequisition(models.Model):
             quantities[line.description.id] += line.quantity or 0.0
         return quantities
 
-    def _get_purchased_requisition_line_quantities(self):
+    def _get_purchased_requisition_line_quantities(self, exclude_order_ids=None):
         self.ensure_one()
-        requisition_lines = self.line_ids.filtered("description")
+        requisition_lines = self.line_ids if self.pr_type == "budgetary" else self.line_ids.filtered("description")
         quantities = {line.id: 0.0 for line in requisition_lines}
-        po_lines = self.env["purchase.order.line"].sudo().search([
+        domain = [
             ("order_id.requisition_id", "=", self.id),
-            ("order_id.state", "in", ["pending", "purchase", "done"]),
+            ("order_id.state", "in", ["sent", "pending", "purchase", "done"]),
+            ("order_id.name", "not ilike", "RFQ"),
             ("product_id", "!=", False),
-        ])
+        ]
+        if exclude_order_ids:
+            domain.append(("order_id.id", "not in", list(exclude_order_ids)))
+        po_lines = self.env["purchase.order.line"].sudo().search(domain)
 
         for line in po_lines:
             requisition_line = line.custom_requisition_line_id
@@ -2406,6 +2410,29 @@ class PurchaseRequisitionLine(models.Model):
         "account.analytic.account", string="Cost Center",
         domain="[('id', 'in', requisition_id.allowed_cost_center_ids)]",
     )
+    po_created_qty = fields.Float(
+        string="PO Created Qty",
+        compute="_compute_requisition_line_quantities",
+        digits="Product Unit of Measure",
+        help="Quantity already ordered in Purchase Orders for this requisition line.",
+    )
+    remaining_qty = fields.Float(
+        string="Remaining Qty",
+        compute="_compute_requisition_line_quantities",
+        digits="Product Unit of Measure",
+        help="Remaining quantity available to be ordered.",
+    )
+
+    def _compute_requisition_line_quantities(self):
+        requisitions = self.mapped("requisition_id")
+        purchased_by_req = {}
+        for req in requisitions:
+            purchased_by_req[req.id] = req._get_purchased_requisition_line_quantities()
+        for line in self:
+            purchased_map = purchased_by_req.get(line.requisition_id.id, {})
+            line.po_created_qty = purchased_map.get(line.id, 0.0)
+            line.remaining_qty = max((line.quantity or 0.0) - line.po_created_qty, 0.0)
+
 
     @api.model
     def _get_product_purchase_defaults(self, product):
@@ -2910,3 +2937,42 @@ class PurchaseOrderLine(models.Model):
         copy=False,
         ondelete="set null",
     )
+    requisition_demand_qty = fields.Float(
+        string="PR Demand Qty",
+        compute="_compute_requisition_quantities",
+        digits="Product Unit of Measure",
+        help="Demand quantity requested on the source Purchase Requisition.",
+    )
+    requisition_po_qty = fields.Float(
+        string="PO Created Qty",
+        compute="_compute_requisition_quantities",
+        digits="Product Unit of Measure",
+        help="Quantity already ordered in Purchase Orders for this PR item.",
+    )
+    requisition_remaining_qty = fields.Float(
+        string="Remaining Demand Qty",
+        compute="_compute_requisition_quantities",
+        digits="Product Unit of Measure",
+        help="Remaining demand quantity that can still be ordered.",
+    )
+
+    @api.depends("custom_requisition_line_id", "custom_requisition_line_id.quantity", "product_id", "order_id.requisition_id")
+    def _compute_requisition_quantities(self):
+        for line in self:
+            req_line = line.custom_requisition_line_id
+            requisition = line.order_id.requisition_id or (req_line.requisition_id if req_line else False)
+            if not req_line and requisition and line.product_id:
+                req_line = requisition.line_ids.filtered(lambda rl: rl.description == line.product_id)[:1]
+
+            if req_line:
+                demand = req_line.quantity or 0.0
+                purchased_map = req_line.requisition_id._get_purchased_requisition_line_quantities()
+                po_qty = purchased_map.get(req_line.id, 0.0)
+                line.requisition_demand_qty = demand
+                line.requisition_po_qty = po_qty
+                line.requisition_remaining_qty = max(demand - po_qty, 0.0)
+            else:
+                line.requisition_demand_qty = 0.0
+                line.requisition_po_qty = 0.0
+                line.requisition_remaining_qty = 0.0
+
