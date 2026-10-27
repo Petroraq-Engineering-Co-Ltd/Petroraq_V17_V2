@@ -4,6 +4,7 @@ import base64
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import float_compare
 
 try:
     import xlsxwriter
@@ -219,21 +220,27 @@ class RFQComparisonWizard(models.TransientModel):
                 line.requisition_line_id.id for line, _offer in vendor_lines if line.requisition_line_id
             )
 
-        existing_domain = [
-            ("order_id.requisition_id", "=", self.requisition_id.id),
-            ("order_id.state", "in", ["draft", "sent", "pending", "purchase", "done"]),
-        ]
-        if selected_requisition_line_ids and len(selected_requisition_line_ids) == sum(len(lines) for lines in grouped_by_vendor.values()):
-            existing_domain.append(("custom_requisition_line_id", "in", list(selected_requisition_line_ids)))
-        else:
-            existing_domain.append(("product_id", "in", list(selected_product_ids)))
-        existing_po_lines = self.env["purchase.order.line"].sudo().search(existing_domain)
-        if existing_po_lines:
-            duplicate_products = ", ".join(sorted(set(existing_po_lines.mapped("product_id.display_name"))))
-            raise UserError(
-                _("A Purchase Order already exists for the selected product(s): %s.")
-                % duplicate_products
-            )
+        if self.requisition_id:
+            purchased_quantities = self.requisition_id._get_purchased_requisition_line_quantities()
+            for vendor_lines in grouped_by_vendor.values():
+                for line, _offer in vendor_lines:
+                    req_line = line.requisition_line_id
+                    if not req_line and self.requisition_id:
+                        req_line = self.requisition_id.line_ids.filtered(lambda rl: rl.description == line.product_id)[:1]
+                    if req_line:
+                        ordered_so_far = purchased_quantities.get(req_line.id, 0.0)
+                        remaining_demand = max((req_line.quantity or 0.0) - ordered_so_far, 0.0)
+                        if float_compare(line.quantity, remaining_demand, precision_digits=3) > 0:
+                            raise UserError(
+                                _("Selected quantity %(qty)s for product '%(product)s' exceeds remaining requisition quantity %(rem)s (Demand: %(demand)s, Already Ordered: %(ordered)s).")
+                                % {
+                                    "qty": line.quantity,
+                                    "product": line.product_id.display_name,
+                                    "rem": remaining_demand,
+                                    "demand": req_line.quantity,
+                                    "ordered": ordered_so_far,
+                                }
+                            )
 
         selected_amounts = {}
         for vendor_lines in grouped_by_vendor.values():

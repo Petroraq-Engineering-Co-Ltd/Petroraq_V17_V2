@@ -175,10 +175,18 @@ class ServiceReceiptNote(models.Model):
         """Support stale database views from the former direct-billing flow."""
         return self.action_request_payment()
 
+    def _check_attachments_before_approval(self):
+        for rec in self:
+            if not rec.attachment_ids:
+                raise UserError(
+                    _("Please attach supporting documents in the Attachments tab before approving the Service Receipt Note.")
+                )
+
     def action_approve(self):
         group = self.env.ref("pr_custom_purchase.inventory_admin", raise_if_not_found=False)
         if group and self.env.user not in group.users:
             raise UserError(_("Only Inventory Administration can approve SRN."))
+        self._check_attachments_before_approval()
         for rec in self.filtered(lambda r: r.state not in ("done", "cancel")):
             rec._validate_lines()
             rec.write({"approval_state": "approved", "rejection_reason": False})
@@ -291,7 +299,7 @@ class ServiceReceiptNote(models.Model):
         )
         if not remaining_lines:
             return False
-        backorder = self.create(self._prepare_backorder_vals(remaining_lines))
+        backorder = self.sudo().create(self._prepare_backorder_vals(remaining_lines))
         message = _("Backorder %s has been created.") % backorder.display_name
         self.message_post(body=message)
         backorder.message_post(body=_("Created from %s.") % self.display_name)
@@ -306,7 +314,7 @@ class ServiceReceiptNote(models.Model):
                 raise UserError(_("The related Purchase Order must be confirmed before validating SRN."))
 
             if rec.approval_state != "approved":
-                raise UserError(_("SRN must be approved by the department manager before validation."))
+                raise UserError(_("SRN must be approved by QC before validation."))
 
             rec._validate_lines()
             rec.state = "done"
