@@ -47,17 +47,21 @@
                 <header>
                     <field name="has_done_quantity" invisible="1"/>
                     <field name="can_approve_service" invisible="1"/>
+                    <field name="can_validate_service" invisible="1"/>
                     <field name="can_request_payment" invisible="1"/>
                     <button name="action_request_payment" type="object" string="Request Payment"
                             class="btn-primary" invisible="not can_request_payment"/>
                     <button name="action_set_ready" type="object" string="Set Ready" class="btn-secondary"
                             invisible="state != 'draft'"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
-                            invisible="not can_approve_service or state in ('done','cancel') or approval_state == 'approved' or not has_done_quantity"/>
+                            invisible="not can_approve_service or state in ('done','cancel') or approval_state == 'approved'"
+                            groups="service_receipt_note.group_service_receipt_qc,base.group_system"/>
                     <button name="action_open_reject_wizard" type="object" string="Reject" class="btn-secondary"
-                            invisible="not can_approve_service or state in ('done','cancel')"/>
+                            invisible="state in ('done','cancel') or (not can_approve_service and not can_validate_service)"
+                            groups="service_receipt_note.group_service_receipt_qc,service_receipt_note.group_service_receipt_manager,base.group_system"/>
                     <button name="action_validate" type="object" string="Validate" class="btn-primary"
-                            invisible="not can_approve_service or state in ('done','cancel') or approval_state != 'approved'"/>
+                            invisible="not can_validate_service or state in ('done','cancel') or approval_state != 'approved'"
+                            groups="service_receipt_note.group_service_receipt_manager,base.group_system"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft" class="btn-secondary"
                             invisible="state in ('done','draft')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
@@ -167,7 +171,7 @@
 
     <menuitem id="menu_service_receipt_self_service" name="Service Receipts"
               action="action_service_receipt_note" sequence="85"
-              groups="service_receipt_note.group_service_receipt_user"/>
+              groups="service_receipt_note.group_service_receipt_user,service_receipt_note.group_service_receipt_qc,service_receipt_note.group_service_receipt_manager"/>
 
     <record id="action_service_purchase_orders" model="ir.actions.act_window">
         <field name="name">My Purchase Orders</field>
