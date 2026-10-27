@@ -41,7 +41,7 @@
         <field name="name">SRN department managers: department receipts</field>
         <field name="model_id" ref="model_service_receipt_note"/>
         <field name="groups" eval="[(4, ref('group_service_receipt_manager'))]"/>
-        <field name="domain_force">[('department_manager_id', '=', user.id)]</field>
+        <field name="domain_force">['|', ('department_manager_id', '=', user.id), ('create_uid', '=', user.id)]</field>
     </record>
     <record id="receipt_purchase_account_rule" model="ir.rule">
         <field name="name">SRN procurement and accounting visibility</field>
@@ -67,7 +67,7 @@
         <field name="name">SRN lines for department manager</field>
         <field name="model_id" ref="model_service_receipt_note_line"/>
         <field name="groups" eval="[(4, ref('group_service_receipt_manager'))]"/>
-        <field name="domain_force">[('receipt_id.department_manager_id', '=', user.id)]</field>
+        <field name="domain_force">['|', ('receipt_id.department_manager_id', '=', user.id), ('receipt_id.create_uid', '=', user.id)]</field>
     </record>
     <record id="receipt_line_purchase_account_rule" model="ir.rule">
         <field name="name">SRN line procurement and accounting visibility</field>

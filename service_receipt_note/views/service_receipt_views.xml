@@ -43,25 +43,26 @@
         <field name="name">service.receipt.note.form</field>
         <field name="model">service.receipt.note</field>
         <field name="arch" type="xml">
-            <form string="Service Receipt Note" create="false">
+            <form string="Service Receipt Note">
                 <header>
                     <field name="has_done_quantity" invisible="1"/>
                     <field name="can_approve_service" invisible="1"/>
                     <field name="can_validate_service" invisible="1"/>
                     <field name="can_request_payment" invisible="1"/>
+                    <field name="can_edit_lines" invisible="1"/>
                     <button name="action_request_payment" type="object" string="Request Payment"
                             class="btn-primary" invisible="not can_request_payment"/>
                     <button name="action_set_ready" type="object" string="Set Ready" class="btn-secondary"
                             invisible="state != 'draft'"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
                             invisible="not can_approve_service or state in ('done','cancel') or approval_state == 'approved'"
-                            groups="service_receipt_note.group_service_receipt_qc,base.group_system"/>
+                            groups="service_receipt_note.group_service_receipt_qc,service_receipt_note.group_service_receipt_manager"/>
                     <button name="action_open_reject_wizard" type="object" string="Reject" class="btn-secondary"
                             invisible="state in ('done','cancel') or (not can_approve_service and not can_validate_service)"
-                            groups="service_receipt_note.group_service_receipt_qc,service_receipt_note.group_service_receipt_manager,base.group_system"/>
+                            groups="service_receipt_note.group_service_receipt_qc,service_receipt_note.group_service_receipt_manager"/>
                     <button name="action_validate" type="object" string="Validate" class="btn-primary"
                             invisible="not can_validate_service or state in ('done','cancel') or approval_state != 'approved'"
-                            groups="service_receipt_note.group_service_receipt_manager,base.group_system"/>
+                            groups="service_receipt_note.group_service_receipt_manager"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft" class="btn-secondary"
                             invisible="state in ('done','draft')"/>
                     <button name="action_cancel" type="object" string="Cancel" class="btn-secondary"
@@ -107,7 +108,7 @@
 
                     <notebook>
                         <page string="Lines">
-                            <field name="line_ids" readonly="state in ('done','cancel') or approval_state == 'approved'">
+                            <field name="line_ids" readonly="not can_edit_lines">
                                 <tree editable="bottom">
                                     <field name="purchase_line_id" readonly="1"/>
                                     <field name="product_id" readonly="1"/>
