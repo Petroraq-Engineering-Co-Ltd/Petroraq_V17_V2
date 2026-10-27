@@ -237,6 +237,8 @@
                                     <field name="uom_id"
                                            column_invisible="parent.pr_type != 'budgetary'"/>
                                     <field name="quantity"/>
+                                    <field name="po_created_qty" string="PO Created Qty" readonly="1" force_save="1"/>
+                                    <field name="remaining_qty" string="Remaining Qty" readonly="1" force_save="1"/>
                                     <field name="unit_price"/>
                                     <field name="total_price"/>
                                 </tree>
