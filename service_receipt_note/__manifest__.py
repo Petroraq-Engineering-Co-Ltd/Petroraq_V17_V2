@@ -5,7 +5,6 @@
     "summary": "Service Receipt Note for Purchase Orders",
     "description": """
 Service Receipt Note for Odoo 17
-
 Features:
 - Create Service Receipt Note from Purchase Order
 - Only service products are included
