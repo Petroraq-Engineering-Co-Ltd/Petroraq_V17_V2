@@ -299,7 +299,7 @@ class ServiceReceiptNote(models.Model):
         )
         if not remaining_lines:
             return False
-        backorder = self.create(self._prepare_backorder_vals(remaining_lines))
+        backorder = self.sudo().create(self._prepare_backorder_vals(remaining_lines))
         message = _("Backorder %s has been created.") % backorder.display_name
         self.message_post(body=message)
         backorder.message_post(body=_("Created from %s.") % self.display_name)
@@ -314,7 +314,7 @@ class ServiceReceiptNote(models.Model):
                 raise UserError(_("The related Purchase Order must be confirmed before validating SRN."))
 
             if rec.approval_state != "approved":
-                raise UserError(_("SRN must be approved by the department manager before validation."))
+                raise UserError(_("SRN must be approved by QC before validation."))
 
             rec._validate_lines()
             rec.state = "done"

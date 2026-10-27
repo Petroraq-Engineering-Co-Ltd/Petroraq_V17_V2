@@ -19,6 +19,7 @@ class ServiceReceiptNote(models.Model):
     can_approve_service = fields.Boolean(compute="_compute_workflow_permissions")
     can_validate_service = fields.Boolean(compute="_compute_workflow_permissions")
     can_request_payment = fields.Boolean(compute="_compute_workflow_permissions")
+    can_edit_lines = fields.Boolean(compute="_compute_workflow_permissions")
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -29,8 +30,19 @@ class ServiceReceiptNote(models.Model):
                 order.check_access_rule("read")
                 backorder = self.browse(vals.get("backorder_id")).exists()
                 is_backorder = backorder and backorder.purchase_id == order and backorder.state == "done"
-                if not is_backorder and order.requisition_id.requested_user_id != self.env.user:
-                    raise AccessError(_("Only the requesting end user can initiate an SRN."))
+                if not is_backorder:
+                    is_requester = (
+                        order.requisition_id.requested_user_id == self.env.user
+                        or self.env.user.has_group("service_receipt_note.group_service_receipt_user")
+                    )
+                    is_qc = self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
+                    is_manager = (
+                        self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
+                        or self.env.user.has_group("purchase.group_purchase_manager")
+                        or (order.requisition_id.requested_user_id.employee_ids.department_id.manager_id.user_id == self.env.user)
+                    )
+                    if not (is_requester or is_qc or is_manager or self.env.is_admin()):
+                        raise AccessError(_("Only a requester, QC, or manager can initiate an SRN."))
                 if is_backorder:
                     backorder._require_service_manager()
                 if vals.get("state", "ready") not in ("draft", "ready") or vals.get("approval_state", "pending") != "pending" or vals.get("payment_requested"):
@@ -62,53 +74,55 @@ class ServiceReceiptNote(models.Model):
     @api.depends_context("uid")
     @api.depends("department_manager_id", "requested_user_id", "state", "approval_state", "payment_requested")
     def _compute_workflow_permissions(self):
-        is_qc_user = self.env.user.has_group("service_receipt_note.group_service_receipt_qc") or self.env.is_admin()
-        is_manager_group = self.env.user.has_group("service_receipt_note.group_service_receipt_manager") or self.env.is_admin()
+        user = self.env.user
+        has_requester_group = user.has_group("service_receipt_note.group_service_receipt_user")
+        has_qc_group = user.has_group("service_receipt_note.group_service_receipt_qc")
+        has_manager_group = user.has_group("service_receipt_note.group_service_receipt_manager")
         for receipt in self:
+            is_requester = (receipt.requested_user_id == user or receipt.create_uid == user or has_requester_group)
+            is_qc = has_qc_group
+            is_manager = has_manager_group
+            receipt.can_edit_lines = (
+                (is_requester or is_qc or is_manager or self.env.su)
+                and receipt.state in ("draft", "ready")
+                and receipt.approval_state == "pending"
+            )
             receipt.can_approve_service = (
-                (is_qc_user or self.env.su)
+                (is_qc or is_manager or self.env.su)
                 and receipt.state in ("draft", "ready")
                 and receipt.approval_state == "pending"
             )
             receipt.can_validate_service = (
-                (receipt.department_manager_id == self.env.user or is_manager_group or self.env.su)
+                (is_manager or self.env.su)
                 and receipt.state in ("draft", "ready")
                 and receipt.approval_state == "approved"
             )
             receipt.can_request_payment = (
-                (receipt.requested_user_id == self.env.user or self.env.is_admin() or self.env.su)
+                (receipt.requested_user_id == user or self.env.su)
                 and receipt.state == "done"
                 and not receipt.payment_requested
             )
 
     def _require_service_qc(self):
-        if not self.env.su and not self.env.is_admin() and not self.env.user.has_group("service_receipt_note.group_service_receipt_qc"):
+        if not self.env.su and not self.env.user.has_group("service_receipt_note.group_service_receipt_qc"):
             raise AccessError(_("Only Quality Control (QC) can approve this Service Receipt Note."))
 
     def _require_service_manager(self):
-        if self.env.su or self.env.is_admin():
+        if self.env.su:
             return
-        for receipt in self:
-            if not receipt.department_manager_id:
-                raise UserError(_("Configure the requester's employee department and department manager first."))
-            if (
-                receipt.department_manager_id != self.env.user
-                and not self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
-            ):
-                raise AccessError(_("Only the requester's department manager can validate this SRN."))
+        if not self.env.user.has_group("service_receipt_note.group_service_receipt_manager"):
+            raise AccessError(_("Only the Department Manager can validate this SRN."))
 
     def _require_service_qc_or_manager(self):
-        if self.env.su or self.env.is_admin():
+        if self.env.su:
             return
         is_qc = self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
-        is_manager = self.env.user.has_group("service_receipt_note.group_service_receipt_manager") or any(
-            r.department_manager_id == self.env.user for r in self
-        )
+        is_manager = self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
         if not (is_qc or is_manager):
-            raise AccessError(_("Only Quality Control (QC) or the Department Manager can reject this Service Receipt Note."))
+            raise AccessError(_("Only Quality Control (QC) or the Department Manager can approve or reject this Service Receipt Note."))
 
     def action_approve(self):
-        self._require_service_qc()
+        self._require_service_qc_or_manager()
         self._check_attachments_before_approval()
         for receipt in self:
             if receipt.state not in ("draft", "ready"):
@@ -119,7 +133,7 @@ class ServiceReceiptNote(models.Model):
                 receipt.activity_schedule(
                     "mail.mail_activity_data_todo", user_id=receipt.department_manager_id.id,
                     summary=_("Service Receipt Approved - Awaiting Validation"),
-                    note=_("QC has approved this Service Receipt Note. Please review and validate."),
+                    note=_("QC or Manager has approved this Service Receipt Note. Please review and validate."),
                 )
         return True
 
@@ -127,7 +141,7 @@ class ServiceReceiptNote(models.Model):
         self._require_service_manager()
         for receipt in self.sorted("id"):
             if receipt.approval_state != "approved":
-                raise UserError(_("Approval by QC is required before validation."))
+                raise UserError(_("Approval is required before validation."))
             self.env.cr.execute("SELECT id FROM purchase_order WHERE id = %s FOR UPDATE", [receipt.purchase_id.id])
             receipt.invalidate_recordset(["state", "approval_state"])
             receipt.line_ids.invalidate_recordset(["already_received_qty", "remaining_qty_before", "balance_qty"])
@@ -158,8 +172,20 @@ class ServiceReceiptNote(models.Model):
     def unlink(self):
         if any(receipt.state == "done" or receipt.payment_requested for receipt in self):
             raise UserError(_("Validated or payment-requested SRNs cannot be deleted."))
-        if not self.env.su and any(receipt.requested_user_id != self.env.user for receipt in self):
-            raise AccessError(_("Only the requester can delete an unvalidated SRN."))
+        if not self.env.su and not self.env.is_admin():
+            for receipt in self:
+                is_requester = (
+                    receipt.requested_user_id == self.env.user
+                    or receipt.create_uid == self.env.user
+                    or self.env.user.has_group("service_receipt_note.group_service_receipt_user")
+                )
+                is_qc = self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
+                is_manager = (
+                    receipt.department_manager_id == self.env.user
+                    or self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
+                )
+                if not (is_requester or is_qc or is_manager):
+                    raise AccessError(_("You do not have permission to delete this SRN."))
         return super().unlink()
 
     def write(self, vals):
@@ -167,7 +193,7 @@ class ServiceReceiptNote(models.Model):
             if "purchase_id" in vals and any(r.purchase_id.id != vals["purchase_id"] for r in self):
                 raise AccessError(_("The purchase order of an existing SRN cannot be changed."))
             if vals.get("approval_state") == "approved":
-                self._require_service_qc()
+                self._require_service_qc_or_manager()
             if vals.get("approval_state") == "rejected":
                 self._require_service_qc_or_manager()
             if vals.get("state") == "done":
@@ -186,8 +212,10 @@ class ServiceReceiptNote(models.Model):
             if any(
                 r.requested_user_id != self.env.user
                 and r.department_manager_id != self.env.user
+                and r.create_uid != self.env.user
                 and not self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
                 and not self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
+                and not self.env.user.has_group("service_receipt_note.group_service_receipt_user")
                 for r in self
             ):
                 raise AccessError(_("Only the requester, department manager, or QC can edit a service receipt."))
@@ -210,14 +238,31 @@ class ServiceReceiptLine(models.Model):
                 raise UserError(_("The service line must belong to the receipt's purchase order."))
 
     def _check_editable_receipt(self):
+        if self.env.su or self.env.is_admin():
+            return
         for receipt in self.mapped("receipt_id"):
             if receipt.state in ("done", "cancel"):
                 raise UserError(_("Lines of a completed or cancelled SRN cannot be changed."))
-            if not self.env.su and receipt.requested_user_id != self.env.user:
-                raise AccessError(_("Only the requester (receiver) can edit SRN lines."))
+            if receipt.backorder_id or self.env.context.get("auto_create_from_po"):
+                continue
+            if receipt.approval_state == "approved":
+                raise UserError(_("Lines cannot be edited once the SRN has been approved."))
+            is_requester = (
+                receipt.requested_user_id == self.env.user
+                or receipt.create_uid == self.env.user
+                or self.env.user.has_group("service_receipt_note.group_service_receipt_user")
+            )
+            is_qc = self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
+            is_manager = (
+                receipt.department_manager_id == self.env.user
+                or self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
+            )
+            if not (is_requester or is_qc or is_manager):
+                raise AccessError(_("Only the requester, QC, or department manager can edit SRN lines."))
 
     def write(self, vals):
-        self._check_editable_receipt()
+        if {"done_qty", "name", "purchase_line_id"} & set(vals):
+            self._check_editable_receipt()
         if "receipt_id" in vals:
             raise AccessError(_("SRN lines cannot be moved to another receipt."))
         return super().write(vals)
@@ -237,4 +282,3 @@ class ServiceRejectWizard(models.TransientModel):
             raise UserError(_("A completed or cancelled SRN cannot be rejected."))
         self.receipt_id.write({"approval_state": "rejected", "rejection_reason": self.rejection_reason})
         return {"type": "ir.actions.act_window_close"}
-

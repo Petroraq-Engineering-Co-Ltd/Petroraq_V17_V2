@@ -7,13 +7,13 @@ class TestServiceReceiptWorkflow(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.requester = new_test_user(cls.env, login="srn_requester",
-                                     groups="service_receipt_note.group_service_receipt_user")
+                                      groups="service_receipt_note.group_service_receipt_user")
         cls.qc = new_test_user(cls.env, login="srn_qc",
                                groups="service_receipt_note.group_service_receipt_qc")
         cls.manager = new_test_user(cls.env, login="srn_manager",
                                    groups="service_receipt_note.group_service_receipt_manager")
         cls.outsider = new_test_user(cls.env, login="srn_outsider",
-                                    groups="purchase.group_purchase_user")
+                                     groups="purchase.group_purchase_user")
         manager_employee = cls.env["hr.employee"].create({"name": "Department Manager", "user_id": cls.manager.id})
         department = cls.env["hr.department"].create({"name": "Service Test Department", "manager_id": manager_employee.id})
         cls.env["hr.employee"].create({"name": "Requester", "user_id": cls.requester.id, "department_id": department.id})
@@ -57,31 +57,70 @@ class TestServiceReceiptWorkflow(TransactionCase):
         receipt = self._receipt()
         self.assertEqual(receipt.department_manager_id, self.manager)
 
-        # Receiver cannot approve or validate
+        # 1. Line edits by Requester, QC, and Manager before approval
+        receipt.with_user(self.requester).line_ids[0].done_qty = 2
+        receipt.with_user(self.qc).line_ids[0].done_qty = 1.5
+        receipt.with_user(self.manager).line_ids[0].done_qty = 1
+
+        # 2. Requester cannot approve or validate, and flags reflect this
+        self.assertFalse(receipt.with_user(self.requester).can_approve_service)
+        self.assertFalse(receipt.with_user(self.requester).can_validate_service)
+        self.assertTrue(receipt.with_user(self.requester).can_edit_lines)
+        self.assertTrue(receipt.with_user(self.qc).can_approve_service)
+        self.assertFalse(receipt.with_user(self.qc).can_validate_service)
+        self.assertTrue(receipt.with_user(self.manager).can_approve_service)
+
         with self.assertRaises(AccessError):
             receipt.with_user(self.requester).action_approve()
         with self.assertRaises(AccessError):
             receipt.with_user(self.requester).action_validate()
 
-        # Outsider cannot approve
+        # 3. Outsider cannot approve or validate
         with self.assertRaises(AccessError):
             receipt.with_user(self.outsider).action_approve()
-
-        # Manager cannot approve (QC does)
         with self.assertRaises(AccessError):
-            receipt.with_user(self.manager).action_approve()
+            receipt.with_user(self.outsider).action_validate()
 
-        # QC approves
+        # 4. QC approves
         receipt.with_user(self.qc).action_approve()
         self.assertEqual(receipt.approval_state, "approved")
 
-        # QC cannot validate
+        # 5. QC cannot validate
         with self.assertRaises(AccessError):
             receipt.with_user(self.qc).action_validate()
 
-        # Department Manager validates
+        # 6. Department Manager validates
         receipt.with_user(self.manager).action_validate()
         self.assertEqual(receipt.state, "done")
+
+    def test_manager_can_approve_and_validate(self):
+        receipt = self._receipt()
+        # Department Manager can approve directly
+        receipt.with_user(self.manager).action_approve()
+        self.assertEqual(receipt.approval_state, "approved")
+        # And Department Manager can validate
+        receipt.with_user(self.manager).action_validate()
+        self.assertEqual(receipt.state, "done")
+
+    def test_unlink_permissions_for_roles(self):
+        # Requester can delete unvalidated SRN
+        receipt_req = self._receipt()
+        receipt_req.with_user(self.requester).unlink()
+
+        # QC can delete unvalidated SRN
+        receipt_qc = self._receipt()
+        receipt_qc.with_user(self.qc).unlink()
+
+        # Manager can delete unvalidated SRN
+        receipt_mgr = self._receipt()
+        receipt_mgr.with_user(self.manager).unlink()
+
+        # Validated SRN cannot be deleted by anyone
+        receipt_done = self._receipt()
+        receipt_done.with_user(self.manager).action_approve()
+        receipt_done.with_user(self.manager).action_validate()
+        with self.assertRaises(UserError):
+            receipt_done.with_user(self.manager).unlink()
 
     def test_attachment_required_before_approval(self):
         receipt = self._receipt(with_attachment=False)
