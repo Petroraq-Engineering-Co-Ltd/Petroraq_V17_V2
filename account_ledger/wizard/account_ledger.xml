@@ -111,7 +111,7 @@
                                    class="oe_inline"
                                    options="{'no_create':True, 'no_create_edit':True, 'no_quick_create':True}"
                                    style="font-size:16;font-weight:bold;color:green;" string="Code"
-                                   domain="account_id_domain"/>
+                                   />
                             <span>
                                 <strong>Account Name</strong>
                             </span>
