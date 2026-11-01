@@ -26,6 +26,8 @@
                 <field name="purchase_id"/>
                 <field name="work_order_id"/>
                 <field name="partner_id"/>
+                <filter name="filter_to_approve" string="To Approve" domain="[('is_current_user_approver', '=', True)]"/>
+                <separator/>
                 <filter name="filter_ready" string="Ready" domain="[('state','=','ready')]"/>
                 <filter name="filter_done" string="Done" domain="[('state','=','done')]"/>
                 <filter name="filter_cancel" string="Cancelled" domain="[('state','=','cancel')]"/>

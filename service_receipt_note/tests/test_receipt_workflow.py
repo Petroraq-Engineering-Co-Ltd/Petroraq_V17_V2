@@ -11,7 +11,7 @@ class TestServiceReceiptWorkflow(TransactionCase):
         cls.qc = new_test_user(cls.env, login="srn_qc",
                                groups="service_receipt_note.group_service_receipt_qc")
         cls.manager = new_test_user(cls.env, login="srn_manager",
-                                   groups="service_receipt_note.group_service_receipt_manager")
+                                    groups="service_receipt_note.group_service_receipt_manager")
         cls.outsider = new_test_user(cls.env, login="srn_outsider",
                                      groups="purchase.group_purchase_user")
         manager_employee = cls.env["hr.employee"].create({"name": "Department Manager", "user_id": cls.manager.id})
@@ -196,3 +196,67 @@ class TestServiceReceiptWorkflow(TransactionCase):
         receipt.with_user(self.manager).action_validate()
         receipt.with_user(self.requester).action_request_payment()
         self.assertTrue(receipt.payment_requested)
+
+    def test_is_current_user_approver_filter(self):
+        receipt = self._receipt()
+        SRN = self.env["service.receipt.note"]
+
+        # 1. Initially (state='ready', approval_state='pending'):
+        # Requester: only CRUD, not approval or validation -> False
+        self.assertFalse(receipt.with_user(self.requester).is_current_user_approver)
+        self.assertNotIn(receipt, SRN.with_user(self.requester).search([("is_current_user_approver", "=", True)]))
+
+        # Outsider: False
+        self.assertFalse(receipt.with_user(self.outsider).is_current_user_approver)
+        self.assertNotIn(receipt, SRN.with_user(self.outsider).search([("is_current_user_approver", "=", True)]))
+
+        # QC: pending QC approval -> True
+        self.assertTrue(receipt.with_user(self.qc).is_current_user_approver)
+        self.assertIn(receipt, SRN.with_user(self.qc).search([("is_current_user_approver", "=", True)]))
+
+        # Department Manager: pending department manager approval -> True
+        self.assertTrue(receipt.with_user(self.manager).is_current_user_approver)
+        self.assertIn(receipt, SRN.with_user(self.manager).search([("is_current_user_approver", "=", True)]))
+
+        # Manager of another department: False
+        other_mgr = new_test_user(
+            self.env,
+            login="srn_other_dept_manager",
+            groups="service_receipt_note.group_service_receipt_manager",
+        )
+        self.assertFalse(receipt.with_user(other_mgr).is_current_user_approver)
+        self.assertNotIn(receipt, SRN.with_user(other_mgr).search([("is_current_user_approver", "=", True)]))
+
+        # 2. QC Approves (moves to validation state):
+        receipt.with_user(self.qc).action_approve()
+        self.assertEqual(receipt.approval_state, "approved")
+
+        # QC: no longer in QC approval -> False
+        self.assertFalse(receipt.with_user(self.qc).is_current_user_approver)
+        self.assertNotIn(receipt, SRN.with_user(self.qc).search([("is_current_user_approver", "=", True)]))
+
+        # Department Manager: in validation state -> True
+        self.assertTrue(receipt.with_user(self.manager).is_current_user_approver)
+        self.assertIn(receipt, SRN.with_user(self.manager).search([("is_current_user_approver", "=", True)]))
+
+        # 3. Department Manager Validates:
+        receipt.with_user(self.manager).action_validate()
+        self.assertEqual(receipt.state, "done")
+
+        # Completed SRN: no pending approvals for anyone
+        self.assertFalse(receipt.with_user(self.qc).is_current_user_approver)
+        self.assertFalse(receipt.with_user(self.manager).is_current_user_approver)
+        self.assertNotIn(receipt, SRN.with_user(self.qc).search([("is_current_user_approver", "=", True)]))
+        self.assertNotIn(receipt, SRN.with_user(self.manager).search([("is_current_user_approver", "=", True)]))
+
+    def test_approval_dashboard_service_receipt_domain(self):
+        receipt = self._receipt()
+        if "de.hr.approval.dashboard.service" in self.env:
+            service = self.env["de.hr.approval.dashboard.service"]
+            qc_domain = service.with_user(self.qc)._service_receipt_pending_domain()
+            mgr_domain = service.with_user(self.manager)._service_receipt_pending_domain()
+            req_domain = service.with_user(self.requester)._service_receipt_pending_domain()
+
+            self.assertIn(receipt, self.env["service.receipt.note"].with_user(self.qc).search(qc_domain))
+            self.assertIn(receipt, self.env["service.receipt.note"].with_user(self.manager).search(mgr_domain))
+            self.assertNotIn(receipt, self.env["service.receipt.note"].with_user(self.requester).search(req_domain))
