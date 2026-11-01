@@ -39,7 +39,7 @@ class ServiceReceiptNote(models.Model):
                     is_manager = (
                         self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
                         or self.env.user.has_group("purchase.group_purchase_manager")
-                        or (order.requisition_id.requested_user_id.employee_ids.department_id.manager_id.user_id == self.env.user)
+                        # or (order.requisition_id.requested_user_id.employee_ids.department_id.manager_id.user_id == self.env.user)
                     )
                     if not (is_requester or is_qc or is_manager or self.env.is_admin()):
                         raise AccessError(_("Only a requester, QC, or manager can initiate an SRN."))
