@@ -263,7 +263,7 @@ class HrApprovalDashboardService(models.AbstractModel):
         if is_manager:
             domains.append([
                 ("state", "in", ["draft", "ready"]),
-                ("approval_state", "in", ["pending", "approved"]),
+                ("approval_state", "=", "approved"),
                 ("department_manager_id", "=", user.id),
             ])
 

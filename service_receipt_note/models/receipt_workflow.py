@@ -120,7 +120,7 @@ class ServiceReceiptNote(models.Model):
             if receipt.state in ("draft", "ready"):
                 if is_qc and receipt.approval_state == "pending":
                     is_approver = True
-                elif is_manager and receipt.department_manager_id == user and receipt.approval_state in ("pending", "approved"):
+                elif is_manager and receipt.department_manager_id == user and receipt.approval_state == "approved":
                     is_approver = True
             receipt.is_current_user_approver = is_approver
 
@@ -143,7 +143,7 @@ class ServiceReceiptNote(models.Model):
         if is_manager:
             domains.append([
                 ("state", "in", ["draft", "ready"]),
-                ("approval_state", "in", ["pending", "approved"]),
+                ("approval_state", "=", "approved"),
                 ("department_manager_id", "=", user.id),
             ])
 

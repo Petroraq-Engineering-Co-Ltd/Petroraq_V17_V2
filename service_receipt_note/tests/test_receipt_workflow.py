@@ -214,9 +214,9 @@ class TestServiceReceiptWorkflow(TransactionCase):
         self.assertTrue(receipt.with_user(self.qc).is_current_user_approver)
         self.assertIn(receipt, SRN.with_user(self.qc).search([("is_current_user_approver", "=", True)]))
 
-        # Department Manager: pending department manager approval -> True
-        self.assertTrue(receipt.with_user(self.manager).is_current_user_approver)
-        self.assertIn(receipt, SRN.with_user(self.manager).search([("is_current_user_approver", "=", True)]))
+        # Department Manager: pending records are not visible (must be approved by QC first) -> False
+        self.assertFalse(receipt.with_user(self.manager).is_current_user_approver)
+        self.assertNotIn(receipt, SRN.with_user(self.manager).search([("is_current_user_approver", "=", True)]))
 
         # Manager of another department: False
         other_mgr = new_test_user(
@@ -257,6 +257,12 @@ class TestServiceReceiptWorkflow(TransactionCase):
             mgr_domain = service.with_user(self.manager)._service_receipt_pending_domain()
             req_domain = service.with_user(self.requester)._service_receipt_pending_domain()
 
+            # While pending: only QC sees it; Department Manager does not
             self.assertIn(receipt, self.env["service.receipt.note"].with_user(self.qc).search(qc_domain))
-            self.assertIn(receipt, self.env["service.receipt.note"].with_user(self.manager).search(mgr_domain))
+            self.assertNotIn(receipt, self.env["service.receipt.note"].with_user(self.manager).search(mgr_domain))
             self.assertNotIn(receipt, self.env["service.receipt.note"].with_user(self.requester).search(req_domain))
+
+            # Once QC approves: Department Manager sees it; QC does not
+            receipt.with_user(self.qc).action_approve()
+            self.assertNotIn(receipt, self.env["service.receipt.note"].with_user(self.qc).search(qc_domain))
+            self.assertIn(receipt, self.env["service.receipt.note"].with_user(self.manager).search(mgr_domain))
