@@ -9,11 +9,11 @@
     """,
     'author': 'Mudassir',
     'website': 'https://www.petroraq.com',
-    'version': '0.5',
+    'version': '0.6',
     'category': 'Human Resources',
 
     # any module necessary for this one to work correctly
-    'depends': ['pr_work_order', 'petroraq_sale_workflow', 'de_hr_workspace', 'pr_hr_account', 'eg_asset_management','pr_custom_purchase'],
+    'depends': ['pr_work_order', 'petroraq_sale_workflow', 'de_hr_workspace', 'pr_hr_account', 'eg_asset_management', 'pr_custom_purchase', 'service_receipt_note'],
 
     # always loaded
     'data': [

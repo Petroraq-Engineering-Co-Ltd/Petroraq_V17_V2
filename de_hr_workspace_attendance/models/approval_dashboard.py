@@ -249,6 +249,29 @@ class HrApprovalDashboardService(models.AbstractModel):
         return expression.OR(role_domains) if role_domains else [("id", "=", False)]
 
     @api.model
+    def _service_receipt_pending_domain(self):
+        user = self.env.user
+        is_qc = user.has_group("service_receipt_note.group_service_receipt_qc")
+        is_manager = user.has_group("service_receipt_note.group_service_receipt_manager")
+
+        domains = []
+        if is_qc:
+            domains.append([
+                ("state", "in", ["draft", "ready"]),
+                ("approval_state", "=", "pending"),
+            ])
+        if is_manager:
+            domains.append([
+                ("state", "in", ["draft", "ready"]),
+                ("approval_state", "=", "approved"),
+                ("department_manager_id", "=", user.id),
+            ])
+
+        if not domains:
+            return [("id", "=", False)]
+        return expression.OR(domains) if len(domains) > 1 else domains[0]
+
+    @api.model
     def _is_work_order_approval_menu(self, menu, action):
         work_order_menu = self.env.ref(
             "de_hr_workspace_sale.work_order_ops_approvals_view_menu",
@@ -318,6 +341,8 @@ class HrApprovalDashboardService(models.AbstractModel):
             return self._leave_pending_domain()
         if action.res_model == "pr.budget.requisition":
             return self._budget_requisition_pending_domain()
+        if action.res_model == "service.receipt.note" or "service receipt" in menu_name or "srn" in menu_name:
+            return self._service_receipt_pending_domain()
         return domain
 
     @api.model
@@ -357,6 +382,8 @@ class HrApprovalDashboardService(models.AbstractModel):
             return "fa-users", "warning"
         if "purchase" in name:
             return "fa-shopping-cart", "primary"
+        if "receipt" in name or "srn" in name:
+            return "fa-file-text-o", "primary"
         if "budget" in name:
             return "fa-pie-chart", "info"
         if "hr" in name:
@@ -381,7 +408,7 @@ class HrApprovalDashboardService(models.AbstractModel):
 
         if any(token in text for token in ("bank", "cash", "vendor payment", "payment", "account", "finance", "bpv", "cpv")):
             return "accounts"
-        if any(token in text for token in ("purchase", "rfq", "po ", "quotation comparison", "budget", "requisition")):
+        if any(token in text for token in ("purchase", "rfq", "po ", "quotation comparison", "budget", "requisition", "receipt", "srn")):
             return "purchase"
         if any(token in text for token in ("sale", "estimation", "quotation", "work order")):
             return "sales"

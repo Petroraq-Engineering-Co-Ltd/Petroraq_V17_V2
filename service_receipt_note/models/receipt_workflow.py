@@ -1,5 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
+from odoo.osv import expression
 
 
 class ServiceReceiptNote(models.Model):
@@ -20,6 +21,11 @@ class ServiceReceiptNote(models.Model):
     can_validate_service = fields.Boolean(compute="_compute_workflow_permissions")
     can_request_payment = fields.Boolean(compute="_compute_workflow_permissions")
     can_edit_lines = fields.Boolean(compute="_compute_workflow_permissions")
+    is_current_user_approver = fields.Boolean(
+        string="Pending My Approval",
+        compute="_compute_is_current_user_approver",
+        search="_search_is_current_user_approver",
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -102,6 +108,56 @@ class ServiceReceiptNote(models.Model):
                 and receipt.state == "done"
                 and not receipt.payment_requested
             )
+
+    @api.depends_context("uid")
+    @api.depends("state", "approval_state", "department_manager_id")
+    def _compute_is_current_user_approver(self):
+        user = self.env.user
+        is_qc = user.has_group("service_receipt_note.group_service_receipt_qc")
+        is_manager = user.has_group("service_receipt_note.group_service_receipt_manager")
+        for receipt in self:
+            is_approver = False
+            if receipt.state in ("draft", "ready"):
+                if is_qc and receipt.approval_state == "pending":
+                    is_approver = True
+                elif is_manager and receipt.department_manager_id == user and receipt.approval_state == "approved":
+                    is_approver = True
+            receipt.is_current_user_approver = is_approver
+
+    def _search_is_current_user_approver(self, operator, value):
+        if operator not in ("=", "!=") or not isinstance(value, bool):
+            raise UserError(_("Unsupported search operation for current approver filter."))
+
+        is_approver_requested = (operator == "=" and value) or (operator == "!=" and not value)
+
+        user = self.env.user
+        is_qc = user.has_group("service_receipt_note.group_service_receipt_qc")
+        is_manager = user.has_group("service_receipt_note.group_service_receipt_manager")
+
+        domains = []
+        if is_qc:
+            domains.append([
+                ("state", "in", ["draft", "ready"]),
+                ("approval_state", "=", "pending"),
+            ])
+        if is_manager:
+            domains.append([
+                ("state", "in", ["draft", "ready"]),
+                ("approval_state", "=", "approved"),
+                ("department_manager_id", "=", user.id),
+            ])
+
+        if not domains:
+            domain = [("id", "=", False)]
+        elif len(domains) == 1:
+            domain = domains[0]
+        else:
+            domain = expression.OR(domains)
+
+        if not is_approver_requested:
+            domain = expression.NOT(domain)
+
+        return domain
 
     def _require_service_qc(self):
         if not self.env.su and not self.env.user.has_group("service_receipt_note.group_service_receipt_qc"):
