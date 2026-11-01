@@ -28,6 +28,7 @@
                 <field name="partner_id"/>
                 <filter name="filter_to_approve" string="To Approve" domain="[('is_current_user_approver', '=', True)]"/>
                 <separator/>
+                <filter name="filter_draft" string="Draft" domain="[('state','=','draft')]"/>
                 <filter name="filter_ready" string="Ready" domain="[('state','=','ready')]"/>
                 <filter name="filter_done" string="Done" domain="[('state','=','done')]"/>
                 <filter name="filter_cancel" string="Cancelled" domain="[('state','=','cancel')]"/>
@@ -54,7 +55,7 @@
                     <field name="can_edit_lines" invisible="1"/>
                     <button name="action_request_payment" type="object" string="Request Payment"
                             class="btn-primary" invisible="not can_request_payment"/>
-                    <button name="action_set_ready" type="object" string="Set Ready" class="btn-secondary"
+                    <button name="action_send_for_approval" type="object" string="Submit" class="btn-primary"
                             invisible="state != 'draft'"/>
                     <button name="action_approve" type="object" string="Approve" class="btn-primary"
                             invisible="not can_approve_service or state in ('done','cancel') or approval_state == 'approved'"

@@ -27,10 +27,11 @@ class TestServiceReceiptWorkflow(TransactionCase):
                                   "price_unit": 10})],
         })
 
-    def _receipt(self, vendor_srn_number="VENDOR-SRN-001", with_attachment=True):
+    def _receipt(self, vendor_srn_number="VENDOR-SRN-001", with_attachment=True, state="ready"):
         receipt = self.env["service.receipt.note"].sudo().create({
             "purchase_id": self.order.id,
             "vendor_srn_number": vendor_srn_number,
+            "state": state,
             "line_ids": [(0, 0, {"purchase_line_id": self.order.order_line.id,
                                   "name": "Accepted service", "done_qty": 1})],
         }).sudo(False)
@@ -123,17 +124,38 @@ class TestServiceReceiptWorkflow(TransactionCase):
             receipt_done.with_user(self.manager).unlink()
 
     def test_attachment_required_before_approval(self):
-        receipt = self._receipt(with_attachment=False)
+        receipt = self._receipt(with_attachment=False, state="draft")
         with self.assertRaisesRegex(UserError, "attach supporting documents in the Attachments tab"):
-            receipt.with_user(self.qc).action_approve()
+            receipt.with_user(self.requester).action_send_for_approval()
 
         attachment = self.env["ir.attachment"].create({
             "name": "invoice_evidence.pdf",
             "datas": "dGVzdA==",
         })
         receipt.sudo().attachment_ids = [(4, attachment.id)]
+        receipt.with_user(self.requester).action_send_for_approval()
+        self.assertEqual(receipt.state, "ready")
         receipt.with_user(self.qc).action_approve()
         self.assertEqual(receipt.approval_state, "approved")
+
+    def test_draft_srn_approval_lifecycle(self):
+        receipt = self._receipt(state="draft", with_attachment=False)
+        self.assertEqual(receipt.state, "draft")
+        self.assertFalse(receipt.with_user(self.qc).can_approve_service)
+        self.assertFalse(receipt.with_user(self.qc).is_current_user_approver)
+
+        with self.assertRaisesRegex(UserError, "attach supporting documents in the Attachments tab"):
+            receipt.with_user(self.requester).action_send_for_approval()
+
+        attachment = self.env["ir.attachment"].create({
+            "name": "evidence.pdf",
+            "datas": "dGVzdA==",
+        })
+        receipt.sudo().attachment_ids = [(4, attachment.id)]
+        receipt.with_user(self.requester).action_send_for_approval()
+        self.assertEqual(receipt.state, "ready")
+        self.assertTrue(receipt.with_user(self.qc).can_approve_service)
+        self.assertTrue(receipt.with_user(self.qc).is_current_user_approver)
 
     def test_auto_create_srn_on_po_confirm(self):
         pr = self.env["purchase.requisition"].create({"requested_user_id": self.requester.id})
@@ -159,7 +181,7 @@ class TestServiceReceiptWorkflow(TransactionCase):
         self.assertEqual(order.state, "purchase")
         self.assertEqual(order.service_receipt_note_count, 1)
         srn = order.service_receipt_note_ids
-        self.assertEqual(srn.state, "ready")
+        self.assertEqual(srn.state, "draft")
         self.assertEqual(srn.approval_state, "pending")
         self.assertEqual(len(srn.line_ids), 1)
         self.assertEqual(srn.line_ids.done_qty, 0.0)

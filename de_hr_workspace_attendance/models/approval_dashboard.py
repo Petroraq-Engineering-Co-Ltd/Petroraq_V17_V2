@@ -257,12 +257,12 @@ class HrApprovalDashboardService(models.AbstractModel):
         domains = []
         if is_qc:
             domains.append([
-                ("state", "in", ["draft", "ready"]),
+                ("state", "=", "ready"),
                 ("approval_state", "=", "pending"),
             ])
         if is_manager:
             domains.append([
-                ("state", "in", ["draft", "ready"]),
+                ("state", "=", "ready"),
                 ("approval_state", "=", "approved"),
                 ("department_manager_id", "=", user.id),
             ])
