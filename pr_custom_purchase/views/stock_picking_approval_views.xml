@@ -6,16 +6,20 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <xpath expr="//form/header/field[@name='state']" position="before">
+                <button name="action_qc_approve_receipt" type="object" string="QC Approve"
+                        class="btn-primary"
+                        groups="pr_custom_purchase.inventory_qc"
+                        invisible="picking_type_code != 'incoming' or state in ('done','cancel') or receipt_approval_state_ui != 'pending'"/>
                 <button name="action_approve_receipt" type="object" string="Approve Receipt"
                         class="btn-primary"
                         groups="pr_custom_purchase.inventory_admin"
-                        invisible="picking_type_code != 'incoming' or state in ('done','cancel') or receipt_approval_state_ui in ('approved','rejected')"/>
+                        invisible="picking_type_code != 'incoming' or state in ('done','cancel') or receipt_approval_state_ui != 'qc_approved'"/>
                 <button name="action_open_receipt_reject_wizard" type="object" string="Reject Receipt"
                         class="btn-danger"
-                        groups="pr_custom_purchase.inventory_admin"
+                        groups="pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_admin"
                         invisible="picking_type_code != 'incoming' or state in ('done','cancel') or receipt_approval_state_ui in ('approved','rejected')"/>
                 <field name="receipt_approval_state_ui" widget="badge"
-                       decoration-warning="receipt_approval_state_ui == 'pending'"
+                       decoration-warning="receipt_approval_state_ui in ('pending', 'qc_approved')"
                        decoration-success="receipt_approval_state_ui == 'approved'"
                        decoration-danger="receipt_approval_state_ui == 'rejected'"
                        invisible="picking_type_code != 'incoming'"/>
