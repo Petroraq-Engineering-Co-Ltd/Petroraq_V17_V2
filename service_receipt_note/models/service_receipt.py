@@ -75,7 +75,7 @@ class ServiceReceiptNote(models.Model):
             ("cancel", "Cancelled"),
         ],
         string="Status",
-        default="ready",
+        default="draft",
         tracking=True,
     )
     line_ids = fields.One2many(
@@ -164,12 +164,36 @@ class ServiceReceiptNote(models.Model):
                 vals["name"] = seq_model.next_by_code("service.receipt.note") or _("New")
         return super().create(vals_list)
 
-    def action_set_ready(self):
+    def action_send_for_approval(self):
         for rec in self:
-            if rec.state == "draft":
-                rec.state = "ready"
-                rec.approval_state = "pending"
-                rec.rejection_reason = False
+            if rec.state != "draft":
+                raise UserError(_("Only draft SRNs can be sent for approval."))
+            rec._check_attachments_before_approval()
+            rec._validate_lines()
+            rec.write({
+                "state": "ready",
+                "approval_state": "pending",
+                "rejection_reason": False,
+            })
+            qc_group = self.env.ref("service_receipt_note.group_service_receipt_qc", raise_if_not_found=False)
+            if qc_group and qc_group.users:
+                qc_users = qc_group.users.filtered(lambda u: u.active and rec.company_id in u.company_ids)
+                existing_activities = rec.activity_ids.filtered(
+                    lambda a: a.activity_type_id == self.env.ref("mail.mail_activity_data_todo", raise_if_not_found=False)
+                )
+                existing_user_ids = existing_activities.mapped("user_id.id")
+                for user in qc_users:
+                    if user.id not in existing_user_ids:
+                        rec.activity_schedule(
+                            "mail.mail_activity_data_todo",
+                            user_id=user.id,
+                            summary=_("Service Receipt Awaiting QC Review"),
+                            note=_("Review the service quantities and supporting documents before approval."),
+                        )
+            rec.message_post(body=_("Service Receipt Note sent for approval."))
+
+    def action_set_ready(self):
+        return self.action_send_for_approval()
 
     def action_create_vendor_bill(self):
         """Support stale database views from the former direct-billing flow."""
@@ -272,7 +296,7 @@ class ServiceReceiptNote(models.Model):
         self.ensure_one()
         return {
             "purchase_id": self.purchase_id.id,
-            "state": "ready",
+            "state": "draft",
             "backorder_id": self.id,
             "line_ids": [
                 (

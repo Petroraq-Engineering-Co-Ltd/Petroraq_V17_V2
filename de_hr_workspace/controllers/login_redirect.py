@@ -17,6 +17,10 @@ class HomeLoginRedirect(Home):
         "pr_work_order.custom_group_work_order_operations",
         "pr_work_order.custom_group_work_order_accounts",
         "pr_work_order.custom_group_work_order_management",
+        "service_receipt_note.group_service_receipt_qc",
+        "service_receipt_note.group_service_receipt_manager",
+        "pr_custom_purchase.inventory_qc",
+        "pr_custom_purchase.inventory_admin",
     )
 
     def _get_approval_dashboard_url(self):

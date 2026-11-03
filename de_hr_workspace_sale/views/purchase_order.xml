@@ -44,4 +44,44 @@
               action="pr_sale_purchase_requisition_supervisor_approvals_action"
               sequence="2"
               groups="base.group_user"/>
+
+    <record id="pr_sale_service_receipt_approvals_action" model="ir.actions.act_window">
+        <field name="name">Service Receipt Notes</field>
+        <field name="res_model">service.receipt.note</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_current_user_approver', '=', True)]</field>
+        <field name="context">{'create': False, 'edit': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No service receipt notes are pending your approval or validation.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="service_receipt_approvals_view_menu"
+              name="Service Receipt Notes"
+              parent="menu_my_purchase_approvals"
+              action="pr_sale_service_receipt_approvals_action"
+              sequence="3"
+              groups="service_receipt_note.group_service_receipt_qc,service_receipt_note.group_service_receipt_manager"/>
+
+    <record id="pr_sale_grn_approvals_action" model="ir.actions.act_window">
+        <field name="name">Goods Receipt Notes</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('picking_type_code', '=', 'incoming'), ('state', 'not in', ['done', 'cancel']), ('is_current_user_approver', '=', True)]</field>
+        <field name="context">{'create': False, 'edit': False, 'default_picking_type_code': 'incoming'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No goods receipt notes are pending your approval or validation.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="grn_approvals_view_menu"
+              name="Goods Receipt Notes"
+              parent="menu_my_purchase_approvals"
+              action="pr_sale_grn_approvals_action"
+              sequence="4"
+              groups="pr_custom_purchase.inventory_qc,pr_custom_purchase.inventory_admin"/>
 </odoo>

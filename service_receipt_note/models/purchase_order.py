@@ -119,7 +119,7 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
         return self.env["service.receipt.note"].create({
             "purchase_id": self.id,
-            "state": "ready",
+            "state": "draft",
             "line_ids": line_commands,
         })
 

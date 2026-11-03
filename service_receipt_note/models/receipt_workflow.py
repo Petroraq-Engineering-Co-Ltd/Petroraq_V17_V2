@@ -1,5 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
+from odoo.osv import expression
 
 
 class ServiceReceiptNote(models.Model):
@@ -20,6 +21,11 @@ class ServiceReceiptNote(models.Model):
     can_validate_service = fields.Boolean(compute="_compute_workflow_permissions")
     can_request_payment = fields.Boolean(compute="_compute_workflow_permissions")
     can_edit_lines = fields.Boolean(compute="_compute_workflow_permissions")
+    is_current_user_approver = fields.Boolean(
+        string="Pending My Approval",
+        compute="_compute_is_current_user_approver",
+        search="_search_is_current_user_approver",
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -45,12 +51,12 @@ class ServiceReceiptNote(models.Model):
                         raise AccessError(_("Only a requester, QC, or manager can initiate an SRN."))
                 if is_backorder:
                     backorder._require_service_manager()
-                if vals.get("state", "ready") not in ("draft", "ready") or vals.get("approval_state", "pending") != "pending" or vals.get("payment_requested"):
+                if vals.get("state", "draft") not in ("draft", "ready") or vals.get("approval_state", "pending") != "pending" or vals.get("payment_requested"):
                     raise AccessError(_("New SRNs must start open and pending approval."))
         receipts = super().create(vals_list)
         qc_group = self.env.ref("service_receipt_note.group_service_receipt_qc", raise_if_not_found=False)
         for receipt in receipts:
-            if qc_group and qc_group.users:
+            if receipt.state == "ready" and qc_group and qc_group.users:
                 qc_users = qc_group.users.filtered(lambda u: u.active and receipt.company_id in u.company_ids)
                 for user in qc_users:
                     receipt.activity_schedule(
@@ -89,12 +95,12 @@ class ServiceReceiptNote(models.Model):
             )
             receipt.can_approve_service = (
                 (is_qc or is_manager or self.env.su)
-                and receipt.state in ("draft", "ready")
+                and receipt.state == "ready"
                 and receipt.approval_state == "pending"
             )
             receipt.can_validate_service = (
                 (is_manager or self.env.su)
-                and receipt.state in ("draft", "ready")
+                and receipt.state == "ready"
                 and receipt.approval_state == "approved"
             )
             receipt.can_request_payment = (
@@ -102,6 +108,56 @@ class ServiceReceiptNote(models.Model):
                 and receipt.state == "done"
                 and not receipt.payment_requested
             )
+
+    @api.depends_context("uid")
+    @api.depends("state", "approval_state", "department_manager_id")
+    def _compute_is_current_user_approver(self):
+        user = self.env.user
+        is_qc = user.has_group("service_receipt_note.group_service_receipt_qc")
+        is_manager = user.has_group("service_receipt_note.group_service_receipt_manager")
+        for receipt in self:
+            is_approver = False
+            if receipt.state == "ready":
+                if is_qc and receipt.approval_state == "pending":
+                    is_approver = True
+                elif is_manager and receipt.department_manager_id == user and receipt.approval_state == "approved":
+                    is_approver = True
+            receipt.is_current_user_approver = is_approver
+
+    def _search_is_current_user_approver(self, operator, value):
+        if operator not in ("=", "!=") or not isinstance(value, bool):
+            raise UserError(_("Unsupported search operation for current approver filter."))
+
+        is_approver_requested = (operator == "=" and value) or (operator == "!=" and not value)
+
+        user = self.env.user
+        is_qc = user.has_group("service_receipt_note.group_service_receipt_qc")
+        is_manager = user.has_group("service_receipt_note.group_service_receipt_manager")
+
+        domains = []
+        if is_qc:
+            domains.append([
+                ("state", "=", "ready"),
+                ("approval_state", "=", "pending"),
+            ])
+        if is_manager:
+            domains.append([
+                ("state", "=", "ready"),
+                ("approval_state", "=", "approved"),
+                ("department_manager_id", "=", user.id),
+            ])
+
+        if not domains:
+            domain = [("id", "=", False)]
+        elif len(domains) == 1:
+            domain = domains[0]
+        else:
+            domain = expression.OR(domains)
+
+        if not is_approver_requested:
+            domain = expression.NOT(domain)
+
+        return domain
 
     def _require_service_qc(self):
         if not self.env.su and not self.env.user.has_group("service_receipt_note.group_service_receipt_qc"):
@@ -121,14 +177,32 @@ class ServiceReceiptNote(models.Model):
         if not (is_qc or is_manager):
             raise AccessError(_("Only Quality Control (QC) or the Department Manager can approve or reject this Service Receipt Note."))
 
+    def action_send_for_approval(self):
+        if not self.env.su and not self.env.is_admin():
+            for rec in self:
+                is_requester = (
+                    rec.requested_user_id == self.env.user
+                    or rec.create_uid == self.env.user
+                    or self.env.user.has_group("service_receipt_note.group_service_receipt_user")
+                )
+                is_qc = self.env.user.has_group("service_receipt_note.group_service_receipt_qc")
+                is_manager = (
+                    rec.department_manager_id == self.env.user
+                    or self.env.user.has_group("service_receipt_note.group_service_receipt_manager")
+                )
+                if not (is_requester or is_qc or is_manager):
+                    raise AccessError(_("You do not have permission to send this Service Receipt Note for approval."))
+        return super().action_send_for_approval()
+
     def action_approve(self):
         self._require_service_qc_or_manager()
         self._check_attachments_before_approval()
         for receipt in self:
-            if receipt.state not in ("draft", "ready"):
-                raise UserError(_("Only open SRNs can be approved."))
+            if receipt.state != "ready":
+                raise UserError(_("Only SRNs that have been sent for approval can be approved."))
             receipt._validate_lines()
             receipt.write({"approval_state": "approved", "rejection_reason": False})
+            receipt.activity_feedback(["mail.mail_activity_data_todo"], feedback=_("Approved by %s") % self.env.user.name)
             if receipt.department_manager_id:
                 receipt.activity_schedule(
                     "mail.mail_activity_data_todo", user_id=receipt.department_manager_id.id,

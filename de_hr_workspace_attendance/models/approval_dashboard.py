@@ -249,6 +249,53 @@ class HrApprovalDashboardService(models.AbstractModel):
         return expression.OR(role_domains) if role_domains else [("id", "=", False)]
 
     @api.model
+    def _service_receipt_pending_domain(self):
+        user = self.env.user
+        is_qc = user.has_group("service_receipt_note.group_service_receipt_qc")
+        is_manager = user.has_group("service_receipt_note.group_service_receipt_manager")
+
+        domains = []
+        if is_qc:
+            domains.append([
+                ("state", "=", "ready"),
+                ("approval_state", "=", "pending"),
+            ])
+        if is_manager:
+            domains.append([
+                ("state", "=", "ready"),
+                ("approval_state", "=", "approved"),
+                ("department_manager_id", "=", user.id),
+            ])
+
+        if not domains:
+            return [("id", "=", False)]
+        return expression.OR(domains) if len(domains) > 1 else domains[0]
+
+    @api.model
+    def _grn_pending_domain(self):
+        user = self.env.user
+        is_qc = user.has_group("pr_custom_purchase.inventory_qc")
+        is_admin = user.has_group("pr_custom_purchase.inventory_admin")
+
+        if not is_qc and not is_admin and not self.env.is_admin():
+            return [("id", "=", False)]
+
+        active_pickings = self.env["stock.picking"].sudo().search([
+            ("picking_type_code", "=", "incoming"),
+            ("state", "not in", ["done", "cancel"]),
+        ])
+
+        matching_ids = []
+        for p in active_pickings:
+            st = p._get_receipt_approval_state()
+            if is_qc and st == "pending":
+                matching_ids.append(p.id)
+            elif is_admin and st in ("qc_approved", "approved"):
+                matching_ids.append(p.id)
+
+        return [("id", "in", matching_ids)] if matching_ids else [("id", "=", False)]
+
+    @api.model
     def _is_work_order_approval_menu(self, menu, action):
         work_order_menu = self.env.ref(
             "de_hr_workspace_sale.work_order_ops_approvals_view_menu",
@@ -318,6 +365,14 @@ class HrApprovalDashboardService(models.AbstractModel):
             return self._leave_pending_domain()
         if action.res_model == "pr.budget.requisition":
             return self._budget_requisition_pending_domain()
+        if action.res_model == "service.receipt.note" or "service receipt" in menu_name or "srn" in menu_name:
+            return self._service_receipt_pending_domain()
+        if (
+            action.res_model == "stock.picking"
+            or "goods receipt" in menu_name
+            or "grn" in menu_name
+        ):
+            return self._grn_pending_domain()
         return domain
 
     @api.model
@@ -357,6 +412,8 @@ class HrApprovalDashboardService(models.AbstractModel):
             return "fa-users", "warning"
         if "purchase" in name:
             return "fa-shopping-cart", "primary"
+        if "receipt" in name or "srn" in name or "grn" in name:
+            return "fa-file-text-o", "primary"
         if "budget" in name:
             return "fa-pie-chart", "info"
         if "hr" in name:
@@ -381,7 +438,7 @@ class HrApprovalDashboardService(models.AbstractModel):
 
         if any(token in text for token in ("bank", "cash", "vendor payment", "payment", "account", "finance", "bpv", "cpv")):
             return "accounts"
-        if any(token in text for token in ("purchase", "rfq", "po ", "quotation comparison", "budget", "requisition")):
+        if any(token in text for token in ("purchase", "rfq", "po ", "quotation comparison", "budget", "requisition", "receipt", "srn", "grn", "goods receipt", "stock.picking")):
             return "purchase"
         if any(token in text for token in ("sale", "estimation", "quotation", "work order")):
             return "sales"
