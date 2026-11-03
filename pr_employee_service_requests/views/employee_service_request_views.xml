@@ -24,7 +24,7 @@
                 <field name="payment_request_state" optional="show"/>
                 <field name="payment_voucher_state" optional="show"/>
                 <field name="state" widget="badge"
-                       decoration-warning="state in ('draft', 'hr_supervisor_approval', 'employee_manager_approval', 'hr_manager_approval', 'accounts_approval', 'md_approval', 'finance_approval')"
+                       decoration-warning="state in ('draft', 'employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval', 'md_approval')"
                        decoration-info="state == 'payment_approval'"
                        decoration-success="state in ('issued', 'paid')"
                        decoration-danger="state in ('rejected', 'cancelled')"/>
@@ -62,18 +62,18 @@
                 <filter name="historical_company_exit_reentry" string="Historical Company Exit/Re-entry"
                         domain="[('request_type', '=', 'exit_reentry'), ('exit_reentry_historical_company_paid', '=', True)]"/>
                 <separator/>
+                <filter name="employee_manager_approval" string="Employment Manager"
+                        domain="[('state', '=', 'employee_manager_approval')]"/>
                 <filter name="hr_supervisor_approval" string="HR Supervisor"
                         domain="[('state', '=', 'hr_supervisor_approval')]"/>
-                <filter name="employee_manager_approval" string="Employee Manager"
-                        domain="[('state', '=', 'employee_manager_approval')]"/>
                 <filter name="hr_manager_approval" string="HR Manager"
                         domain="[('state', '=', 'hr_manager_approval')]"/>
                 <filter name="accounts_approval" string="Accounts Approval"
                         domain="[('state', '=', 'accounts_approval')]"/>
-                <filter name="md_approval" string="MD Approval" domain="[('state', '=', 'md_approval')]"/>
                 <filter name="finance_approval" string="Finance Approval"
                         domain="[('state', '=', 'finance_approval')]"/>
-                <filter name="payment_approval" string="Voucher Approval"
+                <filter name="md_approval" string="MD Approval" domain="[('state', '=', 'md_approval')]"/>
+                <filter name="payment_approval" string="Finance Voucher Approval"
                         domain="[('state', '=', 'payment_approval')]"/>
                 <filter name="issued" string="Issued" domain="[('state', '=', 'issued')]"/>
                 <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
@@ -97,12 +97,12 @@
         <field name="arch" type="xml">
             <form string="Employee Request">
                 <header>
-                    <field name="can_hr_supervisor_approve" invisible="1"/>
                     <field name="can_employee_manager_approve" invisible="1"/>
+                    <field name="can_hr_supervisor_approve" invisible="1"/>
                     <field name="can_hr_manager_approve" invisible="1"/>
                     <field name="can_accounts_approve" invisible="1"/>
-                    <field name="can_md_approve" invisible="1"/>
                     <field name="can_finance_approve" invisible="1"/>
+                    <field name="can_md_approve" invisible="1"/>
                     <field name="can_create_payment_request" invisible="1"/>
                     <field name="can_issue" invisible="1"/>
                     <field name="can_reject" invisible="1"/>
@@ -110,18 +110,18 @@
                     <field name="can_cancel" invisible="1"/>
                     <button name="action_submit" type="object" string="Submit"
                             class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_hr_supervisor_approve" type="object" string="HR Supervisor Approve"
-                            class="btn-primary" invisible="not can_hr_supervisor_approve"/>
                     <button name="action_employee_manager_approve" type="object" string="Employee Manager Approve"
                             class="btn-primary" invisible="not can_employee_manager_approve"/>
+                    <button name="action_hr_supervisor_approve" type="object" string="HR Supervisor Approve"
+                            class="btn-primary" invisible="not can_hr_supervisor_approve"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary" invisible="not can_hr_manager_approve"/>
                     <button name="action_accounts_approve" type="object" string="Accounts Approve"
                             class="btn-primary" invisible="not can_accounts_approve"/>
-                    <button name="action_md_approve" type="object" string="MD Approve"
-                            class="btn-primary" invisible="not can_md_approve"/>
                     <button name="action_finance_approve" type="object" string="Finance Approve"
                             class="btn-primary" invisible="not can_finance_approve"/>
+                    <button name="action_md_approve" type="object" string="MD Approve"
+                            class="btn-primary" invisible="not can_md_approve"/>
                     <button name="action_create_payment_request" type="object" string="Create Payment Request"
                             class="btn-primary" invisible="not can_create_payment_request"/>
                     <button name="action_issue" type="object" string="Issue"
@@ -133,7 +133,7 @@
                     <button name="action_cancel" type="object" string="Cancel"
                             class="btn-secondary" invisible="not can_cancel"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,hr_supervisor_approval,employee_manager_approval,hr_manager_approval,accounts_approval,md_approval,finance_approval,payment_approval,paid,issued"/>
+                           statusbar_visible="draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,accounts_approval,finance_approval,md_approval,payment_approval,paid,issued"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
@@ -313,20 +313,20 @@
                               invisible="request_type in ('iqama_new', 'medical_insurance_new')">
                             <group>
                                 <group>
-                                    <field name="hr_supervisor_approved_by_id" readonly="1"/>
                                     <field name="employee_manager_approved_by_id" readonly="1"/>
+                                    <field name="hr_supervisor_approved_by_id" readonly="1"/>
                                     <field name="hr_manager_approved_by_id" readonly="1"/>
                                     <field name="accounts_approved_by_id" readonly="1"/>
-                                    <field name="md_approved_by_id" readonly="1"/>
                                     <field name="finance_approved_by_id" readonly="1"/>
+                                    <field name="md_approved_by_id" readonly="1"/>
                                 </group>
                                 <group>
-                                    <field name="hr_supervisor_approved_date" readonly="1"/>
                                     <field name="employee_manager_approved_date" readonly="1"/>
+                                    <field name="hr_supervisor_approved_date" readonly="1"/>
                                     <field name="hr_manager_approved_date" readonly="1"/>
                                     <field name="accounts_approved_date" readonly="1"/>
-                                    <field name="md_approved_date" readonly="1"/>
                                     <field name="finance_approved_date" readonly="1"/>
+                                    <field name="md_approved_date" readonly="1"/>
                                 </group>
                             </group>
                         </page>

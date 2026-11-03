@@ -228,7 +228,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertEqual([line[2]["amount"] for line in payment_lines], [40.0, 60.0])
         self.assertEqual(request._get_payment_amount(), 100.0)
 
-    def test_renewal_submits_directly_to_hr_manager(self):
+    def test_renewal_submits_to_employee_manager(self):
         existing_iqama = self.env["hr.employee.iqama"].create({
             "name": "Existing Iqama",
             "employee_id": self.employee.id,
@@ -252,7 +252,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         ):
             request.action_submit()
 
-        self.assertEqual(request.state, "hr_manager_approval")
+        self.assertEqual(request.state, "employee_manager_approval")
         self.assertEqual(request.requested_amount, 100.0)
         self.assertEqual(request._get_payment_amount(), 100.0)
         self.assertFalse(request.hr_supervisor_approved_by_id)
@@ -300,7 +300,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertEqual(request.payment_responsibility, "company")
         request.action_submit()
 
-        self.assertEqual(request.state, "hr_supervisor_approval")
+        self.assertEqual(request.state, "employee_manager_approval")
         self.assertFalse(request.payment_request_id)
 
     def test_dependent_fee_duration_is_optional_selection(self):
@@ -328,8 +328,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
 
         self.assertEqual(request.payment_responsibility, "self")
         self.assertTrue(request._is_self_paid_request())
-        self.assertTrue(request.can_create_payment_request)
-        create_bpv.assert_not_called()
+        self.assertFalse(request.can_create_payment_request)
 
     def test_company_exit_reentry_without_current_contract_switches_to_self(self):
         country = self._get_destination_country()
@@ -345,7 +344,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             request.action_submit()
 
         self.assertEqual(request.payment_responsibility, "self")
-        self.assertEqual(request.state, "hr_manager_approval")
+        self.assertEqual(request.state, "employee_manager_approval")
         self.assertFalse(request.payment_request_id)
 
     def test_self_exit_reentry_approval_creates_no_payment_artifacts(self):
@@ -361,6 +360,8 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         with patch.object(type(request), "_notify_group", autospec=True):
             request.action_submit()
         request.action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+        request.action_md_approve()
 
         self.assertEqual(request.state, "paid")
         self.assertEqual(request.approved_amount, 0.0)
@@ -388,6 +389,8 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         with patch.object(type(request), "_notify_group", autospec=True):
             request.action_submit()
         request.action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+        request.action_md_approve()
 
         self.assertEqual(request.state, "paid")
         self.assertEqual(request.approved_amount, 0.0)
@@ -456,6 +459,8 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         with patch.object(type(request), "_notify_group", autospec=True):
             request.action_submit()
         request.action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+        request.action_md_approve()
 
         self.assertEqual(request.state, "issued")
         self.assertTrue(request.iqama_line_id)
@@ -477,3 +482,146 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             request.action_issue()
 
         self.assertEqual(request.state, "paid")
+
+    def test_full_sequential_approval_flow(self):
+        """Test full sequence: Draft -> Employee Manager -> HR Supervisor -> HR Manager -> Accounts -> Finance -> MD -> Voucher Approval."""
+        request = self._create_request(
+            "reimbursement",
+            reimbursement_type="food",
+            requested_amount=150.0,
+            expense_date=date(2099, 1, 1),
+            payment_responsibility="company",
+        )
+        self.assertEqual(request.state, "draft")
+
+        # 1. Submit -> employee_manager_approval
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+        self.assertEqual(request.state, "employee_manager_approval")
+
+        # 2. Employee Manager Approve -> hr_supervisor_approval
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.action_employee_manager_approve()
+        self.assertEqual(request.state, "hr_supervisor_approval")
+        self.assertEqual(request.employee_manager_approved_by_id, self.env.user)
+
+        # 3. HR Supervisor Approve -> hr_manager_approval
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.action_hr_supervisor_approve()
+        self.assertEqual(request.state, "hr_manager_approval")
+        self.assertEqual(request.hr_supervisor_approved_by_id, self.env.user)
+
+        # 4. HR Manager Approve -> accounts_approval
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.action_hr_manager_approve()
+        self.assertEqual(request.state, "accounts_approval")
+        self.assertEqual(request.hr_manager_approved_by_id, self.env.user)
+        self.assertEqual(request.approved_amount, 150.0)
+
+        # 5. Accounts Approve -> finance_approval
+        with (
+            patch.object(type(request), "_check_before_accounts_approval", autospec=True),
+            patch.object(type(request), "_notify_group", autospec=True),
+        ):
+            request.action_accounts_approve()
+        self.assertEqual(request.state, "finance_approval")
+        self.assertEqual(request.accounts_approved_by_id, self.env.user)
+
+        # 6. Finance Approve -> md_approval
+        with (
+            patch.object(type(request), "_check_before_accounts_approval", autospec=True),
+            patch.object(type(request), "_notify_group", autospec=True),
+        ):
+            request.action_finance_approve()
+        self.assertEqual(request.state, "md_approval")
+        self.assertEqual(request.finance_approved_by_id, self.env.user)
+
+        # 7. MD Approve -> payment_approval
+        with (
+            patch.object(type(request), "_check_before_md_approval", autospec=True),
+            patch.object(type(request), "_create_payment_request", autospec=True, return_value=self.env["pr.employee.payment.request"]),
+            patch.object(type(request), "_notify_group", autospec=True),
+        ):
+            request.action_md_approve()
+        self.assertEqual(request.state, "payment_approval")
+        self.assertEqual(request.md_approved_by_id, self.env.user)
+
+    def test_skip_level_md_approval_from_employee_manager(self):
+        """MD can approve directly from employee_manager_approval in a single click."""
+        request = self._create_request(
+            "reimbursement",
+            reimbursement_type="fuel",
+            requested_amount=200.0,
+            expense_date=date(2099, 1, 1),
+            payment_responsibility="company",
+        )
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+        self.assertEqual(request.state, "employee_manager_approval")
+
+        # MD approves directly from employee_manager_approval
+        with (
+            patch.object(type(request), "_check_before_md_approval", autospec=True),
+            patch.object(type(request), "_create_payment_request", autospec=True, return_value=self.env["pr.employee.payment.request"]),
+        ):
+            request.action_md_approve()
+
+        self.assertEqual(request.state, "payment_approval")
+        self.assertEqual(request.md_approved_by_id, self.env.user)
+        self.assertFalse(request.hr_supervisor_approved_by_id)
+        self.assertFalse(request.accounts_approved_by_id)
+        self.assertFalse(request.finance_approved_by_id)
+
+    def test_skip_level_finance_approval_from_hr_supervisor(self):
+        """Finance can approve directly from hr_supervisor_approval, moving to md_approval."""
+        request = self._create_request(
+            "reimbursement",
+            reimbursement_type="office",
+            requested_amount=300.0,
+            expense_date=date(2099, 1, 1),
+            payment_responsibility="company",
+        )
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+        request.action_employee_manager_approve()
+        self.assertEqual(request.state, "hr_supervisor_approval")
+
+        # Finance approves directly from hr_supervisor_approval
+        with (
+            patch.object(type(request), "_check_before_accounts_approval", autospec=True),
+            patch.object(type(request), "_notify_group", autospec=True),
+        ):
+            request.action_finance_approve()
+
+        self.assertEqual(request.state, "md_approval")
+        self.assertEqual(request.finance_approved_by_id, self.env.user)
+        self.assertFalse(request.hr_manager_approved_by_id)
+        self.assertFalse(request.accounts_approved_by_id)
+
+    def test_self_sponsored_skips_accounts_and_finance(self):
+        """Self-sponsored requests skip Accounts and Finance, going from HR Manager to MD."""
+        request = self._create_request(
+            "dependent_fee",
+            payment_responsibility="self",
+            requested_amount=250.0,
+        )
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+        self.assertEqual(request.state, "employee_manager_approval")
+
+        request.action_employee_manager_approve()
+        self.assertEqual(request.state, "hr_supervisor_approval")
+
+        request.action_hr_supervisor_approve()
+        self.assertEqual(request.state, "hr_manager_approval")
+
+        # HR Manager approve on self-paid moves directly to md_approval (skipping accounts and finance)
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+
+        # MD approval on self-paid finalizes request without voucher creation
+        with patch.object(type(request), "_check_before_md_approval", autospec=True):
+            request.action_md_approve()
+        self.assertEqual(request.state, "issued")
+        self.assertEqual(request.approved_amount, 0.0)

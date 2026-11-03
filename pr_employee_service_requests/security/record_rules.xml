@@ -48,7 +48,7 @@
                 (4, ref('pr_account.custom_group_accounting_manager')),
                 (4, ref('pr_account.custom_group_account_supervisor'))
             ]"/>
-            <field name="domain_force">[('state', 'in', ['accounts_approval', 'finance_approval', 'payment_approval', 'paid', 'issued'])]</field>
+            <field name="domain_force">[('state', '!=', 'draft')]</field>
         </record>
 
         <record id="rule_pr_employee_document_letter_own" model="ir.rule">
