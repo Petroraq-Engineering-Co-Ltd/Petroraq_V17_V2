@@ -415,12 +415,12 @@ class PrEmployeeServiceRequest(models.Model):
     @api.depends("state", "employee_manager_user_id")
     def _compute_is_current_user_service_request_approver(self):
         user = self.env.user
-        is_admin = user.has_group("base.group_system")
-        is_md = is_admin or user.has_group("pr_hr.group_hr_md")
-        is_hr_manager = is_admin or user.has_group("pr_hr.group_hr_manager")
-        is_hr_supervisor = is_admin or user.has_group("pr_hr.group_hr_supervisor")
+
+        is_md = user.has_group("pr_hr.group_hr_md")
+        is_hr_manager = user.has_group("pr_hr.group_hr_manager")
+        is_hr_supervisor = user.has_group("pr_hr.group_hr_supervisor")
         for rec in self:
-            is_mgr = (rec.employee_manager_user_id == user) or is_admin
+            is_mgr = (rec.employee_manager_user_id == user)
             rec.is_current_user_service_request_approver = (
                 (rec.state == "employee_manager_approval" and (is_mgr or is_hr_supervisor or is_hr_manager or is_md))
                 or (rec.state == "hr_supervisor_approval" and (is_hr_supervisor or is_hr_manager or is_md))
@@ -436,12 +436,12 @@ class PrEmployeeServiceRequest(models.Model):
             )
 
         user = self.env.user
-        is_admin = user.has_group("base.group_system")
+
         is_md = user.has_group("pr_hr.group_hr_md")
         is_hr_manager = user.has_group("pr_hr.group_hr_manager")
         is_hr_supervisor = user.has_group("pr_hr.group_hr_supervisor")
         domains = []
-        if is_admin or is_md:
+        if is_md:
             domains.append([("state", "in", [
                 "employee_manager_approval",
                 "hr_supervisor_approval",
@@ -461,15 +461,12 @@ class PrEmployeeServiceRequest(models.Model):
                 "employee_manager_approval",
                 "hr_supervisor_approval",
             ])])
-        manager_domain = (
-            [("state", "=", "employee_manager_approval")]
-            if is_admin
-            else [
+        manager_domain = [
                 "&",
                 ("state", "=", "employee_manager_approval"),
                 ("employee_manager_user_id", "=", user.id),
             ]
-        )
+
         domains.append(manager_domain)
         approver_domain = domains[0]
         for d in domains[1:]:
@@ -482,12 +479,12 @@ class PrEmployeeServiceRequest(models.Model):
     @api.depends("state", "payment_responsibility")
     def _compute_is_current_user_financial_approver(self):
         user = self.env.user
-        is_admin = user.has_group("base.group_system")
-        is_accounts = is_admin or (
+
+        is_accounts = (
             user.has_group("account.group_account_manager")
             and not user.has_group("pr_account.custom_group_accounting_manager")
         )
-        is_finance = is_admin or user.has_group("pr_account.custom_group_accounting_manager")
+        is_finance = user.has_group("pr_account.custom_group_accounting_manager")
         for rec in self:
             is_self = rec._is_self_paid_request()
             rec.is_current_user_financial_approver = (
@@ -505,12 +502,12 @@ class PrEmployeeServiceRequest(models.Model):
             )
 
         user = self.env.user
-        is_admin = user.has_group("base.group_system")
-        is_accounts = is_admin or (
+
+        is_accounts = (
             user.has_group("account.group_account_manager")
             and not user.has_group("pr_account.custom_group_accounting_manager")
         )
-        is_finance = is_admin or user.has_group("pr_account.custom_group_accounting_manager")
+        is_finance = user.has_group("pr_account.custom_group_accounting_manager")
         domains = []
         if is_accounts:
             domains.append([
@@ -632,22 +629,22 @@ class PrEmployeeServiceRequest(models.Model):
     @api.depends("employee_manager_user_id")
     def _compute_is_employee_manager(self):
         user = self.env.user
-        is_admin = user.has_group("base.group_system")
+
         for rec in self:
-            rec.is_employee_manager = is_admin or (rec.employee_manager_user_id == user)
+            rec.is_employee_manager = (rec.employee_manager_user_id == user)
 
     @api.depends("state", "employee_manager_user_id", "payment_responsibility")
     def _compute_can_reject(self):
         user = self.env.user
-        is_admin = user.has_group("base.group_system")
-        is_md = is_admin or user.has_group("pr_hr.group_hr_md")
-        is_finance = is_admin or user.has_group("pr_account.custom_group_accounting_manager")
-        is_accounts = is_admin or (
+
+        is_md = user.has_group("pr_hr.group_hr_md")
+        is_finance = user.has_group("pr_account.custom_group_accounting_manager")
+        is_accounts = (
             user.has_group("account.group_account_manager")
             and not user.has_group("pr_account.custom_group_accounting_manager")
         )
-        is_hr_manager = is_admin or user.has_group("pr_hr.group_hr_manager")
-        is_hr_supervisor = is_admin or user.has_group("pr_hr.group_hr_supervisor")
+        is_hr_manager = user.has_group("pr_hr.group_hr_manager")
+        is_hr_supervisor = user.has_group("pr_hr.group_hr_supervisor")
         approval_states = (
             "employee_manager_approval",
             "hr_supervisor_approval",
@@ -661,7 +658,7 @@ class PrEmployeeServiceRequest(models.Model):
                 rec.can_reject = False
                 continue
             is_self = rec._is_self_paid_request()
-            if is_admin or is_md:
+            if is_md:
                 rec.can_reject = True
             elif is_finance and not is_self and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
                 rec.can_reject = True
@@ -685,8 +682,8 @@ class PrEmployeeServiceRequest(models.Model):
     )
     def _compute_can_reset_or_cancel(self):
         user = self.env.user
-        is_admin = user.has_group("base.group_system")
-        is_hr_manager = is_admin or user.has_group("pr_hr.group_hr_manager")
+
+        is_hr_manager = user.has_group("pr_hr.group_hr_manager")
         approval_states = (
             "employee_manager_approval",
             "hr_supervisor_approval",
@@ -697,7 +694,7 @@ class PrEmployeeServiceRequest(models.Model):
         )
         for rec in self:
             is_owner = (rec.requested_by_id == user or rec.employee_id.user_id == user)
-            can_manage = is_owner or is_hr_manager or is_admin
+            can_manage = is_owner or is_hr_manager
             payment_is_final = rec._has_posted_payment_artifacts() if can_manage else True
             rec.can_reset_to_draft = (
                 can_manage
