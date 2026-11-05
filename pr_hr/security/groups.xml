@@ -4,5 +4,20 @@
         <record model="res.groups" id="group_user_has_signature">
             <field name="name">Has Authorized Signature</field>
         </record>
+
+        <record model="res.groups" id="group_hr_supervisor">
+            <field name="name">HR Supervisor</field>
+            <field name="category_id" ref="base.module_category_human_resources_employees"/>
+        </record>
+
+        <record model="res.groups" id="group_hr_manager">
+            <field name="name">HR Manager</field>
+            <field name="category_id" ref="base.module_category_human_resources_employees"/>
+        </record>
+
+        <record model="res.groups" id="group_hr_md">
+            <field name="name">Managing Director (HR)</field>
+            <field name="category_id" ref="base.module_category_human_resources_employees"/>
+        </record>
     </data>
 </odoo>
