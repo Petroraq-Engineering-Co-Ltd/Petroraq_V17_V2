@@ -15,6 +15,7 @@ budget-controlled BPVs.
     "license": "LGPL-3",
     "depends": [
         "de_hr_workspace",
+        "de_hr_workspace_attendance",
         "pr_hr_contract",
         "pr_account",
         "pr_hr",

@@ -1,5 +1,6 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.osv import expression
 from dateutil.relativedelta import relativedelta
 
 
@@ -412,21 +413,98 @@ class PrEmployeeServiceRequest(models.Model):
         search="_search_is_current_user_financial_approver",
     )
 
-    @api.depends("state", "employee_manager_user_id")
+    @api.model
+    def _get_user_primary_service_request_role(self, user=None):
+        """Determine a user's single primary approval role using strict cascading priority:
+        1. Managing Director (`md`): `pr_hr.group_hr_md`, `pr_custom_purchase.managing_director`,
+           `pr_hr_recruitment_request.group_onboarding_md`, or `base.group_system` -> `md`
+        2. Finance Manager (`finance`): `pr_account.custom_group_accounting_manager` -> `finance`
+        3. Accounts (`accounts`): `account.group_account_manager`, `account.group_account_user`,
+           `pr_account.custom_group_account_supervisor`, `account.group_account_invoice` (and NOT finance) -> `accounts`
+        4. HR Manager (`hr_manager`): `pr_hr.group_hr_manager` or `hr.group_hr_manager` -> `hr_manager`
+        5. HR Supervisor (`hr_supervisor`): `pr_hr.group_hr_supervisor` or
+           `pr_hr_recruitment_request.group_onboarding_supervisor` -> `hr_supervisor`
+        6. Employee Manager (`employee_manager`): User manages at least one employee or has pending
+           employee manager approvals -> `employee_manager`
+        7. None: No approval role.
+        """
+        if user is None:
+            user = self.env.user
+        elif isinstance(user, int):
+            user = self.env["res.users"].browse(user)
+
+        # 6. Direct Employee Manager
+        is_manager = (
+            self.env["hr.employee"].sudo().search_count([("parent_id.user_id", "=", user.id)]) > 0
+            or self.env["hr.employee"].sudo().search_count([("department_id.manager_id.user_id", "=", user.id)]) > 0
+            or self.env["pr.employee.service.request"].sudo().search_count([
+                ("state", "=", "employee_manager_approval"),
+                ("employee_manager_user_id", "=", user.id),
+            ]) > 0
+        )
+        if is_manager:
+            return "employee_manager"
+
+        # 5. HR Supervisor
+        if (
+            user.has_group("pr_hr.group_hr_supervisor")
+            or user.has_group("pr_hr_recruitment_request.group_onboarding_supervisor")
+        ):
+            return "hr_supervisor"
+
+        # 4. HR Manager
+        if user.has_group("pr_hr.group_hr_manager") or user.has_group("hr.group_hr_manager"):
+            return "hr_manager"
+
+        # 3. Accounts (excluding Finance Manager, guaranteed by cascade)
+        if (
+            user.has_group("account.group_account_manager")
+            or user.has_group("account.group_account_user")
+            or user.has_group("pr_account.custom_group_account_supervisor")
+            or user.has_group("account.group_account_invoice")
+        ):
+            return "accounts"
+
+        # 2. Finance Manager
+        if user.has_group("pr_account.custom_group_accounting_manager"):
+            return "finance"
+
+        # 1. Managing Director / System Administrator
+        if (
+            user.has_group("pr_hr.group_hr_md")
+            or user.has_group("pr_custom_purchase.managing_director")
+            or user.has_group("pr_hr_recruitment_request.group_onboarding_md")
+            or user.has_group("base.group_system")
+        ):
+            return "md"
+
+        return None
+
+    @api.depends("state", "employee_manager_user_id", "payment_responsibility")
     def _compute_is_current_user_service_request_approver(self):
         user = self.env.user
-
-        is_md = user.has_group("pr_hr.group_hr_md")
-        is_hr_manager = user.has_group("pr_hr.group_hr_manager")
-        is_hr_supervisor = user.has_group("pr_hr.group_hr_supervisor")
+        role = self._get_user_primary_service_request_role(user)
         for rec in self:
-            is_mgr = (rec.employee_manager_user_id == user)
-            rec.is_current_user_service_request_approver = (
-                (rec.state == "employee_manager_approval" and (is_mgr or is_hr_supervisor or is_hr_manager or is_md))
-                or (rec.state == "hr_supervisor_approval" and (is_hr_supervisor or is_hr_manager or is_md))
-                or (rec.state == "hr_manager_approval" and (is_hr_manager or is_md))
-                or (rec.state in ("accounts_approval", "finance_approval", "md_approval") and is_md)
-            )
+            if role == "md":
+                rec.is_current_user_service_request_approver = (rec.state == "md_approval")
+            elif role == "finance":
+                rec.is_current_user_service_request_approver = (
+                    rec.state == "finance_approval" and not rec._is_self_paid_request()
+                )
+            elif role == "accounts":
+                rec.is_current_user_service_request_approver = (
+                    rec.state == "accounts_approval" and not rec._is_self_paid_request()
+                )
+            elif role == "hr_manager":
+                rec.is_current_user_service_request_approver = (rec.state == "hr_manager_approval")
+            elif role == "hr_supervisor":
+                rec.is_current_user_service_request_approver = (rec.state == "hr_supervisor_approval")
+            elif role == "employee_manager":
+                rec.is_current_user_service_request_approver = (
+                    rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user
+                )
+            else:
+                rec.is_current_user_service_request_approver = False
 
     @api.model
     def _search_is_current_user_service_request_approver(self, operator, value):
@@ -436,63 +514,52 @@ class PrEmployeeServiceRequest(models.Model):
             )
 
         user = self.env.user
+        role = self._get_user_primary_service_request_role(user)
 
-        is_md = user.has_group("pr_hr.group_hr_md")
-        is_hr_manager = user.has_group("pr_hr.group_hr_manager")
-        is_hr_supervisor = user.has_group("pr_hr.group_hr_supervisor")
-        domains = []
-        if is_md:
-            domains.append([("state", "in", [
-                "employee_manager_approval",
-                "hr_supervisor_approval",
-                "hr_manager_approval",
-                "accounts_approval",
-                "finance_approval",
-                "md_approval",
-            ])])
-        if is_hr_manager:
-            domains.append([("state", "in", [
-                "employee_manager_approval",
-                "hr_supervisor_approval",
-                "hr_manager_approval",
-            ])])
-        if is_hr_supervisor:
-            domains.append([("state", "in", [
-                "employee_manager_approval",
-                "hr_supervisor_approval",
-            ])])
-        manager_domain = [
-                "&",
+        if role == "md":
+            approver_domain = [("state", "=", "md_approval")]
+        elif role == "finance":
+            approver_domain = [
+                ("state", "=", "finance_approval"),
+                ("payment_responsibility", "!=", "self"),
+            ]
+        elif role == "accounts":
+            approver_domain = [
+                ("state", "=", "accounts_approval"),
+                ("payment_responsibility", "!=", "self"),
+            ]
+        elif role == "hr_manager":
+            approver_domain = [("state", "=", "hr_manager_approval")]
+        elif role == "hr_supervisor":
+            approver_domain = [("state", "=", "hr_supervisor_approval")]
+        elif role == "employee_manager":
+            approver_domain = [
                 ("state", "=", "employee_manager_approval"),
                 ("employee_manager_user_id", "=", user.id),
             ]
+        else:
+            approver_domain = [("id", "=", 0)]
 
-        domains.append(manager_domain)
-        approver_domain = domains[0]
-        for d in domains[1:]:
-            approver_domain = ["|"] + approver_domain + d
         positive_search = (operator == "=" and bool(value)) or (
             operator == "!=" and not bool(value)
         )
-        return approver_domain if positive_search else ["!"] + approver_domain
+        return approver_domain if positive_search else expression.distribute_not([expression.NOT_OPERATOR] + expression.normalize_domain(approver_domain))
 
     @api.depends("state", "payment_responsibility")
     def _compute_is_current_user_financial_approver(self):
         user = self.env.user
-
-        is_accounts = (
-            user.has_group("account.group_account_manager")
-            and not user.has_group("pr_account.custom_group_accounting_manager")
-        )
-        is_finance = user.has_group("pr_account.custom_group_accounting_manager")
+        role = self._get_user_primary_service_request_role(user)
         for rec in self:
             is_self = rec._is_self_paid_request()
-            rec.is_current_user_financial_approver = (
-                not is_self and (
-                    (rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval") and is_accounts)
-                    or (rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval") and is_finance)
-                )
-            )
+            if not is_self:
+                if role == "accounts":
+                    rec.is_current_user_financial_approver = (rec.state == "accounts_approval")
+                elif role == "finance":
+                    rec.is_current_user_financial_approver = (rec.state == "finance_approval")
+                else:
+                    rec.is_current_user_financial_approver = False
+            else:
+                rec.is_current_user_financial_approver = False
 
     @api.model
     def _search_is_current_user_financial_approver(self, operator, value):
@@ -502,32 +569,25 @@ class PrEmployeeServiceRequest(models.Model):
             )
 
         user = self.env.user
+        role = self._get_user_primary_service_request_role(user)
 
-        is_accounts = (
-            user.has_group("account.group_account_manager")
-            and not user.has_group("pr_account.custom_group_accounting_manager")
-        )
-        is_finance = user.has_group("pr_account.custom_group_accounting_manager")
-        domains = []
-        if is_accounts:
-            domains.append([
-                ("state", "in", ["employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"]),
+        if role == "accounts":
+            approver_domain = [
+                ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
-            ])
-        if is_finance:
-            domains.append([
-                ("state", "in", ["employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"]),
+            ]
+        elif role == "finance":
+            approver_domain = [
+                ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
-            ])
-        if not domains:
-            domains.append([("id", "=", 0)])
-        approver_domain = domains[0]
-        for d in domains[1:]:
-            approver_domain = ["|"] + approver_domain + d
+            ]
+        else:
+            approver_domain = [("id", "=", 0)]
+
         positive_search = (operator == "=" and bool(value)) or (
             operator == "!=" and not bool(value)
         )
-        return approver_domain if positive_search else ["!"] + approver_domain
+        return approver_domain if positive_search else expression.distribute_not([expression.NOT_OPERATOR] + expression.normalize_domain(approver_domain))
 
     @api.model
     def _default_employee_id(self):
