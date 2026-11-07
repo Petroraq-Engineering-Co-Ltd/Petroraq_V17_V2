@@ -249,6 +249,32 @@ class TestApprovalDashboardFiltering(TransactionCase):
             cls.employee_a, "accounts_approval", payment_resp="self"
         )
 
+        # 14. Dedicated Multi-Role User: Direct Employee Manager + HR Supervisor
+        cls.user_mgr_and_hrsup = cls.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test User Manager & HR Supervisor",
+            "login": "test.user.mgrhrsup@example.com",
+            "email": "test.mgrhrsup@example.com",
+            "groups_id": [(6, 0, [
+                cls.group_internal_user.id,
+                cls.group_hr_supervisor.id,
+            ])],
+        })
+
+        cls.employee_mgr_hrsup_record = cls.env["hr.employee"].create({
+            "name": "Manager + HR Sup Record",
+            "user_id": cls.user_mgr_and_hrsup.id,
+            "identification_id": "TEST-IQAMA-MGRHRSUP01",
+        })
+
+        cls.employee_d = cls.env["hr.employee"].create({
+            "name": "Employee D (Managed by user_mgr_and_hrsup)",
+            "parent_id": cls.employee_mgr_hrsup_record.id,
+            "identification_id": "TEST-IQAMA-D01",
+        })
+
+        cls.req_mgr_hrsup = _create_service_request(cls.employee_d, "employee_manager_approval")
+        cls.req_own_mgr_hrsup = _create_service_request(cls.employee_mgr_hrsup_record, "employee_manager_approval")
+
     # =========================================================================
     # Sanity & Fixture Assertions
     # =========================================================================
@@ -447,48 +473,41 @@ class TestApprovalDashboardFiltering(TransactionCase):
     # Multi-Role, Admin, and Regular User Priority Tests
     # =========================================================================
     def test_multi_role_user_resolves_to_md(self):
-        """Test Multi-Role user (MD + HR Supervisor) strictly resolves to single primary role (MD)
-        and sees only md_approval records, seeing 0 records from lower stages."""
+        """Test Multi-Role user (MD + HR Supervisor) resolves primary role to MD,
+        while maintaining additive approver visibility across both MD and HR Supervisor stages."""
         role = self.env["pr.employee.service.request"]._get_user_primary_service_request_role(self.user_multi_role)
-        self.assertEqual(role, "md", "Multi-role user with MD and HR Supervisor groups must resolve to 'md'.")
+        self.assertEqual(role, "md", "Multi-role user with MD and HR Supervisor groups must resolve to 'md' as primary role.")
+
+        roles = self.env["pr.employee.service.request"]._get_user_service_request_roles(self.user_multi_role)
+        self.assertEqual(roles, {"md", "hr_supervisor"})
 
         results = self.env["pr.employee.service.request"].with_user(self.user_multi_role).search([
             ("is_current_user_service_request_approver", "=", True),
         ])
         self.assertIn(self.req_md, results, "Multi-role user must see md_approval records.")
-        self.assertNotIn(
-            self.req_sup,
-            results,
-            "Multi-role user must NOT see hr_supervisor_approval records despite possessing that group.",
-        )
+        self.assertIn(self.req_sup, results, "Multi-role user must see hr_supervisor_approval records.")
         self.assertNotIn(self.req_mgr, results, "Multi-role user must NOT see employee_manager_approval records.")
         self.assertNotIn(self.req_hr_mgr, results, "Multi-role user must NOT see hr_manager_approval records.")
         self.assertNotIn(self.req_accounts, results, "Multi-role user must NOT see accounts_approval records.")
         self.assertNotIn(self.req_finance, results, "Multi-role user must NOT see finance_approval records.")
         self.assertTrue(
-            all(rec.state == "md_approval" for rec in results),
-            "Multi-role user must see strictly and only records in md_approval state.",
+            all(rec.state in ("md_approval", "hr_supervisor_approval") for rec in results),
+            "Multi-role user must strictly see records in md_approval or hr_supervisor_approval states.",
         )
 
-    def test_admin_user_resolves_to_md(self):
-        """Test Admin user (base.group_system) strictly resolves to single primary role (MD)
-        and sees only md_approval records."""
+    def test_admin_user_without_functional_groups_has_no_approval_role(self):
+        """Test Admin user with base.group_system but no dedicated functional HR/MD groups
+        does not resolve to 'md' approval role and sees 0 approval records."""
         role = self.env["pr.employee.service.request"]._get_user_primary_service_request_role(self.user_admin)
-        self.assertEqual(role, "md", "System Administrator must resolve to 'md' as primary role.")
+        self.assertIsNone(role, "System Administrator without functional HR MD group must resolve to None.")
+
+        roles = self.env["pr.employee.service.request"]._get_user_service_request_roles(self.user_admin)
+        self.assertEqual(roles, set())
 
         results = self.env["pr.employee.service.request"].with_user(self.user_admin).search([
             ("is_current_user_service_request_approver", "=", True),
         ])
-        self.assertIn(self.req_md, results, "Admin must see md_approval records.")
-        self.assertNotIn(self.req_mgr, results, "Admin must NOT see employee_manager_approval records.")
-        self.assertNotIn(self.req_sup, results, "Admin must NOT see hr_supervisor_approval records.")
-        self.assertNotIn(self.req_hr_mgr, results, "Admin must NOT see hr_manager_approval records.")
-        self.assertNotIn(self.req_accounts, results, "Admin must NOT see accounts_approval records.")
-        self.assertNotIn(self.req_finance, results, "Admin must NOT see finance_approval records.")
-        self.assertTrue(
-            all(rec.state == "md_approval" for rec in results),
-            "Admin user must see strictly and only records in md_approval state.",
-        )
+        self.assertEqual(len(results), 0, "Admin without functional groups must see 0 approval records.")
 
     def test_regular_employee_sees_zero_approval_records(self):
         """Test Regular employee with no approval roles sees 0 approval records."""
@@ -528,11 +547,9 @@ class TestApprovalDashboardFiltering(TransactionCase):
             (self.user_hr_manager, "hr_manager_approval", self.req_hr_mgr),
             (self.user_hr_supervisor, "hr_supervisor_approval", self.req_sup),
             (self.user_employee_manager, "employee_manager_approval", self.req_mgr),
-            (self.user_multi_role, "md_approval", self.req_md),
-            (self.user_admin, "md_approval", self.req_md),
         ]
 
-        # Verify _service_request_pending_domain for each role
+        # Verify _service_request_pending_domain for each single-role user
         for user, expected_state, expected_record in role_users:
             domain = dashboard_service.with_user(user)._service_request_pending_domain()
             results = self.env["pr.employee.service.request"].with_user(user).search(domain)
@@ -546,14 +563,29 @@ class TestApprovalDashboardFiltering(TransactionCase):
                 f"All records for {user.name} must have state == '{expected_state}'.",
             )
 
-        # Verify regular employee gets empty domain
-        regular_domain = dashboard_service.with_user(self.user_regular)._service_request_pending_domain()
-        regular_results = self.env["pr.employee.service.request"].with_user(self.user_regular).search(regular_domain)
-        self.assertEqual(
-            len(regular_results),
-            0,
-            "Regular employee must receive 0 records from dashboard domain.",
-        )
+        # Verify multi-role user sees both MD and HR Supervisor pending records
+        domain_multi = dashboard_service.with_user(self.user_multi_role)._service_request_pending_domain()
+        results_multi = self.env["pr.employee.service.request"].with_user(self.user_multi_role).search(domain_multi)
+        self.assertIn(self.req_md, results_multi)
+        self.assertIn(self.req_sup, results_multi)
+
+        # Verify Employee Manager + HR Supervisor user sees both subordinate and company requests
+        domain_mgr_sup = dashboard_service.with_user(self.user_mgr_and_hrsup)._service_request_pending_domain()
+        results_mgr_sup = self.env["pr.employee.service.request"].with_user(self.user_mgr_and_hrsup).search(domain_mgr_sup)
+        self.assertIn(self.req_mgr_hrsup, results_mgr_sup)
+        self.assertIn(self.req_sup, results_mgr_sup)
+        self.assertNotIn(self.req_mgr_other, results_mgr_sup)
+        self.assertNotIn(self.req_own_mgr_hrsup, results_mgr_sup)  # Self-request excluded!
+
+        # Verify regular employee and admin without functional roles get empty domain
+        for u in (self.user_regular, self.user_admin):
+            u_domain = dashboard_service.with_user(u)._service_request_pending_domain()
+            u_results = self.env["pr.employee.service.request"].with_user(u).search(u_domain)
+            self.assertEqual(
+                len(u_results),
+                0,
+                f"User {u.name} without approval roles must receive 0 records from dashboard domain.",
+            )
 
         # Verify _override_domain_for_menu preserves specific action filter criteria
         menu = self.env.ref("pr_employee_service_requests.menu_pr_employee_manager_approvals", raise_if_not_found=False)
@@ -876,16 +908,22 @@ class TestApprovalDashboardFiltering(TransactionCase):
     # =========================================================================
     def test_multi_role_finance_and_accounts_resolves_to_finance(self):
         """Test user possessing BOTH Finance Manager and Accounts Manager groups
-        strictly resolves to single primary role 'finance' (Cascade Priority 2 > 3).
+        resolves primary role to 'finance' (Cascade Priority 2 > 3), while maintaining
+        additive approver search across both finance and accounts approval stages.
 
         Verifies:
         1. _get_user_primary_service_request_role evaluates to 'finance'.
-        2. Positive search sees finance_approval and NOT accounts_approval.
-        3. Negative search excludes finance_approval and includes accounts_approval.
-        4. Financial approver search behaves identically (seeing finance, excluding accounts).
+        2. _get_user_service_request_roles contains {'finance', 'accounts'}.
+        3. Positive search sees both finance_approval and accounts_approval.
+        4. Negative search excludes both finance_approval and accounts_approval.
+        5. Financial approver search behaves identically.
+        6. Mathematical complement holds.
         """
         role = self.env["pr.employee.service.request"]._get_user_primary_service_request_role(self.user_finance_and_accounts)
-        self.assertEqual(role, "finance", "User with Finance and Accounts groups must resolve to 'finance'.")
+        self.assertEqual(role, "finance", "User with Finance and Accounts groups must resolve to 'finance' as primary role.")
+
+        roles = self.env["pr.employee.service.request"]._get_user_service_request_roles(self.user_finance_and_accounts)
+        self.assertEqual(roles, {"finance", "accounts"})
 
         SR = self.env["pr.employee.service.request"].with_user(self.user_finance_and_accounts)
         universe = SR.search([])
@@ -894,9 +932,9 @@ class TestApprovalDashboardFiltering(TransactionCase):
         pos_sr = SR.search([("is_current_user_service_request_approver", "=", True)])
         neg_sr = SR.search([("is_current_user_service_request_approver", "=", False)])
         self.assertIn(self.req_finance, pos_sr, "Must see finance_approval in positive search.")
-        self.assertNotIn(self.req_accounts, pos_sr, "Must NOT see accounts_approval in positive search.")
+        self.assertIn(self.req_accounts, pos_sr, "Must see accounts_approval in positive search.")
         self.assertNotIn(self.req_finance, neg_sr, "Must NOT see finance_approval in negative search.")
-        self.assertIn(self.req_accounts, neg_sr, "Must see accounts_approval in negative search.")
+        self.assertNotIn(self.req_accounts, neg_sr, "Must NOT see accounts_approval in negative search.")
         self.assertEqual(pos_sr & neg_sr, self.env["pr.employee.service.request"])
         self.assertEqual(neg_sr, universe - pos_sr)
 
@@ -904,24 +942,29 @@ class TestApprovalDashboardFiltering(TransactionCase):
         pos_fin = SR.search([("is_current_user_financial_approver", "=", True)])
         neg_fin = SR.search([("is_current_user_financial_approver", "=", False)])
         self.assertIn(self.req_finance, pos_fin, "Must see finance_approval in positive financial search.")
-        self.assertNotIn(self.req_accounts, pos_fin, "Must NOT see accounts_approval in positive financial search.")
+        self.assertIn(self.req_accounts, pos_fin, "Must see accounts_approval in positive financial search.")
         self.assertNotIn(self.req_finance, neg_fin, "Must NOT see finance_approval in negative financial search.")
-        self.assertIn(self.req_accounts, neg_fin, "Must see accounts_approval in negative financial search.")
+        self.assertNotIn(self.req_accounts, neg_fin, "Must NOT see accounts_approval in negative financial search.")
         self.assertEqual(pos_fin & neg_fin, self.env["pr.employee.service.request"])
         self.assertEqual(neg_fin, universe - pos_fin)
 
     def test_multi_role_hr_manager_and_supervisor_resolves_to_hr_manager(self):
         """Test user possessing BOTH HR Manager and HR Supervisor groups
-        strictly resolves to single primary role 'hr_manager' (Cascade Priority 4 > 5).
+        resolves primary role to 'hr_manager' (Cascade Priority 4 > 5), while maintaining
+        additive approver search across both HR Manager and HR Supervisor approval stages.
 
         Verifies:
         1. _get_user_primary_service_request_role evaluates to 'hr_manager'.
-        2. Positive search sees hr_manager_approval and NOT hr_supervisor_approval.
-        3. Negative search excludes hr_manager_approval and includes hr_supervisor_approval.
-        4. Mathematical complement holds.
+        2. _get_user_service_request_roles contains {'hr_manager', 'hr_supervisor'}.
+        3. Positive search sees both hr_manager_approval and hr_supervisor_approval.
+        4. Negative search excludes both stages.
+        5. Mathematical complement holds.
         """
         role = self.env["pr.employee.service.request"]._get_user_primary_service_request_role(self.user_hrm_and_hrsup)
         self.assertEqual(role, "hr_manager", "User with HR Manager and HR Supervisor groups must resolve to 'hr_manager'.")
+
+        roles = self.env["pr.employee.service.request"]._get_user_service_request_roles(self.user_hrm_and_hrsup)
+        self.assertEqual(roles, {"hr_manager", "hr_supervisor"})
 
         SR = self.env["pr.employee.service.request"].with_user(self.user_hrm_and_hrsup)
         universe = SR.search([])
@@ -929,17 +972,17 @@ class TestApprovalDashboardFiltering(TransactionCase):
         pos_sr = SR.search([("is_current_user_service_request_approver", "=", True)])
         neg_sr = SR.search([("is_current_user_service_request_approver", "=", False)])
         self.assertIn(self.req_hr_mgr, pos_sr, "Must see hr_manager_approval in positive search.")
-        self.assertNotIn(self.req_sup, pos_sr, "Must NOT see hr_supervisor_approval in positive search.")
+        self.assertIn(self.req_sup, pos_sr, "Must see hr_supervisor_approval in positive search.")
         self.assertNotIn(self.req_hr_mgr, neg_sr, "Must NOT see hr_manager_approval in negative search.")
-        self.assertIn(self.req_sup, neg_sr, "Must see hr_supervisor_approval in negative search.")
+        self.assertNotIn(self.req_sup, neg_sr, "Must NOT see hr_supervisor_approval in negative search.")
         self.assertEqual(pos_sr & neg_sr, self.env["pr.employee.service.request"])
         self.assertEqual(neg_sr, universe - pos_sr)
 
-        # Financial approver search (HR Manager has no financial approver role)
+        # Financial approver search (HR roles have no financial approver role)
         pos_fin = SR.search([("is_current_user_financial_approver", "=", True)])
         neg_fin = SR.search([("is_current_user_financial_approver", "=", False)])
-        self.assertEqual(len(pos_fin), 0, "HR Manager is not financial approver, pos search must be 0.")
-        self.assertEqual(neg_fin, universe, "HR Manager financial neg search must be full universe.")
+        self.assertEqual(len(pos_fin), 0, "HR Manager/Supervisor is not financial approver, pos search must be 0.")
+        self.assertEqual(neg_fin, universe, "HR Manager/Supervisor financial neg search must be full universe.")
         self.assertEqual(pos_fin & neg_fin, self.env["pr.employee.service.request"])
 
     def test_3_role_cascade_manager_supervisor_finance_resolves_to_finance(self):
@@ -947,19 +990,22 @@ class TestApprovalDashboardFiltering(TransactionCase):
         - Direct Employee Manager (cls.employee_c)
         - HR Supervisor (pr_hr.group_hr_supervisor)
         - Finance Manager (pr_account.custom_group_accounting_manager)
-        Strictly resolves to single primary role 'finance' (Cascade Priority: Finance(2) > HR Sup(5) > Emp Mgr(6)).
 
         Verifies:
         1. _get_user_primary_service_request_role evaluates to 'finance'.
-        2. Positive search sees finance_approval only, and NOT hr_supervisor_approval or employee_manager_approval.
-        3. Negative search excludes finance_approval and includes hr_supervisor_approval and manager requests.
-        4. Mathematical complement holds.
+        2. _get_user_service_request_roles contains all 3 roles.
+        3. Positive search sees finance_approval, hr_supervisor_approval, and manager approvals.
+        4. Negative search excludes all three.
+        5. Mathematical complement holds.
         """
         role = self.env["pr.employee.service.request"]._get_user_primary_service_request_role(self.user_3role_cascade)
         self.assertEqual(
             role, "finance",
             "3-Role user (Manager + HR Sup + Finance) must resolve to 'finance' by cascade priority."
         )
+
+        roles = self.env["pr.employee.service.request"]._get_user_service_request_roles(self.user_3role_cascade)
+        self.assertEqual(roles, {"finance", "hr_supervisor", "employee_manager"})
 
         SR = self.env["pr.employee.service.request"].with_user(self.user_3role_cascade)
         universe = SR.search([])
@@ -971,17 +1017,96 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertIn(self.req_finance, pos_sr, "Must see finance_approval in positive search.")
         self.assertNotIn(self.req_finance, neg_sr, "Must NOT see finance_approval in negative search.")
 
-        # Must NOT see HR Supervisor
-        self.assertNotIn(self.req_sup, pos_sr, "Must NOT see hr_supervisor_approval in positive search.")
-        self.assertIn(self.req_sup, neg_sr, "Must see hr_supervisor_approval in negative search.")
+        # Must see HR Supervisor
+        self.assertIn(self.req_sup, pos_sr, "Must see hr_supervisor_approval in positive search.")
+        self.assertNotIn(self.req_sup, neg_sr, "Must NOT see hr_supervisor_approval in negative search.")
 
-        # Must NOT see Employee Manager request for direct subordinate (req_mgr_3role)
-        self.assertNotIn(self.req_mgr_3role, pos_sr, "Must NOT see employee_manager_approval in positive search.")
-        self.assertIn(self.req_mgr_3role, neg_sr, "Must see employee_manager_approval in negative search.")
+        # Must see Employee Manager request for direct subordinate (req_mgr_3role)
+        self.assertIn(self.req_mgr_3role, pos_sr, "Must see employee_manager_approval in positive search.")
+        self.assertNotIn(self.req_mgr_3role, neg_sr, "Must NOT see employee_manager_approval in negative search.")
 
         # Mathematical complement
         self.assertEqual(pos_sr & neg_sr, self.env["pr.employee.service.request"])
         self.assertEqual(neg_sr, universe - pos_sr)
+
+        # Financial approver search
+        pos_fin = SR.search([("is_current_user_financial_approver", "=", True)])
+        neg_fin = SR.search([("is_current_user_financial_approver", "=", False)])
+        self.assertIn(self.req_finance, pos_fin, "Must see finance_approval in positive financial search.")
+        self.assertNotIn(self.req_finance, neg_fin, "Must NOT see finance_approval in negative financial search.")
+        self.assertNotIn(self.req_accounts, pos_fin, "Must NOT see accounts_approval in positive financial search.")
+        self.assertIn(self.req_accounts, neg_fin, "Must see accounts_approval in negative financial search.")
+        self.assertNotIn(self.req_finance_self, pos_fin, "Must NOT see self-paid finance in positive financial search.")
+        self.assertIn(self.req_finance_self, neg_fin, "Must see self-paid finance in negative financial search.")
+        self.assertEqual(pos_fin & neg_fin, self.env["pr.employee.service.request"])
+        self.assertEqual(neg_fin, universe - pos_fin)
+
+    def test_multi_role_employee_manager_and_hr_supervisor(self):
+        """Test a user who is BOTH a Direct Employee Manager and holds HR Supervisor rights.
+
+        Verifies:
+        1. Role set correctly identifies {'employee_manager', 'hr_supervisor'}.
+        2. Approver compute and search includes subordinate's request (employee_manager_approval)
+           AND general company request (hr_supervisor_approval).
+        3. Does NOT include requests for other managers' subordinates.
+        4. Excludes the user's OWN submitted request (self-approval prevention).
+        5. Action methods block self-approval with UserError.
+        6. Sequential approval workflow: manager approves subordinate request, advancing to
+           hr_supervisor_approval, and then approves as HR supervisor, advancing to hr_manager_approval.
+        """
+        user = self.user_mgr_and_hrsup
+        SR = self.env["pr.employee.service.request"].with_user(user)
+
+        # 1. Role sets
+        roles = SR._get_user_service_request_roles(user)
+        self.assertEqual(roles, {"employee_manager", "hr_supervisor"})
+
+        # Primary role resolves to hr_supervisor (Priority 5 > 6)
+        primary_role = SR._get_user_primary_service_request_role(user)
+        self.assertEqual(primary_role, "hr_supervisor")
+
+        # 2. Approver search visibility
+        pos_results = SR.search([("is_current_user_service_request_approver", "=", True)])
+        neg_results = SR.search([("is_current_user_service_request_approver", "=", False)])
+        universe = SR.search([])
+
+        # Subordinate request in manager approval must be visible
+        self.assertIn(self.req_mgr_hrsup, pos_results, "Manager + HR Sup must see direct subordinate request.")
+        self.assertNotIn(self.req_mgr_hrsup, neg_results)
+
+        # Company request in HR Supervisor approval must be visible
+        self.assertIn(self.req_sup, pos_results, "Manager + HR Sup must see hr_supervisor_approval request.")
+        self.assertNotIn(self.req_sup, neg_results)
+
+        # Other manager's subordinate must NOT be visible
+        self.assertNotIn(self.req_mgr_other, pos_results, "Must NOT see other managers' subordinates.")
+        self.assertIn(self.req_mgr_other, neg_results)
+
+        # Own request must NOT be visible as approver (self-approval prevention)
+        self.assertNotIn(self.req_own_mgr_hrsup, pos_results, "Own request must NOT appear in pending approvals.")
+        self.assertIn(self.req_own_mgr_hrsup, neg_results)
+
+        # Mathematical complement
+        self.assertEqual(pos_results & neg_results, self.env["pr.employee.service.request"])
+        self.assertEqual(neg_results, universe - pos_results)
+
+        # 3. Self-approval prevention on action methods
+        with self.assertRaises(UserError):
+            self.req_own_mgr_hrsup.with_user(user).action_employee_manager_approve()
+
+        # 4. Sequential approval on subordinate's request
+        sub_req = self.req_mgr_hrsup.with_user(user)
+        self.assertEqual(sub_req.state, "employee_manager_approval")
+
+        # Step 1: Approve as Employee Manager -> state becomes hr_supervisor_approval
+        sub_req.action_employee_manager_approve()
+        self.assertEqual(sub_req.state, "hr_supervisor_approval")
+        self.assertEqual(sub_req.employee_manager_approved_by_id, user)
+
+        # Step 2: Approve as HR Supervisor -> state becomes hr_manager_approval
+        sub_req.action_hr_supervisor_approve()
+        self.assertEqual(sub_req.state, "hr_manager_approval")
+        self.assertEqual(sub_req.hr_supervisor_approved_by_id, user)
 
         # Financial approver search
         pos_fin = SR.search([("is_current_user_financial_approver", "=", True)])
