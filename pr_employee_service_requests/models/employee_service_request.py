@@ -496,22 +496,11 @@ class PrEmployeeServiceRequest(models.Model):
                 return candidate
         return None
 
-    @api.depends(
-        "state",
-        "employee_manager_user_id",
-        "payment_responsibility",
-        "employee_id.user_id",
-        "requested_by_id",
-    )
+    @api.depends("state", "employee_manager_user_id", "payment_responsibility")
     def _compute_is_current_user_service_request_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
         for rec in self:
-            is_self = (rec.requested_by_id == user or rec.employee_id.user_id == user)
-            if is_self:
-                rec.is_current_user_service_request_approver = False
-                continue
-
             is_approver = False
             if "md" in roles and rec.state == "md_approval":
                 is_approver = True
@@ -570,32 +559,16 @@ class PrEmployeeServiceRequest(models.Model):
         else:
             approver_domain = [("id", "=", 0)]
 
-        # Prevent self-approval in approver search:
-        approver_domain = expression.AND([
-            approver_domain,
-            [
-                ("requested_by_id", "!=", user.id),
-                "|",
-                ("employee_id", "=", False),
-                ("employee_id.user_id", "!=", user.id),
-            ],
-        ])
-
         positive_search = (operator == "=" and bool(value)) or (
             operator == "!=" and not bool(value)
         )
         return approver_domain if positive_search else expression.distribute_not([expression.NOT_OPERATOR] + expression.normalize_domain(approver_domain))
 
-    @api.depends("state", "payment_responsibility", "employee_id.user_id", "requested_by_id")
+    @api.depends("state", "payment_responsibility")
     def _compute_is_current_user_financial_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
         for rec in self:
-            is_self = (rec.requested_by_id == user or rec.employee_id.user_id == user)
-            if is_self:
-                rec.is_current_user_financial_approver = False
-                continue
-
             if not rec._is_self_paid_request():
                 is_fin_approver = False
                 if "accounts" in roles and rec.state == "accounts_approval":
@@ -632,17 +605,6 @@ class PrEmployeeServiceRequest(models.Model):
             approver_domain = expression.OR(domain_list)
         else:
             approver_domain = [("id", "=", 0)]
-
-        # Prevent self-approval in financial approver search:
-        approver_domain = expression.AND([
-            approver_domain,
-            [
-                ("requested_by_id", "!=", user.id),
-                "|",
-                ("employee_id", "=", False),
-                ("employee_id.user_id", "!=", user.id),
-            ],
-        ])
 
         positive_search = (operator == "=" and bool(value)) or (
             operator == "!=" and not bool(value)
@@ -746,15 +708,11 @@ class PrEmployeeServiceRequest(models.Model):
             rec.exit_reentry_company_eligible = eligible
             rec.exit_reentry_eligibility_message = message
 
-    @api.depends("employee_manager_user_id", "employee_id.user_id", "requested_by_id")
+    @api.depends("employee_manager_user_id")
     def _compute_is_employee_manager(self):
         user = self.env.user
         for rec in self:
-            is_self = (rec.requested_by_id == user or rec.employee_id.user_id == user)
-            if is_self:
-                rec.is_employee_manager = False
-            else:
-                rec.is_employee_manager = (rec.employee_manager_user_id == user)
+            rec.is_employee_manager = (rec.employee_manager_user_id == user)
 
     @api.depends("state", "employee_manager_user_id", "payment_responsibility")
     def _compute_can_reject(self):
@@ -833,9 +791,6 @@ class PrEmployeeServiceRequest(models.Model):
     def _check_approval_permission(self, role):
         self.ensure_one()
         user = self.env.user
-        # Prevent self-approval (an approver cannot approve their own service request)
-        if self.requested_by_id == user or self.employee_id.user_id == user:
-            raise UserError(_("You cannot approve your own service request."))
         if role == "employee_manager":
             return self.employee_manager_user_id == user
         if role == "hr_supervisor":
