@@ -9,34 +9,49 @@ class HrApprovalDashboardService(models.AbstractModel):
 
     @api.model
     def _service_request_pending_domain(self, menu=None, action=None, domain=None):
-        """Construct the strict single primary role approval domain for pr.employee.service.request,
-        preserving any specific category/request-type criteria from the action domain."""
+        """Construct the combined approval domain for pr.employee.service.request across
+        all roles the user holds, preserving any specific category/request-type criteria from the action domain."""
         user = self.env.user
-        role = self.env["pr.employee.service.request"]._get_user_primary_service_request_role(user)
+        roles = self.env["pr.employee.service.request"]._get_user_service_request_roles(user)
 
-        if role == "md":
-            state_domain = [("state", "=", "md_approval")]
-        elif role == "finance":
-            state_domain = [
+        domain_list = []
+        if "md" in roles:
+            domain_list.append([("state", "=", "md_approval")])
+        if "finance" in roles:
+            domain_list.append([
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
-            ]
-        elif role == "accounts":
-            state_domain = [
+            ])
+        if "accounts" in roles:
+            domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
-            ]
-        elif role == "hr_manager":
-            state_domain = [("state", "=", "hr_manager_approval")]
-        elif role == "hr_supervisor":
-            state_domain = [("state", "=", "hr_supervisor_approval")]
-        elif role == "employee_manager":
-            state_domain = [
+            ])
+        if "hr_manager" in roles:
+            domain_list.append([("state", "=", "hr_manager_approval")])
+        if "hr_supervisor" in roles:
+            domain_list.append([("state", "=", "hr_supervisor_approval")])
+        if "employee_manager" in roles:
+            domain_list.append([
                 ("state", "=", "employee_manager_approval"),
                 ("employee_manager_user_id", "=", user.id),
-            ]
-        else:
+            ])
+
+        if not domain_list:
             return [("id", "=", 0)]
+
+        state_domain = expression.OR(domain_list)
+
+        # Exclude self-requests from pending approval dashboard
+        state_domain = expression.AND([
+            state_domain,
+            [
+                ("requested_by_id", "!=", user.id),
+                "|",
+                ("employee_id", "=", False),
+                ("employee_id.user_id", "!=", user.id),
+            ],
+        ])
 
         parsed_domain = domain
         if isinstance(parsed_domain, str):
