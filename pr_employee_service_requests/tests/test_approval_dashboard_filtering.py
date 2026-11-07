@@ -575,7 +575,7 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertIn(self.req_mgr_hrsup, results_mgr_sup)
         self.assertIn(self.req_sup, results_mgr_sup)
         self.assertNotIn(self.req_mgr_other, results_mgr_sup)
-        self.assertNotIn(self.req_own_mgr_hrsup, results_mgr_sup)  # Self-request excluded!
+        self.assertNotIn(self.req_own_mgr_hrsup, results_mgr_sup)  # Not assigned to user as manager
 
         # Verify regular employee and admin without functional roles get empty domain
         for u in (self.user_regular, self.user_admin):
@@ -1082,17 +1082,15 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertNotIn(self.req_mgr_other, pos_results, "Must NOT see other managers' subordinates.")
         self.assertIn(self.req_mgr_other, neg_results)
 
-        # Own request must NOT be visible as approver (self-approval prevention)
-        self.assertNotIn(self.req_own_mgr_hrsup, pos_results, "Own request must NOT appear in pending approvals.")
-        self.assertIn(self.req_own_mgr_hrsup, neg_results)
+        # Own request in HR Supervisor stage is visible and approvable by the user
+        self.req_own_mgr_hrsup.write({"state": "hr_supervisor_approval"})
+        pos_after = SR.search([("is_current_user_service_request_approver", "=", True)])
+        self.assertIn(self.req_own_mgr_hrsup, pos_after, "Own request in HR Supervisor stage must be visible to HR Supervisor.")
 
-        # Mathematical complement
-        self.assertEqual(pos_results & neg_results, self.env["pr.employee.service.request"])
-        self.assertEqual(neg_results, universe - pos_results)
-
-        # 3. Self-approval prevention on action methods
-        with self.assertRaises(UserError):
-            self.req_own_mgr_hrsup.with_user(user).action_employee_manager_approve()
+        # Self-approval on own request at HR Supervisor stage succeeds
+        self.req_own_mgr_hrsup.with_user(user).action_hr_supervisor_approve()
+        self.assertEqual(self.req_own_mgr_hrsup.state, "hr_manager_approval")
+        self.assertEqual(self.req_own_mgr_hrsup.hr_supervisor_approved_by_id, user)
 
         # 4. Sequential approval on subordinate's request
         sub_req = self.req_mgr_hrsup.with_user(user)

@@ -42,17 +42,6 @@ class HrApprovalDashboardService(models.AbstractModel):
 
         state_domain = expression.OR(domain_list)
 
-        # Exclude self-requests from pending approval dashboard
-        state_domain = expression.AND([
-            state_domain,
-            [
-                ("requested_by_id", "!=", user.id),
-                "|",
-                ("employee_id", "=", False),
-                ("employee_id.user_id", "!=", user.id),
-            ],
-        ])
-
         parsed_domain = domain
         if isinstance(parsed_domain, str):
             try:
