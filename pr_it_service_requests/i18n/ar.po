@@ -197,7 +197,7 @@ msgid "Attachment Count"
 msgstr "عدد المرفقات"
 
 #. module: pr_it_service_requests
-#: model_terms:ir.ui.view,arch_db:pr_it_it_service_request_form
+#: model_terms:ir.ui.view,arch_db:pr_it_service_requests.view_pr_it_service_request_form
 msgid "Attachments"
 msgstr "المرفقات"
 
@@ -258,7 +258,7 @@ msgid "Create your first IT service request."
 msgstr "أنشئ أول طلب خدمة تقنية معلومات لك."
 
 #. module: pr_it_service_requests
-#: model:ir.model.fields,field_description:pr_it_it_request_type__create_uid
+#: model:ir.model.fields,field_description:pr_it_service_requests.field_pr_it_request_type__create_uid
 #: model:ir.model.fields,field_description:pr_it_request_type_approver__create_uid
 #: model:ir.model.fields,field_description:pr_it_service_request__create_uid
 #: model:ir.model.fields,field_description:pr_it_service_request_approver__create_uid
@@ -924,6 +924,13 @@ msgstr "إنشاء مستخدم للنظام"
 #: model:ir.model.constraint,message:pr_it_service_requests.constraint_pr_it_request_type_it_request_type_code_unique
 msgid "The IT request type code must be unique."
 msgstr "يجب أن يكون رمز نوع طلب تقنية المعلومات فريدًا."
+
+#. module: pr_it_service_requests
+#. odoo-python
+#: code:addons/pr_it_service_requests/models/it_request_type.py:0
+#, python-format
+msgid "The IT request type code cannot be empty."
+msgstr "لا يمكن أن يكون رمز نوع طلب تقنية المعلومات فارغًا."
 
 #. module: pr_it_service_requests
 #. odoo-python
