@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_pr_employee_service_request_tree" model="ir.ui.view">
         <field name="name">pr.employee.service.request.tree</field>
@@ -703,9 +703,7 @@
         <field name="res_model">pr.employee.service.request</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
-        <field name="domain">[('request_type', '=', 'reimbursement'), ('reimbursement_type', '=', 'ticket'), ('state',
-            'in', ['hr_supervisor_approval', 'hr_manager_approval'])]
-        </field>
+        <field name="domain">[('request_type', '=', 'reimbursement'), ('is_current_user_service_request_approver', '=', True)]</field>
         <field name="context">{'default_request_type': 'reimbursement'}</field>
     </record>
 
@@ -955,10 +953,10 @@
 
     <menuitem id="menu_pr_employee_reimbursement_hr_approvals"
               name="Reimbursement Requests"
-              parent="de_hr_workspace.hr_approvals_menu_root"
+              parent="de_hr_workspace.menu_my_employee_approvals"
               action="action_pr_employee_reimbursement_hr_approvals"
               sequence="20"
-              groups="pr_hr.group_hr_supervisor,pr_hr.group_hr_manager,hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals,pr_hr_recruitment_request.group_onboarding_supervisor,pr_hr_recruitment_request.group_onboarding_manager"/>
+              groups="pr_hr.group_hr_supervisor,pr_hr.group_hr_manager,pr_hr.group_hr_md,pr_custom_purchase.managing_director,account.group_account_manager,account.group_account_user,pr_account.custom_group_accounting_manager,pr_account.custom_group_account_supervisor,de_hr_workspace.group_hr_employee_approvals,base.group_system"/>
 
     <menuitem id="menu_pr_employee_exit_reentry_hr_approvals"
               name="Exit/Re-entry Requests"
