@@ -1882,7 +1882,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_issue(self):
         for rec in self:
-            if rec.state != "paid" or rec.request_type not in ("exit_reentry","dependent_fee",) + HR_COMPLIANCE_REQUEST_TYPES:
+            if rec.state != "paid" or rec.request_type not in ("exit_reentry",) + HR_COMPLIANCE_REQUEST_TYPES:
                 raise UserError(_("Only paid employee service requests can be issued."))
             if not rec._check_approval_permission("hr_or_manager"):
                 raise AccessError(_("Only HR can issue paid employee service requests."))

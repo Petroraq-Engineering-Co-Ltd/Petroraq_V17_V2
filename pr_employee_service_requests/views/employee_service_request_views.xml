@@ -133,7 +133,7 @@
                     <button name="action_issue" type="object" string="Issue"
                             class="btn-primary"
                             groups="pr_hr.group_hr_supervisor,pr_hr.group_hr_manager"
-                            invisible="state != 'paid' or request_type == 'reimbursement'"/>
+                            invisible="state != 'paid' or request_type not in ('exit_reentry', 'iqama_new', 'iqama_renewal', 'medical_insurance_new', 'medical_insurance_renewal')"/>
                     <button name="action_reject" type="object" string="Reject"
                             class="btn-secondary" invisible="not can_reject"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft"

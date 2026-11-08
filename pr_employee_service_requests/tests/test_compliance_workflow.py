@@ -332,6 +332,29 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         with self.assertRaises(UserError):
             request.action_create_payment_request()
 
+    def test_dependent_fee_cannot_be_issued(self):
+        relation = self.env["hr.employee.dependent.relation"].create({
+            "name": "Dependent Fee Issue Test Child",
+        })
+        request = self._create_request(
+            "dependent_fee",
+            dependent_relation_id=relation.id,
+            requested_amount=500.0,
+            payment_responsibility="company",
+        )
+        request.state = "paid"
+        with self.assertRaisesRegex(UserError, "Only paid employee service requests can be issued"):
+            request.action_issue()
+
+    def test_reimbursement_cannot_be_issued(self):
+        request = self._create_request(
+            "reimbursement",
+            requested_amount=100.0,
+        )
+        request.state = "paid"
+        with self.assertRaisesRegex(UserError, "Only paid employee service requests can be issued"):
+            request.action_issue()
+
     def test_company_exit_reentry_without_current_contract_switches_to_self(self):
         country = self._get_destination_country()
         request = self._create_request(
