@@ -17,6 +17,7 @@ class ApprovalDashboard extends Component {
         this.state = useState({
             sections: [],
             selectedSectionKey: this.getStoredSectionKey(),
+            selectedTileKey: "",
             loading: true,
             userName: session.user_name || session.name || session.username || "",
         });
@@ -35,11 +36,19 @@ class ApprovalDashboard extends Component {
             !sections.some(
                 (section) =>
                     section.key === this.state.selectedSectionKey &&
-                    (section.tiles || []).length > 1
+                    ((section.tiles || []).length > 1 ||
+                        (section.tiles || []).some((t) => (t.sub_tiles || []).length > 0))
             )
         ) {
             this.state.selectedSectionKey = "";
+            this.state.selectedTileKey = "";
             this.storeSectionKey("");
+        }
+        if (
+            this.state.selectedTileKey &&
+            !this.allTiles.some((tile) => tile.key === this.state.selectedTileKey)
+        ) {
+            this.state.selectedTileKey = "";
         }
         this.state.loading = false;
     }
@@ -47,21 +56,22 @@ class ApprovalDashboard extends Component {
     openSection(ev) {
         const sectionKey = ev.currentTarget.dataset.sectionKey || "";
         const section = this.state.sections.find((item) => item.key === sectionKey);
-        // A section holding a single approval menu is shown as that menu
+        // A section holding a single approval menu without sub-tiles is shown as that menu
         // itself, so clicking it must open the list straight away instead
         // of drilling into a page with one card on it.
         const tiles = section && section.tiles ? section.tiles : [];
-        if (tiles.length === 1) {
+        if (tiles.length === 1 && (!tiles[0].sub_tiles || !tiles[0].sub_tiles.length)) {
             this.openTileRecord(tiles[0]);
             return;
         }
         this.state.selectedSectionKey = sectionKey;
+        this.state.selectedTileKey = "";
         this.storeSectionKey(sectionKey);
     }
 
     sectionDisplay(section) {
         const tiles = section.tiles || [];
-        if (tiles.length === 1) {
+        if (tiles.length === 1 && (!tiles[0].sub_tiles || !tiles[0].sub_tiles.length)) {
             const tile = tiles[0];
             return {
                 name: tile.name,
@@ -82,7 +92,12 @@ class ApprovalDashboard extends Component {
         };
     }
 
+    backToTiles() {
+        this.state.selectedTileKey = "";
+    }
+
     backToSections() {
+        this.state.selectedTileKey = "";
         this.state.selectedSectionKey = "";
         this.storeSectionKey("");
     }
@@ -109,7 +124,12 @@ class ApprovalDashboard extends Component {
 
     openTile(ev) {
         const key = ev.currentTarget.dataset.tileKey || "";
-        this.openTileRecord(this.allTiles.find((item) => item.key === key));
+        const tile = this.allTiles.find((item) => item.key === key);
+        if (tile && tile.sub_tiles && tile.sub_tiles.length > 0) {
+            this.state.selectedTileKey = key;
+            return;
+        }
+        this.openTileRecord(tile);
     }
 
     openTileRecord(tile) {
@@ -165,8 +185,21 @@ class ApprovalDashboard extends Component {
         return this.selectedSection ? this.selectedSection.tiles || [] : [];
     }
 
+    get selectedTile() {
+        if (!this.state.selectedTileKey) {
+            return null;
+        }
+        return this.allTiles.find((tile) => tile.key === this.state.selectedTileKey) || null;
+    }
+
+    get selectedSubTiles() {
+        return this.selectedTile ? this.selectedTile.sub_tiles || [] : [];
+    }
+
     get allTiles() {
-        return this.state.sections.flatMap((section) => section.tiles || []);
+        const tiles = this.state.sections.flatMap((section) => section.tiles || []);
+        const subTiles = tiles.flatMap((tile) => tile.sub_tiles || []);
+        return [...tiles, ...subTiles];
     }
 
     get totalPendingCount() {

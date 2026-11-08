@@ -181,13 +181,13 @@ class PrEmployeeServiceRequest(models.Model):
     state = fields.Selection(
         [
             ("draft", "Draft"),
-            ("employee_manager_approval", "Employment Manager"),
+            ("employee_manager_approval", "Dept. Manager"),
             ("hr_supervisor_approval", "HR Supervisor"),
             ("hr_manager_approval", "HR Manager"),
             ("accounts_approval", "Accounts"),
             ("finance_approval", "Finance"),
             ("md_approval", "Managing Director"),
-            ("payment_approval", "Finance Voucher Approval"),
+            ("payment_approval", "Voucher Created"),
             ("paid", "Paid"),
             ("issued", "Issued"),
             ("rejected", "Rejected"),
