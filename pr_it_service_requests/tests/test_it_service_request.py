@@ -1,7 +1,11 @@
-from odoo.exceptions import AccessError, ValidationError
-from odoo.tests.common import TransactionCase
+from datetime import timedelta
+
+from odoo import fields
+from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tests.common import TransactionCase, tagged
 
 
+@tagged("post_install", "-at_install")
 class TestItServiceRequest(TransactionCase):
     @classmethod
     def setUpClass(cls):
@@ -167,3 +171,152 @@ class TestItServiceRequest(TransactionCase):
         self.assertEqual(request.current_approver_ids, self.manager)
         request.with_user(self.manager).action_approve()
         self.assertEqual(request.state, "approved")
+
+    def test_rejection_via_wizard(self):
+        """Test rejection flow through the dedicated wizard model."""
+        request = self._request()
+        request.with_user(self.requester).action_submit()
+
+        # Approver opens wizard
+        action = request.with_user(self.approver_one).action_open_reject_wizard()
+        self.assertEqual(action.get("res_model"), "pr.it.service.request.reject.wizard")
+
+        # Test empty reason validation
+        wizard = self.env["pr.it.service.request.reject.wizard"].with_user(self.approver_one).create({
+            "request_id": request.id,
+            "reason": "   ",
+        })
+        with self.assertRaises(ValidationError):
+            wizard.action_reject()
+
+        # Reject with valid reason
+        wizard.write({"reason": "Invalid business justification."})
+        wizard.action_reject()
+        self.assertEqual(request.state, "rejected")
+        self.assertEqual(request.rejection_reason, "Invalid business justification.")
+        self.assertEqual(request.rejected_by_id, self.approver_one)
+
+    def test_cancellation_workflow(self):
+        """Verify cancellation by requester and manager, and rejection of unauthorized cancellations."""
+        request = self._request()
+
+        # Unauthorized user cannot cancel
+        with self.assertRaises(AccessError):
+            request.with_user(self.approver_one).action_cancel()
+
+        # Requester can cancel in draft
+        request.with_user(self.requester).action_cancel()
+        self.assertEqual(request.state, "cancelled")
+
+        # Reset and submit, then manager can cancel
+        request.with_user(self.requester).action_reset_to_draft()
+        request.with_user(self.requester).action_submit()
+        self.assertEqual(request.state, "pending")
+
+        request.with_user(self.manager).action_cancel()
+        self.assertEqual(request.state, "cancelled")
+
+        # Approved request cannot be cancelled
+        request.with_user(self.requester).action_reset_to_draft()
+        request.with_user(self.requester).action_submit()
+        request.with_user(self.approver_one).action_approve()
+        request.with_user(self.approver_two).action_approve()
+        self.assertEqual(request.state, "approved")
+        with self.assertRaises(AccessError):
+            request.with_user(self.requester).action_cancel()
+
+    def test_security_impersonation_prevention(self):
+        """Verify non-managers cannot create requests on behalf of other users."""
+        with self.assertRaises(AccessError):
+            self.env["pr.it.service.request"].with_user(self.requester).create({
+                "title": "Unauthorized impersonation",
+                "request_type_id": self.request_type.id,
+                "requested_by_id": self.approver_one.id,
+                "employee_id": self.employee.id,
+                "description": "Attempt to create as someone else",
+            })
+
+        # IT Manager can create on behalf of other users
+        manager_req = self.env["pr.it.service.request"].with_user(self.manager).create({
+            "title": "Manager proxy request",
+            "request_type_id": self.request_type.id,
+            "requested_by_id": self.requester.id,
+            "employee_id": self.employee.id,
+            "description": "Authorized proxy submission",
+        })
+        self.assertEqual(manager_req.requested_by_id, self.requester)
+
+    def test_draft_immutability_and_direct_write(self):
+        """Verify locked fields and direct state modifications are forbidden outside draft."""
+        request = self._request()
+        request.with_user(self.requester).action_submit()
+
+        # Direct state change without workflow context raises AccessError
+        with self.assertRaises(AccessError):
+            request.with_user(self.requester).write({"state": "approved"})
+
+        # Modifying core request fields on pending request raises UserError
+        with self.assertRaises(UserError):
+            request.with_user(self.requester).write({"title": "Changed Title"})
+
+        # Deleting non-draft request raises UserError
+        with self.assertRaises(UserError):
+            request.with_user(self.requester).unlink()
+
+    def test_date_and_approval_chain_constraints(self):
+        """Verify date validity and approval chain constraint rules."""
+        # Required date cannot be earlier than request date
+        with self.assertRaises(ValidationError):
+            self.env["pr.it.service.request"].with_user(self.requester).create({
+                "title": "Invalid dates",
+                "request_type_id": self.request_type.id,
+                "employee_id": self.employee.id,
+                "description": "Past required date",
+                "request_date": fields.Date.today(),
+                "required_date": fields.Date.today() - timedelta(days=2),
+            })
+
+        # Duplicate approvers forbidden
+        with self.assertRaises(ValidationError):
+            self.env["pr.it.service.request"].with_user(self.requester).create({
+                "title": "Duplicate approver",
+                "request_type_id": self.request_type.id,
+                "employee_id": self.employee.id,
+                "description": "Same user twice",
+                "approver_line_ids": [
+                    (0, 0, {"sequence": 10, "approver_id": self.approver_one.id}),
+                    (0, 0, {"sequence": 20, "approver_id": self.approver_one.id}),
+                ],
+            })
+
+    def test_search_is_current_approver(self):
+        """Verify the custom search method on computed is_current_approver."""
+        request = self._request()
+        request.with_user(self.requester).action_submit()
+
+        # Approver one is current
+        waiting_reqs = self.env["pr.it.service.request"].with_user(self.approver_one).search([
+            ("is_current_approver", "=", True)
+        ])
+        self.assertIn(request, waiting_reqs)
+
+        # Approver two is not current yet
+        not_waiting = self.env["pr.it.service.request"].with_user(self.approver_two).search([
+            ("is_current_approver", "=", True)
+        ])
+        self.assertNotIn(request, not_waiting)
+
+    def test_resubmit_when_all_approvers_already_approved(self):
+        """Verify immediate approval on resubmit when all approvers previously approved."""
+        request = self._request()
+        request.with_user(self.requester).action_submit()
+        request.with_user(self.approver_one).action_approve()
+        request.with_user(self.approver_two).action_approve()
+        self.assertEqual(request.state, "approved")
+
+        # Manually reset lines to simulate re-submission scenario
+        request.approver_line_ids.with_context(it_request_workflow_write=True).write({"status": "approved"})
+        request.with_context(it_request_workflow_write=True).write({"state": "draft"})
+        request.with_user(self.requester).action_submit()
+        self.assertEqual(request.state, "approved")
+        self.assertTrue(request.approved_at)
