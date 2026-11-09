@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -24,7 +24,7 @@ class PrItRequestType(models.Model):
     def _check_code(self):
         for rec in self:
             if rec.code and not rec.code.strip():
-                raise ValidationError("The IT request type code cannot be empty.")
+                raise ValidationError(_("The IT request type code cannot be empty."))
 
 
 class PrItRequestTypeApprover(models.Model):
@@ -51,4 +51,4 @@ class PrItRequestTypeApprover(models.Model):
     @api.constrains("sequence")
     def _check_sequence(self):
         if any(line.sequence <= 0 for line in self):
-            raise ValidationError("Approval sequence must be greater than zero.")
+            raise ValidationError(_("Approval sequence must be greater than zero."))
