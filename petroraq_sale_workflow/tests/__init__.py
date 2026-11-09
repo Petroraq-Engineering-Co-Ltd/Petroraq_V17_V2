@@ -4,3 +4,4 @@ from . import test_settlement_report
 from . import test_settlement_report_logic
 from . import test_downpayment_tax
 from . import test_work_order_boq_estimation_limit
+from . import test_sale_order_creation_message

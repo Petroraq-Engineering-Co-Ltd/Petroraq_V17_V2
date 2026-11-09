@@ -59,6 +59,13 @@ class SaleOrder(models.Model):
         new_rev.work_order_id = False
         return new_rev
 
+    def _creation_message(self):
+        # EXTENDS mail mail.thread
+        self.ensure_one()
+        if self.state in ("draft", "sent"):
+            return _("Quotation created")
+        return super()._creation_message()
+
     def _notify_get_reply_to(self, default=None):
         """Route customer replies to the SO email's visible sender."""
         reply_to_by_record = super()._notify_get_reply_to(default=default)
