@@ -47,8 +47,13 @@ class PrEmployeeCodeLookup(models.Model):
             lookups |= self._get_or_create_for_employee(employee)
         return lookups
 
+    @api.depends("code")
+    def _compute_display_name(self):
+        for lookup in self:
+            lookup.display_name = lookup.code or ""
+
     def name_get(self):
-        return [(lookup.id, lookup.code or "") for lookup in self]
+        return [(lookup.id, lookup.display_name) for lookup in self]
 
     @api.model
     def name_search(self, name="", args=None, operator="ilike", limit=100):
@@ -222,6 +227,7 @@ class PrEmployeeDocumentLetter(models.Model):
     can_reject = fields.Boolean(compute="_compute_action_flags")
     can_reset_to_draft = fields.Boolean(compute="_compute_action_flags")
     can_cancel = fields.Boolean(compute="_compute_action_flags")
+    is_department_manager = fields.Boolean(compute="_compute_action_flags")
 
     @api.model
     def _default_employee_id(self):
@@ -261,17 +267,23 @@ class PrEmployeeDocumentLetter(models.Model):
     @api.depends_context("uid")
     def _compute_action_flags(self):
         user = self.env.user
-        is_hr_manager = user.has_group("hr.group_hr_manager")
+        is_admin = user.has_group("base.group_system")
+        is_hr_manager = (
+            user.has_group("pr_hr.group_hr_manager")
+            or is_admin
+        )
         is_hr_user = user.has_group("hr.group_hr_user") or is_hr_manager
         for rec in self:
             is_owner = rec.requested_by_id == user or rec.employee_id.user_id == user
+            is_dept_mgr = rec.department_manager_user_id == user or is_admin
+            rec.is_department_manager = is_dept_mgr
             rec.can_submit = rec.state == "draft" and (
                 (rec.letter_type == "performance_improvement" and is_hr_user)
                 or (rec.letter_type != "performance_improvement" and (is_owner or is_hr_manager))
             )
             rec.can_department_manager_approve = (
                 rec.state == "department_manager_approval"
-                and rec.department_manager_user_id == user
+                and is_dept_mgr
             )
             rec.can_hr_manager_approve = rec.state == "hr_manager_approval" and is_hr_manager
             rec.can_send = (
@@ -715,9 +727,9 @@ class PrEmployeeDocumentLetter(models.Model):
         self.ensure_one()
         manager = self.department_manager_user_id
         return bool(manager and (
-            manager.has_group("hr.group_hr_manager")
-            or manager.has_group("pr_custom_purchase.managing_director")
-            or manager.has_group("pr_hr_recruitment_request.group_onboarding_md")
+            manager.has_group("pr_hr.group_hr_manager")
+            or manager.has_group("pr_hr.group_hr_md")
+            or manager.has_group("base.group_system")
         ))
 
     def _finalize_letter_approval(self, approver):
