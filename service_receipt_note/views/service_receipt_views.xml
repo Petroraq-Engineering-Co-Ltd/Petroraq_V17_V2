@@ -6,11 +6,13 @@
         <field name="model">service.receipt.note</field>
         <field name="arch" type="xml">
             <tree string="Service Receipt Notes">
+                <field name="currency_id" column_invisible="True"/>
                 <field name="name"/>
                 <field name="purchase_id"/>
                 <field name="work_order_id"/>
                 <field name="partner_id"/>
                 <field name="date"/>
+                <field name="amount_total" string="Total" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show" sum="Total"/>
                 <field name="state"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </tree>
@@ -113,6 +115,7 @@
                         <page string="Lines">
                             <field name="line_ids" readonly="not can_edit_lines">
                                 <tree editable="bottom">
+                                    <field name="currency_id" column_invisible="True"/>
                                     <field name="purchase_line_id" readonly="1"/>
                                     <field name="product_id" readonly="1"/>
                                     <field name="name"/>
@@ -122,8 +125,24 @@
                                     <field name="done_qty"/>
                                     <field name="balance_qty" readonly="1"/>
                                     <field name="uom_id" readonly="1"/>
+                                    <field name="price_unit" optional="show" readonly="1"/>
+                                    <field name="price_subtotal" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show" readonly="1"/>
+                                    <field name="price_total" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show" readonly="1"/>
                                 </tree>
                             </field>
+                            <group col="6" class="mt-2 mt-md-0" name="srn_amounts_footer">
+                                <group colspan="4"/>
+                                <group class="oe_subtotal_footer" colspan="2" name="srn_total">
+                                    <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                        <label for="amount_total"/>
+                                    </div>
+                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator"
+                                           widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                                <div class="clearfix"/>
+                            </group>
                         </page>
                         <page string="Notes">
                             <field name="note"/>
