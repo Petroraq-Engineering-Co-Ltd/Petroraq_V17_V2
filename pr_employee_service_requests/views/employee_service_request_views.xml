@@ -141,7 +141,11 @@
                     <button name="action_cancel" type="object" string="Cancel"
                             class="btn-secondary" invisible="not can_cancel"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,accounts_approval,finance_approval,md_approval,payment_approval,paid,issued"/>
+                           statusbar_visible="draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,accounts_approval,finance_approval,md_approval,payment_approval,paid,issued"
+                           invisible="request_type not in ('exit_reentry', 'iqama_new', 'iqama_renewal', 'medical_insurance_new', 'medical_insurance_renewal')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,accounts_approval,finance_approval,md_approval,payment_approval,paid"
+                           invisible="request_type in ('exit_reentry', 'iqama_new', 'iqama_renewal', 'medical_insurance_new', 'medical_insurance_renewal')"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger" invisible="state != 'rejected'"/>
