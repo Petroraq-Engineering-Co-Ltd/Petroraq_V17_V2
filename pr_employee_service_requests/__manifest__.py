@@ -5,8 +5,9 @@
     "description": """
 Employee self-service requests for reimbursements, exit/re-entry visas, combined
 Iqama/work permit processing, and medical insurance. New compliance requests
-create record-only entries; renewals use HR Manager and MD approval with
-budget-controlled BPVs.
+create record-only entries; company-paid requests and renewals go through
+approval and automatically create an Employee Payment Request on MD approval for
+Accounts to issue a budget-controlled CPV/BPV.
 """,
     "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",

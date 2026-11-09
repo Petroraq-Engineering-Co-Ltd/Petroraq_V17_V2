@@ -1820,28 +1820,6 @@ class PrEmployeeServiceRequest(models.Model):
                 if prior_state != "md_approval":
                     rec.message_post(body=_("Managing Director approved this request via skip-level approval."))
                 continue
-            if rec._is_compliance_renewal():
-                rec.write({
-                    "state": "payment_approval",
-                    "approved_amount": rec._get_payment_amount(),
-                    "md_approved_by_id": self.env.user.id,
-                    "md_approved_date": fields.Datetime.now(),
-                })
-                rec._notify_group(
-                    list(ACCOUNTING_GROUP_XML_IDS),
-                    _("Employee Payment Request Needed"),
-                    _("%s <b>%s</b> is MD approved. Please create the payment request and choose CPV/BPV.")
-                    % (rec._get_type_label(), rec.display_name),
-                )
-                if prior_state != "md_approval":
-                    rec.message_post(
-                        body=_("MD approved this renewal via skip-level approval. Accounts can now create the payment request and choose the transfer type.")
-                    )
-                else:
-                    rec.message_post(
-                        body=_("MD approved this renewal. Accounts can now create the payment request and choose the transfer type.")
-                    )
-                continue
             payment_request = rec._create_payment_request()
             rec.write({
                 "state": "payment_approval",
@@ -2078,35 +2056,6 @@ class PrEmployeeServiceRequest(models.Model):
         if notify_accounts:
             payment_request._notify_accounts()
         return payment_request
-
-    def _create_renewal_bpv(self):
-        """Create and submit the renewal BPV immediately after MD approval."""
-        self.ensure_one()
-        if self._is_self_paid_request():
-            raise UserError(_("Self-paid renewals do not create BPVs."))
-        if not self._is_compliance_renewal():
-            raise UserError(_("Automatic BPV creation is only available for compliance renewals."))
-        if self.bank_payment_id:
-            return self.bank_payment_id
-
-        payment_request = self._create_payment_request(notify_accounts=False)
-        pay_from_account = self.payment_account_id or payment_request._get_default_payment_account("bank")
-        if not pay_from_account:
-            raise UserError(_("Please configure or select the bank account used for renewal BPVs."))
-        payment_request.sudo().write({
-            "transfer_type": "bank",
-            "pay_from_account_id": pay_from_account.id,
-        })
-        payment_request.sudo().action_create_payment_voucher()
-        voucher = payment_request.bank_payment_id
-        if not voucher:
-            raise UserError(_("The renewal BPV could not be created."))
-        self.bank_payment_id = voucher.id
-        self._copy_attachments_to(voucher)
-        if voucher.state == "draft":
-            voucher.sudo().action_submit()
-        payment_request.sudo()._notify_accounts()
-        return voucher
 
     def _copy_attachments_to(self, target):
         self.ensure_one()
@@ -2529,19 +2478,22 @@ class PrEmployeeServiceRequest(models.Model):
             raise UserError(_("Please select the approved Budget."))
         if not self.cost_center_id:
             raise UserError(_("Please select the Cost Center."))
-        self.expense_bucket_id._check_active_for_date(self._get_budget_check_date())
-        remaining_by_cost_center = self.expense_bucket_id._get_remaining_by_cost_center()
-        if self.cost_center_id.id not in remaining_by_cost_center:
+        # Approvers such as MD may lack direct read ACLs on crossovered.budget or analytic accounts.
+        budget = self.expense_bucket_id.sudo()
+        cost_center = self.cost_center_id.sudo()
+        budget._check_active_for_date(self._get_budget_check_date())
+        remaining_by_cost_center = budget._get_remaining_by_cost_center()
+        if cost_center.id not in remaining_by_cost_center:
             raise UserError(
                 _("Cost Center %(cc)s is not included in Budget %(budget)s.")
-                % {"cc": self.cost_center_id.display_name, "budget": self.expense_bucket_id.display_name}
+                % {"cc": cost_center.display_name, "budget": budget.display_name}
             )
         amount = amount if amount is not False else self._get_payment_amount()
-        remaining = remaining_by_cost_center.get(self.cost_center_id.id, 0.0)
+        remaining = remaining_by_cost_center.get(cost_center.id, 0.0)
         if amount > remaining:
             raise UserError(
                 _("Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: %(amount).2f")
-                % {"cc": self.cost_center_id.display_name, "remaining": remaining, "amount": amount}
+                % {"cc": cost_center.display_name, "remaining": remaining, "amount": amount}
             )
 
     def _get_budget_check_date(self):
@@ -2909,20 +2861,23 @@ class PrEmployeePaymentRequest(models.Model):
 
     def _check_selected_budget_or_raise(self, amount=False):
         for rec in self:
-            rec.expense_bucket_id._check_active_for_date(rec.request_date)
-            remaining_by_cost_center = rec.expense_bucket_id._get_remaining_by_cost_center()
-            if rec.cost_center_id.id not in remaining_by_cost_center:
+            # Read budget lines with sudo so non-accounting approvers can still trigger budget validation.
+            budget = rec.expense_bucket_id.sudo()
+            cost_center = rec.cost_center_id.sudo()
+            budget._check_active_for_date(rec.request_date)
+            remaining_by_cost_center = budget._get_remaining_by_cost_center()
+            if cost_center.id not in remaining_by_cost_center:
                 raise UserError(
                     _("Cost Center %(cc)s is not included in Budget %(budget)s.")
-                    % {"cc": rec.cost_center_id.display_name, "budget": rec.expense_bucket_id.display_name}
+                    % {"cc": cost_center.display_name, "budget": budget.display_name}
                 )
             amount_to_check = amount if amount is not False else rec.total_amount
-            remaining = remaining_by_cost_center.get(rec.cost_center_id.id, 0.0)
+            remaining = remaining_by_cost_center.get(cost_center.id, 0.0)
             if amount_to_check > remaining:
                 raise UserError(
                     _("Insufficient budget for %(cc)s. Remaining: %(remaining).2f, Required: %(amount).2f")
                     % {
-                        "cc": rec.cost_center_id.display_name,
+                        "cc": cost_center.display_name,
                         "remaining": remaining,
                         "amount": amount_to_check,
                     }
