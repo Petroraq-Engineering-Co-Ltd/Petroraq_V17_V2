@@ -6,6 +6,46 @@ from odoo.tools.float_utils import float_compare
 class StockMove(models.Model):
     _inherit = "stock.move"
 
+    def _get_pr_order_line_valuation(self):
+        res = super()._get_pr_order_line_valuation()
+        if res:
+            return res
+        sol = self.sale_line_id
+        if not sol:
+            return False
+        order = sol.order_id
+        company = order.company_id or self.company_id or self.env.company
+        return {
+            "currency": order.currency_id or company.currency_id,
+            "partner": order.partner_id,
+            "company": company,
+            "product": sol.product_id or self.product_id,
+            "taxes": sol.tax_id,
+            "price_unit": sol.price_unit or 0.0,
+            "discount": sol.discount or 0.0,
+            "uom": sol.product_uom,
+            "handle_price_include": True,
+        }
+
+    @api.depends(
+        "sale_line_id",
+        "sale_line_id.order_id.currency_id",
+    )
+    def _compute_pr_currency_id(self):
+        return super()._compute_pr_currency_id()
+
+    @api.depends(
+        "sale_line_id",
+        "sale_line_id.price_unit",
+        "sale_line_id.discount",
+        "sale_line_id.tax_id",
+        "sale_line_id.product_uom",
+        "sale_line_id.order_id.currency_id",
+        "sale_line_id.order_id.partner_id",
+    )
+    def _compute_pr_amounts(self):
+        return super()._compute_pr_amounts()
+
     def _pr_get_delivery_line_description(self):
         """Return a useful DN description for both sales and purchase moves."""
         self.ensure_one()
@@ -62,6 +102,35 @@ class StockPicking(models.Model):
         copy=False,
         help="Attach the signed delivery note required before creating the sales invoice.",
     )
+
+    def _get_pr_currency(self):
+        self.ensure_one()
+        if self.picking_type_code in ("incoming", "outgoing"):
+            for move in self._get_pr_amount_moves(include_inactive=True):
+                valuation = move._get_pr_order_line_valuation()
+                if valuation and valuation.get("currency"):
+                    return valuation["currency"]
+            if self.sale_id and self.sale_id.currency_id:
+                return self.sale_id.currency_id
+        return super()._get_pr_currency()
+
+    @api.depends(
+        "sale_id",
+        "sale_id.currency_id",
+        "move_ids_without_package.sale_line_id",
+        "move_ids.sale_line_id",
+    )
+    def _compute_pr_currency_id(self):
+        return super()._compute_pr_currency_id()
+
+    @api.depends(
+        "sale_id",
+        "sale_id.currency_id",
+        "move_ids_without_package.sale_line_id",
+        "move_ids.sale_line_id",
+    )
+    def _compute_pr_amounts(self):
+        return super()._compute_pr_amounts()
 
     def _pr_format_partner_address(self, partner):
         if not partner:

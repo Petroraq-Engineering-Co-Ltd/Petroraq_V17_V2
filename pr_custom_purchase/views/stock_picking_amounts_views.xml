@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_tree_inherit_pr_amounts" model="ir.ui.view">
+        <field name="name">stock.picking.tree.inherit.pr.amounts</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree/field[@name='state']" position="before">
+                <field name="pr_currency_id" column_invisible="True"/>
+                <field name="pr_amount_total"
+                       string="Total"
+                       widget="monetary"
+                       options="{'currency_field': 'pr_currency_id'}"
+                       optional="show"
+                       sum="Total"
+                       column_invisible="context.get('restricted_picking_type_code') == 'internal'"
+                       invisible="picking_type_code not in ('incoming', 'outgoing')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_picking_form_inherit_pr_amounts" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.pr.amounts</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']/tree//field[@name='picked']" position="before">
+                <field name="pr_currency_id" column_invisible="True"/>
+                <field name="pr_unit_price"
+                       optional="show"
+                       readonly="1"
+                       column_invisible="parent.picking_type_code not in ('incoming', 'outgoing')"/>
+                <field name="pr_price_subtotal"
+                       widget="monetary"
+                       options="{'currency_field': 'pr_currency_id'}"
+                       optional="show"
+                       readonly="1"
+                       column_invisible="parent.picking_type_code not in ('incoming', 'outgoing')"/>
+                <field name="pr_price_total"
+                       widget="monetary"
+                       options="{'currency_field': 'pr_currency_id'}"
+                       optional="show"
+                       readonly="1"
+                       column_invisible="parent.picking_type_code not in ('incoming', 'outgoing')"/>
+            </xpath>
+            <xpath expr="//page[@name='operations']/button[@name='action_put_in_pack']" position="after">
+                <div class="clearfix"/>
+                <field name="pr_currency_id" invisible="1"/>
+                <group col="6" class="mt-2 mt-md-0" name="pr_picking_amounts_footer"
+                       invisible="picking_type_code not in ('incoming', 'outgoing')">
+                    <group colspan="4"/>
+                    <group class="oe_subtotal_footer" colspan="2" name="pr_picking_total">
+                        <field name="pr_amount_untaxed"
+                               widget="monetary"
+                               options="{'currency_field': 'pr_currency_id'}"/>
+                        <field name="pr_amount_tax"
+                               widget="monetary"
+                               options="{'currency_field': 'pr_currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                            <label for="pr_amount_total"/>
+                        </div>
+                        <field name="pr_amount_total"
+                               nolabel="1"
+                               class="oe_subtotal_footer_separator"
+                               widget="monetary"
+                               options="{'currency_field': 'pr_currency_id'}"/>
+                    </group>
+                    <div class="clearfix"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

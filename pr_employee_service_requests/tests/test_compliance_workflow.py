@@ -2,6 +2,8 @@ import base64
 from datetime import date
 from unittest.mock import patch
 
+from lxml import etree
+
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -331,6 +333,47 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertFalse(request.payment_request_id)
         with self.assertRaises(UserError):
             request.action_create_payment_request()
+
+    def test_dependent_fee_cannot_be_issued(self):
+        relation = self.env["hr.employee.dependent.relation"].create({
+            "name": "Dependent Fee Issue Test Child",
+        })
+        request = self._create_request(
+            "dependent_fee",
+            dependent_relation_id=relation.id,
+            requested_amount=500.0,
+            payment_responsibility="company",
+        )
+        request.state = "paid"
+        with self.assertRaisesRegex(UserError, "Only paid employee service requests can be issued"):
+            request.action_issue()
+
+    def test_reimbursement_cannot_be_issued(self):
+        request = self._create_request(
+            "reimbursement",
+            requested_amount=100.0,
+        )
+        request.state = "paid"
+        with self.assertRaisesRegex(UserError, "Only paid employee service requests can be issued"):
+            request.action_issue()
+
+    def test_form_view_hides_issued_statusbar_for_non_issuable_types(self):
+        arch = self.env["pr.employee.service.request"].get_view(view_type="form")["arch"]
+        doc = etree.fromstring(arch)
+        statusbars = doc.xpath("//header/field[@name='state'][@widget='statusbar']")
+        self.assertEqual(len(statusbars), 2)
+        with_issued = [
+            sb for sb in statusbars
+            if "issued" in (sb.get("statusbar_visible") or "").split(",")
+        ]
+        without_issued = [
+            sb for sb in statusbars
+            if "issued" not in (sb.get("statusbar_visible") or "").split(",")
+        ]
+        self.assertEqual(len(with_issued), 1)
+        self.assertEqual(len(without_issued), 1)
+        self.assertIn("not in", with_issued[0].get("invisible") or "")
+        self.assertNotIn("not in", without_issued[0].get("invisible") or "")
 
     def test_company_exit_reentry_without_current_contract_switches_to_self(self):
         country = self._get_destination_country()

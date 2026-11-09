@@ -187,7 +187,7 @@ class PrEmployeeServiceRequest(models.Model):
             ("accounts_approval", "Accounts"),
             ("finance_approval", "Finance"),
             ("md_approval", "Managing Director"),
-            ("payment_approval", "Voucher Created"),
+            ("payment_approval", "Voucher Requested"),
             ("paid", "Paid"),
             ("issued", "Issued"),
             ("rejected", "Rejected"),

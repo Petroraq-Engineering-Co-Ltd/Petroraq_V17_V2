@@ -57,6 +57,27 @@ class ServiceReceiptNote(models.Model):
         store=True,
         readonly=True,
     )
+    amount_untaxed = fields.Monetary(
+        string="Untaxed Amount",
+        compute="_compute_amounts",
+        compute_sudo=True,
+        store=True,
+        readonly=True,
+    )
+    amount_tax = fields.Monetary(
+        string="Taxes",
+        compute="_compute_amounts",
+        compute_sudo=True,
+        store=True,
+        readonly=True,
+    )
+    amount_total = fields.Monetary(
+        string="Total",
+        compute="_compute_amounts",
+        compute_sudo=True,
+        store=True,
+        readonly=True,
+    )
     date = fields.Datetime(
         string="Receipt Date",
         default=fields.Datetime.now,
@@ -137,6 +158,46 @@ class ServiceReceiptNote(models.Model):
     def _compute_backorder_count(self):
         for rec in self:
             rec.backorder_count = len(rec.backorder_ids)
+
+    @api.depends(
+        "company_id",
+        "company_id.currency_id",
+        "company_id.tax_calculation_rounding_method",
+        "currency_id",
+        "line_ids.purchase_line_id",
+        "line_ids.done_qty",
+        "line_ids.uom_id",
+        "line_ids.price_subtotal",
+        "line_ids.price_tax",
+        "line_ids.price_total",
+    )
+    def _compute_amounts(self):
+        AccountTax = self.env["account.tax"]
+        for rec in self:
+            company = rec.company_id or self.env.company
+            currency = rec.currency_id or company.currency_id
+            lines = rec.line_ids.filtered(lambda l: l.purchase_line_id)
+            if not lines:
+                rec.amount_untaxed = 0.0
+                rec.amount_tax = 0.0
+                rec.amount_total = 0.0
+                continue
+            if company.tax_calculation_rounding_method == "round_globally":
+                base_lines = [line._prepare_tax_base_line_dict() for line in lines]
+                tax_results = AccountTax.with_company(company)._compute_taxes(base_lines)
+                totals = tax_results["totals"]
+                amount_untaxed = currency.round(
+                    totals.get(currency, {}).get("amount_untaxed", 0.0)
+                )
+                amount_tax = currency.round(
+                    totals.get(currency, {}).get("amount_tax", 0.0)
+                )
+            else:
+                amount_untaxed = currency.round(sum(lines.mapped("price_subtotal")))
+                amount_tax = currency.round(sum(lines.mapped("price_tax")))
+            rec.amount_untaxed = amount_untaxed
+            rec.amount_tax = amount_tax
+            rec.amount_total = currency.round(amount_untaxed + amount_tax)
 
     @api.depends("line_ids.done_qty", "line_ids.uom_id")
     def _compute_has_done_quantity(self):
@@ -442,6 +503,35 @@ class ServiceReceiptNoteLine(models.Model):
         store=True,
         readonly=True,
     )
+    price_unit = fields.Float(
+        string="Unit Price",
+        compute="_compute_amounts",
+        compute_sudo=True,
+        digits="Product Price",
+        store=True,
+        readonly=True,
+    )
+    price_subtotal = fields.Monetary(
+        string="Subtotal",
+        compute="_compute_amounts",
+        compute_sudo=True,
+        store=True,
+        readonly=True,
+    )
+    price_tax = fields.Float(
+        string="Tax",
+        compute="_compute_amounts",
+        compute_sudo=True,
+        store=True,
+        readonly=True,
+    )
+    price_total = fields.Monetary(
+        string="Total",
+        compute="_compute_amounts",
+        compute_sudo=True,
+        store=True,
+        readonly=True,
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -509,3 +599,91 @@ class ServiceReceiptNoteLine(models.Model):
             line.already_received_qty = already_received
             line.remaining_qty_before = remaining_before
             line.balance_qty = balance
+
+    def _get_effective_po_prices(self):
+        self.ensure_one()
+        pol = self.purchase_line_id
+        if not pol:
+            return 0.0, 0.0, 0.0
+        target_uom = self.uom_id or pol.product_uom
+        gross_price = pol.price_unit or 0.0
+        discount = getattr(pol, "discount", 0.0) or 0.0
+        if pol.product_uom and target_uom and pol.product_uom != target_uom:
+            gross_price = pol.product_uom._compute_price(gross_price, target_uom)
+        net_price = gross_price * (1.0 - discount / 100.0)
+        return gross_price, net_price, discount
+
+    def _prepare_tax_base_line_dict(self):
+        self.ensure_one()
+        pol = self.purchase_line_id
+        order = pol.order_id
+        company = self.company_id or order.company_id or self.env.company
+        currency = (
+            self.currency_id
+            or self.receipt_id.currency_id
+            or order.currency_id
+            or company.currency_id
+        )
+        gross_price, _net_price, discount = self._get_effective_po_prices()
+        return self.env["account.tax"]._convert_to_tax_base_line_dict(
+            self,
+            partner=order.partner_id,
+            currency=currency,
+            product=pol.product_id or self.product_id,
+            taxes=pol.taxes_id,
+            price_unit=gross_price,
+            quantity=self.done_qty or 0.0,
+            discount=discount,
+        )
+
+    @api.depends(
+        "purchase_line_id",
+        "purchase_line_id.price_unit",
+        "purchase_line_id.discount",
+        "purchase_line_id.taxes_id",
+        "purchase_line_id.product_uom",
+        "purchase_line_id.order_id.currency_id",
+        "purchase_line_id.order_id.partner_id",
+        "done_qty",
+        "uom_id",
+        "company_id",
+        "company_id.currency_id",
+        "company_id.tax_calculation_rounding_method",
+        "currency_id",
+    )
+    def _compute_amounts(self):
+        AccountTax = self.env["account.tax"]
+        for line in self:
+            pol = line.purchase_line_id
+            if not pol:
+                line.price_unit = 0.0
+                line.price_subtotal = 0.0
+                line.price_tax = 0.0
+                line.price_total = 0.0
+                continue
+            company = line.company_id or pol.order_id.company_id or self.env.company
+            currency = (
+                line.currency_id
+                or line.receipt_id.currency_id
+                or pol.order_id.currency_id
+                or company.currency_id
+            )
+            _gross_price, net_price, _discount = line._get_effective_po_prices()
+            line.price_unit = net_price
+            uom_rounding = (line.uom_id or pol.product_uom).rounding or 0.001
+            if float_is_zero(line.done_qty or 0.0, precision_rounding=uom_rounding):
+                line.price_subtotal = 0.0
+                line.price_tax = 0.0
+                line.price_total = 0.0
+                continue
+            tax_results = AccountTax.with_company(company)._compute_taxes([
+                line._prepare_tax_base_line_dict()
+            ])
+            totals = tax_results["totals"].get(currency) or next(
+                iter(tax_results["totals"].values()), {}
+            )
+            amount_untaxed = totals.get("amount_untaxed", 0.0)
+            amount_tax = totals.get("amount_tax", 0.0)
+            line.price_subtotal = amount_untaxed
+            line.price_tax = amount_tax
+            line.price_total = currency.round(amount_untaxed + amount_tax)
