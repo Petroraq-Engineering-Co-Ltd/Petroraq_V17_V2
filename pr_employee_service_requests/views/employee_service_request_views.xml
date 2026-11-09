@@ -103,7 +103,7 @@
                     <field name="can_cancel" invisible="1"/>
                     <button name="action_submit" type="object" string="Submit"
                             class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_employee_manager_approve" type="object" string="Employee Manager Approve"
+                    <button name="action_employee_manager_approve" type="object" string="Dept. Manager"
                             class="btn-primary"
                             invisible="state != 'employee_manager_approval' or not is_employee_manager"/>
                     <button name="action_hr_supervisor_approve" type="object" string="HR Supervisor Approve"

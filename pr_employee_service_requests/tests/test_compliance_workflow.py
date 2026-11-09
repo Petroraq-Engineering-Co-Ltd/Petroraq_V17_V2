@@ -259,34 +259,155 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertEqual(request._get_payment_amount(), 100.0)
         self.assertFalse(request.hr_supervisor_approved_by_id)
 
-    def test_md_approval_waits_for_accounts_payment_request_on_renewal(self):
+    def _create_budget_and_expense_account(self, planned_amount=5000.0):
+        today = date.today()
+        plan = self.env["account.analytic.plan"].create({
+            "name": "Compliance Workflow Test Plan",
+        })
+        cost_center = self.env["account.analytic.account"].create({
+            "name": "Compliance Workflow Test Cost Center",
+            "plan_id": plan.id,
+        })
+        budget = self.env["crossovered.budget"].create({
+            "name": "Compliance Workflow Test Budget",
+            "date_from": today,
+            "date_to": date(2099, 12, 31),
+            "state": "validate",
+            "user_id": self.env.user.id,
+            "expense_type": "opex",
+        })
+        self.env["crossovered.budget.lines"].create({
+            "crossovered_budget_id": budget.id,
+            "analytic_account_id": cost_center.id,
+            "date_from": budget.date_from,
+            "date_to": budget.date_to,
+            "planned_amount": planned_amount,
+        })
+        expense_account = self.env["account.account"].create({
+            "name": "Compliance Test Expense Account",
+            "code": "PRCOMPEXP01",
+            "account_type": "expense",
+            "company_id": self.env.company.id,
+        })
+        return budget, cost_center, expense_account
+
+    def _create_role_user(self, login, group_xmlids):
+        internal_group = self.env.ref("base.group_user")
+        group_ids = [internal_group.id]
+        for xmlid in group_xmlids:
+            group = self.env.ref(xmlid)
+            group_ids.append(group.id)
+        return self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": login,
+            "login": login,
+            "email": f"{login}@example.test",
+            "groups_id": [(6, 0, group_ids)],
+        })
+
+    def test_md_approval_auto_creates_payment_request_on_iqama_renewal(self):
+        today = date.today()
+        budget, cost_center, expense_account = self._create_budget_and_expense_account()
+        md_user = self._create_role_user("iqama.md.test", ["pr_hr.group_hr_md"])
+        accounts_user = self._create_role_user("iqama.accounts.test", ["account.group_account_manager"])
         request = self._create_request(
             "iqama_renewal",
             state="md_approval",
+            payment_responsibility="company",
             moi_fee_amount=40.0,
             mol_fee_amount=60.0,
             iqama_profession="Engineer",
+            service_from_date=today,
+            service_to_date=date(2099, 12, 31),
             service_expiry_date=date(2099, 12, 31),
+            expense_bucket_id=budget.id,
+            cost_center_id=cost_center.id,
+            expense_account_id=expense_account.id,
         )
 
-        with (
-            patch.object(type(request), "_check_before_md_approval", autospec=True),
-            patch.object(
-                type(request),
-                "_create_renewal_bpv",
-                autospec=True,
-                return_value=request,
-            ) as create_bpv,
-            patch.object(type(request), "_notify_group", autospec=True),
-        ):
-            request.action_md_approve()
+        request.with_user(md_user).action_md_approve()
 
         self.assertEqual(request.state, "payment_approval")
-        self.assertEqual(request.md_approved_by_id, self.env.user)
+        self.assertEqual(request.md_approved_by_id, md_user)
         self.assertEqual(request.approved_amount, 100.0)
-        self.assertFalse(request.payment_request_id)
+        self.assertTrue(request.payment_request_id)
+        self.assertEqual(request.payment_request_id.state, "requested")
+        self.assertEqual(request.payment_request_state, "requested")
+        self.assertEqual(request.payment_request_id.total_amount, 100.0)
+        self.assertEqual(request.payment_request_id.line_ids.mapped("amount"), [40.0, 60.0])
         self.assertFalse(request.cash_payment_id)
         self.assertFalse(request.bank_payment_id)
+        with self.assertRaises(UserError):
+            request.with_user(accounts_user).action_create_payment_request()
+
+    def test_md_approval_auto_creates_payment_request_on_medical_insurance_renewal(self):
+        today = date.today()
+        budget, cost_center, expense_account = self._create_budget_and_expense_account()
+        md_user = self._create_role_user("med.md.test", ["pr_hr.group_hr_md"])
+        request = self._create_request(
+            "medical_insurance_renewal",
+            state="md_approval",
+            payment_responsibility="company",
+            requested_amount=500.0,
+            insurance_company="Test Insurance",
+            insurance_category="A",
+            service_from_date=today,
+            service_to_date=date(2099, 12, 31),
+            service_expiry_date=date(2099, 12, 31),
+            expense_bucket_id=budget.id,
+            cost_center_id=cost_center.id,
+            expense_account_id=expense_account.id,
+        )
+
+        request.with_user(md_user).action_md_approve()
+
+        self.assertEqual(request.state, "payment_approval")
+        self.assertEqual(request.md_approved_by_id, md_user)
+        self.assertEqual(request.approved_amount, 500.0)
+        self.assertTrue(request.payment_request_id)
+        self.assertEqual(request.payment_request_id.state, "requested")
+        self.assertEqual(request.payment_request_id.total_amount, 500.0)
+        self.assertEqual(request.payment_request_id.line_ids.mapped("amount"), [500.0])
+        self.assertFalse(request.cash_payment_id)
+        self.assertFalse(request.bank_payment_id)
+
+    def test_create_payment_request_button_visibility_and_legacy_fallback(self):
+        accounts_user = self._create_role_user("legacy.accounts.test", ["account.group_account_manager"])
+        arch = (
+            self.env["pr.employee.service.request"]
+            .with_user(accounts_user)
+            .get_view(view_type="form")["arch"]
+        )
+        doc = etree.fromstring(arch)
+        buttons = doc.xpath("//header/button[@name='action_create_payment_request']")
+        self.assertEqual(len(buttons), 1)
+        invisible_expr = buttons[0].get("invisible") or ""
+        for required_token in ("payment_request_id", "cash_payment_id", "bank_payment_id"):
+            self.assertIn(required_token, invisible_expr)
+
+        today = date.today()
+        budget, cost_center, expense_account = self._create_budget_and_expense_account()
+        legacy_request = self._create_request(
+            "iqama_renewal",
+            state="payment_approval",
+            payment_responsibility="company",
+            moi_fee_amount=40.0,
+            mol_fee_amount=60.0,
+            approved_amount=100.0,
+            iqama_profession="Engineer",
+            service_from_date=today,
+            service_to_date=date(2099, 12, 31),
+            service_expiry_date=date(2099, 12, 31),
+            expense_bucket_id=budget.id,
+            cost_center_id=cost_center.id,
+            expense_account_id=expense_account.id,
+        )
+
+        self.assertFalse(legacy_request.payment_request_id)
+        action = legacy_request.with_user(accounts_user).action_create_payment_request()
+        self.assertEqual(action["res_model"], "pr.employee.payment.request")
+        self.assertTrue(legacy_request.payment_request_id)
+        self.assertEqual(legacy_request.payment_request_id.state, "requested")
+        self.assertEqual(legacy_request.payment_request_id.total_amount, 100.0)
 
     def test_dependent_fee_submits_as_company_paid_hr_request(self):
         relation = self.env["hr.employee.dependent.relation"].create({
