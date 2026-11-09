@@ -1660,6 +1660,13 @@ msgstr "حالة عرض السعر"
 
 #. module: petroraq_sale_workflow
 #. odoo-python
+#: code:addons/petroraq_sale_workflow/models/sale_order.py:0
+#, python-format
+msgid "Quotation created"
+msgstr "تم إنشاء عرض السعر"
+
+#. module: petroraq_sale_workflow
+#. odoo-python
 #: code:addons/petroraq_sale_workflow/models/sale_order_reject_wizard.py:0
 #, python-format
 msgid "Quotation has been rejected. Reason: %s"
