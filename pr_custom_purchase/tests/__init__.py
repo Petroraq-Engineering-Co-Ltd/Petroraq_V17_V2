@@ -11,4 +11,5 @@ from . import test_purchase_order_reporting
 from . import test_pr_cycle
 from . import test_po_cycle_summary
 from . import test_pr_po_partial_workflow
+from . import test_grn_amounts
 
