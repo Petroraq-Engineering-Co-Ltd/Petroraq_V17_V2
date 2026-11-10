@@ -212,6 +212,31 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def get_sections(self):
         sections = super().get_sections()
+        exclude_models = {"pr.employee.service.request", "pr.employee.document.letter"}
+        financial_action = self.env.ref(
+            "pr_employee_service_requests.action_pr_employee_accounts_approvals",
+            raise_if_not_found=False,
+        )
+        financial_action_id = financial_action.id if financial_action else False
+
+        # Remove loose service-request and document-letter tiles from all
+        # auto-discovered sections (including Accounts, where the menu item
+        # stays available in the top navbar), and drop any non-HR sections
+        # that become empty as a result.
+        cleaned_sections = []
+        for section in sections:
+            tiles = [
+                t for t in section.get("tiles", [])
+                if t.get("res_model") not in exclude_models
+                and (not financial_action_id or t.get("action_id") != financial_action_id)
+            ]
+            if len(tiles) != len(section.get("tiles", [])):
+                section = dict(section, tiles=tiles)
+                section["count"] = sum(t.get("count", 0) for t in tiles)
+            if tiles or section.get("key") == "hr":
+                cleaned_sections.append(section)
+        sections = cleaned_sections
+
         hr_section = next((s for s in sections if s["key"] == "hr"), None)
         if not hr_section:
             definition = self.APPROVAL_SECTIONS.get("hr", self.APPROVAL_SECTIONS["other"])
@@ -229,13 +254,7 @@ class HrApprovalDashboardService(models.AbstractModel):
 
         sub_tiles = self._get_employee_service_sub_tiles()
         total_sub_count = sum(t.get("count", 0) for t in sub_tiles)
-
-        # Exclude loose service request and document letter tiles from HR section
-        exclude_models = {"pr.employee.service.request", "pr.employee.document.letter"}
-        filtered_tiles = [
-            t for t in hr_section.get("tiles", [])
-            if t.get("res_model") not in exclude_models
-        ]
+        filtered_tiles = list(hr_section.get("tiles", []))
 
         parent_action = self.env.ref(
             "pr_employee_service_requests.action_pr_employee_manager_approvals",
