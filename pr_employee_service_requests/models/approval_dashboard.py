@@ -73,21 +73,52 @@ class HrApprovalDashboardService(models.AbstractModel):
     def _override_domain_for_menu(self, menu, action, domain):
         if action and getattr(action, "res_model", False) == "pr.employee.service.request":
             return self._service_request_pending_domain(menu=menu, action=action, domain=domain)
+        if action and getattr(action, "res_model", False) == "pr.employee.document.letter":
+            return self._document_letter_pending_domain(menu=menu, action=action, domain=domain)
         return super()._override_domain_for_menu(menu, action, domain)
 
     @api.model
-    def _document_letter_pending_domain(self):
+    def _document_letter_pending_domain(self, menu=None, action=None, domain=None):
         user = self.env.user
+        roles = self.env["pr.employee.document.letter"]._get_user_document_letter_roles(user)
+
         domain_list = []
-        if user.has_group("pr_hr.group_hr_manager") or user.has_group("hr.group_hr_manager"):
+        if "hr_manager" in roles:
             domain_list.append([("state", "=", "hr_manager_approval")])
-        domain_list.append([
-            ("state", "=", "department_manager_approval"),
-            ("department_manager_user_id", "=", user.id),
-        ])
-        if domain_list:
-            return expression.OR(domain_list)
-        return [("id", "=", 0)]
+        if "department_manager" in roles:
+            domain_list.append([
+                ("state", "=", "department_manager_approval"),
+                ("department_manager_user_id", "=", user.id),
+            ])
+
+        if not domain_list:
+            return [("id", "=", 0)]
+
+        state_domain = expression.OR(domain_list)
+
+        parsed_domain = domain
+        if isinstance(parsed_domain, str):
+            try:
+                parsed_domain = safe_eval(parsed_domain)
+            except Exception:
+                parsed_domain = []
+
+        extra_domain = []
+        if parsed_domain and isinstance(parsed_domain, (list, tuple)):
+            for leaf in parsed_domain:
+                if (
+                    isinstance(leaf, (list, tuple))
+                    and len(leaf) == 3
+                    and leaf[0] not in (
+                        "state",
+                        "is_current_user_document_letter_approver",
+                    )
+                ):
+                    extra_domain.append(tuple(leaf))
+
+        if extra_domain:
+            return expression.AND([extra_domain, state_domain])
+        return state_domain
 
     @api.model
     def _get_employee_service_sub_tiles(self):
