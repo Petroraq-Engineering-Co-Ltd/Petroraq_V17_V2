@@ -117,11 +117,11 @@
                     <button name="action_accounts_approve" type="object" string="Accounts Approve"
                             class="btn-primary"
                             groups="account.group_account_manager,pr_account.custom_group_account_supervisor"
-                            invisible="payment_responsibility == 'self' or request_type in ('iqama_new', 'medical_insurance_new') or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval')"/>
+                            invisible="payment_responsibility == 'self' or request_type in ('iqama_new', 'medical_insurance_new') or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval')"/>
                     <button name="action_finance_approve" type="object" string="Finance Approve"
                             class="btn-primary"
                             groups="pr_account.custom_group_accounting_manager"
-                            invisible="payment_responsibility == 'self' or request_type in ('iqama_new', 'medical_insurance_new') or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval')"/>
+                            invisible="payment_responsibility == 'self' or request_type in ('iqama_new', 'medical_insurance_new') or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval')"/>
                     <button name="action_md_approve" type="object" string="MD Approve"
                             class="btn-primary"
                             groups="pr_hr.group_hr_md"
@@ -207,9 +207,12 @@
                             <field name="iqama_no" readonly="state != 'draft'"/>
                         </group>
                         <group>
-                            <field name="visa_number" readonly="state not in ('paid', 'issued')"/>
-                            <field name="issue_date" readonly="state not in ('paid', 'issued')"/>
-                            <field name="visa_expiry_date" readonly="state not in ('paid', 'issued')"/>
+                            <field name="visa_number"
+                                   readonly="state not in ('paid', 'issued') and not (state == 'draft' and exit_reentry_historical_company_paid)"/>
+                            <field name="issue_date"
+                                   readonly="state not in ('paid', 'issued') and not (state == 'draft' and exit_reentry_historical_company_paid)"/>
+                            <field name="visa_expiry_date"
+                                   readonly="state not in ('paid', 'issued') and not (state == 'draft' and exit_reentry_historical_company_paid)"/>
                             <field name="visa_fee"
                                    invisible="payment_responsibility == 'self' or exit_reentry_historical_company_paid"
                                    readonly="state in ('draft', 'payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"/>

@@ -22,12 +22,14 @@ class HrApprovalDashboardService(models.AbstractModel):
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
                 ("request_type", "not in", ["iqama_new", "medical_insurance_new"]),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "accounts" in roles:
             domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
                 ("request_type", "not in", ["iqama_new", "medical_insurance_new"]),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "hr_manager" in roles:
             domain_list.append([("state", "=", "hr_manager_approval")])

@@ -1155,6 +1155,16 @@ class TestApprovalDashboardFiltering(TransactionCase):
             "state": "finance_approval",
             "reason": "New Insurance Financial Exclusion Test",
         })
+        req_hist_exit_acc = self.env["pr.employee.service.request"].create({
+            "request_type": "exit_reentry",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "payment_responsibility": "company",
+            "exit_reentry_entry_type": "single",
+            "exit_reentry_historical_company_paid": True,
+            "state": "accounts_approval",
+            "reason": "Historical Exit Re-entry Financial Exclusion Test",
+        })
 
         sup_results = self.env["pr.employee.service.request"].with_user(self.user_hr_supervisor).search([
             ("is_current_user_service_request_approver", "=", True),
@@ -1166,9 +1176,18 @@ class TestApprovalDashboardFiltering(TransactionCase):
         ])
         self.assertNotIn(req_ins_new_fin, fin_results)
 
+        acc_results = self.env["pr.employee.service.request"].with_user(self.user_accounts).search([
+            ("is_current_user_financial_approver", "=", True),
+        ])
+        self.assertNotIn(req_hist_exit_acc, acc_results)
+
         dashboard_service = self.env["de.hr.approval.dashboard.service"]
         fin_domain = dashboard_service.with_user(self.user_finance)._service_request_pending_domain()
         fin_dash_results = self.env["pr.employee.service.request"].with_user(self.user_finance).search(fin_domain)
         self.assertNotIn(req_ins_new_fin, fin_dash_results)
+
+        acc_domain = dashboard_service.with_user(self.user_accounts)._service_request_pending_domain()
+        acc_dash_results = self.env["pr.employee.service.request"].with_user(self.user_accounts).search(acc_domain)
+        self.assertNotIn(req_hist_exit_acc, acc_dash_results)
 
 

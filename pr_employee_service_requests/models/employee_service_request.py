@@ -154,8 +154,9 @@ class PrEmployeeServiceRequest(models.Model):
         tracking=True,
         help=(
             "Use this for old company-paid Exit/Re-entry visas that were already "
-            "approved and paid outside this workflow. It creates a record only and "
-            "still consumes the company-paid entitlement."
+            "paid outside this workflow. It requires Dept. Manager, HR, and MD "
+            "approval without Accounts/Finance or payment vouchers, and still "
+            "consumes the company-paid entitlement."
         ),
     )
     contract_id = fields.Many2one(
@@ -496,7 +497,13 @@ class PrEmployeeServiceRequest(models.Model):
                 return candidate
         return None
 
-    @api.depends("state", "employee_manager_user_id", "payment_responsibility", "request_type")
+    @api.depends(
+        "state",
+        "employee_manager_user_id",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_is_current_user_service_request_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
@@ -539,12 +546,14 @@ class PrEmployeeServiceRequest(models.Model):
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
                 ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "accounts" in roles:
             domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
                 ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "hr_manager" in roles:
             domain_list.append([("state", "=", "hr_manager_approval")])
@@ -566,7 +575,12 @@ class PrEmployeeServiceRequest(models.Model):
         )
         return approver_domain if positive_search else expression.distribute_not([expression.NOT_OPERATOR] + expression.normalize_domain(approver_domain))
 
-    @api.depends("state", "payment_responsibility", "request_type")
+    @api.depends(
+        "state",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_is_current_user_financial_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
@@ -597,12 +611,14 @@ class PrEmployeeServiceRequest(models.Model):
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
                 ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "finance" in roles:
             domain_list.append([
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
                 ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
 
         if domain_list:
@@ -718,7 +734,13 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             rec.is_employee_manager = (rec.employee_manager_user_id == user)
 
-    @api.depends("state", "employee_manager_user_id", "payment_responsibility", "request_type")
+    @api.depends(
+        "state",
+        "employee_manager_user_id",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_can_reject(self):
         user = self.env.user
 
@@ -1329,7 +1351,11 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _is_non_financial_request(self):
         self.ensure_one()
-        return self._is_self_paid_request() or self._is_new_compliance_request()
+        return (
+            self._is_self_paid_request()
+            or self._is_new_compliance_request()
+            or self._is_historical_company_paid_exit_reentry()
+        )
 
     def _is_historical_company_paid_exit_reentry(self):
         self.ensure_one()
@@ -1614,20 +1640,6 @@ class PrEmployeeServiceRequest(models.Model):
                 vals["approved_amount"] = 0.0
             if rec.request_type == "iqama_renewal":
                 vals["requested_amount"] = rec._get_requested_compliance_amount()
-            if rec._is_historical_company_paid_exit_reentry():
-                vals.update({
-                    "state": "issued",
-                    "approved_amount": 0.0,
-                    "issue_date": rec.issue_date or fields.Date.context_today(rec),
-                })
-                rec.write(vals)
-                rec.message_post(
-                    body=_(
-                        "Historical company-paid Exit/Re-entry recorded as already approved/paid. "
-                        "No payment request or voucher was created."
-                    )
-                )
-                continue
             vals["state"] = "employee_manager_approval"
             rec.write(vals)
             if rec.employee_manager_user_id:
@@ -1812,7 +1824,20 @@ class PrEmployeeServiceRequest(models.Model):
                 if rec.request_type == "exit_reentry":
                     approval_vals["state"] = "paid"
                     rec.write(approval_vals)
-                    rec.message_post(body=_("Self-paid Exit/Re-entry approved by Managing Director. No accounting entry will be created; HR can issue the visa."))
+                    if rec._is_historical_company_paid_exit_reentry():
+                        rec.message_post(
+                            body=_(
+                                "Historical company-paid Exit/Re-entry approved by Managing Director. "
+                                "No accounting entry will be created; HR can issue the visa."
+                            )
+                        )
+                    else:
+                        rec.message_post(
+                            body=_(
+                                "Self-paid Exit/Re-entry approved by Managing Director. "
+                                "No accounting entry will be created; HR can issue the visa."
+                            )
+                        )
                 elif rec._is_new_compliance_request():
                     approval_vals["state"] = "paid"
                     rec.write(approval_vals)

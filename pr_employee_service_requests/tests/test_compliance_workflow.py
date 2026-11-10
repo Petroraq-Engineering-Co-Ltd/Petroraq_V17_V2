@@ -204,6 +204,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             invisible_expr = buttons[0].get("invisible") or ""
             self.assertIn("iqama_new", invisible_expr)
             self.assertIn("medical_insurance_new", invisible_expr)
+            self.assertIn("exit_reentry_historical_company_paid", invisible_expr)
 
     def test_work_permit_fallback_opens_combined_iqama_renewal(self):
         self.env["hr.employee.iqama"].create({
@@ -644,11 +645,38 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             issue_date=date(2098, 12, 1),
         )
 
-        historical.action_submit()
+        with patch.object(type(historical), "_notify_users", autospec=True):
+            historical.action_submit()
 
-        self.assertEqual(historical.state, "issued")
+        self.assertEqual(historical.state, "employee_manager_approval")
         self.assertEqual(historical.payment_responsibility, "company")
         self.assertEqual(historical.approved_amount, 0.0)
+        self.assertFalse(historical.is_current_user_financial_approver)
+
+        with self.assertRaises(UserError):
+            historical.action_accounts_approve()
+        with self.assertRaises(UserError):
+            historical.action_finance_approve()
+
+        with patch.object(type(historical), "_notify_group", autospec=True):
+            historical.action_employee_manager_approve()
+            self.assertEqual(historical.state, "hr_supervisor_approval")
+            historical.action_hr_supervisor_approve()
+            self.assertEqual(historical.state, "hr_manager_approval")
+            historical.action_hr_manager_approve()
+
+        self.assertEqual(historical.state, "md_approval")
+        historical.action_md_approve()
+
+        self.assertEqual(historical.state, "paid")
+        self.assertEqual(historical.approved_amount, 0.0)
+        self.assertFalse(historical.payment_request_id)
+        self.assertFalse(historical.cash_payment_id)
+        self.assertFalse(historical.bank_payment_id)
+
+        historical.action_issue()
+
+        self.assertEqual(historical.state, "issued")
         self.assertFalse(historical.payment_request_id)
         self.assertFalse(historical.cash_payment_id)
         self.assertFalse(historical.bank_payment_id)
