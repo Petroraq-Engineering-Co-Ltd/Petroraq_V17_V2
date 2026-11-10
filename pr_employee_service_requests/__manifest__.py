@@ -4,15 +4,15 @@
     "summary": "Employee payments and HR compliance record/renewal workflows",
     "description": """
 Employee self-service requests for reimbursements, exit/re-entry visas, combined
-Iqama/work permit processing, and medical insurance. New compliance requests go
-through HR and MD approval before HR issues the record; company-paid requests
-and renewals go through approval and automatically create an Employee Payment
-Request on MD approval for Accounts to issue a budget-controlled CPV/BPV.
+Iqama/work permit processing, and medical insurance. New compliance requests,
+company-paid requests, and renewals go through HR, Accounts, Finance, and MD
+approval and automatically create an Employee Payment Request on MD approval
+for Accounts to issue a budget-controlled CPV/BPV before HR issues records.
 """,
     "author": "Mudassir Amin",
     "website": "https://www.petroraq.com",
     "category": "Human Resources",
-    "version": "17.0.1.0.22",
+    "version": "17.0.1.0.23",
     "license": "LGPL-3",
     "depends": [
         "de_hr_workspace",

@@ -56,6 +56,8 @@ class HrEmployee(models.Model):
             "default_company_id": self.company_id.id or self.env.company.id,
             "default_iqama_no": self.identification_id or False,
         }
+        if request_type in ("iqama_new", "medical_insurance_new"):
+            context["default_payment_responsibility"] = "company"
         if request_type in ("iqama_new", "iqama_renewal"):
             context["default_iqama_profession"] = self.job_id.name or False
         if extra_context:

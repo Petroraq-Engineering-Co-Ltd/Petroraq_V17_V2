@@ -117,11 +117,11 @@
                     <button name="action_accounts_approve" type="object" string="Accounts Approve"
                             class="btn-primary"
                             groups="account.group_account_manager,pr_account.custom_group_account_supervisor"
-                            invisible="payment_responsibility == 'self' or request_type in ('iqama_new', 'medical_insurance_new') or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval')"/>
+                            invisible="payment_responsibility == 'self' or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval')"/>
                     <button name="action_finance_approve" type="object" string="Finance Approve"
                             class="btn-primary"
                             groups="pr_account.custom_group_accounting_manager"
-                            invisible="payment_responsibility == 'self' or request_type in ('iqama_new', 'medical_insurance_new') or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval')"/>
+                            invisible="payment_responsibility == 'self' or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval')"/>
                     <button name="action_md_approve" type="object" string="MD Approve"
                             class="btn-primary"
                             groups="pr_hr.group_hr_md"
@@ -257,11 +257,11 @@
                             <field name="service_expiry_date" string="Iqama Expiry Date" readonly="state != 'draft'"/>
                             <field name="work_permit_expiry_date" readonly="state != 'draft'"/>
                             <field name="moi_fee_amount" readonly="state != 'draft'"
-                                   invisible="request_type != 'iqama_renewal' or payment_responsibility == 'self'"/>
+                                   invisible="request_type not in ('iqama_new', 'iqama_renewal') or payment_responsibility == 'self'"/>
                             <field name="mol_fee_amount" readonly="state != 'draft'"
-                                   invisible="request_type != 'iqama_renewal' or payment_responsibility == 'self'"/>
+                                   invisible="request_type not in ('iqama_new', 'iqama_renewal') or payment_responsibility == 'self'"/>
                             <field name="requested_amount" string="Total MOI + MOL Fees" readonly="1"
-                                   invisible="request_type != 'iqama_renewal' or payment_responsibility == 'self'"/>
+                                   invisible="request_type not in ('iqama_new', 'iqama_renewal') or payment_responsibility == 'self'"/>
                         </group>
                     </group>
 
@@ -279,12 +279,12 @@
                             <field name="service_to_date" readonly="state != 'draft'"/>
                             <field name="service_expiry_date" readonly="state != 'draft'"/>
                             <field name="requested_amount" readonly="state != 'draft'"
-                                   invisible="request_type == 'medical_insurance_new' or payment_responsibility == 'self'"/>
+                                   invisible="payment_responsibility == 'self'"/>
                         </group>
                     </group>
 
                     <group string="Payment"
-                           invisible="request_type in ('iqama_new', 'medical_insurance_new') or payment_responsibility == 'self' or exit_reentry_historical_company_paid">
+                           invisible="payment_responsibility == 'self' or exit_reentry_historical_company_paid">
                         <group>
                             <field name="expense_bucket_id"
                                    readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"
@@ -293,7 +293,7 @@
                                    readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"
                                    options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="approved_amount"
-                                   invisible="request_type == 'iqama_renewal'"
+                                   invisible="request_type in ('iqama_new', 'iqama_renewal')"
                                    readonly="state in ('payment_approval', 'paid', 'issued', 'rejected', 'cancelled')"/>
                             <field name="payment_method" invisible="1"/>
                             <field name="payment_account_id"
@@ -655,7 +655,7 @@
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
         <field name="domain">[('request_type', '=', 'iqama_new')]</field>
-        <field name="context">{'default_request_type': 'iqama_new', 'search_default_my_requests': 1}</field>
+        <field name="context">{'default_request_type': 'iqama_new', 'default_payment_responsibility': 'company', 'search_default_my_requests': 1}</field>
     </record>
 
     <record id="action_pr_employee_iqama_renewal_my" model="ir.actions.act_window">
@@ -673,7 +673,7 @@
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
         <field name="domain">[('request_type', '=', 'medical_insurance_new')]</field>
-        <field name="context">{'default_request_type': 'medical_insurance_new', 'search_default_my_requests': 1}</field>
+        <field name="context">{'default_request_type': 'medical_insurance_new', 'default_payment_responsibility': 'company', 'search_default_my_requests': 1}</field>
     </record>
 
     <record id="action_pr_employee_medical_insurance_my" model="ir.actions.act_window">
@@ -692,7 +692,7 @@
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_service_request_search"/>
         <field name="domain">[('request_type', '=', 'iqama_new')]</field>
-        <field name="context">{'default_request_type': 'iqama_new', 'search_default_my_requests': 1}</field>
+        <field name="context">{'default_request_type': 'iqama_new', 'default_payment_responsibility': 'company', 'search_default_my_requests': 1}</field>
     </record>
 
     <record id="action_pr_employee_work_permit_my" model="ir.actions.act_window">
