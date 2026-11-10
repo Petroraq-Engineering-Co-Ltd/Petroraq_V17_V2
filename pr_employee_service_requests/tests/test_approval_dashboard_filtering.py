@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import date
 
+from odoo.osv import expression
 from odoo.tests.common import TransactionCase, tagged
 from odoo.tools.safe_eval import safe_eval
 
@@ -1204,5 +1205,166 @@ class TestApprovalDashboardFiltering(TransactionCase):
         acc_dash_results = self.env["pr.employee.service.request"].with_user(self.user_accounts).search(acc_domain)
         self.assertIn(req_iqama_new_acc, acc_dash_results)
         self.assertNotIn(req_hist_exit_acc, acc_dash_results)
+
+    # =========================================================================
+    # Employee Document Letter Filtering & Dashboard Integration Tests
+    # =========================================================================
+    def test_document_letter_role_filtering_and_dashboard_domain(self):
+        """Verify role resolution, approver search positive/negative complements,
+        record rule visibility, and dashboard domain override for
+        pr.employee.document.letter (Dept. Manager -> HR Manager)."""
+        Letter = self.env["pr.employee.document.letter"]
+
+        def _create_letter(employee, state, letter_type="experience"):
+            return Letter.create({
+                "letter_type": letter_type,
+                "employee_id": employee.id,
+                "company_id": self.env.company.id,
+                "subject": f"Letter Test {state}",
+                "body_html": f"<p>Automated test body {state}</p>",
+                "state": state,
+            })
+
+        letter_mgr = _create_letter(self.employee_a, "department_manager_approval")
+        letter_mgr_other = _create_letter(self.employee_b, "department_manager_approval")
+        letter_hr_mgr = _create_letter(self.employee_a, "hr_manager_approval")
+        letter_draft = _create_letter(self.employee_a, "draft")
+        letter_approved = _create_letter(self.employee_a, "approved")
+
+        # Role resolution checks (MD does not approve employee letters)
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_md))
+        self.assertEqual(Letter._get_user_document_letter_roles(self.user_md), set())
+        self.assertEqual(Letter._get_user_primary_document_letter_role(self.user_hr_manager), "hr_manager")
+        self.assertEqual(
+            Letter._get_user_primary_document_letter_role(self.user_employee_manager),
+            "department_manager",
+        )
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_admin))
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_regular))
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_hr_supervisor))
+
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        all_fixtures = letter_mgr | letter_mgr_other | letter_hr_mgr | letter_draft | letter_approved
+
+        role_matrix = [
+            (self.user_hr_manager, "hr_manager_approval", letter_hr_mgr),
+            (self.user_employee_manager, "department_manager_approval", letter_mgr),
+        ]
+        for user, expected_state, expected_letter in role_matrix:
+            L_user = Letter.with_user(user)
+            universe = L_user.search([("id", "in", all_fixtures.ids)])
+            pos_eq = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "=", True),
+            ])
+            pos_ne = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "!=", False),
+            ])
+            neg_eq = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "=", False),
+            ])
+            neg_ne = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "!=", True),
+            ])
+
+            self.assertEqual(pos_eq, pos_ne)
+            self.assertEqual(neg_eq, neg_ne)
+            self.assertIn(expected_letter, pos_eq)
+            self.assertNotIn(expected_letter, neg_eq)
+            self.assertTrue(all(rec.state == expected_state for rec in pos_eq))
+            self.assertEqual(pos_eq & neg_eq, Letter)
+            self.assertEqual(pos_eq | neg_eq, universe)
+
+            dash_domain = dashboard_service.with_user(user)._document_letter_pending_domain()
+            dash_results = L_user.search(expression.AND([[("id", "in", all_fixtures.ids)], dash_domain]))
+            self.assertEqual(dash_results, pos_eq)
+
+        # Multi-role user (MD + HR Supervisor): neither role is a letter approver
+        self.assertEqual(Letter._get_user_document_letter_roles(self.user_multi_role), set())
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_multi_role))
+
+        # Multi-role user holding HR Manager + Dept. Manager resolves primary to hr_manager
+        # while seeing both hr_manager_approval and subordinate department_manager_approval
+        user_hrm_and_mgr = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test User HRM + DeptMgr Letters",
+            "login": "test.user.hrm.deptmgr.letters@example.com",
+            "email": "test.hrm.deptmgr@example.com",
+            "groups_id": [(6, 0, [self.group_internal_user.id, self.group_hr_manager.id])],
+        })
+        emp_hrm_mgr = self.env["hr.employee"].create({
+            "name": "HRM DeptMgr Employee",
+            "user_id": user_hrm_and_mgr.id,
+        })
+        emp_subordinate = self.env["hr.employee"].create({
+            "name": "HRM DeptMgr Subordinate",
+            "parent_id": emp_hrm_mgr.id,
+        })
+        letter_sub_mgr = _create_letter(emp_subordinate, "department_manager_approval")
+        self.assertEqual(
+            Letter._get_user_document_letter_roles(user_hrm_and_mgr),
+            {"hr_manager", "department_manager"},
+        )
+        self.assertEqual(
+            Letter._get_user_primary_document_letter_role(user_hrm_and_mgr),
+            "hr_manager",
+        )
+        multi_domain = dashboard_service.with_user(user_hrm_and_mgr)._document_letter_pending_domain()
+        multi_dash = Letter.with_user(user_hrm_and_mgr).search(
+            expression.AND([[("id", "in", (all_fixtures | letter_sub_mgr).ids)], multi_domain])
+        )
+        multi_pos = Letter.with_user(user_hrm_and_mgr).search([
+            ("id", "in", (all_fixtures | letter_sub_mgr).ids),
+            ("is_current_user_document_letter_approver", "=", True),
+        ])
+        self.assertEqual(multi_dash, multi_pos)
+        self.assertIn(letter_hr_mgr, multi_pos)
+        self.assertIn(letter_sub_mgr, multi_pos)
+        self.assertNotIn(letter_mgr, multi_pos)
+
+        # MD has no global letter record rule; employee manager isolation holds
+        self.assertNotIn(letter_mgr, Letter.with_user(self.user_md).search([]))
+        self.assertNotIn(letter_mgr_other, Letter.with_user(self.user_employee_manager).search([
+            ("is_current_user_document_letter_approver", "=", True),
+        ]))
+
+        # Admin without functional groups, regular employee, MD, and HR Supervisor
+        # (who has no approval stage on employee letters) see zero pending approvals.
+        for u in (self.user_admin, self.user_regular, self.user_md, self.user_hr_supervisor):
+            L_u = Letter.with_user(u)
+            self.assertEqual(
+                len(L_u.search([("is_current_user_document_letter_approver", "=", True)])),
+                0,
+            )
+            dash_u = dashboard_service.with_user(u)._document_letter_pending_domain()
+            self.assertEqual(len(L_u.search(dash_u)), 0)
+        self.assertIn(letter_approved, Letter.with_user(self.user_hr_supervisor).search([]))
+
+        # Unsupported operators raise NotImplementedError
+        for op in ("in", "not in", "like", "ilike", ">", "<"):
+            with self.assertRaises(NotImplementedError):
+                Letter.search([("is_current_user_document_letter_approver", op, True)])
+
+        # Menu override preserves non-state domain filters such as letter_type
+        letter_action = self.env.ref(
+            "pr_employee_service_requests.action_pr_employee_document_letter_hr_approvals",
+            raise_if_not_found=False,
+        )
+        letter_menu = self.env.ref(
+            "pr_employee_service_requests.menu_pr_employee_document_letter_hr_approvals",
+            raise_if_not_found=False,
+        )
+        if letter_menu and letter_action:
+            pip_letter = _create_letter(self.employee_a, "hr_manager_approval", letter_type="performance_improvement")
+            overridden = dashboard_service.with_user(self.user_hr_manager)._override_domain_for_menu(
+                letter_menu,
+                letter_action,
+                [("letter_type", "=", "performance_improvement")],
+            )
+            hrm_pip = Letter.with_user(self.user_hr_manager).search(overridden)
+            self.assertIn(pip_letter, hrm_pip)
+            self.assertNotIn(letter_hr_mgr, hrm_pip)
 
 
