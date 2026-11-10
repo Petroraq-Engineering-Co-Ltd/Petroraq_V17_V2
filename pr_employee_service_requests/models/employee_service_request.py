@@ -68,6 +68,32 @@ def _open_attachment_preview_action(record, attachments, title=None):
     return action
 
 
+def _get_budget_cost_centers(env, budget):
+    """Return ordered unique cost centers from a budget's lines using sudo."""
+    analytic_accounts = env["account.analytic.account"]
+    if not budget:
+        return analytic_accounts
+    budget_lines = (
+        budget.sudo()
+        .crossovered_budget_line
+        .filtered("analytic_account_id")
+        .sorted(key=lambda line: line.id if isinstance(line.id, int) else 0)
+    )
+    ordered_ids = []
+    seen_ids = set()
+    for line in budget_lines:
+        account_id = line.analytic_account_id.id
+        if account_id and account_id not in seen_ids:
+            seen_ids.add(account_id)
+            ordered_ids.append(account_id)
+    return analytic_accounts.browse(ordered_ids)
+
+
+def _get_default_cost_center_for_budget(env, budget):
+    """Return the first cost center configured on a budget, or an empty recordset."""
+    return _get_budget_cost_centers(env, budget)[:1]
+
+
 class PrEmployeeServiceRequest(models.Model):
     _name = "pr.employee.service.request"
     _description = "Employee Service Request"
@@ -253,6 +279,12 @@ class PrEmployeeServiceRequest(models.Model):
         string="Cost Center",
         tracking=True,
         help="Cost center that will receive the BPV/CPV analytic distribution.",
+    )
+    allowed_cost_center_ids = fields.Many2many(
+        "account.analytic.account",
+        compute="_compute_allowed_cost_center_ids",
+        compute_sudo=True,
+        store=False,
     )
     expense_account_id = fields.Many2one(
         "account.account",
@@ -837,7 +869,28 @@ class PrEmployeeServiceRequest(models.Model):
             return any(user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
         return False
 
-    @api.onchange("employee_id", "payment_method", "cost_center_id")
+    @api.depends(
+        "expense_bucket_id",
+        "expense_bucket_id.crossovered_budget_line",
+        "expense_bucket_id.crossovered_budget_line.analytic_account_id",
+    )
+    def _compute_allowed_cost_center_ids(self):
+        for rec in self:
+            rec.allowed_cost_center_ids = _get_budget_cost_centers(
+                self.env, rec.expense_bucket_id
+            )
+
+    def onchange(self, values, field_names, fields_spec):
+        # Track the user-edited fields from this UI onchange cycle so secondary
+        # onchange passes do not treat employee-defaulted budgets as direct budget edits.
+        return super(
+            PrEmployeeServiceRequest,
+            self.with_context(
+                pr_service_request_onchange_fields=tuple(field_names or ())
+            ),
+        ).onchange(values, field_names, fields_spec)
+
+    @api.onchange("employee_id", "payment_method")
     def _onchange_employee_or_payment_method(self):
         for rec in self:
             if rec.employee_id:
@@ -847,7 +900,7 @@ class PrEmployeeServiceRequest(models.Model):
                 current_contract = rec._get_current_contract()
                 if current_contract:
                     rec.contract_id = current_contract.id
-                if not rec.cost_center_id:
+                if not rec.cost_center_id and not rec.expense_bucket_id:
                     rec.cost_center_id = rec._get_default_hr_cost_center()
                 if rec.cost_center_id and not rec.expense_bucket_id:
                     rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id)
@@ -856,6 +909,31 @@ class PrEmployeeServiceRequest(models.Model):
                     rec.expense_account_id = employee_account
             if not rec.payment_account_id:
                 rec.payment_account_id = rec._get_default_payment_account()
+
+    @api.onchange("expense_bucket_id")
+    def _onchange_expense_bucket_id(self):
+        changed_fields = self.env.context.get("pr_service_request_onchange_fields")
+        is_direct_budget_edit = (
+            changed_fields is None or "expense_bucket_id" in changed_fields
+        )
+        for rec in self:
+            if is_direct_budget_edit:
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+            elif rec.expense_bucket_id and (
+                not rec.cost_center_id
+                or rec.cost_center_id not in rec.allowed_cost_center_ids
+            ):
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+
+    @api.onchange("cost_center_id")
+    def _onchange_cost_center_id(self):
+        for rec in self:
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id)
 
     @api.onchange(
         "request_type",
@@ -3312,6 +3390,31 @@ class HREmployeeIqamaLineAddWizard(models.Model):
         string="Cost Center",
         required=True,
     )
+    allowed_cost_center_ids = fields.Many2many(
+        "account.analytic.account",
+        compute="_compute_allowed_cost_center_ids",
+        compute_sudo=True,
+        store=False,
+    )
+
+    @api.depends(
+        "expense_bucket_id",
+        "expense_bucket_id.crossovered_budget_line",
+        "expense_bucket_id.crossovered_budget_line.analytic_account_id",
+    )
+    def _compute_allowed_cost_center_ids(self):
+        for rec in self:
+            rec.allowed_cost_center_ids = _get_budget_cost_centers(
+                self.env, rec.expense_bucket_id
+            )
+
+    def onchange(self, values, field_names, fields_spec):
+        return super(
+            HREmployeeIqamaLineAddWizard,
+            self.with_context(
+                pr_service_request_onchange_fields=tuple(field_names or ())
+            ),
+        ).onchange(values, field_names, fields_spec)
 
     @api.model
     def default_get(self, fields_list):
@@ -3326,11 +3429,36 @@ class HREmployeeIqamaLineAddWizard(models.Model):
                 values["expense_bucket_id"] = budget.id
         return values
 
-    @api.onchange("employee_id", "from_date", "cost_center_id")
+    @api.onchange("employee_id", "from_date")
     def _onchange_hr_budget_fields(self):
         for rec in self:
-            if rec.employee_id and not rec.cost_center_id:
+            if rec.employee_id and not rec.cost_center_id and not rec.expense_bucket_id:
                 rec.cost_center_id = rec._get_default_hr_cost_center(rec.employee_id)
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
+
+    @api.onchange("expense_bucket_id")
+    def _onchange_expense_bucket_id(self):
+        changed_fields = self.env.context.get("pr_service_request_onchange_fields")
+        is_direct_budget_edit = (
+            changed_fields is None or "expense_bucket_id" in changed_fields
+        )
+        for rec in self:
+            if is_direct_budget_edit:
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+            elif rec.expense_bucket_id and (
+                not rec.cost_center_id
+                or rec.cost_center_id not in rec.allowed_cost_center_ids
+            ):
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+
+    @api.onchange("cost_center_id")
+    def _onchange_cost_center_id(self):
+        for rec in self:
             if rec.cost_center_id and not rec.expense_bucket_id:
                 rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
 
@@ -3378,6 +3506,31 @@ class HREmployeeMedicalInsuranceLineAddWizard(models.Model):
         string="Cost Center",
         required=True,
     )
+    allowed_cost_center_ids = fields.Many2many(
+        "account.analytic.account",
+        compute="_compute_allowed_cost_center_ids",
+        compute_sudo=True,
+        store=False,
+    )
+
+    @api.depends(
+        "expense_bucket_id",
+        "expense_bucket_id.crossovered_budget_line",
+        "expense_bucket_id.crossovered_budget_line.analytic_account_id",
+    )
+    def _compute_allowed_cost_center_ids(self):
+        for rec in self:
+            rec.allowed_cost_center_ids = _get_budget_cost_centers(
+                self.env, rec.expense_bucket_id
+            )
+
+    def onchange(self, values, field_names, fields_spec):
+        return super(
+            HREmployeeMedicalInsuranceLineAddWizard,
+            self.with_context(
+                pr_service_request_onchange_fields=tuple(field_names or ())
+            ),
+        ).onchange(values, field_names, fields_spec)
 
     @api.model
     def default_get(self, fields_list):
@@ -3392,11 +3545,36 @@ class HREmployeeMedicalInsuranceLineAddWizard(models.Model):
                 values["expense_bucket_id"] = budget.id
         return values
 
-    @api.onchange("employee_id", "from_date", "cost_center_id")
+    @api.onchange("employee_id", "from_date")
     def _onchange_hr_budget_fields(self):
         for rec in self:
-            if rec.employee_id and not rec.cost_center_id:
+            if rec.employee_id and not rec.cost_center_id and not rec.expense_bucket_id:
                 rec.cost_center_id = rec._get_default_hr_cost_center(rec.employee_id)
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
+
+    @api.onchange("expense_bucket_id")
+    def _onchange_expense_bucket_id(self):
+        changed_fields = self.env.context.get("pr_service_request_onchange_fields")
+        is_direct_budget_edit = (
+            changed_fields is None or "expense_bucket_id" in changed_fields
+        )
+        for rec in self:
+            if is_direct_budget_edit:
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+            elif rec.expense_bucket_id and (
+                not rec.cost_center_id
+                or rec.cost_center_id not in rec.allowed_cost_center_ids
+            ):
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+
+    @api.onchange("cost_center_id")
+    def _onchange_cost_center_id(self):
+        for rec in self:
             if rec.cost_center_id and not rec.expense_bucket_id:
                 rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
 
