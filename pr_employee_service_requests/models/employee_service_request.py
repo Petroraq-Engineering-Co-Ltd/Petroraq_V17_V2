@@ -154,8 +154,9 @@ class PrEmployeeServiceRequest(models.Model):
         tracking=True,
         help=(
             "Use this for old company-paid Exit/Re-entry visas that were already "
-            "approved and paid outside this workflow. It creates a record only and "
-            "still consumes the company-paid entitlement."
+            "paid outside this workflow. It requires Dept. Manager, HR, and MD "
+            "approval without Accounts/Finance or payment vouchers, and still "
+            "consumes the company-paid entitlement."
         ),
     )
     contract_id = fields.Many2one(
@@ -496,7 +497,13 @@ class PrEmployeeServiceRequest(models.Model):
                 return candidate
         return None
 
-    @api.depends("state", "employee_manager_user_id", "payment_responsibility")
+    @api.depends(
+        "state",
+        "employee_manager_user_id",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_is_current_user_service_request_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
@@ -504,9 +511,9 @@ class PrEmployeeServiceRequest(models.Model):
             is_approver = False
             if "md" in roles and rec.state == "md_approval":
                 is_approver = True
-            elif "finance" in roles and rec.state == "finance_approval" and not rec._is_self_paid_request():
+            elif "finance" in roles and rec.state == "finance_approval" and not rec._is_non_financial_request():
                 is_approver = True
-            elif "accounts" in roles and rec.state == "accounts_approval" and not rec._is_self_paid_request():
+            elif "accounts" in roles and rec.state == "accounts_approval" and not rec._is_non_financial_request():
                 is_approver = True
             elif "hr_manager" in roles and rec.state == "hr_manager_approval":
                 is_approver = True
@@ -538,11 +545,15 @@ class PrEmployeeServiceRequest(models.Model):
             domain_list.append([
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "accounts" in roles:
             domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "hr_manager" in roles:
             domain_list.append([("state", "=", "hr_manager_approval")])
@@ -564,12 +575,17 @@ class PrEmployeeServiceRequest(models.Model):
         )
         return approver_domain if positive_search else expression.distribute_not([expression.NOT_OPERATOR] + expression.normalize_domain(approver_domain))
 
-    @api.depends("state", "payment_responsibility")
+    @api.depends(
+        "state",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_is_current_user_financial_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
         for rec in self:
-            if not rec._is_self_paid_request():
+            if not rec._is_non_financial_request():
                 is_fin_approver = False
                 if "accounts" in roles and rec.state == "accounts_approval":
                     is_fin_approver = True
@@ -594,11 +610,15 @@ class PrEmployeeServiceRequest(models.Model):
             domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "finance" in roles:
             domain_list.append([
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("request_type", "not in", list(NEW_COMPLIANCE_REQUEST_TYPES)),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
 
         if domain_list:
@@ -714,7 +734,13 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             rec.is_employee_manager = (rec.employee_manager_user_id == user)
 
-    @api.depends("state", "employee_manager_user_id", "payment_responsibility")
+    @api.depends(
+        "state",
+        "employee_manager_user_id",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_can_reject(self):
         user = self.env.user
 
@@ -738,12 +764,12 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.state not in approval_states:
                 rec.can_reject = False
                 continue
-            is_self = rec._is_self_paid_request()
+            is_non_financial = rec._is_non_financial_request()
             if is_md:
                 rec.can_reject = True
-            elif is_finance and not is_self and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
+            elif is_finance and not is_non_financial and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
                 rec.can_reject = True
-            elif is_accounts and not is_self and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
+            elif is_accounts and not is_non_financial and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
                 rec.can_reject = True
             elif is_hr_manager and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval"):
                 rec.can_reject = True
@@ -894,7 +920,7 @@ class PrEmployeeServiceRequest(models.Model):
     )
     def _onchange_amounts(self):
         for rec in self:
-            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+            if rec._is_non_financial_request() or rec._is_historical_company_paid_exit_reentry():
                 rec.approved_amount = 0.0
                 if rec.request_type == "iqama_renewal":
                     rec.requested_amount = rec.moi_fee_amount + rec.mol_fee_amount
@@ -1323,6 +1349,14 @@ class PrEmployeeServiceRequest(models.Model):
             and self.payment_responsibility == SELF_PAYMENT_RESPONSIBILITY
         )
 
+    def _is_non_financial_request(self):
+        self.ensure_one()
+        return (
+            self._is_self_paid_request()
+            or self._is_new_compliance_request()
+            or self._is_historical_company_paid_exit_reentry()
+        )
+
     def _is_historical_company_paid_exit_reentry(self):
         self.ensure_one()
         return (
@@ -1511,7 +1545,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _check_before_md_approval(self):
         for rec in self:
-            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+            if rec._is_non_financial_request() or rec._is_historical_company_paid_exit_reentry():
                 continue
             amount = rec._get_payment_amount()
             if amount <= 0.0:
@@ -1526,7 +1560,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _check_before_accounts_approval(self):
         for rec in self:
-            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+            if rec._is_non_financial_request() or rec._is_historical_company_paid_exit_reentry():
                 continue
             amount = rec._get_payment_amount()
             if amount <= 0.0:
@@ -1602,31 +1636,10 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.state != "draft":
                 continue
             vals = {"rejection_reason": False, "approved_amount": False}
-            if rec._is_self_paid_request():
+            if rec._is_non_financial_request():
                 vals["approved_amount"] = 0.0
             if rec.request_type == "iqama_renewal":
                 vals["requested_amount"] = rec._get_requested_compliance_amount()
-            if rec._is_historical_company_paid_exit_reentry():
-                vals.update({
-                    "state": "issued",
-                    "approved_amount": 0.0,
-                    "issue_date": rec.issue_date or fields.Date.context_today(rec),
-                })
-                rec.write(vals)
-                rec.message_post(
-                    body=_(
-                        "Historical company-paid Exit/Re-entry recorded as already approved/paid. "
-                        "No payment request or voucher was created."
-                    )
-                )
-                continue
-            if rec._is_new_compliance_request():
-                rec.write(vals)
-                if rec.request_type == "iqama_new":
-                    rec._issue_iqama_request()
-                else:
-                    rec._issue_medical_insurance()
-                continue
             vals["state"] = "employee_manager_approval"
             rec.write(vals)
             if rec.employee_manager_user_id:
@@ -1688,22 +1701,33 @@ class PrEmployeeServiceRequest(models.Model):
                 raise AccessError(_("Only HR Manager can approve this stage."))
             prior_state = rec.state
             rec._clear_pending_approval_activities()
-            if rec._is_self_paid_request():
+            if rec._is_non_financial_request():
                 rec.write({
                     "state": "md_approval",
                     "approved_amount": 0.0,
                     "hr_manager_approved_by_id": self.env.user.id,
                     "hr_manager_approved_date": fields.Datetime.now(),
                 })
-                rec._notify_group(
-                    ["pr_hr.group_hr_md"],
-                    _("Employee Request Approval Needed"),
-                    _("%s <b>%s</b> is waiting for MD approval (Self-sponsored).") % (rec._get_type_label(), rec.display_name),
-                )
-                if prior_state != "hr_manager_approval":
-                    rec.message_post(body=_("HR Manager approved this self-sponsored request via skip-level approval and forwarded to Managing Director."))
+                if rec._is_self_paid_request():
+                    rec._notify_group(
+                        ["pr_hr.group_hr_md"],
+                        _("Employee Request Approval Needed"),
+                        _("%s <b>%s</b> is waiting for MD approval (Self-sponsored).") % (rec._get_type_label(), rec.display_name),
+                    )
+                    if prior_state != "hr_manager_approval":
+                        rec.message_post(body=_("HR Manager approved this self-sponsored request via skip-level approval and forwarded to Managing Director."))
+                    else:
+                        rec.message_post(body=_("HR Manager approved this self-sponsored request and forwarded to Managing Director."))
                 else:
-                    rec.message_post(body=_("HR Manager approved this self-sponsored request and forwarded to Managing Director."))
+                    rec._notify_group(
+                        ["pr_hr.group_hr_md"],
+                        _("Employee Request Approval Needed"),
+                        _("%s <b>%s</b> is waiting for MD approval.") % (rec._get_type_label(), rec.display_name),
+                    )
+                    if prior_state != "hr_manager_approval":
+                        rec.message_post(body=_("HR Manager approved this request via skip-level approval and forwarded to Managing Director."))
+                    else:
+                        rec.message_post(body=_("HR Manager approved this request and forwarded to Managing Director."))
                 continue
             rec.write({
                 "state": "accounts_approval",
@@ -1723,8 +1747,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_accounts_approve(self):
         for rec in self:
-            if rec._is_self_paid_request():
-                raise UserError(_("Self-paid requests do not require Accounts approval."))
+            if rec._is_non_financial_request():
+                raise UserError(_("This request does not require Accounts approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
                 raise UserError(_("This request cannot be approved at the Accounts stage."))
             if not rec._check_approval_permission("accounts"):
@@ -1750,8 +1774,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_finance_approve(self):
         for rec in self:
-            if rec._is_self_paid_request():
-                raise UserError(_("Self-paid requests do not require Finance approval."))
+            if rec._is_non_financial_request():
+                raise UserError(_("This request does not require Finance approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
                 raise UserError(_("This request cannot be approved at the Finance stage."))
             if not rec._check_approval_permission("finance"):
@@ -1791,7 +1815,7 @@ class PrEmployeeServiceRequest(models.Model):
             prior_state = rec.state
             rec._check_before_md_approval()
             rec._clear_pending_approval_activities()
-            if rec._is_self_paid_request():
+            if rec._is_non_financial_request():
                 approval_vals = {
                     "approved_amount": 0.0,
                     "md_approved_by_id": self.env.user.id,
@@ -1800,7 +1824,29 @@ class PrEmployeeServiceRequest(models.Model):
                 if rec.request_type == "exit_reentry":
                     approval_vals["state"] = "paid"
                     rec.write(approval_vals)
-                    rec.message_post(body=_("Self-paid Exit/Re-entry approved by Managing Director. No accounting entry will be created; HR can issue the visa."))
+                    if rec._is_historical_company_paid_exit_reentry():
+                        rec.message_post(
+                            body=_(
+                                "Historical company-paid Exit/Re-entry approved by Managing Director. "
+                                "No accounting entry will be created; HR can issue the visa."
+                            )
+                        )
+                    else:
+                        rec.message_post(
+                            body=_(
+                                "Self-paid Exit/Re-entry approved by Managing Director. "
+                                "No accounting entry will be created; HR can issue the visa."
+                            )
+                        )
+                elif rec._is_new_compliance_request():
+                    approval_vals["state"] = "paid"
+                    rec.write(approval_vals)
+                    rec.message_post(
+                        body=_(
+                            "Request approved by Managing Director. "
+                            "No accounting entry will be created; HR can now issue the record."
+                        )
+                    )
                 elif rec.request_type == DEPENDENT_FEE_REQUEST_TYPE:
                     approval_vals["state"] = "issued"
                     rec.write(approval_vals)
@@ -1845,7 +1891,7 @@ class PrEmployeeServiceRequest(models.Model):
                 or rec.payment_request_id
                 or rec.cash_payment_id
                 or rec.bank_payment_id
-                or rec._is_self_paid_request()
+                or rec._is_non_financial_request()
                 or rec._is_historical_company_paid_exit_reentry()
             ):
                 raise UserError(_("A payment request can only be created after final approval and before any payment request or voucher exists."))
@@ -2031,8 +2077,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _create_payment_request(self, notify_accounts=True):
         self.ensure_one()
-        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
-            raise UserError(_("Self-paid and historical requests do not create payment requests or accounting vouchers."))
+        if self._is_non_financial_request() or self._is_historical_company_paid_exit_reentry():
+            raise UserError(_("Non-financial and historical requests do not create payment requests or accounting vouchers."))
         if self.payment_request_id:
             if self.payment_request_id.state == "cancelled":
                 self.payment_request_id.state = "requested"
@@ -2097,8 +2143,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _create_payment_voucher(self):
         self.ensure_one()
-        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
-            raise UserError(_("Self-paid and historical requests do not create payment vouchers."))
+        if self._is_non_financial_request() or self._is_historical_company_paid_exit_reentry():
+            raise UserError(_("Non-financial and historical requests do not create payment vouchers."))
         existing_voucher = self.cash_payment_id or self.bank_payment_id
         if existing_voucher:
             return existing_voucher
@@ -2345,7 +2391,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_payment_amount(self):
         self.ensure_one()
-        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
+        if self._is_non_financial_request() or self._is_historical_company_paid_exit_reentry():
             return 0.0
         if self.request_type == "iqama_renewal":
             return self._get_requested_compliance_amount()
