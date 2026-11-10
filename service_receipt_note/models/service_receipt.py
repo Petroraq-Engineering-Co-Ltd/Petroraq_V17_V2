@@ -91,7 +91,7 @@ class ServiceReceiptNote(models.Model):
     state = fields.Selection(
         [
             ("draft", "Draft"),
-            ("ready", "Ready"),
+            ("ready", "Pending"),
             ("done", "Done"),
             ("cancel", "Cancelled"),
         ],
