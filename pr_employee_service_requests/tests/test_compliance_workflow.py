@@ -79,7 +79,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             "country_id": self._get_saudi_country().id,
         })
 
-    def test_new_iqama_creates_record_without_payment_or_approval(self):
+    def test_new_iqama_requires_approval_before_hr_issue(self):
         request = self._create_request(
             "iqama_new",
             service_from_date=date(2099, 1, 1),
@@ -98,7 +98,37 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         })
         request.attachment_ids = [(6, 0, attachment.ids)]
 
-        request.action_submit()
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+
+        self.assertEqual(request.state, "employee_manager_approval")
+        self.assertFalse(request.iqama_id)
+        self.assertFalse(request.iqama_line_id)
+        self.assertFalse(request.work_permit_id)
+        self.assertFalse(request.is_current_user_financial_approver)
+
+        with self.assertRaises(UserError):
+            request.action_accounts_approve()
+        with self.assertRaises(UserError):
+            request.action_finance_approve()
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.action_employee_manager_approve()
+            self.assertEqual(request.state, "hr_supervisor_approval")
+            request.action_hr_supervisor_approve()
+            self.assertEqual(request.state, "hr_manager_approval")
+            request.action_hr_manager_approve()
+
+        self.assertEqual(request.state, "md_approval")
+        request.action_md_approve()
+
+        self.assertEqual(request.state, "paid")
+        self.assertEqual(request.approved_amount, 0.0)
+        self.assertFalse(request.iqama_id)
+        self.assertFalse(request.payment_request_id)
+        self.assertFalse(request.bank_payment_id)
+
+        request.action_issue()
 
         self.assertEqual(request.state, "issued")
         self.assertTrue(request.iqama_id)
@@ -122,7 +152,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         ])
         self.assertTrue(work_permit_attachment)
 
-    def test_new_medical_insurance_creates_record_without_payment(self):
+    def test_new_medical_insurance_requires_approval_before_hr_issue(self):
         request = self._create_request(
             "medical_insurance_new",
             service_from_date=date(2099, 1, 1),
@@ -132,7 +162,28 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             insurance_category="A",
         )
 
-        request.action_submit()
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+
+        self.assertEqual(request.state, "employee_manager_approval")
+        self.assertFalse(request.insurance_id)
+        self.assertFalse(request.insurance_line_id)
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.action_employee_manager_approve()
+            request.action_hr_supervisor_approve()
+            request.action_hr_manager_approve()
+
+        self.assertEqual(request.state, "md_approval")
+        request.action_md_approve()
+
+        self.assertEqual(request.state, "paid")
+        self.assertEqual(request.approved_amount, 0.0)
+        self.assertFalse(request.insurance_id)
+        self.assertFalse(request.payment_request_id)
+        self.assertFalse(request.bank_payment_id)
+
+        request.action_issue()
 
         self.assertEqual(request.state, "issued")
         self.assertTrue(request.insurance_id)
@@ -140,6 +191,19 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         self.assertEqual(request.insurance_line_id.amount, 0.0)
         self.assertFalse(request.payment_request_id)
         self.assertFalse(request.bank_payment_id)
+
+    def test_form_view_approval_ui_for_new_compliance_requests(self):
+        arch = self.env["pr.employee.service.request"].get_view(view_type="form")["arch"]
+        doc = etree.fromstring(arch)
+        approvals_pages = doc.xpath("//notebook/page[@string='Approvals']")
+        self.assertEqual(len(approvals_pages), 1)
+        self.assertFalse(approvals_pages[0].get("invisible"))
+        for button_name in ("action_accounts_approve", "action_finance_approve"):
+            buttons = doc.xpath(f"//header/button[@name='{button_name}']")
+            self.assertEqual(len(buttons), 1)
+            invisible_expr = buttons[0].get("invisible") or ""
+            self.assertIn("iqama_new", invisible_expr)
+            self.assertIn("medical_insurance_new", invisible_expr)
 
     def test_work_permit_fallback_opens_combined_iqama_renewal(self):
         self.env["hr.employee.iqama"].create({
