@@ -324,7 +324,7 @@
                     </group>
                     <notebook>
                         <page string="Attachments">
-                            <field name="attachment_ids" widget="many2many_binary" readonly="state != 'draft'"/>
+                            <field name="attachment_ids" widget="many2many_binary" required="request_type not in ('exit_reentry') or request_type not in ('dependent_fee') and payment_responsibility == 'self'" readonly="state != 'draft'"/>
                         </page>
                         <page string="Approvals">
                             <group>
