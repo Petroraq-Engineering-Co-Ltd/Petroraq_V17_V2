@@ -464,24 +464,16 @@ class PrEmployeeServiceRequest(models.Model):
         roles = set()
 
         # 1. MD
-        if (
-            user.has_group("pr_hr.group_hr_md")
-            or user.has_group("pr_custom_purchase.managing_director")
-            or user.has_group("pr_hr_recruitment_request.group_onboarding_md")
-        ):
+        if user.has_group("pr_hr.group_hr_md"):
             roles.add("md")
 
         # 2. Finance Manager
-        if user.has_group("pr_account.custom_group_accounting_manager"):
+        is_finance_manager = user.has_group("pr_account.custom_group_accounting_manager")
+        if is_finance_manager:
             roles.add("finance")
 
-        # 3. Accounts (excluding Finance Manager or distinct role)
-        if (
-            user.has_group("account.group_account_manager")
-            or user.has_group("account.group_account_user")
-            or user.has_group("pr_account.custom_group_account_supervisor")
-            or user.has_group("account.group_account_invoice")
-        ):
+        # 3. Accounts (Accountant only; Accounting Manager implies account.group_account_manager)
+        if not is_finance_manager and user.has_group("account.group_account_manager"):
             roles.add("accounts")
 
         # 4. HR Manager
@@ -511,11 +503,9 @@ class PrEmployeeServiceRequest(models.Model):
     @api.model
     def _get_user_primary_service_request_role(self, user=None):
         """Determine a user's single primary approval role using strict cascading priority:
-        1. Managing Director (`md`): `pr_hr.group_hr_md`, `pr_custom_purchase.managing_director`,
-           or `pr_hr_recruitment_request.group_onboarding_md` -> `md`
+        1. Managing Director (`md`): `pr_hr.group_hr_md` -> `md`
         2. Finance Manager (`finance`): `pr_account.custom_group_accounting_manager` -> `finance`
-        3. Accounts (`accounts`): `account.group_account_manager`, `account.group_account_user`,
-           `pr_account.custom_group_account_supervisor`, `account.group_account_invoice` (and NOT finance) -> `accounts`
+        3. Accounts (`accounts`): `account.group_account_manager` (and NOT finance) -> `accounts`
         4. HR Manager (`hr_manager`): `pr_hr.group_hr_manager` or `hr.group_hr_manager` -> `hr_manager`
         5. HR Supervisor (`hr_supervisor`): `pr_hr.group_hr_supervisor` or
            `pr_hr_recruitment_request.group_onboarding_supervisor` -> `hr_supervisor`
@@ -536,6 +526,7 @@ class PrEmployeeServiceRequest(models.Model):
         "request_type",
         "exit_reentry_historical_company_paid",
     )
+    @api.depends_context("uid")
     def _compute_is_current_user_service_request_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
@@ -611,6 +602,7 @@ class PrEmployeeServiceRequest(models.Model):
         "request_type",
         "exit_reentry_historical_company_paid",
     )
+    @api.depends_context("uid")
     def _compute_is_current_user_financial_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
@@ -769,6 +761,7 @@ class PrEmployeeServiceRequest(models.Model):
         "request_type",
         "exit_reentry_historical_company_paid",
     )
+    @api.depends_context("uid")
     def _compute_can_reject(self):
         user = self.env.user
 
