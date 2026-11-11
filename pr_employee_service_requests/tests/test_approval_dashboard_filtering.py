@@ -2,6 +2,7 @@
 from datetime import date
 from unittest.mock import patch
 
+from odoo.exceptions import AccessError
 from odoo.osv import expression
 from odoo.tests.common import TransactionCase, tagged
 from odoo.tools.safe_eval import safe_eval
@@ -10,11 +11,14 @@ from odoo.tools.safe_eval import safe_eval
 @tagged("post_install", "-at_install")
 class TestApprovalDashboardFiltering(TransactionCase):
     """Automated unit and integration tests for role-based approval dashboard filtering
-    in pr_employee_service_requests (Milestone 3 - Automated Test Verification R3).
+    in pr_employee_service_requests.
 
-    Verifies that users in each approval role strictly see only service request records
-    matching their single primary approval state, and that multi-role/admin users
-    resolve to a single primary role rather than accumulating multiple stages.
+    Verifies that Accountant (account.group_account_manager without Accounting Manager)
+    and Accounting Manager (pr_account.custom_group_accounting_manager) are strictly
+    segregated between accounts_approval and finance_approval across the Approval
+    Dashboard and approver queues, lower accounting groups receive no queue role,
+    only Managing Director (HR) (pr_hr.group_hr_md) receives the md role, and
+    orthogonal multi-role assignments remain additive.
     """
 
     @classmethod
@@ -616,7 +620,7 @@ class TestApprovalDashboardFiltering(TransactionCase):
     # Computed Fields Consistency Tests
     # =========================================================================
     def test_computed_fields_consistency(self):
-        """Test that computed fields match the strict single primary role expectations."""
+        """Test computed approver fields match role segregation and orthogonal multi-role rules."""
         # MD User
         self.assertTrue(self.req_md.with_user(self.user_md).is_current_user_service_request_approver)
         self.assertFalse(self.req_sup.with_user(self.user_md).is_current_user_service_request_approver)
@@ -632,15 +636,19 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertFalse(self.req_mgr_other.with_user(self.user_employee_manager).is_current_user_service_request_approver)
         self.assertFalse(self.req_sup.with_user(self.user_employee_manager).is_current_user_service_request_approver)
 
-        # Accounts User
+        # Accounts User (Accountant only)
+        self.assertTrue(self.req_accounts.with_user(self.user_accounts).is_current_user_service_request_approver)
+        self.assertFalse(self.req_finance.with_user(self.user_accounts).is_current_user_service_request_approver)
         self.assertTrue(self.req_accounts.with_user(self.user_accounts).is_current_user_financial_approver)
         self.assertFalse(self.req_finance.with_user(self.user_accounts).is_current_user_financial_approver)
 
-        # Finance User
+        # Finance User (Accounting Manager)
+        self.assertTrue(self.req_finance.with_user(self.user_finance).is_current_user_service_request_approver)
+        self.assertFalse(self.req_accounts.with_user(self.user_finance).is_current_user_service_request_approver)
         self.assertTrue(self.req_finance.with_user(self.user_finance).is_current_user_financial_approver)
         self.assertFalse(self.req_accounts.with_user(self.user_finance).is_current_user_financial_approver)
 
-        # Multi-Role User (Finance & Accounts)
+        # Multi-Role User (Finance & Accounts groups -> Finance only, accounts excluded)
         self.assertTrue(self.req_finance.with_user(self.user_finance_and_accounts).is_current_user_service_request_approver)
         self.assertFalse(self.req_accounts.with_user(self.user_finance_and_accounts).is_current_user_service_request_approver)
         self.assertTrue(self.req_finance.with_user(self.user_finance_and_accounts).is_current_user_financial_approver)
@@ -648,12 +656,13 @@ class TestApprovalDashboardFiltering(TransactionCase):
 
         # Multi-Role User (HR Manager & HR Supervisor)
         self.assertTrue(self.req_hr_mgr.with_user(self.user_hrm_and_hrsup).is_current_user_service_request_approver)
-        self.assertFalse(self.req_sup.with_user(self.user_hrm_and_hrsup).is_current_user_service_request_approver)
+        self.assertTrue(self.req_sup.with_user(self.user_hrm_and_hrsup).is_current_user_service_request_approver)
 
-        # 3-Role Cascade User (Manager + HR Sup + Finance)
+        # 3-Role Cascade User (Manager + HR Sup + Finance; accounts still excluded)
         self.assertTrue(self.req_finance.with_user(self.user_3role_cascade).is_current_user_service_request_approver)
-        self.assertFalse(self.req_sup.with_user(self.user_3role_cascade).is_current_user_service_request_approver)
-        self.assertFalse(self.req_mgr_3role.with_user(self.user_3role_cascade).is_current_user_service_request_approver)
+        self.assertTrue(self.req_sup.with_user(self.user_3role_cascade).is_current_user_service_request_approver)
+        self.assertTrue(self.req_mgr_3role.with_user(self.user_3role_cascade).is_current_user_service_request_approver)
+        self.assertFalse(self.req_accounts.with_user(self.user_3role_cascade).is_current_user_service_request_approver)
         self.assertTrue(self.req_finance.with_user(self.user_3role_cascade).is_current_user_financial_approver)
         self.assertFalse(self.req_accounts.with_user(self.user_3role_cascade).is_current_user_financial_approver)
 
@@ -703,7 +712,6 @@ class TestApprovalDashboardFiltering(TransactionCase):
             (self.user_finance, self.req_finance, "finance_approval"),
             (self.user_accounts, self.req_accounts, "accounts_approval"),
             (self.user_multi_role, self.req_md, "md_approval"),
-            (self.user_admin, self.req_md, "md_approval"),
         ]
 
         for user, expected_pos_record, expected_pos_state in test_roles:
@@ -785,18 +793,19 @@ class TestApprovalDashboardFiltering(TransactionCase):
                             f"must be included in negative search for {user.name}."
                         )
 
-        # 8. Regular employee verification (no approval role -> pos is empty, neg is full universe)
-        SR_reg = self.env["pr.employee.service.request"].with_user(self.user_regular)
-        universe_reg = SR_reg.search([])
-        pos_reg = SR_reg.search([("is_current_user_service_request_approver", "=", True)])
-        neg_reg_eq = SR_reg.search([("is_current_user_service_request_approver", "=", False)])
-        neg_reg_ne = SR_reg.search([("is_current_user_service_request_approver", "!=", True)])
+        # 8. Regular employee and admin without functional groups (no approval role -> pos empty, neg full universe)
+        for non_approver in (self.user_regular, self.user_admin):
+            SR_non = self.env["pr.employee.service.request"].with_user(non_approver)
+            universe_non = SR_non.search([])
+            pos_non = SR_non.search([("is_current_user_service_request_approver", "=", True)])
+            neg_non_eq = SR_non.search([("is_current_user_service_request_approver", "=", False)])
+            neg_non_ne = SR_non.search([("is_current_user_service_request_approver", "!=", True)])
 
-        self.assertEqual(len(pos_reg), 0, "Regular employee positive search must return 0 records.")
-        self.assertEqual(neg_reg_eq, neg_reg_ne, "Regular employee negative search operators must yield identical sets.")
-        self.assertEqual(neg_reg_eq, universe_reg, "Regular employee negative search must equal full accessible universe.")
-        self.assertEqual(pos_reg & neg_reg_eq, self.env["pr.employee.service.request"])
-        self.assertEqual(pos_reg | neg_reg_eq, universe_reg)
+            self.assertEqual(len(pos_non), 0, f"{non_approver.name} positive search must return 0 records.")
+            self.assertEqual(neg_non_eq, neg_non_ne, f"{non_approver.name} negative search operators must yield identical sets.")
+            self.assertEqual(neg_non_eq, universe_non, f"{non_approver.name} negative search must equal full accessible universe.")
+            self.assertEqual(pos_non & neg_non_eq, self.env["pr.employee.service.request"])
+            self.assertEqual(pos_non | neg_non_eq, universe_non)
 
     def test_financial_approver_negative_searches(self):
         """Test negative searches on 'is_current_user_financial_approver'
@@ -910,14 +919,13 @@ class TestApprovalDashboardFiltering(TransactionCase):
     # =========================================================================
     def test_multi_role_finance_and_accounts_resolves_to_finance(self):
         """Test user possessing BOTH Finance Manager and Accounts Manager groups
-        resolves primary role to 'finance' (Cascade Priority 2 > 3), while maintaining
-        additive approver search across both finance and accounts approval stages.
+        resolves strictly to 'finance' and excludes 'accounts'.
 
         Verifies:
         1. _get_user_primary_service_request_role evaluates to 'finance'.
-        2. _get_user_service_request_roles contains {'finance', 'accounts'}.
-        3. Positive search sees both finance_approval and accounts_approval.
-        4. Negative search excludes both finance_approval and accounts_approval.
+        2. _get_user_service_request_roles contains only {'finance'}.
+        3. Positive approver and dashboard searches see finance_approval only.
+        4. Negative searches include accounts_approval and exclude finance_approval.
         5. Financial approver search behaves identically.
         6. Mathematical complement holds.
         """
@@ -925,7 +933,7 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertEqual(role, "finance", "User with Finance and Accounts groups must resolve to 'finance' as primary role.")
 
         roles = self.env["pr.employee.service.request"]._get_user_service_request_roles(self.user_finance_and_accounts)
-        self.assertEqual(roles, {"finance", "accounts"})
+        self.assertEqual(roles, {"finance"})
 
         SR = self.env["pr.employee.service.request"].with_user(self.user_finance_and_accounts)
         universe = SR.search([])
@@ -934,9 +942,9 @@ class TestApprovalDashboardFiltering(TransactionCase):
         pos_sr = SR.search([("is_current_user_service_request_approver", "=", True)])
         neg_sr = SR.search([("is_current_user_service_request_approver", "=", False)])
         self.assertIn(self.req_finance, pos_sr, "Must see finance_approval in positive search.")
-        self.assertIn(self.req_accounts, pos_sr, "Must see accounts_approval in positive search.")
+        self.assertNotIn(self.req_accounts, pos_sr, "Accounting Manager must NOT see accounts_approval in positive search.")
         self.assertNotIn(self.req_finance, neg_sr, "Must NOT see finance_approval in negative search.")
-        self.assertNotIn(self.req_accounts, neg_sr, "Must NOT see accounts_approval in negative search.")
+        self.assertIn(self.req_accounts, neg_sr, "Accounting Manager must see accounts_approval in negative search.")
         self.assertEqual(pos_sr & neg_sr, self.env["pr.employee.service.request"])
         self.assertEqual(neg_sr, universe - pos_sr)
 
@@ -944,11 +952,18 @@ class TestApprovalDashboardFiltering(TransactionCase):
         pos_fin = SR.search([("is_current_user_financial_approver", "=", True)])
         neg_fin = SR.search([("is_current_user_financial_approver", "=", False)])
         self.assertIn(self.req_finance, pos_fin, "Must see finance_approval in positive financial search.")
-        self.assertIn(self.req_accounts, pos_fin, "Must see accounts_approval in positive financial search.")
+        self.assertNotIn(self.req_accounts, pos_fin, "Accounting Manager must NOT see accounts_approval in positive financial search.")
         self.assertNotIn(self.req_finance, neg_fin, "Must NOT see finance_approval in negative financial search.")
-        self.assertNotIn(self.req_accounts, neg_fin, "Must NOT see accounts_approval in negative financial search.")
+        self.assertIn(self.req_accounts, neg_fin, "Accounting Manager must see accounts_approval in negative financial search.")
         self.assertEqual(pos_fin & neg_fin, self.env["pr.employee.service.request"])
         self.assertEqual(neg_fin, universe - pos_fin)
+
+        # Approval Dashboard domain
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        dash_domain = dashboard_service.with_user(self.user_finance_and_accounts)._service_request_pending_domain()
+        dash_results = SR.search(dash_domain)
+        self.assertIn(self.req_finance, dash_results)
+        self.assertNotIn(self.req_accounts, dash_results)
 
     def test_multi_role_hr_manager_and_supervisor_resolves_to_hr_manager(self):
         """Test user possessing BOTH HR Manager and HR Supervisor groups
@@ -1026,6 +1041,10 @@ class TestApprovalDashboardFiltering(TransactionCase):
         # Must see Employee Manager request for direct subordinate (req_mgr_3role)
         self.assertIn(self.req_mgr_3role, pos_sr, "Must see employee_manager_approval in positive search.")
         self.assertNotIn(self.req_mgr_3role, neg_sr, "Must NOT see employee_manager_approval in negative search.")
+
+        # Must NOT see accounts_approval in positive search
+        self.assertNotIn(self.req_accounts, pos_sr, "Must NOT see accounts_approval in positive search.")
+        self.assertIn(self.req_accounts, neg_sr, "Must see accounts_approval in negative search.")
 
         # Mathematical complement
         self.assertEqual(pos_sr & neg_sr, self.env["pr.employee.service.request"])
@@ -1108,17 +1127,12 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertEqual(sub_req.state, "hr_manager_approval")
         self.assertEqual(sub_req.hr_supervisor_approved_by_id, user)
 
-        # Financial approver search
+        # Financial approver search (Employee Manager + HR Supervisor has no financial role)
         pos_fin = SR.search([("is_current_user_financial_approver", "=", True)])
         neg_fin = SR.search([("is_current_user_financial_approver", "=", False)])
-        self.assertIn(self.req_finance, pos_fin, "Must see finance_approval in positive financial search.")
-        self.assertNotIn(self.req_finance, neg_fin, "Must NOT see finance_approval in negative financial search.")
-        self.assertNotIn(self.req_accounts, pos_fin, "Must NOT see accounts_approval in positive financial search.")
-        self.assertIn(self.req_accounts, neg_fin, "Must see accounts_approval in negative financial search.")
-        self.assertNotIn(self.req_finance_self, pos_fin, "Must NOT see self-paid finance in positive financial search.")
-        self.assertIn(self.req_finance_self, neg_fin, "Must see self-paid finance in negative financial search.")
+        self.assertEqual(len(pos_fin), 0, "Employee Manager + HR Supervisor must see 0 financial approver records.")
+        self.assertEqual(neg_fin, universe, "Financial negative search must match full accessible universe.")
         self.assertEqual(pos_fin & neg_fin, self.env["pr.employee.service.request"])
-        self.assertEqual(neg_fin, universe - pos_fin)
 
     # =========================================================================
     # Unsupported Search Operators Error Handling
@@ -1481,4 +1495,483 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertIsNotNone(acc_section)
         self.assertEqual(acc_section["count"], 2)
         self.assertEqual([t["key"] for t in acc_section["tiles"]], [other_acc_tile["key"]])
+
+    def test_dashboard_get_sections_segregates_accountant_and_accounting_manager(self):
+        """Full Approval Dashboard get_sections() and sub-tile counts strictly segregate
+        accounts_approval for Accountant vs finance_approval for Accounting Manager."""
+        SR = self.env["pr.employee.service.request"]
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+
+        req_dep_acc = SR.create({
+            "request_type": "dependent_fee",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "iqama_no": "TEST-DEP-ACC-01",
+            "payment_responsibility": "company",
+            "requested_amount": 300.0,
+            "state": "accounts_approval",
+            "reason": "Dependent Fee Accounts Segregation Test",
+        })
+        req_iqama_acc = SR.create({
+            "request_type": "iqama_new",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "iqama_no": "TEST-IQAMA-ACC-02",
+            "payment_responsibility": "company",
+            "moi_fee_amount": 200.0,
+            "mol_fee_amount": 300.0,
+            "state": "accounts_approval",
+            "reason": "Iqama New Accounts Segregation Test",
+        })
+        req_dep_fin = SR.create({
+            "request_type": "dependent_fee",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "iqama_no": "TEST-DEP-FIN-01",
+            "payment_responsibility": "company",
+            "requested_amount": 400.0,
+            "state": "finance_approval",
+            "reason": "Dependent Fee Finance Segregation Test",
+        })
+        req_ins_fin = SR.create({
+            "request_type": "medical_insurance_new",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "iqama_no": "TEST-INS-FIN-02",
+            "payment_responsibility": "company",
+            "requested_amount": 500.0,
+            "state": "finance_approval",
+            "reason": "Insurance New Finance Segregation Test",
+        })
+
+        def _extract_service_tile(sections):
+            hr_section = next((s for s in sections if s.get("key") == "hr"), None)
+            self.assertIsNotNone(hr_section)
+            service_tile = next(
+                (t for t in hr_section["tiles"] if t.get("key") == "hr|pr.employee.service.request|employee_services"),
+                None,
+            )
+            self.assertIsNotNone(service_tile)
+            return service_tile
+
+        acc_sections = dashboard_service.with_user(self.user_accounts).get_sections()
+        acc_tile = _extract_service_tile(acc_sections)
+        acc_sub_by_key = {st["key"]: st for st in acc_tile["sub_tiles"]}
+        acc_tile_ids = set(acc_tile["domain"][0][2])
+        self.assertEqual(acc_tile["count"], sum(st["count"] for st in acc_tile["sub_tiles"]))
+        self.assertEqual(acc_sub_by_key["sub_letters"]["count"], 0)
+        self.assertTrue(
+            all(rec.state == "accounts_approval" for rec in SR.browse(sorted(acc_tile_ids)))
+        )
+        self.assertIn(self.req_accounts.id, acc_sub_by_key["sub_reimbursement"]["domain"][0][2])
+        self.assertIn(req_iqama_acc.id, acc_sub_by_key["sub_iqama"]["domain"][0][2])
+        self.assertIn(req_dep_acc.id, acc_sub_by_key["sub_dependent"]["domain"][0][2])
+        self.assertNotIn(self.req_finance.id, acc_tile_ids)
+        self.assertNotIn(req_dep_fin.id, acc_tile_ids)
+        self.assertNotIn(req_ins_fin.id, acc_tile_ids)
+
+        fin_sections = dashboard_service.with_user(self.user_finance).get_sections()
+        fin_tile = _extract_service_tile(fin_sections)
+        fin_sub_by_key = {st["key"]: st for st in fin_tile["sub_tiles"]}
+        fin_tile_ids = set(fin_tile["domain"][0][2])
+        self.assertEqual(fin_tile["count"], sum(st["count"] for st in fin_tile["sub_tiles"]))
+        self.assertEqual(fin_sub_by_key["sub_letters"]["count"], 0)
+        self.assertTrue(
+            all(rec.state == "finance_approval" for rec in SR.browse(sorted(fin_tile_ids)))
+        )
+        self.assertIn(self.req_finance.id, fin_sub_by_key["sub_reimbursement"]["domain"][0][2])
+        self.assertIn(req_ins_fin.id, fin_sub_by_key["sub_medical"]["domain"][0][2])
+        self.assertIn(req_dep_fin.id, fin_sub_by_key["sub_dependent"]["domain"][0][2])
+        self.assertNotIn(self.req_accounts.id, fin_tile_ids)
+        self.assertNotIn(req_iqama_acc.id, fin_tile_ids)
+        self.assertNotIn(req_dep_acc.id, fin_tile_ids)
+
+        accounts_action = self.env.ref("pr_employee_service_requests.action_pr_employee_accounts_approvals")
+        manager_action = self.env.ref("pr_employee_service_requests.action_pr_employee_manager_approvals")
+        for action in (accounts_action, manager_action):
+            acc_menu_dom = dashboard_service.with_user(self.user_accounts)._override_domain_for_menu(
+                None, action, safe_eval(action.domain or "[]")
+            )
+            acc_menu_res = SR.with_user(self.user_accounts).search(acc_menu_dom)
+            self.assertIn(self.req_accounts, acc_menu_res)
+            self.assertNotIn(self.req_finance, acc_menu_res)
+
+            fin_menu_dom = dashboard_service.with_user(self.user_finance)._override_domain_for_menu(
+                None, action, safe_eval(action.domain or "[]")
+            )
+            fin_menu_res = SR.with_user(self.user_finance).search(fin_menu_dom)
+            self.assertIn(self.req_finance, fin_menu_res)
+            self.assertNotIn(self.req_accounts, fin_menu_res)
+
+    def test_lower_accounting_groups_have_no_dashboard_or_approver_role(self):
+        """Users holding only lower accounting groups must receive no service request role
+        and see zero records in dashboard or approver queues."""
+        SR = self.env["pr.employee.service.request"]
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        lower_group_xmlids = (
+            "account.group_account_user",
+            "pr_account.custom_group_account_supervisor",
+            "account.group_account_invoice",
+        )
+        for idx, xmlid in enumerate(lower_group_xmlids):
+            group = self.env.ref(xmlid)
+            user = self.env["res.users"].with_context(no_reset_password=True).create({
+                "name": f"Lower Accounting User {idx}",
+                "login": f"test.lower.acc.{idx}@example.com",
+                "email": f"test.lower.acc.{idx}@example.com",
+                "groups_id": [(6, 0, [self.group_internal_user.id, group.id])],
+            })
+            with self.subTest(group=xmlid):
+                self.assertFalse(user.has_group("account.group_account_manager"))
+                self.assertFalse(user.has_group("pr_account.custom_group_accounting_manager"))
+                self.assertEqual(SR._get_user_service_request_roles(user), set())
+                self.assertIsNone(SR._get_user_primary_service_request_role(user))
+
+                SR_u = SR.with_user(user)
+                self.assertEqual(
+                    len(SR_u.search([("is_current_user_service_request_approver", "=", True)])),
+                    0,
+                )
+                self.assertEqual(
+                    len(SR_u.search([("is_current_user_financial_approver", "=", True)])),
+                    0,
+                )
+                dash_dom = dashboard_service.with_user(user)._service_request_pending_domain()
+                self.assertEqual(len(SR_u.search(dash_dom)), 0)
+
+    def test_accounting_manager_with_orthogonal_roles_excludes_accounts_stage(self):
+        """Accounting Manager holding orthogonal roles (MD and Direct Employee Manager)
+        retains those stages while still excluding accounts_approval."""
+        SR = self.env["pr.employee.service.request"]
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+
+        user_ortho = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test Accounting Manager Orthogonal",
+            "login": "test.user.acc.mgr.ortho@example.com",
+            "email": "test.acc.mgr.ortho@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_finance_manager.id,
+                self.group_hr_md.id,
+            ])],
+        })
+        emp_ortho_mgr = self.env["hr.employee"].create({
+            "name": "Ortho Manager Employee",
+            "user_id": user_ortho.id,
+            "identification_id": "TEST-IQAMA-ORTHOMGR01",
+        })
+        emp_ortho_sub = self.env["hr.employee"].create({
+            "name": "Ortho Subordinate Employee",
+            "parent_id": emp_ortho_mgr.id,
+            "identification_id": "TEST-IQAMA-ORTHOSUB01",
+        })
+        req_ortho_emp_mgr = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": emp_ortho_sub.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 120.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "employee_manager_approval",
+            "reason": "Orthogonal Employee Manager Request",
+        })
+
+        roles = SR._get_user_service_request_roles(user_ortho)
+        self.assertEqual(roles, {"finance", "md", "employee_manager"})
+        self.assertNotIn("accounts", roles)
+
+        SR_ortho = SR.with_user(user_ortho)
+        pos_sr = SR_ortho.search([("is_current_user_service_request_approver", "=", True)])
+        pos_fin = SR_ortho.search([("is_current_user_financial_approver", "=", True)])
+        self.assertIn(self.req_finance, pos_sr)
+        self.assertIn(self.req_md, pos_sr)
+        self.assertIn(req_ortho_emp_mgr, pos_sr)
+        self.assertNotIn(self.req_accounts, pos_sr)
+
+        self.assertIn(self.req_finance, pos_fin)
+        self.assertNotIn(self.req_accounts, pos_fin)
+        self.assertNotIn(self.req_md, pos_fin)
+        self.assertNotIn(req_ortho_emp_mgr, pos_fin)
+
+        sections = dashboard_service.with_user(user_ortho).get_sections()
+        hr_section = next(s for s in sections if s["key"] == "hr")
+        service_tile = next(
+            t for t in hr_section["tiles"]
+            if t["key"] == "hr|pr.employee.service.request|employee_services"
+        )
+        tile_ids = set(service_tile["domain"][0][2])
+        self.assertIn(self.req_finance.id, tile_ids)
+        self.assertIn(self.req_md.id, tile_ids)
+        self.assertIn(req_ortho_emp_mgr.id, tile_ids)
+        self.assertNotIn(self.req_accounts.id, tile_ids)
+
+    def test_approver_and_reject_cache_isolation_across_with_user(self):
+        """Sequential .with_user() reads on the same recordsets must not leak cached
+        uid-dependent booleans across users in the same transaction."""
+        acc_on_acc = self.req_accounts.with_user(self.user_accounts)
+        fin_on_acc = self.req_finance.with_user(self.user_accounts)
+        self.assertTrue(acc_on_acc.is_current_user_service_request_approver)
+        self.assertTrue(acc_on_acc.is_current_user_financial_approver)
+        self.assertTrue(acc_on_acc.can_reject)
+        self.assertFalse(fin_on_acc.is_current_user_service_request_approver)
+        self.assertFalse(fin_on_acc.is_current_user_financial_approver)
+        self.assertFalse(fin_on_acc.can_reject)
+
+        acc_on_fin = self.req_accounts.with_user(self.user_finance)
+        fin_on_fin = self.req_finance.with_user(self.user_finance)
+        self.assertFalse(acc_on_fin.is_current_user_service_request_approver)
+        self.assertFalse(acc_on_fin.is_current_user_financial_approver)
+        self.assertTrue(acc_on_fin.can_reject)
+        self.assertTrue(fin_on_fin.is_current_user_service_request_approver)
+        self.assertTrue(fin_on_fin.is_current_user_financial_approver)
+        self.assertTrue(fin_on_fin.can_reject)
+
+        self.assertTrue(self.req_accounts.with_user(self.user_accounts).is_current_user_service_request_approver)
+        self.assertFalse(self.req_finance.with_user(self.user_accounts).is_current_user_service_request_approver)
+
+        for rec in (self.req_accounts, self.req_finance):
+            reg_rec = rec.with_user(self.user_regular)
+            self.assertFalse(reg_rec.is_current_user_service_request_approver)
+            self.assertFalse(reg_rec.is_current_user_financial_approver)
+            self.assertFalse(reg_rec.can_reject)
+
+        self.assertTrue(self.req_finance.with_user(self.user_finance).is_current_user_service_request_approver)
+        self.assertFalse(self.req_accounts.with_user(self.user_finance).is_current_user_service_request_approver)
+        self.assertTrue(self.req_accounts.with_user(self.user_finance).can_reject)
+
+    def test_accounting_manager_form_skip_level_approve_and_reject_preserved(self):
+        """Accounting Manager retains direct form skip-level approve and reject permissions
+        on accounts_approval records even though dashboard queues exclude accounts_approval."""
+        today = date.today()
+        plan = self.env["account.analytic.plan"].create({
+            "name": "Dashboard Test Budget Plan",
+        })
+        cost_center = self.env["account.analytic.account"].create({
+            "name": "Dashboard Test Cost Center",
+            "plan_id": plan.id,
+        })
+        budget = self.env["crossovered.budget"].create({
+            "name": "Dashboard Test Budget",
+            "date_from": today,
+            "date_to": date(2099, 12, 31),
+            "state": "validate",
+            "user_id": self.env.user.id,
+            "expense_type": "opex",
+        })
+        self.env["crossovered.budget.lines"].create({
+            "crossovered_budget_id": budget.id,
+            "analytic_account_id": cost_center.id,
+            "date_from": budget.date_from,
+            "date_to": budget.date_to,
+            "planned_amount": 5000.0,
+        })
+        expense_account = self.env["account.account"].create({
+            "name": "Dashboard Test Expense Account",
+            "code": "PRDASHEXP01",
+            "account_type": "expense",
+            "company_id": self.env.company.id,
+        })
+        req = self.env["pr.employee.service.request"].create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 250.0,
+            "approved_amount": 250.0,
+            "expense_date": today,
+            "payment_responsibility": "company",
+            "expense_bucket_id": budget.id,
+            "cost_center_id": cost_center.id,
+            "expense_account_id": expense_account.id,
+            "state": "accounts_approval",
+            "reason": "Skip Level Finance Approval Preservation Test",
+        })
+
+        req_as_finance = req.with_user(self.user_finance)
+        self.assertTrue(req_as_finance.can_reject)
+        self.assertFalse(req_as_finance.is_current_user_service_request_approver)
+        self.assertFalse(req_as_finance.is_current_user_financial_approver)
+
+        with self.assertRaises(AccessError):
+            req_as_finance.action_accounts_approve()
+
+        with patch.object(type(req), "_notify_group", autospec=True):
+            req_as_finance.action_finance_approve()
+
+        self.assertEqual(req.state, "md_approval")
+        self.assertEqual(req.finance_approved_by_id, self.user_finance)
+
+    def test_non_hr_md_groups_do_not_grant_md_approval_visibility(self):
+        """Only Managing Director (HR) (pr_hr.group_hr_md) grants the 'md' role.
+        Purchase Managing Director and Onboarding MD must never expose md_approval
+        records on the Approval Dashboard or approver queues."""
+        SR = self.env["pr.employee.service.request"]
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        group_purchase_md = self.env.ref("pr_custom_purchase.managing_director")
+        group_onboarding_md = self.env.ref("pr_hr_recruitment_request.group_onboarding_md")
+
+        # Standalone Purchase MD and Onboarding MD users without pr_hr.group_hr_md
+        user_purchase_md = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test Purchase MD Only",
+            "login": "test.purchase.md.only@example.com",
+            "email": "test.purchase.md.only@example.com",
+            "groups_id": [(6, 0, [self.group_internal_user.id, group_purchase_md.id])],
+        })
+        user_onboarding_md = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test Onboarding MD Only",
+            "login": "test.onboarding.md.only@example.com",
+            "email": "test.onboarding.md.only@example.com",
+            "groups_id": [(6, 0, [self.group_internal_user.id, group_onboarding_md.id])],
+        })
+
+        for non_hr_md_user in (user_purchase_md, user_onboarding_md):
+            emp_non_hr_md = self.env["hr.employee"].create({
+                "name": f"Employee {non_hr_md_user.name}",
+                "user_id": non_hr_md_user.id,
+            })
+            own_md_req = SR.create({
+                "request_type": "reimbursement",
+                "reimbursement_type": "fuel",
+                "employee_id": emp_non_hr_md.id,
+                "company_id": self.env.company.id,
+                "requested_amount": 110.0,
+                "expense_date": date.today(),
+                "payment_responsibility": "company",
+                "state": "md_approval",
+                "reason": f"Own MD Stage Record for {non_hr_md_user.name}",
+            })
+            with self.subTest(user=non_hr_md_user.name):
+                self.assertFalse(non_hr_md_user.has_group("pr_hr.group_hr_md"))
+                self.assertEqual(SR._get_user_service_request_roles(non_hr_md_user), set())
+                self.assertIsNone(SR._get_user_primary_service_request_role(non_hr_md_user))
+                self.assertFalse(own_md_req.with_user(non_hr_md_user).is_current_user_service_request_approver)
+                self.assertFalse(own_md_req.with_user(non_hr_md_user).can_reject)
+                self.assertEqual(
+                    len(SR.with_user(non_hr_md_user).search([("is_current_user_service_request_approver", "=", True)])),
+                    0,
+                )
+                dash_dom = dashboard_service.with_user(non_hr_md_user)._service_request_pending_domain()
+                self.assertEqual(len(SR.with_user(non_hr_md_user).search(dash_dom)), 0)
+                sections = dashboard_service.with_user(non_hr_md_user).get_sections()
+                hr_section = next(s for s in sections if s["key"] == "hr")
+                service_tile = next(
+                    t for t in hr_section["tiles"]
+                    if t["key"] == "hr|pr.employee.service.request|employee_services"
+                )
+                self.assertNotIn(own_md_req.id, set(service_tile["domain"][0][2]))
+                with self.assertRaises(AccessError):
+                    own_md_req.with_user(non_hr_md_user).action_md_approve()
+
+                # Cache isolation between own_md_req owner and HR MD on the same record
+                self.assertTrue(own_md_req.with_user(self.user_md).is_current_user_service_request_approver)
+                self.assertFalse(own_md_req.with_user(non_hr_md_user).is_current_user_service_request_approver)
+                self.assertTrue(own_md_req.with_user(self.user_md).is_current_user_service_request_approver)
+                self.assertTrue(own_md_req.with_user(self.user_md).can_reject)
+
+        # Combination users whose record rules allow reading self.req_md (e.g. Accounting/HR)
+        combo_cases = [
+            (
+                "purchase_md_accounts",
+                [self.group_internal_user.id, group_purchase_md.id, self.group_accounts_manager.id],
+                {"accounts"},
+                self.req_accounts,
+            ),
+            (
+                "onboarding_md_finance",
+                [self.group_internal_user.id, group_onboarding_md.id, self.group_finance_manager.id],
+                {"finance"},
+                self.req_finance,
+            ),
+            (
+                "both_non_hr_md_hrm",
+                [self.group_internal_user.id, group_purchase_md.id, group_onboarding_md.id, self.group_hr_manager.id],
+                {"hr_manager"},
+                self.req_hr_mgr,
+            ),
+        ]
+        md_action = self.env.ref("pr_employee_service_requests.action_pr_employee_md_approvals")
+        manager_action = self.env.ref("pr_employee_service_requests.action_pr_employee_manager_approvals")
+        reimb_action = self.env.ref("pr_employee_service_requests.action_pr_employee_reimbursement_hr_approvals")
+
+        combo_users = []
+        for suffix, group_ids, expected_roles, expected_rec in combo_cases:
+            combo_user = self.env["res.users"].with_context(no_reset_password=True).create({
+                "name": f"Test Combo {suffix}",
+                "login": f"test.combo.{suffix}@example.com",
+                "email": f"test.combo.{suffix}@example.com",
+                "groups_id": [(6, 0, group_ids)],
+            })
+            combo_users.append(combo_user)
+            with self.subTest(combo=suffix):
+                self.assertFalse(combo_user.has_group("pr_hr.group_hr_md"))
+                roles = SR._get_user_service_request_roles(combo_user)
+                self.assertEqual(roles, expected_roles)
+                self.assertNotIn("md", roles)
+
+                SR_u = SR.with_user(combo_user)
+                pos_sr = SR_u.search([("is_current_user_service_request_approver", "=", True)])
+                self.assertIn(expected_rec, pos_sr)
+                self.assertNotIn(self.req_md, pos_sr)
+
+                self.assertFalse(self.req_md.with_user(combo_user).is_current_user_service_request_approver)
+                self.assertFalse(self.req_md.with_user(combo_user).can_reject)
+                with self.assertRaises(AccessError):
+                    self.req_md.with_user(combo_user).action_md_approve()
+
+                dash_dom = dashboard_service.with_user(combo_user)._service_request_pending_domain()
+                dash_res = SR_u.search(dash_dom)
+                self.assertIn(expected_rec, dash_res)
+                self.assertNotIn(self.req_md, dash_res)
+
+                sections = dashboard_service.with_user(combo_user).get_sections()
+                hr_section = next(s for s in sections if s["key"] == "hr")
+                service_tile = next(
+                    t for t in hr_section["tiles"]
+                    if t["key"] == "hr|pr.employee.service.request|employee_services"
+                )
+                tile_ids = set(service_tile["domain"][0][2])
+                self.assertIn(expected_rec.id, tile_ids)
+                self.assertNotIn(self.req_md.id, tile_ids)
+
+                for action in (md_action, manager_action, reimb_action):
+                    overridden = dashboard_service.with_user(combo_user)._override_domain_for_menu(
+                        None, action, safe_eval(action.domain or "[]")
+                    )
+                    self.assertNotIn(self.req_md, SR_u.search(overridden))
+
+        # Positive control + sequential cache isolation on self.req_md
+        self.assertEqual(SR._get_user_service_request_roles(self.user_md), {"md"})
+        self.assertIn(
+            self.req_md,
+            SR.with_user(self.user_md).search([("is_current_user_service_request_approver", "=", True)]),
+        )
+        md_dash_dom = dashboard_service.with_user(self.user_md)._service_request_pending_domain()
+        self.assertIn(self.req_md, SR.with_user(self.user_md).search(md_dash_dom))
+        md_sections = dashboard_service.with_user(self.user_md).get_sections()
+        md_hr_section = next(s for s in md_sections if s["key"] == "hr")
+        md_service_tile = next(
+            t for t in md_hr_section["tiles"]
+            if t["key"] == "hr|pr.employee.service.request|employee_services"
+        )
+        self.assertIn(self.req_md.id, set(md_service_tile["domain"][0][2]))
+        self.assertTrue(self.req_md.with_user(self.user_md).is_current_user_service_request_approver)
+        for combo_user in combo_users:
+            self.assertFalse(self.req_md.with_user(combo_user).is_current_user_service_request_approver)
+            self.assertTrue(self.req_md.with_user(self.user_md).is_current_user_service_request_approver)
+        self.assertTrue(self.req_md.with_user(self.user_md).can_reject)
+
+        req_md_approve_ok = SR.create({
+            "request_type": "dependent_fee",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "iqama_no": "TEST-MD-POS-01",
+            "payment_responsibility": "self",
+            "requested_amount": 200.0,
+            "state": "md_approval",
+            "reason": "Positive HR MD Approve Permission Check",
+        })
+        req_md_approve_ok.with_user(self.user_md).action_md_approve()
+        self.assertEqual(req_md_approve_ok.state, "issued")
+        self.assertEqual(req_md_approve_ok.md_approved_by_id, self.user_md)
 
