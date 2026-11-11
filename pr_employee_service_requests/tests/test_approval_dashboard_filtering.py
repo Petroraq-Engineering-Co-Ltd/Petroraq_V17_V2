@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+from unittest.mock import patch
 
 from odoo.osv import expression
 from odoo.tests.common import TransactionCase, tagged
@@ -1367,4 +1368,117 @@ class TestApprovalDashboardFiltering(TransactionCase):
             self.assertIn(pip_letter, hrm_pip)
             self.assertNotIn(letter_hr_mgr, hrm_pip)
 
+    def test_financial_service_request_card_excluded_from_dashboard_while_menu_kept(self):
+        """Remove Employee Service Request Financial Approvals card from the
+        Accounts dashboard section (dropping Accounts if empty or preserving
+        other accounting tiles) while keeping the top menu active."""
+        accounts_menu = self.env.ref(
+            "pr_employee_service_requests.menu_pr_employee_accounts_approvals",
+            raise_if_not_found=False,
+        )
+        accounts_action = self.env.ref(
+            "pr_employee_service_requests.action_pr_employee_accounts_approvals",
+            raise_if_not_found=False,
+        )
+        self.assertTrue(accounts_menu and accounts_menu.active)
+        self.assertTrue(accounts_action)
+
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        for user, expected_req in (
+            (self.user_accounts, self.req_accounts),
+            (self.user_finance, self.req_finance),
+        ):
+            sections = dashboard_service.with_user(user).get_sections()
+            for section in sections:
+                self.assertTrue(section.get("tiles"))
+                if section.get("key") != "hr":
+                    for tile in section.get("tiles", []):
+                        self.assertNotIn(
+                            tile.get("res_model"),
+                            ("pr.employee.service.request", "pr.employee.document.letter"),
+                        )
+                        self.assertNotEqual(tile.get("action_id"), accounts_action.id)
+            hr_section = next((s for s in sections if s.get("key") == "hr"), None)
+            self.assertIsNotNone(hr_section)
+            service_tile = next(
+                (t for t in hr_section["tiles"] if t.get("key") == "hr|pr.employee.service.request|employee_services"),
+                None,
+            )
+            self.assertIsNotNone(service_tile)
+            self.assertIn(expected_req.id, service_tile["domain"][0][2])
+
+        # Verify empty Accounts section is dropped and non-empty Accounts section keeps sibling tiles.
+        from odoo.addons.pr_employee_service_requests.models.approval_dashboard import (
+            HrApprovalDashboardService as ServiceReqDashboard,
+        )
+
+        mro = type(dashboard_service).mro()
+        super_cls = next(
+            cls for cls in mro[mro.index(ServiceReqDashboard) + 1:]
+            if "get_sections" in cls.__dict__
+        )
+        loose_tile = {
+            "key": "accounts|pr.employee.service.request|employee service request financial approvals",
+            "name": "Employee Service Request Financial Approvals",
+            "count": 3,
+            "icon": "fa-money",
+            "tone": "info",
+            "action_id": accounts_action.id,
+            "res_model": "pr.employee.service.request",
+        }
+        fallback_financial_tile = {
+            "key": f"accounts|action|{accounts_action.id}|employee service request financial approvals",
+            "name": "Employee Service Request Financial Approvals",
+            "count": 1,
+            "icon": "fa-money",
+            "tone": "info",
+            "action_id": accounts_action.id,
+        }
+        other_acc_tile = {
+            "key": "accounts|pr.account.bank.payment|bank payment approvals",
+            "name": "Bank Payment Approvals",
+            "count": 2,
+            "icon": "fa-file-text-o",
+            "tone": "danger",
+            "action_id": 999999,
+            "res_model": "pr.account.bank.payment",
+        }
+
+        with patch.object(
+            super_cls,
+            "get_sections",
+            autospec=True,
+            return_value=[{
+                "key": "accounts",
+                "name": "Accounts",
+                "icon": "fa-money",
+                "tone": "danger",
+                "sequence": 20,
+                "count": 3,
+                "tiles": [dict(loose_tile)],
+            }],
+        ):
+            dropped_sections = dashboard_service.with_user(self.user_accounts).get_sections()
+        self.assertIsNone(next((s for s in dropped_sections if s["key"] == "accounts"), None))
+        self.assertTrue(all(s.get("tiles") for s in dropped_sections))
+
+        with patch.object(
+            super_cls,
+            "get_sections",
+            autospec=True,
+            return_value=[{
+                "key": "accounts",
+                "name": "Accounts",
+                "icon": "fa-money",
+                "tone": "danger",
+                "sequence": 20,
+                "count": 6,
+                "tiles": [dict(loose_tile), dict(fallback_financial_tile), dict(other_acc_tile)],
+            }],
+        ):
+            kept_sections = dashboard_service.with_user(self.user_accounts).get_sections()
+        acc_section = next((s for s in kept_sections if s["key"] == "accounts"), None)
+        self.assertIsNotNone(acc_section)
+        self.assertEqual(acc_section["count"], 2)
+        self.assertEqual([t["key"] for t in acc_section["tiles"]], [other_acc_tile["key"]])
 
