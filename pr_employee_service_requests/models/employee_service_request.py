@@ -68,6 +68,32 @@ def _open_attachment_preview_action(record, attachments, title=None):
     return action
 
 
+def _get_budget_cost_centers(env, budget):
+    """Return ordered unique cost centers from a budget's lines using sudo."""
+    analytic_accounts = env["account.analytic.account"]
+    if not budget:
+        return analytic_accounts
+    budget_lines = (
+        budget.sudo()
+        .crossovered_budget_line
+        .filtered("analytic_account_id")
+        .sorted(key=lambda line: line.id if isinstance(line.id, int) else 0)
+    )
+    ordered_ids = []
+    seen_ids = set()
+    for line in budget_lines:
+        account_id = line.analytic_account_id.id
+        if account_id and account_id not in seen_ids:
+            seen_ids.add(account_id)
+            ordered_ids.append(account_id)
+    return analytic_accounts.browse(ordered_ids)
+
+
+def _get_default_cost_center_for_budget(env, budget):
+    """Return the first cost center configured on a budget, or an empty recordset."""
+    return _get_budget_cost_centers(env, budget)[:1]
+
+
 class PrEmployeeServiceRequest(models.Model):
     _name = "pr.employee.service.request"
     _description = "Employee Service Request"
@@ -154,8 +180,9 @@ class PrEmployeeServiceRequest(models.Model):
         tracking=True,
         help=(
             "Use this for old company-paid Exit/Re-entry visas that were already "
-            "approved and paid outside this workflow. It creates a record only and "
-            "still consumes the company-paid entitlement."
+            "paid outside this workflow. It requires Dept. Manager, HR, and MD "
+            "approval without Accounts/Finance or payment vouchers, and still "
+            "consumes the company-paid entitlement."
         ),
     )
     contract_id = fields.Many2one(
@@ -252,6 +279,12 @@ class PrEmployeeServiceRequest(models.Model):
         string="Cost Center",
         tracking=True,
         help="Cost center that will receive the BPV/CPV analytic distribution.",
+    )
+    allowed_cost_center_ids = fields.Many2many(
+        "account.analytic.account",
+        compute="_compute_allowed_cost_center_ids",
+        compute_sudo=True,
+        store=False,
     )
     expense_account_id = fields.Many2one(
         "account.account",
@@ -496,7 +529,13 @@ class PrEmployeeServiceRequest(models.Model):
                 return candidate
         return None
 
-    @api.depends("state", "employee_manager_user_id", "payment_responsibility")
+    @api.depends(
+        "state",
+        "employee_manager_user_id",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_is_current_user_service_request_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
@@ -504,9 +543,9 @@ class PrEmployeeServiceRequest(models.Model):
             is_approver = False
             if "md" in roles and rec.state == "md_approval":
                 is_approver = True
-            elif "finance" in roles and rec.state == "finance_approval" and not rec._is_self_paid_request():
+            elif "finance" in roles and rec.state == "finance_approval" and not rec._is_non_financial_request():
                 is_approver = True
-            elif "accounts" in roles and rec.state == "accounts_approval" and not rec._is_self_paid_request():
+            elif "accounts" in roles and rec.state == "accounts_approval" and not rec._is_non_financial_request():
                 is_approver = True
             elif "hr_manager" in roles and rec.state == "hr_manager_approval":
                 is_approver = True
@@ -538,11 +577,13 @@ class PrEmployeeServiceRequest(models.Model):
             domain_list.append([
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "accounts" in roles:
             domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "hr_manager" in roles:
             domain_list.append([("state", "=", "hr_manager_approval")])
@@ -564,12 +605,17 @@ class PrEmployeeServiceRequest(models.Model):
         )
         return approver_domain if positive_search else expression.distribute_not([expression.NOT_OPERATOR] + expression.normalize_domain(approver_domain))
 
-    @api.depends("state", "payment_responsibility")
+    @api.depends(
+        "state",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_is_current_user_financial_approver(self):
         user = self.env.user
         roles = self._get_user_service_request_roles(user)
         for rec in self:
-            if not rec._is_self_paid_request():
+            if not rec._is_non_financial_request():
                 is_fin_approver = False
                 if "accounts" in roles and rec.state == "accounts_approval":
                     is_fin_approver = True
@@ -594,11 +640,13 @@ class PrEmployeeServiceRequest(models.Model):
             domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "finance" in roles:
             domain_list.append([
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
 
         if domain_list:
@@ -714,7 +762,13 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             rec.is_employee_manager = (rec.employee_manager_user_id == user)
 
-    @api.depends("state", "employee_manager_user_id", "payment_responsibility")
+    @api.depends(
+        "state",
+        "employee_manager_user_id",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
     def _compute_can_reject(self):
         user = self.env.user
 
@@ -738,12 +792,12 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.state not in approval_states:
                 rec.can_reject = False
                 continue
-            is_self = rec._is_self_paid_request()
+            is_non_financial = rec._is_non_financial_request()
             if is_md:
                 rec.can_reject = True
-            elif is_finance and not is_self and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
+            elif is_finance and not is_non_financial and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
                 rec.can_reject = True
-            elif is_accounts and not is_self and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
+            elif is_accounts and not is_non_financial and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
                 rec.can_reject = True
             elif is_hr_manager and rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval"):
                 rec.can_reject = True
@@ -815,7 +869,28 @@ class PrEmployeeServiceRequest(models.Model):
             return any(user.has_group(xmlid) for xmlid in ACCOUNTING_GROUP_XML_IDS)
         return False
 
-    @api.onchange("employee_id", "payment_method", "cost_center_id")
+    @api.depends(
+        "expense_bucket_id",
+        "expense_bucket_id.crossovered_budget_line",
+        "expense_bucket_id.crossovered_budget_line.analytic_account_id",
+    )
+    def _compute_allowed_cost_center_ids(self):
+        for rec in self:
+            rec.allowed_cost_center_ids = _get_budget_cost_centers(
+                self.env, rec.expense_bucket_id
+            )
+
+    def onchange(self, values, field_names, fields_spec):
+        # Track the user-edited fields from this UI onchange cycle so secondary
+        # onchange passes do not treat employee-defaulted budgets as direct budget edits.
+        return super(
+            PrEmployeeServiceRequest,
+            self.with_context(
+                pr_service_request_onchange_fields=tuple(field_names or ())
+            ),
+        ).onchange(values, field_names, fields_spec)
+
+    @api.onchange("employee_id", "payment_method")
     def _onchange_employee_or_payment_method(self):
         for rec in self:
             if rec.employee_id:
@@ -825,7 +900,7 @@ class PrEmployeeServiceRequest(models.Model):
                 current_contract = rec._get_current_contract()
                 if current_contract:
                     rec.contract_id = current_contract.id
-                if not rec.cost_center_id:
+                if not rec.cost_center_id and not rec.expense_bucket_id:
                     rec.cost_center_id = rec._get_default_hr_cost_center()
                 if rec.cost_center_id and not rec.expense_bucket_id:
                     rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id)
@@ -834,6 +909,31 @@ class PrEmployeeServiceRequest(models.Model):
                     rec.expense_account_id = employee_account
             if not rec.payment_account_id:
                 rec.payment_account_id = rec._get_default_payment_account()
+
+    @api.onchange("expense_bucket_id")
+    def _onchange_expense_bucket_id(self):
+        changed_fields = self.env.context.get("pr_service_request_onchange_fields")
+        is_direct_budget_edit = (
+            changed_fields is None or "expense_bucket_id" in changed_fields
+        )
+        for rec in self:
+            if is_direct_budget_edit:
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+            elif rec.expense_bucket_id and (
+                not rec.cost_center_id
+                or rec.cost_center_id not in rec.allowed_cost_center_ids
+            ):
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+
+    @api.onchange("cost_center_id")
+    def _onchange_cost_center_id(self):
+        for rec in self:
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id)
 
     @api.onchange(
         "request_type",
@@ -894,12 +994,12 @@ class PrEmployeeServiceRequest(models.Model):
     )
     def _onchange_amounts(self):
         for rec in self:
-            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+            if rec._is_non_financial_request() or rec._is_historical_company_paid_exit_reentry():
                 rec.approved_amount = 0.0
-                if rec.request_type == "iqama_renewal":
+                if rec.request_type in IQAMA_REQUEST_TYPES:
                     rec.requested_amount = rec.moi_fee_amount + rec.mol_fee_amount
                 continue
-            if rec.request_type == "iqama_renewal":
+            if rec.request_type in IQAMA_REQUEST_TYPES:
                 rec.requested_amount = rec.moi_fee_amount + rec.mol_fee_amount
                 rec.approved_amount = rec.requested_amount
             elif not rec.approved_amount:
@@ -999,16 +1099,18 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.request_type == DEPENDENT_FEE_REQUEST_TYPE:
                 if rec.requested_amount <= 0.0:
                     raise ValidationError(_("Requested Amount must be greater than zero for dependent fee requests."))
-            if rec.request_type == "iqama_renewal" and (
+            if rec.request_type in IQAMA_REQUEST_TYPES and (
                 rec.moi_fee_amount < 0.0 or rec.mol_fee_amount < 0.0
             ):
                 raise ValidationError(_("MOI and MOL fees cannot be negative."))
             if (
                 rec._get_requested_compliance_amount() <= 0.0
-                and rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES
+                and rec.request_type in HR_COMPLIANCE_REQUEST_TYPES
                 and not rec._is_self_paid_request()
             ):
-                raise ValidationError(_("Requested Amount must be greater than zero for renewal requests."))
+                if rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES:
+                    raise ValidationError(_("Requested Amount must be greater than zero for renewal requests."))
+                raise ValidationError(_("Requested Amount must be greater than zero for new compliance requests."))
             if rec.request_type == "exit_reentry":
                 if rec.exit_reentry_entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
                     if rec.payment_responsibility != SELF_PAYMENT_RESPONSIBILITY:
@@ -1028,9 +1130,37 @@ class PrEmployeeServiceRequest(models.Model):
                     raise ValidationError(_("To Date cannot be before From Date."))
 
     @api.model
+    def default_get(self, fields_list):
+        values = super().default_get(fields_list)
+        request_type = (
+            values.get("request_type")
+            or self.env.context.get("default_request_type")
+            or "reimbursement"
+        )
+        if (
+            request_type not in SELF_COMPANY_REQUEST_TYPES
+            and "payment_responsibility" in fields_list
+        ):
+            values["payment_responsibility"] = COMPANY_PAYMENT_RESPONSIBILITY
+        return values
+
+    @api.model
     def _normalize_exit_reentry_create_vals(self, vals):
         vals = dict(vals)
-        request_type = vals.get("request_type")
+        request_type = (
+            vals.get("request_type")
+            or self.env.context.get("default_request_type")
+            or "reimbursement"
+        )
+        if request_type in IQAMA_REQUEST_TYPES:
+            vals["requested_amount"] = (
+                (vals.get("moi_fee_amount") or 0.0)
+                + (vals.get("mol_fee_amount") or 0.0)
+            )
+        if request_type not in SELF_COMPANY_REQUEST_TYPES:
+            vals["payment_responsibility"] = COMPANY_PAYMENT_RESPONSIBILITY
+            vals["exit_reentry_historical_company_paid"] = False
+            return vals
         if request_type == "exit_reentry":
             entry_type = vals.get("exit_reentry_entry_type") or EXIT_REENTRY_SINGLE_ENTRY
             if entry_type == EXIT_REENTRY_MULTIPLE_ENTRY:
@@ -1049,6 +1179,18 @@ class PrEmployeeServiceRequest(models.Model):
         self.ensure_one()
         vals = dict(vals)
         request_type = vals.get("request_type", self.request_type)
+        if request_type in IQAMA_REQUEST_TYPES and (
+            "request_type" in vals
+            or "moi_fee_amount" in vals
+            or "mol_fee_amount" in vals
+        ):
+            moi_fee = vals.get("moi_fee_amount", self.moi_fee_amount) or 0.0
+            mol_fee = vals.get("mol_fee_amount", self.mol_fee_amount) or 0.0
+            vals["requested_amount"] = moi_fee + mol_fee
+        if request_type not in SELF_COMPANY_REQUEST_TYPES:
+            vals["payment_responsibility"] = COMPANY_PAYMENT_RESPONSIBILITY
+            vals["exit_reentry_historical_company_paid"] = False
+            return vals
         if request_type != "exit_reentry":
             if "request_type" in vals:
                 vals["exit_reentry_historical_company_paid"] = False
@@ -1075,12 +1217,6 @@ class PrEmployeeServiceRequest(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         vals_list = [self._normalize_exit_reentry_create_vals(vals) for vals in vals_list]
-        for vals in vals_list:
-            if vals.get("request_type") == "iqama_renewal":
-                vals["requested_amount"] = (
-                    vals.get("moi_fee_amount", 0.0)
-                    + vals.get("mol_fee_amount", 0.0)
-                )
         records = super().create(vals_list)
         for rec in records:
             if rec.name in (False, "New", _("New")):
@@ -1123,6 +1259,8 @@ class PrEmployeeServiceRequest(models.Model):
             "payment_responsibility",
             "exit_reentry_entry_type",
             "exit_reentry_historical_company_paid",
+            "moi_fee_amount",
+            "mol_fee_amount",
         }.intersection(vals):
             if len(self) > 1:
                 for rec in self:
@@ -1237,18 +1375,28 @@ class PrEmployeeServiceRequest(models.Model):
                     raise UserError(_("Please enter travel and return dates."))
                 if rec.return_date < rec.travel_date:
                     raise UserError(_("Return Date cannot be before Travel Date."))
-            if rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES:
+            if rec.request_type in HR_COMPLIANCE_REQUEST_TYPES:
                 if not rec._is_self_paid_request():
                     if rec._get_requested_compliance_amount() <= 0.0:
                         raise UserError(_("Please enter the expected fee amount greater than zero."))
-                    if not rec.expense_bucket_id:
-                        raise UserError(_("Please select the approved Budget for this renewal."))
-                    if not rec.cost_center_id:
-                        raise UserError(_("Please select the Cost Center for this renewal."))
-                    if not rec.expense_account_id:
-                        raise UserError(_("Please select the Employee / Expense Account for this renewal."))
-                    if not rec.attachment_ids:
-                        raise UserError(_("Please attach the renewal supporting document(s)."))
+                    if rec.request_type in COMPLIANCE_RENEWAL_REQUEST_TYPES:
+                        if not rec.expense_bucket_id:
+                            raise UserError(_("Please select the approved Budget for this renewal."))
+                        if not rec.cost_center_id:
+                            raise UserError(_("Please select the Cost Center for this renewal."))
+                        if not rec.expense_account_id:
+                            raise UserError(_("Please select the Employee / Expense Account for this renewal."))
+                        if not rec.attachment_ids:
+                            raise UserError(_("Please attach the renewal supporting document(s)."))
+                    else:
+                        if not rec.expense_bucket_id:
+                            raise UserError(_("Please select the approved Budget for this request."))
+                        if not rec.cost_center_id:
+                            raise UserError(_("Please select the Cost Center for this request."))
+                        if not rec.expense_account_id:
+                            raise UserError(_("Please select the Employee / Expense Account for this request."))
+                        if not rec.attachment_ids:
+                            raise UserError(_("Please attach the supporting document(s)."))
             if rec.request_type in HR_COMPLIANCE_REQUEST_TYPES:
                 if not rec.iqama_no:
                     raise UserError(_("Please enter the Iqama No."))
@@ -1321,6 +1469,13 @@ class PrEmployeeServiceRequest(models.Model):
         return (
             self.request_type in SELF_COMPANY_REQUEST_TYPES
             and self.payment_responsibility == SELF_PAYMENT_RESPONSIBILITY
+        )
+
+    def _is_non_financial_request(self):
+        self.ensure_one()
+        return (
+            self._is_self_paid_request()
+            or self._is_historical_company_paid_exit_reentry()
         )
 
     def _is_historical_company_paid_exit_reentry(self):
@@ -1511,7 +1666,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _check_before_md_approval(self):
         for rec in self:
-            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+            if rec._is_non_financial_request() or rec._is_historical_company_paid_exit_reentry():
                 continue
             amount = rec._get_payment_amount()
             if amount <= 0.0:
@@ -1526,7 +1681,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _check_before_accounts_approval(self):
         for rec in self:
-            if rec._is_self_paid_request() or rec._is_historical_company_paid_exit_reentry():
+            if rec._is_non_financial_request() or rec._is_historical_company_paid_exit_reentry():
                 continue
             amount = rec._get_payment_amount()
             if amount <= 0.0:
@@ -1602,31 +1757,10 @@ class PrEmployeeServiceRequest(models.Model):
             if rec.state != "draft":
                 continue
             vals = {"rejection_reason": False, "approved_amount": False}
-            if rec._is_self_paid_request():
+            if rec._is_non_financial_request():
                 vals["approved_amount"] = 0.0
-            if rec.request_type == "iqama_renewal":
+            if rec.request_type in IQAMA_REQUEST_TYPES:
                 vals["requested_amount"] = rec._get_requested_compliance_amount()
-            if rec._is_historical_company_paid_exit_reentry():
-                vals.update({
-                    "state": "issued",
-                    "approved_amount": 0.0,
-                    "issue_date": rec.issue_date or fields.Date.context_today(rec),
-                })
-                rec.write(vals)
-                rec.message_post(
-                    body=_(
-                        "Historical company-paid Exit/Re-entry recorded as already approved/paid. "
-                        "No payment request or voucher was created."
-                    )
-                )
-                continue
-            if rec._is_new_compliance_request():
-                rec.write(vals)
-                if rec.request_type == "iqama_new":
-                    rec._issue_iqama_request()
-                else:
-                    rec._issue_medical_insurance()
-                continue
             vals["state"] = "employee_manager_approval"
             rec.write(vals)
             if rec.employee_manager_user_id:
@@ -1688,22 +1822,33 @@ class PrEmployeeServiceRequest(models.Model):
                 raise AccessError(_("Only HR Manager can approve this stage."))
             prior_state = rec.state
             rec._clear_pending_approval_activities()
-            if rec._is_self_paid_request():
+            if rec._is_non_financial_request():
                 rec.write({
                     "state": "md_approval",
                     "approved_amount": 0.0,
                     "hr_manager_approved_by_id": self.env.user.id,
                     "hr_manager_approved_date": fields.Datetime.now(),
                 })
-                rec._notify_group(
-                    ["pr_hr.group_hr_md"],
-                    _("Employee Request Approval Needed"),
-                    _("%s <b>%s</b> is waiting for MD approval (Self-sponsored).") % (rec._get_type_label(), rec.display_name),
-                )
-                if prior_state != "hr_manager_approval":
-                    rec.message_post(body=_("HR Manager approved this self-sponsored request via skip-level approval and forwarded to Managing Director."))
+                if rec._is_self_paid_request():
+                    rec._notify_group(
+                        ["pr_hr.group_hr_md"],
+                        _("Employee Request Approval Needed"),
+                        _("%s <b>%s</b> is waiting for MD approval (Self-sponsored).") % (rec._get_type_label(), rec.display_name),
+                    )
+                    if prior_state != "hr_manager_approval":
+                        rec.message_post(body=_("HR Manager approved this self-sponsored request via skip-level approval and forwarded to Managing Director."))
+                    else:
+                        rec.message_post(body=_("HR Manager approved this self-sponsored request and forwarded to Managing Director."))
                 else:
-                    rec.message_post(body=_("HR Manager approved this self-sponsored request and forwarded to Managing Director."))
+                    rec._notify_group(
+                        ["pr_hr.group_hr_md"],
+                        _("Employee Request Approval Needed"),
+                        _("%s <b>%s</b> is waiting for MD approval.") % (rec._get_type_label(), rec.display_name),
+                    )
+                    if prior_state != "hr_manager_approval":
+                        rec.message_post(body=_("HR Manager approved this request via skip-level approval and forwarded to Managing Director."))
+                    else:
+                        rec.message_post(body=_("HR Manager approved this request and forwarded to Managing Director."))
                 continue
             rec.write({
                 "state": "accounts_approval",
@@ -1723,8 +1868,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_accounts_approve(self):
         for rec in self:
-            if rec._is_self_paid_request():
-                raise UserError(_("Self-paid requests do not require Accounts approval."))
+            if rec._is_non_financial_request():
+                raise UserError(_("This request does not require Accounts approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
                 raise UserError(_("This request cannot be approved at the Accounts stage."))
             if not rec._check_approval_permission("accounts"):
@@ -1750,8 +1895,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_finance_approve(self):
         for rec in self:
-            if rec._is_self_paid_request():
-                raise UserError(_("Self-paid requests do not require Finance approval."))
+            if rec._is_non_financial_request():
+                raise UserError(_("This request does not require Finance approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
                 raise UserError(_("This request cannot be approved at the Finance stage."))
             if not rec._check_approval_permission("finance"):
@@ -1791,7 +1936,7 @@ class PrEmployeeServiceRequest(models.Model):
             prior_state = rec.state
             rec._check_before_md_approval()
             rec._clear_pending_approval_activities()
-            if rec._is_self_paid_request():
+            if rec._is_non_financial_request():
                 approval_vals = {
                     "approved_amount": 0.0,
                     "md_approved_by_id": self.env.user.id,
@@ -1800,7 +1945,20 @@ class PrEmployeeServiceRequest(models.Model):
                 if rec.request_type == "exit_reentry":
                     approval_vals["state"] = "paid"
                     rec.write(approval_vals)
-                    rec.message_post(body=_("Self-paid Exit/Re-entry approved by Managing Director. No accounting entry will be created; HR can issue the visa."))
+                    if rec._is_historical_company_paid_exit_reentry():
+                        rec.message_post(
+                            body=_(
+                                "Historical company-paid Exit/Re-entry approved by Managing Director. "
+                                "No accounting entry will be created; HR can issue the visa."
+                            )
+                        )
+                    else:
+                        rec.message_post(
+                            body=_(
+                                "Self-paid Exit/Re-entry approved by Managing Director. "
+                                "No accounting entry will be created; HR can issue the visa."
+                            )
+                        )
                 elif rec.request_type == DEPENDENT_FEE_REQUEST_TYPE:
                     approval_vals["state"] = "issued"
                     rec.write(approval_vals)
@@ -1845,7 +2003,7 @@ class PrEmployeeServiceRequest(models.Model):
                 or rec.payment_request_id
                 or rec.cash_payment_id
                 or rec.bank_payment_id
-                or rec._is_self_paid_request()
+                or rec._is_non_financial_request()
                 or rec._is_historical_company_paid_exit_reentry()
             ):
                 raise UserError(_("A payment request can only be created after final approval and before any payment request or voucher exists."))
@@ -2010,7 +2168,13 @@ class PrEmployeeServiceRequest(models.Model):
     def _prepare_payment_request_lines(self):
         self.ensure_one()
         expense_account_id = self.expense_account_id.id if self.expense_account_id else False
-        if self.request_type == "iqama_renewal":
+        if self.request_type in IQAMA_REQUEST_TYPES:
+            if self.request_type == "iqama_new":
+                moi_label = _("MOI fee - New Iqama - %s") % self.employee_id.name
+                mol_label = _("MOL fee - New Work Permit - %s") % self.employee_id.name
+            else:
+                moi_label = _("MOI fee - Iqama renewal - %s") % self.employee_id.name
+                mol_label = _("MOL fee - Work Permit renewal - %s") % self.employee_id.name
             return [
                 (0, 0, {
                     "description": description,
@@ -2018,8 +2182,8 @@ class PrEmployeeServiceRequest(models.Model):
                     "expense_account_id": expense_account_id,
                 })
                 for description, line_amount in (
-                    (_("MOI fee - Iqama renewal - %s") % self.employee_id.name, self.moi_fee_amount),
-                    (_("MOL fee - Work Permit renewal - %s") % self.employee_id.name, self.mol_fee_amount),
+                    (moi_label, self.moi_fee_amount),
+                    (mol_label, self.mol_fee_amount),
                 )
                 if line_amount > 0.0
             ]
@@ -2031,8 +2195,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _create_payment_request(self, notify_accounts=True):
         self.ensure_one()
-        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
-            raise UserError(_("Self-paid and historical requests do not create payment requests or accounting vouchers."))
+        if self._is_non_financial_request() or self._is_historical_company_paid_exit_reentry():
+            raise UserError(_("Non-financial and historical requests do not create payment requests or accounting vouchers."))
         if self.payment_request_id:
             if self.payment_request_id.state == "cancelled":
                 self.payment_request_id.state = "requested"
@@ -2097,8 +2261,8 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _create_payment_voucher(self):
         self.ensure_one()
-        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
-            raise UserError(_("Self-paid and historical requests do not create payment vouchers."))
+        if self._is_non_financial_request() or self._is_historical_company_paid_exit_reentry():
+            raise UserError(_("Non-financial and historical requests do not create payment vouchers."))
         existing_voucher = self.cash_payment_id or self.bank_payment_id
         if existing_voucher:
             return existing_voucher
@@ -2182,7 +2346,7 @@ class PrEmployeeServiceRequest(models.Model):
             self.iqama_line_id.sudo().state = "issued"
         else:
             self_relation = self._get_self_relation()
-            iqama_line = self.env["hr.employee.iqama.line"].sudo().create({
+            line_vals = {
                 "name": self.name,
                 "iqama_id": iqama.id,
                 "employee_id": self.employee_id.id,
@@ -2195,7 +2359,14 @@ class PrEmployeeServiceRequest(models.Model):
                 "country_id": self.employee_id.country_id.id if self.employee_id.country_id else False,
                 "amount": self._get_payment_amount(),
                 "state": "issued",
-            })
+            }
+            iqama_line_model = self.env["hr.employee.iqama.line"]
+            if self.payment_request_id and "payment_request_id" in iqama_line_model._fields:
+                line_vals["payment_request_id"] = self.payment_request_id.id
+            bank_payment = self.bank_payment_id or self.payment_request_id.bank_payment_id
+            if bank_payment and "bank_payment_id" in iqama_line_model._fields:
+                line_vals["bank_payment_id"] = bank_payment.id
+            iqama_line = iqama_line_model.sudo().create(line_vals)
             self.iqama_line_id = iqama_line.id
         self.iqama_id = iqama.id
         self._copy_attachments_to(iqama)
@@ -2240,7 +2411,7 @@ class PrEmployeeServiceRequest(models.Model):
             self.insurance_line_id.sudo().state = "issued"
         else:
             self_relation = self._get_self_relation()
-            insurance_line = self.env["hr.employee.medical.insurance.line"].sudo().create({
+            line_vals = {
                 "name": self.name,
                 "insurance_id": insurance.id,
                 "employee_id": self.employee_id.id,
@@ -2254,7 +2425,14 @@ class PrEmployeeServiceRequest(models.Model):
                 "country_id": self.employee_id.country_id.id if self.employee_id.country_id else False,
                 "amount": self._get_payment_amount(),
                 "state": "issued",
-            })
+            }
+            insurance_line_model = self.env["hr.employee.medical.insurance.line"]
+            if self.payment_request_id and "payment_request_id" in insurance_line_model._fields:
+                line_vals["payment_request_id"] = self.payment_request_id.id
+            bank_payment = self.bank_payment_id or self.payment_request_id.bank_payment_id
+            if bank_payment and "bank_payment_id" in insurance_line_model._fields:
+                line_vals["bank_payment_id"] = bank_payment.id
+            insurance_line = insurance_line_model.sudo().create(line_vals)
             self.insurance_line_id = insurance_line.id
         self.insurance_id = insurance.id
         self._copy_attachments_to(insurance)
@@ -2285,14 +2463,15 @@ class PrEmployeeServiceRequest(models.Model):
             "iqama_expiry_date": self.service_expiry_date,
             "work_permit_expiry_date": self.work_permit_expiry_date,
             "state": "issued",
-            "payment_state": "draft" if self.request_type == "iqama_new" else "paid",
+            "payment_state": "paid",
         }
         if work_permit:
             work_permit.sudo().write(vals)
         else:
             work_permit = self.env["hr.work.permit"].sudo().create(vals)
-        if self.bank_payment_id and "bank_payment_id" in work_permit._fields:
-            work_permit.sudo().bank_payment_id = self.bank_payment_id.id
+        bank_payment = self.bank_payment_id or self.payment_request_id.bank_payment_id
+        if bank_payment and "bank_payment_id" in work_permit._fields:
+            work_permit.sudo().bank_payment_id = bank_payment.id
         self._copy_attachments_to(work_permit)
         if self.visa_number != visa_number:
             self.with_context(skip_employee_service_request_lock=True).visa_number = visa_number
@@ -2345,9 +2524,9 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_payment_amount(self):
         self.ensure_one()
-        if self._is_self_paid_request() or self._is_historical_company_paid_exit_reentry():
+        if self._is_non_financial_request() or self._is_historical_company_paid_exit_reentry():
             return 0.0
-        if self.request_type == "iqama_renewal":
+        if self.request_type in IQAMA_REQUEST_TYPES:
             return self._get_requested_compliance_amount()
         if self.approved_amount:
             return self.approved_amount
@@ -2357,12 +2536,19 @@ class PrEmployeeServiceRequest(models.Model):
 
     def _get_requested_compliance_amount(self):
         self.ensure_one()
-        if self.request_type == "iqama_renewal":
+        if self.request_type in IQAMA_REQUEST_TYPES:
             return (self.moi_fee_amount or 0.0) + (self.mol_fee_amount or 0.0)
         return self.requested_amount
 
     def _get_payment_description(self):
         self.ensure_one()
+        if self.request_type == "iqama_new":
+            return _("%(request)s - New Iqama & Work Permit - %(employee)s (MOI %(moi).2f + MOL %(mol).2f)") % {
+                "request": self.name,
+                "employee": self.employee_id.name,
+                "moi": self.moi_fee_amount,
+                "mol": self.mol_fee_amount,
+            }
         if self.request_type == "iqama_renewal":
             return _("%(request)s - Iqama & Work Permit renewal - %(employee)s (MOI %(moi).2f + MOL %(mol).2f)") % {
                 "request": self.name,
@@ -3204,6 +3390,31 @@ class HREmployeeIqamaLineAddWizard(models.Model):
         string="Cost Center",
         required=True,
     )
+    allowed_cost_center_ids = fields.Many2many(
+        "account.analytic.account",
+        compute="_compute_allowed_cost_center_ids",
+        compute_sudo=True,
+        store=False,
+    )
+
+    @api.depends(
+        "expense_bucket_id",
+        "expense_bucket_id.crossovered_budget_line",
+        "expense_bucket_id.crossovered_budget_line.analytic_account_id",
+    )
+    def _compute_allowed_cost_center_ids(self):
+        for rec in self:
+            rec.allowed_cost_center_ids = _get_budget_cost_centers(
+                self.env, rec.expense_bucket_id
+            )
+
+    def onchange(self, values, field_names, fields_spec):
+        return super(
+            HREmployeeIqamaLineAddWizard,
+            self.with_context(
+                pr_service_request_onchange_fields=tuple(field_names or ())
+            ),
+        ).onchange(values, field_names, fields_spec)
 
     @api.model
     def default_get(self, fields_list):
@@ -3218,11 +3429,36 @@ class HREmployeeIqamaLineAddWizard(models.Model):
                 values["expense_bucket_id"] = budget.id
         return values
 
-    @api.onchange("employee_id", "from_date", "cost_center_id")
+    @api.onchange("employee_id", "from_date")
     def _onchange_hr_budget_fields(self):
         for rec in self:
-            if rec.employee_id and not rec.cost_center_id:
+            if rec.employee_id and not rec.cost_center_id and not rec.expense_bucket_id:
                 rec.cost_center_id = rec._get_default_hr_cost_center(rec.employee_id)
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
+
+    @api.onchange("expense_bucket_id")
+    def _onchange_expense_bucket_id(self):
+        changed_fields = self.env.context.get("pr_service_request_onchange_fields")
+        is_direct_budget_edit = (
+            changed_fields is None or "expense_bucket_id" in changed_fields
+        )
+        for rec in self:
+            if is_direct_budget_edit:
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+            elif rec.expense_bucket_id and (
+                not rec.cost_center_id
+                or rec.cost_center_id not in rec.allowed_cost_center_ids
+            ):
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+
+    @api.onchange("cost_center_id")
+    def _onchange_cost_center_id(self):
+        for rec in self:
             if rec.cost_center_id and not rec.expense_bucket_id:
                 rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
 
@@ -3270,6 +3506,31 @@ class HREmployeeMedicalInsuranceLineAddWizard(models.Model):
         string="Cost Center",
         required=True,
     )
+    allowed_cost_center_ids = fields.Many2many(
+        "account.analytic.account",
+        compute="_compute_allowed_cost_center_ids",
+        compute_sudo=True,
+        store=False,
+    )
+
+    @api.depends(
+        "expense_bucket_id",
+        "expense_bucket_id.crossovered_budget_line",
+        "expense_bucket_id.crossovered_budget_line.analytic_account_id",
+    )
+    def _compute_allowed_cost_center_ids(self):
+        for rec in self:
+            rec.allowed_cost_center_ids = _get_budget_cost_centers(
+                self.env, rec.expense_bucket_id
+            )
+
+    def onchange(self, values, field_names, fields_spec):
+        return super(
+            HREmployeeMedicalInsuranceLineAddWizard,
+            self.with_context(
+                pr_service_request_onchange_fields=tuple(field_names or ())
+            ),
+        ).onchange(values, field_names, fields_spec)
 
     @api.model
     def default_get(self, fields_list):
@@ -3284,11 +3545,36 @@ class HREmployeeMedicalInsuranceLineAddWizard(models.Model):
                 values["expense_bucket_id"] = budget.id
         return values
 
-    @api.onchange("employee_id", "from_date", "cost_center_id")
+    @api.onchange("employee_id", "from_date")
     def _onchange_hr_budget_fields(self):
         for rec in self:
-            if rec.employee_id and not rec.cost_center_id:
+            if rec.employee_id and not rec.cost_center_id and not rec.expense_bucket_id:
                 rec.cost_center_id = rec._get_default_hr_cost_center(rec.employee_id)
+            if rec.cost_center_id and not rec.expense_bucket_id:
+                rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
+
+    @api.onchange("expense_bucket_id")
+    def _onchange_expense_bucket_id(self):
+        changed_fields = self.env.context.get("pr_service_request_onchange_fields")
+        is_direct_budget_edit = (
+            changed_fields is None or "expense_bucket_id" in changed_fields
+        )
+        for rec in self:
+            if is_direct_budget_edit:
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+            elif rec.expense_bucket_id and (
+                not rec.cost_center_id
+                or rec.cost_center_id not in rec.allowed_cost_center_ids
+            ):
+                rec.cost_center_id = _get_default_cost_center_for_budget(
+                    self.env, rec.expense_bucket_id
+                )
+
+    @api.onchange("cost_center_id")
+    def _onchange_cost_center_id(self):
+        for rec in self:
             if rec.cost_center_id and not rec.expense_bucket_id:
                 rec.expense_bucket_id = rec._get_default_hr_budget(rec.cost_center_id, rec.from_date)
 

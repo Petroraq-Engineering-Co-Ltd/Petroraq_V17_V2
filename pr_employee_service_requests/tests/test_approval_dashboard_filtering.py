@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+from unittest.mock import patch
 
+from odoo.osv import expression
 from odoo.tests.common import TransactionCase, tagged
 from odoo.tools.safe_eval import safe_eval
 
@@ -243,10 +245,10 @@ class TestApprovalDashboardFiltering(TransactionCase):
 
         # 13. Self-Paid Service Requests (for financial approver inverted query compound OR validation)
         cls.req_finance_self = _create_service_request(
-            cls.employee_a, "finance_approval", payment_resp="self"
+            cls.employee_a, "finance_approval", payment_resp="self", req_type="exit_reentry"
         )
         cls.req_accounts_self = _create_service_request(
-            cls.employee_a, "accounts_approval", payment_resp="self"
+            cls.employee_a, "accounts_approval", payment_resp="self", req_type="exit_reentry"
         )
 
         # 14. Dedicated Multi-Role User: Direct Employee Manager + HR Supervisor
@@ -1135,4 +1137,348 @@ class TestApprovalDashboardFiltering(TransactionCase):
             with self.subTest(field="is_current_user_financial_approver", op=op):
                 with self.assertRaises(NotImplementedError):
                     SR.search([("is_current_user_financial_approver", op, True)])
+
+    def test_new_compliance_requests_included_for_financial_approvers(self):
+        """New Iqama and New Medical Insurance requests are always company-paid and
+        must appear in Accounts/Finance financial approval queues while historical
+        company-paid Exit/Re-entry records remain excluded."""
+        req_iqama_new_acc = self.env["pr.employee.service.request"].create({
+            "request_type": "iqama_new",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "iqama_no": "TEST-IQAMA-NEW-01",
+            "moi_fee_amount": 400.0,
+            "mol_fee_amount": 600.0,
+            "state": "accounts_approval",
+            "reason": "New Iqama Accounts Approval Test",
+        })
+        req_ins_new_fin = self.env["pr.employee.service.request"].create({
+            "request_type": "medical_insurance_new",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "iqama_no": "TEST-INS-NEW-01",
+            "requested_amount": 500.0,
+            "state": "finance_approval",
+            "reason": "New Insurance Financial Approval Test",
+        })
+        req_hist_exit_acc = self.env["pr.employee.service.request"].create({
+            "request_type": "exit_reentry",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "payment_responsibility": "company",
+            "exit_reentry_entry_type": "single",
+            "exit_reentry_historical_company_paid": True,
+            "state": "accounts_approval",
+            "reason": "Historical Exit Re-entry Financial Exclusion Test",
+        })
+
+        self.assertEqual(req_iqama_new_acc.payment_responsibility, "company")
+        self.assertEqual(req_ins_new_fin.payment_responsibility, "company")
+
+        acc_fin_results = self.env["pr.employee.service.request"].with_user(self.user_accounts).search([
+            ("is_current_user_financial_approver", "=", True),
+        ])
+        self.assertIn(req_iqama_new_acc, acc_fin_results)
+        self.assertNotIn(req_hist_exit_acc, acc_fin_results)
+
+        acc_sr_results = self.env["pr.employee.service.request"].with_user(self.user_accounts).search([
+            ("is_current_user_service_request_approver", "=", True),
+        ])
+        self.assertIn(req_iqama_new_acc, acc_sr_results)
+        self.assertNotIn(req_hist_exit_acc, acc_sr_results)
+
+        fin_fin_results = self.env["pr.employee.service.request"].with_user(self.user_finance).search([
+            ("is_current_user_financial_approver", "=", True),
+        ])
+        self.assertIn(req_ins_new_fin, fin_fin_results)
+
+        fin_sr_results = self.env["pr.employee.service.request"].with_user(self.user_finance).search([
+            ("is_current_user_service_request_approver", "=", True),
+        ])
+        self.assertIn(req_ins_new_fin, fin_sr_results)
+
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        fin_domain = dashboard_service.with_user(self.user_finance)._service_request_pending_domain()
+        fin_dash_results = self.env["pr.employee.service.request"].with_user(self.user_finance).search(fin_domain)
+        self.assertIn(req_ins_new_fin, fin_dash_results)
+
+        acc_domain = dashboard_service.with_user(self.user_accounts)._service_request_pending_domain()
+        acc_dash_results = self.env["pr.employee.service.request"].with_user(self.user_accounts).search(acc_domain)
+        self.assertIn(req_iqama_new_acc, acc_dash_results)
+        self.assertNotIn(req_hist_exit_acc, acc_dash_results)
+
+    # =========================================================================
+    # Employee Document Letter Filtering & Dashboard Integration Tests
+    # =========================================================================
+    def test_document_letter_role_filtering_and_dashboard_domain(self):
+        """Verify role resolution, approver search positive/negative complements,
+        record rule visibility, and dashboard domain override for
+        pr.employee.document.letter (Dept. Manager -> HR Manager)."""
+        Letter = self.env["pr.employee.document.letter"]
+
+        def _create_letter(employee, state, letter_type="experience"):
+            return Letter.create({
+                "letter_type": letter_type,
+                "employee_id": employee.id,
+                "company_id": self.env.company.id,
+                "subject": f"Letter Test {state}",
+                "body_html": f"<p>Automated test body {state}</p>",
+                "state": state,
+            })
+
+        letter_mgr = _create_letter(self.employee_a, "department_manager_approval")
+        letter_mgr_other = _create_letter(self.employee_b, "department_manager_approval")
+        letter_hr_mgr = _create_letter(self.employee_a, "hr_manager_approval")
+        letter_draft = _create_letter(self.employee_a, "draft")
+        letter_approved = _create_letter(self.employee_a, "approved")
+
+        # Role resolution checks (MD does not approve employee letters)
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_md))
+        self.assertEqual(Letter._get_user_document_letter_roles(self.user_md), set())
+        self.assertEqual(Letter._get_user_primary_document_letter_role(self.user_hr_manager), "hr_manager")
+        self.assertEqual(
+            Letter._get_user_primary_document_letter_role(self.user_employee_manager),
+            "department_manager",
+        )
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_admin))
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_regular))
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_hr_supervisor))
+
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        all_fixtures = letter_mgr | letter_mgr_other | letter_hr_mgr | letter_draft | letter_approved
+
+        role_matrix = [
+            (self.user_hr_manager, "hr_manager_approval", letter_hr_mgr),
+            (self.user_employee_manager, "department_manager_approval", letter_mgr),
+        ]
+        for user, expected_state, expected_letter in role_matrix:
+            L_user = Letter.with_user(user)
+            universe = L_user.search([("id", "in", all_fixtures.ids)])
+            pos_eq = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "=", True),
+            ])
+            pos_ne = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "!=", False),
+            ])
+            neg_eq = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "=", False),
+            ])
+            neg_ne = L_user.search([
+                ("id", "in", all_fixtures.ids),
+                ("is_current_user_document_letter_approver", "!=", True),
+            ])
+
+            self.assertEqual(pos_eq, pos_ne)
+            self.assertEqual(neg_eq, neg_ne)
+            self.assertIn(expected_letter, pos_eq)
+            self.assertNotIn(expected_letter, neg_eq)
+            self.assertTrue(all(rec.state == expected_state for rec in pos_eq))
+            self.assertEqual(pos_eq & neg_eq, Letter)
+            self.assertEqual(pos_eq | neg_eq, universe)
+
+            dash_domain = dashboard_service.with_user(user)._document_letter_pending_domain()
+            dash_results = L_user.search(expression.AND([[("id", "in", all_fixtures.ids)], dash_domain]))
+            self.assertEqual(dash_results, pos_eq)
+
+        # Multi-role user (MD + HR Supervisor): neither role is a letter approver
+        self.assertEqual(Letter._get_user_document_letter_roles(self.user_multi_role), set())
+        self.assertIsNone(Letter._get_user_primary_document_letter_role(self.user_multi_role))
+
+        # Multi-role user holding HR Manager + Dept. Manager resolves primary to hr_manager
+        # while seeing both hr_manager_approval and subordinate department_manager_approval
+        user_hrm_and_mgr = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test User HRM + DeptMgr Letters",
+            "login": "test.user.hrm.deptmgr.letters@example.com",
+            "email": "test.hrm.deptmgr@example.com",
+            "groups_id": [(6, 0, [self.group_internal_user.id, self.group_hr_manager.id])],
+        })
+        emp_hrm_mgr = self.env["hr.employee"].create({
+            "name": "HRM DeptMgr Employee",
+            "user_id": user_hrm_and_mgr.id,
+        })
+        emp_subordinate = self.env["hr.employee"].create({
+            "name": "HRM DeptMgr Subordinate",
+            "parent_id": emp_hrm_mgr.id,
+        })
+        letter_sub_mgr = _create_letter(emp_subordinate, "department_manager_approval")
+        self.assertEqual(
+            Letter._get_user_document_letter_roles(user_hrm_and_mgr),
+            {"hr_manager", "department_manager"},
+        )
+        self.assertEqual(
+            Letter._get_user_primary_document_letter_role(user_hrm_and_mgr),
+            "hr_manager",
+        )
+        multi_domain = dashboard_service.with_user(user_hrm_and_mgr)._document_letter_pending_domain()
+        multi_dash = Letter.with_user(user_hrm_and_mgr).search(
+            expression.AND([[("id", "in", (all_fixtures | letter_sub_mgr).ids)], multi_domain])
+        )
+        multi_pos = Letter.with_user(user_hrm_and_mgr).search([
+            ("id", "in", (all_fixtures | letter_sub_mgr).ids),
+            ("is_current_user_document_letter_approver", "=", True),
+        ])
+        self.assertEqual(multi_dash, multi_pos)
+        self.assertIn(letter_hr_mgr, multi_pos)
+        self.assertIn(letter_sub_mgr, multi_pos)
+        self.assertNotIn(letter_mgr, multi_pos)
+
+        # MD has no global letter record rule; employee manager isolation holds
+        self.assertNotIn(letter_mgr, Letter.with_user(self.user_md).search([]))
+        self.assertNotIn(letter_mgr_other, Letter.with_user(self.user_employee_manager).search([
+            ("is_current_user_document_letter_approver", "=", True),
+        ]))
+
+        # Admin without functional groups, regular employee, MD, and HR Supervisor
+        # (who has no approval stage on employee letters) see zero pending approvals.
+        for u in (self.user_admin, self.user_regular, self.user_md, self.user_hr_supervisor):
+            L_u = Letter.with_user(u)
+            self.assertEqual(
+                len(L_u.search([("is_current_user_document_letter_approver", "=", True)])),
+                0,
+            )
+            dash_u = dashboard_service.with_user(u)._document_letter_pending_domain()
+            self.assertEqual(len(L_u.search(dash_u)), 0)
+        self.assertIn(letter_approved, Letter.with_user(self.user_hr_supervisor).search([]))
+
+        # Unsupported operators raise NotImplementedError
+        for op in ("in", "not in", "like", "ilike", ">", "<"):
+            with self.assertRaises(NotImplementedError):
+                Letter.search([("is_current_user_document_letter_approver", op, True)])
+
+        # Menu override preserves non-state domain filters such as letter_type
+        letter_action = self.env.ref(
+            "pr_employee_service_requests.action_pr_employee_document_letter_hr_approvals",
+            raise_if_not_found=False,
+        )
+        letter_menu = self.env.ref(
+            "pr_employee_service_requests.menu_pr_employee_document_letter_hr_approvals",
+            raise_if_not_found=False,
+        )
+        if letter_menu and letter_action:
+            pip_letter = _create_letter(self.employee_a, "hr_manager_approval", letter_type="performance_improvement")
+            overridden = dashboard_service.with_user(self.user_hr_manager)._override_domain_for_menu(
+                letter_menu,
+                letter_action,
+                [("letter_type", "=", "performance_improvement")],
+            )
+            hrm_pip = Letter.with_user(self.user_hr_manager).search(overridden)
+            self.assertIn(pip_letter, hrm_pip)
+            self.assertNotIn(letter_hr_mgr, hrm_pip)
+
+    def test_financial_service_request_card_excluded_from_dashboard_while_menu_kept(self):
+        """Remove Employee Service Request Financial Approvals card from the
+        Accounts dashboard section (dropping Accounts if empty or preserving
+        other accounting tiles) while keeping the top menu active."""
+        accounts_menu = self.env.ref(
+            "pr_employee_service_requests.menu_pr_employee_accounts_approvals",
+            raise_if_not_found=False,
+        )
+        accounts_action = self.env.ref(
+            "pr_employee_service_requests.action_pr_employee_accounts_approvals",
+            raise_if_not_found=False,
+        )
+        self.assertTrue(accounts_menu and accounts_menu.active)
+        self.assertTrue(accounts_action)
+
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+        for user, expected_req in (
+            (self.user_accounts, self.req_accounts),
+            (self.user_finance, self.req_finance),
+        ):
+            sections = dashboard_service.with_user(user).get_sections()
+            for section in sections:
+                self.assertTrue(section.get("tiles"))
+                if section.get("key") != "hr":
+                    for tile in section.get("tiles", []):
+                        self.assertNotIn(
+                            tile.get("res_model"),
+                            ("pr.employee.service.request", "pr.employee.document.letter"),
+                        )
+                        self.assertNotEqual(tile.get("action_id"), accounts_action.id)
+            hr_section = next((s for s in sections if s.get("key") == "hr"), None)
+            self.assertIsNotNone(hr_section)
+            service_tile = next(
+                (t for t in hr_section["tiles"] if t.get("key") == "hr|pr.employee.service.request|employee_services"),
+                None,
+            )
+            self.assertIsNotNone(service_tile)
+            self.assertIn(expected_req.id, service_tile["domain"][0][2])
+
+        # Verify empty Accounts section is dropped and non-empty Accounts section keeps sibling tiles.
+        from odoo.addons.pr_employee_service_requests.models.approval_dashboard import (
+            HrApprovalDashboardService as ServiceReqDashboard,
+        )
+
+        mro = type(dashboard_service).mro()
+        super_cls = next(
+            cls for cls in mro[mro.index(ServiceReqDashboard) + 1:]
+            if "get_sections" in cls.__dict__
+        )
+        loose_tile = {
+            "key": "accounts|pr.employee.service.request|employee service request financial approvals",
+            "name": "Employee Service Request Financial Approvals",
+            "count": 3,
+            "icon": "fa-money",
+            "tone": "info",
+            "action_id": accounts_action.id,
+            "res_model": "pr.employee.service.request",
+        }
+        fallback_financial_tile = {
+            "key": f"accounts|action|{accounts_action.id}|employee service request financial approvals",
+            "name": "Employee Service Request Financial Approvals",
+            "count": 1,
+            "icon": "fa-money",
+            "tone": "info",
+            "action_id": accounts_action.id,
+        }
+        other_acc_tile = {
+            "key": "accounts|pr.account.bank.payment|bank payment approvals",
+            "name": "Bank Payment Approvals",
+            "count": 2,
+            "icon": "fa-file-text-o",
+            "tone": "danger",
+            "action_id": 999999,
+            "res_model": "pr.account.bank.payment",
+        }
+
+        with patch.object(
+            super_cls,
+            "get_sections",
+            autospec=True,
+            return_value=[{
+                "key": "accounts",
+                "name": "Accounts",
+                "icon": "fa-money",
+                "tone": "danger",
+                "sequence": 20,
+                "count": 3,
+                "tiles": [dict(loose_tile)],
+            }],
+        ):
+            dropped_sections = dashboard_service.with_user(self.user_accounts).get_sections()
+        self.assertIsNone(next((s for s in dropped_sections if s["key"] == "accounts"), None))
+        self.assertTrue(all(s.get("tiles") for s in dropped_sections))
+
+        with patch.object(
+            super_cls,
+            "get_sections",
+            autospec=True,
+            return_value=[{
+                "key": "accounts",
+                "name": "Accounts",
+                "icon": "fa-money",
+                "tone": "danger",
+                "sequence": 20,
+                "count": 6,
+                "tiles": [dict(loose_tile), dict(fallback_financial_tile), dict(other_acc_tile)],
+            }],
+        ):
+            kept_sections = dashboard_service.with_user(self.user_accounts).get_sections()
+        acc_section = next((s for s in kept_sections if s["key"] == "accounts"), None)
+        self.assertIsNotNone(acc_section)
+        self.assertEqual(acc_section["count"], 2)
+        self.assertEqual([t["key"] for t in acc_section["tiles"]], [other_acc_tile["key"]])
 

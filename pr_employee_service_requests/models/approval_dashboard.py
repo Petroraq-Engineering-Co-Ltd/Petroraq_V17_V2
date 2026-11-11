@@ -21,11 +21,13 @@ class HrApprovalDashboardService(models.AbstractModel):
             domain_list.append([
                 ("state", "=", "finance_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "accounts" in roles:
             domain_list.append([
                 ("state", "=", "accounts_approval"),
                 ("payment_responsibility", "!=", "self"),
+                ("exit_reentry_historical_company_paid", "=", False),
             ])
         if "hr_manager" in roles:
             domain_list.append([("state", "=", "hr_manager_approval")])
@@ -71,21 +73,52 @@ class HrApprovalDashboardService(models.AbstractModel):
     def _override_domain_for_menu(self, menu, action, domain):
         if action and getattr(action, "res_model", False) == "pr.employee.service.request":
             return self._service_request_pending_domain(menu=menu, action=action, domain=domain)
+        if action and getattr(action, "res_model", False) == "pr.employee.document.letter":
+            return self._document_letter_pending_domain(menu=menu, action=action, domain=domain)
         return super()._override_domain_for_menu(menu, action, domain)
 
     @api.model
-    def _document_letter_pending_domain(self):
+    def _document_letter_pending_domain(self, menu=None, action=None, domain=None):
         user = self.env.user
+        roles = self.env["pr.employee.document.letter"]._get_user_document_letter_roles(user)
+
         domain_list = []
-        if user.has_group("pr_hr.group_hr_manager") or user.has_group("hr.group_hr_manager"):
+        if "hr_manager" in roles:
             domain_list.append([("state", "=", "hr_manager_approval")])
-        domain_list.append([
-            ("state", "=", "department_manager_approval"),
-            ("department_manager_user_id", "=", user.id),
-        ])
-        if domain_list:
-            return expression.OR(domain_list)
-        return [("id", "=", 0)]
+        if "department_manager" in roles:
+            domain_list.append([
+                ("state", "=", "department_manager_approval"),
+                ("department_manager_user_id", "=", user.id),
+            ])
+
+        if not domain_list:
+            return [("id", "=", 0)]
+
+        state_domain = expression.OR(domain_list)
+
+        parsed_domain = domain
+        if isinstance(parsed_domain, str):
+            try:
+                parsed_domain = safe_eval(parsed_domain)
+            except Exception:
+                parsed_domain = []
+
+        extra_domain = []
+        if parsed_domain and isinstance(parsed_domain, (list, tuple)):
+            for leaf in parsed_domain:
+                if (
+                    isinstance(leaf, (list, tuple))
+                    and len(leaf) == 3
+                    and leaf[0] not in (
+                        "state",
+                        "is_current_user_document_letter_approver",
+                    )
+                ):
+                    extra_domain.append(tuple(leaf))
+
+        if extra_domain:
+            return expression.AND([extra_domain, state_domain])
+        return state_domain
 
     @api.model
     def _get_employee_service_sub_tiles(self):
@@ -179,6 +212,31 @@ class HrApprovalDashboardService(models.AbstractModel):
     @api.model
     def get_sections(self):
         sections = super().get_sections()
+        exclude_models = {"pr.employee.service.request", "pr.employee.document.letter"}
+        financial_action = self.env.ref(
+            "pr_employee_service_requests.action_pr_employee_accounts_approvals",
+            raise_if_not_found=False,
+        )
+        financial_action_id = financial_action.id if financial_action else False
+
+        # Remove loose service-request and document-letter tiles from all
+        # auto-discovered sections (including Accounts, where the menu item
+        # stays available in the top navbar), and drop any non-HR sections
+        # that become empty as a result.
+        cleaned_sections = []
+        for section in sections:
+            tiles = [
+                t for t in section.get("tiles", [])
+                if t.get("res_model") not in exclude_models
+                and (not financial_action_id or t.get("action_id") != financial_action_id)
+            ]
+            if len(tiles) != len(section.get("tiles", [])):
+                section = dict(section, tiles=tiles)
+                section["count"] = sum(t.get("count", 0) for t in tiles)
+            if tiles or section.get("key") == "hr":
+                cleaned_sections.append(section)
+        sections = cleaned_sections
+
         hr_section = next((s for s in sections if s["key"] == "hr"), None)
         if not hr_section:
             definition = self.APPROVAL_SECTIONS.get("hr", self.APPROVAL_SECTIONS["other"])
@@ -196,13 +254,7 @@ class HrApprovalDashboardService(models.AbstractModel):
 
         sub_tiles = self._get_employee_service_sub_tiles()
         total_sub_count = sum(t.get("count", 0) for t in sub_tiles)
-
-        # Exclude loose service request and document letter tiles from HR section
-        exclude_models = {"pr.employee.service.request", "pr.employee.document.letter"}
-        filtered_tiles = [
-            t for t in hr_section.get("tiles", [])
-            if t.get("res_model") not in exclude_models
-        ]
+        filtered_tiles = list(hr_section.get("tiles", []))
 
         parent_action = self.env.ref(
             "pr_employee_service_requests.action_pr_employee_manager_approvals",

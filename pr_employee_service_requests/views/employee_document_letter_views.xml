@@ -81,11 +81,11 @@
                             invisible="state != 'department_manager_approval' or not is_department_manager"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary"
-                            groups="pr_hr.group_hr_manager,base.group_system"
-                            invisible="state != 'hr_manager_approval'"/>
+                            groups="pr_hr.group_hr_manager"
+                            invisible="state not in ('department_manager_approval', 'hr_manager_approval')"/>
                     <button name="action_open_send_wizard" type="object" string="Send Letter"
                             class="btn-primary"
-                            groups="pr_hr.group_hr_manager,base.group_system"
+                            groups="pr_hr.group_hr_supervisor,pr_hr.group_hr_manager"
                             invisible="state not in ('approved', 'sent')"/>
                     <button name="action_reject" type="object" string="Reject"
                             class="btn-secondary" invisible="not can_reject"/>
@@ -230,7 +230,7 @@
         <field name="res_model">pr.employee.document.letter</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pr_employee_document_letter_search"/>
-        <field name="domain">['|', '&amp;', ('state', '=', 'department_manager_approval'), ('department_manager_user_id', '=', uid), ('state', '=', 'hr_manager_approval')]</field>
+        <field name="domain">[('is_current_user_document_letter_approver', '=', True)]</field>
         <field name="context">{'create': False}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">No employee letters are waiting for your approval.</p>
@@ -287,7 +287,7 @@
               parent="de_hr_workspace.hr_approvals_menu_root"
               action="action_pr_employee_document_letter_hr_approvals"
               sequence="28"
-              groups="base.group_user,pr_hr.group_hr_manager,hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals"
+              groups="base.group_user,pr_hr.group_hr_manager,de_hr_workspace.group_hr_employee_approvals"
               active="True"/>
 
     <menuitem id="menu_pr_employee_document_letter_department_manager_approvals"

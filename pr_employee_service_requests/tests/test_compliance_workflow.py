@@ -5,7 +5,7 @@ from unittest.mock import patch
 from lxml import etree
 
 from odoo.exceptions import UserError, ValidationError
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import Form, TransactionCase
 
 
 class TestEmployeeComplianceWorkflow(TransactionCase):
@@ -79,9 +79,55 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             "country_id": self._get_saudi_country().id,
         })
 
-    def test_new_iqama_creates_record_without_payment_or_approval(self):
+    def _post_generated_voucher(self, voucher, accounts_user, finance_user):
+        """Drive a draft CPV or BPV generated from a payment request through posting."""
+        voucher.with_user(accounts_user).action_submit()
+        voucher.with_user(accounts_user).action_approve_remaining_lines()
+        voucher.with_user(accounts_user).action_finance_approve()
+        voucher.with_user(finance_user).action_post()
+
+    def test_new_iqama_requires_approval_before_hr_issue(self):
+        budget, cost_center, expense_account = self._create_budget_and_expense_account()
+        cash_bank_account = self.env["account.account"].create({
+            "name": "Compliance New Iqama Bank",
+            "code": "PRCOMPIQBNK",
+            "account_type": "asset_cash",
+            "company_id": self.env.company.id,
+        })
+        manager_user = self._create_role_user("iqama.new.mgr", [])
+        hr_sup_user = self._create_role_user("iqama.new.hrsup", ["pr_hr.group_hr_supervisor"])
+        hr_mgr_user = self._create_role_user("iqama.new.hrmgr", ["pr_hr.group_hr_manager"])
+        accounts_user = self._create_role_user("iqama.new.acc", ["account.group_account_manager"])
+        finance_user = self._create_role_user("iqama.new.fin", ["pr_account.custom_group_accounting_manager"])
+        md_user = self._create_role_user("iqama.new.md", ["pr_hr.group_hr_md"])
+
+        manager_emp = self.env["hr.employee"].create({
+            "name": "New Iqama Manager",
+            "user_id": manager_user.id,
+        })
+        non_saudi_country = self._get_destination_country()
+        employee = self.env["hr.employee"].create({
+            "name": "New Iqama Employee",
+            "parent_id": manager_emp.id,
+            "country_id": non_saudi_country.id,
+            "identification_id": "TEST-IQAMA-NEW-FIN-01",
+        })
+
+        attachment = self.env["ir.attachment"].create({
+            "name": "new-iqama.pdf",
+            "datas": base64.b64encode(b"new iqama"),
+            "mimetype": "application/pdf",
+        })
         request = self._create_request(
             "iqama_new",
+            employee_id=employee.id,
+            iqama_no=employee.identification_id,
+            payment_responsibility="self",
+            moi_fee_amount=400.0,
+            mol_fee_amount=600.0,
+            expense_bucket_id=budget.id,
+            cost_center_id=cost_center.id,
+            expense_account_id=expense_account.id,
             service_from_date=date(2099, 1, 1),
             service_to_date=date(2099, 12, 31),
             service_expiry_date=date(2099, 12, 31),
@@ -90,25 +136,80 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             visa_number="TEST-WP-001",
             iqama_profession="Engineer",
             issue_date=date(2099, 1, 1),
+            attachment_ids=[(6, 0, attachment.ids)],
         )
-        attachment = self.env["ir.attachment"].create({
-            "name": "new-iqama.pdf",
-            "datas": base64.b64encode(b"new iqama"),
-            "mimetype": "application/pdf",
-        })
-        request.attachment_ids = [(6, 0, attachment.ids)]
 
-        request.action_submit()
+        self.assertEqual(request.payment_responsibility, "company")
+        self.assertEqual(request.requested_amount, 1000.0)
+
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+
+        self.assertEqual(request.state, "employee_manager_approval")
+        self.assertFalse(request.iqama_id)
+        self.assertFalse(request.iqama_line_id)
+        self.assertFalse(request.work_permit_id)
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.with_user(manager_user).action_employee_manager_approve()
+            self.assertEqual(request.state, "hr_supervisor_approval")
+            request.with_user(hr_sup_user).action_hr_supervisor_approve()
+            self.assertEqual(request.state, "hr_manager_approval")
+            request.with_user(hr_mgr_user).action_hr_manager_approve()
+
+        self.assertEqual(request.state, "accounts_approval")
+        self.assertEqual(request.approved_amount, 1000.0)
+        self.assertTrue(request.with_user(accounts_user).is_current_user_financial_approver)
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.with_user(accounts_user).action_accounts_approve()
+
+        self.assertEqual(request.state, "finance_approval")
+        self.assertTrue(request.with_user(finance_user).is_current_user_financial_approver)
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.with_user(finance_user).action_finance_approve()
+
+        self.assertEqual(request.state, "md_approval")
+        with patch.object(type(self.env["pr.employee.payment.request"]), "_notify_accounts", autospec=True):
+            request.with_user(md_user).action_md_approve()
+
+        self.assertEqual(request.state, "payment_approval")
+        self.assertEqual(request.approved_amount, 1000.0)
+        self.assertTrue(request.payment_request_id)
+        self.assertEqual(request.payment_request_id.state, "requested")
+        self.assertEqual(request.payment_request_id.total_amount, 1000.0)
+        self.assertEqual(request.payment_request_id.line_ids.mapped("amount"), [400.0, 600.0])
+        self.assertFalse(request.iqama_id)
+
+        with self.assertRaisesRegex(UserError, "Only paid employee service requests can be issued"):
+            request.with_user(hr_mgr_user).action_issue()
+
+        request.payment_request_id.with_user(accounts_user).write({
+            "transfer_type": "bank",
+            "pay_from_account_id": cash_bank_account.id,
+        })
+        request.payment_request_id.with_user(accounts_user).action_create_payment_voucher()
+        self.assertTrue(request.bank_payment_id)
+        self.assertEqual(request.payment_request_id.state, "voucher_created")
+        self.assertEqual(request.bank_payment_id.bank_payment_line_ids.mapped("total_amount"), [400.0, 600.0])
+
+        self._post_generated_voucher(request.bank_payment_id, accounts_user, finance_user)
+        self.assertEqual(request.state, "paid")
+        self.assertTrue(request.paid_date)
+
+        request.with_user(hr_mgr_user).action_issue()
 
         self.assertEqual(request.state, "issued")
         self.assertTrue(request.iqama_id)
         self.assertTrue(request.iqama_line_id)
         self.assertTrue(request.work_permit_id)
-        self.assertEqual(request.iqama_line_id.amount, 0.0)
-        self.assertEqual(request.work_permit_id.work_permit_fees, 0.0)
-        self.assertEqual(request.work_permit_id.payment_state, "draft")
-        self.assertFalse(request.payment_request_id)
-        self.assertFalse(request.bank_payment_id)
+        self.assertEqual(request.iqama_line_id.amount, 1000.0)
+        self.assertEqual(request.iqama_line_id.payment_request_id, request.payment_request_id)
+        self.assertEqual(request.iqama_line_id.bank_payment_id, request.bank_payment_id)
+        self.assertEqual(request.work_permit_id.work_permit_fees, 1000.0)
+        self.assertEqual(request.work_permit_id.payment_state, "paid")
+        self.assertEqual(request.work_permit_id.bank_payment_id, request.bank_payment_id)
         copied_attachment = self.env["ir.attachment"].search([
             ("res_model", "=", request.iqama_id._name),
             ("res_id", "=", request.iqama_id.id),
@@ -122,24 +223,231 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         ])
         self.assertTrue(work_permit_attachment)
 
-    def test_new_medical_insurance_creates_record_without_payment(self):
+    def test_new_medical_insurance_requires_approval_before_hr_issue(self):
+        budget, cost_center, expense_account = self._create_budget_and_expense_account()
+        cash_bank_account = self.env["account.account"].create({
+            "name": "Compliance New Insurance Bank",
+            "code": "PRCOMPINSBNK",
+            "account_type": "asset_cash",
+            "company_id": self.env.company.id,
+        })
+        manager_user = self._create_role_user("ins.new.mgr", [])
+        hr_sup_user = self._create_role_user("ins.new.hrsup", ["pr_hr.group_hr_supervisor"])
+        hr_mgr_user = self._create_role_user("ins.new.hrmgr", ["pr_hr.group_hr_manager"])
+        accounts_user = self._create_role_user("ins.new.acc", ["account.group_account_manager"])
+        finance_user = self._create_role_user("ins.new.fin", ["pr_account.custom_group_accounting_manager"])
+        md_user = self._create_role_user("ins.new.md", ["pr_hr.group_hr_md"])
+
+        manager_emp = self.env["hr.employee"].create({
+            "name": "New Insurance Manager",
+            "user_id": manager_user.id,
+        })
+        employee = self.env["hr.employee"].create({
+            "name": "New Insurance Employee",
+            "parent_id": manager_emp.id,
+            "identification_id": "TEST-INS-NEW-FIN-01",
+        })
+        attachment = self.env["ir.attachment"].create({
+            "name": "new-insurance.pdf",
+            "datas": base64.b64encode(b"new insurance"),
+            "mimetype": "application/pdf",
+        })
         request = self._create_request(
             "medical_insurance_new",
+            employee_id=employee.id,
+            iqama_no=employee.identification_id,
+            payment_responsibility="self",
+            requested_amount=500.0,
+            expense_bucket_id=budget.id,
+            cost_center_id=cost_center.id,
+            expense_account_id=expense_account.id,
             service_from_date=date(2099, 1, 1),
             service_to_date=date(2099, 12, 31),
             service_expiry_date=date(2099, 12, 31),
             insurance_company="Test Insurance",
             insurance_category="A",
+            attachment_ids=[(6, 0, attachment.ids)],
         )
 
-        request.action_submit()
+        self.assertEqual(request.payment_responsibility, "company")
+
+        with patch.object(type(request), "_notify_users", autospec=True):
+            request.action_submit()
+
+        self.assertEqual(request.state, "employee_manager_approval")
+        self.assertFalse(request.insurance_id)
+        self.assertFalse(request.insurance_line_id)
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.with_user(manager_user).action_employee_manager_approve()
+            request.with_user(hr_sup_user).action_hr_supervisor_approve()
+            request.with_user(hr_mgr_user).action_hr_manager_approve()
+
+        self.assertEqual(request.state, "accounts_approval")
+        self.assertEqual(request.approved_amount, 500.0)
+        self.assertTrue(request.with_user(accounts_user).is_current_user_financial_approver)
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.with_user(accounts_user).action_accounts_approve()
+
+        self.assertEqual(request.state, "finance_approval")
+        self.assertTrue(request.with_user(finance_user).is_current_user_financial_approver)
+
+        with patch.object(type(request), "_notify_group", autospec=True):
+            request.with_user(finance_user).action_finance_approve()
+
+        self.assertEqual(request.state, "md_approval")
+        with patch.object(type(self.env["pr.employee.payment.request"]), "_notify_accounts", autospec=True):
+            request.with_user(md_user).action_md_approve()
+
+        self.assertEqual(request.state, "payment_approval")
+        self.assertEqual(request.approved_amount, 500.0)
+        self.assertTrue(request.payment_request_id)
+        self.assertEqual(request.payment_request_id.total_amount, 500.0)
+        self.assertEqual(request.payment_request_id.line_ids.mapped("amount"), [500.0])
+        self.assertFalse(request.insurance_id)
+
+        with self.assertRaisesRegex(UserError, "Only paid employee service requests can be issued"):
+            request.with_user(hr_mgr_user).action_issue()
+
+        request.payment_request_id.with_user(accounts_user).write({
+            "transfer_type": "cash",
+            "pay_from_account_id": cash_bank_account.id,
+        })
+        request.payment_request_id.with_user(accounts_user).action_create_payment_voucher()
+        self.assertTrue(request.cash_payment_id)
+        self.assertEqual(request.payment_request_id.state, "voucher_created")
+
+        self._post_generated_voucher(request.cash_payment_id, accounts_user, finance_user)
+        self.assertEqual(request.state, "paid")
+
+        request.with_user(hr_mgr_user).action_issue()
 
         self.assertEqual(request.state, "issued")
         self.assertTrue(request.insurance_id)
         self.assertTrue(request.insurance_line_id)
-        self.assertEqual(request.insurance_line_id.amount, 0.0)
-        self.assertFalse(request.payment_request_id)
-        self.assertFalse(request.bank_payment_id)
+        self.assertEqual(request.insurance_line_id.amount, 500.0)
+        self.assertEqual(request.insurance_line_id.payment_request_id, request.payment_request_id)
+
+    def test_new_compliance_requests_costing_validations_and_write_sync(self):
+        budget, cost_center, expense_account = self._create_budget_and_expense_account()
+        non_saudi = self._get_destination_country()
+        employee = self.env["hr.employee"].create({
+            "name": "Compliance Validation Employee",
+            "country_id": non_saudi.id,
+            "identification_id": "TEST-VAL-001",
+        })
+        attachment = self.env["ir.attachment"].create({
+            "name": "val-doc.pdf",
+            "datas": base64.b64encode(b"doc"),
+            "mimetype": "application/pdf",
+        })
+
+        with self.assertRaises(ValidationError):
+            self._create_request(
+                "iqama_new",
+                employee_id=employee.id,
+                iqama_no=employee.identification_id,
+                payment_responsibility="self",
+            )
+        with self.assertRaises(ValidationError):
+            self._create_request(
+                "medical_insurance_new",
+                employee_id=employee.id,
+                iqama_no=employee.identification_id,
+                payment_responsibility="self",
+            )
+
+        iqama_req = self._create_request(
+            "iqama_new",
+            employee_id=employee.id,
+            iqama_no=employee.identification_id,
+            moi_fee_amount=200.0,
+            mol_fee_amount=300.0,
+            service_from_date=date(2099, 1, 1),
+            service_to_date=date(2099, 12, 31),
+            service_expiry_date=date(2099, 12, 31),
+            work_permit_expiry_date=date(2099, 12, 31),
+            iqama_profession="Engineer",
+            issue_date=date(2099, 1, 1),
+            expense_bucket_id=budget.id,
+            cost_center_id=cost_center.id,
+            expense_account_id=expense_account.id,
+        )
+        self.assertEqual(iqama_req.requested_amount, 500.0)
+        iqama_req.write({"moi_fee_amount": 250.0})
+        self.assertEqual(iqama_req.requested_amount, 550.0)
+
+        with self.assertRaisesRegex(UserError, "supporting document"):
+            iqama_req.action_submit()
+
+        iqama_req.attachment_ids = [(6, 0, attachment.ids)]
+        iqama_req.expense_bucket_id = False
+        with self.assertRaisesRegex(UserError, "approved Budget"):
+            iqama_req.action_submit()
+
+        iqama_req.expense_bucket_id = budget.id
+        iqama_req.cost_center_id = False
+        with self.assertRaisesRegex(UserError, "Cost Center"):
+            iqama_req.action_submit()
+
+        iqama_req.cost_center_id = cost_center.id
+        iqama_req.expense_account_id = False
+        with self.assertRaisesRegex(UserError, "Employee / Expense Account"):
+            iqama_req.action_submit()
+
+        ins_req = self._create_request(
+            "medical_insurance_new",
+            employee_id=employee.id,
+            iqama_no=employee.identification_id,
+            requested_amount=400.0,
+            service_from_date=date(2099, 1, 1),
+            service_to_date=date(2099, 12, 31),
+            service_expiry_date=date(2099, 12, 31),
+            insurance_company="Test Insurance",
+            insurance_category="A",
+            expense_bucket_id=budget.id,
+            cost_center_id=cost_center.id,
+            expense_account_id=expense_account.id,
+        )
+        with self.assertRaisesRegex(UserError, "supporting document"):
+            ins_req.action_submit()
+
+    def test_form_view_approval_ui_for_new_compliance_requests(self):
+        arch = self.env["pr.employee.service.request"].get_view(view_type="form")["arch"]
+        doc = etree.fromstring(arch)
+        approvals_pages = doc.xpath("//notebook/page[@string='Approvals']")
+        self.assertEqual(len(approvals_pages), 1)
+        self.assertFalse(approvals_pages[0].get("invisible"))
+        for button_name in ("action_accounts_approve", "action_finance_approve"):
+            buttons = doc.xpath(f"//header/button[@name='{button_name}']")
+            self.assertEqual(len(buttons), 1)
+            invisible_expr = buttons[0].get("invisible") or ""
+            self.assertNotIn("iqama_new", invisible_expr)
+            self.assertNotIn("medical_insurance_new", invisible_expr)
+            self.assertIn("payment_responsibility == 'self'", invisible_expr)
+            self.assertIn("exit_reentry_historical_company_paid", invisible_expr)
+        payment_groups = doc.xpath("//group[@string='Payment']")
+        self.assertEqual(len(payment_groups), 1)
+        payment_group_inv = payment_groups[0].get("invisible") or ""
+        self.assertNotIn("iqama_new", payment_group_inv)
+        self.assertNotIn("medical_insurance_new", payment_group_inv)
+        approved_fields = payment_groups[0].xpath(".//field[@name='approved_amount']")
+        self.assertEqual(len(approved_fields), 1)
+        self.assertIn("iqama_new", approved_fields[0].get("invisible") or "")
+        self.assertIn("iqama_renewal", approved_fields[0].get("invisible") or "")
+        iqama_group = doc.xpath("//group[contains(@string, 'Iqama')]")[0]
+        for fname in ("moi_fee_amount", "mol_fee_amount", "requested_amount"):
+            fnode = iqama_group.xpath(f".//field[@name='{fname}']")[0]
+            finv = fnode.get("invisible") or ""
+            self.assertIn("iqama_new", finv)
+            self.assertIn("iqama_renewal", finv)
+        ins_group = doc.xpath("//group[@string='Medical Insurance Details']")[0]
+        ins_amount = ins_group.xpath(".//field[@name='requested_amount']")[0]
+        self.assertEqual(ins_amount.get("invisible"), "payment_responsibility == 'self'")
+        resp_field = doc.xpath("//field[@name='payment_responsibility']")[0]
+        self.assertNotIn("iqama_new", resp_field.get("invisible") or "")
+        self.assertNotIn("medical_insurance_new", resp_field.get("invisible") or "")
 
     def test_work_permit_fallback_opens_combined_iqama_renewal(self):
         self.env["hr.employee.iqama"].create({
@@ -178,12 +486,13 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
     def test_saudi_employee_cannot_create_iqama_or_exit_reentry_request(self):
         saudi_employee = self._create_saudi_employee()
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesRegex(ValidationError, "Saudi employees"):
             self.env["pr.employee.service.request"].create({
                 "request_type": "iqama_new",
                 "employee_id": saudi_employee.id,
                 "company_id": self.env.company.id,
                 "iqama_no": saudi_employee.identification_id,
+                "moi_fee_amount": 100.0,
                 "reason": "Saudi employees do not need Iqama",
             })
 
@@ -580,11 +889,38 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             issue_date=date(2098, 12, 1),
         )
 
-        historical.action_submit()
+        with patch.object(type(historical), "_notify_users", autospec=True):
+            historical.action_submit()
 
-        self.assertEqual(historical.state, "issued")
+        self.assertEqual(historical.state, "employee_manager_approval")
         self.assertEqual(historical.payment_responsibility, "company")
         self.assertEqual(historical.approved_amount, 0.0)
+        self.assertFalse(historical.is_current_user_financial_approver)
+
+        with self.assertRaises(UserError):
+            historical.action_accounts_approve()
+        with self.assertRaises(UserError):
+            historical.action_finance_approve()
+
+        with patch.object(type(historical), "_notify_group", autospec=True):
+            historical.action_employee_manager_approve()
+            self.assertEqual(historical.state, "hr_supervisor_approval")
+            historical.action_hr_supervisor_approve()
+            self.assertEqual(historical.state, "hr_manager_approval")
+            historical.action_hr_manager_approve()
+
+        self.assertEqual(historical.state, "md_approval")
+        historical.action_md_approve()
+
+        self.assertEqual(historical.state, "paid")
+        self.assertEqual(historical.approved_amount, 0.0)
+        self.assertFalse(historical.payment_request_id)
+        self.assertFalse(historical.cash_payment_id)
+        self.assertFalse(historical.bank_payment_id)
+
+        historical.action_issue()
+
+        self.assertEqual(historical.state, "issued")
         self.assertFalse(historical.payment_request_id)
         self.assertFalse(historical.cash_payment_id)
         self.assertFalse(historical.bank_payment_id)
@@ -890,3 +1226,267 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         # Update expense account on line
         payment_request.line_ids[:1].write({"expense_account_id": test_account.id})
         self.assertEqual(request.expense_account_id, test_account)
+
+    def _create_cost_center(self, name, plan=None):
+        if plan is None:
+            plan = self.env["account.analytic.plan"].create({"name": f"{name} Plan"})
+        return self.env["account.analytic.account"].create({
+            "name": name,
+            "plan_id": plan.id,
+        })
+
+    def _create_budget(self, name, cost_centers, date_from=None, date_to=None):
+        date_from = date_from or date.today()
+        date_to = date_to or date(2099, 12, 31)
+        budget = self.env["crossovered.budget"].create({
+            "name": name,
+            "date_from": date_from,
+            "date_to": date_to,
+            "state": "validate",
+            "user_id": self.env.user.id,
+            "expense_type": "opex",
+        })
+        for cost_center in cost_centers:
+            self.env["crossovered.budget.lines"].create({
+                "crossovered_budget_id": budget.id,
+                "analytic_account_id": cost_center.id,
+                "date_from": budget.date_from,
+                "date_to": budget.date_to,
+                "planned_amount": 5000.0,
+            })
+        return budget
+
+    def test_budget_onchange_auto_selects_first_cost_center_on_service_request(self):
+        plan = self.env["account.analytic.plan"].create({"name": "Budget Onchange Plan"})
+        cc_emp = self._create_cost_center("CC Emp", plan)
+        cc1 = self._create_cost_center("CC Single", plan)
+        cc2_first = self._create_cost_center("CC Multi First", plan)
+        cc2_second = self._create_cost_center("CC Multi Second", plan)
+        cc3_first = self._create_cost_center("CC Emp Budget First", plan)
+        cc_outside = self._create_cost_center("CC Outside", plan)
+
+        employee = self.env["hr.employee"].create({
+            "name": "Budget Onchange Employee",
+            "identification_id": "TEST-BUDGET-ONCHANGE-001",
+            "employee_cost_center_id": cc_emp.id,
+        })
+        budget_single = self._create_budget("Budget Single CC", [cc1])
+        budget_multi = self._create_budget("Budget Multi CC", [cc2_first, cc2_second])
+        budget_emp = self._create_budget("Budget Emp Multi CC", [cc3_first, cc_emp])
+        budget_empty = self._create_budget("Budget Empty CC", [])
+
+        employee_no_cc = self.env["hr.employee"].create({
+            "name": "No Cost Center Employee",
+            "identification_id": "TEST-NO-CC-001",
+        })
+        form = Form(
+            self.env["pr.employee.service.request"].with_context(
+                default_employee_id=False
+            )
+        )
+        form.employee_id = employee
+        self.assertEqual(form.cost_center_id, cc_emp)
+        self.assertEqual(form.expense_bucket_id, budget_emp)
+        self.assertEqual(set(form.allowed_cost_center_ids[:].ids), {cc3_first.id, cc_emp.id})
+
+        form.expense_bucket_id = budget_single
+        self.assertEqual(form.cost_center_id, cc1)
+        self.assertEqual(form.allowed_cost_center_ids[:].ids, [cc1.id])
+
+        form.expense_bucket_id = budget_multi
+        self.assertEqual(form.cost_center_id, cc2_first)
+        self.assertEqual(
+            set(form.allowed_cost_center_ids[:].ids),
+            {cc2_first.id, cc2_second.id},
+        )
+        self.assertNotIn(cc_outside.id, form.allowed_cost_center_ids[:].ids)
+
+        form.cost_center_id = cc2_second
+        self.assertEqual(form.expense_bucket_id, budget_multi)
+        self.assertEqual(form.cost_center_id, cc2_second)
+
+        form.expense_bucket_id = budget_empty
+        self.assertFalse(form.cost_center_id)
+        self.assertEqual(form.allowed_cost_center_ids[:].ids, [])
+
+        form.expense_bucket_id = budget_multi
+        self.assertEqual(form.cost_center_id, cc2_first)
+
+        form.expense_bucket_id = self.env["crossovered.budget"]
+        self.assertFalse(form.cost_center_id)
+        self.assertEqual(form.allowed_cost_center_ids[:].ids, [])
+
+        default_budget_form = Form(
+            self.env["pr.employee.service.request"].with_context(
+                default_employee_id=employee_no_cc.id,
+                default_expense_bucket_id=budget_single.id,
+            )
+        )
+        self.assertEqual(default_budget_form.cost_center_id, cc1)
+        self.assertEqual(default_budget_form.allowed_cost_center_ids[:].ids, [cc1.id])
+
+        hr_readonly_user = self._create_role_user(
+            "budget.hr.readonly.test",
+            [
+                "pr_hr.group_hr_supervisor",
+                "account.group_account_readonly",
+                "analytic.group_analytic_accounting",
+            ],
+        )
+        hr_form = Form(
+            self.env["pr.employee.service.request"]
+            .with_user(hr_readonly_user)
+            .with_context(default_employee_id=False)
+        )
+        hr_form.expense_bucket_id = budget_multi
+        self.assertEqual(hr_form.cost_center_id, cc2_first)
+        self.assertEqual(
+            set(hr_form.allowed_cost_center_ids[:].ids),
+            {cc2_first.id, cc2_second.id},
+        )
+
+        basic_user = self._create_role_user("budget.basic.user.test", [])
+        basic_record = (
+            self.env["pr.employee.service.request"]
+            .with_user(basic_user)
+            .new({"employee_id": employee.id})
+        )
+        basic_record.expense_bucket_id = budget_multi.id
+        basic_record._onchange_expense_bucket_id()
+        self.assertEqual(basic_record.cost_center_id.id, cc2_first.id)
+        self.assertEqual(
+            set(basic_record.allowed_cost_center_ids.ids),
+            {cc2_first.id, cc2_second.id},
+        )
+        basic_record.expense_bucket_id = False
+        basic_record._onchange_expense_bucket_id()
+        self.assertFalse(basic_record.cost_center_id)
+        self.assertEqual(basic_record.allowed_cost_center_ids.ids, [])
+
+    def test_budget_onchange_auto_selects_first_cost_center_on_compliance_wizards(self):
+        today = date.today()
+        plan = self.env["account.analytic.plan"].create({"name": "Wizard Onchange Plan"})
+        cc_emp = self._create_cost_center("Wiz CC Emp", plan)
+        cc1 = self._create_cost_center("Wiz CC Single", plan)
+        cc2_first = self._create_cost_center("Wiz CC Multi First", plan)
+        cc2_second = self._create_cost_center("Wiz CC Multi Second", plan)
+        cc3_first = self._create_cost_center("Wiz CC Emp First", plan)
+
+        employee = self.env["hr.employee"].create({
+            "name": "Wizard Budget Employee",
+            "identification_id": "TEST-WIZ-BUDGET-001",
+            "employee_cost_center_id": cc_emp.id,
+        })
+        budget_single = self._create_budget("Wiz Budget Single", [cc1])
+        budget_multi = self._create_budget("Wiz Budget Multi", [cc2_first, cc2_second])
+        budget_emp = self._create_budget("Wiz Budget Emp", [cc3_first, cc_emp])
+        budget_empty = self._create_budget("Wiz Budget Empty", [])
+
+        iqama = self.env["hr.employee.iqama"].create({
+            "name": "Wizard Test Iqama",
+            "employee_id": employee.id,
+            "identification_id": employee.identification_id,
+            "expiry_date": date(2099, 12, 31),
+            "state": "valid",
+        })
+        iqama_form = Form(
+            self.env["hr.employee.iqama.line.add.wizard"].with_context(
+                default_employee_id=employee.id,
+                default_iqama_id=iqama.id,
+                default_from_date=today,
+            )
+        )
+        self.assertEqual(iqama_form.cost_center_id, cc_emp)
+        self.assertEqual(iqama_form.expense_bucket_id, budget_emp)
+        self.assertEqual(set(iqama_form.allowed_cost_center_ids[:].ids), {cc3_first.id, cc_emp.id})
+
+        iqama_form.expense_bucket_id = budget_single
+        self.assertEqual(iqama_form.cost_center_id, cc1)
+        self.assertEqual(iqama_form.allowed_cost_center_ids[:].ids, [cc1.id])
+
+        iqama_form.expense_bucket_id = budget_multi
+        self.assertEqual(iqama_form.cost_center_id, cc2_first)
+        self.assertEqual(
+            set(iqama_form.allowed_cost_center_ids[:].ids),
+            {cc2_first.id, cc2_second.id},
+        )
+
+        iqama_form.cost_center_id = cc2_second
+        self.assertEqual(iqama_form.expense_bucket_id, budget_multi)
+        self.assertEqual(iqama_form.cost_center_id, cc2_second)
+
+        iqama_form.expense_bucket_id = budget_empty
+        self.assertFalse(iqama_form.cost_center_id)
+        self.assertEqual(iqama_form.allowed_cost_center_ids[:].ids, [])
+
+        iqama_form.expense_bucket_id = budget_multi
+        self.assertEqual(iqama_form.cost_center_id, cc2_first)
+
+        iqama_form.expense_bucket_id = self.env["crossovered.budget"]
+        self.assertFalse(iqama_form.cost_center_id)
+        self.assertEqual(iqama_form.allowed_cost_center_ids[:].ids, [])
+
+        insurance = self.env["hr.employee.medical.insurance"].create({
+            "name": "Wizard Test Insurance",
+            "employee_id": employee.id,
+            "identification_id": employee.identification_id,
+            "insurance_company": "Bupa",
+            "insurance_category": "VIP",
+            "expiry_date": date(2099, 12, 31),
+            "state": "valid",
+        })
+        insurance_form = Form(
+            self.env["hr.employee.medical.insurance.line.add.wizard"].with_context(
+                default_employee_id=employee.id,
+                default_insurance_id=insurance.id,
+                default_from_date=today,
+            )
+        )
+        self.assertEqual(insurance_form.cost_center_id, cc_emp)
+        self.assertEqual(insurance_form.expense_bucket_id, budget_emp)
+        self.assertEqual(
+            set(insurance_form.allowed_cost_center_ids[:].ids),
+            {cc3_first.id, cc_emp.id},
+        )
+
+        insurance_form.expense_bucket_id = budget_single
+        self.assertEqual(insurance_form.cost_center_id, cc1)
+        self.assertEqual(insurance_form.allowed_cost_center_ids[:].ids, [cc1.id])
+
+        insurance_form.expense_bucket_id = budget_multi
+        self.assertEqual(insurance_form.cost_center_id, cc2_first)
+        self.assertEqual(
+            set(insurance_form.allowed_cost_center_ids[:].ids),
+            {cc2_first.id, cc2_second.id},
+        )
+
+        insurance_form.cost_center_id = cc2_second
+        self.assertEqual(insurance_form.expense_bucket_id, budget_multi)
+        self.assertEqual(insurance_form.cost_center_id, cc2_second)
+
+        insurance_form.expense_bucket_id = budget_empty
+        self.assertFalse(insurance_form.cost_center_id)
+        self.assertEqual(insurance_form.allowed_cost_center_ids[:].ids, [])
+
+        insurance_form.expense_bucket_id = budget_multi
+        self.assertEqual(insurance_form.cost_center_id, cc2_first)
+
+        insurance_form.expense_bucket_id = self.env["crossovered.budget"]
+        self.assertFalse(insurance_form.cost_center_id)
+        self.assertEqual(insurance_form.allowed_cost_center_ids[:].ids, [])
+
+    def test_cost_center_domain_and_allowed_cost_centers_in_form_views(self):
+        expected_domain = "expense_bucket_id and [('id', 'in', allowed_cost_center_ids)] or []"
+        for model_name in (
+            "pr.employee.service.request",
+            "hr.employee.iqama.line.add.wizard",
+            "hr.employee.medical.insurance.line.add.wizard",
+        ):
+            view_info = self.env[model_name].get_view(view_type="form")
+            arch = etree.fromstring(view_info["arch"])
+            allowed_nodes = arch.xpath("//field[@name='allowed_cost_center_ids']")
+            self.assertTrue(allowed_nodes, f"{model_name} form is missing allowed_cost_center_ids")
+            self.assertEqual(allowed_nodes[0].get("invisible"), "1")
+            cost_center_nodes = arch.xpath("//field[@name='cost_center_id']")
+            self.assertTrue(cost_center_nodes, f"{model_name} form is missing cost_center_id")
+            self.assertEqual(cost_center_nodes[0].get("domain"), expected_domain)
