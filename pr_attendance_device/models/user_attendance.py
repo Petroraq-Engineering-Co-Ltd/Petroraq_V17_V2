@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, time, timedelta
 import random
 import pytz
+from markupsafe import Markup
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -184,6 +185,56 @@ class UserAttendance(models.Model):
             'reconciled_by_id': self.env.user.id,
         })
 
+    def _is_biometric_sync_eligible(self):
+        """Return whether the mapped employee may sync from biometric devices."""
+        self.ensure_one()
+        employee = self.employee_id.sudo().with_context(active_test=False)
+        if 'attendance_entry_mode' in employee._fields and employee.attendance_entry_mode != 'automated':
+            return False
+        if 'compute_attendance' in employee._fields and not employee.compute_attendance:
+            return False
+        return True
+
+    @api.model
+    def _is_unresolved_attendance(self, attendance):
+        """Return True when an attendance record has no checkout later than check_in."""
+        return bool(
+            attendance
+            and (not attendance.check_out or attendance.check_out <= attendance.check_in)
+        )
+
+    def _restore_checkin_punch_statuses(self, attendances):
+        """Clear stale missing-checkout warnings on linked check-ins once resolved."""
+        attendances = attendances.filtered(lambda att: not self._is_unresolved_attendance(att))
+        if not attendances:
+            return
+        missing_notes = list({
+            'Missing checkout; later attendance days continue syncing independently.',
+            _('Missing checkout; later attendance days continue syncing independently.'),
+        })
+        affected = self.sudo().search([
+            ('hr_attendance_id', 'in', attendances.ids),
+            ('interpreted_type', '=', 'checkin'),
+            ('reconciliation_status', '=', 'needs_review'),
+            ('reconciliation_note', 'in', missing_notes),
+        ])
+        if not affected:
+            return
+        normal_checkins = affected.filtered(lambda punch: punch.type == 'checkin')
+        if normal_checkins:
+            normal_checkins.write({
+                'synced': True,
+                'reconciliation_status': 'synced',
+                'reconciliation_note': False,
+            })
+        corrected_checkins = affected - normal_checkins
+        if corrected_checkins:
+            corrected_checkins.write({
+                'synced': True,
+                'reconciliation_status': 'auto_corrected',
+                'reconciliation_note': _('First punch interpreted as Check-in despite the machine Checkout state.'),
+            })
+
     def _reconcile_single_punch(self):
         """Interpret one immutable raw punch using the employee's session state."""
         self.ensure_one()
@@ -191,6 +242,13 @@ class UserAttendance(models.Model):
             self._mark_reconciled(
                 'needs_review',
                 note=_('The machine user is not mapped to an employee.'),
+            )
+            return self.env['hr.attendance']
+
+        if not self._is_biometric_sync_eligible():
+            self._mark_reconciled(
+                'needs_review',
+                note=_('Employee is not configured for biometric attendance synchronization.'),
             )
             return self.env['hr.attendance']
 
@@ -204,27 +262,51 @@ class UserAttendance(models.Model):
         Attendance = self.env['hr.attendance'].sudo()
         timestamp = fields.Datetime.to_datetime(self.timestamp)
         _local_date, day_start, _day_end = self._local_day_bounds()
-        previous_open = Attendance.search([
+        previous_domain = [
             ('employee_id', '=', self.employee_id.id),
             ('activity_id', 'in', [False, self.activity_id.id]),
-            ('check_out', '=', False),
-            ('check_in', '<', day_start),
-        ])
+            ('check_in', '<', fields.Datetime.to_string(day_start)),
+        ]
+        if 'attendance_day_status' in Attendance._fields:
+            previous_domain += [
+                '|',
+                ('check_out', '=', False),
+                '|',
+                ('worked_hours', '<=', 0.0),
+                ('attendance_day_status', 'in', ['missing_punch', 'absent']),
+            ]
+        else:
+            previous_domain += [
+                '|',
+                ('check_out', '=', False),
+                ('worked_hours', '<=', 0.0),
+            ]
+        previous_open = Attendance.search(previous_domain).filtered(self._is_unresolved_attendance)
         if previous_open:
             # Preserve the missing checkout for the evidence/shortage workflow.
             # Device attendance already permits separate unresolved daily records.
-            self.search([
+            missing_note = _('Missing checkout; later attendance days continue syncing independently.')
+            stale_checkins = self.search([
                 ('hr_attendance_id', 'in', previous_open.ids),
                 ('interpreted_type', '=', 'checkin'),
-            ]).write({
-                'reconciliation_status': 'needs_review',
-                'reconciliation_note': _('Missing checkout; later attendance days continue syncing independently.'),
-            })
-        open_attendance = Attendance.search([
-            *self._attendance_domain_for_day(),
-            ('check_out', '=', False),
-            ('check_in', '<=', self.timestamp),
-        ], order='check_in desc, id desc', limit=1)
+                '|',
+                ('reconciliation_status', '!=', 'needs_review'),
+                ('reconciliation_note', '!=', missing_note),
+            ])
+            if stale_checkins:
+                stale_checkins.write({
+                    'reconciliation_status': 'needs_review',
+                    'reconciliation_note': missing_note,
+                })
+
+        same_day_attendances = Attendance.search(
+            self._attendance_domain_for_day(),
+            order='check_in desc, id desc',
+        )
+        open_attendance = same_day_attendances.filtered(
+            lambda att: fields.Datetime.to_datetime(att.check_in) <= timestamp
+            and self._is_unresolved_attendance(att)
+        )[:1]
 
         if open_attendance:
             open_checkin = fields.Datetime.to_datetime(open_attendance.check_in)
@@ -239,10 +321,12 @@ class UserAttendance(models.Model):
                 not_manual_check_out_modification=True,
                 sync_from_device=True,
                 attendance_policy_source='biometric',
+                allow_late_attendance=True,
             ).write({
                 'check_out': self.timestamp,
                 'checkout_device_id': self.device_id.id,
             })
+            self._restore_checkin_punch_statuses(open_attendance)
             corrected = self.type != 'checkout'
             self._mark_reconciled(
                 'auto_corrected' if corrected else 'synced',
@@ -253,11 +337,12 @@ class UserAttendance(models.Model):
             )
             return open_attendance
 
-        closed_attendance = Attendance.search(
-            self._attendance_domain_for_day() + [('check_out', '!=', False)],
-            order='check_out desc, id desc',
-            limit=1,
-        )
+        closed_attendance = same_day_attendances.filtered(
+            lambda att: not self._is_unresolved_attendance(att)
+        ).sorted(
+            key=lambda att: (fields.Datetime.to_datetime(att.check_out), att.id),
+            reverse=True,
+        )[:1]
 
         # One biometric day is one attendance record: the first punch is the
         # check-in and every later punch moves the checkout to the latest
@@ -271,10 +356,12 @@ class UserAttendance(models.Model):
                     not_manual_check_out_modification=True,
                     sync_from_device=True,
                     attendance_policy_source='biometric',
+                    allow_late_attendance=True,
                 ).write({
                     'check_out': self.timestamp,
                     'checkout_device_id': self.device_id.id,
                 })
+                self._restore_checkin_punch_statuses(closed_attendance)
                 self._mark_reconciled(
                     'auto_corrected',
                     interpreted_type='checkout',
@@ -313,20 +400,21 @@ class UserAttendance(models.Model):
                 # reinterpret it on retry or erase its link to the original day.
                 continue
             try:
-                with self.env.cr.savepoint(flush=False), tools.mute_logger('odoo.sql_db'):
+                with tools.mute_logger('odoo.sql_db'), self.env.cr.savepoint():
                     punch._reconcile_single_punch()
-                    self.flush_recordset()
             except Exception as error:
-                punch._mark_reconciled(
-                    'needs_review',
-                    note=str(error),
-                )
+                with self.env.cr.savepoint():
+                    punch._mark_reconciled(
+                        'needs_review',
+                        note=str(error),
+                    )
                 error_msg.setdefault(punch.device_id, [])
                 if str(error) not in error_msg[punch.device_id]:
                     error_msg[punch.device_id].append(str(error))
-        if bool(error_msg):
+        if error_msg:
             for device, msg_list in error_msg.items():
-                device.message_post(body="<ol>%s</ol>" % "".join(["<li>%s</li>" % msg for msg in msg_list]))
+                items = Markup().join(Markup('<li>%s</li>') % msg for msg in msg_list)
+                device.message_post(body=Markup('<ol>%s</ol>') % items)
 
     def action_sync_attendance(self):
         retryable = self.filtered(lambda punch: not punch.hr_attendance_id)
@@ -355,11 +443,15 @@ class UserAttendance(models.Model):
                 )
                 continue
 
-            open_attendance = Attendance.search([
-                *punch._attendance_domain_for_day(),
-                ('check_out', '=', False),
-                ('check_in', '<=', punch.timestamp),
-            ], order='check_in desc, id desc', limit=1)
+            punch_timestamp = fields.Datetime.to_datetime(punch.timestamp)
+            day_attendances = Attendance.search(
+                punch._attendance_domain_for_day(),
+                order='check_in desc, id desc',
+            )
+            open_attendance = day_attendances.filtered(
+                lambda att: fields.Datetime.to_datetime(att.check_in) <= punch_timestamp
+                and punch._is_unresolved_attendance(att)
+            )[:1]
 
             if punch.interpreted_type == 'checkin':
                 if open_attendance:
@@ -388,11 +480,12 @@ class UserAttendance(models.Model):
                     continue
                 attendance = open_attendance
             else:
-                attendance = Attendance.search(
-                    punch._attendance_domain_for_day() + [('check_out', '!=', False)],
-                    order='check_out desc, id desc',
-                    limit=1,
-                )
+                attendance = day_attendances.filtered(
+                    lambda att: not punch._is_unresolved_attendance(att)
+                ).sorted(
+                    key=lambda att: (fields.Datetime.to_datetime(att.check_out), att.id),
+                    reverse=True,
+                )[:1]
 
             if not attendance or punch.timestamp <= attendance.check_in:
                 punch._mark_reconciled(
@@ -405,10 +498,12 @@ class UserAttendance(models.Model):
                 not_manual_check_out_modification=True,
                 sync_from_device=True,
                 attendance_policy_source='biometric',
+                allow_late_attendance=True,
             ).write({
                 'check_out': punch.timestamp,
                 'checkout_device_id': punch.device_id.id,
             })
+            punch._restore_checkin_punch_statuses(attendance)
             punch._mark_reconciled(
                 'auto_corrected',
                 interpreted_type='checkout',
@@ -438,7 +533,58 @@ class UserAttendance(models.Model):
         ]
 
     @api.model
+    def _repair_desynced_checkouts(self):
+        """Restore check_out when user.attendance shows synced checkout on unresolved hr.attendance."""
+        Attendance = self.env['hr.attendance'].sudo()
+        self.flush_model(['interpreted_type', 'reconciliation_status', 'hr_attendance_id', 'timestamp'])
+        Attendance.flush_model(['check_in', 'check_out'])
+        self.env.cr.execute(
+            """
+            SELECT ua.id
+              FROM user_attendance ua
+              JOIN hr_attendance ha ON ha.id = ua.hr_attendance_id
+             WHERE ua.interpreted_type = 'checkout'
+               AND ua.reconciliation_status IN ('synced', 'auto_corrected')
+               AND (ha.check_out IS NULL OR ha.check_out <= ha.check_in)
+               AND ua.timestamp > ha.check_in
+             ORDER BY ua.hr_attendance_id, ua.timestamp, ua.id
+            """
+        )
+        punch_ids = [row[0] for row in self.env.cr.fetchall()]
+        if not punch_ids:
+            return 0
+
+        punches_by_attendance = {}
+        for punch in self.sudo().browse(punch_ids):
+            punches_by_attendance.setdefault(punch.hr_attendance_id, self.browse())
+            punches_by_attendance[punch.hr_attendance_id] |= punch
+
+        repaired = 0
+        for attendance, punches in punches_by_attendance.items():
+            if (
+                'attendance_entry_source' in attendance._fields
+                and attendance.attendance_entry_source in ('approved_shortage', 'approved_leave')
+            ):
+                continue
+            latest_punch = punches.sorted(key=lambda p: (p.timestamp, p.id))[-1]
+            if not latest_punch._is_biometric_sync_eligible():
+                continue
+            attendance.sudo().with_context(
+                not_manual_check_out_modification=True,
+                sync_from_device=True,
+                attendance_policy_source='biometric',
+                allow_late_attendance=True,
+            ).write({
+                'check_out': latest_punch.timestamp,
+                'checkout_device_id': latest_punch.device_id.id,
+            })
+            self._restore_checkin_punch_statuses(attendance)
+            repaired += 1
+        return repaired
+
+    @api.model
     def _cron_synch_hr_attendance(self):
+        self._repair_desynced_checkouts()
         unsync_data = self.env['user.attendance'].search(self._prepare_unsynch_data_domain())
         unsync_data._sync_attendance()
 

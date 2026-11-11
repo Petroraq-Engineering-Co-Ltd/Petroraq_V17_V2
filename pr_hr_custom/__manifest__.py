@@ -3,7 +3,7 @@
     'name': "PetroRaq Customization",
     'author': "WaqasAli",
     'category': 'Uncategorized',
-    'version': '0.1',
+    'version': '17.0.0.2',
     'depends': [
         'hr_attendance',
         'hr_holidays',
