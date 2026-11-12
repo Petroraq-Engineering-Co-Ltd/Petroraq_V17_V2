@@ -234,6 +234,13 @@ class TestPerformanceImprovementNotice(TransactionCase):
             return_value=self.attachment,
         ):
             hr_letter.action_submit()
+            # Manager holds HR Manager access rights: submit escalates directly to hr_manager_approval
+            self.assertEqual(hr_letter.state, "hr_manager_approval")
+            self.assertFalse(hr_letter.department_manager_approved_by_id)
+            self.assertFalse(hr_letter.hr_manager_approved_by_id)
+
+            # Direct department_manager_approve on a department_manager_approval record still advances only to hr_manager_approval
+            hr_letter.write({"state": "department_manager_approval"})
             hr_letter.with_user(self.hr_manager).action_department_manager_approve()
             self.assertEqual(hr_letter.state, "hr_manager_approval")
             self.assertEqual(hr_letter.department_manager_approved_by_id, self.hr_manager)
@@ -435,3 +442,34 @@ class TestPerformanceImprovementNotice(TransactionCase):
 
         action = self.env.ref("pr_employee_service_requests.action_pr_employee_document_letter_hr_approvals")
         self.assertEqual(action.domain, "[('is_current_user_document_letter_approver', '=', True)]")
+
+    def test_letter_dashboard_highest_approve_role_context(self):
+        letter = self.env["pr.employee.document.letter"].create({
+            "letter_type": "experience",
+            "employee_id": self.hr_managed_employee.id,
+            "subject": "Dashboard Highest Button Letter",
+            "body_html": "<p>Experience details.</p>",
+            "state": "department_manager_approval",
+        })
+        # Outside Approval Dashboard: no hiding role computed
+        self.assertFalse(letter.with_user(self.hr_manager).dashboard_approve_role)
+        # From Approval Dashboard: HR Manager supersedes Department Manager
+        self.assertEqual(
+            letter.with_user(self.hr_manager).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_manager",
+        )
+        # Re-read without dashboard context remains False (cache isolation)
+        self.assertFalse(letter.with_user(self.hr_manager).dashboard_approve_role)
+
+        # Standalone department manager sees department_manager on dashboard
+        dept_letter = self.env["pr.employee.document.letter"].create({
+            "letter_type": "experience",
+            "employee_id": self.employee.id,
+            "subject": "Dept Manager Letter",
+            "body_html": "<p>Experience details.</p>",
+            "state": "department_manager_approval",
+        })
+        self.assertEqual(
+            dept_letter.with_user(self.department_manager).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "department_manager",
+        )
