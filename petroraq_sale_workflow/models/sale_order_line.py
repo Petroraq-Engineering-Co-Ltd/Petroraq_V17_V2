@@ -150,6 +150,88 @@ class SaleOrderLine(models.Model):
             lines.mapped("order_id")._reset_confirmation_approval()
         return lines
 
+    def _get_delivery_description_picking(self, picking_type=False):
+        """Return the delivery move description for a sales order line.
+
+        Prefers the non-empty sales order line ``name`` verbatim, falling back
+        to Odoo's product delivery description and variant attributes only when
+        the SO line description is blank.
+        """
+        self.ensure_one()
+        if (self.name or "").strip():
+            return self.name
+        if not self.product_id:
+            return ""
+        partner = self.order_id.partner_shipping_id or self.order_id.partner_id
+        lang = partner.lang or self.env.user.lang
+        product = self.product_id.with_context(lang=lang)
+        if picking_type:
+            picking_description = product._get_description(picking_type) or ""
+        else:
+            picking_description = product.description_pickingout or product.name or ""
+        variant_lang = self.order_id.partner_id.lang or self.env.user.lang
+        variants = self.with_context(
+            lang=variant_lang
+        )._get_sale_order_line_multiline_description_variants()
+        if variants:
+            picking_description = f"{picking_description}{variants}"
+        return picking_description
+
+    def _prepare_procurement_values(self, group_id=False):
+        values = super()._prepare_procurement_values(group_id=group_id)
+        if (self.name or "").strip():
+            values["sale_description_picking"] = self.name
+        return values
+
+    def _get_open_delivery_chain_moves(self):
+        """Return open SO-owned delivery-chain moves (Pick/Pack/Ship)."""
+        self.ensure_one()
+        StockMove = self.env["stock.move"]
+        if (
+            self.display_type
+            or getattr(self, "is_downpayment", False)
+            or not self.product_id
+            or not self.move_ids
+        ):
+            return StockMove
+
+        candidate_moves = self.move_ids | StockMove.browse(self.move_ids._rollup_move_origs())
+        open_moves = candidate_moves.filtered(
+            lambda m: m.state not in ("done", "cancel")
+            and not m.purchase_line_id
+            and not m.origin_returned_move_id
+            and m.product_id == self.product_id
+            and (m.picking_type_id.code or m.picking_id.picking_type_id.code)
+            in ("outgoing", "internal")
+        )
+        result = StockMove
+        for move in open_moves:
+            if move.sale_line_id == self:
+                result |= move
+            elif not move.sale_line_id:
+                dest_moves = StockMove.browse(move._rollup_move_dests()).filtered(
+                    lambda dm: not dm.purchase_line_id and not dm.origin_returned_move_id
+                )
+                if dest_moves.sale_line_id == self:
+                    result |= move
+        return result
+
+    def _sync_open_delivery_descriptions(self):
+        for line in self:
+            moves = line._get_open_delivery_chain_moves()
+            if not moves:
+                continue
+            if (line.name or "").strip():
+                moves_to_update = moves.filtered(lambda m: m.description_picking != line.name)
+                if moves_to_update:
+                    moves_to_update.write({"description_picking": line.name})
+            else:
+                for move in moves:
+                    picking_type = move.picking_type_id or move.picking_id.picking_type_id
+                    target_desc = line._get_delivery_description_picking(picking_type=picking_type)
+                    if move.description_picking != target_desc:
+                        move.write({"description_picking": target_desc})
+
     def write(self, vals):
         orders = self.mapped("order_id")
         vals = dict(vals)
@@ -165,6 +247,8 @@ class SaleOrderLine(models.Model):
             vals["use_manual_cost_price_unit"] = True
 
         res = super().write(vals)
+        if "name" in vals:
+            self._sync_open_delivery_descriptions()
         # if product or costing inputs changed, resync
         if "price_unit" not in vals and set(vals).intersection({
             "product_id",

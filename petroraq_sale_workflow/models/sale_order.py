@@ -603,12 +603,14 @@ class SaleOrder(models.Model):
         for line, remaining in remaining_lines:
             move_vals.append({
                 "name": line.name or line.product_id.display_name,
+                "description_picking": line._get_delivery_description_picking(picking_type),
                 "product_id": line.product_id.id,
                 "product_uom_qty": remaining,
                 "product_uom": line.product_uom.id,
                 "location_id": picking.location_id.id,
                 "location_dest_id": picking.location_dest_id.id,
                 "picking_id": picking.id,
+                "picking_type_id": picking_type.id,
                 "company_id": self.company_id.id,
                 "sale_line_id": line.id,
                 # keep procurement group consistent if you use it

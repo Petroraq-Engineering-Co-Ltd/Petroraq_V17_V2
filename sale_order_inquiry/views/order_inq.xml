@@ -170,7 +170,7 @@
 
 
     <record id="view_order_inq_tree_view" model="ir.ui.view">
-        <field name="name">Order Inquiry Tree View</field>
+        <field name="name">Sales Inquiry Tree View</field>
         <field name="model">order.inq</field>
         <field name="arch" type="xml">
             <tree class="o_sale_order" decoration-muted="state == 'cancel'">
@@ -219,7 +219,7 @@
     </record>
 
     <record model="ir.actions.act_window" id="action_order_inquiry">
-        <field name="name">Order Inquiry</field>
+        <field name="name">Sales Inquiry</field>
         <field name="res_model">order.inq</field>
         <field name="view_mode">tree,form</field>
         <field name="type">ir.actions.act_window</field>
@@ -227,7 +227,7 @@
         <field name="search_view_id" ref="view_order_inq_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create Order Inquiry
+                Create Sales Inquiry
             </p>
         </field>
     </record>
@@ -265,7 +265,7 @@
     </record>
 
     <record id="order_inq_rule_hide_pending_for_wo_user" model="ir.rule">
-        <field name="name">Order Inquiry: Hide Pending for WO User</field>
+        <field name="name">Sales Inquiry: Hide Pending for WO User</field>
         <field name="model_id" ref="model_order_inq"/>
         <field name="groups" eval="[(4, ref('pr_work_order.custom_group_work_order_user'))]"/>
         <field name="domain_force">[('state', '!=', 'pending')]</field>
