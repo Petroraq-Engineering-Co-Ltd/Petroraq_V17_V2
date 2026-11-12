@@ -175,6 +175,8 @@ class HrApprovalDashboardService(models.AbstractModel):
             action = self.env.ref(cfg["action_xmlid"], raise_if_not_found=False)
             domain = self._service_request_pending_domain(domain=cfg["category_domain"])
             records = self.env["pr.employee.service.request"].search(domain)
+            tile_context = dict(self._context_from_action(action) if action else {})
+            tile_context["from_approval_dashboard"] = True
             sub_tiles.append({
                 "key": cfg["key"],
                 "name": cfg["name"],
@@ -185,7 +187,7 @@ class HrApprovalDashboardService(models.AbstractModel):
                 "res_model": cfg["res_model"],
                 "view_mode": (action.view_mode if action else False) or "list,form",
                 "domain": [("id", "in", records.ids)],
-                "context": self._context_from_action(action) if action else {},
+                "context": tile_context,
                 "_ids": set(records.ids),
             })
 
@@ -193,6 +195,8 @@ class HrApprovalDashboardService(models.AbstractModel):
         letter_action = self.env.ref("pr_employee_service_requests.action_pr_employee_document_letter_hr_approvals", raise_if_not_found=False)
         letter_domain = self._document_letter_pending_domain()
         letter_records = self.env["pr.employee.document.letter"].search(letter_domain)
+        letter_context = dict(self._context_from_action(letter_action) if letter_action else {})
+        letter_context["from_approval_dashboard"] = True
         sub_tiles.append({
             "key": "sub_letters",
             "name": _("Employee Letters"),
@@ -203,7 +207,7 @@ class HrApprovalDashboardService(models.AbstractModel):
             "res_model": "pr.employee.document.letter",
             "view_mode": (letter_action.view_mode if letter_action else False) or "list,form",
             "domain": [("id", "in", letter_records.ids)],
-            "context": self._context_from_action(letter_action) if letter_action else {},
+            "context": letter_context,
             "_ids": set(letter_records.ids),
         })
 
@@ -278,7 +282,7 @@ class HrApprovalDashboardService(models.AbstractModel):
             "res_model": "pr.employee.service.request",
             "view_mode": "list,form",
             "domain": [("id", "in", sorted(all_service_ids))],
-            "context": {},
+            "context": {"from_approval_dashboard": True},
             "sub_tiles": sub_tiles,
         }
 

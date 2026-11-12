@@ -2,9 +2,11 @@
 from datetime import date
 from unittest.mock import patch
 
+from lxml import etree
+
 from odoo.exceptions import AccessError
 from odoo.osv import expression
-from odoo.tests.common import TransactionCase, tagged
+from odoo.tests.common import Form, TransactionCase, tagged
 from odoo.tools.safe_eval import safe_eval
 
 
@@ -1974,4 +1976,113 @@ class TestApprovalDashboardFiltering(TransactionCase):
         req_md_approve_ok.with_user(self.user_md).action_md_approve()
         self.assertEqual(req_md_approve_ok.state, "issued")
         self.assertEqual(req_md_approve_ok.md_approved_by_id, self.user_md)
+
+    def test_dashboard_tiles_set_from_approval_dashboard_and_show_highest_approve_role(self):
+        """Approval Dashboard tiles inject from_approval_dashboard=True into context,
+        causing multi-role users to compute only their highest eligible approve role
+        while preserving standard form behavior when opened without dashboard context."""
+        SR = self.env["pr.employee.service.request"]
+        dashboard_service = self.env["de.hr.approval.dashboard.service"]
+
+        # 1. User holding Accounts + Finance + MD rights
+        user_acc_fin_md = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test Accounts + Finance + MD",
+            "login": "test.acc.fin.md@example.com",
+            "email": "test.acc.fin.md@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_accounts_manager.id,
+                self.group_finance_manager.id,
+                self.group_hr_md.id,
+            ])],
+        })
+
+        # Verify Approval Dashboard tile + sub_tiles carry from_approval_dashboard=True
+        sections = dashboard_service.with_user(user_acc_fin_md).get_sections()
+        hr_section = next(s for s in sections if s["key"] == "hr")
+        service_tile = next(
+            t for t in hr_section["tiles"]
+            if t["key"] == "hr|pr.employee.service.request|employee_services"
+        )
+        self.assertTrue(service_tile["context"].get("from_approval_dashboard"))
+        for st in service_tile["sub_tiles"]:
+            self.assertTrue(st["context"].get("from_approval_dashboard"), f"Sub-tile {st['key']} missing flag")
+
+        # Without dashboard context: dashboard_approve_role is False (lower buttons remain intact)
+        for rec in (
+            self.req_emp_mgr,
+            self.req_hr_sup,
+            self.req_hr_mgr,
+            self.req_accounts,
+            self.req_finance,
+            self.req_md,
+        ):
+            self.assertFalse(rec.with_user(user_acc_fin_md).dashboard_approve_role)
+            self.assertEqual(
+                rec.with_user(user_acc_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+                "md",
+            )
+            # Re-read without dashboard context must stay False (cache isolation)
+            self.assertFalse(rec.with_user(user_acc_fin_md).dashboard_approve_role)
+
+        # User holding Finance + HR Supervisor on self-paid vs company-paid
+        user_fin_hrsup = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test Finance + HR Sup",
+            "login": "test.fin.hrsup@example.com",
+            "email": "test.fin.hrsup@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_finance_manager.id,
+                self.group_hr_supervisor.id,
+            ])],
+        })
+        self_paid_hrsup = SR.create({
+            "request_type": "dependent_fee",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "payment_responsibility": "self",
+            "requested_amount": 200.0,
+            "state": "hr_supervisor_approval",
+            "reason": "Self-paid Finance+HRSup test",
+        })
+        # On company-paid hr_supervisor_approval: highest eligible role is finance
+        self.assertEqual(
+            self.req_hr_sup.with_user(user_fin_hrsup).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "finance",
+        )
+        # On self-paid hr_supervisor_approval: Finance cannot approve self-paid, so falls back to hr_supervisor
+        self.assertEqual(
+            self_paid_hrsup.with_user(user_fin_hrsup).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_supervisor",
+        )
+        # On md_approval: neither Finance nor HR Supervisor can approve -> 'none'
+        self.assertEqual(
+            self.req_md.with_user(user_fin_hrsup).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "none",
+        )
+
+        # Form view integration check: header contains dashboard_approve_role and all 6 buttons reference it
+        arch_str = SR.with_user(user_acc_fin_md).get_view(view_type="form")["arch"]
+        arch = etree.fromstring(arch_str)
+        self.assertTrue(arch.xpath("//header/field[@name='dashboard_approve_role']"))
+        for btn_name, expected_role in (
+            ("action_employee_manager_approve", "employee_manager"),
+            ("action_hr_supervisor_approve", "hr_supervisor"),
+            ("action_hr_manager_approve", "hr_manager"),
+            ("action_accounts_approve", "accounts"),
+            ("action_finance_approve", "finance"),
+            ("action_md_approve", "md"),
+        ):
+            btns = arch.xpath(f"//header/button[@name='{btn_name}']")
+            if btns:
+                inv = btns[0].get("invisible") or ""
+                self.assertIn(f"dashboard_approve_role != '{expected_role}'", inv)
+
+        # Form() modifier check: opening accounts_approval from dashboard as Acc+Fin+MD allows Form edit/view with MD role
+        dash_form = Form(
+            self.req_accounts.with_user(user_acc_fin_md).with_context(from_approval_dashboard=True)
+        )
+        self.assertEqual(dash_form.dashboard_approve_role, "md")
+        non_dash_form = Form(self.req_accounts.with_user(user_acc_fin_md))
+        self.assertFalse(non_dash_form.dashboard_approve_role)
 
