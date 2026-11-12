@@ -228,6 +228,15 @@ class PrEmployeeDocumentLetter(models.Model):
     can_reset_to_draft = fields.Boolean(compute="_compute_action_flags")
     can_cancel = fields.Boolean(compute="_compute_action_flags")
     is_department_manager = fields.Boolean(compute="_compute_action_flags")
+    dashboard_approve_role = fields.Selection(
+        [
+            ("hr_manager", "HR Manager"),
+            ("department_manager", "Dept. Manager"),
+            ("none", "None"),
+        ],
+        string="Dashboard Approve Role",
+        compute="_compute_dashboard_approve_role",
+    )
     is_current_user_document_letter_approver = fields.Boolean(
         compute="_compute_is_current_user_document_letter_approver",
         search="_search_is_current_user_document_letter_approver",
@@ -391,6 +400,24 @@ class PrEmployeeDocumentLetter(models.Model):
                 rec.state in ("draft",) + approval_states + ("rejected",)
                 and (is_owner or is_hr_manager)
             )
+
+    @api.depends("state", "department_manager_user_id")
+    @api.depends_context("uid", "from_approval_dashboard")
+    def _compute_dashboard_approve_role(self):
+        if not self.env.context.get("from_approval_dashboard"):
+            for rec in self:
+                rec.dashboard_approve_role = False
+            return
+
+        user = self.env.user
+        is_hr_manager = user.has_group("pr_hr.group_hr_manager")
+        for rec in self:
+            if is_hr_manager and rec.state in ("department_manager_approval", "hr_manager_approval"):
+                rec.dashboard_approve_role = "hr_manager"
+            elif rec.department_manager_user_id == user and rec.state == "department_manager_approval":
+                rec.dashboard_approve_role = "department_manager"
+            else:
+                rec.dashboard_approve_role = "none"
 
     @api.model
     def _get_letter_type_label(self, letter_type):
@@ -893,15 +920,35 @@ class PrEmployeeDocumentLetter(models.Model):
                     "The selected employee must have a manager linked to an internal user before submission."
                 ))
             attachment = rec._generate_letter_pdf_attachment()
-            rec.write({"state": "department_manager_approval"})
-            rec._schedule_letter_approval_activity(
-                rec.department_manager_user_id,
-                _("Department Manager approval: Employee Letter"),
-            )
-            rec.message_post(
-                body=_("Employee letter submitted to the Department Manager. Generated PDF is attached for review."),
-                attachment_ids=attachment.ids,
-            )
+            roles = rec._get_user_document_letter_roles(rec.department_manager_user_id)
+            if "hr_manager" in roles:
+                rec.write({"state": "hr_manager_approval"})
+                hr_group = self.env.ref("pr_hr.group_hr_manager", raise_if_not_found=False)
+                hr_managers = (
+                    self.env["res.users"].browse(
+                        hr_group.sudo().users.filtered(lambda user: rec.company_id in user.company_ids).ids
+                    )
+                    if hr_group
+                    else self.env["res.users"]
+                )
+                rec._schedule_letter_approval_activity(
+                    hr_managers,
+                    _("HR Manager approval: Employee Letter"),
+                )
+                rec.message_post(
+                    body=_("Employee letter submitted directly to HR Manager based on manager access rights. Generated PDF is attached for review."),
+                    attachment_ids=attachment.ids,
+                )
+            else:
+                rec.write({"state": "department_manager_approval"})
+                rec._schedule_letter_approval_activity(
+                    rec.department_manager_user_id,
+                    _("Department Manager approval: Employee Letter"),
+                )
+                rec.message_post(
+                    body=_("Employee letter submitted to the Department Manager. Generated PDF is attached for review."),
+                    attachment_ids=attachment.ids,
+                )
 
     def action_department_manager_approve(self):
         for rec in self:

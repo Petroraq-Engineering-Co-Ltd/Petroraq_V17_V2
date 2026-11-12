@@ -71,6 +71,7 @@
             <form string="Employee Letter">
                 <header>
                     <field name="is_department_manager" invisible="1"/>
+                    <field name="dashboard_approve_role" invisible="1"/>
                     <field name="can_reject" invisible="1"/>
                     <field name="can_reset_to_draft" invisible="1"/>
                     <field name="can_cancel" invisible="1"/>
@@ -78,7 +79,7 @@
                             class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_department_manager_approve" type="object" string="Department Manager Approve"
                             class="btn-primary"
-                            invisible="state != 'department_manager_approval' or not is_department_manager"/>
+                            invisible="(dashboard_approve_role and dashboard_approve_role != 'department_manager') or state != 'department_manager_approval' or not is_department_manager"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary"
                             groups="pr_hr.group_hr_manager"
