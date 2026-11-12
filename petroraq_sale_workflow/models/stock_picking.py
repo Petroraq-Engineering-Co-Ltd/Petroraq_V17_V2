@@ -46,18 +46,42 @@ class StockMove(models.Model):
     def _compute_pr_amounts(self):
         return super()._compute_pr_amounts()
 
+    def _prepare_procurement_values(self):
+        values = super()._prepare_procurement_values()
+        if (self.description_picking or "").strip() and not self.purchase_line_id:
+            picking_code = (
+                self.picking_type_id.code or self.picking_id.picking_type_id.code
+            )
+            sale_lines = self.sale_line_id or (
+                self._get_sale_order_lines()
+                if picking_code in ("outgoing", "internal")
+                else self.env["sale.order.line"]
+            )
+            if len(sale_lines) == 1:
+                values["sale_description_picking"] = self.description_picking
+                if (sale_lines.name or "").strip():
+                    values["product_description_variants"] = (
+                        sale_lines.with_context(
+                            lang=sale_lines.order_id.partner_id.lang
+                        )._get_sale_order_line_multiline_description_variants()
+                    )
+        return values
+
     def _pr_get_delivery_line_description(self):
         """Return a useful DN description for both sales and purchase moves."""
         self.ensure_one()
         product = self.product_id
+        product_name = (product.name or "").strip()
+        product_display_name = (product.display_name or "").strip()
         product_headings = {
-            (product.name or "").strip(),
-            (product.display_name or "").strip(),
+            product_name,
+            product_display_name,
         }
         if product.default_code:
-            product_headings.add(
-                "[%s] %s" % (product.default_code, product.name or "")
-            )
+            product_headings.add(f"[{product.default_code}] {product_name}")
+            if product_display_name:
+                product_headings.add(f"[{product.default_code}] {product_display_name}")
+        product_headings.discard("")
 
         def clean_description(value):
             lines = (value or "").strip().splitlines()
@@ -81,6 +105,35 @@ class StockMove(models.Model):
                 return description
 
         return (product.name or product.display_name or "").strip()
+
+
+class StockRule(models.Model):
+    _inherit = "stock.rule"
+
+    def _get_stock_move_values(
+        self,
+        product_id,
+        product_qty,
+        product_uom,
+        location_dest_id,
+        name,
+        origin,
+        company_id,
+        values,
+    ):
+        move_values = super()._get_stock_move_values(
+            product_id,
+            product_qty,
+            product_uom,
+            location_dest_id,
+            name,
+            origin,
+            company_id,
+            values,
+        )
+        if values.get("sale_description_picking"):
+            move_values["description_picking"] = values["sale_description_picking"]
+        return move_values
 
 
 class StockPicking(models.Model):
