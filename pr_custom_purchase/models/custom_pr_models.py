@@ -1205,29 +1205,23 @@ class PurchaseOrder(models.Model):
     pr_name = fields.Char(string="PR Name", readonly=True)
 
     def _update_pr_state(self):
-        """Helper to sync PR state with the highest PO state for the same pr_name"""
+        """Helper to sync PR state with linked RFQs/POs and legacy custom.pr records."""
         for order in self:
+            requisition = order.requisition_id or (
+                self.env["purchase.requisition"].sudo().search([("name", "=", order.pr_name)], limit=1)
+                if order.pr_name
+                else False
+            )
+            if requisition:
+                requisition.sudo()._sync_status_from_orders()
+
             if order.pr_name:
                 pr = self.env['custom.pr'].sudo().search([('name', '=', order.pr_name)], limit=1)
-                requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
-                    [("name", "=", order.pr_name)], limit=1
-                )
                 all_pos = self.env['purchase.order'].sudo().search([('pr_name', '=', order.pr_name)])
                 if not all_pos:
                     continue
                 priority = {'draft': 1, 'sent': 2, 'pending': 3, 'purchase': 4, 'done': 5, 'cancel': 6}
                 best_po = max(all_pos, key=lambda po: priority.get(po.state, 0))
-
-                if requisition:
-                    status_mapping = {
-                        'draft': 'rfq',
-                        'sent': 'rfq',
-                        'pending': 'po',
-                        'purchase': 'po',
-                        'done': 'completed',
-                        'cancel': 'pr',
-                    }
-                    requisition.sudo().status = status_mapping.get(best_po.state, requisition.status)
 
                 if pr:
                     mapping = {
@@ -1243,13 +1237,15 @@ class PurchaseOrder(models.Model):
     @api.model
     def create(self, vals):
         order = super().create(vals)
+        requisition = order.requisition_id or (
+            self.env["purchase.requisition"].sudo().search([("name", "=", order.pr_name)], limit=1)
+            if order.pr_name
+            else False
+        )
+        if requisition:
+            requisition.sudo()._sync_status_from_orders()
         # When PO is created, immediately set PR → pending
         if order.pr_name:
-            requisition = order.requisition_id or self.env["purchase.requisition"].sudo().search(
-                [("name", "=", order.pr_name)], limit=1
-            )
-            if requisition:
-                requisition.sudo().status = "rfq"
             pr = self.env['custom.pr'].sudo().search([('name', '=', order.pr_name)], limit=1)
             if pr:
                 pr.state = 'pending'
@@ -1257,7 +1253,7 @@ class PurchaseOrder(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if 'state' in vals:
+        if any(field in vals for field in ('state', 'name', 'requisition_id', 'pr_name')):
             self._update_pr_state()
         return res
 
