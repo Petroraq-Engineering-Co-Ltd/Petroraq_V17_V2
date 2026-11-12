@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 
 class OrderInquiry(models.Model):
     _name = 'order.inq'
+    _description = "Sales Inquiry"
     _order = 'sequence, date_order, id'
     _rec_name = 'name'
     _inherit = ['mail.thread', 'mail.activity.mixin']
