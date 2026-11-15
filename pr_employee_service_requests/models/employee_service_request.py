@@ -433,6 +433,19 @@ class PrEmployeeServiceRequest(models.Model):
     finance_approved_date = fields.Datetime(string="Finance Approved On", readonly=True, copy=False)
 
     is_employee_manager = fields.Boolean(compute="_compute_is_employee_manager")
+    dashboard_approve_role = fields.Selection(
+        [
+            ("md", "MD"),
+            ("finance", "Finance"),
+            ("accounts", "Accounts"),
+            ("hr_manager", "HR Manager"),
+            ("hr_supervisor", "HR Supervisor"),
+            ("employee_manager", "Dept. Manager"),
+            ("none", "None"),
+        ],
+        string="Dashboard Approve Role",
+        compute="_compute_dashboard_approve_role",
+    )
     can_reject = fields.Boolean(compute="_compute_can_reject")
     can_reset_to_draft = fields.Boolean(compute="_compute_can_reset_or_cancel")
     can_cancel = fields.Boolean(compute="_compute_can_reset_or_cancel")
@@ -753,6 +766,83 @@ class PrEmployeeServiceRequest(models.Model):
         user = self.env.user
         for rec in self:
             rec.is_employee_manager = (rec.employee_manager_user_id == user)
+
+    @api.depends(
+        "state",
+        "employee_manager_user_id",
+        "payment_responsibility",
+        "request_type",
+        "exit_reentry_historical_company_paid",
+    )
+    @api.depends_context("uid", "from_approval_dashboard")
+    def _compute_dashboard_approve_role(self):
+        if not self.env.context.get("from_approval_dashboard"):
+            for rec in self:
+                rec.dashboard_approve_role = False
+            return
+
+        user = self.env.user
+        is_md = user.has_group("pr_hr.group_hr_md")
+        is_finance = user.has_group("pr_account.custom_group_accounting_manager")
+        is_accounts = (
+            user.has_group("account.group_account_manager")
+            and not is_finance
+        )
+        is_hr_manager = user.has_group("pr_hr.group_hr_manager")
+        is_hr_supervisor = user.has_group("pr_hr.group_hr_supervisor")
+
+        for rec in self:
+            is_non_financial = rec._is_non_financial_request()
+            role = "none"
+            if is_md and rec.state in (
+                "employee_manager_approval",
+                "hr_supervisor_approval",
+                "hr_manager_approval",
+                "accounts_approval",
+                "finance_approval",
+                "md_approval",
+            ):
+                role = "md"
+            elif (
+                is_finance
+                and not is_non_financial
+                and rec.state in (
+                    "employee_manager_approval",
+                    "hr_supervisor_approval",
+                    "hr_manager_approval",
+                    "accounts_approval",
+                    "finance_approval",
+                )
+            ):
+                role = "finance"
+            elif (
+                is_accounts
+                and not is_non_financial
+                and rec.state in (
+                    "employee_manager_approval",
+                    "hr_supervisor_approval",
+                    "hr_manager_approval",
+                    "accounts_approval",
+                )
+            ):
+                role = "accounts"
+            elif is_hr_manager and rec.state in (
+                "employee_manager_approval",
+                "hr_supervisor_approval",
+                "hr_manager_approval",
+            ):
+                role = "hr_manager"
+            elif is_hr_supervisor and rec.state in (
+                "employee_manager_approval",
+                "hr_supervisor_approval",
+            ):
+                role = "hr_supervisor"
+            elif (
+                rec.employee_manager_user_id == user
+                and rec.state == "employee_manager_approval"
+            ):
+                role = "employee_manager"
+            rec.dashboard_approve_role = role
 
     @api.depends(
         "state",
@@ -1694,7 +1784,7 @@ class PrEmployeeServiceRequest(models.Model):
         for xmlid in group_xml_ids:
             group = self.env.ref(xmlid, raise_if_not_found=False)
             if group:
-                users |= group.users
+                users |= self.env["res.users"].browse(group.sudo().users.ids)
         if "account.group_account_manager" in group_xml_ids:
             users = users.filtered(
                 lambda user: not user.has_group("pr_account.custom_group_accounting_manager")
@@ -1743,27 +1833,103 @@ class PrEmployeeServiceRequest(models.Model):
             if to_clear:
                 to_clear.action_done()
 
+    def _get_submit_target_routing(self):
+        self.ensure_one()
+        manager_user = self.employee_manager_user_id
+        if not manager_user:
+            return "employee_manager", "employee_manager_approval"
+        roles = self._get_user_service_request_roles(manager_user)
+        role_to_state = {
+            "md": "md_approval",
+            "finance": "finance_approval",
+            "accounts": "accounts_approval",
+            "hr_manager": "hr_manager_approval",
+            "hr_supervisor": "hr_supervisor_approval",
+        }
+        if self._is_non_financial_request():
+            candidate_roles = ("md", "hr_manager", "hr_supervisor")
+        else:
+            candidate_roles = ("md", "finance", "accounts", "hr_manager", "hr_supervisor")
+        for role in candidate_roles:
+            if role in roles:
+                return role, role_to_state[role]
+        return "employee_manager", "employee_manager_approval"
+
     def action_submit(self):
         self._apply_exit_reentry_company_eligibility(auto_message=True)
         self._check_before_submit()
         for rec in self:
             if rec.state != "draft":
                 continue
-            vals = {"rejection_reason": False, "approved_amount": False}
+            _target_role, target_state = rec._get_submit_target_routing()
+            vals = {"rejection_reason": False, "approved_amount": 0.0}
             if rec._is_non_financial_request():
                 vals["approved_amount"] = 0.0
+            elif target_state in ("accounts_approval", "finance_approval", "md_approval"):
+                vals["approved_amount"] = rec._get_payment_amount()
             if rec.request_type in IQAMA_REQUEST_TYPES:
                 vals["requested_amount"] = rec._get_requested_compliance_amount()
-            vals["state"] = "employee_manager_approval"
+            vals["state"] = target_state
             rec.write(vals)
-            if rec.employee_manager_user_id:
-                rec._notify_users(
-                    rec.employee_manager_user_id,
+            if target_state == "employee_manager_approval":
+                if rec.employee_manager_user_id:
+                    rec._notify_users(
+                        rec.employee_manager_user_id,
+                        _("Employee Request Approval Needed"),
+                        _("%s <b>%s</b> is waiting for Employment Manager approval.")
+                        % (rec._get_type_label(), rec.display_name),
+                    )
+                rec.message_post(body=_("Request submitted for Employment Manager approval."))
+            elif target_state == "hr_supervisor_approval":
+                rec._notify_group(
+                    ["pr_hr.group_hr_supervisor"],
                     _("Employee Request Approval Needed"),
-                    _("%s <b>%s</b> is waiting for Employment Manager approval.")
+                    _("%s <b>%s</b> is waiting for HR Supervisor approval.")
                     % (rec._get_type_label(), rec.display_name),
                 )
-            rec.message_post(body=_("Request submitted for Employment Manager approval."))
+                rec.message_post(
+                    body=_("Request submitted directly for HR Supervisor approval based on manager access rights.")
+                )
+            elif target_state == "hr_manager_approval":
+                rec._notify_group(
+                    ["pr_hr.group_hr_manager"],
+                    _("Employee Request Approval Needed"),
+                    _("%s <b>%s</b> is waiting for HR Manager approval.")
+                    % (rec._get_type_label(), rec.display_name),
+                )
+                rec.message_post(
+                    body=_("Request submitted directly for HR Manager approval based on manager access rights.")
+                )
+            elif target_state == "accounts_approval":
+                rec._notify_group(
+                    ["account.group_account_manager", "pr_account.custom_group_account_supervisor"],
+                    _("Employee Request Approval Needed"),
+                    _("%s <b>%s</b> is waiting for Accounts approval.")
+                    % (rec._get_type_label(), rec.display_name),
+                )
+                rec.message_post(
+                    body=_("Request submitted directly for Accounts approval based on manager access rights.")
+                )
+            elif target_state == "finance_approval":
+                rec._notify_group(
+                    ["pr_account.custom_group_accounting_manager"],
+                    _("Employee Request Approval Needed"),
+                    _("%s <b>%s</b> is waiting for Finance approval.")
+                    % (rec._get_type_label(), rec.display_name),
+                )
+                rec.message_post(
+                    body=_("Request submitted directly for Finance approval based on manager access rights.")
+                )
+            elif target_state == "md_approval":
+                rec._notify_group(
+                    ["pr_hr.group_hr_md"],
+                    _("Employee Request Approval Needed"),
+                    _("%s <b>%s</b> is waiting for MD approval.")
+                    % (rec._get_type_label(), rec.display_name),
+                )
+                rec.message_post(
+                    body=_("Request submitted directly for MD approval based on manager access rights.")
+                )
 
     def action_employee_manager_approve(self):
         for rec in self:

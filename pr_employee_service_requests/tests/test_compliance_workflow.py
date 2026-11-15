@@ -1490,3 +1490,79 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             cost_center_nodes = arch.xpath("//field[@name='cost_center_id']")
             self.assertTrue(cost_center_nodes, f"{model_name} form is missing cost_center_id")
             self.assertEqual(cost_center_nodes[0].get("domain"), expected_domain)
+
+    def test_submit_escalation_by_manager_access_rights(self):
+        """Submitting checks the resolved Stage-1 manager's roles and routes
+        directly to the highest applicable stage while leaving skipped audit fields blank."""
+        scenarios = [
+            ("regular_mgr", [], "company", "employee_manager_approval", False),
+            ("hr_sup_mgr", ["pr_hr.group_hr_supervisor"], "company", "hr_supervisor_approval", False),
+            ("hr_mgr_mgr", ["pr_hr.group_hr_manager"], "company", "hr_manager_approval", False),
+            ("acc_mgr", ["account.group_account_manager"], "company", "accounts_approval", True),
+            ("fin_mgr", ["pr_account.custom_group_accounting_manager"], "company", "finance_approval", True),
+            ("md_mgr", ["pr_hr.group_hr_md"], "company", "md_approval", True),
+            ("acc_self_mgr", ["account.group_account_manager"], "self", "employee_manager_approval", False),
+            ("fin_self_mgr", ["pr_account.custom_group_accounting_manager"], "self", "employee_manager_approval", False),
+            ("md_self_mgr", ["pr_hr.group_hr_md"], "self", "md_approval", False),
+            (
+                "fin_hrsup_self_mgr",
+                ["pr_account.custom_group_accounting_manager", "pr_hr.group_hr_supervisor"],
+                "self",
+                "hr_supervisor_approval",
+                False,
+            ),
+        ]
+        SR = self.env["pr.employee.service.request"]
+        self_relation = (
+            self.env.ref("pr_hr.employee_dependent_relationship_self", raise_if_not_found=False)
+            or self.env["hr.employee.dependent.relation"].search([], limit=1)
+        )
+        for idx, (tag, group_xmlids, resp, expected_state, expect_approved_amount) in enumerate(scenarios):
+            emp_user = self._create_role_user(f"sub.esc.emp.{idx}", [])
+            mgr_user = self._create_role_user(f"sub.esc.{tag}.{idx}", group_xmlids)
+            mgr_emp = self.env["hr.employee"].create({
+                "name": f"Escalation Manager {tag}",
+                "user_id": mgr_user.id,
+            })
+            emp = self.env["hr.employee"].create({
+                "name": f"Escalation Employee {tag}",
+                "user_id": emp_user.id,
+                "parent_id": mgr_emp.id,
+            })
+            if resp == "self":
+                req = SR.with_user(emp_user).create({
+                    "request_type": "dependent_fee",
+                    "employee_id": emp.id,
+                    "company_id": self.env.company.id,
+                    "dependent_relation_id": self_relation.id,
+                    "payment_responsibility": "self",
+                    "requested_amount": 350.0,
+                    "reason": f"Submit escalation self {tag}",
+                })
+            else:
+                req = SR.with_user(emp_user).create({
+                    "request_type": "reimbursement",
+                    "reimbursement_type": "fuel",
+                    "employee_id": emp.id,
+                    "company_id": self.env.company.id,
+                    "requested_amount": 350.0,
+                    "expense_date": date(2099, 1, 1),
+                    "payment_responsibility": "company",
+                    "reason": f"Submit escalation company {tag}",
+                })
+
+            with patch.object(type(req), "_notify_users", autospec=True):
+                req.with_user(emp_user).action_submit()
+
+            with self.subTest(scenario=tag):
+                self.assertEqual(req.state, expected_state)
+                self.assertFalse(req.employee_manager_approved_by_id)
+                self.assertFalse(req.hr_supervisor_approved_by_id)
+                self.assertFalse(req.hr_manager_approved_by_id)
+                self.assertFalse(req.accounts_approved_by_id)
+                self.assertFalse(req.finance_approved_by_id)
+                self.assertFalse(req.md_approved_by_id)
+                if expect_approved_amount:
+                    self.assertEqual(req.approved_amount, 350.0)
+                else:
+                    self.assertEqual(req.approved_amount, 0.0)

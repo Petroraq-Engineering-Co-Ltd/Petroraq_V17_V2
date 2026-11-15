@@ -98,6 +98,7 @@
             <form string="Employee Request">
                 <header>
                     <field name="is_employee_manager" invisible="1"/>
+                    <field name="dashboard_approve_role" invisible="1"/>
                     <field name="can_reject" invisible="1"/>
                     <field name="can_reset_to_draft" invisible="1"/>
                     <field name="can_cancel" invisible="1"/>
@@ -105,27 +106,27 @@
                             class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_employee_manager_approve" type="object" string="Dept. Manager"
                             class="btn-primary"
-                            invisible="state != 'employee_manager_approval' or not is_employee_manager"/>
+                            invisible="(dashboard_approve_role and dashboard_approve_role != 'employee_manager') or state != 'employee_manager_approval' or not is_employee_manager"/>
                     <button name="action_hr_supervisor_approve" type="object" string="HR Supervisor Approve"
                             class="btn-primary"
                             groups="pr_hr.group_hr_supervisor"
-                            invisible="state not in ('employee_manager_approval', 'hr_supervisor_approval')"/>
+                            invisible="(dashboard_approve_role and dashboard_approve_role != 'hr_supervisor') or state not in ('employee_manager_approval', 'hr_supervisor_approval')"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
                             class="btn-primary"
                             groups="pr_hr.group_hr_manager"
-                            invisible="state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval')"/>
+                            invisible="(dashboard_approve_role and dashboard_approve_role != 'hr_manager') or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval')"/>
                     <button name="action_accounts_approve" type="object" string="Accounts Approve"
                             class="btn-primary"
                             groups="account.group_account_manager,pr_account.custom_group_account_supervisor"
-                            invisible="payment_responsibility == 'self' or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval')"/>
+                            invisible="(dashboard_approve_role and dashboard_approve_role != 'accounts') or payment_responsibility == 'self' or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval')"/>
                     <button name="action_finance_approve" type="object" string="Finance Approve"
                             class="btn-primary"
                             groups="pr_account.custom_group_accounting_manager"
-                            invisible="payment_responsibility == 'self' or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval')"/>
+                            invisible="(dashboard_approve_role and dashboard_approve_role != 'finance') or payment_responsibility == 'self' or exit_reentry_historical_company_paid or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval')"/>
                     <button name="action_md_approve" type="object" string="MD Approve"
                             class="btn-primary"
                             groups="pr_hr.group_hr_md"
-                            invisible="state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval', 'md_approval')"/>
+                            invisible="(dashboard_approve_role and dashboard_approve_role != 'md') or state not in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'accounts_approval', 'finance_approval', 'md_approval')"/>
                     <button name="action_create_payment_request" type="object" string="Create Payment Request"
                             class="btn-primary"
                             groups="account.group_account_manager,pr_account.custom_group_account_supervisor,pr_account.custom_group_accounting_manager"
