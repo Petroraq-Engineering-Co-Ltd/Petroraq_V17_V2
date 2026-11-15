@@ -795,9 +795,15 @@ class PurchaseRequisition(models.Model):
         "status",
         "line_ids.quantity",
         "line_ids.description",
+        "line_ids.cost_center_id",
         "rfq_ids",
+        "rfq_ids.name",
         "rfq_ids.state",
+        "rfq_ids.order_line",
+        "rfq_ids.order_line.product_id",
         "rfq_ids.order_line.product_qty",
+        "rfq_ids.order_line.custom_requisition_line_id",
+        "rfq_ids.order_line.analytic_distribution",
         "cash_payment_id",
         "bank_payment_id",
         "payment_request_id",
@@ -808,10 +814,10 @@ class PurchaseRequisition(models.Model):
         for rec in self:
             has_remaining_qty = rec._has_remaining_product_quantities()
             rec.show_create_rfq_button = (
-                    rec.pr_type != "cash"
-                    and rec.approval == "approved"
-                    and rec.status in ["pr", "rfq", "po"]
-                    and has_remaining_qty
+                rec.pr_type != "cash"
+                and rec.approval == "approved"
+                and rec.status in ["pr", "rfq", "po", "completed"]
+                and has_remaining_qty
             )
 
             rec.show_create_po_button = False
@@ -1762,8 +1768,11 @@ class PurchaseRequisition(models.Model):
         self.ensure_one()
         requisition_lines = self.line_ids if self.pr_type == "budgetary" else self.line_ids.filtered("description")
         quantities = {line.id: 0.0 for line in requisition_lines}
+        req_id = self._origin.id or (self.id if isinstance(self.id, int) else False)
+        if not req_id:
+            return quantities
         domain = [
-            ("order_id.requisition_id", "=", self.id),
+            ("order_id.requisition_id", "=", req_id),
             ("order_id.state", "in", ["sent", "pending", "purchase", "done"]),
             ("order_id.name", "not ilike", "RFQ"),
             ("product_id", "!=", False),
@@ -1831,6 +1840,45 @@ class PurchaseRequisition(models.Model):
     def _has_remaining_product_quantities(self):
         self.ensure_one()
         return any(quantity > 1e-6 for quantity in self._get_remaining_requisition_line_quantities().values())
+
+    def _sync_status_from_orders(self):
+        PurchaseOrder = self.env["purchase.order"].sudo()
+        for rec in self:
+            if rec.pr_type == "cash" and rec.status == "payment":
+                continue
+
+            domain = [("requisition_id", "=", rec.id)]
+            if rec.name and rec.name != "New":
+                domain = ["|", ("requisition_id", "=", rec.id), ("pr_name", "=", rec.name)]
+            linked_orders = PurchaseOrder.search(domain)
+            active_orders = linked_orders.filtered(
+                lambda order: order.state not in ("cancel", "rejected")
+            )
+            if not active_orders:
+                new_status = "pr"
+            else:
+                active_pos = active_orders.filtered(
+                    lambda order: "RFQ" not in (order.name or "").upper()
+                )
+                submitted_pos = active_pos.filtered(
+                    lambda order: order.state in ("sent", "pending", "purchase", "done")
+                )
+                if (
+                    submitted_pos
+                    and all(order.state == "done" for order in submitted_pos)
+                    and not active_pos.filtered(lambda order: order.state == "draft")
+                    and not rec._has_remaining_product_quantities()
+                ):
+                    new_status = "completed"
+                elif active_pos.filtered(
+                    lambda order: order.state in ("pending", "purchase", "done")
+                ):
+                    new_status = "po"
+                else:
+                    new_status = "rfq"
+
+            if rec.status != new_status:
+                rec.sudo().status = new_status
 
     @api.onchange("cash_pr_payment_method")
     def _onchange_cash_pr_payment_method(self):
@@ -2141,7 +2189,7 @@ class PurchaseRequisition(models.Model):
                     "name": self.env["ir.sequence"].sudo().next_by_code("purchase.order.rfq") or "RFQ0001"
                 })
 
-            pr.status = "rfq"
+            pr._sync_status_from_orders()
             pr.message_post(
                 body=_("Custom RFQ %s created from this PR.") % rfq.name,
                 message_type="notification",
@@ -2423,6 +2471,20 @@ class PurchaseRequisitionLine(models.Model):
         help="Remaining quantity available to be ordered.",
     )
 
+    @api.depends(
+        "quantity",
+        "description",
+        "cost_center_id",
+        "requisition_id.pr_type",
+        "requisition_id.rfq_ids",
+        "requisition_id.rfq_ids.name",
+        "requisition_id.rfq_ids.state",
+        "requisition_id.rfq_ids.order_line",
+        "requisition_id.rfq_ids.order_line.product_id",
+        "requisition_id.rfq_ids.order_line.product_qty",
+        "requisition_id.rfq_ids.order_line.custom_requisition_line_id",
+        "requisition_id.rfq_ids.order_line.analytic_distribution",
+    )
     def _compute_requisition_line_quantities(self):
         requisitions = self.mapped("requisition_id")
         purchased_by_req = {}
