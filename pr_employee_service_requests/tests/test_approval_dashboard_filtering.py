@@ -2045,10 +2045,10 @@ class TestApprovalDashboardFiltering(TransactionCase):
             "state": "hr_supervisor_approval",
             "reason": "Self-paid Finance+HRSup test",
         })
-        # On company-paid hr_supervisor_approval: highest eligible role is finance
+        # On company-paid hr_supervisor_approval: user lacks Accounts rights, so highest eligible role is hr_supervisor
         self.assertEqual(
             self.req_hr_sup.with_user(user_fin_hrsup).with_context(from_approval_dashboard=True).dashboard_approve_role,
-            "finance",
+            "hr_supervisor",
         )
         # On self-paid hr_supervisor_approval: Finance cannot approve self-paid, so falls back to hr_supervisor
         self.assertEqual(
@@ -2059,6 +2059,74 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertEqual(
             self.req_md.with_user(user_fin_hrsup).with_context(from_approval_dashboard=True).dashboard_approve_role,
             "none",
+        )
+
+        # User holding HR Supervisor + HR Manager + Finance + MD (no Accounts)
+        user_hr_fin_md = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test HR Sup + Mgr + Fin + MD",
+            "login": "test.hr.fin.md@example.com",
+            "email": "test.hr.fin.md@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_hr_supervisor.id,
+                self.group_hr_manager.id,
+                self.group_finance_manager.id,
+                self.group_hr_md.id,
+            ])],
+        })
+        self.assertEqual(
+            self.req_hr_sup.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_supervisor",
+        )
+        self.assertEqual(
+            self.req_hr_mgr.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_manager",
+        )
+        self.assertEqual(
+            self.req_accounts.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "none",
+        )
+        self.assertEqual(
+            self.req_finance.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "md",
+        )
+        self.assertEqual(
+            self.req_md.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "md",
+        )
+
+        # User holding HR Supervisor + HR Manager + Accounts + MD (no Finance)
+        user_hr_acc_md = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test HR Sup + Mgr + Acc + MD",
+            "login": "test.hr.acc.md@example.com",
+            "email": "test.hr.acc.md@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_hr_supervisor.id,
+                self.group_hr_manager.id,
+                self.group_accounts_manager.id,
+                self.group_hr_md.id,
+            ])],
+        })
+        self.assertEqual(
+            self.req_hr_sup.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_supervisor",
+        )
+        self.assertEqual(
+            self.req_hr_mgr.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_manager",
+        )
+        self.assertEqual(
+            self.req_accounts.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "accounts",
+        )
+        self.assertEqual(
+            self.req_finance.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "none",
+        )
+        self.assertEqual(
+            self.req_md.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "md",
         )
 
         # Form view integration check: header contains dashboard_approve_role and all 6 buttons reference it
