@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from lxml import etree
 
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, UserError
 from odoo.osv import expression
 from odoo.tests.common import Form, TransactionCase, tagged
 from odoo.tools.safe_eval import safe_eval
@@ -2045,10 +2045,10 @@ class TestApprovalDashboardFiltering(TransactionCase):
             "state": "hr_supervisor_approval",
             "reason": "Self-paid Finance+HRSup test",
         })
-        # On company-paid hr_supervisor_approval: highest eligible role is finance
+        # On company-paid hr_supervisor_approval: user lacks Accounts rights, so highest eligible role is hr_supervisor
         self.assertEqual(
             self.req_hr_sup.with_user(user_fin_hrsup).with_context(from_approval_dashboard=True).dashboard_approve_role,
-            "finance",
+            "hr_supervisor",
         )
         # On self-paid hr_supervisor_approval: Finance cannot approve self-paid, so falls back to hr_supervisor
         self.assertEqual(
@@ -2059,6 +2059,74 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertEqual(
             self.req_md.with_user(user_fin_hrsup).with_context(from_approval_dashboard=True).dashboard_approve_role,
             "none",
+        )
+
+        # User holding HR Supervisor + HR Manager + Finance + MD (no Accounts)
+        user_hr_fin_md = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test HR Sup + Mgr + Fin + MD",
+            "login": "test.hr.fin.md@example.com",
+            "email": "test.hr.fin.md@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_hr_supervisor.id,
+                self.group_hr_manager.id,
+                self.group_finance_manager.id,
+                self.group_hr_md.id,
+            ])],
+        })
+        self.assertEqual(
+            self.req_hr_sup.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_supervisor",
+        )
+        self.assertEqual(
+            self.req_hr_mgr.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_manager",
+        )
+        self.assertEqual(
+            self.req_accounts.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "none",
+        )
+        self.assertEqual(
+            self.req_finance.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "md",
+        )
+        self.assertEqual(
+            self.req_md.with_user(user_hr_fin_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "md",
+        )
+
+        # User holding HR Supervisor + HR Manager + Accounts + MD (no Finance)
+        user_hr_acc_md = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test HR Sup + Mgr + Acc + MD",
+            "login": "test.hr.acc.md@example.com",
+            "email": "test.hr.acc.md@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_hr_supervisor.id,
+                self.group_hr_manager.id,
+                self.group_accounts_manager.id,
+                self.group_hr_md.id,
+            ])],
+        })
+        self.assertEqual(
+            self.req_hr_sup.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_supervisor",
+        )
+        self.assertEqual(
+            self.req_hr_mgr.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "hr_manager",
+        )
+        self.assertEqual(
+            self.req_accounts.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "accounts",
+        )
+        self.assertEqual(
+            self.req_finance.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "none",
+        )
+        self.assertEqual(
+            self.req_md.with_user(user_hr_acc_md).with_context(from_approval_dashboard=True).dashboard_approve_role,
+            "md",
         )
 
         # Form view integration check: header contains dashboard_approve_role and all 6 buttons reference it
@@ -2085,4 +2153,102 @@ class TestApprovalDashboardFiltering(TransactionCase):
         self.assertEqual(dash_form.dashboard_approve_role, "md")
         non_dash_form = Form(self.req_accounts.with_user(user_acc_fin_md))
         self.assertFalse(non_dash_form.dashboard_approve_role)
+
+    def test_dashboard_approval_requires_intermediate_roles(self):
+        """Approving from the Approval Dashboard requires the user to hold access rights
+        for all intermediate stages between the record state and the target stage.
+        If any intermediate role is unapproved and unheld, a UserError is raised.
+        Backend views without the dashboard flag remain free to perform skip-level approval."""
+        SR = self.env["pr.employee.service.request"]
+
+        # 1. MD user without Accounts / Finance rights
+        req_accounts_for_md = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 100.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "accounts_approval",
+            "reason": "Test MD dashboard intermediate validation",
+        })
+
+        # From dashboard: MD cannot approve without Accounts rights
+        with self.assertRaises(UserError) as ctx:
+            req_accounts_for_md.with_user(self.user_md).with_context(
+                from_approval_dashboard=True
+            ).action_md_approve()
+        self.assertIn("Accounts approval is completed", str(ctx.exception))
+
+        # From backend view (no dashboard context flag): MD skip approval succeeds
+        req_accounts_for_md.with_user(self.user_md).action_md_approve()
+        self.assertEqual(req_accounts_for_md.state, "payment_approval")
+        self.assertEqual(req_accounts_for_md.md_approved_by_id, self.user_md)
+
+        # 2. Multi-role user possessing Accounts, Finance, and MD rights
+        user_all_approver = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "Test All Approver",
+            "login": "test.all.approver@example.com",
+            "email": "test.all.approver@example.com",
+            "groups_id": [(6, 0, [
+                self.group_internal_user.id,
+                self.group_accounts_manager.id,
+                self.group_finance_manager.id,
+                self.group_hr_md.id,
+            ])],
+        })
+        req_accounts_for_all = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 120.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "accounts_approval",
+            "reason": "Test multi-role approver on dashboard",
+        })
+        req_accounts_for_all.with_user(user_all_approver).with_context(
+            from_approval_dashboard=True
+        ).action_md_approve()
+        self.assertEqual(req_accounts_for_all.state, "payment_approval")
+        self.assertEqual(req_accounts_for_all.md_approved_by_id, user_all_approver)
+
+        # 3. Record already in md_approval: MD can approve from dashboard without intermediate check
+        req_md_state = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 80.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "md_approval",
+            "reason": "Test MD direct approval on dashboard",
+        })
+        req_md_state.with_user(self.user_md).with_context(
+            from_approval_dashboard=True
+        ).action_md_approve()
+        self.assertEqual(req_md_state.state, "payment_approval")
+        self.assertEqual(req_md_state.md_approved_by_id, self.user_md)
+
+        # 4. Finance user attempting skip approval on hr_manager_approval without HR rights
+        req_hr_mgr_state = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": self.employee_a.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 75.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "hr_manager_approval",
+            "reason": "Test Finance skip on HR manager state",
+        })
+        with self.assertRaises(UserError) as ctx_fin:
+            req_hr_mgr_state.with_user(self.user_finance).with_context(
+                from_approval_dashboard=True
+            ).action_finance_approve()
+        self.assertIn("HR Manager approval is completed", str(ctx_fin.exception))
+
 
