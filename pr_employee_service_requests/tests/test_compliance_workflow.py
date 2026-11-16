@@ -1497,7 +1497,8 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
         scenarios = [
             ("regular_mgr", [], "company", "employee_manager_approval", False),
             ("hr_sup_mgr", ["pr_hr.group_hr_supervisor"], "company", "hr_supervisor_approval", False),
-            ("hr_mgr_mgr", ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager"], "company", "hr_manager_approval", False),
+            ("hr_mgr_only", ["pr_hr.group_hr_manager"], "company", "hr_supervisor_approval", False),
+            ("hr_mgr_suite", ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager"], "company", "accounts_approval", True),
             (
                 "md_no_accounts_mgr",
                 ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager", "pr_hr.group_hr_md"],
@@ -1596,3 +1597,136 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
                     self.assertEqual(req.approved_amount, 350.0)
                 else:
                     self.assertEqual(req.approved_amount, 0.0)
+
+    def test_creator_dept_manager_hr_suite_routes_directly_to_accounts(self):
+        """When a user who is Dept Manager, HR Supervisor, and HR Manager creates/submits
+        a request, it auto-advances directly to accounts_approval for company-paid requests,
+        and directly to md_approval for non-financial requests."""
+        SR = self.env["pr.employee.service.request"]
+        creator_user = self._create_role_user("hr_suite_creator", [
+            "pr_hr.group_hr_supervisor",
+            "pr_hr.group_hr_manager",
+        ])
+        mgr_dept = self.env["hr.department"].create({
+            "name": "HR Suite Dept",
+        })
+        creator_emp = self.env["hr.employee"].create({
+            "name": "HR Suite Manager Emp",
+            "user_id": creator_user.id,
+            "department_id": mgr_dept.id,
+        })
+        mgr_dept.manager_id = creator_emp.id
+
+        # Company-paid reimbursement created by the HR suite manager
+        req_comp = SR.with_user(creator_user).create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": creator_emp.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 250.0,
+            "expense_date": date(2099, 1, 1),
+            "payment_responsibility": "company",
+            "reason": "Creator HR suite direct to accounts",
+        })
+        with patch.object(type(req_comp), "_notify_group", autospec=True):
+            req_comp.with_user(creator_user).action_submit()
+
+        self.assertEqual(req_comp.state, "accounts_approval")
+        self.assertEqual(req_comp.approved_amount, 250.0)
+
+        # Self-paid request created by the HR suite manager
+        req_self = SR.with_user(creator_user).create({
+            "request_type": "exit_reentry",
+            "employee_id": creator_emp.id,
+            "company_id": self.env.company.id,
+            "payment_responsibility": "self",
+            "reason": "Creator HR suite direct to MD",
+        })
+        with patch.object(type(req_self), "_notify_group", autospec=True):
+            req_self.with_user(creator_user).action_submit()
+
+        self.assertEqual(req_self.state, "md_approval")
+        self.assertEqual(req_self.approved_amount, 0.0)
+
+    def test_forward_approval_escalation_across_lifecycle(self):
+        """When a stage is approved, the system inspects the next stage's candidate
+        users and escalates to their highest continuous access rights without skipping
+        unheld intermediate stages."""
+        SR = self.env["pr.employee.service.request"]
+
+        # Approver Users
+        user_mgr = self._create_role_user("fwd_mgr", [])
+        user_hrsup = self._create_role_user("fwd_hrsup", ["pr_hr.group_hr_supervisor"])
+        user_hrm_and_acc = self._create_role_user("fwd_hrm_acc", [
+            "pr_hr.group_hr_manager",
+            "account.group_account_manager",
+        ])
+        user_acc_and_fin = self._create_role_user("fwd_acc_fin", [
+            "account.group_account_manager",
+            "pr_account.custom_group_accounting_manager",
+        ])
+        user_fin_and_md = self._create_role_user("fwd_fin_md", [
+            "pr_account.custom_group_accounting_manager",
+            "pr_hr.group_hr_md",
+        ])
+
+        emp_mgr_rec = self.env["hr.employee"].create({
+            "name": "Forward Escalation Manager",
+            "user_id": user_mgr.id,
+        })
+        emp = self.env["hr.employee"].create({
+            "name": "Forward Escalation Employee",
+            "parent_id": emp_mgr_rec.id,
+        })
+
+        # 1. HR Supervisor approves -> next role HR Manager has Accounts -> escalates to accounts_approval
+        req1 = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": emp.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 100.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "hr_supervisor_approval",
+            "reason": "Test HR Sup forward escalate to Accounts",
+        })
+        with patch.object(type(req1), "_notify_group", autospec=True):
+            req1.with_user(user_hrsup).action_hr_supervisor_approve()
+        self.assertEqual(req1.state, "accounts_approval")
+        self.assertEqual(req1.approved_amount, 100.0)
+
+        # 2. HR Manager approves -> Accountant user has Finance -> escalates to finance_approval
+        req2 = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": emp.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 150.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "hr_manager_approval",
+            "reason": "Test HR Mgr forward escalate to Finance",
+        })
+        with patch.object(type(req2), "_notify_group", autospec=True):
+            req2.with_user(user_hrm_and_acc).action_hr_manager_approve()
+        self.assertEqual(req2.state, "finance_approval")
+        self.assertEqual(req2.approved_amount, 150.0)
+
+        # 3. Accounts approves -> Finance user has MD -> escalates to md_approval
+        req3 = SR.create({
+            "request_type": "reimbursement",
+            "reimbursement_type": "fuel",
+            "employee_id": emp.id,
+            "company_id": self.env.company.id,
+            "requested_amount": 200.0,
+            "expense_date": date.today(),
+            "payment_responsibility": "company",
+            "state": "accounts_approval",
+            "reason": "Test Accounts forward escalate to MD",
+        })
+        with patch.object(type(req3), "_notify_group", autospec=True):
+            req3.with_user(user_acc_and_fin).action_accounts_approve()
+        self.assertEqual(req3.state, "md_approval")
+        self.assertEqual(req3.approved_amount, 200.0)
+
