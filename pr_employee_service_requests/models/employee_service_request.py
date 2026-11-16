@@ -1836,9 +1836,28 @@ class PrEmployeeServiceRequest(models.Model):
     def _get_submit_target_routing(self):
         self.ensure_one()
         manager_user = self.employee_manager_user_id
+        creator_user = self.requested_by_id or self.env.user
+
+        creator_roles = self._get_user_service_request_roles(creator_user)
+        manager_roles = self._get_user_service_request_roles(manager_user) if manager_user else set()
+
+        hr_roles = {"hr_supervisor", "hr_manager"}
+        creator_is_dept_manager = (
+            "employee_manager" in creator_roles
+            or (self.employee_id and self.employee_id.department_id and self.employee_id.department_id.manager_id.user_id == creator_user)
+            or (self.employee_id and self.employee_id.user_id == creator_user and "employee_manager" in creator_roles)
+        )
+        creator_has_hr_suite = hr_roles.issubset(creator_roles) and creator_is_dept_manager
+        manager_has_hr_suite = hr_roles.issubset(manager_roles)
+
+        if creator_has_hr_suite or manager_has_hr_suite:
+            if self._is_non_financial_request():
+                return "md", "md_approval"
+            return "accounts", "accounts_approval"
+
         if not manager_user:
             return "employee_manager", "employee_manager_approval"
-        roles = self._get_user_service_request_roles(manager_user)
+        roles = manager_roles
 
         if self._is_non_financial_request():
             chain = (
@@ -1991,6 +2010,111 @@ class PrEmployeeServiceRequest(models.Model):
                         % role_label
                     )
 
+    def _notify_for_target_state(self, target_state):
+        self.ensure_one()
+        type_label = self._get_type_label()
+        name = self.display_name
+        if target_state == "hr_supervisor_approval":
+            self._notify_group(
+                ["pr_hr.group_hr_supervisor"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for HR Supervisor approval.") % (type_label, name),
+            )
+        elif target_state == "hr_manager_approval":
+            self._notify_group(
+                ["pr_hr.group_hr_manager"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for HR Manager approval.") % (type_label, name),
+            )
+        elif target_state == "accounts_approval":
+            self._notify_group(
+                ["account.group_account_manager", "pr_account.custom_group_account_supervisor"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for Accounts approval.") % (type_label, name),
+            )
+        elif target_state == "finance_approval":
+            self._notify_group(
+                ["pr_account.custom_group_accounting_manager"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for Finance approval.") % (type_label, name),
+            )
+        elif target_state == "md_approval":
+            self._notify_group(
+                ["pr_hr.group_hr_md"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for MD approval.") % (type_label, name),
+            )
+
+    def _get_forward_escalated_stage(self, default_next_role):
+        """Inspect the user(s) holding default_next_role and determine if the record
+        can escalate further along the chain to their highest continuous access rights
+        without skipping any unheld intermediate rights."""
+        self.ensure_one()
+        is_non_financial = self._is_non_financial_request()
+        if is_non_financial:
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("md", "md_approval"),
+            )
+        else:
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("accounts", "accounts_approval"),
+                ("finance", "finance_approval"),
+                ("md", "md_approval"),
+            )
+
+        role_keys = [stage[0] for stage in chain]
+        if default_next_role not in role_keys:
+            role_to_state = dict(chain)
+            return default_next_role, role_to_state.get(default_next_role, default_next_role)
+
+        start_idx = role_keys.index(default_next_role)
+        sub_chain = chain[start_idx:]
+
+        candidates = self.env["res.users"]
+        if self._check_approval_permission(default_next_role):
+            candidates |= self.env.user
+
+        role_to_xmlid = {
+            "hr_supervisor": "pr_hr.group_hr_supervisor",
+            "hr_manager": "pr_hr.group_hr_manager",
+            "accounts": "account.group_account_manager",
+            "finance": "pr_account.custom_group_accounting_manager",
+            "md": "pr_hr.group_hr_md",
+        }
+        xmlid = role_to_xmlid.get(default_next_role)
+        if xmlid:
+            group = self.env.ref(xmlid, raise_if_not_found=False)
+            if group:
+                group_users = self.env["res.users"].browse(group.sudo().users.ids).filtered(
+                    lambda u: u.active and (not self.company_id or self.company_id in u.company_ids)
+                )
+                if default_next_role == "accounts":
+                    group_users = group_users.filtered(
+                        lambda u: not u.has_group("pr_account.custom_group_accounting_manager")
+                    )
+                candidates |= group_users
+
+        if not candidates:
+            return sub_chain[0]
+
+        best_role, best_state = sub_chain[0]
+        for user in candidates:
+            u_roles = self._get_user_service_request_roles(user)
+            curr_role, curr_state = sub_chain[0]
+            for r, s in sub_chain:
+                if r in u_roles:
+                    curr_role, curr_state = r, s
+                else:
+                    break
+            if role_keys.index(curr_role) > role_keys.index(best_role):
+                best_role, best_state = curr_role, curr_state
+
+        return best_role, best_state
+
     def action_employee_manager_approve(self):
         for rec in self:
             if rec.state != "employee_manager_approval":
@@ -1998,17 +2122,23 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec._check_approval_permission("employee_manager"):
                 raise AccessError(_("Only the employee's manager can approve this stage."))
             rec._clear_pending_approval_activities()
-            rec.write({
-                "state": "hr_supervisor_approval",
+            next_role, next_state = rec._get_forward_escalated_stage("hr_supervisor")
+            vals = {
+                "state": next_state,
                 "employee_manager_approved_by_id": self.env.user.id,
                 "employee_manager_approved_date": fields.Datetime.now(),
-            })
-            rec._notify_group(
-                ["pr_hr.group_hr_supervisor"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for HR Supervisor approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            rec.message_post(body=_("Employment Manager approved this request."))
+            }
+            if next_state in ("accounts_approval", "finance_approval", "md_approval") and not rec._is_non_financial_request():
+                vals["approved_amount"] = rec._get_payment_amount()
+            rec.write(vals)
+            rec._notify_for_target_state(next_state)
+            if next_state != "hr_supervisor_approval":
+                rec.message_post(
+                    body=_("Employment Manager approved this request. Advanced directly to %s based on approver access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            else:
+                rec.message_post(body=_("Employment Manager approved this request."))
 
     def action_hr_supervisor_approve(self):
         for rec in self:
@@ -2019,17 +2149,22 @@ class PrEmployeeServiceRequest(models.Model):
                 raise AccessError(_("Only HR Supervisor can approve this stage."))
             prior_state = rec.state
             rec._clear_pending_approval_activities()
-            rec.write({
-                "state": "hr_manager_approval",
+            next_role, next_state = rec._get_forward_escalated_stage("hr_manager")
+            vals = {
+                "state": next_state,
                 "hr_supervisor_approved_by_id": self.env.user.id,
                 "hr_supervisor_approved_date": fields.Datetime.now(),
-            })
-            rec._notify_group(
-                ["pr_hr.group_hr_manager"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for HR Manager approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            if prior_state != "hr_supervisor_approval":
+            }
+            if next_state in ("accounts_approval", "finance_approval", "md_approval") and not rec._is_non_financial_request():
+                vals["approved_amount"] = rec._get_payment_amount()
+            rec.write(vals)
+            rec._notify_for_target_state(next_state)
+            if next_state != "hr_manager_approval":
+                rec.message_post(
+                    body=_("HR Supervisor approved this request. Advanced directly to %s based on approver access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            elif prior_state != "hr_supervisor_approval":
                 rec.message_post(body=_("HR Supervisor approved this request via skip-level approval."))
             else:
                 rec.message_post(body=_("HR Supervisor approved this request."))
@@ -2071,18 +2206,21 @@ class PrEmployeeServiceRequest(models.Model):
                     else:
                         rec.message_post(body=_("HR Manager approved this request and forwarded to Managing Director."))
                 continue
+
+            next_role, next_state = rec._get_forward_escalated_stage("accounts")
             rec.write({
-                "state": "accounts_approval",
+                "state": next_state,
                 "approved_amount": rec._get_payment_amount(),
                 "hr_manager_approved_by_id": self.env.user.id,
                 "hr_manager_approved_date": fields.Datetime.now(),
             })
-            rec._notify_group(
-                ["account.group_account_manager", "pr_account.custom_group_account_supervisor"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for Accounts approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            if prior_state != "hr_manager_approval":
+            rec._notify_for_target_state(next_state)
+            if next_state != "accounts_approval":
+                rec.message_post(
+                    body=_("HR Manager approved this request. Advanced directly to %s based on accountant access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            elif prior_state != "hr_manager_approval":
                 rec.message_post(body=_("HR Manager approved this request via skip-level approval."))
             else:
                 rec.message_post(body=_("HR Manager approved this request."))
@@ -2099,18 +2237,20 @@ class PrEmployeeServiceRequest(models.Model):
             prior_state = rec.state
             rec._check_before_accounts_approval()
             rec._clear_pending_approval_activities()
+            next_role, next_state = rec._get_forward_escalated_stage("finance")
             rec.write({
-                "state": "finance_approval",
+                "state": next_state,
                 "approved_amount": rec._get_payment_amount(),
                 "accounts_approved_by_id": self.env.user.id,
                 "accounts_approved_date": fields.Datetime.now(),
             })
-            rec._notify_group(
-                ["pr_account.custom_group_accounting_manager"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for Finance approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            if prior_state != "accounts_approval":
+            rec._notify_for_target_state(next_state)
+            if next_state != "finance_approval":
+                rec.message_post(
+                    body=_("Accounts approved this request. Advanced directly to %s based on finance access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            elif prior_state != "accounts_approval":
                 rec.message_post(body=_("Accounts approved this request via skip-level approval."))
             else:
                 rec.message_post(body=_("Accounts approved this request."))
