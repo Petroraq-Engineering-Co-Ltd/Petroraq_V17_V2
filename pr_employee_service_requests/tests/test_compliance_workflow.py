@@ -1492,16 +1492,23 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
             self.assertEqual(cost_center_nodes[0].get("domain"), expected_domain)
 
     def test_submit_escalation_by_manager_access_rights(self):
-        """Submitting checks the resolved Stage-1 manager's roles and routes
-        sequentially through the approval chain, stopping at the first missing required stage."""
+        """Submitting checks the assigned Department Manager's highest consecutive
+        access rights starting from Department Manager and routes directly to that stage."""
         scenarios = [
             ("regular_mgr", [], "company", "employee_manager_approval", False),
             ("hr_sup_mgr", ["pr_hr.group_hr_supervisor"], "company", "hr_supervisor_approval", False),
-            ("hr_mgr_only", ["pr_hr.group_hr_manager"], "company", "hr_supervisor_approval", False),
-            ("hr_mgr_suite", ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager"], "company", "accounts_approval", True),
+            ("hr_mgr_only", ["pr_hr.group_hr_manager"], "company", "employee_manager_approval", False),
+            ("hr_mgr_suite", ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager"], "company", "hr_manager_approval", False),
             (
                 "md_no_accounts_mgr",
                 ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager", "pr_hr.group_hr_md"],
+                "company",
+                "hr_manager_approval",
+                False,
+            ),
+            (
+                "acc_held_mgr",
+                ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager", "account.group_account_manager"],
                 "company",
                 "accounts_approval",
                 True,
@@ -1510,7 +1517,7 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
                 "md_no_finance_mgr",
                 ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager", "account.group_account_manager", "pr_hr.group_hr_md"],
                 "company",
-                "finance_approval",
+                "accounts_approval",
                 True,
             ),
             (
