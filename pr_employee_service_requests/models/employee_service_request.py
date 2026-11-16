@@ -1892,9 +1892,32 @@ class PrEmployeeServiceRequest(models.Model):
         )
 
         # If employee has an assigned department manager and the creator is NOT the department manager,
-        # the request must start with Department Manager approval.
+        # the request must start with the highest consecutive access right of the assigned department manager.
         if manager_user and not creator_is_dept_manager:
-            return "employee_manager", "employee_manager_approval"
+            if self._is_non_financial_request():
+                manager_chain = (
+                    ("employee_manager", "employee_manager_approval"),
+                    ("hr_supervisor", "hr_supervisor_approval"),
+                    ("hr_manager", "hr_manager_approval"),
+                    ("md", "md_approval"),
+                )
+            else:
+                manager_chain = (
+                    ("employee_manager", "employee_manager_approval"),
+                    ("hr_supervisor", "hr_supervisor_approval"),
+                    ("hr_manager", "hr_manager_approval"),
+                    ("accounts", "accounts_approval"),
+                    ("finance", "finance_approval"),
+                    ("md", "md_approval"),
+                )
+
+            target_role, target_state = manager_chain[0]
+            for role, state in manager_chain[1:]:
+                if role in manager_roles:
+                    target_role, target_state = role, state
+                else:
+                    break
+            return target_role, target_state
 
         # Otherwise, the department manager stage is cleared. Auto-advance through all consecutively
         # held roles along the sequential chain and stop at the first missing required role.
