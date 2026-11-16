@@ -1839,20 +1839,35 @@ class PrEmployeeServiceRequest(models.Model):
         if not manager_user:
             return "employee_manager", "employee_manager_approval"
         roles = self._get_user_service_request_roles(manager_user)
-        role_to_state = {
-            "md": "md_approval",
-            "finance": "finance_approval",
-            "accounts": "accounts_approval",
-            "hr_manager": "hr_manager_approval",
-            "hr_supervisor": "hr_supervisor_approval",
-        }
+
         if self._is_non_financial_request():
-            candidate_roles = ("md", "hr_manager", "hr_supervisor")
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("md", "md_approval"),
+            )
         else:
-            candidate_roles = ("md", "finance", "accounts", "hr_manager", "hr_supervisor")
-        for role in candidate_roles:
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("accounts", "accounts_approval"),
+                ("finance", "finance_approval"),
+                ("md", "md_approval"),
+            )
+
+        highest_held_role = None
+        for role, _state in reversed(chain):
             if role in roles:
-                return role, role_to_state[role]
+                highest_held_role = role
+                break
+
+        if not highest_held_role:
+            return "employee_manager", "employee_manager_approval"
+
+        for role, state in chain:
+            if role not in roles or role == highest_held_role:
+                return role, state
+
         return "employee_manager", "employee_manager_approval"
 
     def action_submit(self):
@@ -1931,6 +1946,51 @@ class PrEmployeeServiceRequest(models.Model):
                     body=_("Request submitted directly for MD approval based on manager access rights.")
                 )
 
+    def _validate_dashboard_intermediate_approvals(self, target_role):
+        """When approving from the Approval Dashboard, verify that the current user
+        possesses all intermediate approval roles between the record's current state
+        and the target approval role. If any intermediate role is missing, raise a UserError."""
+        if not self.env.context.get("from_approval_dashboard"):
+            return
+
+        STAGE_ORDER_FINANCIAL = (
+            ("employee_manager_approval", "employee_manager", _("Employment Manager")),
+            ("hr_supervisor_approval", "hr_supervisor", _("HR Supervisor")),
+            ("hr_manager_approval", "hr_manager", _("HR Manager")),
+            ("accounts_approval", "accounts", _("Accounts")),
+            ("finance_approval", "finance", _("Finance")),
+            ("md_approval", "md", _("Managing Director")),
+        )
+        STAGE_ORDER_NON_FINANCIAL = (
+            ("employee_manager_approval", "employee_manager", _("Employment Manager")),
+            ("hr_supervisor_approval", "hr_supervisor", _("HR Supervisor")),
+            ("hr_manager_approval", "hr_manager", _("HR Manager")),
+            ("md_approval", "md", _("Managing Director")),
+        )
+
+        stage_chain = (
+            STAGE_ORDER_NON_FINANCIAL
+            if self._is_non_financial_request()
+            else STAGE_ORDER_FINANCIAL
+        )
+        state_keys = [stage[0] for stage in stage_chain]
+        role_keys = [stage[1] for stage in stage_chain]
+
+        if self.state not in state_keys or target_role not in role_keys:
+            return
+
+        current_idx = state_keys.index(self.state)
+        target_idx = role_keys.index(target_role)
+
+        if target_idx > current_idx:
+            for idx in range(current_idx, target_idx):
+                _st, intermediate_role, role_label = stage_chain[idx]
+                if not self._check_approval_permission(intermediate_role):
+                    raise UserError(
+                        _("You cannot approve this request until %s approval is completed.")
+                        % role_label
+                    )
+
     def action_employee_manager_approve(self):
         for rec in self:
             if rec.state != "employee_manager_approval":
@@ -1952,6 +2012,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_hr_supervisor_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("hr_supervisor")
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval"):
                 raise UserError(_("This request cannot be approved at the HR Supervisor stage."))
             if not rec._check_approval_permission("hr_supervisor"):
@@ -1975,6 +2036,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_hr_manager_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("hr_manager")
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval"):
                 raise UserError(_("This request cannot be approved at the HR Manager stage."))
             if not rec._check_approval_permission("hr_manager"):
@@ -2027,6 +2089,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_accounts_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("accounts")
             if rec._is_non_financial_request():
                 raise UserError(_("This request does not require Accounts approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
@@ -2054,6 +2117,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_finance_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("finance")
             if rec._is_non_financial_request():
                 raise UserError(_("This request does not require Finance approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
@@ -2081,6 +2145,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_md_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("md")
             if rec.state not in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",
