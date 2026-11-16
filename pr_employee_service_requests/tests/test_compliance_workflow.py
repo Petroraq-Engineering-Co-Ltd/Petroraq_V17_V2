@@ -1493,17 +1493,47 @@ class TestEmployeeComplianceWorkflow(TransactionCase):
 
     def test_submit_escalation_by_manager_access_rights(self):
         """Submitting checks the resolved Stage-1 manager's roles and routes
-        directly to the highest applicable stage while leaving skipped audit fields blank."""
+        sequentially through the approval chain, stopping at the first missing required stage."""
         scenarios = [
             ("regular_mgr", [], "company", "employee_manager_approval", False),
             ("hr_sup_mgr", ["pr_hr.group_hr_supervisor"], "company", "hr_supervisor_approval", False),
-            ("hr_mgr_mgr", ["pr_hr.group_hr_manager"], "company", "hr_manager_approval", False),
-            ("acc_mgr", ["account.group_account_manager"], "company", "accounts_approval", True),
-            ("fin_mgr", ["pr_account.custom_group_accounting_manager"], "company", "finance_approval", True),
-            ("md_mgr", ["pr_hr.group_hr_md"], "company", "md_approval", True),
+            ("hr_mgr_mgr", ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager"], "company", "hr_manager_approval", False),
+            (
+                "md_no_accounts_mgr",
+                ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager", "pr_hr.group_hr_md"],
+                "company",
+                "accounts_approval",
+                True,
+            ),
+            (
+                "md_no_finance_mgr",
+                ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager", "account.group_account_manager", "pr_hr.group_hr_md"],
+                "company",
+                "finance_approval",
+                True,
+            ),
+            (
+                "full_md_mgr",
+                [
+                    "pr_hr.group_hr_supervisor",
+                    "pr_hr.group_hr_manager",
+                    "account.group_account_manager",
+                    "pr_account.custom_group_accounting_manager",
+                    "pr_hr.group_hr_md",
+                ],
+                "company",
+                "md_approval",
+                True,
+            ),
             ("acc_self_mgr", ["account.group_account_manager"], "self", "employee_manager_approval", False),
             ("fin_self_mgr", ["pr_account.custom_group_accounting_manager"], "self", "employee_manager_approval", False),
-            ("md_self_mgr", ["pr_hr.group_hr_md"], "self", "md_approval", False),
+            (
+                "md_self_mgr",
+                ["pr_hr.group_hr_supervisor", "pr_hr.group_hr_manager", "pr_hr.group_hr_md"],
+                "self",
+                "md_approval",
+                False,
+            ),
             (
                 "fin_hrsup_self_mgr",
                 ["pr_account.custom_group_accounting_manager", "pr_hr.group_hr_supervisor"],
