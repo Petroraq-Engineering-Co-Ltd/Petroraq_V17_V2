@@ -794,6 +794,13 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             is_non_financial = rec._is_non_financial_request()
             role = "none"
+
+            # Determine if the user holds continuous rights to skip to MD or Finance.
+            # From accounts_approval, skipping to MD requires holding both Accounts and Finance.
+            # Prior to accounts_approval, skipping over Accounts requires holding Accounts.
+            can_skip_to_md_from_accounts = is_non_financial or (is_accounts and is_finance)
+            can_skip_over_accounts = is_non_financial or is_accounts
+
             if is_md and rec.state in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",
@@ -801,8 +808,20 @@ class PrEmployeeServiceRequest(models.Model):
                 "accounts_approval",
                 "finance_approval",
                 "md_approval",
+            ) and (
+                rec.state == "md_approval"
+                or (rec.state == "finance_approval" and (is_finance or is_non_financial))
+                or (rec.state == "accounts_approval" and can_skip_to_md_from_accounts)
+                or (rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval") and can_skip_over_accounts)
             ):
-                role = "md"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "hr_manager_approval" and is_hr_manager:
+                    role = "hr_manager"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "md"
             elif (
                 is_finance
                 and not is_non_financial
@@ -813,8 +832,16 @@ class PrEmployeeServiceRequest(models.Model):
                     "accounts_approval",
                     "finance_approval",
                 )
+                and (rec.state == "finance_approval" or is_accounts)
             ):
-                role = "finance"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "hr_manager_approval" and is_hr_manager:
+                    role = "hr_manager"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "finance"
             elif (
                 is_accounts
                 and not is_non_financial
@@ -825,18 +852,33 @@ class PrEmployeeServiceRequest(models.Model):
                     "accounts_approval",
                 )
             ):
-                role = "accounts"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "hr_manager_approval" and is_hr_manager:
+                    role = "hr_manager"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "accounts"
             elif is_hr_manager and rec.state in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",
                 "hr_manager_approval",
             ):
-                role = "hr_manager"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "hr_manager"
             elif is_hr_supervisor and rec.state in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",
             ):
-                role = "hr_supervisor"
+                if rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "hr_supervisor"
             elif (
                 rec.employee_manager_user_id == user
                 and rec.state == "employee_manager_approval"
@@ -1836,28 +1878,27 @@ class PrEmployeeServiceRequest(models.Model):
     def _get_submit_target_routing(self):
         self.ensure_one()
         manager_user = self.employee_manager_user_id
-        creator_user = self.requested_by_id or self.env.user
+        creator_user = self.requested_by_id or self.create_uid or self.env.user
 
         creator_roles = self._get_user_service_request_roles(creator_user)
         manager_roles = self._get_user_service_request_roles(manager_user) if manager_user else set()
 
-        hr_roles = {"hr_supervisor", "hr_manager"}
         creator_is_dept_manager = (
             "employee_manager" in creator_roles
+            or (manager_user and manager_user == creator_user)
             or (self.employee_id and self.employee_id.department_id and self.employee_id.department_id.manager_id.user_id == creator_user)
+            or (self.employee_id and self.employee_id.parent_id and self.employee_id.parent_id.user_id == creator_user)
             or (self.employee_id and self.employee_id.user_id == creator_user and "employee_manager" in creator_roles)
         )
-        creator_has_hr_suite = hr_roles.issubset(creator_roles) and creator_is_dept_manager
-        manager_has_hr_suite = hr_roles.issubset(manager_roles)
 
-        if creator_has_hr_suite or manager_has_hr_suite:
-            if self._is_non_financial_request():
-                return "md", "md_approval"
-            return "accounts", "accounts_approval"
-
-        if not manager_user:
+        # If employee has an assigned department manager and the creator is NOT the department manager,
+        # the request must start with Department Manager approval.
+        if manager_user and not creator_is_dept_manager:
             return "employee_manager", "employee_manager_approval"
-        roles = manager_roles
+
+        # Otherwise, the department manager stage is cleared. Auto-advance through all consecutively
+        # held roles along the sequential chain and stop at the first missing required role.
+        active_roles = creator_roles | manager_roles
 
         if self._is_non_financial_request():
             chain = (
@@ -1874,20 +1915,16 @@ class PrEmployeeServiceRequest(models.Model):
                 ("md", "md_approval"),
             )
 
-        highest_held_role = None
-        for role, _state in reversed(chain):
-            if role in roles:
-                highest_held_role = role
+        target_role = chain[-1][0]
+        for role, state in chain:
+            if role not in active_roles:
+                target_role = role
                 break
 
-        if not highest_held_role:
-            return "employee_manager", "employee_manager_approval"
-
-        for role, state in chain:
-            if role not in roles or role == highest_held_role:
-                return role, state
-
-        return "employee_manager", "employee_manager_approval"
+        # Pass target_role through dynamic forward escalation so candidate approvers
+        # for that stage (e.g. HR Supervisor user possessing HR Manager + Finance/MD)
+        # are checked and escalated along the chain to the first missing role.
+        return self._get_forward_escalated_stage(target_role)
 
     def action_submit(self):
         self._apply_exit_reentry_company_eligibility(auto_message=True)
@@ -2104,12 +2141,29 @@ class PrEmployeeServiceRequest(models.Model):
         best_role, best_state = sub_chain[0]
         for user in candidates:
             u_roles = self._get_user_service_request_roles(user)
-            curr_role, curr_state = sub_chain[0]
-            for r, s in sub_chain:
-                if r in u_roles:
+
+            # Check if this candidate holds authority beyond default_next_role along remaining chain
+            higher_roles_held = [r for r, _s in sub_chain[1:] if r in u_roles]
+
+            if higher_roles_held:
+                # The candidate has authority beyond default_next_role.
+                # Auto-advance along sub_chain[1:] through consecutively held roles,
+                # and stop at the first missing required role.
+                curr_role, curr_state = sub_chain[0]
+                for r, s in sub_chain[1:]:
                     curr_role, curr_state = r, s
-                else:
-                    break
+                    if r not in u_roles:
+                        # Found the first missing role: stop here!
+                        break
+            else:
+                # Standard continuous traversal starting at default_next_role
+                curr_role, curr_state = sub_chain[0]
+                for r, s in sub_chain:
+                    if r in u_roles:
+                        curr_role, curr_state = r, s
+                    else:
+                        break
+
             if role_keys.index(curr_role) > role_keys.index(best_role):
                 best_role, best_state = curr_role, curr_state
 
