@@ -30,6 +30,9 @@
                 <field name="picking_type_code" invisible="1"/>
                 <field name="sale_state" invisible="1"/>
             </xpath>
+            <xpath expr="//field[@name='move_ids_without_package']/tree//field[@name='description_picking']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
             <xpath expr="//field[@name='move_ids_without_package']/tree//field[@name='product_uom_qty']" position="attributes">
                 <attribute name="digits">[16,8]</attribute>
             </xpath>

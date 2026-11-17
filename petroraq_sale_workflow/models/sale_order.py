@@ -59,6 +59,13 @@ class SaleOrder(models.Model):
         new_rev.work_order_id = False
         return new_rev
 
+    def _creation_message(self):
+        # EXTENDS mail mail.thread
+        self.ensure_one()
+        if self.state in ("draft", "sent"):
+            return _("Quotation created")
+        return super()._creation_message()
+
     def _notify_get_reply_to(self, default=None):
         """Route customer replies to the SO email's visible sender."""
         reply_to_by_record = super()._notify_get_reply_to(default=default)
@@ -596,12 +603,14 @@ class SaleOrder(models.Model):
         for line, remaining in remaining_lines:
             move_vals.append({
                 "name": line.name or line.product_id.display_name,
+                "description_picking": line._get_delivery_description_picking(picking_type),
                 "product_id": line.product_id.id,
                 "product_uom_qty": remaining,
                 "product_uom": line.product_uom.id,
                 "location_id": picking.location_id.id,
                 "location_dest_id": picking.location_dest_id.id,
                 "picking_id": picking.id,
+                "picking_type_id": picking_type.id,
                 "company_id": self.company_id.id,
                 "sale_line_id": line.id,
                 # keep procurement group consistent if you use it

@@ -1265,14 +1265,16 @@ class PurchaseOrder(models.Model):
         return res
 
     def unlink(self):
-        prs_to_update = self.mapped("origin")
+        requisitions = self.mapped("requisition_id")
+        pr_names = [name for name in set(self.mapped("pr_name") + self.mapped("origin")) if name]
+        if pr_names:
+            requisitions |= self.env["purchase.requisition"].sudo().search([("name", "in", pr_names)])
         res = super(PurchaseOrder, self).unlink()
 
-        pr_model = self.env["purchase.requisition"]
-        for pr_name in prs_to_update:
-            pr = pr_model.search([("name", "=", pr_name)], limit=1)
-            if pr:
-                pr.status = "pr"
+        for pr in requisitions.exists():
+            previous_status = pr.status
+            pr.sudo()._sync_status_from_orders()
+            if pr.status == "pr" and previous_status != "pr":
                 pr.message_post(body=_("PO deleted, status reverted to PR."))
 
         return res

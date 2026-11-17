@@ -6,18 +6,82 @@ from odoo.tools.float_utils import float_compare
 class StockMove(models.Model):
     _inherit = "stock.move"
 
+    def _get_pr_order_line_valuation(self):
+        res = super()._get_pr_order_line_valuation()
+        if res:
+            return res
+        sol = self.sale_line_id
+        if not sol:
+            return False
+        order = sol.order_id
+        company = order.company_id or self.company_id or self.env.company
+        return {
+            "currency": order.currency_id or company.currency_id,
+            "partner": order.partner_id,
+            "company": company,
+            "product": sol.product_id or self.product_id,
+            "taxes": sol.tax_id,
+            "price_unit": sol.price_unit or 0.0,
+            "discount": sol.discount or 0.0,
+            "uom": sol.product_uom,
+            "handle_price_include": True,
+        }
+
+    @api.depends(
+        "sale_line_id",
+        "sale_line_id.order_id.currency_id",
+    )
+    def _compute_pr_currency_id(self):
+        return super()._compute_pr_currency_id()
+
+    @api.depends(
+        "sale_line_id",
+        "sale_line_id.price_unit",
+        "sale_line_id.discount",
+        "sale_line_id.tax_id",
+        "sale_line_id.product_uom",
+        "sale_line_id.order_id.currency_id",
+        "sale_line_id.order_id.partner_id",
+    )
+    def _compute_pr_amounts(self):
+        return super()._compute_pr_amounts()
+
+    def _prepare_procurement_values(self):
+        values = super()._prepare_procurement_values()
+        if (self.description_picking or "").strip() and not self.purchase_line_id:
+            picking_code = (
+                self.picking_type_id.code or self.picking_id.picking_type_id.code
+            )
+            sale_lines = self.sale_line_id or (
+                self._get_sale_order_lines()
+                if picking_code in ("outgoing", "internal")
+                else self.env["sale.order.line"]
+            )
+            if len(sale_lines) == 1:
+                values["sale_description_picking"] = self.description_picking
+                if (sale_lines.name or "").strip():
+                    values["product_description_variants"] = (
+                        sale_lines.with_context(
+                            lang=sale_lines.order_id.partner_id.lang
+                        )._get_sale_order_line_multiline_description_variants()
+                    )
+        return values
+
     def _pr_get_delivery_line_description(self):
         """Return a useful DN description for both sales and purchase moves."""
         self.ensure_one()
         product = self.product_id
+        product_name = (product.name or "").strip()
+        product_display_name = (product.display_name or "").strip()
         product_headings = {
-            (product.name or "").strip(),
-            (product.display_name or "").strip(),
+            product_name,
+            product_display_name,
         }
         if product.default_code:
-            product_headings.add(
-                "[%s] %s" % (product.default_code, product.name or "")
-            )
+            product_headings.add(f"[{product.default_code}] {product_name}")
+            if product_display_name:
+                product_headings.add(f"[{product.default_code}] {product_display_name}")
+        product_headings.discard("")
 
         def clean_description(value):
             lines = (value or "").strip().splitlines()
@@ -43,6 +107,35 @@ class StockMove(models.Model):
         return (product.name or product.display_name or "").strip()
 
 
+class StockRule(models.Model):
+    _inherit = "stock.rule"
+
+    def _get_stock_move_values(
+        self,
+        product_id,
+        product_qty,
+        product_uom,
+        location_dest_id,
+        name,
+        origin,
+        company_id,
+        values,
+    ):
+        move_values = super()._get_stock_move_values(
+            product_id,
+            product_qty,
+            product_uom,
+            location_dest_id,
+            name,
+            origin,
+            company_id,
+            values,
+        )
+        if values.get("sale_description_picking"):
+            move_values["description_picking"] = values["sale_description_picking"]
+        return move_values
+
+
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
@@ -62,6 +155,52 @@ class StockPicking(models.Model):
         copy=False,
         help="Attach the signed delivery note required before creating the sales invoice.",
     )
+
+    # Override this field just to change the assigned label from *ready* to *peding*
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('waiting', 'Waiting Another Operation'),
+        ('confirmed', 'Waiting'),
+        ('assigned', 'Pending'),
+        ('done', 'Done'),
+        ('cancel', 'Cancelled'),
+    ], string='Status', compute='_compute_state',
+        copy=False, index=True, readonly=True, store=True, tracking=True,
+        help=" * Draft: The transfer is not confirmed yet. Reservation doesn't apply.\n"
+             " * Waiting another operation: This transfer is waiting for another operation before being ready.\n"
+             " * Waiting: The transfer is waiting for the availability of some products.\n(a) The shipping policy is \"As soon as possible\": no product could be reserved.\n(b) The shipping policy is \"When all products are ready\": not all the products could be reserved.\n"
+             " * Pending: The transfer is ready to be processed.\n(a) The shipping policy is \"As soon as possible\": at least one product has been reserved.\n(b) The shipping policy is \"When all products are ready\": all product have been reserved.\n"
+             " * Done: The transfer has been processed.\n"
+             " * Cancelled: The transfer has been cancelled.")
+
+    def _get_pr_currency(self):
+        self.ensure_one()
+        if self.picking_type_code in ("incoming", "outgoing"):
+            for move in self._get_pr_amount_moves(include_inactive=True):
+                valuation = move._get_pr_order_line_valuation()
+                if valuation and valuation.get("currency"):
+                    return valuation["currency"]
+            if self.sale_id and self.sale_id.currency_id:
+                return self.sale_id.currency_id
+        return super()._get_pr_currency()
+
+    @api.depends(
+        "sale_id",
+        "sale_id.currency_id",
+        "move_ids_without_package.sale_line_id",
+        "move_ids.sale_line_id",
+    )
+    def _compute_pr_currency_id(self):
+        return super()._compute_pr_currency_id()
+
+    @api.depends(
+        "sale_id",
+        "sale_id.currency_id",
+        "move_ids_without_package.sale_line_id",
+        "move_ids.sale_line_id",
+    )
+    def _compute_pr_amounts(self):
+        return super()._compute_pr_amounts()
 
     def _pr_format_partner_address(self, partner):
         if not partner:
