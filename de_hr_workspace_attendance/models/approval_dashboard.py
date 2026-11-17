@@ -199,17 +199,17 @@ class HrApprovalDashboardService(models.AbstractModel):
 
     @api.model
     def _attendance_mode_pending_domain(self):
-        if self.env.user.has_group(
-            "pr_hr_recruitment_request.group_onboarding_md"
-        ):
-            return [("state", "=", "md_approval")]
+        roles = []
+        user = self.env.user
+        if user.has_group("pr_hr.group_hr_md"):
+            roles.append("md_approval")
         if (
-            self.env.user.has_group("hr.group_hr_manager")
-            or self.env.user.has_group(
-                "pr_hr_recruitment_request.group_onboarding_manager"
-            )
+            user.has_group("pr_hr.group_hr_manager")
+            or user.has_group("hr.group_hr_manager")
         ):
-            return [("state", "=", "hr_manager_approval")]
+            roles.append("hr_manager_approval")
+        if roles:
+            return [("state", "in", roles)]
         return [("id", "=", False)]
 
     @api.model

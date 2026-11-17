@@ -29,26 +29,26 @@
                 <header>
                     <button name="action_submit" type="object" string="Submit"
                             class="btn-primary" invisible="state != 'draft' or not id"
-                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
+                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,pr_hr.group_hr_manager,hr.group_hr_manager,pr_hr.group_hr_md"/>
                     <button name="action_hr_manager_approve" type="object" string="HR Manager Approve"
-                            class="btn-primary" invisible="state != 'hr_manager_approval' or not id"
-                            groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager"/>
+                            class="btn-primary" invisible="not can_hr_manager_approve"
+                            groups="pr_hr.group_hr_manager,hr.group_hr_manager"/>
                     <button name="action_md_approve" type="object" string="MD Approve"
-                            class="btn-primary" invisible="state != 'md_approval' or not id"
-                            groups="pr_hr_recruitment_request.group_onboarding_md"/>
+                            class="btn-primary" invisible="not can_md_approve"
+                            groups="pr_hr.group_hr_md"/>
                     <button name="action_reject" type="object" string="Reject"
-                            class="btn-secondary" invisible="state != 'hr_manager_approval' or not id"
-                            groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager"/>
-                    <button name="action_reject" type="object" string="Reject"
-                            class="btn-secondary" invisible="state != 'md_approval' or not id"
-                            groups="pr_hr_recruitment_request.group_onboarding_md"/>
+                            class="btn-secondary" invisible="not can_reject"
+                            groups="pr_hr.group_hr_manager,hr.group_hr_manager,pr_hr.group_hr_md"/>
                     <button name="action_cancel" type="object" string="Cancel Request"
                             invisible="state not in ('draft', 'hr_manager_approval', 'md_approval') or not id"
-                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
+                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,pr_hr.group_hr_manager,hr.group_hr_manager,pr_hr.group_hr_md"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,hr_manager_approval,md_approval,approved,rejected,cancelled"/>
                 </header>
                 <sheet>
+                    <field name="can_hr_manager_approve" invisible="1"/>
+                    <field name="can_md_approve" invisible="1"/>
+                    <field name="can_reject" invisible="1"/>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
@@ -144,12 +144,12 @@
               parent="hr_attendance.menu_hr_attendance_root"
               action="action_attendance_mode_change_request_all"
               sequence="30"
-              groups="hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
+              groups="hr_attendance.group_hr_attendance_manager,pr_hr.group_hr_manager,hr.group_hr_manager,pr_hr.group_hr_md"/>
 
     <menuitem id="menu_attendance_mode_change_request_approval"
               name="Attendance Mode Changes"
               parent="de_hr_workspace.menu_my_employee_approvals"
               action="action_attendance_mode_change_request_pending"
               sequence="12"
-              groups="hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager,pr_hr_recruitment_request.group_onboarding_md"/>
+              groups="pr_hr.group_hr_manager,hr.group_hr_manager,pr_hr.group_hr_md"/>
 </odoo>
