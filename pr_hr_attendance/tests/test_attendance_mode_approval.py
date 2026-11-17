@@ -1,3 +1,4 @@
+from odoo import Command
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import tagged
 
@@ -6,6 +7,36 @@ from .common import AttendancePolicyCase
 
 @tagged("post_install", "-at_install")
 class TestAttendanceModeApproval(AttendancePolicyCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.approval_company = cls.env["res.company"].create(
+            {"name": "Attendance Mode Approval Test Company"}
+        )
+        cls.env.user.sudo().write(
+            {"company_ids": [Command.link(cls.approval_company.id)]}
+        )
+        for user in (
+            cls.officer_user,
+            cls.hr_user,
+            cls.md_user,
+            cls.basic_user,
+            cls.hr_md_user,
+        ):
+            user.sudo().write(
+                {
+                    "company_id": cls.approval_company.id,
+                    "company_ids": [Command.set(cls.approval_company.ids)],
+                }
+            )
+        (cls.biometric_employee | cls.scheduled_employee).sudo().write(
+            {"company_id": cls.approval_company.id}
+        )
+
+    def _activate_hr_md_user(self):
+        self.hr_md_user.sudo().write({"active": True})
+        return self.hr_md_user
 
     def test_request_form_defaults_show_current_and_target_modes(self):
         action = self.biometric_employee.with_user(
@@ -101,7 +132,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
             {
                 "name": "Dual Role Approval Employee",
                 "identification_id": "ATT-POLICY-004",
-                "company_id": self.env.company.id,
+                "company_id": self.approval_company.id,
                 "compute_attendance": True,
             }
         )
@@ -114,13 +145,14 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         )
 
         request.with_user(self.officer_user).action_submit()
-        request.with_user(self.hr_md_user).action_hr_manager_approve()
+        hr_md_user = self._activate_hr_md_user()
+        request.with_user(hr_md_user).action_hr_manager_approve()
         employee.invalidate_recordset()
         self.assertEqual(request.state, "approved")
         self.assertEqual(employee.attendance_entry_mode, "manual")
-        self.assertEqual(request.hr_manager_approved_by_id, self.hr_md_user)
-        self.assertEqual(request.md_approved_by_id, self.hr_md_user)
-        self.assertEqual(request.decision_by_id, self.hr_md_user)
+        self.assertEqual(request.hr_manager_approved_by_id, hr_md_user)
+        self.assertEqual(request.md_approved_by_id, hr_md_user)
+        self.assertEqual(request.decision_by_id, hr_md_user)
 
     def test_rejection_and_cancellation_do_not_change_employee(self):
         rejected = self.Request.with_user(self.officer_user).create(
@@ -228,15 +260,16 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         )
 
     def test_dual_hr_manager_md_submit_auto_approves(self):
+        hr_md_user = self._activate_hr_md_user()
         employee = self.env["hr.employee"].create(
             {
                 "name": "Dual Role Auto Approve Employee",
                 "identification_id": "ATT-POLICY-007",
-                "company_id": self.env.company.id,
+                "company_id": self.approval_company.id,
                 "compute_attendance": True,
             }
         )
-        request = self.Request.with_user(self.hr_md_user).create(
+        request = self.Request.with_user(hr_md_user).create(
             {
                 "employee_id": employee.id,
                 "requested_mode": "manual",
@@ -252,15 +285,15 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
                 attendance_mode_approval_request_id=request.id
             ).write({"attendance_entry_mode": "manual"})
 
-        request.with_user(self.hr_md_user).action_submit()
+        request.with_user(hr_md_user).action_submit()
         employee.invalidate_recordset()
         self.assertEqual(request.state, "approved")
         self.assertEqual(employee.attendance_entry_mode, "manual")
-        self.assertEqual(request.hr_manager_approved_by_id, self.hr_md_user)
+        self.assertEqual(request.hr_manager_approved_by_id, hr_md_user)
         self.assertTrue(request.hr_manager_approved_date)
-        self.assertEqual(request.md_approved_by_id, self.hr_md_user)
+        self.assertEqual(request.md_approved_by_id, hr_md_user)
         self.assertTrue(request.md_approved_date)
-        self.assertEqual(request.decision_by_id, self.hr_md_user)
+        self.assertEqual(request.decision_by_id, hr_md_user)
         self.assertTrue(request.decision_date)
         self.assertFalse(request.activity_ids)
         self.assertTrue(
@@ -272,7 +305,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
             {
                 "name": "Button Visibility Employee",
                 "identification_id": "ATT-POLICY-008",
-                "company_id": self.env.company.id,
+                "company_id": self.approval_company.id,
                 "compute_attendance": True,
             }
         )
@@ -285,6 +318,8 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         )
         request.with_user(self.officer_user).action_submit()
         self.assertEqual(request.state, "hr_manager_approval")
+
+        hr_md_user = self._activate_hr_md_user()
 
         # HR Manager only sees HR Manager Approve & Reject
         req_as_hr = request.with_user(self.hr_user)
@@ -299,7 +334,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         self.assertTrue(req_as_md.can_reject)
 
         # Dual-role user sees only MD Approve & single Reject (no duplicate HR Manager Approve)
-        req_as_dual = request.with_user(self.hr_md_user)
+        req_as_dual = request.with_user(hr_md_user)
         self.assertFalse(req_as_dual.can_hr_manager_approve)
         self.assertTrue(req_as_dual.can_md_approve)
         self.assertTrue(req_as_dual.can_reject)
@@ -315,18 +350,103 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         employee.invalidate_recordset()
         self.assertEqual(request.state, "approved")
         self.assertEqual(employee.attendance_entry_mode, "manual")
-        self.assertEqual(request.hr_manager_approved_by_id, self.hr_md_user)
+        self.assertEqual(request.hr_manager_approved_by_id, hr_md_user)
         self.assertTrue(request.hr_manager_approved_date)
-        self.assertEqual(request.md_approved_by_id, self.hr_md_user)
+        self.assertEqual(request.md_approved_by_id, hr_md_user)
         self.assertTrue(request.md_approved_date)
-        self.assertEqual(request.decision_by_id, self.hr_md_user)
+        self.assertEqual(request.decision_by_id, hr_md_user)
+
+    def test_officer_submit_forward_escalates_to_md_when_all_hr_managers_have_md_rights(self):
+        hr_md_user = self._activate_hr_md_user()
+        employee = self.env["hr.employee"].create(
+            {
+                "name": "Forward Escalated Employee",
+                "identification_id": "ATT-POLICY-009",
+                "company_id": self.approval_company.id,
+                "compute_attendance": True,
+            }
+        )
+        # When a separate HR-Manager-only user (self.hr_user) also exists, stay at hr_manager_approval
+        req_with_distinct_hr = self.Request.with_user(self.officer_user).create(
+            {
+                "employee_id": employee.id,
+                "requested_mode": "manual",
+                "reason": "Officer submission while a distinct HR-Manager-only user exists.",
+            }
+        )
+        req_with_distinct_hr.with_user(self.officer_user).action_submit()
+        self.assertEqual(req_with_distinct_hr.state, "hr_manager_approval")
+        req_with_distinct_hr.with_user(self.officer_user).action_cancel()
+
+        # Deactivate the HR-Manager-only user so the single active HR Manager holds both HR Manager and HR MD
+        self.hr_user.sudo().write({"active": False})
+        request = self.Request.with_user(self.officer_user).create(
+            {
+                "employee_id": employee.id,
+                "requested_mode": "manual",
+                "reason": "Officer submission when the only active HR Manager also holds MD rights.",
+            }
+        )
+        request.with_user(self.officer_user).action_submit()
+        self.assertEqual(request.state, "md_approval")
+        self.assertFalse(request.hr_manager_approved_by_id)
+        self.assertTrue(
+            any(
+                "routed directly to MD Approval based on HR Manager approver access rights"
+                in msg.body
+                for msg in request.message_ids
+            )
+        )
+        self.assertTrue(
+            request.activity_ids.filtered(lambda activity: activity.user_id == hr_md_user)
+        )
+
+        # MD approves directly to finalize
+        request.with_user(hr_md_user).action_md_approve()
+        employee.invalidate_recordset()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(employee.attendance_entry_mode, "manual")
+        self.assertEqual(request.md_approved_by_id, hr_md_user)
+
+    def test_officer_submit_does_not_escalate_when_only_legacy_hr_manager_has_md_rights(self):
+        # Also deactivate self.hr_user so pr_hr.group_hr_manager has 0 active candidates in this company
+        self.hr_user.sudo().write({"active": False})
+        internal = self.env.ref("base.group_user")
+        legacy_hr_manager = self.env.ref("hr.group_hr_manager")
+        md_group = self.env.ref("pr_hr.group_hr_md")
+        self.env["res.users"].create(
+            {
+                "name": "Legacy HR Admin MD",
+                "login": "attendance.policy.legacy.hr.md",
+                "company_id": self.approval_company.id,
+                "company_ids": [Command.set(self.approval_company.ids)],
+                "groups_id": [Command.set((internal | legacy_hr_manager | md_group).ids)],
+            }
+        )
+        employee = self.env["hr.employee"].create(
+            {
+                "name": "No Escalation Legacy Admin Employee",
+                "identification_id": "ATT-POLICY-010",
+                "company_id": self.approval_company.id,
+                "compute_attendance": True,
+            }
+        )
+        request = self.Request.with_user(self.officer_user).create(
+            {
+                "employee_id": employee.id,
+                "requested_mode": "manual",
+                "reason": "Standard Odoo Employees Admin with MD should not trigger escalation.",
+            }
+        )
+        request.with_user(self.officer_user).action_submit()
+        self.assertEqual(request.state, "hr_manager_approval")
 
     def test_md_skip_level_approval_from_hr_manager_stage(self):
         employee = self.env["hr.employee"].create(
             {
                 "name": "Skip Level Employee",
                 "identification_id": "ATT-POLICY-005",
-                "company_id": self.env.company.id,
+                "company_id": self.approval_company.id,
                 "compute_attendance": True,
             }
         )
@@ -356,7 +476,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
             {
                 "name": "Skip Level Rejection Employee",
                 "identification_id": "ATT-POLICY-006",
-                "company_id": self.env.company.id,
+                "company_id": self.approval_company.id,
                 "compute_attendance": True,
             }
         )
@@ -379,6 +499,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
 
     def test_approval_dashboard_pending_domain(self):
         service = self.env["de.hr.approval.dashboard.service"]
+        hr_md_user = self._activate_hr_md_user()
 
         hr_domain = service.with_user(self.hr_user)._attendance_mode_pending_domain()
         self.assertEqual(hr_domain, [("state", "in", ["hr_manager_approval"])])
@@ -386,7 +507,7 @@ class TestAttendanceModeApproval(AttendancePolicyCase):
         md_domain = service.with_user(self.md_user)._attendance_mode_pending_domain()
         self.assertEqual(md_domain, [("state", "in", ["md_approval"])])
 
-        hr_md_domain = service.with_user(self.hr_md_user)._attendance_mode_pending_domain()
+        hr_md_domain = service.with_user(hr_md_user)._attendance_mode_pending_domain()
         self.assertEqual(hr_md_domain, [("state", "in", ["md_approval", "hr_manager_approval"])])
 
         basic_domain = service.with_user(self.basic_user)._attendance_mode_pending_domain()

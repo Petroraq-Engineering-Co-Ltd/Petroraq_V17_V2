@@ -55,6 +55,7 @@ class AttendancePolicyCase(TransactionCase):
             {
                 "name": "Attendance Policy HR MD",
                 "login": "attendance.policy.hr.md",
+                "active": False,
                 "company_id": cls.env.company.id,
                 "company_ids": [Command.set(cls.env.company.ids)],
                 "groups_id": [Command.set((internal | hr_manager_group | md_group).ids)],
@@ -101,7 +102,8 @@ class AttendancePolicyCase(TransactionCase):
             }
         )
         request.with_user(cls.officer_user).action_submit()
-        request.with_user(cls.hr_user).action_hr_manager_approve()
+        if request.state == "hr_manager_approval":
+            request.with_user(cls.hr_user).action_hr_manager_approve()
         request.with_user(cls.md_user).action_md_approve()
         cls.manual_employee.invalidate_recordset()
 

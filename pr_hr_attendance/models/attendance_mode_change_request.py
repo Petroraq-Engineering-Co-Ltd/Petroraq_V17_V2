@@ -382,6 +382,30 @@ class AttendanceModeChangeRequest(models.Model):
         if self.state not in allowed_states:
             raise UserError(_("This request cannot be processed in its current state."))
 
+    def _should_forward_escalate_hr_manager_to_md(self):
+        """Return True if there is at least one active HR Manager approver
+        (pr_hr.group_hr_manager) for this request's company and every such
+        approver also holds HR MD rights (pr_hr.group_hr_md)."""
+        self.ensure_one()
+        hr_manager_group = self.env.ref(
+            "pr_hr.group_hr_manager", raise_if_not_found=False
+        )
+        if not hr_manager_group:
+            return False
+        candidates = (
+            self.env["res.users"]
+            .sudo()
+            .browse(hr_manager_group.sudo().users.ids)
+            .filtered(
+                lambda u: u.active
+                and (not self.company_id or self.company_id in u.company_ids)
+            )
+        )
+        return bool(candidates) and all(
+            any(candidate.has_group(xmlid) for xmlid in MD_GROUPS)
+            for candidate in candidates
+        )
+
     def action_submit(self):
         if not self._user_can_request():
             raise AccessError(_("Only HR can submit an attendance mode change request."))
@@ -431,6 +455,16 @@ class AttendanceModeChangeRequest(models.Model):
                 request.message_post(
                     body=_(
                         "Submitted and auto-advanced to MD Approval based on submitter access rights."
+                    )
+                )
+                request._schedule_md_activities()
+            elif request._should_forward_escalate_hr_manager_to_md():
+                request.sudo().with_context(
+                    attendance_mode_internal_transition=True
+                ).write({"state": "md_approval"})
+                request.message_post(
+                    body=_(
+                        "Submitted and routed directly to MD Approval based on HR Manager approver access rights."
                     )
                 )
                 request._schedule_md_activities()
