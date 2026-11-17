@@ -208,6 +208,7 @@ class HrAttendance(models.Model):
         tz_name = (
             self.employee_id.tz
             or self.employee_id.resource_calendar_id.tz
+            or self.employee_id.company_id.partner_id.tz
             or self.env.company.partner_id.tz
             or "Asia/Riyadh"
         )
@@ -220,8 +221,9 @@ class HrAttendance(models.Model):
         A check-in at 09:00:00 or later is absent on a working day. A punch on
         a Saturday earned off under the ETM policy is optional attendance and
         must never create a late, missing-punch, or absence penalty. A single
-        punch on any other day remains a visible missing-punch issue during
-        its local day and becomes absent as soon as that day has ended.
+        punch or post-midnight sentinel (check_out <= check_in) on any other
+        day remains a visible missing-punch issue during its local day and
+        becomes absent as soon as that day has ended.
         """
         utc_now = fields.Datetime.to_datetime(now or fields.Datetime.now())
         for attendance in self.filtered("check_in"):
@@ -230,16 +232,19 @@ class HrAttendance(models.Model):
             saturday_is_off = attendance.employee_id._etm_saturday_is_off(
                 local_check_in.date()
             )
+            has_valid_checkout = bool(
+                attendance.check_out and attendance.check_out > attendance.check_in
+            )
             if attendance.attendance_entry_source == "approved_shortage" or saturday_is_off:
                 status = "normal"
                 reason = False
             elif local_check_in.time() >= time(9, 0, 0):
                 status = "absent"
                 reason = _("Check-in was at or after 09:00:00.")
-            elif not attendance.check_out and local_now.date() > local_check_in.date():
+            elif not has_valid_checkout and local_now.date() > local_check_in.date():
                 status = "absent"
                 reason = _("The missing daily punch was not resolved before midnight.")
-            elif not attendance.check_out:
+            elif not has_valid_checkout:
                 status = "missing_punch"
                 reason = _("Only the first biometric punch was received; Check-Out is missing.")
             else:
@@ -253,6 +258,30 @@ class HrAttendance(models.Model):
                     "attendance_day_status": status,
                     "attendance_status_reason": reason,
                 })
+
+    @api.model
+    def _recompute_stale_sentinel_worked_hours(self):
+        """Recompute worked_hours for sentinel rows where check_out <= check_in."""
+        self.flush_model(["check_in", "check_out", "worked_hours"])
+        self.env.cr.execute(
+            """
+            SELECT id
+              FROM hr_attendance
+             WHERE check_in IS NOT NULL
+               AND check_out IS NOT NULL
+               AND check_out <= check_in
+               AND COALESCE(worked_hours, 0.0) > 0.0
+            """
+        )
+        stale_ids = [row[0] for row in self.env.cr.fetchall()]
+        if not stale_ids:
+            return 0
+        stale_records = self.sudo().browse(stale_ids)
+        self.env.add_to_compute(self._fields["worked_hours"], stale_records)
+        stale_records.flush_recordset(["worked_hours"])
+        if hasattr(stale_records, "_sync_overtime_for_approval"):
+            stale_records._sync_overtime_for_approval()
+        return len(stale_records)
 
     @api.model
     def _repair_etm_saturday_attendance_statuses(self, from_date=None, employee_ids=None):
@@ -283,11 +312,22 @@ class HrAttendance(models.Model):
 
     @api.model
     def cron_finalize_daily_attendance_statuses(self):
+        self._recompute_stale_sentinel_worked_hours()
+        missing_punch_reasons = list({
+            "The missing daily punch was not resolved before midnight.",
+            _("The missing daily punch was not resolved before midnight."),
+        })
         candidates = self.sudo().search([
             ("check_in", "!=", False),
             "|",
             ("check_out", "=", False),
+            "|",
             ("attendance_day_status", "!=", "absent"),
+            "&",
+            ("attendance_day_status", "=", "absent"),
+            "|",
+            ("attendance_status_reason", "in", missing_punch_reasons),
+            ("attendance_status_reason", "=", False),
         ])
         candidates._refresh_daily_attendance_status()
 
