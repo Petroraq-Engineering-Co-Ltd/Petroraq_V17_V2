@@ -15,9 +15,21 @@ class AttendancePolicyCase(TransactionCase):
         attendance_manager = cls.env.ref(
             "hr_attendance.group_hr_attendance_manager"
         )
-        hr_manager_group = cls.env.ref("hr.group_hr_manager")
-        md_group = cls.env.ref(
-            "pr_hr_recruitment_request.group_onboarding_md"
+        attendance_officer = cls.env.ref(
+            "hr_attendance.group_hr_attendance_officer"
+        )
+        hr_manager_group = cls.env.ref("pr_hr.group_hr_manager")
+        md_group = cls.env.ref("pr_hr.group_hr_md")
+        cls.officer_user = cls.env["res.users"].create(
+            {
+                "name": "Attendance Policy Officer",
+                "login": "attendance.policy.officer",
+                "company_id": cls.env.company.id,
+                "company_ids": [Command.set(cls.env.company.ids)],
+                "groups_id": [
+                    Command.set((internal | attendance_officer).ids)
+                ],
+            }
         )
         cls.hr_user = cls.env["res.users"].create(
             {
@@ -81,14 +93,14 @@ class AttendancePolicyCase(TransactionCase):
                 "compute_attendance": True,
             }
         )
-        request = cls.Request.with_user(cls.hr_user).create(
+        request = cls.Request.with_user(cls.officer_user).create(
             {
                 "employee_id": cls.manual_employee.id,
                 "requested_mode": "manual",
                 "reason": "Employee works at a field site.",
             }
         )
-        request.with_user(cls.hr_user).action_submit()
+        request.with_user(cls.officer_user).action_submit()
         request.with_user(cls.hr_user).action_hr_manager_approve()
         request.with_user(cls.md_user).action_md_approve()
         cls.manual_employee.invalidate_recordset()

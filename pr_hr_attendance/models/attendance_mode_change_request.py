@@ -9,10 +9,10 @@ ATTENDANCE_ENTRY_MODES = [
 APPROVAL_STATES = ("hr_manager_approval", "md_approval")
 OPEN_STATES = ("draft",) + APPROVAL_STATES
 HR_MANAGER_GROUPS = (
+    "pr_hr.group_hr_manager",
     "hr.group_hr_manager",
-    "pr_hr_recruitment_request.group_onboarding_manager",
 )
-MD_GROUPS = ("pr_hr_recruitment_request.group_onboarding_md",)
+MD_GROUPS = ("pr_hr.group_hr_md",)
 
 
 class AttendanceModeChangeRequest(models.Model):
@@ -120,6 +120,38 @@ class AttendanceModeChangeRequest(models.Model):
         copy=False,
         tracking=True,
     )
+    can_hr_manager_approve = fields.Boolean(
+        compute="_compute_approval_button_visibility",
+    )
+    can_md_approve = fields.Boolean(
+        compute="_compute_approval_button_visibility",
+    )
+    can_reject = fields.Boolean(
+        compute="_compute_approval_button_visibility",
+    )
+
+    @api.depends("state")
+    @api.depends_context("uid")
+    def _compute_approval_button_visibility(self):
+        is_hr_manager = self._current_user_is_hr_manager()
+        is_md = self._current_user_is_md()
+        for request in self:
+            has_id = bool(request.id)
+            request.can_hr_manager_approve = (
+                has_id
+                and request.state == "hr_manager_approval"
+                and is_hr_manager
+                and not is_md
+            )
+            request.can_md_approve = (
+                has_id
+                and request.state in APPROVAL_STATES
+                and is_md
+            )
+            request.can_reject = has_id and (
+                (request.state in APPROVAL_STATES and is_md)
+                or (request.state == "hr_manager_approval" and is_hr_manager)
+            )
 
     def init(self):
         self.env.cr.execute(
@@ -150,7 +182,9 @@ class AttendanceModeChangeRequest(models.Model):
             for group in (
                 "hr_attendance.group_hr_attendance_officer",
                 "hr_attendance.group_hr_attendance_manager",
+                "pr_hr.group_hr_manager",
                 "hr.group_hr_manager",
+                "pr_hr.group_hr_md",
             )
         )
 
@@ -170,18 +204,8 @@ class AttendanceModeChangeRequest(models.Model):
 
     @api.model
     def _check_hr_manager_user(self):
-        if not self._current_user_is_hr_manager() or self._current_user_is_md():
+        if not self._current_user_is_hr_manager():
             raise AccessError(_("Only the HR Manager can approve this stage."))
-
-    @api.model
-    def _has_distinct_hr_manager_approver(self):
-        hr_users = self.env["res.users"]
-        md_users = self.env["res.users"]
-        for xmlid in HR_MANAGER_GROUPS:
-            hr_users |= self.env.ref(xmlid).users.filtered("active")
-        for xmlid in MD_GROUPS:
-            md_users |= self.env.ref(xmlid).users.filtered("active")
-        return bool(hr_users - md_users)
 
     @api.model
     def _check_md_user(self):
@@ -374,19 +398,47 @@ class AttendanceModeChangeRequest(models.Model):
                 raise ValidationError(
                     _("The requested mode must be different from the employee's current mode.")
                 )
-            request.sudo().with_context(
-                attendance_mode_internal_transition=True
-            ).write({
-                "state": (
-                    "hr_manager_approval"
-                    if request._has_distinct_hr_manager_approver()
-                    else "md_approval"
+            submitter_is_hr_manager = request._current_user_is_hr_manager()
+            submitter_is_md = request._current_user_is_md()
+            if submitter_is_hr_manager and submitter_is_md:
+                approval_date = fields.Datetime.now()
+                request.sudo().with_context(
+                    attendance_mode_internal_transition=True
+                ).write(
+                    {
+                        "state": "md_approval",
+                        "hr_manager_approved_by_id": self.env.uid,
+                        "hr_manager_approved_date": approval_date,
+                    }
                 )
-            })
-            if request.state == "hr_manager_approval":
-                request._schedule_hr_manager_activities()
-            else:
+                feedback = _(
+                    "Auto-approved on submission by HR Manager and Managing Director."
+                )
+                request._approve_as_md(approval_date, feedback)
+                request.message_post(body=feedback)
+                continue
+
+            if submitter_is_hr_manager:
+                request.sudo().with_context(
+                    attendance_mode_internal_transition=True
+                ).write(
+                    {
+                        "state": "md_approval",
+                        "hr_manager_approved_by_id": self.env.uid,
+                        "hr_manager_approved_date": fields.Datetime.now(),
+                    }
+                )
+                request.message_post(
+                    body=_(
+                        "Submitted and auto-advanced to MD Approval based on submitter access rights."
+                    )
+                )
                 request._schedule_md_activities()
+            else:
+                request.sudo().with_context(
+                    attendance_mode_internal_transition=True
+                ).write({"state": "hr_manager_approval"})
+                request._schedule_hr_manager_activities()
         return True
 
     def _approve_as_md(self, approval_date, feedback):
@@ -430,10 +482,12 @@ class AttendanceModeChangeRequest(models.Model):
                 }
             )
             if request._current_user_is_md():
+                feedback = _("Approved by HR Manager and Managing Director.")
                 request._approve_as_md(
                     approval_date,
-                    _("Approved by HR Manager and Managing Director."),
+                    feedback,
                 )
+                request.message_post(body=feedback)
                 continue
             request.sudo().with_context(
                 attendance_mode_internal_transition=True
@@ -445,17 +499,42 @@ class AttendanceModeChangeRequest(models.Model):
     def action_md_approve(self):
         self._check_md_user()
         for request in self:
-            request._lock_and_check_state(("md_approval",))
-            request._approve_as_md(
-                fields.Datetime.now(),
-                _("Approved by the Managing Director."),
+            request._lock_and_check_state(("hr_manager_approval", "md_approval"))
+            was_hr_manager_stage = request.state == "hr_manager_approval"
+            approval_date = fields.Datetime.now()
+            if was_hr_manager_stage and request._current_user_is_hr_manager():
+                request.sudo().with_context(
+                    attendance_mode_internal_transition=True
+                ).write(
+                    {
+                        "hr_manager_approved_by_id": self.env.uid,
+                        "hr_manager_approved_date": approval_date,
+                    }
+                )
+                feedback = _("Approved by HR Manager and Managing Director.")
+                request._approve_as_md(approval_date, feedback)
+                request.message_post(body=feedback)
+                continue
+            feedback = (
+                _("Approved by Managing Director via skip-level approval.")
+                if was_hr_manager_stage
+                else _("Approved by the Managing Director.")
             )
+            request._approve_as_md(
+                approval_date,
+                feedback,
+            )
+            if was_hr_manager_stage:
+                request.message_post(body=feedback)
         return True
 
     def action_approve(self):
         for request in self:
             if request.state == "hr_manager_approval":
-                request.action_hr_manager_approve()
+                if request._current_user_is_md() and not request._current_user_is_hr_manager():
+                    request.action_md_approve()
+                else:
+                    request.action_hr_manager_approve()
             elif request.state == "md_approval":
                 request.action_md_approve()
             else:
@@ -465,12 +544,12 @@ class AttendanceModeChangeRequest(models.Model):
     def action_reject(self):
         for request in self:
             request._lock_and_check_state(APPROVAL_STATES)
-            if request.state == "hr_manager_approval":
-                request._check_hr_manager_user()
+            if request._current_user_is_md():
+                feedback = _("Rejected by the Managing Director.")
+            elif request.state == "hr_manager_approval" and request._current_user_is_hr_manager():
                 feedback = _("Rejected by HR Manager.")
             else:
-                request._check_md_user()
-                feedback = _("Rejected by the Managing Director.")
+                raise AccessError(_("You do not have permission to reject this request."))
             request.sudo().with_context(
                 attendance_mode_internal_transition=True
             ).write(
@@ -481,6 +560,7 @@ class AttendanceModeChangeRequest(models.Model):
                 }
             )
             request._complete_activities(feedback)
+            request.message_post(body=feedback)
         return True
 
     def action_cancel(self):
