@@ -363,10 +363,42 @@ class HrAttendanceSheet(models.Model):
                 elif line.overtime_approval_state == "not_required":
                     line.overtime_approval_state = "pending"
 
+    def _get_earliest_local_checkins_by_date(self, target_dates):
+        """Return earliest local check-in datetime per local date for this sheet's employee."""
+        self.ensure_one()
+        if not target_dates or not self.employee_id:
+            return {}
+        min_date = min(target_dates)
+        max_date = max(target_dates)
+        search_start = datetime.combine(min_date - timedelta(days=1), datetime.min.time())
+        search_end = datetime.combine(max_date + timedelta(days=2), datetime.min.time())
+        attendances = self.env["hr.attendance"].sudo().search([
+            ("employee_id", "=", self.employee_id.id),
+            ("check_in", ">=", fields.Datetime.to_string(search_start)),
+            ("check_in", "<", fields.Datetime.to_string(search_end)),
+        ], order="check_in asc")
+        earliest_by_date = {}
+        for att in attendances:
+            local_dt = att._attendance_local_datetime(att.check_in)
+            local_day = local_dt.date()
+            if local_day in target_dates and local_day not in earliest_by_date:
+                earliest_by_date[local_day] = local_dt
+        return earliest_by_date
+
     def _mark_late_checkins_as_absent(self):
-        """Mark attendance sheet lines as absent when check-in is after 09:00."""
-        cutoff = 9 + (0 / 1)
+        """Mark attendance sheet lines as absent when check-in is strictly after 09:00:00."""
+        cutoff = 9.0
+        Attendance = self.env["hr.attendance"]
         for sheet in self:
+            boundary_dates = {
+                line.date
+                for line in sheet.line_ids
+                if line.date
+                and line.status not in ("leave", "weekend")
+                and line.ac_sign_in
+                and math.isclose(line.ac_sign_in, cutoff, abs_tol=1e-6)
+            }
+            earliest_by_date = sheet._get_earliest_local_checkins_by_date(boundary_dates)
             for line in sheet.line_ids:
                 if line.date and sheet.employee_id._etm_saturday_is_off(line.date):
                     # This explicit guard also protects payroll's direct call
@@ -377,9 +409,18 @@ class HrAttendanceSheet(models.Model):
                     line.early_check_out = 0
                     line.early_check_out_minutes = 0
                     continue
-                if line.status in ("leave", "weekend"):
+                if line.status in ("leave", "weekend") or not line.ac_sign_in:
                     continue
-                if line.ac_sign_in and line.ac_sign_in >= cutoff:
+                if line.ac_sign_in > cutoff and not math.isclose(line.ac_sign_in, cutoff, abs_tol=1e-6):
+                    is_late_absent = True
+                elif math.isclose(line.ac_sign_in, cutoff, abs_tol=1e-6):
+                    earliest_local = earliest_by_date.get(line.date)
+                    is_late_absent = bool(
+                        earliest_local and Attendance._is_late_absent_local_datetime(earliest_local)
+                    )
+                else:
+                    is_late_absent = False
+                if is_late_absent:
                     line.status = "ab"
                     line.late_in = 0
                     line.late_in_minutes = 0

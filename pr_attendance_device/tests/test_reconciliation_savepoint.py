@@ -250,3 +250,58 @@ class TestReconciliationSavepoint(TransactionCase):
         # Second pass is a complete no-op.
         self.assertEqual(self.env['user.attendance']._repair_desynced_checkouts(), 0)
 
+    def test_orphaned_same_day_checkin_recovered_on_checkout(self):
+        """If morning hr.attendance was unlinked, evening checkout recovers check_in."""
+        checkin = self._punch(self.bio_user, '2026-10-29 04:54:37', 0)  # 07:54:37 Riyadh
+        checkin._sync_attendance()
+        original_att = checkin.hr_attendance_id
+        self.assertTrue(original_att)
+
+        # Simulate morning hr.attendance deleted (ondelete='set null' clears hr_attendance_id).
+        unlink_ctx = {}
+        if 'attendance_entry_source' in original_att._fields:
+            unlink_ctx['attendance_policy_source'] = 'approved_leave'
+        original_att.sudo().with_context(**unlink_ctx).unlink()
+        checkin.invalidate_recordset()
+        self.assertFalse(checkin.hr_attendance_id)
+        self.assertEqual(checkin.reconciliation_status, 'synced')
+
+        # Evening checkout arrives and must pair with the orphaned morning check-in.
+        checkout = self._punch(self.bio_user, '2026-10-29 13:56:04', 1)  # 16:56:04 Riyadh
+        checkout._sync_attendance()
+
+        self.assertTrue(checkout.hr_attendance_id)
+        self.assertEqual(checkin.hr_attendance_id, checkout.hr_attendance_id)
+        self.assertEqual(checkout.interpreted_type, 'checkout')
+        self.assertEqual(checkout.reconciliation_status, 'synced')
+        self.assertEqual(checkin.interpreted_type, 'checkin')
+        recovered = checkout.hr_attendance_id
+        self.assertEqual(recovered.check_in, datetime(2026, 10, 29, 4, 54, 37))
+        self.assertEqual(recovered.check_out, datetime(2026, 10, 29, 13, 56, 4))
+        self.assertEqual(recovered.checkin_device_id, self.device)
+        self.assertEqual(recovered.checkout_device_id, self.device)
+        if 'attendance_day_status' in recovered._fields:
+            self.assertEqual(recovered.attendance_day_status, 'normal')
+
+    def test_orphaned_checkin_not_recovered_on_validated_leave_day(self):
+        """Validated attendance-replacing leave prevents resurrecting deleted morning check-in."""
+        checkin = self._punch(self.bio_user, '2026-10-30 05:00:00', 0)
+        checkin._sync_attendance()
+        original_att = checkin.hr_attendance_id
+        unlink_ctx = {}
+        if 'attendance_entry_source' in original_att._fields:
+            unlink_ctx['attendance_policy_source'] = 'approved_leave'
+        original_att.sudo().with_context(**unlink_ctx).unlink()
+
+        checkout = self._punch(self.bio_user, '2026-10-30 14:00:00', 1)
+        with patch.object(
+            type(self.env['user.attendance']),
+            '_has_attendance_replacing_leave_for_day',
+            return_value=True,
+        ):
+            checkout._sync_attendance()
+
+        self.assertFalse(checkin.hr_attendance_id)
+        self.assertEqual(checkout.interpreted_type, 'checkin')
+        self.assertEqual(checkout.hr_attendance_id.check_in, datetime(2026, 10, 30, 14, 0, 0))
+
