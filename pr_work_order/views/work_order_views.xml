@@ -141,7 +141,6 @@
                                 name="action_view_expense_bucket"
                                 type="object"
                                 icon="fa-money"
-                                groups="pr_work_order.custom_group_work_order_accounts,pr_work_order.custom_group_work_order_management"
                                 invisible="expense_bucket_id == False">
                             <field name="expense_bucket_count" widget="statinfo" string="Budget"/>
                         </button>

@@ -221,3 +221,58 @@ class HrEmployee(models.Model):
         return float_compare(
             self._etm_approved_hours_before_saturday(saturday), 40.0, precision_digits=2,
         ) >= 0
+
+    @api.model
+    def _etm_saturday_off_map(self, employees, date_from, date_to):
+        """Batch-evaluate earned-off Saturdays for employees over [date_from, date_to].
+
+        Returns (enforce_from, participant_ids, earned_off_saturdays_by_emp) using
+        the exact same Sun-Thu >= 40.0 approved hours rule as _etm_saturday_is_off().
+        """
+        enforce_from = self._etm_attendance_enforce_from()
+        if not enforce_from or not employees or not date_from or not date_to:
+            return False, set(), {}
+        start = max(fields.Date.to_date(date_from), enforce_from)
+        end = fields.Date.to_date(date_to)
+        if end < start:
+            return enforce_from, set(), {}
+
+        participants = employees.sudo().filtered("etm_attendance_policy_enabled")
+        participant_ids = set(participants.ids)
+        if not participant_ids:
+            return enforce_from, set(), {}
+
+        days_until_sat = (5 - start.weekday()) % 7
+        first_sat = start + timedelta(days=days_until_sat)
+        saturdays = []
+        sat = first_sat
+        while sat <= end:
+            saturdays.append(sat)
+            sat += timedelta(days=7)
+        if not saturdays:
+            return enforce_from, participant_ids, {}
+
+        window_start, _ = self._etm_week_bounds_for_saturday(saturdays[0])
+        _, window_end = self._etm_week_bounds_for_saturday(saturdays[-1])
+        idle_rows = self.env["employee.task.idle.day"].sudo().search([
+            ("employee_id", "in", list(participant_ids)),
+            ("date", ">=", window_start),
+            ("date", "<=", window_end),
+        ])
+        hours_by_emp_sat = {}
+        for row in idle_rows:
+            if not row.date or row.date.weekday() in (4, 5):
+                continue
+            days_to_sat = (5 - row.date.weekday()) % 7
+            target_sat = row.date + timedelta(days=days_to_sat)
+            key = (row.employee_id.id, target_sat)
+            hours_by_emp_sat[key] = hours_by_emp_sat.get(key, 0.0) + (row.approved_hours or 0.0)
+
+        off_by_emp = {}
+        for emp_id in participant_ids:
+            for saturday in saturdays:
+                if float_compare(
+                    hours_by_emp_sat.get((emp_id, saturday), 0.0), 40.0, precision_digits=2,
+                ) >= 0:
+                    off_by_emp.setdefault(emp_id, set()).add(saturday)
+        return enforce_from, participant_ids, off_by_emp

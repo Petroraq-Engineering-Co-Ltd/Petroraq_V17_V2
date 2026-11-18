@@ -26,7 +26,7 @@
                                 string="Request Mode Change"
                                 class="btn-secondary"
                                 invisible="not id"
-                                groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager"/>
+                                groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,pr_hr.group_hr_manager,hr.group_hr_manager,pr_hr.group_hr_md"/>
                     </group>
                 </xpath>
 
@@ -35,7 +35,7 @@
                             type="object"
                             class="oe_stat_button"
                             icon="fa-exchange"
-                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,hr.group_hr_manager,pr_hr_recruitment_request.group_onboarding_manager,pr_hr_recruitment_request.group_onboarding_md">
+                            groups="hr_attendance.group_hr_attendance_officer,hr_attendance.group_hr_attendance_manager,pr_hr.group_hr_manager,hr.group_hr_manager,pr_hr.group_hr_md">
                         <field name="attendance_mode_change_request_count"
                                widget="statinfo"
                                string="Mode Requests"/>
