@@ -23,7 +23,12 @@ class HrLeave(models.Model):
             local_check_in = self._to_absentee_local_datetime(employee, att.check_in)
             if not local_check_in:
                 continue
-            att_date_str = fields.Date.to_string(local_check_in.date())
+            att_date = local_check_in.date()
+            if att_date < start or att_date > end:
+                continue
+            if employee._etm_saturday_is_off(att_date):
+                continue
+            att_date_str = fields.Date.to_string(att_date)
             if att_date_str in existing_dates:
                 for row in rows:
                     if row.get('date') == att_date_str:
