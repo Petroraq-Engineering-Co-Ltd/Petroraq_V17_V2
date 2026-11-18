@@ -87,7 +87,9 @@ class HrLeave(models.Model):
                     ("employee_id", "=", employee.id),
                     ("check_in", "<", fields.Datetime.to_string(date_end)),
                     "|",
-                    ("check_out", "=", False),
+                    ("check_in", ">=", fields.Datetime.to_string(date_start)),
+                    "&",
+                    ("check_out", "!=", False),
                     ("check_out", ">", fields.Datetime.to_string(date_start)),
                 ])
                 if attendances:

@@ -238,6 +238,16 @@ class HrLeaveDashboardOverride(models.Model):
         attendance_lines = calendar.attendance_ids.filtered(
             lambda attendance: int(attendance.dayofweek) == absent_date.weekday()
         )
+        if not attendance_lines and absent_date.weekday() == 5:
+            fallback_lines = calendar.attendance_ids.filtered(
+                lambda attendance: attendance.dayofweek in ('6', '0', '1', '2', '3')
+            )
+            start_hour = min(fallback_lines.mapped('hour_from'), default=8.0)
+            end_hour = max(fallback_lines.mapped('hour_to'), default=17.0)
+            return '%s-%s' % (
+                self._format_calendar_hour(start_hour),
+                self._format_calendar_hour(end_hour),
+            )
         shift_parts = []
         for attendance in attendance_lines:
             time_range = '%s-%s' % (
@@ -246,6 +256,25 @@ class HrLeaveDashboardOverride(models.Model):
             )
             shift_parts.append('%s (%s)' % (attendance.name, time_range) if attendance.name else time_range)
         return ', '.join(shift_parts)
+
+    @api.model
+    def _get_absentee_etm_saturday_context(self, employees, start, end):
+        Employee = self.env['hr.employee']
+        if not hasattr(Employee, '_etm_saturday_off_map'):
+            return False, set(), {}
+        return Employee._etm_saturday_off_map(employees, start, end)
+
+    @api.model
+    def _is_absentee_working_day(self, employee, target_date, working_days, etm_context):
+        enforce_from, participant_ids, off_by_emp = etm_context
+        if (
+            target_date.weekday() == 5
+            and enforce_from
+            and target_date >= enforce_from
+            and employee.id in participant_ids
+        ):
+            return target_date not in off_by_emp.get(employee.id, set())
+        return target_date.weekday() in working_days
 
     @api.model
     def _get_absentee_timezone_name(self, employee):
@@ -288,6 +317,13 @@ class HrLeaveDashboardOverride(models.Model):
     @api.model
     def _get_absentee_cutoff_time(self):
         return time(9, 0, 0)
+
+    @api.model
+    def _is_on_time_absentee_check_in(self, local_check_in):
+        return bool(
+            local_check_in
+            and local_check_in.replace(microsecond=0).time() <= self._get_absentee_cutoff_time()
+        )
 
     @api.model
     def _get_absentee_late_policy_start_date(self):
@@ -417,18 +453,20 @@ class HrLeaveDashboardOverride(models.Model):
                 continue
             if (
                     attendance_date < self._get_absentee_late_policy_start_date()
-                    or local_check_in.time() < self._get_absentee_cutoff_time()
+                    or self._is_on_time_absentee_check_in(local_check_in)
             ):
                 on_time_attendance_days.add(attendance_date)
                 late_attendance_by_day.pop(attendance_date, None)
             elif attendance_date not in on_time_attendance_days and attendance_date not in late_attendance_by_day:
                 late_attendance_by_day[attendance_date] = local_check_in
 
+        etm_context = self._get_absentee_etm_saturday_context(employee, start, end)
+
         rows = []
         current = start
         while current <= end:
             if (
-                    current.weekday() in working_days
+                    self._is_absentee_working_day(employee, current, working_days, etm_context)
                     and current not in public_holiday_dates
                     and current not in leave_days
                     and current not in on_time_attendance_days
@@ -445,7 +483,7 @@ class HrLeaveDashboardOverride(models.Model):
                     'day_name': current.strftime('%A'),
                     'shift': self._get_employee_absentee_shift_label(employee, current),
                     'check_in': self._format_absentee_check_in(late_check_in),
-                    'reason': 'Late check-in after 08:59:59' if late_check_in else 'No attendance',
+                    'reason': 'Late check-in after 09:00:00' if late_check_in else 'No attendance',
                 })
             current += timedelta(days=1)
         return rows
@@ -663,9 +701,11 @@ class HrLeaveDashboardOverride(models.Model):
                 continue
             if (
                     attendance_date < self._get_absentee_late_policy_start_date()
-                    or local_check_in.time() < self._get_absentee_cutoff_time()
+                    or self._is_on_time_absentee_check_in(local_check_in)
             ):
                 on_time_attendance_days_map.setdefault(attendance.employee_id.id, set()).add(attendance_date)
+
+        etm_context = self._get_absentee_etm_saturday_context(employees, date_from, date_to)
 
         rows = []
         for employee in employees:
@@ -682,7 +722,7 @@ class HrLeaveDashboardOverride(models.Model):
             current = date_from
             while current <= date_to:
                 if (
-                        current.weekday() in working_days
+                        self._is_absentee_working_day(employee, current, working_days, etm_context)
                         and current not in public_holiday_dates
                         and current not in leave_days_map.get(employee.id, set())
                         and current not in on_time_attendance_days_map.get(employee.id, set())
