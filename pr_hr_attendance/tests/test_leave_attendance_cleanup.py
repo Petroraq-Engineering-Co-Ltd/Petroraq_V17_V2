@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from odoo.tests.common import tagged
 
@@ -74,3 +74,64 @@ class TestLeaveAttendanceCleanup(AttendancePolicyCase):
         )
 
         self.assertTrue(attendance.exists())
+
+    def test_future_validated_leave_keeps_earlier_open_checkin(self):
+        """Approving a future leave must never delete today's open check-in."""
+        open_today = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric",
+        ).create({
+            "employee_id": self.biometric_employee.id,
+            "check_in": datetime(2026, 10, 29, 4, 54, 37),  # 07:54:37 Asia/Riyadh
+        })
+
+        self._validated_leave(
+            self.biometric_employee,
+            self.sick_leave_type,
+            date(2026, 11, 5),
+        )
+
+        self.assertTrue(open_today.exists())
+        self.assertFalse(open_today.check_out)
+
+    def test_same_day_validated_leave_deletes_open_checkin(self):
+        """An open check-in on the leave day itself is still cleaned up."""
+        open_on_leave_day = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric",
+        ).create({
+            "employee_id": self.biometric_employee.id,
+            "check_in": datetime(2026, 11, 6, 5, 0, 0),  # 08:00:00 Asia/Riyadh
+        })
+
+        self._validated_leave(
+            self.biometric_employee,
+            self.sick_leave_type,
+            date(2026, 11, 6),
+        )
+
+        self.assertFalse(open_on_leave_day.exists())
+
+    def test_validated_leave_deletes_overnight_overlap_and_keeps_prior_closed(self):
+        """Closed overnight attendance crossing into leave day is deleted; prior day is kept."""
+        prior_closed = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric",
+        ).create({
+            "employee_id": self.biometric_employee.id,
+            "check_in": datetime(2026, 11, 8, 5, 0, 0),   # 08:00 Asia/Riyadh
+            "check_out": datetime(2026, 11, 8, 14, 0, 0),  # 17:00 Asia/Riyadh
+        })
+        overnight_overlap = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric",
+        ).create({
+            "employee_id": self.biometric_employee.id,
+            "check_in": datetime(2026, 11, 8, 19, 0, 0),  # 22:00 Nov 8 Asia/Riyadh
+            "check_out": datetime(2026, 11, 9, 2, 0, 0),  # 05:00 Nov 9 Asia/Riyadh
+        })
+
+        self._validated_leave(
+            self.biometric_employee,
+            self.sick_leave_type,
+            date(2026, 11, 9),
+        )
+
+        self.assertTrue(prior_closed.exists())
+        self.assertFalse(overnight_overlap.exists())

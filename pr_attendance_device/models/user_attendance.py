@@ -172,6 +172,38 @@ class UserAttendance(models.Model):
             ('check_in', '<', fields.Datetime.to_string(day_end)),
         ]
 
+    def _has_attendance_replacing_leave_for_day(self, local_date):
+        """Return True when employee has a validated leave replacing attendance on local_date."""
+        self.ensure_one()
+        if not self.employee_id or not local_date or 'hr.leave' not in self.env:
+            return False
+        Leave = self.env['hr.leave'].sudo()
+        if not hasattr(Leave, '_pr_leave_replaces_attendance'):
+            return False
+        leaves = Leave.search([
+            ('employee_id', '=', self.employee_id.id),
+            ('state', '=', 'validate'),
+            ('request_date_from', '<=', local_date),
+            ('request_date_to', '>=', local_date),
+        ])
+        return any(leave._pr_leave_replaces_attendance() for leave in leaves)
+
+    def _find_orphaned_same_day_checkin(self):
+        """Return earliest synced same-day check-in punch whose hr.attendance was unlinked."""
+        self.ensure_one()
+        _local_date, day_start, _day_end = self._local_day_bounds()
+        timestamp = fields.Datetime.to_datetime(self.timestamp)
+        return self.sudo().search([
+            ('id', '!=', self.id),
+            ('employee_id', '=', self.employee_id.id),
+            ('activity_id', 'in', [False, self.activity_id.id]),
+            ('hr_attendance_id', '=', False),
+            ('interpreted_type', '=', 'checkin'),
+            ('reconciliation_status', 'in', ('synced', 'auto_corrected')),
+            ('timestamp', '>=', fields.Datetime.to_string(day_start)),
+            ('timestamp', '<', fields.Datetime.to_string(timestamp)),
+        ], order='timestamp asc, id asc', limit=1)
+
     def _mark_reconciled(self, status, interpreted_type=False, attendance=False, note=False):
         self.ensure_one()
         successful = status in ('synced', 'auto_corrected') and bool(attendance)
@@ -261,7 +293,7 @@ class UserAttendance(models.Model):
 
         Attendance = self.env['hr.attendance'].sudo()
         timestamp = fields.Datetime.to_datetime(self.timestamp)
-        _local_date, day_start, _day_end = self._local_day_bounds()
+        local_date, day_start, _day_end = self._local_day_bounds()
         previous_domain = [
             ('employee_id', '=', self.employee_id.id),
             ('activity_id', 'in', [False, self.activity_id.id]),
@@ -372,7 +404,44 @@ class UserAttendance(models.Model):
 
         # The first punch of the local day always starts the single daily
         # attendance record, regardless of the device-provided punch label.
+        # Safeguard: if an earlier same-day check-in punch lost its linked
+        # hr.attendance (and the day is not an approved attendance-replacing
+        # leave), recover the pair instead of turning this checkout into a
+        # brand-new check-in.
         if not closed_attendance:
+            if not self._has_attendance_replacing_leave_for_day(local_date):
+                earliest_orphan = self._find_orphaned_same_day_checkin()
+                if earliest_orphan:
+                    attendance = Attendance.with_context(
+                        sync_from_device=True,
+                        attendance_policy_source='biometric',
+                        allow_late_attendance=True,
+                        not_manual_check_out_modification=True,
+                    ).create({
+                        'employee_id': self.employee_id.id,
+                        'check_in': earliest_orphan.timestamp,
+                        'checkin_device_id': earliest_orphan.device_id.id,
+                        'check_out': self.timestamp,
+                        'checkout_device_id': self.device_id.id,
+                        'activity_id': earliest_orphan.activity_id.id or self.activity_id.id,
+                    })
+                    earliest_orphan._mark_reconciled(
+                        'auto_corrected' if earliest_orphan.type != 'checkin' else 'synced',
+                        interpreted_type='checkin',
+                        attendance=attendance,
+                        note=_('Recovered orphaned same-day Check-in during Checkout reconciliation.'),
+                    )
+                    corrected = self.type != 'checkout'
+                    self._mark_reconciled(
+                        'auto_corrected' if corrected else 'synced',
+                        interpreted_type='checkout',
+                        attendance=attendance,
+                        note=_(
+                            'Machine Check-in interpreted as Check-out using recovered earlier Check-in.'
+                        ) if corrected else False,
+                    )
+                    return attendance
+
             attendance = self._create_hr_attendance()
             corrected = self.type != 'checkin'
             self._mark_reconciled(

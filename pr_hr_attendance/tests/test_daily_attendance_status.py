@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from odoo import Command
 from odoo.tests.common import TransactionCase, tagged
@@ -94,7 +94,7 @@ class TestDailyAttendanceStatus(TransactionCase):
         )
         genuine_sentinel.invalidate_recordset()
 
-        # Case 3: Late check-in (>= 09:00 Asia/Riyadh) must stay absent even with valid checkout.
+        # Case 3: Late check-in (> 09:00:00 Asia/Riyadh) must stay absent even with valid checkout.
         late_att = self.Attendance.sudo().with_context(
             attendance_policy_source="biometric",
         ).create({
@@ -117,12 +117,26 @@ class TestDailyAttendanceStatus(TransactionCase):
             "attendance_status_reason": "No task list was submitted for this working day before midnight.",
         })
 
+        # Case 5: Legacy historical 09:00:00 absent record must stay untouched (forward-only).
+        legacy_nine_absent = self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric",
+        ).create({
+            "employee_id": self.biometric_employee.id,
+            "check_in": datetime(2026, 6, 8, 6, 0, 0),  # 09:00:00 Asia/Riyadh
+            "check_out": datetime(2026, 6, 8, 15, 0, 0),
+        })
+        legacy_nine_absent.with_context(skip_daily_attendance_status=True).write({
+            "attendance_day_status": "absent",
+            "attendance_status_reason": "Check-in was at or after 09:00:00.",
+        })
+
         self.Attendance.cron_finalize_daily_attendance_statuses()
 
         recoverable.invalidate_recordset()
         genuine_sentinel.invalidate_recordset()
         late_att.invalidate_recordset()
         task_absent.invalidate_recordset()
+        legacy_nine_absent.invalidate_recordset()
 
         self.assertEqual(recoverable.attendance_day_status, "normal")
         self.assertFalse(recoverable.attendance_status_reason)
@@ -137,3 +151,109 @@ class TestDailyAttendanceStatus(TransactionCase):
             task_absent.attendance_status_reason,
             "No task list was submitted for this working day before midnight.",
         )
+
+        self.assertEqual(legacy_nine_absent.attendance_day_status, "absent")
+        self.assertEqual(
+            legacy_nine_absent.attendance_status_reason,
+            "Check-in was at or after 09:00:00.",
+        )
+
+    def test_late_cutoff_exact_second_boundary_on_attendance(self):
+        """08:59:59 and 09:00:00 local are present; 09:00:01+ local are absent."""
+        cases = [
+            # (local day, UTC check_in, expected status, expected reason)
+            (datetime(2026, 6, 9, 5, 59, 59), "normal", False),   # 08:59:59 Asia/Riyadh
+            (datetime(2026, 6, 10, 6, 0, 0), "normal", False),    # 09:00:00 Asia/Riyadh
+            (datetime(2026, 6, 11, 6, 0, 1), "absent", "Check-in was after 09:00:00."),   # 09:00:01 Asia/Riyadh
+            (datetime(2026, 6, 14, 6, 0, 59), "absent", "Check-in was after 09:00:00."),  # 09:00:59 Asia/Riyadh
+        ]
+        for check_in, expected_status, expected_reason in cases:
+            att = self.Attendance.sudo().with_context(
+                attendance_policy_source="biometric",
+            ).create({
+                "employee_id": self.biometric_employee.id,
+                "check_in": check_in,
+                "check_out": check_in + timedelta(hours=9),
+            })
+            self.assertEqual(att.attendance_day_status, expected_status, f"Failed for {check_in}")
+            if expected_reason:
+                self.assertEqual(att.attendance_status_reason, expected_reason)
+            else:
+                self.assertFalse(att.attendance_status_reason)
+
+    def test_late_cutoff_exact_second_boundary_on_attendance_sheet(self):
+        """Sheet cutoff distinguishes 09:00:00 (present) from 09:00:01-09:00:59 (absent)."""
+        policy = self.env["hr.attendance.policy"].create({
+            "name": "Cutoff Boundary Policy",
+            **{
+                field: self.env[model].create({"name": f"Boundary {field}"}).id
+                for field, model in (
+                    ("late_rule_id", "hr.late.rule"),
+                    ("early_rule_id", "hr.early.rule"),
+                    ("absence_rule_id", "hr.absence.rule"),
+                    ("diff_rule_id", "hr.diff.rule"),
+                )
+            },
+        })
+        # Create biometric attendances on 5 consecutive working days in Asia/Riyadh (UTC+3).
+        day_specs = [
+            (date(2026, 6, 15), datetime(2026, 6, 15, 5, 59, 59), 8 + 59 / 60.0, False),  # 08:59:59 -> present
+            (date(2026, 6, 16), datetime(2026, 6, 16, 6, 0, 0), 9.0, False),              # 09:00:00 -> present
+            (date(2026, 6, 17), datetime(2026, 6, 17, 6, 0, 1), 9.0, True),               # 09:00:01 -> absent
+            (date(2026, 6, 18), datetime(2026, 6, 18, 6, 0, 59), 9.0, True),              # 09:00:59 -> absent
+            (date(2026, 6, 21), datetime(2026, 6, 21, 6, 1, 0), 9 + 1 / 60.0, True),      # 09:01:00 -> absent
+        ]
+        line_vals = []
+        for local_day, utc_in, ac_sign_in_float, _expect_absent in day_specs:
+            self.Attendance.sudo().with_context(
+                attendance_policy_source="biometric",
+            ).create({
+                "employee_id": self.biometric_employee.id,
+                "check_in": utc_in,
+                "check_out": utc_in + timedelta(hours=9),
+            })
+            line_vals.append(Command.create({
+                "date": local_day,
+                "day": str(local_day.weekday()),
+                "pl_sign_in": 8.0,
+                "pl_sign_out": 17.0,
+                "ac_sign_in": ac_sign_in_float,
+                "ac_sign_out": ac_sign_in_float + 9.0,
+                "worked_hours": 9.0,
+                "late_in": 0.0,
+                "early_check_out": 0.5,
+                "overtime": 0.5,
+            }))
+        # Also include a predictive projected line at ac_sign_in == 9.0 with no punch -> stays present.
+        projected_day = date(2026, 6, 22)
+        line_vals.append(Command.create({
+            "date": projected_day,
+            "day": str(projected_day.weekday()),
+            "pl_sign_in": 9.0,
+            "pl_sign_out": 18.0,
+            "ac_sign_in": 9.0,
+            "ac_sign_out": 18.0,
+            "worked_hours": 9.0,
+        }))
+
+        sheet = self.env["attendance.sheet"].create({
+            "employee_id": self.biometric_employee.id,
+            "date_from": date(2026, 6, 15),
+            "date_to": date(2026, 6, 22),
+            "att_policy_id": policy.id,
+            "line_ids": line_vals,
+        })
+        sheet._mark_late_checkins_as_absent()
+
+        lines_by_date = {line.date: line for line in sheet.line_ids}
+        for local_day, _utc_in, _ac_float, expect_absent in day_specs:
+            line = lines_by_date[local_day]
+            if expect_absent:
+                self.assertEqual(line.status, "ab", f"Expected absent on {local_day}")
+                self.assertEqual(line.late_in, 0.0)
+                self.assertEqual(line.early_check_out, 0.0)
+                self.assertEqual(line.overtime, 0.0)
+            else:
+                self.assertNotEqual(line.status, "ab", f"Expected present on {local_day}")
+
+        self.assertNotEqual(lines_by_date[projected_day].status, "ab")

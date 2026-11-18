@@ -3,6 +3,7 @@ import base64
 import inspect
 from datetime import date, timedelta, datetime, time
 
+import pytz
 import xlwt
 
 from odoo import models, fields, api
@@ -157,15 +158,30 @@ class AttendanceReportWizard(models.TransientModel):
 
         date_range = (self.date_from + timedelta(days=i) for i in range((self.date_to - self.date_from).days + 1))
 
+        tz_name = (
+            employee.tz
+            or employee.resource_calendar_id.tz
+            or employee.company_id.partner_id.tz
+            or self.env.company.partner_id.tz
+            or 'Asia/Riyadh'
+        )
+        employee_tz = pytz.timezone(tz_name)
+        Attendance = self.env['hr.attendance']
+
         for single_date in date_range:
-            start_dt = datetime.combine(single_date, time.min)
-            end_dt = datetime.combine(single_date, time.max)
+            local_day_start = employee_tz.localize(datetime.combine(single_date, time.min))
+            local_day_end = employee_tz.localize(
+                datetime.combine(single_date + timedelta(days=1), time.min)
+            )
+            start_dt = local_day_start.astimezone(pytz.UTC).replace(tzinfo=None)
+            end_dt = local_day_end.astimezone(pytz.UTC).replace(tzinfo=None)
             planned_hours = round(self._get_day_planned_hours(employee, single_date), 2)
-            has_attendance = self.env['hr.attendance'].search_count([
+            day_attendance = Attendance.search([
                 ('employee_id', '=', employee.id),
                 ('check_in', '>=', start_dt),
-                ('check_in', '<=', end_dt),
-            ]) > 0
+                ('check_in', '<', end_dt),
+            ], order='check_in asc')
+            has_attendance = bool(day_attendance)
 
             # Non-working day (weekend/public holiday/company leave) from calendar/work entries.
             if planned_hours <= 0 and not has_attendance:
@@ -202,27 +218,23 @@ class AttendanceReportWizard(models.TransientModel):
                 })
                 continue
 
-            day_attendance = self.env['hr.attendance'].search([
-                ('employee_id', '=', employee.id),
-                ('check_in', '>=', start_dt),
-                ('check_in', '<=', end_dt),
-            ])
-
             if day_attendance:
-                check_in = min(day_attendance.mapped('check_in'))
-                check_out = max(day_attendance.mapped('check_out'))
+                earliest_att = day_attendance[0]
+                check_in = earliest_att.check_in
+                check_outs = day_attendance.filtered('check_out').mapped('check_out')
+                check_out = max(check_outs) if check_outs else False
                 worked_hours = round(sum(day_attendance.mapped('worked_hours')), 2)
-                late_absent_cutoff = time(9, 1)
+                local_check_in = earliest_att._attendance_local_datetime(check_in) if check_in else False
 
-                if check_in and check_in.time() > late_absent_cutoff:
+                if planned_hours > 0 and Attendance._is_late_absent_local_datetime(local_check_in):
                     total_absent_days += 1
                     result.append({
                         'date': format_date(self.env, single_date),
                         'day': single_date.strftime('%A'),
                         'actual_hours': planned_hours,
                         'check_in': format_datetime(self.env, check_in),
-                        'check_out': format_datetime(self.env, check_out),
-                        'worked_hours': 'Absent (Late Check-in after 09:01 AM)',
+                        'check_out': format_datetime(self.env, check_out) if check_out else '-',
+                        'worked_hours': 'Absent (Late Check-in after 09:00:00)',
                         'late_hours': 0,
                         'difference': planned_hours,
                         'overtime': 0,
@@ -244,7 +256,7 @@ class AttendanceReportWizard(models.TransientModel):
                     'day': single_date.strftime('%A'),
                     'actual_hours': planned_hours,
                     'check_in': format_datetime(self.env, check_in),
-                    'check_out': format_datetime(self.env, check_out),
+                    'check_out': format_datetime(self.env, check_out) if check_out else '-',
                     'worked_hours': worked_hours,
                     'late_hours': late_hours,
                     'difference': difference,
