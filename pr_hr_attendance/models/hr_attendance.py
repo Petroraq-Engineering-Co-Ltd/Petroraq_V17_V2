@@ -23,6 +23,14 @@ class HrAttendance(models.Model):
         "checkin_device_id",
         "checkout_device_id",
     }
+    _LATE_ABSENT_CUTOFF_TIME = time(9, 0, 0)
+
+    @api.model
+    def _is_late_absent_local_datetime(self, local_dt):
+        return bool(
+            local_dt
+            and local_dt.replace(microsecond=0).time() > self._LATE_ABSENT_CUTOFF_TIME
+        )
 
     auto_generated_attendance = fields.Boolean(
         string="Auto Generated",
@@ -218,12 +226,13 @@ class HrAttendance(models.Model):
     def _refresh_daily_attendance_status(self, now=None):
         """Keep a durable status on the core attendance record.
 
-        A check-in at 09:00:00 or later is absent on a working day. A punch on
-        a Saturday earned off under the ETM policy is optional attendance and
-        must never create a late, missing-punch, or absence penalty. A single
-        punch or post-midnight sentinel (check_out <= check_in) on any other
-        day remains a visible missing-punch issue during its local day and
-        becomes absent as soon as that day has ended.
+        A check-in strictly after 09:00:00 (09:00:01 or later) is absent on a
+        working day. A punch on a Saturday earned off under the ETM policy is
+        optional attendance and must never create a late, missing-punch, or
+        absence penalty. A single punch or post-midnight sentinel
+        (check_out <= check_in) on any other day remains a visible missing-punch
+        issue during its local day and becomes absent as soon as that day has
+        ended.
         """
         utc_now = fields.Datetime.to_datetime(now or fields.Datetime.now())
         for attendance in self.filtered("check_in"):
@@ -238,9 +247,9 @@ class HrAttendance(models.Model):
             if attendance.attendance_entry_source == "approved_shortage" or saturday_is_off:
                 status = "normal"
                 reason = False
-            elif local_check_in.time() >= time(9, 0, 0):
+            elif self._is_late_absent_local_datetime(local_check_in):
                 status = "absent"
-                reason = _("Check-in was at or after 09:00:00.")
+                reason = _("Check-in was after 09:00:00.")
             elif not has_valid_checkout and local_now.date() > local_check_in.date():
                 status = "absent"
                 reason = _("The missing daily punch was not resolved before midnight.")

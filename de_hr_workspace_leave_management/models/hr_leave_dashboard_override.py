@@ -290,6 +290,13 @@ class HrLeaveDashboardOverride(models.Model):
         return time(9, 0, 0)
 
     @api.model
+    def _is_on_time_absentee_check_in(self, local_check_in):
+        return bool(
+            local_check_in
+            and local_check_in.replace(microsecond=0).time() <= self._get_absentee_cutoff_time()
+        )
+
+    @api.model
     def _get_absentee_late_policy_start_date(self):
         return fields.Date.to_date('2026-07-01')
 
@@ -417,7 +424,7 @@ class HrLeaveDashboardOverride(models.Model):
                 continue
             if (
                     attendance_date < self._get_absentee_late_policy_start_date()
-                    or local_check_in.time() < self._get_absentee_cutoff_time()
+                    or self._is_on_time_absentee_check_in(local_check_in)
             ):
                 on_time_attendance_days.add(attendance_date)
                 late_attendance_by_day.pop(attendance_date, None)
@@ -445,7 +452,7 @@ class HrLeaveDashboardOverride(models.Model):
                     'day_name': current.strftime('%A'),
                     'shift': self._get_employee_absentee_shift_label(employee, current),
                     'check_in': self._format_absentee_check_in(late_check_in),
-                    'reason': 'Late check-in after 08:59:59' if late_check_in else 'No attendance',
+                    'reason': 'Late check-in after 09:00:00' if late_check_in else 'No attendance',
                 })
             current += timedelta(days=1)
         return rows
@@ -663,7 +670,7 @@ class HrLeaveDashboardOverride(models.Model):
                 continue
             if (
                     attendance_date < self._get_absentee_late_policy_start_date()
-                    or local_check_in.time() < self._get_absentee_cutoff_time()
+                    or self._is_on_time_absentee_check_in(local_check_in)
             ):
                 on_time_attendance_days_map.setdefault(attendance.employee_id.id, set()).add(attendance_date)
 
