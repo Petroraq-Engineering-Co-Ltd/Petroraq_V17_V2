@@ -44,9 +44,8 @@ class LeaveRequestTemplate(http.Controller):
         employee_obj = request.env['hr.employee'].sudo().browse(employee_id)
         leave_type_obj = request.env['hr.leave.type'].sudo().browse(leave_type_id)
         employee_manager_id = employee_obj.parent_id
-        # hr_supervisor_group_ids = [request.env.ref('hr_holidays.group_hr_holidays_user').id]
-        hr_supervisor_group_ids = [request.env.ref('pr_hr_holidays.custom_group_hr_holidays_supervisor').id]
-        hr_manager_group_ids = [request.env.ref('hr_holidays.group_hr_holidays_manager').id]
+        hr_supervisor_group_ids = [request.env.ref('pr_hr.group_hr_supervisor').id]
+        hr_manager_group_ids = [request.env.ref('pr_hr.group_hr_manager').id]
         hr_supervisor_ids = request.env['res.users'].sudo().search([('groups_id', 'in', hr_supervisor_group_ids)])
         hr_manager_ids = request.env['res.users'].sudo().search([('groups_id', 'in', hr_manager_group_ids)])
         notes = kw.get('message') if kw.get('message') else False
@@ -92,7 +91,8 @@ class LeaveRequestTemplate(http.Controller):
                     attachment_ids.append(att_record.id)
             # if attachment_ids:
             #     leave_request_id.update({'attachment_ids': [(6, 0, attachment_ids)]})
-            leave_request_id.sudo()._send_manager_email()
+            if leave_request_id.sudo().state == 'draft':
+                leave_request_id.sudo()._send_manager_email()
             return http.request.render('de_hr_workspace_timeoff.thanks_template')
         else:
             print(kw, 'False')

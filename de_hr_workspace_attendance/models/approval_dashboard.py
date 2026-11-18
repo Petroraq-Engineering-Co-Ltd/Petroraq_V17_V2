@@ -167,24 +167,24 @@ class HrApprovalDashboardService(models.AbstractModel):
 
     @api.model
     def _leave_request_pending_domain(self):
+        if "pr.hr.leave.request" in self.env and hasattr(
+            self.env["pr.hr.leave.request"], "_get_pending_approval_domain"
+        ):
+            return self.env["pr.hr.leave.request"]._get_pending_approval_domain(self.env.user)
         user = self.env.user
-        if user.has_group("hr_holidays.group_hr_holidays_manager"):
-            return expression.OR([
-                [("state", "=", "cancel_request")],
-                [
-                    ("state", "=", "hr_supervisor"),
-                    ("hr_manager_ids", "in", self.env.uid),
-                ],
-            ])
-        if user.has_group("pr_hr_holidays.custom_group_hr_holidays_supervisor"):
-            return [
-                ("state", "=", "manager_approve"),
-                ("hr_supervisor_ids", "in", self.env.uid),
-            ]
-        return [
-            ("employee_manager_id.user_id", "=", self.env.uid),
-            ("state", "=", "draft"),
+        role_domains = [
+            [
+                ("state", "=", "draft"),
+                "|",
+                ("employee_manager_id.user_id", "=", self.env.uid),
+                ("employee_id.parent_id.user_id", "=", self.env.uid),
+            ],
         ]
+        if user.has_group("pr_hr.group_hr_supervisor"):
+            role_domains.append([("state", "=", "manager_approve")])
+        if user.has_group("pr_hr.group_hr_manager"):
+            role_domains.append([("state", "in", ["hr_supervisor", "cancel_request"])])
+        return expression.OR(role_domains) if len(role_domains) > 1 else role_domains[0]
 
     @api.model
     def _recruitment_request_pending_domain(self):

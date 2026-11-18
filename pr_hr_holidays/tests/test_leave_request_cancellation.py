@@ -44,7 +44,7 @@ class TestLeaveRequestCancellation(TransactionCase):
             "email": "hr_manager_cancellation_test@example.com",
             "groups_id": [(6, 0, [
                 cls.env.ref("base.group_user").id,
-                cls.env.ref("hr_holidays.group_hr_holidays_manager").id,
+                cls.env.ref("pr_hr.group_hr_manager").id,
             ])],
         })
 

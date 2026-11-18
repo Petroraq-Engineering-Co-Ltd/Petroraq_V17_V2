@@ -29,4 +29,28 @@
 
     </data>
 
+    <data>
+        <record id="pr_hr.group_hr_supervisor" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('de_hr_workspace.group_hr_employee_approvals'))]"/>
+        </record>
+
+        <record id="pr_hr.group_hr_manager" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('de_hr_workspace.group_hr_employee_approvals'))]"/>
+        </record>
+
+        <record id="de_hr_workspace.hr_approvals_menu_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[
+                (4, ref('pr_hr.group_hr_supervisor')),
+                (4, ref('pr_hr.group_hr_manager'))
+            ]"/>
+        </record>
+
+        <record id="hr_leave_request_workspace_rule_pr_hr_approvers" model="ir.rule">
+            <field name="name">Leave Request Workspace: HR Supervisor and HR Manager</field>
+            <field name="model_id" ref="pr_hr_holidays.model_pr_hr_leave_request"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('pr_hr.group_hr_supervisor')), (4, ref('pr_hr.group_hr_manager'))]"/>
+        </record>
+    </data>
+
 </odoo>
