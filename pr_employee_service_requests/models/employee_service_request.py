@@ -794,6 +794,13 @@ class PrEmployeeServiceRequest(models.Model):
         for rec in self:
             is_non_financial = rec._is_non_financial_request()
             role = "none"
+
+            # Determine if the user holds continuous rights to skip to MD or Finance.
+            # From accounts_approval, skipping to MD requires holding both Accounts and Finance.
+            # Prior to accounts_approval, skipping over Accounts requires holding Accounts.
+            can_skip_to_md_from_accounts = is_non_financial or (is_accounts and is_finance)
+            can_skip_over_accounts = is_non_financial or is_accounts
+
             if is_md and rec.state in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",
@@ -801,8 +808,20 @@ class PrEmployeeServiceRequest(models.Model):
                 "accounts_approval",
                 "finance_approval",
                 "md_approval",
+            ) and (
+                rec.state == "md_approval"
+                or (rec.state == "finance_approval" and (is_finance or is_non_financial))
+                or (rec.state == "accounts_approval" and can_skip_to_md_from_accounts)
+                or (rec.state in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval") and can_skip_over_accounts)
             ):
-                role = "md"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "hr_manager_approval" and is_hr_manager:
+                    role = "hr_manager"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "md"
             elif (
                 is_finance
                 and not is_non_financial
@@ -813,8 +832,16 @@ class PrEmployeeServiceRequest(models.Model):
                     "accounts_approval",
                     "finance_approval",
                 )
+                and (rec.state == "finance_approval" or is_accounts)
             ):
-                role = "finance"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "hr_manager_approval" and is_hr_manager:
+                    role = "hr_manager"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "finance"
             elif (
                 is_accounts
                 and not is_non_financial
@@ -825,18 +852,33 @@ class PrEmployeeServiceRequest(models.Model):
                     "accounts_approval",
                 )
             ):
-                role = "accounts"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "hr_manager_approval" and is_hr_manager:
+                    role = "hr_manager"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "accounts"
             elif is_hr_manager and rec.state in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",
                 "hr_manager_approval",
             ):
-                role = "hr_manager"
+                if rec.state == "hr_supervisor_approval" and is_hr_supervisor:
+                    role = "hr_supervisor"
+                elif rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "hr_manager"
             elif is_hr_supervisor and rec.state in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",
             ):
-                role = "hr_supervisor"
+                if rec.state == "employee_manager_approval" and rec.employee_manager_user_id == user:
+                    role = "employee_manager"
+                else:
+                    role = "hr_supervisor"
             elif (
                 rec.employee_manager_user_id == user
                 and rec.state == "employee_manager_approval"
@@ -1836,24 +1878,76 @@ class PrEmployeeServiceRequest(models.Model):
     def _get_submit_target_routing(self):
         self.ensure_one()
         manager_user = self.employee_manager_user_id
-        if not manager_user:
-            return "employee_manager", "employee_manager_approval"
-        roles = self._get_user_service_request_roles(manager_user)
-        role_to_state = {
-            "md": "md_approval",
-            "finance": "finance_approval",
-            "accounts": "accounts_approval",
-            "hr_manager": "hr_manager_approval",
-            "hr_supervisor": "hr_supervisor_approval",
-        }
+        creator_user = self.requested_by_id or self.create_uid or self.env.user
+
+        creator_roles = self._get_user_service_request_roles(creator_user)
+        manager_roles = self._get_user_service_request_roles(manager_user) if manager_user else set()
+
+        creator_is_dept_manager = (
+            "employee_manager" in creator_roles
+            or (manager_user and manager_user == creator_user)
+            or (self.employee_id and self.employee_id.department_id and self.employee_id.department_id.manager_id.user_id == creator_user)
+            or (self.employee_id and self.employee_id.parent_id and self.employee_id.parent_id.user_id == creator_user)
+            or (self.employee_id and self.employee_id.user_id == creator_user and "employee_manager" in creator_roles)
+        )
+
+        # If employee has an assigned department manager and the creator is NOT the department manager,
+        # the request must start with the highest consecutive access right of the assigned department manager.
+        if manager_user and not creator_is_dept_manager:
+            if self._is_non_financial_request():
+                manager_chain = (
+                    ("employee_manager", "employee_manager_approval"),
+                    ("hr_supervisor", "hr_supervisor_approval"),
+                    ("hr_manager", "hr_manager_approval"),
+                    ("md", "md_approval"),
+                )
+            else:
+                manager_chain = (
+                    ("employee_manager", "employee_manager_approval"),
+                    ("hr_supervisor", "hr_supervisor_approval"),
+                    ("hr_manager", "hr_manager_approval"),
+                    ("accounts", "accounts_approval"),
+                    ("finance", "finance_approval"),
+                    ("md", "md_approval"),
+                )
+
+            target_role, target_state = manager_chain[0]
+            for role, state in manager_chain[1:]:
+                if role in manager_roles:
+                    target_role, target_state = role, state
+                else:
+                    break
+            return target_role, target_state
+
+        # Otherwise, the department manager stage is cleared. Auto-advance through all consecutively
+        # held roles along the sequential chain and stop at the first missing required role.
+        active_roles = creator_roles | manager_roles
+
         if self._is_non_financial_request():
-            candidate_roles = ("md", "hr_manager", "hr_supervisor")
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("md", "md_approval"),
+            )
         else:
-            candidate_roles = ("md", "finance", "accounts", "hr_manager", "hr_supervisor")
-        for role in candidate_roles:
-            if role in roles:
-                return role, role_to_state[role]
-        return "employee_manager", "employee_manager_approval"
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("accounts", "accounts_approval"),
+                ("finance", "finance_approval"),
+                ("md", "md_approval"),
+            )
+
+        target_role = chain[-1][0]
+        for role, state in chain:
+            if role not in active_roles:
+                target_role = role
+                break
+
+        # Pass target_role through dynamic forward escalation so candidate approvers
+        # for that stage (e.g. HR Supervisor user possessing HR Manager + Finance/MD)
+        # are checked and escalated along the chain to the first missing role.
+        return self._get_forward_escalated_stage(target_role)
 
     def action_submit(self):
         self._apply_exit_reentry_company_eligibility(auto_message=True)
@@ -1931,6 +2025,173 @@ class PrEmployeeServiceRequest(models.Model):
                     body=_("Request submitted directly for MD approval based on manager access rights.")
                 )
 
+    def _validate_dashboard_intermediate_approvals(self, target_role):
+        """When approving from the Approval Dashboard, verify that the current user
+        possesses all intermediate approval roles between the record's current state
+        and the target approval role. If any intermediate role is missing, raise a UserError."""
+        if not self.env.context.get("from_approval_dashboard"):
+            return
+
+        STAGE_ORDER_FINANCIAL = (
+            ("employee_manager_approval", "employee_manager", _("Employment Manager")),
+            ("hr_supervisor_approval", "hr_supervisor", _("HR Supervisor")),
+            ("hr_manager_approval", "hr_manager", _("HR Manager")),
+            ("accounts_approval", "accounts", _("Accounts")),
+            ("finance_approval", "finance", _("Finance")),
+            ("md_approval", "md", _("Managing Director")),
+        )
+        STAGE_ORDER_NON_FINANCIAL = (
+            ("employee_manager_approval", "employee_manager", _("Employment Manager")),
+            ("hr_supervisor_approval", "hr_supervisor", _("HR Supervisor")),
+            ("hr_manager_approval", "hr_manager", _("HR Manager")),
+            ("md_approval", "md", _("Managing Director")),
+        )
+
+        stage_chain = (
+            STAGE_ORDER_NON_FINANCIAL
+            if self._is_non_financial_request()
+            else STAGE_ORDER_FINANCIAL
+        )
+        state_keys = [stage[0] for stage in stage_chain]
+        role_keys = [stage[1] for stage in stage_chain]
+
+        if self.state not in state_keys or target_role not in role_keys:
+            return
+
+        current_idx = state_keys.index(self.state)
+        target_idx = role_keys.index(target_role)
+
+        if target_idx > current_idx:
+            for idx in range(current_idx, target_idx):
+                _st, intermediate_role, role_label = stage_chain[idx]
+                if not self._check_approval_permission(intermediate_role):
+                    raise UserError(
+                        _("You cannot approve this request until %s approval is completed.")
+                        % role_label
+                    )
+
+    def _notify_for_target_state(self, target_state):
+        self.ensure_one()
+        type_label = self._get_type_label()
+        name = self.display_name
+        if target_state == "hr_supervisor_approval":
+            self._notify_group(
+                ["pr_hr.group_hr_supervisor"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for HR Supervisor approval.") % (type_label, name),
+            )
+        elif target_state == "hr_manager_approval":
+            self._notify_group(
+                ["pr_hr.group_hr_manager"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for HR Manager approval.") % (type_label, name),
+            )
+        elif target_state == "accounts_approval":
+            self._notify_group(
+                ["account.group_account_manager", "pr_account.custom_group_account_supervisor"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for Accounts approval.") % (type_label, name),
+            )
+        elif target_state == "finance_approval":
+            self._notify_group(
+                ["pr_account.custom_group_accounting_manager"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for Finance approval.") % (type_label, name),
+            )
+        elif target_state == "md_approval":
+            self._notify_group(
+                ["pr_hr.group_hr_md"],
+                _("Employee Request Approval Needed"),
+                _("%s <b>%s</b> is waiting for MD approval.") % (type_label, name),
+            )
+
+    def _get_forward_escalated_stage(self, default_next_role):
+        """Inspect the user(s) holding default_next_role and determine if the record
+        can escalate further along the chain to their highest continuous access rights
+        without skipping any unheld intermediate rights."""
+        self.ensure_one()
+        is_non_financial = self._is_non_financial_request()
+        if is_non_financial:
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("md", "md_approval"),
+            )
+        else:
+            chain = (
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("accounts", "accounts_approval"),
+                ("finance", "finance_approval"),
+                ("md", "md_approval"),
+            )
+
+        role_keys = [stage[0] for stage in chain]
+        if default_next_role not in role_keys:
+            role_to_state = dict(chain)
+            return default_next_role, role_to_state.get(default_next_role, default_next_role)
+
+        start_idx = role_keys.index(default_next_role)
+        sub_chain = chain[start_idx:]
+
+        candidates = self.env["res.users"]
+        if self._check_approval_permission(default_next_role):
+            candidates |= self.env.user
+
+        role_to_xmlid = {
+            "hr_supervisor": "pr_hr.group_hr_supervisor",
+            "hr_manager": "pr_hr.group_hr_manager",
+            "accounts": "account.group_account_manager",
+            "finance": "pr_account.custom_group_accounting_manager",
+            "md": "pr_hr.group_hr_md",
+        }
+        xmlid = role_to_xmlid.get(default_next_role)
+        if xmlid:
+            group = self.env.ref(xmlid, raise_if_not_found=False)
+            if group:
+                group_users = self.env["res.users"].browse(group.sudo().users.ids).filtered(
+                    lambda u: u.active and (not self.company_id or self.company_id in u.company_ids)
+                )
+                if default_next_role == "accounts":
+                    group_users = group_users.filtered(
+                        lambda u: not u.has_group("pr_account.custom_group_accounting_manager")
+                    )
+                candidates |= group_users
+
+        if not candidates:
+            return sub_chain[0]
+
+        best_role, best_state = sub_chain[0]
+        for user in candidates:
+            u_roles = self._get_user_service_request_roles(user)
+
+            # Check if this candidate holds authority beyond default_next_role along remaining chain
+            higher_roles_held = [r for r, _s in sub_chain[1:] if r in u_roles]
+
+            if higher_roles_held:
+                # The candidate has authority beyond default_next_role.
+                # Auto-advance along sub_chain[1:] through consecutively held roles,
+                # and stop at the first missing required role.
+                curr_role, curr_state = sub_chain[0]
+                for r, s in sub_chain[1:]:
+                    curr_role, curr_state = r, s
+                    if r not in u_roles:
+                        # Found the first missing role: stop here!
+                        break
+            else:
+                # Standard continuous traversal starting at default_next_role
+                curr_role, curr_state = sub_chain[0]
+                for r, s in sub_chain:
+                    if r in u_roles:
+                        curr_role, curr_state = r, s
+                    else:
+                        break
+
+            if role_keys.index(curr_role) > role_keys.index(best_role):
+                best_role, best_state = curr_role, curr_state
+
+        return best_role, best_state
+
     def action_employee_manager_approve(self):
         for rec in self:
             if rec.state != "employee_manager_approval":
@@ -1938,43 +2199,56 @@ class PrEmployeeServiceRequest(models.Model):
             if not rec._check_approval_permission("employee_manager"):
                 raise AccessError(_("Only the employee's manager can approve this stage."))
             rec._clear_pending_approval_activities()
-            rec.write({
-                "state": "hr_supervisor_approval",
+            next_role, next_state = rec._get_forward_escalated_stage("hr_supervisor")
+            vals = {
+                "state": next_state,
                 "employee_manager_approved_by_id": self.env.user.id,
                 "employee_manager_approved_date": fields.Datetime.now(),
-            })
-            rec._notify_group(
-                ["pr_hr.group_hr_supervisor"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for HR Supervisor approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            rec.message_post(body=_("Employment Manager approved this request."))
+            }
+            if next_state in ("accounts_approval", "finance_approval", "md_approval") and not rec._is_non_financial_request():
+                vals["approved_amount"] = rec._get_payment_amount()
+            rec.write(vals)
+            rec._notify_for_target_state(next_state)
+            if next_state != "hr_supervisor_approval":
+                rec.message_post(
+                    body=_("Employment Manager approved this request. Advanced directly to %s based on approver access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            else:
+                rec.message_post(body=_("Employment Manager approved this request."))
 
     def action_hr_supervisor_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("hr_supervisor")
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval"):
                 raise UserError(_("This request cannot be approved at the HR Supervisor stage."))
             if not rec._check_approval_permission("hr_supervisor"):
                 raise AccessError(_("Only HR Supervisor can approve this stage."))
             prior_state = rec.state
             rec._clear_pending_approval_activities()
-            rec.write({
-                "state": "hr_manager_approval",
+            next_role, next_state = rec._get_forward_escalated_stage("hr_manager")
+            vals = {
+                "state": next_state,
                 "hr_supervisor_approved_by_id": self.env.user.id,
                 "hr_supervisor_approved_date": fields.Datetime.now(),
-            })
-            rec._notify_group(
-                ["pr_hr.group_hr_manager"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for HR Manager approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            if prior_state != "hr_supervisor_approval":
+            }
+            if next_state in ("accounts_approval", "finance_approval", "md_approval") and not rec._is_non_financial_request():
+                vals["approved_amount"] = rec._get_payment_amount()
+            rec.write(vals)
+            rec._notify_for_target_state(next_state)
+            if next_state != "hr_manager_approval":
+                rec.message_post(
+                    body=_("HR Supervisor approved this request. Advanced directly to %s based on approver access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            elif prior_state != "hr_supervisor_approval":
                 rec.message_post(body=_("HR Supervisor approved this request via skip-level approval."))
             else:
                 rec.message_post(body=_("HR Supervisor approved this request."))
 
     def action_hr_manager_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("hr_manager")
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval"):
                 raise UserError(_("This request cannot be approved at the HR Manager stage."))
             if not rec._check_approval_permission("hr_manager"):
@@ -2009,24 +2283,28 @@ class PrEmployeeServiceRequest(models.Model):
                     else:
                         rec.message_post(body=_("HR Manager approved this request and forwarded to Managing Director."))
                 continue
+
+            next_role, next_state = rec._get_forward_escalated_stage("accounts")
             rec.write({
-                "state": "accounts_approval",
+                "state": next_state,
                 "approved_amount": rec._get_payment_amount(),
                 "hr_manager_approved_by_id": self.env.user.id,
                 "hr_manager_approved_date": fields.Datetime.now(),
             })
-            rec._notify_group(
-                ["account.group_account_manager", "pr_account.custom_group_account_supervisor"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for Accounts approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            if prior_state != "hr_manager_approval":
+            rec._notify_for_target_state(next_state)
+            if next_state != "accounts_approval":
+                rec.message_post(
+                    body=_("HR Manager approved this request. Advanced directly to %s based on accountant access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            elif prior_state != "hr_manager_approval":
                 rec.message_post(body=_("HR Manager approved this request via skip-level approval."))
             else:
                 rec.message_post(body=_("HR Manager approved this request."))
 
     def action_accounts_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("accounts")
             if rec._is_non_financial_request():
                 raise UserError(_("This request does not require Accounts approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval"):
@@ -2036,24 +2314,27 @@ class PrEmployeeServiceRequest(models.Model):
             prior_state = rec.state
             rec._check_before_accounts_approval()
             rec._clear_pending_approval_activities()
+            next_role, next_state = rec._get_forward_escalated_stage("finance")
             rec.write({
-                "state": "finance_approval",
+                "state": next_state,
                 "approved_amount": rec._get_payment_amount(),
                 "accounts_approved_by_id": self.env.user.id,
                 "accounts_approved_date": fields.Datetime.now(),
             })
-            rec._notify_group(
-                ["pr_account.custom_group_accounting_manager"],
-                _("Employee Request Approval Needed"),
-                _("%s <b>%s</b> is waiting for Finance approval.") % (rec._get_type_label(), rec.display_name),
-            )
-            if prior_state != "accounts_approval":
+            rec._notify_for_target_state(next_state)
+            if next_state != "finance_approval":
+                rec.message_post(
+                    body=_("Accounts approved this request. Advanced directly to %s based on finance access rights.")
+                    % rec._get_stage_label(next_state)
+                )
+            elif prior_state != "accounts_approval":
                 rec.message_post(body=_("Accounts approved this request via skip-level approval."))
             else:
                 rec.message_post(body=_("Accounts approved this request."))
 
     def action_finance_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("finance")
             if rec._is_non_financial_request():
                 raise UserError(_("This request does not require Finance approval."))
             if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval", "accounts_approval", "finance_approval"):
@@ -2081,6 +2362,7 @@ class PrEmployeeServiceRequest(models.Model):
 
     def action_md_approve(self):
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("md")
             if rec.state not in (
                 "employee_manager_approval",
                 "hr_supervisor_approval",

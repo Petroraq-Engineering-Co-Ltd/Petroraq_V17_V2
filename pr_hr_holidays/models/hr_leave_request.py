@@ -658,6 +658,12 @@ class HrLeaveRequest(models.Model):
         for rec in self:
             if self.env.user.has_group('pr_hr_holidays.group_leave_allocation_limit_override'):
                 continue
+            if rec.allocation_override_applied:
+                continue
+            if rec.state in ('hr_approve', 'cancel_request', 'cancelled', 'reject'):
+                continue
+            if rec.leave_id:
+                continue
 
             requested_days = rec._get_requested_days_count()
             if requested_days <= 0:
@@ -757,7 +763,13 @@ class HrLeaveRequest(models.Model):
             rec.state = "cancelled"
             rec.approval_state = "cancelled"
             if rec.leave_id:
-                rec.leave_id.sudo().state = "refuse"
+                if hasattr(rec.leave_id.sudo(), "action_refuse"):
+                    try:
+                        rec.leave_id.sudo().action_refuse()
+                    except Exception:
+                        rec.leave_id.sudo().state = "refuse"
+                else:
+                    rec.leave_id.sudo().state = "refuse"
             rec._send_result_to_employee(result="Cancelled")
 
     def action_manager_reject(self):
@@ -944,10 +956,14 @@ class HrLeaveRequest(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        watched_fields = {"employee_id", "leave_type_id", "date_from", "date_to", "state"}
-        if watched_fields.intersection(vals.keys()):
+        date_employee_fields = {"employee_id", "leave_type_id", "date_from", "date_to"}
+        if date_employee_fields.intersection(vals.keys()):
             self._check_leave_request_weekend_dates()
             self._check_requested_days_with_allocation()
+        elif "state" in vals:
+            target_state = vals.get("state")
+            if target_state not in ("cancel_request", "cancelled", "reject", "hr_approve"):
+                self._check_requested_days_with_allocation()
         return res
 
     def unlink(self):

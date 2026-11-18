@@ -19,6 +19,7 @@
     'version': '17.0.1.3.8',
     # any module necessary for this one to work correctly
     'depends': [
+        'pr_hr',
         'pr_hr_contract',
         'gs_hr_attendance_sheet',
         'pr_hr_recruitment_request',
