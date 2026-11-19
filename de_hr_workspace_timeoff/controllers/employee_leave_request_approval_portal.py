@@ -25,9 +25,12 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
         return values
 
     def _prepare_my_leave_request_approval_domain(self):
+        # Reuse the model's notion of a Dept. Manager (employee_manager_id or
+        # employee_id.parent_id), restricted to the stage the portal can decide.
+        LeaveRequest = request.env['pr.hr.leave.request']
         return AND([
-            [("employee_manager_id.user_id", "=", request.env.user.id)],
-            [("state", "=", "draft")],
+            LeaveRequest._get_pending_approval_domain(request.env.user),
+            [("state", "=", "employee_manager_approval")],
         ])
 
     def _prepare_my_leave_request_approval_searchbar_sortings(self):
@@ -37,7 +40,7 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
         }
 
     def _check_leave_request_manager(self, leave_request):
-        if leave_request.employee_manager_id.user_id != request.env.user:
+        if not leave_request.exists() or not leave_request._user_is_dept_manager(request.env.user):
             raise MissingError(_("This leave request does not exist or you do not have access to it."))
 
     @http.route(['/my/leave_requests_approval', '/my/leave_requests_approval/page/<int:page>'], type='http', auth="user", website=True)
@@ -83,37 +86,50 @@ class EmployeeLeaveRequestsApprovalPortal(CustomerPortal):
         return request.render("de_hr_workspace_timeoff.portal_my_leave_requests_approvals", values)
 
     @http.route(['/my/leave_requests_approval/<model("pr.hr.leave.request"):leave_request_id>'], type='http', auth="user", website=True)
-    def portal_my_leave_request_approval_info(self, leave_request_id, **kw):
-        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+    def portal_my_leave_request_approval_info(self, leave_request_id, error=None, **kw):
+        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(leave_request_id.id)
         self._check_leave_request_manager(leave_request_obj)
-        values = {"leave_request_id": leave_request_obj}
+        error_messages = {
+            'reject_reason_required': _("Please provide a reason for the rejection."),
+        }
+        values = {
+            "leave_request_id": leave_request_obj,
+            "error_message": error_messages.get(error),
+        }
         return request.render("de_hr_workspace_timeoff.employee_leave_request_approval_info_portal", values)
 
+    # The decision routes change workflow state: POST only, CSRF protected
+    # (default for type='http' routes), and always delegated to the model's
+    # action methods executed as the current user.
+
     @http.route(['/my/leave_requests_approved/<model("pr.hr.leave.request"):leave_request_id>'], type='http',
-                auth="user", website=True)
+                auth="user", methods=['POST'], website=True)
     def portal_my_leave_request_approved(self, leave_request_id, **kw):
-        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(leave_request_id.id)
         self._check_leave_request_manager(leave_request_obj)
-        if leave_request_obj.state != 'draft':
+        if leave_request_obj.state != 'employee_manager_approval':
             raise MissingError(_("This leave request is not awaiting your approval."))
         leave_request_obj.with_user(request.env.user).action_manager_approve()
         return request.redirect('/my/leave_requests_approval')
 
     @http.route(['/my/leave_requests_rejected/<model("pr.hr.leave.request"):leave_request_id>'], type='http',
-                auth="user", website=True)
-    def portal_my_leave_request_rejected(self, leave_request_id, **kw):
-        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+                auth="user", methods=['POST'], website=True)
+    def portal_my_leave_request_rejected(self, leave_request_id, reject_reason=None, **kw):
+        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(leave_request_id.id)
         self._check_leave_request_manager(leave_request_obj)
-        leave_request_obj.with_user(request.env.user)._apply_stage_rejection(
-            'manager',
-            _("Rejected from the employee portal."),
-        )
+        reject_reason = (reject_reason or '').strip()
+        if not reject_reason:
+            return request.redirect(
+                '/my/leave_requests_approval/%s?error=reject_reason_required' % leave_request_obj.id
+            )
+        # Same path as pr.reject.record.wizard.action_reject for leave requests.
+        leave_request_obj.with_user(request.env.user)._apply_stage_rejection('manager', reject_reason)
         return request.redirect('/my/leave_requests_approval')
 
     @http.route(['/my/leave_requests_reset_rejection/<model("pr.hr.leave.request"):leave_request_id>'], type='http',
-                auth="user", website=True)
+                auth="user", methods=['POST'], website=True)
     def portal_my_leave_request_reset_rejection(self, leave_request_id, **kw):
-        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(int(leave_request_id))
+        leave_request_obj = request.env["pr.hr.leave.request"].sudo().browse(leave_request_id.id)
         self._check_leave_request_manager(leave_request_obj)
         leave_request_obj.with_user(request.env.user).action_reset_rejection()
         return request.redirect('/my/leave_requests_approval')

@@ -15,6 +15,45 @@ class HrEmployee(models.Model):
 
     # endregion [Fields]
 
+    def _pr_get_public_holiday_dates(self, date_from, date_to):
+        """Return the set of active hr.public.holiday dates within [date_from, date_to]
+        that apply to this employee.
+
+        A holiday applies when it has no emp_ids / dep_ids / cat_ids scope (company-wide),
+        or when the employee, their department or one of their tags is in that scope.
+        Called on an empty recordset, only unscoped holidays are returned.
+        """
+        if len(self) > 1:
+            self.ensure_one()
+        if not date_from or not date_to or date_to < date_from:
+            return set()
+        PublicHoliday = self.env["hr.public.holiday"].sudo()
+        domain = [
+            ("date_from", "<=", date_to),
+            ("date_to", ">=", date_from),
+            ("state", "=", "active"),
+        ]
+        if "company_id" in PublicHoliday._fields:
+            company = self.company_id or self.env.company
+            domain.append(("company_id", "in", [company.id, False]))
+        employee = self.sudo()
+        holiday_dates = set()
+        for holiday in PublicHoliday.search(domain):
+            is_global = not (holiday.emp_ids or holiday.dep_ids or holiday.cat_ids)
+            applies = is_global or bool(employee) and (
+                employee in holiday.emp_ids
+                or (employee.department_id and employee.department_id in holiday.dep_ids)
+                or bool(employee.category_ids & holiday.cat_ids)
+            )
+            if not applies:
+                continue
+            current = max(date_from, holiday.date_from)
+            end = min(date_to, holiday.date_to)
+            while current <= end:
+                holiday_dates.add(current)
+                current += timedelta(days=1)
+        return holiday_dates
+
     def check_annual_leave_balance(self):
         employee_ids = self.env["hr.employee"].search([("active", "=", True), ("company_id", "=", self.env.company.id)])
         for employee in employee_ids:

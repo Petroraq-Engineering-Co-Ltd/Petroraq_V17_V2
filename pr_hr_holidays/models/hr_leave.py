@@ -7,6 +7,8 @@ import calendar
 from odoo.tools import date_utils
 from collections import defaultdict  # make sure this import exists at top
 
+from .annual_accrual import overlap_days, service_year_bounds
+
 
 class HrHolidays(models.Model):
     # region [Initial]
@@ -75,30 +77,65 @@ class HrHolidays(models.Model):
             resource_calendar=resource_calendar,
         )
         self.ensure_one()
-        is_full_day_annual_leave = (
+        is_full_day_leave = (
             check_leave_type
-            and self.holiday_status_id.leave_type == "annual_leave"
             and self.leave_type_request_unit == "day"
             and not self.request_unit_half
             and not self.request_unit_hours
         )
-        if not is_full_day_annual_leave:
+        if not is_full_day_leave:
             return days, hours
 
         date_from = self.request_date_from or (self.date_from and self.date_from.date())
         date_to = self.request_date_to or (self.date_to and self.date_to.date())
         if not date_from or not date_to or date_to < date_from:
             return days, hours
-        return (date_to - date_from).days + 1, hours
+        if self.holiday_status_id.leave_type == "annual_leave":
+            return (date_to - date_from).days + 1, hours
+        return self._pr_exclude_public_holidays_from_duration(
+            days, hours, date_from, date_to, resource_calendar=resource_calendar,
+        )
+
+    def _pr_exclude_public_holidays_from_duration(self, days, hours, date_from, date_to, resource_calendar=None):
+        """Drop hr.public.holiday dates from a working-day duration.
+
+        hr.public.holiday is not a resource.calendar.leaves model, so the core
+        computation still counts those dates as work days. Recompute the per-day
+        work time with the same domain as core and drop the employee's public
+        holidays, so non-annual leave consumes what pr.hr.leave.request shows in
+        requested_days, and hours only cover the remaining working dates.
+        """
+        self.ensure_one()
+        resource_calendar = resource_calendar or self.resource_calendar_id
+        if not self.employee_id or not resource_calendar or not self.date_from or not self.date_to:
+            return days, hours
+        holiday_dates = self.employee_id._pr_get_public_holiday_dates(date_from, date_to)
+        if not holiday_dates:
+            return days, hours
+        domain = [
+            ('time_type', '=', 'leave'),
+            ('company_id', 'in', self.env.companies.ids + self.env.context.get('allowed_company_ids', [])),
+            '|', ('holiday_id', '=', False), ('holiday_id', '!=', self.id),
+        ]
+        work_time_per_day = [
+            (day, day_hours)
+            for day, day_hours in self.employee_id.list_work_time_per_day(
+                self.date_from, self.date_to, calendar=resource_calendar, domain=domain,
+            )
+            if day not in holiday_dates
+        ]
+        return len(work_time_per_day), sum(day_hours for _day, day_hours in work_time_per_day)
 
     @api.depends("holiday_status_id",
                  "request_date_from",
                  "request_date_to",
+                 "state",
                  "holiday_status_id.is_paid",
                  "holiday_status_id.leave_type",
                  "number_of_days",
                  "employee_id",
                  "employee_id.contract_id",
+                 "employee_id.contract_id.date_start",
                  "employee_id.contract_id.gross_amount",
                  )
     def compute_leave_amount(self):
@@ -109,19 +146,58 @@ class HrHolidays(models.Model):
                 if leave.holiday_status_id.leave_type != "sick_leave":
                     leave.leave_amount = leave._calculate_leave_amount()
                 elif leave.holiday_status_id.leave_type == "sick_leave":
-                    sick_leave_ids = self.search([
-                        ("holiday_status_id.leave_type", "=", "sick_leave"),
-                        ("employee_id", "=", leave.employee_id.id),
-                        ("state", "=", "validate"),
-                    ])
-                    if sick_leave_ids:
-                        sick_leave_days = sum(sick_leave_ids.mapped("number_of_days"))
-                    else:
-                        sick_leave_days = 0
+                    if not leave.request_date_from or not leave.request_date_to:
+                        leave.leave_amount = 0
+                        continue
+                    sick_leave_days = leave._pr_get_prior_sick_leave_days()
                     days_dict = leave.split_dates(start_date=leave.request_date_from, end_date=leave.request_date_to)
                     leave.leave_amount = leave._calculate_sick_leave_amount(days_dict=days_dict,
                                                                             sick_leave_days=sick_leave_days,
                                                                             employee_net_salary=employee_net_salary)
+            else:
+                leave.leave_amount = 0
+
+    def _pr_get_sick_leave_service_year_anchor(self):
+        """Contract start date used as the sick-leave service-year anchor.
+
+        Same anchor as the annual accrual (allocation date_from = contract
+        date_start): the contract running on the leave start date, falling back
+        to the employee's current contract.
+        """
+        self.ensure_one()
+        contract = self.env["hr.contract"].sudo().search([
+            ("employee_id", "=", self.employee_id.id),
+            ("state", "not in", ("draft", "cancel")),
+            ("date_start", "<=", self.request_date_from),
+            "|", ("date_end", "=", False), ("date_end", ">=", self.request_date_from),
+        ], order="date_start desc", limit=1) or self.employee_id.sudo().contract_id
+        return contract.date_start
+
+    def _pr_get_prior_sick_leave_days(self):
+        """Calendar days of the employee's other validated sick leaves taken in the
+        current contract-anniversary service year before this leave starts."""
+        self.ensure_one()
+        anchor = self._pr_get_sick_leave_service_year_anchor()
+        if not self.employee_id or not anchor:
+            return 0
+        year_start, _next_year_start = service_year_bounds(anchor, self.request_date_from)
+        window_end = self.request_date_from - timedelta(days=1)
+        if window_end < year_start:
+            return 0
+        domain = [
+            ("holiday_status_id.leave_type", "=", "sick_leave"),
+            ("employee_id", "=", self.employee_id.id),
+            ("state", "=", "validate"),
+            ("request_date_from", "<=", window_end),
+            ("request_date_to", ">=", year_start),
+        ]
+        if self._origin.id:
+            domain.append(("id", "!=", self._origin.id))
+        other_leaves = self.sudo().search(domain)
+        return sum(
+            overlap_days(leave.request_date_from, leave.request_date_to, year_start, window_end)
+            for leave in other_leaves
+        )
 
     def _calculate_sick_leave_amount(self, days_dict, sick_leave_days, employee_net_salary):
         for leave in self:
@@ -238,21 +314,6 @@ class HrHolidays(models.Model):
                 or self.env.user.has_group('pr_hr_holidays.group_leave_allocation_limit_override')
         )
 
-    @staticmethod
-    def _is_allocation_validation_error(error):
-        message = (error.args[0] if error.args else "")
-        if not isinstance(message, str):
-            message = str(message)
-        lowered_message = message.lower()
-
-        exact_markers = (
-            "there is no valid allocation to cover that request.",
-            "you do not have any allocation for this time off type.",
-        )
-        if any(marker in lowered_message for marker in exact_markers):
-            return True
-        return False
-
     # endregion [Onchange Methods]
 
     def _is_request_for_current_user_employee(self):
@@ -278,19 +339,13 @@ class HrHolidays(models.Model):
                 continue
             if leave._can_bypass_annual_leave_start_date():
                 continue
+            # The tomorrow-onward rule is enforced when the pr.hr.leave.request is
+            # submitted; the leave generated by its final approval may be validated
+            # on or after the start date.
+            if leave.sudo().leave_request_id.state in ("approved", "cancel_request", "cancelled"):
+                continue
             if leave.holiday_status_id.leave_type == 'annual_leave' and leave.request_date_from <= today:
                 raise ValidationError(_("Annual Leave requests must start from tomorrow onward."))
-
-    def _check_holidays(self):
-        try:
-            return super()._check_holidays()
-        except ValidationError as error:
-            if not self._is_allocation_override_enabled():
-                raise
-
-            if self._is_allocation_validation_error(error):
-                return
-            raise
 
     def _check_validity(self):
         if not self._is_allocation_override_enabled():

@@ -6,12 +6,22 @@
         <field name="arch" type="xml">
             <search string="Leave Request">
                 <field name="name"/>
-                <filter domain="[('state','=','draft')]"
-                        string="To Manager Approve" name="manager_approve"/>
-                <filter domain="[('state','=','manager_approve')]"
-                        string="To HR Manager Approve" name="hr_manager_approve"/>
+                <filter domain="[('state', '=', 'draft')]"
+                        string="Draft" name="draft"/>
+                <filter domain="[('state', '=', 'employee_manager_approval')]"
+                        string="Dept. Manager" name="manager_approve"/>
+                <filter domain="[('state', '=', 'hr_supervisor_approval')]"
+                        string="HR Supervisor" name="hr_supervisor_approve"/>
+                <filter domain="[('state', '=', 'hr_manager_approval')]"
+                        string="HR Manager" name="hr_manager_approve"/>
+                <filter domain="[('state', '=', 'md_approval')]"
+                        string="MD" name="md_approve"/>
+                <filter domain="[('state', '=', 'approved')]"
+                        string="Approved" name="approved"/>
+                <filter domain="[('state', '=', 'cancel_request')]"
+                        string="Pending Cancellation" name="cancel_request"/>
                 <filter string="Rejected"
-                        domain="[('state', '=', 'reject')]" name="rejected"/>
+                        domain="[('state', '=', 'rejected')]" name="rejected"/>
                 <separator/>
                 <separator/>
                 <field name="employee_id"/>
@@ -43,35 +53,57 @@
                 <field name="employee_user_check" invisible="1"/>
                 <field name="hr_manager_check" invisible="1"/>
                 <field name="hr_supervisor_check" invisible="1"/>
+                <field name="can_select_employee" invisible="1"/>
+                <field name="can_submit" invisible="1"/>
+                <field name="can_manager_approve" invisible="1"/>
+                <field name="can_hr_supervisor_approve" invisible="1"/>
+                <field name="can_hr_manager_approve" invisible="1"/>
+                <field name="can_md_approve" invisible="1"/>
+                <field name="dashboard_approve_role" invisible="1"/>
+                <field name="can_reject" invisible="1"/>
+                <field name="can_reset_to_draft" invisible="1"/>
+                <field name="can_approve_cancellation" invisible="1"/>
                 <field name="approval_state" invisible="1"/>
                 <field name="leave_id" invisible="1"/>
                 <header>
-                    <button name="action_manager_approve" string="APPROVE" class="btn-success"
-                            invisible="state != 'draft' or employee_manager_check == False"
+                    <button name="action_submit" string="Submit" class="btn-primary"
+                            invisible="not can_submit"
                             type="object"/>
-                    <button name="action_manager_reject" string="REJECT" class="btn-danger"
-                            invisible="state != 'draft' or employee_manager_check == False"
+                    <button name="action_manager_approve" string="Dept. Manager Approve" class="btn-success"
+                            invisible="not can_manager_approve"
                             type="object"/>
-                    <button name="action_hr_supervisor_approve" string="APPROVE" class="btn-success"
-                            invisible="state != 'manager_approve' or hr_supervisor_check == False"
+                    <button name="action_hr_supervisor_approve" string="HR Supervisor Approve" class="btn-success"
+                            invisible="not can_hr_supervisor_approve"
+                            groups="pr_hr.group_hr_supervisor"
                             type="object"/>
-                    <button name="action_hr_supervisor_reject" string="REJECT" class="btn-danger"
-                            invisible="state != 'manager_approve' or hr_supervisor_check == False"
+                    <button name="action_hr_manager_approve" string="HR Manager Approve" class="btn-success"
+                            invisible="not can_hr_manager_approve"
+                            groups="pr_hr.group_hr_manager"
                             type="object"/>
-                    <button name="action_hr_manager_approve" string="APPROVE" class="btn-success"
-                            invisible="state != 'hr_supervisor' or hr_manager_check == False"
+                    <button name="action_md_approve" string="MD Approve" class="btn-success"
+                            invisible="not can_md_approve"
+                            groups="pr_hr.group_hr_md"
                             type="object"/>
-                    <button name="action_hr_manager_reject" string="REJECT" class="btn-danger"
-                            invisible="state != 'hr_supervisor' or hr_manager_check == False"
+                    <button name="action_reject" string="Reject" class="btn-danger"
+                            invisible="not can_reject"
                             type="object"/>
-                    <button name="action_employee_cancel_request" string="REQUEST CANCELLATION" class="btn-warning"
-                            invisible="state != 'hr_approve' or employee_user_check == False" type="object"/>
-                    <button name="action_hr_manager_cancel_approve" string="APPROVE CANCELLATION" class="btn-success"
-                            invisible="state != 'cancel_request' or hr_manager_check == False" type="object"/>
+                    <button name="action_reset_to_draft" string="Reset to Draft" class="btn-secondary"
+                            invisible="not can_reset_to_draft"
+                            type="object"/>
+                    <button name="action_employee_cancel_request" string="Request Cancellation" class="btn-warning"
+                            invisible="state != 'approved' or not employee_user_check" type="object"/>
+                    <button name="action_hr_manager_cancel_approve" string="Approve Cancellation" class="btn-success"
+                            invisible="not can_approve_cancellation"
+                            groups="pr_hr.group_hr_manager"
+                            type="object"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,manager_approve,hr_supervisor,hr_approve,cancel_request,cancelled"/>
+                           statusbar_visible="draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,md_approval,approved"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Rejected" bg_color="bg-danger"
+                            invisible="state != 'rejected'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="bg-secondary"
+                            invisible="state != 'cancelled'"/>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" name="action_open_leave"
                                 string="Employee Leave" type="object"
@@ -95,7 +127,9 @@
                     </div>
                     <group>
                         <group>
-                            <field name="employee_id" readonly="state  != 'draft'" string="Employee"
+                            <field name="employee_id"
+                                   readonly="state != 'draft' or not can_select_employee"
+                                   force_save="1" string="Employee"
                                    options="{'no_create': True, 'no_edit': True}"/>
                             <field name="leave_type_id" readonly="state  != 'draft'" string="Leave Type"
                                    options="{'no_create': True, 'no_edit': True}"/>
@@ -118,7 +152,9 @@
 
                         </group>
                         <group>
-                            <field name="company_id" readonly="state  != 'draft'" string="Company"
+                            <field name="company_id"
+                                   readonly="state != 'draft' or not can_select_employee"
+                                   force_save="1" string="Company"
                                    options="{'no_create': True, 'no_edit': True}"/>
                             <field name="employee_manager_id" options="{'no_create': True, 'no_edit': True}"
                                    invisible="1"/>
@@ -127,7 +163,27 @@
                             <field name="hr_manager_ids" options="{'no_create': True, 'no_edit': True}"
                                    widget="many2many_tags" invisible="1"/>
                             <field name="note" readonly="state  != 'draft'"/>
-                            <field name="reject_reason" invisible="state  != 'reject'"/>
+                            <field name="manager_approved_user_id" readonly="1"
+                                   invisible="not manager_approved_user_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="manager_approved_date" readonly="1"
+                                   invisible="not manager_approved_date"/>
+                            <field name="hr_supervisor_approved_user_id" readonly="1"
+                                   invisible="not hr_supervisor_approved_user_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="hr_supervisor_approved_date" readonly="1"
+                                   invisible="not hr_supervisor_approved_date"/>
+                            <field name="hr_manager_approved_user_id" readonly="1"
+                                   invisible="not hr_manager_approved_user_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="hr_manager_approved_date" readonly="1"
+                                   invisible="not hr_manager_approved_date"/>
+                            <field name="md_approved_user_id" readonly="1"
+                                   invisible="not md_approved_user_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="md_approved_date" readonly="1"
+                                   invisible="not md_approved_date"/>
+                            <field name="reject_reason" invisible="state != 'rejected'"/>
                         </group>
                     </group>
                 </sheet>
@@ -151,17 +207,17 @@
                 <field name="can_reset_rejection" invisible="1"/>
             </xpath>
             <xpath expr="//form/header" position="inside">
-                <button name="action_reset_rejection" string="RESET REJECTION" class="btn-warning"
-                        invisible="state != 'reject' or not can_reset_rejection"
+                <button name="action_reset_rejection" string="Reset Rejection" class="btn-warning"
+                        invisible="state != 'rejected' or not can_reset_rejection"
                         confirm="Reset this rejection and reopen your decision stage?"
                         type="object"/>
             </xpath>
             <xpath expr="//form/header/field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,manager_approve,hr_supervisor,hr_approve,reject,cancel_request,cancelled</attribute>
+                <attribute name="statusbar_visible">draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,md_approval,approved</attribute>
             </xpath>
             <xpath expr="//form/sheet//field[@name='reject_reason']" position="after">
-                <field name="rejected_stage" invisible="state != 'reject'"/>
-                <field name="rejected_by_user_id" invisible="state != 'reject'"
+                <field name="rejected_stage" invisible="state != 'rejected'"/>
+                <field name="rejected_by_user_id" invisible="state != 'rejected'"
                        options="{'no_create': True, 'no_edit': True}"/>
             </xpath>
         </field>
@@ -183,10 +239,11 @@
                 <field name="hr_supervisor_ids" widget="many2many_tags" column_invisible="1"/>
                 <field name="hr_manager_ids" widget="many2many_tags" column_invisible="1"/>
                 <field name="state" widget="badge"
-                       decoration-danger="state == 'reject'"
-                       decoration-warning="state == 'weekend'"
-                       decoration-success="state == 'hr_approve'"
-                       decoration-info="state == 'hr_supervisor'"/>
+                       decoration-muted="state == 'draft'"
+                       decoration-warning="state in ('employee_manager_approval', 'hr_supervisor_approval', 'cancel_request')"
+                       decoration-info="state in ('hr_manager_approval', 'md_approval')"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state in ('rejected', 'cancelled')"/>
             </tree>
         </field>
     </record>

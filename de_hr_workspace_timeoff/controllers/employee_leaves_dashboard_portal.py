@@ -78,51 +78,9 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
             LeaveSummary = request.env["hr.leave"].sudo()
             leave_type_ids = request.env["hr.leave.type"].sudo().search(
                 ["|", ("company_id", "=", request.env.company.id), ("company_id", "=", False)])
-            if leave_type_ids:
-                for leave_type in leave_type_ids:
-                    # region [Allocations]
-                    if leave_type.requires_allocation == "yes":
-                        allocation_ids = request.env["hr.leave.allocation"].sudo().search(
-                            [("employee_id", "=", current_employee_id.id),
-                             ("holiday_status_id", "=", leave_type.id), ("state", "=", "validate")])
-                        if allocation_ids:
-                            allocation_days = round(sum(allocation_ids.mapped("number_of_days")), 2)
-                        else:
-                            allocation_days = 0
-                    else:
-                        if leave_type.leave_type == "sick_leave":
-                            allocation_days = 30
-                        else:
-                            allocation_days = 0
-                    # endregion [Allocations]
-
-                    # region [Leaves]
-                    leave_ids = request.env["hr.leave"].sudo().search([("employee_id", "=", current_employee_id.id),
-                                                                       ("holiday_status_id", "=", leave_type.id),
-                                                                       ("state", "=", "validate")])
-                    if leave_ids:
-                        leave_days = round(sum(leave_ids.mapped("number_of_days")), 2)
-                        for leave in leave_ids:
-                            if leave.holiday_status_id.name not in taken_leaves:
-                                taken_leaves[leave.holiday_status_id.name] = leave.number_of_days
-                            else:
-                                taken_leaves[leave.holiday_status_id.name] += leave.number_of_days
-                    else:
-                        leave_days = 0
-                        taken_leaves[leave_type.name] = 0
-                    # endregion [Leaves]
-                    if allocation_days > 0:
-                        available_days = round(max(allocation_days - leave_days, 0), 2)
-                        summary.append({
-                            "sort_key": LeaveSummary._de_leave_dashboard_sort_key(leave_type),
-                            "leave_name": leave_type.name,
-                            "allocation_days": allocation_days,
-                            "leave_days": leave_days,
-                            "available_days": available_days,
-                            "remaining_days": leave_days,
-                            "requires_allocation": leave_type.requires_allocation if leave_type.leave_type != "sick_leave" else "yes",
-                        })
-                summary.sort(key=lambda item: item.get("sort_key", (99, 999, "", 0)))
+            balance_rows = LeaveSummary._de_get_leave_balance_summary(current_employee_id, leave_type_ids)
+            summary = [row for row in balance_rows if row["allocation_days"] > 0]
+            taken_leaves = {row["leave_name"]: row["taken_days"] for row in balance_rows}
 
             leaves_history = request.env["hr.leave"].sudo().search([
                 ('employee_id', '=', current_employee_id.id)
@@ -145,16 +103,24 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
                 'status': status_labels.get(l.state, l.state),
             } for l in leaves_history]
 
+            leave_req_model = request.env["pr.hr.leave.request"].sudo()
+            state_labels = dict(leave_req_model._fields["state"].selection)
             pending = [{
                 'employee': current_employee_id.name,
                 'leave_type': l.leave_type_id.name,
                 'from': format_date(request.env, l.date_from),
                 'to': format_date(request.env, l.date_to),
                 'days': (l.date_to - l.date_from).days + 1,
-                'status': l.state,
-            } for l in request.env["pr.hr.leave.request"].sudo().search([("employee_id", "=", current_employee_id.id),
-                                                                         ('state', 'in', ['draft', 'manager_approve',
-                                                                                          'hr_supervisor'])], limit=5)]
+                'status': state_labels.get(l.state, l.state),
+            } for l in leave_req_model.search([
+                ("employee_id", "=", current_employee_id.id),
+                ("state", "in", [
+                    "employee_manager_approval",
+                    "hr_supervisor_approval",
+                    "hr_manager_approval",
+                    "md_approval",
+                ]),
+            ], limit=5)]
 
         values.update({
             'date': date_begin,
