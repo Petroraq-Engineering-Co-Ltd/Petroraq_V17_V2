@@ -392,41 +392,95 @@ class HrLeaveRequest(models.Model):
             users = users.filtered(lambda u: company in u.company_ids)
         return users
 
-    def _get_hr_supervisor_forward_state(self):
-        """State a request entering the HR Supervisor stage is forwarded to,
-        based on the later roles held by EVERY active HR Supervisor of the
-        request's company (False: stay at HR Supervisor).
-
-        - all supervisors hold HR Manager and MD -> md_approval
-        - all hold HR Manager, or all hold MD but not HR Manager (gap: the
-          request comes back to them at MD) -> hr_manager_approval
-        """
+    def _check_approval_permission(self, role, user=None):
         self.ensure_one()
-        supervisors = self._get_group_users_for_company(HR_SUPERVISOR_GROUP, self.company_id)
-        if not supervisors:
-            return False
-        all_hr_manager = all(user.has_group(HR_MANAGER_GROUP) for user in supervisors)
-        all_md = all(user.has_group(MD_GROUP) for user in supervisors)
-        if all_hr_manager and all_md:
-            return "md_approval"
-        if all_hr_manager or all_md:
-            return "hr_manager_approval"
-        return False
+        user = user or self.env.user
+        return role in self._get_user_leave_request_roles(user)
+
+    def _notify_for_target_state(self, target_state):
+        self.ensure_one()
+        if target_state == "employee_manager_approval":
+            self.sudo()._send_manager_email()
+        elif target_state == "hr_supervisor_approval":
+            self.sudo()._send_hr_supervisor_email()
+        elif target_state == "hr_manager_approval":
+            self.sudo()._send_hr_manager_email()
+        elif target_state == "md_approval":
+            self.sudo()._send_md_email()
+
+    def _get_forward_escalated_stage(self, default_next_role):
+        """Inspect the user(s) holding default_next_role and determine if the record
+        can escalate further along the chain to their highest continuous access rights
+        without skipping any unheld intermediate rights."""
+        self.ensure_one()
+        chain = (
+            ("hr_supervisor", "hr_supervisor_approval"),
+            ("hr_manager", "hr_manager_approval"),
+            ("md", "md_approval"),
+        )
+        role_keys = [stage[0] for stage in chain]
+        if default_next_role not in role_keys:
+            role_to_state = dict(chain)
+            return default_next_role, role_to_state.get(default_next_role, default_next_role)
+
+        start_idx = role_keys.index(default_next_role)
+        sub_chain = chain[start_idx:]
+
+        # 1. If current user holds default_next_role, evaluate current user's continuous authority
+        if self._check_approval_permission(default_next_role):
+            u_roles = self._get_user_leave_request_roles(self.env.user)
+            curr_role, curr_state = sub_chain[0]
+            for r, s in sub_chain:
+                if r in u_roles:
+                    curr_role, curr_state = r, s
+                else:
+                    break
+            return curr_role, curr_state
+
+        # 2. Otherwise, inspect active company users holding default_next_role
+        role_to_xmlid = {
+            "hr_supervisor": HR_SUPERVISOR_GROUP,
+            "hr_manager": HR_MANAGER_GROUP,
+            "md": MD_GROUP,
+        }
+        xmlid = role_to_xmlid.get(default_next_role)
+        group_users = self._get_group_users_for_company(xmlid, self.company_id) if xmlid else self.env["res.users"]
+        if not group_users:
+            return sub_chain[0]
+
+        if default_next_role == "hr_supervisor":
+            all_hr_manager = all(self._check_approval_permission("hr_manager", u) for u in group_users)
+            all_md = all(self._check_approval_permission("md", u) for u in group_users)
+            if all_hr_manager and all_md:
+                return "md", "md_approval"
+            if all_hr_manager or all_md:
+                return "hr_manager", "hr_manager_approval"
+            return sub_chain[0]
+        elif default_next_role == "hr_manager":
+            all_md = all(self._check_approval_permission("md", u) for u in group_users)
+            if all_md:
+                return "md", "md_approval"
+            return sub_chain[0]
+
+        return sub_chain[0]
+
+    def _get_hr_supervisor_forward_state(self):
+        self.ensure_one()
+        _role, state = self._get_forward_escalated_stage("hr_supervisor")
+        return state if state != "hr_supervisor_approval" else False
 
     def _should_forward_hr_manager_to_md(self):
-        """True when every active HR Manager of the request's company also
-        holds MD: the HR Manager stage is then skipped."""
         self.ensure_one()
-        hr_managers = self._get_group_users_for_company(HR_MANAGER_GROUP, self.company_id)
-        return bool(hr_managers) and all(user.has_group(MD_GROUP) for user in hr_managers)
+        _role, state = self._get_forward_escalated_stage("hr_manager")
+        return state == "md_approval"
 
     def _enter_hr_manager_stage(self, extra_vals=None, chatter_body=None):
         """Move the request to HR Manager approval, or straight on to MD
         approval when every HR Manager also holds MD."""
         self.ensure_one()
         vals = dict(extra_vals or {})
-        forward_to_md = self._should_forward_hr_manager_to_md()
-        target_state = "md_approval" if forward_to_md else "hr_manager_approval"
+        _next_role, target_state = self._get_forward_escalated_stage("hr_manager")
+        forward_to_md = (target_state == "md_approval")
         vals.update({"state": target_state, "approval_state": target_state})
         self.sudo().write(vals)
         if chatter_body:
@@ -438,6 +492,57 @@ class HrLeaveRequest(models.Model):
             self.sudo()._send_md_email()
         else:
             self.sudo()._send_hr_manager_email()
+
+    def _get_submit_target_routing(self):
+        self.ensure_one()
+        manager_user = self.employee_manager_id.user_id if self.employee_manager_id else (
+            self.employee_id.parent_id.user_id if self.employee_id.parent_id else False
+        )
+        creator_user = self.submitted_by_id or self.create_uid or self.env.user
+
+        creator_roles = self._get_user_leave_request_roles(creator_user)
+        manager_roles = self._get_user_leave_request_roles(manager_user) if manager_user else set()
+
+        creator_is_dept_manager = (
+            "employee_manager" in creator_roles
+            or (manager_user and manager_user == creator_user)
+            or (self.employee_id and self.employee_id.department_id and self.employee_id.department_id.manager_id.user_id == creator_user)
+            or (self.employee_id and self.employee_id.parent_id and self.employee_id.parent_id.user_id == creator_user)
+            or (self.employee_id and self.employee_id.user_id == creator_user and "employee_manager" in creator_roles)
+        )
+
+        if manager_user and not creator_is_dept_manager:
+            manager_chain = (
+                ("employee_manager", "employee_manager_approval"),
+                ("hr_supervisor", "hr_supervisor_approval"),
+                ("hr_manager", "hr_manager_approval"),
+                ("md", "md_approval"),
+            )
+            last_held_idx = 0
+            for idx, (role, state) in enumerate(manager_chain[1:], start=1):
+                if role not in manager_roles:
+                    break
+                last_held_idx = idx
+
+            gap_idx = last_held_idx + 1
+            if gap_idx < len(manager_chain) and any(stage[0] in manager_roles for stage in manager_chain[gap_idx + 1:]):
+                return manager_chain[gap_idx][0], manager_chain[gap_idx][1]
+
+            return manager_chain[last_held_idx][0], manager_chain[last_held_idx][1]
+
+        active_roles = creator_roles | manager_roles
+        chain = (
+            ("hr_supervisor", "hr_supervisor_approval"),
+            ("hr_manager", "hr_manager_approval"),
+            ("md", "md_approval"),
+        )
+        target_role = chain[-1][0]
+        for role, state in chain:
+            if role not in active_roles:
+                target_role = role
+                break
+
+        return self._get_forward_escalated_stage(target_role)
 
     def _record_skipped_stage_approvals(self, actor, approval_date, before_state):
         """Record `actor` on every earlier stage that was skipped (no approver

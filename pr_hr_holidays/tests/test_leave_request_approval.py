@@ -1159,3 +1159,33 @@ class TestLeaveRequestApproval(TransactionCase):
                 [("id", "in", all_test_ids)], ["name"]
             )
             self.assertEqual(set(fetched.ids), expected)
+
+    def test_check_approval_permission_and_forward_escalation_parity(self):
+        """Verify _check_approval_permission, _get_forward_escalated_stage,
+        and submit target routing adhere to the canonical unified forward-escalation model."""
+        req = self._create_request(self.basic_user)
+
+        # 1. _check_approval_permission
+        self.assertTrue(req._check_approval_permission("employee_manager", self.dept_manager_user))
+        self.assertFalse(req._check_approval_permission("employee_manager", self.basic_user))
+        self.assertTrue(req._check_approval_permission("hr_supervisor", self.hr_supervisor_user))
+        self.assertTrue(req._check_approval_permission("hr_manager", self.hr_manager_user))
+        self.assertTrue(req._check_approval_permission("md", self.md_user))
+
+        # 2. _get_forward_escalated_stage for current user holding next role
+        dual_sup_mgr = self.dual_hr_user
+        dual_sup_mgr.sudo().write({"active": True})
+        role, state = req.with_user(dual_sup_mgr)._get_forward_escalated_stage("hr_supervisor")
+        self.assertEqual(role, "hr_manager")
+        self.assertEqual(state, "hr_manager_approval")
+
+        all_hr_md = self.all_hr_md_user
+        all_hr_md.sudo().write({"active": True})
+        role, state = req.with_user(all_hr_md)._get_forward_escalated_stage("hr_supervisor")
+        self.assertEqual(role, "md")
+        self.assertEqual(state, "md_approval")
+
+        # 3. Submit routing parity
+        target_role, target_state = req._get_submit_target_routing()
+        self.assertEqual(target_role, "employee_manager")
+        self.assertEqual(target_state, "employee_manager_approval")
