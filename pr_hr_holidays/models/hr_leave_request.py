@@ -151,6 +151,16 @@ class HrLeaveRequest(models.Model):
     can_reset_rejection = fields.Boolean(compute='_compute_can_reset_rejection')
     can_reset_to_draft = fields.Boolean(compute='_compute_can_reset_to_draft')
     note = fields.Text(string="Note")
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "pr_hr_leave_request_attachment_rel",
+        "request_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Supporting documents, e.g. the medical certificate. Required for sick leave.",
+    )
+    is_sick_leave = fields.Boolean(compute="_compute_is_sick_leave")
     state = fields.Selection([
         ('draft', 'Draft'),
         ('employee_manager_approval', 'Dept. Manager'),
@@ -1401,6 +1411,18 @@ class HrLeaveRequest(models.Model):
             self.sudo().write(advance_vals)
         self._route_at_hr_supervisor_stage(actor=submitter, include_submitter=True)
 
+    @api.depends("leave_type_id.leave_type")
+    def _compute_is_sick_leave(self):
+        for rec in self:
+            rec.is_sick_leave = rec.leave_type_id.leave_type == "sick_leave"
+
+    def _check_sick_leave_attachment(self):
+        for rec in self:
+            if rec.is_sick_leave and not rec.sudo().attachment_ids:
+                raise ValidationError(_(
+                    "Please attach a supporting document (e.g. medical certificate) for sick leave."
+                ))
+
     def action_submit(self):
         actor = self.env.user
         for rec in self:
@@ -1414,6 +1436,7 @@ class HrLeaveRequest(models.Model):
             rec._check_last_working_day()
             if rec._get_requested_days_count() <= 0:
                 raise ValidationError(_("The selected period does not contain any working day to request."))
+            rec._check_sick_leave_attachment()
             rec._check_requested_days_with_allocation()
             # Surface the errors of the final hr.leave creation now, not after
             # the whole approval chain (overlapping time off, contract rules...).

@@ -56,6 +56,22 @@ class LeaveRequestTemplate(http.Controller):
                     # employee_manager_id / hr_supervisor_ids / hr_manager_ids are
                     # set by create() and action_submit() (active users, request company).
                 })
+                # Attach the uploaded files before submitting: sick leave
+                # requires a supporting document at submit time.
+                attachments = request.env['ir.attachment'].sudo()
+                for att in request.httprequest.files.getlist('attachment_ids'):
+                    if not att.filename:
+                        continue
+                    attachments |= attachments.create({
+                        'name': att.filename,
+                        'res_name': att.filename,
+                        'res_model': 'pr.hr.leave.request',
+                        'res_id': leave_request_id.id,
+                        'datas': base64.encodebytes(att.read()),
+                        'type': 'binary',
+                    })
+                if attachments:
+                    leave_request_id.write({'attachment_ids': [(6, 0, attachments.ids)]})
                 leave_request_id.with_user(request.env.user).action_submit()
         except (ValidationError, UserError) as ex:
             current_user = request.env.user
@@ -68,24 +84,6 @@ class LeaveRequestTemplate(http.Controller):
                 "error_message": str(ex),
             })
         if leave_request_id:
-            # Create Attachments And Add Them To Leave Request
-            attachment_ids = []
-            attachment_list = request.httprequest.files.getlist('attachment_ids')
-            for att in attachment_list:
-                if kw.get('attachment_ids'):
-                    attachments = {
-                        'res_name': att.filename,
-                        'res_model': 'pr.hr.leave.request',
-                        'res_id': leave_request_id.sudo().id,
-                        'datas': base64.encodebytes(att.read()),
-                        'type': 'binary',
-                        'name': att.filename,
-                    }
-                    attachment_obj = http.request.env['ir.attachment']
-                    att_record = attachment_obj.sudo().create(attachments)
-                    attachment_ids.append(att_record.id)
-            # if attachment_ids:
-            #     leave_request_id.update({'attachment_ids': [(6, 0, attachment_ids)]})
             return http.request.render('de_hr_workspace_timeoff.thanks_template')
         else:
             print(kw, 'False')

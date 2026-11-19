@@ -294,6 +294,50 @@ class TestLeaveRequestApproval(TransactionCase):
         with self.assertRaises(ValidationError):
             request.sudo().unlink()
 
+    def test_sick_leave_requires_attachment_on_submit(self):
+        sick_type = self.env["hr.leave.type"].sudo().create({
+            "name": "Sick Leave Attachment Test",
+            "time_type": "leave",
+            "request_unit": "day",
+            "company_id": self.approval_company.id,
+            "requires_allocation": "yes",
+            "allocation_validation_type": "no",
+            "leave_type": "sick_leave",
+        })
+        allocation = self.env["hr.leave.allocation"].sudo().create({
+            "name": "Sick Attachment Test Allocation",
+            "holiday_type": "employee",
+            "employee_id": self.employee.id,
+            "holiday_status_id": sick_type.id,
+            "allocation_type": "regular",
+            "number_of_days": 30,
+            "date_from": fields.Date.context_today(self.env.user) - timedelta(days=1),
+        })
+        if allocation.state != "validate":
+            allocation.action_validate()
+
+        request = self._create_draft_request(self.basic_user)
+        request.sudo().leave_type_id = sick_type
+        self.assertTrue(request.is_sick_leave)
+        with self.assertRaisesRegex(ValidationError, "supporting document"):
+            request.with_user(self.basic_user).action_submit()
+        self.assertEqual(request.state, "draft")
+
+        attachment = self.env["ir.attachment"].sudo().create({
+            "name": "medical_certificate.pdf",
+            "datas": "dGVzdA==",
+            "res_model": request._name,
+            "res_id": request.id,
+        })
+        request.sudo().attachment_ids = [Command.set(attachment.ids)]
+        request.with_user(self.basic_user).action_submit()
+        self.assertEqual(request.state, "employee_manager_approval")
+
+        # Other leave types do not need an attachment
+        annual = self._create_request(self.basic_user)
+        self.assertFalse(annual.is_sick_leave)
+        self.assertEqual(annual.state, "employee_manager_approval")
+
     def test_standard_four_stage_approval_creates_validated_leave(self):
         request = self._create_request(self.basic_user)
         self.assertEqual(request.state, "employee_manager_approval")
