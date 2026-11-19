@@ -228,6 +228,17 @@ class TestLeaveRequestApproval(TransactionCase):
         request.with_user(user).action_submit()
         return request
 
+    def _reopen_at_manager_stage(self, request):
+        # Submit now skips the Dept. Manager stage of a manager holding a later
+        # role; the stage is still reachable, e.g. after a rejection reset.
+        request.sudo().write({
+            "state": "employee_manager_approval",
+            "approval_state": "employee_manager_approval",
+            "manager_approved_user_id": False,
+            "manager_approved_date": False,
+        })
+        request.invalidate_recordset()
+
     def _reject_via_wizard(self, request, user, reason="Not approved", from_dashboard=False):
         ctx = {"from_approval_dashboard": True} if from_dashboard else {}
         action = request.with_user(user).with_context(**ctx).action_reject()
@@ -293,6 +304,64 @@ class TestLeaveRequestApproval(TransactionCase):
         self.assertEqual(request.submitted_by_id, self.basic_user)
         with self.assertRaises(ValidationError):
             request.sudo().unlink()
+
+    def test_dept_manager_with_hr_manager_and_md_but_no_supervisor_routes_to_supervisor(self):
+        self.hr_mgr_md_user.sudo().write({"active": True})
+        manager_emp = self.env["hr.employee"].sudo().create({
+            "name": "Dept+HR Mgr+MD Employee",
+            "user_id": self.hr_mgr_md_user.id,
+            "company_id": self.approval_company.id,
+            "identification_id": "PRLEAVEAPPRGAPMD1",
+        })
+        self.employee.sudo().parent_id = manager_emp
+
+        request = self._create_request(self.basic_user)
+        self.assertEqual(request.state, "hr_supervisor_approval")
+        self.assertEqual(request.manager_approved_user_id, self.hr_mgr_md_user)
+        self.assertFalse(request.hr_supervisor_approved_user_id)
+
+        request.with_user(self.hr_supervisor_user).action_hr_supervisor_approve()
+        self.assertEqual(request.state, "hr_manager_approval")
+
+        # The manager covers HR Manager and MD in one click
+        request.with_user(self.hr_mgr_md_user).action_hr_manager_approve()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(request.hr_manager_approved_user_id, self.hr_mgr_md_user)
+        self.assertEqual(request.md_approved_user_id, self.hr_mgr_md_user)
+        self.assertEqual(request.leave_id.state, "validate")
+
+    def test_dept_manager_with_supervisor_and_md_but_no_hr_manager_routes_to_hr_manager(self):
+        groups = (
+            self.env.ref("base.group_user")
+            | self.env.ref("hr.group_hr_user")
+            | self.env.ref("pr_hr.group_hr_supervisor")
+            | self.env.ref("pr_hr.group_hr_md")
+        )
+        manager_user = self.env["res.users"].sudo().with_context(no_reset_password=True).create({
+            "name": "Dept+HR Sup+MD Leave User",
+            "login": "leave.approval.dept.sup.md",
+            "company_id": self.approval_company.id,
+            "company_ids": [Command.set(self.approval_company.ids)],
+            "groups_id": [Command.set(groups.ids)],
+        })
+        manager_emp = self.env["hr.employee"].sudo().create({
+            "name": "Dept+HR Sup+MD Employee",
+            "user_id": manager_user.id,
+            "company_id": self.approval_company.id,
+            "identification_id": "PRLEAVEAPPRGAPHRM1",
+        })
+        self.employee.sudo().parent_id = manager_emp
+
+        request = self._create_request(self.basic_user)
+        self.assertEqual(request.state, "hr_manager_approval")
+        self.assertEqual(request.manager_approved_user_id, manager_user)
+        self.assertEqual(request.hr_supervisor_approved_user_id, manager_user)
+
+        request.with_user(self.hr_manager_user).action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+        request.with_user(manager_user).action_md_approve()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(request.md_approved_user_id, manager_user)
 
     def test_sick_leave_requires_attachment_on_submit(self):
         sick_type = self.env["hr.leave.type"].sudo().create({
@@ -410,9 +479,11 @@ class TestLeaveRequestApproval(TransactionCase):
         self.assertEqual(req_triple.state, "hr_manager_approval")
         self.assertFalse(req_triple.leave_id)
 
-        # Dept. Manager + HR Manager WITHOUT HR Supervisor -> stops at employee_manager_approval
+        # Dept. Manager + HR Manager WITHOUT HR Supervisor -> own stage cleared,
+        # routed to the missing HR Supervisor stage
         req_gap = self._create_request(self.legacy_hr_user, employee=self.employee_under_dual_mgr)
-        self.assertEqual(req_gap.state, "employee_manager_approval")
+        self.assertEqual(req_gap.state, "hr_supervisor_approval")
+        self.assertEqual(req_gap.manager_approved_user_id, self.dual_dept_hr_mgr_user)
         self.assertFalse(req_gap.leave_id)
 
         # Dept. Manager + HR Supervisor + HR Manager + MD -> submit routes directly to md_approval
@@ -502,6 +573,7 @@ class TestLeaveRequestApproval(TransactionCase):
         # Dept. Manager + HR Manager (lacking HR Supervisor) on dashboard sees ONLY Dept. Manager Approve
         self.dual_dept_hr_mgr_user.sudo().write({"active": True})
         req_gap = self._create_request(self.legacy_hr_user, employee=self.employee_under_dual_mgr)
+        self._reopen_at_manager_stage(req_gap)
         as_gap_dash = req_gap.with_user(self.dual_dept_hr_mgr_user).with_context(**dash_ctx)
         self.assertEqual(as_gap_dash.dashboard_approve_role, "employee_manager")
         self.assertTrue(as_gap_dash.can_manager_approve)
@@ -822,10 +894,84 @@ class TestLeaveRequestApproval(TransactionCase):
             )
         )
 
+        # The HR Manager approving the escalated request also holds HR Supervisor:
+        # they are recorded for the skipped HR Supervisor stage.
+        req_escalated.with_user(self.dual_hr_user).action_hr_manager_approve()
+        self.assertEqual(req_escalated.state, "md_approval")
+        self.assertEqual(req_escalated.hr_supervisor_approved_user_id, self.dual_hr_user)
+        self.assertEqual(req_escalated.hr_manager_approved_user_id, self.dual_hr_user)
+
         # Same forward escalation when no Dept. Manager exists on submit
         req_no_mgr_escalated = self._create_request(self.legacy_hr_user, employee=self.no_manager_employee)
         self.assertEqual(req_no_mgr_escalated.state, "hr_manager_approval")
         self.assertFalse(req_no_mgr_escalated.hr_supervisor_approved_user_id)
+
+        # An HR Manager without HR Supervisor rights leaves the skipped stage empty
+        req_no_mgr_escalated.with_user(self.hr_manager_user).action_hr_manager_approve()
+        self.assertEqual(req_no_mgr_escalated.state, "md_approval")
+        self.assertFalse(req_no_mgr_escalated.hr_supervisor_approved_user_id)
+
+    def test_forward_to_md_when_all_hr_supervisors_are_hr_managers_and_md(self):
+        self.hr_supervisor_user.sudo().write({"active": False})
+        self.all_hr_md_user.sudo().write({"active": True})
+
+        request = self._create_request(self.basic_user)
+        request.with_user(self.dept_manager_user).action_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+        self.assertFalse(request.hr_supervisor_approved_user_id)
+        self.assertFalse(request.hr_manager_approved_user_id)
+        self.assertTrue(any(
+            "Routed directly to MD Approval" in (msg.body or "") for msg in request.message_ids
+        ))
+
+        # The supervisor approving at MD is recorded on every skipped stage they hold
+        request.with_user(self.all_hr_md_user).action_md_approve()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(request.hr_supervisor_approved_user_id, self.all_hr_md_user)
+        self.assertEqual(request.hr_manager_approved_user_id, self.all_hr_md_user)
+        self.assertEqual(request.md_approved_user_id, self.all_hr_md_user)
+        self.assertEqual(request.leave_id.state, "validate")
+
+        # An MD-only approver leaves the skipped stages empty
+        request_md_only = self._create_request(self.basic_user)
+        request_md_only.with_user(self.dept_manager_user).action_manager_approve()
+        self.assertEqual(request_md_only.state, "md_approval")
+        request_md_only.with_user(self.md_user).action_md_approve()
+        self.assertEqual(request_md_only.state, "approved")
+        self.assertFalse(request_md_only.hr_supervisor_approved_user_id)
+        self.assertFalse(request_md_only.hr_manager_approved_user_id)
+        self.assertEqual(request_md_only.md_approved_user_id, self.md_user)
+
+    def test_forward_to_hr_manager_when_all_hr_supervisors_are_md_but_not_hr_manager(self):
+        groups = (
+            self.env.ref("base.group_user")
+            | self.env.ref("hr.group_hr_user")
+            | self.env.ref("pr_hr.group_hr_supervisor")
+            | self.env.ref("pr_hr.group_hr_md")
+        )
+        sup_md_user = self.env["res.users"].sudo().with_context(no_reset_password=True).create({
+            "name": "HR Sup+MD Leave User",
+            "login": "leave.approval.sup.md",
+            "company_id": self.approval_company.id,
+            "company_ids": [Command.set(self.approval_company.ids)],
+            "groups_id": [Command.set(groups.ids)],
+        })
+        self.hr_supervisor_user.sudo().write({"active": False})
+
+        request = self._create_request(self.basic_user)
+        request.with_user(self.dept_manager_user).action_manager_approve()
+        self.assertEqual(request.state, "hr_manager_approval")
+        self.assertFalse(request.hr_supervisor_approved_user_id)
+
+        request.with_user(self.hr_manager_user).action_hr_manager_approve()
+        self.assertEqual(request.state, "md_approval")
+
+        # Back to the supervisor at MD: recorded for the skipped HR Supervisor stage too
+        request.with_user(sup_md_user).action_md_approve()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(request.hr_supervisor_approved_user_id, sup_md_user)
+        self.assertEqual(request.hr_manager_approved_user_id, self.hr_manager_user)
+        self.assertEqual(request.md_approved_user_id, sup_md_user)
 
     def test_single_approve_and_reject_button_visibility_for_dual_role_approvers(self):
         self.dual_hr_user.sudo().write({"active": True})
@@ -833,6 +979,7 @@ class TestLeaveRequestApproval(TransactionCase):
 
         # 1. Request in employee_manager_approval under a Dual Dept. Manager + HR Manager
         req_mgr = self._create_request(self.legacy_hr_user, employee=self.employee_under_dual_mgr)
+        self._reopen_at_manager_stage(req_mgr)
         self.assertEqual(req_mgr.state, "employee_manager_approval")
 
         # Backend: Dual Dept+HR Mgr sees ONLY HR Manager Approve and single Reject
