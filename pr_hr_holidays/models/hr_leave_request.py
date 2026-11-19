@@ -13,9 +13,39 @@ import pandas as pd
 
 _logger = logging.getLogger(__name__)
 
+
+class _LeaveDryRunDone(Exception):
+    """Raised to roll back the savepoint of a successful hr.leave dry run."""
+
 HR_SUPERVISOR_GROUP = "pr_hr.group_hr_supervisor"
 HR_MANAGER_GROUP = "pr_hr.group_hr_manager"
-APPROVAL_STATES = ("draft", "manager_approve", "hr_supervisor")
+APPROVAL_STATES = (
+    "employee_manager_approval",
+    "hr_supervisor_approval",
+    "hr_manager_approval",
+)
+WORKFLOW_PROTECTED_FIELDS = frozenset({
+    "state",
+    "approval_state",
+    "manager_approved_user_id",
+    "manager_approved_date",
+    "hr_supervisor_approved_user_id",
+    "hr_supervisor_approved_date",
+    "hr_manager_approved_user_id",
+    "hr_manager_approved_date",
+    "rejected_stage",
+    "rejected_from_state",
+    "rejected_by_user_id",
+    "reject_reason",
+    "allocation_override_applied",
+    "allocation_override_note",
+    "leave_id",
+})
+APPROVAL_STAGE_CHAIN = (
+    ("employee_manager_approval", "employee_manager", "Dept. Manager"),
+    ("hr_supervisor_approval", "hr_supervisor", "HR Supervisor"),
+    ("hr_manager_approval", "hr_manager", "HR Manager"),
+)
 
 
 class HrLeaveRequest(models.Model):
@@ -30,6 +60,25 @@ class HrLeaveRequest(models.Model):
 
     # region [Fields]
 
+    @api.model
+    def _default_employee_id(self):
+        employee = self.env["hr.employee"].sudo().search([
+            ("user_id", "=", self.env.uid),
+            "|",
+            ("company_id", "=", False),
+            ("company_id", "=", self.env.company.id),
+        ], limit=1)
+        return employee.id if employee else False
+
+    @api.model
+    def _default_company_id(self):
+        employee_id = self._default_employee_id()
+        if employee_id:
+            employee = self.env["hr.employee"].sudo().browse(employee_id)
+            if employee.company_id:
+                return employee.company_id.id
+        return self.env.company.id
+
     name = fields.Char(string="Name")
     leave_type_id = fields.Many2one("hr.leave.type", string="Leave Type", required=True)
     date_from = fields.Date(string="Date From", required=True)
@@ -40,13 +89,26 @@ class HrLeaveRequest(models.Model):
         store=True,
         readonly=True,
     )
-    company_id = fields.Many2one('res.company', string='Company', tracking=True, required=True)
-    employee_id = fields.Many2one('hr.employee', string='Employee', tracking=True, required=True)
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        default=lambda self: self._default_company_id(),
+        tracking=True,
+        required=True,
+    )
+    employee_id = fields.Many2one(
+        'hr.employee',
+        string='Employee',
+        default=lambda self: self._default_employee_id(),
+        tracking=True,
+        required=True,
+    )
     employee_manager_id = fields.Many2one('hr.employee', string='Manager', tracking=True, readonly=True)
     hr_supervisor_ids = fields.Many2many('res.users', 'leave_request_hr_supervisor_users', 'hr_supervisor_id',
                                          'leave_request_id', string='HR Supervisors', tracking=True, readonly=True)
     hr_manager_ids = fields.Many2many('res.users', 'leave_request_hr_manager_users', 'hr_manager_id',
                                       'leave_request_id', string='HR Managers', tracking=True, readonly=True)
+    submitted_by_id = fields.Many2one('res.users', string='Submitted By', readonly=True, copy=False)
     manager_approved_user_id = fields.Many2one('res.users', string='Manager Approved By', readonly=True, copy=False)
     manager_approved_date = fields.Datetime(string='Manager Approved On', readonly=True, copy=False)
     hr_supervisor_approved_user_id = fields.Many2one('res.users', string='HR Supervisor Approved By', readonly=True,
@@ -57,47 +119,58 @@ class HrLeaveRequest(models.Model):
     hr_manager_approved_date = fields.Datetime(string='HR Manager Approved On', readonly=True, copy=False)
     reject_reason = fields.Text(string="Rejection Reason", readonly=True, tracking=True)
     rejected_stage = fields.Selection([
-        ('manager', 'Department Manager'),
+        ('manager', 'Dept. Manager'),
         ('hr_supervisor', 'HR Supervisor'),
         ('hr_manager', 'HR Manager'),
     ], string='Rejected At', readonly=True, copy=False, tracking=True)
     rejected_from_state = fields.Selection([
-        ('draft', 'Submitted'),
-        ('manager_approve', 'Manager Approved'),
-        ('hr_supervisor', 'HR Supervisor Approved'),
+        ('employee_manager_approval', 'Dept. Manager'),
+        ('hr_supervisor_approval', 'HR Supervisor'),
+        ('hr_manager_approval', 'HR Manager'),
     ], string='Rejected From State', readonly=True, copy=False)
     rejected_by_user_id = fields.Many2one(
         'res.users', string='Rejected By', readonly=True, copy=False, tracking=True
     )
     can_reset_rejection = fields.Boolean(compute='_compute_can_reset_rejection')
+    can_reset_to_draft = fields.Boolean(compute='_compute_can_reset_to_draft')
     note = fields.Text(string="Note")
     state = fields.Selection([
-        ('draft', 'Submitted'),
-        ('manager_approve', 'Manager Approved'),
-        ('hr_supervisor', 'HR Supervisor Approved'),
-        ('hr_approve', 'HR Manager Approved'),
-        ('reject', 'Rejected'),
+        ('draft', 'Draft'),
+        ('employee_manager_approval', 'Dept. Manager'),
+        ('hr_supervisor_approval', 'HR Supervisor'),
+        ('hr_manager_approval', 'HR Manager'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
         ('cancel_request', 'Cancellation Requested'),
         ('cancelled', 'Cancelled'),
-    ], default='draft', track_visibility='always',
+    ], default='draft', tracking=True, copy=False,
         string='Status', required=True, index=True)
     approval_state = fields.Selection([
-        ('draft', 'Pending Approval'),
-        ('manager_approve', 'Pending Approval'),
-        ('hr_supervisor', 'Pending Approval'),
-        ('hr_approve', 'Approved'),
-        ('reject', 'Rejected'),
+        ('draft', 'Draft'),
+        ('employee_manager_approval', 'Pending Dept. Manager'),
+        ('hr_supervisor_approval', 'Pending HR Supervisor'),
+        ('hr_manager_approval', 'Pending HR Manager'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
         ('cancel_request', 'Pending Cancellation Approval'),
         ('cancelled', 'Cancelled'),
-    ], default='draft', track_visibility='always',
+    ], default='draft', tracking=True, copy=False,
         string='Approval Status')
     employee_manager_check = fields.Boolean(compute="_compute_employee_manager_check")
     employee_user_check = fields.Boolean(compute="_compute_employee_user_check")
     hr_supervisor_check = fields.Boolean(compute="_compute_hr_supervisor_check")
     hr_manager_check = fields.Boolean(compute="_compute_hr_manager_check")
+    can_select_employee = fields.Boolean(compute="_compute_can_select_employee")
+    can_submit = fields.Boolean(compute="_compute_approval_button_visibility")
     can_manager_approve = fields.Boolean(compute="_compute_approval_button_visibility")
     can_hr_supervisor_approve = fields.Boolean(compute="_compute_approval_button_visibility")
     can_hr_manager_approve = fields.Boolean(compute="_compute_approval_button_visibility")
+    dashboard_approve_role = fields.Selection([
+        ('hr_manager', 'HR Manager'),
+        ('hr_supervisor', 'HR Supervisor'),
+        ('employee_manager', 'Dept. Manager'),
+        ('none', 'None'),
+    ], string="Dashboard Approve Role", compute="_compute_approval_button_visibility")
     can_reject = fields.Boolean(compute="_compute_approval_button_visibility")
     can_approve_cancellation = fields.Boolean(compute="_compute_approval_button_visibility")
     leave_id = fields.Many2one("hr.leave", string="Leave", readonly=True)
@@ -129,17 +202,17 @@ class HrLeaveRequest(models.Model):
                    WHEN manager_approved_user_id IS NOT NULL THEN 'hr_supervisor'
                    ELSE 'manager'
                END
-             WHERE state = 'reject'
+             WHERE state = 'rejected'
                AND rejected_stage IS NULL
         """)
         self.env.cr.execute("""
             UPDATE pr_hr_leave_request
                SET rejected_from_state = CASE rejected_stage
-                   WHEN 'hr_manager' THEN 'hr_supervisor'
-                   WHEN 'hr_supervisor' THEN 'manager_approve'
-                   ELSE 'draft'
+                   WHEN 'hr_manager' THEN 'hr_manager_approval'
+                   WHEN 'hr_supervisor' THEN 'hr_supervisor_approval'
+                   ELSE 'employee_manager_approval'
                END
-             WHERE state = 'reject'
+             WHERE state = 'rejected'
                AND rejected_from_state IS NULL
         """)
 
@@ -164,6 +237,81 @@ class HrLeaveRequest(models.Model):
             (self.employee_id.parent_id.user_id and self.employee_id.parent_id.user_id == user)
             or (self.employee_manager_id.user_id and self.employee_manager_id.user_id == user)
         )
+
+    def _get_user_leave_request_roles(self, user=None):
+        self.ensure_one()
+        user = user or self.env.user
+        roles = set()
+        if not user:
+            return roles
+        if self._user_is_dept_manager(user):
+            roles.add("employee_manager")
+        if self._user_is_hr_supervisor(user):
+            roles.add("hr_supervisor")
+        if self._user_is_hr_manager(user):
+            roles.add("hr_manager")
+        return roles
+
+    def _user_can_submit(self, user=None):
+        self.ensure_one()
+        user = user or self.env.user
+        if not user:
+            return False
+        return bool(
+            user._is_admin()
+            or (self.employee_id.user_id and self.employee_id.user_id == user)
+            or (self.create_uid and self.create_uid == user)
+            or self._user_is_dept_manager(user)
+            or self._user_is_hr_supervisor(user)
+            or self._user_is_hr_manager(user)
+            or user.has_group("hr_holidays.group_hr_holidays_user")
+            or user.has_group("hr_holidays.group_hr_holidays_manager")
+        )
+
+    def _user_can_reset_to_draft(self, user=None):
+        self.ensure_one()
+        user = user or self.env.user
+        if not user:
+            return False
+        return bool(
+            user._is_admin()
+            or (self.employee_id.user_id and self.employee_id.user_id == user)
+            or (self.create_uid and self.create_uid == user)
+            or (self.submitted_by_id and self.submitted_by_id == user)
+            or self._user_is_hr_supervisor(user)
+            or self._user_is_hr_manager(user)
+        )
+
+    @api.model
+    def _get_stage_label(self, state_key):
+        return dict(self._fields["state"].selection).get(state_key, state_key)
+
+    def _validate_dashboard_intermediate_approvals(self, target_role):
+        """When approving/rejecting from the Approval Dashboard, verify that the
+        current user holds every intermediate role between the record's current
+        state and target_role. Raises UserError if any intermediate role is missing."""
+        self.ensure_one()
+        if not self.env.context.get("from_approval_dashboard"):
+            return
+
+        state_keys = [stage[0] for stage in APPROVAL_STAGE_CHAIN]
+        role_keys = [stage[1] for stage in APPROVAL_STAGE_CHAIN]
+        if self.state not in state_keys or target_role not in role_keys:
+            return
+
+        current_idx = state_keys.index(self.state)
+        target_idx = role_keys.index(target_role)
+        if target_idx <= current_idx:
+            return
+
+        user_roles = self._get_user_leave_request_roles(self.env.user)
+        for idx in range(current_idx, target_idx):
+            _st, intermediate_role, role_label = APPROVAL_STAGE_CHAIN[idx]
+            if intermediate_role not in user_roles:
+                raise UserError(
+                    _("You cannot approve this request until %s approval is completed.")
+                    % _(role_label)
+                )
 
     @api.model
     def _get_group_users_for_company(self, group_xmlid, company=None):
@@ -195,16 +343,16 @@ class HrLeaveRequest(models.Model):
         user = user or self.env.user
         role_domains = [
             [
-                ("state", "=", "draft"),
+                ("state", "=", "employee_manager_approval"),
                 "|",
                 ("employee_manager_id.user_id", "=", user.id),
                 ("employee_id.parent_id.user_id", "=", user.id),
             ],
         ]
         if self._user_is_hr_supervisor(user):
-            role_domains.append([("state", "=", "manager_approve")])
+            role_domains.append([("state", "=", "hr_supervisor_approval")])
         if self._user_is_hr_manager(user):
-            role_domains.append([("state", "in", ["hr_supervisor", "cancel_request"])])
+            role_domains.append([("state", "in", ["hr_manager_approval", "cancel_request"])])
         return expression.OR(role_domains) if len(role_domains) > 1 else role_domains[0]
 
     # endregion [Role Helpers]
@@ -234,44 +382,80 @@ class HrLeaveRequest(models.Model):
         for rec in self:
             rec.hr_supervisor_check = is_hr_sup
 
+    @api.model
+    def _user_can_select_any_employee(self, user=None):
+        user = user or self.env.user
+        return bool(
+            user
+            and (
+                user._is_admin()
+                or user.has_group(HR_SUPERVISOR_GROUP)
+                or user.has_group(HR_MANAGER_GROUP)
+                or user.has_group("hr_holidays.group_hr_holidays_manager")
+            )
+        )
+
     @api.depends_context("uid")
     def _compute_hr_manager_check(self):
         is_hr_mgr = self._user_is_hr_manager()
         for rec in self:
             rec.hr_manager_check = is_hr_mgr
 
-    @api.depends("state", "employee_id", "employee_id.parent_id.user_id", "employee_manager_id",
-                 "employee_manager_id.user_id")
+    # "state" is a dependency only so the onchange of a new (unsaved) record
+    # computes this field; without a field dependency it stays False there.
+    @api.depends("state")
     @api.depends_context("uid")
+    def _compute_can_select_employee(self):
+        can_select = self._user_can_select_any_employee()
+        for rec in self:
+            rec.can_select_employee = can_select
+
+    @api.depends("state", "employee_id", "employee_id.user_id", "employee_id.parent_id.user_id",
+                 "employee_manager_id", "employee_manager_id.user_id", "create_uid")
+    @api.depends_context("uid", "from_approval_dashboard")
     def _compute_approval_button_visibility(self):
         user = self.env.user
         is_hr_sup = self._user_is_hr_supervisor(user)
         is_hr_mgr = self._user_is_hr_manager(user)
+        from_dashboard = bool(self.env.context.get("from_approval_dashboard"))
         for rec in self:
             has_id = bool(rec.id)
             is_dept_mgr = rec._user_is_dept_manager(user)
-            rec.can_manager_approve = (
-                has_id
-                and rec.state == "draft"
-                and is_dept_mgr
-                and not is_hr_mgr
+            rec.can_submit = rec.state == "draft" and (not has_id or rec._user_can_submit(user))
+
+            selected_role = False
+            if has_id and rec.state in APPROVAL_STATES:
+                if from_dashboard:
+                    if rec.state == "hr_manager_approval":
+                        if is_hr_mgr:
+                            selected_role = "hr_manager"
+                    elif rec.state == "hr_supervisor_approval":
+                        if is_hr_sup and is_hr_mgr:
+                            selected_role = "hr_manager"
+                        elif is_hr_sup:
+                            selected_role = "hr_supervisor"
+                    elif rec.state == "employee_manager_approval":
+                        if is_dept_mgr and is_hr_sup and is_hr_mgr:
+                            selected_role = "hr_manager"
+                        elif is_dept_mgr and is_hr_sup:
+                            selected_role = "hr_supervisor"
+                        elif is_dept_mgr:
+                            selected_role = "employee_manager"
+                else:
+                    if is_hr_mgr:
+                        selected_role = "hr_manager"
+                    elif is_hr_sup and rec.state in ("employee_manager_approval", "hr_supervisor_approval"):
+                        selected_role = "hr_supervisor"
+                    elif is_dept_mgr and rec.state == "employee_manager_approval":
+                        selected_role = "employee_manager"
+
+            rec.dashboard_approve_role = (
+                (selected_role or "none") if from_dashboard else False
             )
-            rec.can_hr_supervisor_approve = (
-                has_id
-                and rec.state == "manager_approve"
-                and is_hr_sup
-                and not is_hr_mgr
-            )
-            rec.can_hr_manager_approve = (
-                has_id
-                and rec.state in APPROVAL_STATES
-                and is_hr_mgr
-            )
-            rec.can_reject = has_id and (
-                (rec.state in APPROVAL_STATES and is_hr_mgr)
-                or (rec.state == "manager_approve" and is_hr_sup)
-                or (rec.state == "draft" and is_dept_mgr)
-            )
+            rec.can_manager_approve = selected_role == "employee_manager"
+            rec.can_hr_supervisor_approve = selected_role == "hr_supervisor"
+            rec.can_hr_manager_approve = selected_role == "hr_manager"
+            rec.can_reject = bool(selected_role)
             rec.can_approve_cancellation = (
                 has_id
                 and rec.state == "cancel_request"
@@ -286,8 +470,20 @@ class HrLeaveRequest(models.Model):
         user = self.env.user
         for rec in self:
             rec.can_reset_rejection = (
-                rec.state == 'reject'
+                rec.state == 'rejected'
                 and rec._user_can_decide_rejected_stage(user)
+            )
+
+    @api.depends('state', 'leave_id', 'employee_id.user_id', 'create_uid', 'submitted_by_id')
+    @api.depends_context('uid')
+    def _compute_can_reset_to_draft(self):
+        user = self.env.user
+        for rec in self:
+            rec.can_reset_to_draft = (
+                bool(rec.id)
+                and rec.state == 'rejected'
+                and not rec.leave_id
+                and rec._user_can_reset_to_draft(user)
             )
 
     def _user_can_decide_rejected_stage(self, user):
@@ -306,16 +502,33 @@ class HrLeaveRequest(models.Model):
 
     def _user_can_reject_stage(self, stage, user):
         self.ensure_one()
+        from_dashboard = bool(self.env.context.get("from_approval_dashboard"))
         if stage == 'manager':
-            return self.state == 'draft' and self._user_is_dept_manager(user)
+            return self.state == 'employee_manager_approval' and self._user_is_dept_manager(user)
         if stage == 'hr_supervisor':
-            return self.state == 'manager_approve' and self._user_is_hr_supervisor(user)
+            if not (
+                self.state in ('employee_manager_approval', 'hr_supervisor_approval')
+                and self._user_is_hr_supervisor(user)
+            ):
+                return False
+            if from_dashboard and self.state == 'employee_manager_approval':
+                return self._user_is_dept_manager(user)
+            return True
         if stage == 'hr_manager':
-            return self.state in APPROVAL_STATES and self._user_is_hr_manager(user)
+            if not (self.state in APPROVAL_STATES and self._user_is_hr_manager(user)):
+                return False
+            if from_dashboard:
+                if self.state == 'hr_supervisor_approval':
+                    return self._user_is_hr_supervisor(user)
+                if self.state == 'employee_manager_approval':
+                    return self._user_is_dept_manager(user) and self._user_is_hr_supervisor(user)
+            return True
         return False
 
     def _apply_stage_rejection(self, stage, reason):
         actor = self.env.user
+        if not (reason or "").strip():
+            raise UserError(_("Please provide a reason for rejecting this leave request."))
         for rec in self:
             if rec.state not in APPROVAL_STATES:
                 raise UserError(_('This leave request cannot be rejected in its current state.'))
@@ -327,23 +540,27 @@ class HrLeaveRequest(models.Model):
                 'rejected_stage': stage,
                 'rejected_from_state': previous_state,
                 'rejected_by_user_id': actor.id,
-                'state': 'reject',
-                'approval_state': 'reject',
+                'state': 'rejected',
+                'approval_state': 'rejected',
             })
-            if stage == 'hr_manager' and previous_state in ('draft', 'manager_approve'):
+            if stage == 'hr_manager' and previous_state in ('employee_manager_approval', 'hr_supervisor_approval'):
                 rec.sudo().message_post(
                     body=_('Rejected by HR Manager via skip-level decision.')
+                )
+            elif stage == 'hr_supervisor' and previous_state == 'employee_manager_approval':
+                rec.sudo().message_post(
+                    body=_('Rejected by HR Supervisor via skip-level decision.')
                 )
 
     def action_reset_rejection(self):
         stage_to_state = {
-            'manager': 'draft',
-            'hr_supervisor': 'manager_approve',
-            'hr_manager': 'hr_supervisor',
+            'manager': 'employee_manager_approval',
+            'hr_supervisor': 'hr_supervisor_approval',
+            'hr_manager': 'hr_manager_approval',
         }
         actor = self.env.user
         for rec in self:
-            if rec.state != 'reject' or not rec._user_can_decide_rejected_stage(actor):
+            if rec.state != 'rejected' or not rec._user_can_decide_rejected_stage(actor):
                 raise UserError(_('Only an authorized approver from the rejecting stage can reset this decision.'))
 
             rejected_stage = rec.rejected_stage
@@ -358,7 +575,7 @@ class HrLeaveRequest(models.Model):
                 'allocation_override_applied': False,
                 'allocation_override_note': False,
             }
-            if target_state == 'draft':
+            if target_state == 'employee_manager_approval':
                 reset_vals.update({
                     'manager_approved_user_id': False,
                     'manager_approved_date': False,
@@ -367,14 +584,14 @@ class HrLeaveRequest(models.Model):
                     'hr_manager_approved_user_id': False,
                     'hr_manager_approved_date': False,
                 })
-            elif target_state == 'manager_approve':
+            elif target_state == 'hr_supervisor_approval':
                 reset_vals.update({
                     'hr_supervisor_approved_user_id': False,
                     'hr_supervisor_approved_date': False,
                     'hr_manager_approved_user_id': False,
                     'hr_manager_approved_date': False,
                 })
-            elif target_state == 'hr_supervisor':
+            elif target_state == 'hr_manager_approval':
                 reset_vals.update({
                     'hr_manager_approved_user_id': False,
                     'hr_manager_approved_date': False,
@@ -389,7 +606,36 @@ class HrLeaveRequest(models.Model):
             )
         return True
 
-    @api.depends("date_from", "date_to", "leave_type_id", "leave_type_id.leave_type")
+    def action_reset_to_draft(self):
+        actor = self.env.user
+        for rec in self:
+            if rec.state != 'rejected' or rec.leave_id:
+                raise UserError(_('Only rejected leave requests without a validated leave can be reset to draft.'))
+            if not rec._user_can_reset_to_draft(actor):
+                raise AccessError(_('You are not allowed to reset this leave request to draft.'))
+            rec.sudo().write({
+                'state': 'draft',
+                'approval_state': 'draft',
+                'submitted_by_id': False,
+                'manager_approved_user_id': False,
+                'manager_approved_date': False,
+                'hr_supervisor_approved_user_id': False,
+                'hr_supervisor_approved_date': False,
+                'hr_manager_approved_user_id': False,
+                'hr_manager_approved_date': False,
+                'reject_reason': False,
+                'rejected_stage': False,
+                'rejected_from_state': False,
+                'rejected_by_user_id': False,
+                'allocation_override_applied': False,
+                'allocation_override_note': False,
+            })
+            rec.sudo().message_post(
+                body=_('%(user)s reset this leave request to Draft.') % {'user': actor.display_name}
+            )
+        return True
+
+    @api.depends("date_from", "date_to", "leave_type_id", "leave_type_id.leave_type", "employee_id")
     def _compute_requested_days(self):
         for rec in self:
             if not rec.date_from or not rec.date_to or rec.date_to < rec.date_from:
@@ -416,23 +662,8 @@ class HrLeaveRequest(models.Model):
         else:
             working_weekdays = set(range(5))  # Mon-Fri
 
-        # 2. Public holidays (CORRECT MODEL: hr.public.holiday)
-        holiday_dates = set()
-        public_holidays = self.env['hr.public.holiday'].sudo().search([
-            ('date_from', '<=', self.date_to),
-            ('date_to', '>=', self.date_from),
-            ('state', '=', 'active')
-            # Removed company_id - not all instances have it
-        ])
-
-        for holiday in public_holidays:
-            # Handle single-day and multi-day holidays
-            start_date = max(self.date_from, holiday.date_from)
-            end_date = min(self.date_to, holiday.date_to)
-            current_date = start_date
-            while current_date <= end_date:
-                holiday_dates.add(current_date)
-                current_date += timedelta(days=1)
+        # 2. Public holidays (hr.public.holiday) scoped to this employee
+        holiday_dates = self.employee_id._pr_get_public_holiday_dates(self.date_from, self.date_to)
 
         # 3. Count only working days (exclude weekends + holidays)
         working_days = []
@@ -459,15 +690,6 @@ class HrLeaveRequest(models.Model):
         else:
             working_weekdays = set(range(5))
 
-        # Public holidays
-        holiday_domain = [
-            ('date_from', '<=', self.date_to),
-            ('date_to', '>=', self.date_from),
-            # ('company_id', 'in', [self.company_id.id, False]),
-            ('state', '=', 'active')
-        ]
-        public_holidays = self.env['hr.public.holiday'].sudo().search(holiday_domain)
-
         non_working_dates = set()
 
         # Add weekends
@@ -477,20 +699,20 @@ class HrLeaveRequest(models.Model):
                 non_working_dates.add(current_date)
             current_date += timedelta(days=1)
 
-        # Add public holidays
-        for holiday in public_holidays:
-            current_holiday_date = max(self.date_from, holiday.date_from)
-            end_holiday_date = min(self.date_to, holiday.date_to)
-            while current_holiday_date <= end_holiday_date:
-                non_working_dates.add(current_holiday_date)
-                current_holiday_date += timedelta(days=1)
+        # Add public holidays scoped to this employee
+        non_working_dates |= self.employee_id._pr_get_public_holiday_dates(self.date_from, self.date_to)
 
-        return sorted(list(non_working_dates))
+        return sorted(non_working_dates)
 
-    @api.depends("requested_days", "leave_type_id", "employee_id", "date_from", "date_to", "state")
+    @api.depends("requested_days", "leave_type_id", "employee_id", "date_from", "date_to", "state", "leave_id")
     def _compute_allocation_bypassed(self):
         for rec in self:
-            if not rec.employee_id or not rec.leave_type_id:
+            if (
+                not rec.employee_id
+                or not rec.leave_type_id
+                or rec.leave_id
+                or rec.state in ("approved", "cancel_request", "cancelled")
+            ):
                 rec.allocation_bypassed = False
                 continue
             available_days = rec._get_available_days_for_request()
@@ -571,6 +793,19 @@ class HrLeaveRequest(models.Model):
 
             if rec.leave_type_id.leave_type == "annual_leave" and rec.date_from <= today:
                 raise ValidationError(_("Annual Leave requests must start from tomorrow onward."))
+
+    @api.constrains("employee_id", "date_to")
+    def _check_last_working_day(self):
+        for rec in self:
+            if rec.state in ("rejected", "cancelled"):
+                continue
+            cutoff = rec.employee_id.sudo().last_working_date
+            if cutoff and rec.date_to and rec.date_to > cutoff:
+                raise ValidationError(_(
+                    "Time off for %(employee)s cannot extend beyond the Last Working Day (%(date)s).",
+                    employee=rec.employee_id.display_name,
+                    date=cutoff,
+                ))
 
     # endregion [Compute Methods]
 
@@ -756,7 +991,10 @@ class HrLeaveRequest(models.Model):
         employee = self.employee_id
 
         target_date = self.date_to or self.date_from or fields.Date.context_today(self)
-        allocation_data = leave_type.get_allocation_data(employee, target_date).get(employee, [])
+        # Balance check only: read allocations with sudo, otherwise approvers who
+        # hold only the pr_hr HR groups (no hr_holidays group) are not allowed to
+        # read the employee's allocations by record rules and always get 0 days.
+        allocation_data = leave_type.sudo().get_allocation_data(employee.sudo(), target_date).get(employee, [])
         leave_type_data = next(
             (
                 data
@@ -773,9 +1011,10 @@ class HrLeaveRequest(models.Model):
         if abs(virtual_remaining) < 1e-6 and leave_type.requires_allocation != "yes":
             virtual_remaining = 30.0 if getattr(leave_type, "leave_type", False) == "sick_leave" else 0.0
 
-        # Do not count "draft" requests here to avoid showing misleading "0 available"
-        # on initial portal submission; drafts are not yet manager-confirmed commitments.
-        pending_states = ["manager_approve", "hr_supervisor"]
+        # Do not count "draft" or "employee_manager_approval" requests here to avoid
+        # showing misleading "0 available" on initial submission before Dept. Manager
+        # confirmation.
+        pending_states = ["hr_supervisor_approval", "hr_manager_approval"]
         domain = [
             ("employee_id", "=", employee.id),
             ("leave_type_id", "=", leave_type.id),
@@ -783,7 +1022,10 @@ class HrLeaveRequest(models.Model):
         ]
         if isinstance(self.id, int):
             domain.insert(0, ("id", "!=", self.id))
-        pending_requests = self.search(domain)
+        # Neutralise the approver-queue filter that de_hr_workspace_timeoff
+        # applies in search_fetch (context key or approvals menu action params),
+        # otherwise pending requests outside the user's queue are not counted.
+        pending_requests = self.sudo().with_context(approvals_of_leave_request=False, params=None).search(domain)
         pending_days = sum(req._get_requested_days_count() for req in pending_requests)
         return virtual_remaining - pending_days
 
@@ -793,7 +1035,7 @@ class HrLeaveRequest(models.Model):
                 continue
             if rec.allocation_override_applied:
                 continue
-            if rec.state in ('hr_approve', 'cancel_request', 'cancelled', 'reject'):
+            if rec.state in ('approved', 'cancel_request', 'cancelled', 'rejected'):
                 continue
             if rec.leave_id:
                 continue
@@ -840,8 +1082,8 @@ class HrLeaveRequest(models.Model):
         })
         rec.with_user(actor)._check_requested_days_with_allocation()
         rec.write({
-            "state": "hr_approve",
-            "approval_state": "hr_approve",
+            "state": "approved",
+            "approval_state": "approved",
             "hr_manager_approved_user_id": actor.id if actor else False,
             "hr_manager_approved_date": approval_date,
         })
@@ -851,12 +1093,39 @@ class HrLeaveRequest(models.Model):
         rec._send_result_to_employee(result="Approved")
         return True
 
+    def _finalize_if_submitter_holds_hr_roles(self, actor, now):
+        """A request submitted by a user holding both HR Supervisor and HR Manager
+        only waits for the employee's direct manager. Once that approval is in
+        (at whichever stage the manager approved), finalize on the submitter's
+        behalf. Returns True when the request was finalized."""
+        self.ensure_one()
+        submitter = self.submitted_by_id or self.create_uid
+        if not submitter or submitter == actor:
+            return False
+        if not (self._user_is_hr_supervisor(submitter) and self._user_is_hr_manager(submitter)):
+            return False
+        vals = {}
+        if not self.hr_supervisor_approved_user_id:
+            vals.update({
+                "hr_supervisor_approved_user_id": submitter.id,
+                "hr_supervisor_approved_date": now,
+            })
+        if vals:
+            self.sudo().write(vals)
+        self._finalize_hr_manager_approval(
+            actor=submitter,
+            approval_date=now,
+            chatter_body=_("Auto-approved after Dept. Manager approval, as submitted by HR Supervisor and HR Manager."),
+        )
+        return True
+
     def _route_at_hr_supervisor_stage(self, actor=None, include_submitter=True):
         self.ensure_one()
         actor = actor or self.env.user
         now = fields.Datetime.now()
         actor_is_hr_sup = self._user_is_hr_supervisor(actor)
         actor_is_hr_mgr = self._user_is_hr_manager(actor)
+        submitter = self.submitted_by_id or self.create_uid
 
         if actor_is_hr_sup and actor_is_hr_mgr:
             self.sudo().write({
@@ -870,14 +1139,17 @@ class HrLeaveRequest(models.Model):
             )
             return
 
+        if include_submitter and self._finalize_if_submitter_holds_hr_roles(actor, now):
+            return
+
         if actor_is_hr_sup:
             self.sudo().write({
-                "state": "hr_supervisor",
-                "approval_state": "hr_supervisor",
+                "state": "hr_manager_approval",
+                "approval_state": "hr_manager_approval",
                 "hr_supervisor_approved_user_id": actor.id,
                 "hr_supervisor_approved_date": now,
             })
-            if actor == self.create_uid:
+            if submitter and actor == submitter:
                 body = _("Submitted and auto-advanced to HR Manager Approval based on submitter access rights.")
             else:
                 body = _("Auto-advanced to HR Manager Approval based on approver access rights.")
@@ -885,12 +1157,11 @@ class HrLeaveRequest(models.Model):
             self.sudo()._send_hr_manager_email()
             return
 
-        if include_submitter and self.create_uid and self.create_uid != actor:
-            submitter = self.create_uid
+        if include_submitter and submitter and submitter != actor:
             if self._user_is_hr_supervisor(submitter) and not self._user_is_hr_manager(submitter):
                 self.sudo().write({
-                    "state": "hr_supervisor",
-                    "approval_state": "hr_supervisor",
+                    "state": "hr_manager_approval",
+                    "approval_state": "hr_manager_approval",
                     "hr_supervisor_approved_user_id": submitter.id,
                     "hr_supervisor_approved_date": now,
                 })
@@ -902,8 +1173,8 @@ class HrLeaveRequest(models.Model):
 
         if self._should_forward_escalate_hr_supervisor_to_hr_manager():
             self.sudo().write({
-                "state": "hr_supervisor",
-                "approval_state": "hr_supervisor",
+                "state": "hr_manager_approval",
+                "approval_state": "hr_manager_approval",
             })
             self.sudo().message_post(
                 body=_("Routed directly to HR Manager Approval based on HR Supervisor approver access rights.")
@@ -912,19 +1183,30 @@ class HrLeaveRequest(models.Model):
             return
 
         self.sudo().write({
-            "state": "manager_approve",
-            "approval_state": "manager_approve",
+            "state": "hr_supervisor_approval",
+            "approval_state": "hr_supervisor_approval",
         })
         self.sudo()._send_hr_supervisor_email()
 
-    def _route_after_create(self):
+    def _route_on_submit(self, submitter=None):
         self.ensure_one()
-        submitter = self.env.user
+        submitter = submitter or self.env.user
         now = fields.Datetime.now()
         submitter_is_hr_sup = self._user_is_hr_supervisor(submitter)
         submitter_is_hr_mgr = self._user_is_hr_manager(submitter)
+        manager_user = (
+            self.employee_id.parent_id.user_id.filtered(lambda u: u.active)
+            or self.employee_manager_id.user_id.filtered(lambda u: u.active)
+        )
+        has_distinct_manager = bool(
+            manager_user
+            and self._get_user_identity_key(manager_user) != self._get_user_identity_key(submitter)
+        )
 
-        if submitter_is_hr_sup and submitter_is_hr_mgr:
+        # Case 1: Dual HR Supervisor + HR Manager submitter who is also the employee's
+        # direct manager (or the employee has no other active direct manager)
+        # auto-approves immediately.
+        if submitter_is_hr_sup and submitter_is_hr_mgr and not has_distinct_manager:
             vals = {
                 "hr_supervisor_approved_user_id": submitter.id,
                 "hr_supervisor_approved_date": now,
@@ -942,19 +1224,55 @@ class HrLeaveRequest(models.Model):
             )
             return
 
-        manager_user = self.employee_manager_id.user_id.filtered(lambda u: u.active)
-        has_distinct_manager = bool(
-            manager_user
-            and self._get_user_identity_key(manager_user) != self._get_user_identity_key(submitter)
-        )
+        # Case 2: Employee has a distinct active Dept. Manager -> route to manager's
+        # highest consecutive role along Dept. Manager -> HR Supervisor -> HR Manager.
+        # This also applies to a dual HR Supervisor + HR Manager submitter who is not
+        # the direct manager: the request waits for the direct manager at that stage
+        # and is finalized once the manager approves (the submitter already holds
+        # the remaining HR roles, see _finalize_if_submitter_holds_hr_roles).
         if has_distinct_manager:
-            self.sudo()._send_manager_email()
+            manager_roles = self._get_user_leave_request_roles(manager_user)
+            target_state = "employee_manager_approval"
+            for stage_state, stage_role, _label in APPROVAL_STAGE_CHAIN[1:]:
+                if stage_role in manager_roles:
+                    target_state = stage_state
+                else:
+                    break
+            route_vals = {
+                "state": target_state,
+                "approval_state": target_state,
+            }
+            # Stages skipped because the Dept. Manager holds the following
+            # role(s) are recorded as approved by that manager.
+            if target_state in ("hr_supervisor_approval", "hr_manager_approval"):
+                route_vals.update({
+                    "manager_approved_user_id": manager_user.id,
+                    "manager_approved_date": now,
+                })
+            if target_state == "hr_manager_approval":
+                route_vals.update({
+                    "hr_supervisor_approved_user_id": manager_user.id,
+                    "hr_supervisor_approved_date": now,
+                })
+            self.sudo().write(route_vals)
+            if target_state == "employee_manager_approval":
+                self.sudo()._send_manager_email()
+                self.sudo().message_post(body=_("Request submitted for Dept. Manager approval."))
+            elif target_state == "hr_supervisor_approval":
+                self.sudo()._send_hr_supervisor_email()
+                self.sudo().message_post(
+                    body=_("Request submitted directly for HR Supervisor approval based on manager access rights.")
+                )
+            elif target_state == "hr_manager_approval":
+                self.sudo()._send_hr_manager_email()
+                self.sudo().message_post(
+                    body=_("Request submitted directly for HR Manager approval based on manager access rights.")
+                )
             return
 
-        advance_vals = {
-            "state": "manager_approve",
-            "approval_state": "manager_approve",
-        }
+        # Case 3: No distinct Dept. Manager or submitter IS the Dept. Manager -> clear
+        # Dept. Manager stage and continue routing from HR Supervisor stage.
+        advance_vals = {}
         if self._user_is_dept_manager(submitter) or (
             manager_user
             and self._get_user_identity_key(manager_user) == self._get_user_identity_key(submitter)
@@ -963,23 +1281,50 @@ class HrLeaveRequest(models.Model):
                 "manager_approved_user_id": submitter.id,
                 "manager_approved_date": now,
             })
-        self.sudo().write(advance_vals)
+        if advance_vals:
+            self.sudo().write(advance_vals)
         self._route_at_hr_supervisor_stage(actor=submitter, include_submitter=True)
+
+    def action_submit(self):
+        actor = self.env.user
+        for rec in self:
+            if rec.state != "draft":
+                raise UserError(_("Only Draft leave requests can be submitted."))
+            if not rec._user_can_submit(actor):
+                raise AccessError(_("You are not allowed to submit this leave request."))
+
+            rec._check_leave_request_weekend_dates()
+            rec._check_annual_leave_start_date()
+            rec._check_last_working_day()
+            if rec._get_requested_days_count() <= 0:
+                raise ValidationError(_("The selected period does not contain any working day to request."))
+            rec._check_requested_days_with_allocation()
+            # Surface the errors of the final hr.leave creation now, not after
+            # the whole approval chain (overlapping time off, contract rules...).
+            rec._check_overlapping_leave_requests()
+            rec._check_employee_leave_can_be_created()
+
+            hr_supervisor_ids = self._get_group_users_for_company(HR_SUPERVISOR_GROUP, rec.company_id)
+            hr_manager_ids = self._get_group_users_for_company(HR_MANAGER_GROUP, rec.company_id)
+            setup_vals = {
+                "submitted_by_id": actor.id,
+                "employee_manager_id": rec.employee_id.parent_id.id if rec.employee_id.parent_id else False,
+                "hr_supervisor_ids": [(6, 0, hr_supervisor_ids.ids)],
+                "hr_manager_ids": [(6, 0, hr_manager_ids.ids)],
+            }
+            rec.sudo().write(setup_vals)
+            rec._route_on_submit(submitter=actor)
+        return True
 
     def action_manager_approve(self):
         actor = self.env.user
         for rec in self:
-            if rec.state != "draft":
-                raise UserError(_("This leave request is not awaiting Department Manager approval."))
-            if rec._user_is_hr_manager(actor):
-                rec.action_hr_manager_approve()
-                continue
+            if rec.state != "employee_manager_approval":
+                raise UserError(_("This leave request is not awaiting Dept. Manager approval."))
             if not rec._user_is_dept_manager(actor):
-                raise AccessError(_("Only the Department Manager can approve this stage."))
+                raise AccessError(_("Only the Dept. Manager can approve this stage."))
             now = fields.Datetime.now()
             rec.sudo().write({
-                "state": "manager_approve",
-                "approval_state": "manager_approve",
                 "manager_approved_user_id": actor.id,
                 "manager_approved_date": now,
             })
@@ -987,11 +1332,20 @@ class HrLeaveRequest(models.Model):
         return True
 
     def action_employee_cancel_request(self):
+        actor = self.env.user
+        is_hr = self.env.is_superuser() or self._user_is_hr_supervisor(actor) or self._user_is_hr_manager(actor)
         for rec in self:
+            if rec.state != "approved":
+                raise UserError(_("Only approved leave requests can be submitted for cancellation."))
+            if not is_hr and rec.sudo().employee_id.user_id != actor:
+                raise UserError(_("Only the employee or HR can request the cancellation of this leave request."))
             rec = rec.sudo()
-            rec.state = "cancel_request"
-            rec.approval_state = "cancel_request"
+            rec.write({
+                "state": "cancel_request",
+                "approval_state": "cancel_request",
+            })
             rec._send_hr_manager_cancellation_email()
+        return True
 
     def action_hr_manager_cancel_approve(self):
         if not self._user_is_hr_manager():
@@ -1024,6 +1378,7 @@ class HrLeaveRequest(models.Model):
             'context': {
                 'default_record_id': '%s,%s' % (self._name, self.id),
                 'pr_leave_rejection_stage': stage,
+                'from_approval_dashboard': bool(self.env.context.get('from_approval_dashboard')),
             },
             'views': [(self.env.ref('pr_base.pr_reject_record_wizard_view_form').id, 'form')],
         }
@@ -1033,11 +1388,11 @@ class HrLeaveRequest(models.Model):
         for rec in self:
             if rec.state not in APPROVAL_STATES:
                 raise UserError(_("This leave request cannot be rejected in its current state."))
-            if rec._user_is_hr_manager(actor):
+            if rec._user_can_reject_stage("hr_manager", actor):
                 return rec._open_reject_wizard("hr_manager")
-            if rec.state == "manager_approve" and rec._user_is_hr_supervisor(actor):
+            if rec._user_can_reject_stage("hr_supervisor", actor):
                 return rec._open_reject_wizard("hr_supervisor")
-            if rec.state == "draft" and rec._user_is_dept_manager(actor):
+            if rec._user_can_reject_stage("manager", actor):
                 return rec._open_reject_wizard("manager")
             raise AccessError(_("You are not allowed to reject this leave request at the current stage."))
 
@@ -1053,24 +1408,52 @@ class HrLeaveRequest(models.Model):
         if not self._user_is_hr_supervisor(actor):
             raise AccessError(_("Only an HR Supervisor can approve this stage."))
         for rec in self:
-            if rec.state != "manager_approve":
+            rec._validate_dashboard_intermediate_approvals("hr_supervisor")
+            if rec.state not in ("employee_manager_approval", "hr_supervisor_approval"):
                 raise UserError(_("This leave request is not awaiting HR Supervisor approval."))
+            prior_state = rec.state
             now = fields.Datetime.now()
-            rec.sudo().write({
+            is_dept_mgr = rec._user_is_dept_manager(actor)
+            vals = {
                 "hr_supervisor_approved_user_id": actor.id,
                 "hr_supervisor_approved_date": now,
-            })
+            }
+            if prior_state == "employee_manager_approval" and is_dept_mgr:
+                vals["manager_approved_user_id"] = actor.id
+                vals["manager_approved_date"] = now
+            rec.sudo().write(vals)
+
             if rec._user_is_hr_manager(actor):
+                if prior_state == "employee_manager_approval" and is_dept_mgr:
+                    body = _("Approved by Dept. Manager, HR Supervisor, and HR Manager.")
+                elif prior_state == "employee_manager_approval":
+                    body = _("Approved by HR Supervisor and HR Manager via skip-level approval.")
+                else:
+                    body = _("Approved by HR Supervisor and HR Manager.")
                 rec._finalize_hr_manager_approval(
                     actor=actor,
                     approval_date=now,
-                    chatter_body=_("Approved by HR Supervisor and HR Manager."),
+                    chatter_body=body,
                 )
                 continue
+
+            # Submitted by an HR Supervisor + HR Manager: the HR Manager stage is
+            # already covered by the submitter.
+            if rec._finalize_if_submitter_holds_hr_roles(actor, now):
+                continue
+
             rec.sudo().write({
-                "state": "hr_supervisor",
-                "approval_state": "hr_supervisor",
+                "state": "hr_manager_approval",
+                "approval_state": "hr_manager_approval",
             })
+            if prior_state == "employee_manager_approval" and not is_dept_mgr:
+                rec.sudo().message_post(
+                    body=_("Approved by HR Supervisor via skip-level approval.")
+                )
+            elif prior_state == "employee_manager_approval" and is_dept_mgr:
+                rec.sudo().message_post(
+                    body=_("Approved by Dept. Manager and HR Supervisor.")
+                )
             rec.sudo()._send_hr_manager_email()
         return True
 
@@ -1086,6 +1469,7 @@ class HrLeaveRequest(models.Model):
         if not self._user_is_hr_manager(actor):
             raise AccessError(_("Only an HR Manager can approve this stage."))
         for rec in self:
+            rec._validate_dashboard_intermediate_approvals("hr_manager")
             if rec.state not in APPROVAL_STATES:
                 raise UserError(_("This leave request cannot be approved in its current state."))
             previous_state = rec.state
@@ -1095,7 +1479,7 @@ class HrLeaveRequest(models.Model):
             extra_vals = {}
             chatter_body = None
 
-            if previous_state == "draft":
+            if previous_state == "employee_manager_approval":
                 if is_dept_mgr:
                     extra_vals["manager_approved_user_id"] = actor.id
                     extra_vals["manager_approved_date"] = now
@@ -1103,10 +1487,10 @@ class HrLeaveRequest(models.Model):
                     extra_vals["hr_supervisor_approved_user_id"] = actor.id
                     extra_vals["hr_supervisor_approved_date"] = now
                 if is_dept_mgr and is_hr_sup:
-                    chatter_body = _("Approved by Department Manager, HR Supervisor, and HR Manager.")
+                    chatter_body = _("Approved by Dept. Manager, HR Supervisor, and HR Manager.")
                 else:
                     chatter_body = _("Approved by HR Manager via skip-level approval.")
-            elif previous_state == "manager_approve":
+            elif previous_state == "hr_supervisor_approval":
                 if is_hr_sup:
                     extra_vals["hr_supervisor_approved_user_id"] = actor.id
                     extra_vals["hr_supervisor_approved_date"] = now
@@ -1130,35 +1514,88 @@ class HrLeaveRequest(models.Model):
                 raise AccessError(_("You are not allowed to reject this leave request at the current stage."))
             return rec._open_reject_wizard("hr_manager")
 
-    def _create_employee_leave(self, allocation_override=False):
-        for rec in self:
-            leave_context = {
-                "tracking_disable": True,
-                "mail_activity_automation_skip": True,
-                "leave_fast_create": True,
-                "leave_skip_state_check": True,
-                "pr_leave_request_allocation_checked": True,
-            }
-            if allocation_override:
-                leave_context["pr_leave_allocation_override"] = True
+    def _get_employee_leave_env(self, allocation_override=False):
+        leave_context = {
+            "tracking_disable": True,
+            "mail_activity_automation_skip": True,
+            "leave_fast_create": True,
+            "leave_skip_state_check": True,
+            "pr_leave_request_allocation_checked": True,
+        }
+        if allocation_override:
+            leave_context["pr_leave_allocation_override"] = True
+        return self.env["hr.leave"].with_context(**leave_context).sudo()
 
-            leave_vals = {
-                'name': f"{rec.employee_id.name} Leave From {rec.date_from} To {rec.date_to}",
-                "employee_id": rec.employee_id.id,
-                "holiday_status_id": rec.leave_type_id.id,
-                "request_date_from": rec.date_from,
-                "request_date_to": rec.date_to,
-                "leave_request_id": rec.id,
-                "allocation_override_applied": bool(rec.allocation_override_applied),
-                "allocation_override_note": rec.allocation_override_note or False,
-            }
-            leave_id = self.env["hr.leave"].with_context(**leave_context).sudo().create(leave_vals)
-            if leave_id:
-                rec.leave_id = leave_id.id
-                leave_id.with_context(**leave_context).sudo().state = "validate"
-                return leave_id
-            else:
-                return False
+    def _prepare_employee_leave_vals(self):
+        self.ensure_one()
+        return {
+            'name': f"{self.employee_id.name} Leave From {self.date_from} To {self.date_to}",
+            "employee_id": self.employee_id.id,
+            "holiday_status_id": self.leave_type_id.id,
+            "request_date_from": self.date_from,
+            "request_date_to": self.date_to,
+            "leave_request_id": self.id,
+            "allocation_override_applied": bool(self.allocation_override_applied),
+            "allocation_override_note": self.allocation_override_note or False,
+            "state": "confirm",
+        }
+
+    def _check_overlapping_leave_requests(self):
+        """Overlap with other requests still in the approval pipeline (they have
+        no hr.leave yet, so the hr.leave dry run cannot see them)."""
+        for rec in self:
+            if not (rec.employee_id and rec.date_from and rec.date_to):
+                continue
+            overlapping = self.sudo().with_context(approvals_of_leave_request=False, params=None).search([
+                ("id", "!=", rec.id),
+                ("employee_id", "=", rec.employee_id.id),
+                ("state", "in", ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval")),
+                ("date_from", "<=", rec.date_to),
+                ("date_to", ">=", rec.date_from),
+            ])
+            if overlapping:
+                states = dict(self._fields["state"]._description_selection(self.env))
+                raise ValidationError(_(
+                    "%(employee)s already has a leave request awaiting approval which overlaps with this period:\n%(requests)s"
+                ) % {
+                    "employee": rec.employee_id.name,
+                    "requests": "\n".join(
+                        "- %s: %s → %s (%s)" % (req.name, req.date_from, req.date_to, states.get(req.state))
+                        for req in overlapping
+                    ),
+                })
+
+    def _check_employee_leave_can_be_created(self):
+        """Dry run of the hr.leave created at final approval: create it inside a
+        savepoint (so every hr.leave constraint runs, e.g. overlapping time off,
+        contract / working schedule rules) and roll it back. Errors surface on
+        submit instead of after the whole approval chain."""
+        Leave = self._get_employee_leave_env()
+        for rec in self:
+            try:
+                with self.env.cr.savepoint():
+                    Leave.create(rec._prepare_employee_leave_vals())
+                    self.env.flush_all()
+                    raise _LeaveDryRunDone()
+            except _LeaveDryRunDone:
+                pass
+            finally:
+                # drop anything the rolled-back hr.leave left in the ORM cache
+                self.env.invalidate_all()
+
+    def _create_employee_leave(self, allocation_override=False):
+        """Create the hr.leave of each approved request and validate it through
+        the standard hr.leave flow (action_validate), so resource.calendar.leaves,
+        work-entry conflict handling and the attendance cleanup hook all run."""
+        Leave = self._get_employee_leave_env(allocation_override=allocation_override)
+
+        leaves = Leave
+        for rec in self:
+            leave = Leave.create(rec._prepare_employee_leave_vals())
+            leave.action_validate()
+            rec.sudo().write({"leave_id": leave.id})
+            leaves |= leave
+        return leaves
 
     def action_open_leave(self):
         self.ensure_one()
@@ -1178,13 +1615,43 @@ class HrLeaveRequest(models.Model):
     @api.constrains("state")
     def _check_reject_state(self):
         for rec in self:
-            if rec.state == "reject":
-                rec.approval_state = "reject"
+            if rec.state == "rejected":
+                rec.sudo().approval_state = "rejected"
                 rec._send_result_to_employee(result="Rejected")
 
-    # region [Constrains]
+    # endregion [Constrains]
 
     # region [Crud]
+
+    @api.model
+    def _can_write_workflow_fields(self):
+        """Workflow fields are only written by the model's own action methods
+        (through sudo) or by HR; a context flag is not accepted on purpose, as
+        RPC callers control the context."""
+        user = self.env.user
+        return bool(
+            self.env.is_superuser()
+            or user._is_admin()
+            or self._user_is_hr_supervisor(user)
+            or self._user_is_hr_manager(user)
+        )
+
+    @api.model
+    def _check_workflow_fields_create_vals(self, vals):
+        if self._can_write_workflow_fields():
+            return
+        forbidden = {
+            fname for fname in WORKFLOW_PROTECTED_FIELDS.intersection(vals)
+            if vals[fname] and not (fname in ("state", "approval_state") and vals[fname] == "draft")
+        }
+        if forbidden:
+            raise AccessError(_("You are not allowed to set the approval workflow fields of a leave request."))
+
+    def _check_workflow_fields_write_vals(self, vals):
+        if WORKFLOW_PROTECTED_FIELDS.intersection(vals) and not self._can_write_workflow_fields():
+            raise AccessError(_(
+                "The approval workflow of a leave request can only be changed through its action buttons."
+            ))
 
     @api.model
     def _validate_leave_request_create_vals(self, vals):
@@ -1197,9 +1664,19 @@ class HrLeaveRequest(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         '''
-        We Inherit Create Method To Pass Sequence Fo Field Name
+        We Inherit Create Method To Pass Sequence For Field Name
         '''
+        enforce_self_only = not self.env.su and not self._user_can_select_any_employee()
         for vals in vals_list:
+            self._check_workflow_fields_create_vals(vals)
+            if enforce_self_only:
+                emp_id = vals.get("employee_id") or self._default_employee_id()
+                employee = self.env["hr.employee"].sudo().browse(emp_id) if emp_id else self.env["hr.employee"]
+                if not employee or employee.user_id != self.env.user:
+                    raise AccessError(_("You can only create leave requests for yourself."))
+                vals["employee_id"] = employee.id
+                if employee.company_id:
+                    vals["company_id"] = employee.company_id.id
             if not vals.get("name"):
                 vals["name"] = self.env['ir.sequence'].next_by_code('hr.holidays.leave.request.seq.code') or '/'
             self._validate_leave_request_create_vals(vals)
@@ -1218,11 +1695,14 @@ class HrLeaveRequest(models.Model):
                 setup_vals["hr_manager_ids"] = [(6, 0, hr_manager_ids.ids)]
             if setup_vals:
                 rec.sudo().write(setup_vals)
-
-            rec._route_after_create()
         return records
 
     def write(self, vals):
+        self._check_workflow_fields_write_vals(vals)
+        if "employee_id" in vals and not self.env.su and not self._user_can_select_any_employee():
+            employee = self.env["hr.employee"].sudo().browse(vals["employee_id"])
+            if not employee or employee.user_id != self.env.user:
+                raise AccessError(_("You can only request leave for yourself."))
         res = super().write(vals)
         date_employee_fields = {"employee_id", "leave_type_id", "date_from", "date_to"}
         if date_employee_fields.intersection(vals.keys()):
@@ -1230,14 +1710,17 @@ class HrLeaveRequest(models.Model):
             self._check_requested_days_with_allocation()
         elif "state" in vals:
             target_state = vals.get("state")
-            if target_state not in ("cancel_request", "cancelled", "reject", "hr_approve"):
+            if target_state not in ("cancel_request", "cancelled", "rejected", "approved"):
                 self._check_requested_days_with_allocation()
         return res
 
     def unlink(self):
+        enforce_self_only = not self.env.su and not self._user_can_select_any_employee()
         for rec in self:
             if rec.state != 'draft':
-                raise ValidationError("This Leave Request Should Be Draft To Can Delete !!")
+                raise ValidationError(_("Only Draft leave requests can be deleted."))
+            if enforce_self_only and rec.employee_id.user_id != self.env.user and rec.create_uid != self.env.user:
+                raise AccessError(_("You can only delete your own Draft leave requests."))
         return super().unlink()
 
     # endregion [Crud]

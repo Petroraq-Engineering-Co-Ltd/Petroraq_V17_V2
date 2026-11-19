@@ -67,8 +67,8 @@ class TestLeaveRequestCancellation(TransactionCase):
             "date_to": date_to,
         })
         request.write({
-            "state": "hr_approve",
-            "approval_state": "hr_approve",
+            "state": "approved",
+            "approval_state": "approved",
         })
         leave = self.env["hr.leave"].sudo().create({
             "name": f"Test Leave {date_from}",
@@ -89,7 +89,7 @@ class TestLeaveRequestCancellation(TransactionCase):
         request = self._create_approved_request(start, end)
         self.assertEqual(request.requested_days, 30.0)
         self.assertTrue(request.leave_id)
-        self.assertEqual(request.state, "hr_approve")
+        self.assertEqual(request.state, "approved")
 
         # When employee clicks "REQUEST CANCELLATION"
         request.with_user(self.employee_user).action_employee_cancel_request()

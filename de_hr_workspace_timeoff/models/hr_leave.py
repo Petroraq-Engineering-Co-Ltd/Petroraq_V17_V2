@@ -2,6 +2,11 @@ from odoo import models, fields, api
 from odoo.tools import format_date
 from datetime import date
 
+# Same fallback as pr.hr.leave.request._get_available_days_for_request for
+# sick leave types that do not require an allocation.
+SICK_LEAVE_DEFAULT_DAYS = 30.0
+
+
 class HrLeave(models.Model):
     _inherit = 'hr.leave'
 
@@ -23,6 +28,62 @@ class HrLeave(models.Model):
         return (priority, leave_type.sequence or 100, name, leave_type.id)
 
     @api.model
+    def _de_get_leave_balance_summary(self, employee, leave_types):
+        """Return one balance row per leave type for ``employee``.
+
+        Allocation-based types use ``get_allocation_data`` (which syncs due
+        accruals first through ``_pr_sync_due_accrual_allocations``) so the
+        portal shows the same figures as the backend.
+        """
+        employee = employee.sudo()
+        leave_types = leave_types.sudo()
+        allocation_types = leave_types.filtered(lambda lt: lt.requires_allocation == "yes")
+        allocation_data = {}
+        if allocation_types:
+            allocation_data = {
+                leave_type_id: data
+                for _name, data, _requires_allocation, leave_type_id
+                in allocation_types.get_allocation_data(employee).get(employee, [])
+            }
+        taken_by_type = {
+            leave_type.id: days
+            for leave_type, days in self.env["hr.leave"].sudo()._read_group(
+                [
+                    ("employee_id", "=", employee.id),
+                    ("holiday_status_id", "in", leave_types.ids),
+                    ("state", "=", "validate"),
+                ],
+                ["holiday_status_id"],
+                ["number_of_days:sum"],
+            )
+        }
+        summary = []
+        for leave_type in leave_types:
+            taken_days = round(taken_by_type.get(leave_type.id, 0.0), 2)
+            if leave_type.requires_allocation == "yes":
+                data = allocation_data.get(leave_type.id, {})
+                allocation_days = round(data.get("max_leaves", 0.0), 2)
+                leave_days = round(data.get("leaves_taken", 0.0), 2)
+                available_days = round(max(data.get("remaining_leaves", 0.0), 0.0), 2)
+            else:
+                allocation_days = SICK_LEAVE_DEFAULT_DAYS if leave_type.leave_type == "sick_leave" else 0.0
+                leave_days = taken_days
+                available_days = round(max(allocation_days - leave_days, 0.0), 2)
+            summary.append({
+                "sort_key": self._de_leave_dashboard_sort_key(leave_type),
+                "leave_type_id": leave_type.id,
+                "leave_name": leave_type.name,
+                "allocation_days": allocation_days,
+                "leave_days": leave_days,
+                "taken_days": taken_days,
+                "available_days": available_days,
+                "remaining_days": leave_days,
+                "requires_allocation": leave_type.requires_allocation if leave_type.leave_type != "sick_leave" else "yes",
+            })
+        summary.sort(key=lambda item: item["sort_key"])
+        return summary
+
+    @api.model
     def get_dashboard_data(self):
         today = fields.Date.today()
         current_user = self.env.user
@@ -30,42 +91,7 @@ class HrLeave(models.Model):
         summary = []
         if current_employee_id:
             leave_type_ids = self.env["hr.leave.type"].sudo().search(["|", ("company_id", "=", self.env.company.id), ("company_id", "=", False)])
-            if leave_type_ids:
-                for leave_type in leave_type_ids:
-                    # region [Allocations]
-                    if leave_type.requires_allocation == "yes":
-                        allocation_ids = self.env["hr.leave.allocation"].sudo().search([("employee_id", "=", current_employee_id.id),
-                                                                                        ("holiday_status_id", "=", leave_type.id), ("state", "=", "validate")])
-                        if allocation_ids:
-                            allocation_days = sum(allocation_ids.mapped("number_of_days"))
-                        else:
-                            allocation_days = 0
-                    else:
-                        if leave_type.leave_type == "sick_leave":
-                            allocation_days = 90
-                        else:
-                            allocation_days = 0
-                    # endregion [Allocations]
-
-                    # region [Leaves]
-                    leave_ids = self.env["hr.leave"].sudo().search([("employee_id", "=", current_employee_id.id),
-                                                                                        ("holiday_status_id", "=", leave_type.id), ("state", "=", "validate")])
-                    if leave_ids:
-                        leave_days = sum(leave_ids.mapped("number_of_days"))
-                    else:
-                        leave_days = 0
-                    # endregion [Leaves]
-                    available_days = round(max((allocation_days or 0) - (leave_days or 0), 0), 2)
-                    summary.append({
-                        "sort_key": self._de_leave_dashboard_sort_key(leave_type),
-                        "leave_name": leave_type.name,
-                        "allocation_days": allocation_days,
-                        "leave_days": leave_days,
-                        "available_days": available_days,
-                        "remaining_days": leave_days,
-                        "requires_allocation": leave_type.requires_allocation if leave_type.leave_type !="sick_leave" else "yes",
-                    })
-                summary.sort(key=lambda item: item.get("sort_key", (99, 999, "", 0)))
+            summary = self._de_get_leave_balance_summary(current_employee_id, leave_type_ids)
 
             upcoming_leaves = self.env["hr.leave"].sudo().search([
                 ('state', '=', 'validate'),

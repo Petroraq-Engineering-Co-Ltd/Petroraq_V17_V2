@@ -21,7 +21,9 @@ class ResGroups(models.Model):
         LeaveRequest = self.env["pr.hr.leave.request"].sudo()
         for group in self:
             if hr_supervisor_group_id and group.id == hr_supervisor_group_id.id:
-                leave_request_ids = LeaveRequest.search([("state", "in", ["draft", "manager_approve"])])
+                leave_request_ids = LeaveRequest.search([
+                    ("state", "in", ["draft", "employee_manager_approval", "hr_supervisor_approval"])
+                ])
                 for leave_request in leave_request_ids:
                     users = LeaveRequest._get_group_users_for_company(
                         "pr_hr.group_hr_supervisor", leave_request.company_id
@@ -29,7 +31,10 @@ class ResGroups(models.Model):
                     leave_request.write({"hr_supervisor_ids": [(6, 0, users.ids)]})
             if hr_manager_group_id and group.id == hr_manager_group_id.id:
                 leave_request_ids = LeaveRequest.search([
-                    ("state", "in", ["draft", "manager_approve", "hr_supervisor", "cancel_request"])
+                    ("state", "in", [
+                        "draft", "employee_manager_approval", "hr_supervisor_approval",
+                        "hr_manager_approval", "cancel_request",
+                    ])
                 ])
                 for leave_request in leave_request_ids:
                     users = LeaveRequest._get_group_users_for_company(

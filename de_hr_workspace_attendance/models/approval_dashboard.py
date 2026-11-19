@@ -174,16 +174,16 @@ class HrApprovalDashboardService(models.AbstractModel):
         user = self.env.user
         role_domains = [
             [
-                ("state", "=", "draft"),
+                ("state", "=", "employee_manager_approval"),
                 "|",
                 ("employee_manager_id.user_id", "=", self.env.uid),
                 ("employee_id.parent_id.user_id", "=", self.env.uid),
             ],
         ]
         if user.has_group("pr_hr.group_hr_supervisor"):
-            role_domains.append([("state", "=", "manager_approve")])
+            role_domains.append([("state", "=", "hr_supervisor_approval")])
         if user.has_group("pr_hr.group_hr_manager"):
-            role_domains.append([("state", "in", ["hr_supervisor", "cancel_request"])])
+            role_domains.append([("state", "in", ["hr_manager_approval", "cancel_request"])])
         return expression.OR(role_domains) if len(role_domains) > 1 else role_domains[0]
 
     @api.model
@@ -522,11 +522,14 @@ class HrApprovalDashboardService(models.AbstractModel):
             records = self.env[action.res_model].search(domain)
         except Exception:
             return False
+        tile_context = dict(self._context_from_action(action))
+        if action.res_model == "pr.hr.leave.request":
+            tile_context["from_approval_dashboard"] = True
         return {
             "res_model": action.res_model,
             "view_mode": action.view_mode or "list,form",
             "domain": [("id", "in", records.ids)],
-            "context": self._context_from_action(action),
+            "context": tile_context,
             "ids": set(records.ids),
         }
 

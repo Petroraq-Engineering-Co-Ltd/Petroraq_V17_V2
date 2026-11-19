@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
-    <record id="hr_leave_request_tree_view_inherit" model="ir.ui.view">
-        <field name="name">hr.leave.request.tree.view.inherit</field>
-        <field name="model">pr.hr.leave.request</field>
-        <field name="inherit_id" ref="pr_hr_holidays.hr_leave_request_tree_view"/>
-        <field name="arch" type="xml">
-             <xpath expr="//tree" position="attributes">
-               <attribute name="js_class">leave_request_button_in_tree</attribute>
-           </xpath>
-        </field>
-    </record>
-
     <record id="action_my_leave_request" model="ir.actions.act_window">
         <field name="name">Leave Requests</field>
         <field name="res_model">pr.hr.leave.request</field>
@@ -20,7 +9,7 @@
             (0, 0, {'view_mode': 'tree', 'view_id': ref('pr_hr_holidays.hr_leave_request_tree_view')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('pr_hr_holidays.hr_leave_request_form_view')})]"/>
         <field name="domain">['|', ('employee_id.user_id', '=', uid), ('employee_id.parent_id.user_id', '=', uid)]</field>
-        <field name="context">{'create': False,'edit': False}</field>
+        <field name="context">{}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">
                 No leave requests to display
@@ -54,10 +43,11 @@
                 <field name="hr_supervisor_ids" widget="many2many_tags" column_invisible="1"/>
                 <field name="hr_manager_ids" widget="many2many_tags" column_invisible="1"/>
                 <field name="approval_state" widget="badge"
-                    decoration-danger="approval_state == 'reject'"
-                    decoration-warning="approval_state == 'manager_approve'"
-                    decoration-success="approval_state == 'hr_approve'"
-                    decoration-info="approval_state == 'hr_supervisor'"/>
+                    decoration-muted="approval_state == 'draft'"
+                    decoration-danger="approval_state in ('rejected', 'cancelled')"
+                    decoration-warning="approval_state in ('employee_manager_approval', 'hr_supervisor_approval', 'cancel_request')"
+                    decoration-success="approval_state == 'approved'"
+                    decoration-info="approval_state == 'hr_manager_approval'"/>
             </tree>
         </field>
     </record>
@@ -69,8 +59,8 @@
         <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'tree', 'view_id': ref('hr_leave_request_approvals_tree_view')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('pr_hr_holidays.hr_leave_request_form_view')})]"/>
-        <field name="domain">[('state', 'in', ['draft', 'manager_approve', 'hr_supervisor', 'cancel_request'])]</field>
-        <field name="context">{'create': False,'edit': False, "approvals_of_leave_request": True}</field>
+        <field name="domain">[('state', 'in', ['employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval', 'cancel_request'])]</field>
+        <field name="context">{'create': False, 'edit': False, 'approvals_of_leave_request': True, 'from_approval_dashboard': True}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_empty_folder">
                 No leave requests to display

@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hr_leave_request_holidays_user,hr.leave.request.holidays.user,model_pr_hr_leave_request,hr_holidays.group_hr_holidays_user,1,1,1,0
+access_hr_leave_request_holidays_user,hr.leave.request.holidays.user,model_pr_hr_leave_request,hr_holidays.group_hr_holidays_user,1,1,1,1
 access_hr_leave_request_holidays_manager,hr.leave.request.holidays.manager,model_pr_hr_leave_request,hr_holidays.group_hr_holidays_manager,1,1,1,1
 access_hr_leave_request_pr_hr_supervisor,hr.leave.request.pr.hr.supervisor,model_pr_hr_leave_request,pr_hr.group_hr_supervisor,1,1,1,0
 access_hr_leave_request_pr_hr_manager,hr.leave.request.pr.hr.manager,model_pr_hr_leave_request,pr_hr.group_hr_manager,1,1,1,1
