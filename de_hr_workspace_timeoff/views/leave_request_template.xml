@@ -115,6 +115,7 @@
                     <select id="leave_type_id" class="input-text js-input" name="leave_type_id" size="1" required="1">
                         <t t-foreach="holiday_status_ids" t-as="leave_type">
                             <option t-att-value="leave_type.id"
+                                    t-att-data-sick="'1' if leave_type.leave_type == 'sick_leave' else None"
                                     t-att-selected="str(leave_type.id) == str(form_values.get('leave_type_id', '')) and 'selected' or None">
                                 <t t-esc="leave_type.name"/>
                             </option>
@@ -135,8 +136,23 @@
                 </div>
                 <div class="form-field col-lg-6 ">
                     <input type="file" role="button" name="attachment_ids" multiple="multiple" id="attachment_ids" class="input-text js-input" />
-                   <label class="label" for="attachment_ids">Attachments</label>
+                   <label class="label" for="attachment_ids">Attachments <span id="attachment_required_hint" class="text-danger d-none">(required for sick leave)</span></label>
                 </div>
+                <script>
+                    (function () {
+                        var typeSelect = document.getElementById('leave_type_id');
+                        var fileInput = document.getElementById('attachment_ids');
+                        var hint = document.getElementById('attachment_required_hint');
+                        function syncAttachmentRequired() {
+                            var option = typeSelect.options[typeSelect.selectedIndex];
+                            var isSick = !!(option &amp;&amp; option.dataset.sick);
+                            fileInput.required = isSick;
+                            hint.classList.toggle('d-none', !isSick);
+                        }
+                        typeSelect.addEventListener('change', syncAttachmentRequired);
+                        syncAttachmentRequired();
+                    })();
+                </script>
                 <div class="form-field col-lg-12 full-width">
                     <input id="message" class="input-text js-input" name="message" type="text"
                            t-att-value="form_values.get('message', '')"/>

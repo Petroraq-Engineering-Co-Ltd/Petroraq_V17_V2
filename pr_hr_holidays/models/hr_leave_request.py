@@ -151,6 +151,16 @@ class HrLeaveRequest(models.Model):
     can_reset_rejection = fields.Boolean(compute='_compute_can_reset_rejection')
     can_reset_to_draft = fields.Boolean(compute='_compute_can_reset_to_draft')
     note = fields.Text(string="Note")
+    attachment_ids = fields.Many2many(
+        "ir.attachment",
+        "pr_hr_leave_request_attachment_rel",
+        "request_id",
+        "attachment_id",
+        string="Attachments",
+        copy=False,
+        help="Supporting documents, e.g. the medical certificate. Required for sick leave.",
+    )
+    is_sick_leave = fields.Boolean(compute="_compute_is_sick_leave")
     state = fields.Selection([
         ('draft', 'Draft'),
         ('employee_manager_approval', 'Dept. Manager'),
@@ -382,15 +392,41 @@ class HrLeaveRequest(models.Model):
             users = users.filtered(lambda u: company in u.company_ids)
         return users
 
-    def _should_forward_escalate_hr_supervisor_to_hr_manager(self):
-        """Return True if there is at least one active HR Supervisor
-        (pr_hr.group_hr_supervisor) for this request's company and every such
-        approver also holds HR Manager rights (pr_hr.group_hr_manager)."""
+    def _get_hr_supervisor_forward_state(self):
+        """State a request entering the HR Supervisor stage is forwarded to,
+        based on the later roles held by EVERY active HR Supervisor of the
+        request's company (False: stay at HR Supervisor).
+
+        - all supervisors hold HR Manager and MD -> md_approval
+        - all hold HR Manager, or all hold MD but not HR Manager (gap: the
+          request comes back to them at MD) -> hr_manager_approval
+        """
         self.ensure_one()
-        candidates = self._get_group_users_for_company(HR_SUPERVISOR_GROUP, self.company_id)
-        return bool(candidates) and all(
-            candidate.has_group(HR_MANAGER_GROUP) for candidate in candidates
-        )
+        supervisors = self._get_group_users_for_company(HR_SUPERVISOR_GROUP, self.company_id)
+        if not supervisors:
+            return False
+        all_hr_manager = all(user.has_group(HR_MANAGER_GROUP) for user in supervisors)
+        all_md = all(user.has_group(MD_GROUP) for user in supervisors)
+        if all_hr_manager and all_md:
+            return "md_approval"
+        if all_hr_manager or all_md:
+            return "hr_manager_approval"
+        return False
+
+    def _record_skipped_stage_approvals(self, actor, approval_date, before_state):
+        """Record `actor` on every earlier stage that was skipped (no approver
+        recorded) and whose role `actor` holds. Stages the actor does not hold
+        stay empty."""
+        self.ensure_one()
+        stage_states = [stage[0] for stage in STAGE_APPROVAL_FIELDS]
+        role_by_state = {stage[0]: stage[1] for stage in APPROVAL_STAGE_CHAIN}
+        roles = self._get_user_leave_request_roles(actor)
+        vals = {}
+        for state, user_field, date_field in STAGE_APPROVAL_FIELDS[:stage_states.index(before_state)]:
+            if not self[user_field] and role_by_state[state] in roles:
+                vals.update({user_field: actor.id, date_field: approval_date})
+        if vals:
+            self.sudo().write(vals)
 
     @api.model
     def _get_pending_approval_domain(self, user=None):
@@ -1285,11 +1321,17 @@ class HrLeaveRequest(models.Model):
                 self.sudo()._send_hr_manager_email()
                 return
 
-        if self._should_forward_escalate_hr_supervisor_to_hr_manager():
-            self.sudo().write({
-                "state": "hr_manager_approval",
-                "approval_state": "hr_manager_approval",
-            })
+        forward_state = self._get_hr_supervisor_forward_state()
+        if forward_state == "md_approval":
+            self.sudo().write({"state": "md_approval", "approval_state": "md_approval"})
+            self.sudo().message_post(body=_(
+                "Routed directly to MD Approval, as every HR Supervisor also holds "
+                "HR Manager and MD rights."
+            ))
+            self.sudo()._send_md_email()
+            return
+        if forward_state == "hr_manager_approval":
+            self.sudo().write({"state": "hr_manager_approval", "approval_state": "hr_manager_approval"})
             self.sudo().message_post(
                 body=_("Routed directly to HR Manager Approval based on HR Supervisor approver access rights.")
             )
@@ -1301,6 +1343,36 @@ class HrLeaveRequest(models.Model):
             "approval_state": "hr_supervisor_approval",
         })
         self.sudo()._send_hr_supervisor_email()
+
+    def _route_to_manager_role_gap(self, manager_user, gap_idx, now):
+        """Record the Dept. Manager's approval for every stage before
+        APPROVAL_STAGE_CHAIN[gap_idx] (the first role they lack) and route the
+        request to that stage, through the same routing an approval at the
+        previous stage would use."""
+        self.ensure_one()
+        approval_vals = {}
+        for _state, user_field, date_field in STAGE_APPROVAL_FIELDS[:gap_idx]:
+            approval_vals.update({user_field: manager_user.id, date_field: now})
+        self.sudo().write(approval_vals)
+        approved_labels = ", ".join(stage[2] for stage in APPROVAL_STAGE_CHAIN[:gap_idx])
+        self.sudo().message_post(body=_(
+            "%(stages)s auto-approved on submission by %(manager)s, who also holds later "
+            "approval rights. Routed to %(gap)s, the first role they do not hold.",
+            stages=approved_labels,
+            manager=manager_user.name,
+            gap=APPROVAL_STAGE_CHAIN[gap_idx][2],
+        ))
+        gap_state = APPROVAL_STAGE_CHAIN[gap_idx][0]
+        if gap_state == "hr_supervisor_approval":
+            # Same as a Dept. Manager approval (HR Supervisor forward-escalation,
+            # submitter holding HR roles...).
+            self._route_at_hr_supervisor_stage(actor=manager_user, include_submitter=True)
+            return
+        # gap_state == "hr_manager_approval": same as an HR Supervisor approval.
+        if self._finalize_if_submitter_holds_hr_roles(manager_user, now):
+            return
+        self.sudo().write({"state": gap_state, "approval_state": gap_state})
+        self.sudo()._send_hr_manager_email()
 
     def _route_on_submit(self, submitter=None):
         self.ensure_one()
@@ -1350,12 +1422,21 @@ class HrLeaveRequest(models.Model):
         # manager approves (see _finalize_if_submitter_holds_hr_roles).
         if has_distinct_manager:
             manager_roles = self._get_user_leave_request_roles(manager_user)
-            target_state = "employee_manager_approval"
-            for stage_state, stage_role, _label in APPROVAL_STAGE_CHAIN[1:]:
-                if stage_role in manager_roles:
-                    target_state = stage_state
-                else:
+            last_held_idx = 0
+            for idx, (_state, stage_role, _label) in enumerate(APPROVAL_STAGE_CHAIN[1:], start=1):
+                if stage_role not in manager_roles:
                     break
+                last_held_idx = idx
+            target_state = APPROVAL_STAGE_CHAIN[last_held_idx][0]
+            # Gap in the manager's roles (e.g. Dept. Manager + HR Manager + MD
+            # without HR Supervisor): when the manager also holds a role AFTER the
+            # first missing one, the request will come back to them anyway, so
+            # their consecutive stages are approved on submit and the request goes
+            # straight to the first role they are missing.
+            gap_idx = last_held_idx + 1
+            if any(stage[1] in manager_roles for stage in APPROVAL_STAGE_CHAIN[gap_idx + 1:]):
+                self._route_to_manager_role_gap(manager_user, gap_idx, now)
+                return
             route_vals = {
                 "state": target_state,
                 "approval_state": target_state,
@@ -1401,6 +1482,18 @@ class HrLeaveRequest(models.Model):
             self.sudo().write(advance_vals)
         self._route_at_hr_supervisor_stage(actor=submitter, include_submitter=True)
 
+    @api.depends("leave_type_id.leave_type")
+    def _compute_is_sick_leave(self):
+        for rec in self:
+            rec.is_sick_leave = rec.leave_type_id.leave_type == "sick_leave"
+
+    def _check_sick_leave_attachment(self):
+        for rec in self:
+            if rec.is_sick_leave and not rec.sudo().attachment_ids:
+                raise ValidationError(_(
+                    "Please attach a supporting document (e.g. medical certificate) for sick leave."
+                ))
+
     def action_submit(self):
         actor = self.env.user
         for rec in self:
@@ -1414,6 +1507,7 @@ class HrLeaveRequest(models.Model):
             rec._check_last_working_day()
             if rec._get_requested_days_count() <= 0:
                 raise ValidationError(_("The selected period does not contain any working day to request."))
+            rec._check_sick_leave_attachment()
             rec._check_requested_days_with_allocation()
             # Surface the errors of the final hr.leave creation now, not after
             # the whole approval chain (overlapping time off, contract rules...).
@@ -1617,6 +1711,10 @@ class HrLeaveRequest(models.Model):
                     chatter_body = _("Approved by HR Supervisor and HR Manager.")
                 else:
                     chatter_body = _("Approved by HR Manager via skip-level approval.")
+            else:
+                # Stages skipped by routing (e.g. every HR Supervisor is also
+                # HR Manager) are recorded under the approver when they hold them.
+                rec._record_skipped_stage_approvals(actor, now, previous_state)
 
             if extra_vals:
                 rec.sudo().write(extra_vals)
@@ -1661,6 +1759,10 @@ class HrLeaveRequest(models.Model):
                     skipped = True
             if extra_vals:
                 rec.sudo().write(extra_vals)
+            if previous_state == "md_approval":
+                # Stages skipped by routing (e.g. every HR Supervisor is also
+                # HR Manager and MD) are recorded under the MD when they hold them.
+                rec._record_skipped_stage_approvals(actor, now, previous_state)
             if skipped:
                 chatter_body = _("Approved by MD via skip-level approval.")
             elif previous_state != "md_approval":
