@@ -413,6 +413,32 @@ class HrLeaveRequest(models.Model):
             return "hr_manager_approval"
         return False
 
+    def _should_forward_hr_manager_to_md(self):
+        """True when every active HR Manager of the request's company also
+        holds MD: the HR Manager stage is then skipped."""
+        self.ensure_one()
+        hr_managers = self._get_group_users_for_company(HR_MANAGER_GROUP, self.company_id)
+        return bool(hr_managers) and all(user.has_group(MD_GROUP) for user in hr_managers)
+
+    def _enter_hr_manager_stage(self, extra_vals=None, chatter_body=None):
+        """Move the request to HR Manager approval, or straight on to MD
+        approval when every HR Manager also holds MD."""
+        self.ensure_one()
+        vals = dict(extra_vals or {})
+        forward_to_md = self._should_forward_hr_manager_to_md()
+        target_state = "md_approval" if forward_to_md else "hr_manager_approval"
+        vals.update({"state": target_state, "approval_state": target_state})
+        self.sudo().write(vals)
+        if chatter_body:
+            self.sudo().message_post(body=chatter_body)
+        if forward_to_md:
+            self.sudo().message_post(body=_(
+                "Routed directly to MD Approval, as every HR Manager also holds MD rights."
+            ))
+            self.sudo()._send_md_email()
+        else:
+            self.sudo()._send_hr_manager_email()
+
     def _record_skipped_stage_approvals(self, actor, approval_date, before_state):
         """Record `actor` on every earlier stage that was skipped (no approver
         recorded) and whose role `actor` holds. Stages the actor does not hold
@@ -1293,32 +1319,28 @@ class HrLeaveRequest(models.Model):
             return
 
         if actor_is_hr_sup:
-            self.sudo().write({
-                "state": "hr_manager_approval",
-                "approval_state": "hr_manager_approval",
-                "hr_supervisor_approved_user_id": actor.id,
-                "hr_supervisor_approved_date": now,
-            })
             if submitter and actor == submitter:
                 body = _("Submitted and auto-advanced to HR Manager Approval based on submitter access rights.")
             else:
                 body = _("Auto-advanced to HR Manager Approval based on approver access rights.")
-            self.sudo().message_post(body=body)
-            self.sudo()._send_hr_manager_email()
+            self._enter_hr_manager_stage(
+                extra_vals={
+                    "hr_supervisor_approved_user_id": actor.id,
+                    "hr_supervisor_approved_date": now,
+                },
+                chatter_body=body,
+            )
             return
 
         if include_submitter and submitter and submitter != actor:
             if self._user_is_hr_supervisor(submitter) and not self._user_is_hr_manager(submitter):
-                self.sudo().write({
-                    "state": "hr_manager_approval",
-                    "approval_state": "hr_manager_approval",
-                    "hr_supervisor_approved_user_id": submitter.id,
-                    "hr_supervisor_approved_date": now,
-                })
-                self.sudo().message_post(
-                    body=_("Auto-advanced to HR Manager Approval based on submitter access rights.")
+                self._enter_hr_manager_stage(
+                    extra_vals={
+                        "hr_supervisor_approved_user_id": submitter.id,
+                        "hr_supervisor_approved_date": now,
+                    },
+                    chatter_body=_("Auto-advanced to HR Manager Approval based on submitter access rights."),
                 )
-                self.sudo()._send_hr_manager_email()
                 return
 
         forward_state = self._get_hr_supervisor_forward_state()
@@ -1331,11 +1353,9 @@ class HrLeaveRequest(models.Model):
             self.sudo()._send_md_email()
             return
         if forward_state == "hr_manager_approval":
-            self.sudo().write({"state": "hr_manager_approval", "approval_state": "hr_manager_approval"})
-            self.sudo().message_post(
-                body=_("Routed directly to HR Manager Approval based on HR Supervisor approver access rights.")
+            self._enter_hr_manager_stage(
+                chatter_body=_("Routed directly to HR Manager Approval based on HR Supervisor approver access rights."),
             )
-            self.sudo()._send_hr_manager_email()
             return
 
         self.sudo().write({
@@ -1371,8 +1391,7 @@ class HrLeaveRequest(models.Model):
         # gap_state == "hr_manager_approval": same as an HR Supervisor approval.
         if self._finalize_if_submitter_holds_hr_roles(manager_user, now):
             return
-        self.sudo().write({"state": gap_state, "approval_state": gap_state})
-        self.sudo()._send_hr_manager_email()
+        self._enter_hr_manager_stage()
 
     def _route_on_submit(self, submitter=None):
         self.ensure_one()
@@ -1656,19 +1675,12 @@ class HrLeaveRequest(models.Model):
             if rec._finalize_if_submitter_holds_hr_roles(actor, now):
                 continue
 
-            rec.sudo().write({
-                "state": "hr_manager_approval",
-                "approval_state": "hr_manager_approval",
-            })
+            body = None
             if prior_state == "employee_manager_approval" and not is_dept_mgr:
-                rec.sudo().message_post(
-                    body=_("Approved by HR Supervisor via skip-level approval.")
-                )
+                body = _("Approved by HR Supervisor via skip-level approval.")
             elif prior_state == "employee_manager_approval" and is_dept_mgr:
-                rec.sudo().message_post(
-                    body=_("Approved by Dept. Manager and HR Supervisor.")
-                )
-            rec.sudo()._send_hr_manager_email()
+                body = _("Approved by Dept. Manager and HR Supervisor.")
+            rec._enter_hr_manager_stage(chatter_body=body)
         return True
 
     def action_hr_supervisor_reject(self):

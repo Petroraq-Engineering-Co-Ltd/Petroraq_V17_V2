@@ -942,6 +942,28 @@ class TestLeaveRequestApproval(TransactionCase):
         self.assertFalse(request_md_only.hr_manager_approved_user_id)
         self.assertEqual(request_md_only.md_approved_user_id, self.md_user)
 
+    def test_hr_supervisor_approval_forwards_to_md_when_all_hr_managers_are_md(self):
+        self.hr_manager_user.sudo().write({"active": False})
+        self.hr_mgr_md_user.sudo().write({"active": True})
+
+        request = self._create_request(self.basic_user)
+        request.with_user(self.dept_manager_user).action_manager_approve()
+        self.assertEqual(request.state, "hr_supervisor_approval")
+
+        request.with_user(self.hr_supervisor_user).action_hr_supervisor_approve()
+        self.assertEqual(request.state, "md_approval")
+        self.assertEqual(request.hr_supervisor_approved_user_id, self.hr_supervisor_user)
+        self.assertFalse(request.hr_manager_approved_user_id)
+        self.assertTrue(any(
+            "every HR Manager also holds MD" in (msg.body or "") for msg in request.message_ids
+        ))
+
+        # The HR Manager + MD approver is recorded for the skipped HR Manager stage
+        request.with_user(self.hr_mgr_md_user).action_md_approve()
+        self.assertEqual(request.state, "approved")
+        self.assertEqual(request.hr_manager_approved_user_id, self.hr_mgr_md_user)
+        self.assertEqual(request.md_approved_user_id, self.hr_mgr_md_user)
+
     def test_forward_to_hr_manager_when_all_hr_supervisors_are_md_but_not_hr_manager(self):
         groups = (
             self.env.ref("base.group_user")
