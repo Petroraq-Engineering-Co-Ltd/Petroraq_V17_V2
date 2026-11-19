@@ -33,7 +33,7 @@ class ResGroups(models.Model):
                 leave_request_ids = LeaveRequest.search([
                     ("state", "in", [
                         "draft", "employee_manager_approval", "hr_supervisor_approval",
-                        "hr_manager_approval", "cancel_request",
+                        "hr_manager_approval", "md_approval", "cancel_request",
                     ])
                 ])
                 for leave_request in leave_request_ids:

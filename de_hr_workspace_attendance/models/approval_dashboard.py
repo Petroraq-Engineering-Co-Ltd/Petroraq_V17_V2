@@ -184,6 +184,8 @@ class HrApprovalDashboardService(models.AbstractModel):
             role_domains.append([("state", "=", "hr_supervisor_approval")])
         if user.has_group("pr_hr.group_hr_manager"):
             role_domains.append([("state", "in", ["hr_manager_approval", "cancel_request"])])
+        if user.has_group("pr_hr.group_hr_md"):
+            role_domains.append([("state", "=", "md_approval")])
         return expression.OR(role_domains) if len(role_domains) > 1 else role_domains[0]
 
     @api.model

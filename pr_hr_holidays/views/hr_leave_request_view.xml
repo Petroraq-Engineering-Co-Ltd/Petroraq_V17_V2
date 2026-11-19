@@ -14,6 +14,8 @@
                         string="HR Supervisor" name="hr_supervisor_approve"/>
                 <filter domain="[('state', '=', 'hr_manager_approval')]"
                         string="HR Manager" name="hr_manager_approve"/>
+                <filter domain="[('state', '=', 'md_approval')]"
+                        string="MD" name="md_approve"/>
                 <filter domain="[('state', '=', 'approved')]"
                         string="Approved" name="approved"/>
                 <filter domain="[('state', '=', 'cancel_request')]"
@@ -56,6 +58,7 @@
                 <field name="can_manager_approve" invisible="1"/>
                 <field name="can_hr_supervisor_approve" invisible="1"/>
                 <field name="can_hr_manager_approve" invisible="1"/>
+                <field name="can_md_approve" invisible="1"/>
                 <field name="dashboard_approve_role" invisible="1"/>
                 <field name="can_reject" invisible="1"/>
                 <field name="can_reset_to_draft" invisible="1"/>
@@ -77,6 +80,10 @@
                             invisible="not can_hr_manager_approve"
                             groups="pr_hr.group_hr_manager"
                             type="object"/>
+                    <button name="action_md_approve" string="MD Approve" class="btn-success"
+                            invisible="not can_md_approve"
+                            groups="pr_hr.group_hr_md"
+                            type="object"/>
                     <button name="action_reject" string="Reject" class="btn-danger"
                             invisible="not can_reject"
                             type="object"/>
@@ -90,7 +97,7 @@
                             groups="pr_hr.group_hr_manager"
                             type="object"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,approved"/>
+                           statusbar_visible="draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,md_approval,approved"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Rejected" bg_color="bg-danger"
@@ -171,6 +178,11 @@
                                    options="{'no_create': True, 'no_edit': True}"/>
                             <field name="hr_manager_approved_date" readonly="1"
                                    invisible="not hr_manager_approved_date"/>
+                            <field name="md_approved_user_id" readonly="1"
+                                   invisible="not md_approved_user_id"
+                                   options="{'no_create': True, 'no_edit': True}"/>
+                            <field name="md_approved_date" readonly="1"
+                                   invisible="not md_approved_date"/>
                             <field name="reject_reason" invisible="state != 'rejected'"/>
                         </group>
                     </group>
@@ -201,7 +213,7 @@
                         type="object"/>
             </xpath>
             <xpath expr="//form/header/field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,approved</attribute>
+                <attribute name="statusbar_visible">draft,employee_manager_approval,hr_supervisor_approval,hr_manager_approval,md_approval,approved</attribute>
             </xpath>
             <xpath expr="//form/sheet//field[@name='reject_reason']" position="after">
                 <field name="rejected_stage" invisible="state != 'rejected'"/>
@@ -229,7 +241,7 @@
                 <field name="state" widget="badge"
                        decoration-muted="state == 'draft'"
                        decoration-warning="state in ('employee_manager_approval', 'hr_supervisor_approval', 'cancel_request')"
-                       decoration-info="state == 'hr_manager_approval'"
+                       decoration-info="state in ('hr_manager_approval', 'md_approval')"
                        decoration-success="state == 'approved'"
                        decoration-danger="state in ('rejected', 'cancelled')"/>
             </tree>

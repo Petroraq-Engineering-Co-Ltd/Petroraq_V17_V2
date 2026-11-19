@@ -118,6 +118,7 @@ class EmployeeLeaveDashboardPortal(CustomerPortal):
                     "employee_manager_approval",
                     "hr_supervisor_approval",
                     "hr_manager_approval",
+                    "md_approval",
                 ]),
             ], limit=5)]
 

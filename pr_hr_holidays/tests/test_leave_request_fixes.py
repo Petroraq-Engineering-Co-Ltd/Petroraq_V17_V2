@@ -42,8 +42,10 @@ class TestLeaveRequestFixes(TransactionCase):
         cls.hr_supervisor_user = _make_user(
             "Fixes HR Supervisor", "leave.fixes.hr.sup", cls.env.ref("pr_hr.group_hr_supervisor"),
         )
+        # Also MD: these tests use the HR Manager as the final approver.
         cls.hr_manager_user = _make_user(
-            "Fixes HR Manager", "leave.fixes.hr.mgr", cls.env.ref("pr_hr.group_hr_manager"),
+            "Fixes HR Manager", "leave.fixes.hr.mgr",
+            cls.env.ref("pr_hr.group_hr_manager") | cls.env.ref("pr_hr.group_hr_md"),
         )
 
         cls.department = cls.env["hr.department"].create({

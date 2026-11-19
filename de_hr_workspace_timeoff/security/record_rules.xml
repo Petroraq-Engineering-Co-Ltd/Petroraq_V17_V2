@@ -52,6 +52,14 @@
             <field name="groups" eval="[(4, ref('pr_hr.group_hr_supervisor')), (4, ref('pr_hr.group_hr_manager'))]"/>
         </record>
 
+        <!-- The MD decides the final stage of every request of their companies. -->
+        <record id="hr_leave_request_workspace_rule_pr_hr_md" model="ir.rule">
+            <field name="name">Leave Request Workspace: MD</field>
+            <field name="model_id" ref="pr_hr_holidays.model_pr_hr_leave_request"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('pr_hr.group_hr_md'))]"/>
+        </record>
+
         <!-- Portal users only have read access: limit it to their own requests
              and the ones they decide as Dept. Manager (same notion as the model). -->
         <record id="hr_leave_request_portal_rule" model="ir.rule">

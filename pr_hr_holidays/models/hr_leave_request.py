@@ -19,10 +19,13 @@ class _LeaveDryRunDone(Exception):
 
 HR_SUPERVISOR_GROUP = "pr_hr.group_hr_supervisor"
 HR_MANAGER_GROUP = "pr_hr.group_hr_manager"
+MD_GROUP = "pr_hr.group_hr_md"
+ALLOCATION_OVERRIDE_GROUP = "pr_hr_holidays.group_leave_allocation_limit_override"
 APPROVAL_STATES = (
     "employee_manager_approval",
     "hr_supervisor_approval",
     "hr_manager_approval",
+    "md_approval",
 )
 WORKFLOW_PROTECTED_FIELDS = frozenset({
     "state",
@@ -33,6 +36,8 @@ WORKFLOW_PROTECTED_FIELDS = frozenset({
     "hr_supervisor_approved_date",
     "hr_manager_approved_user_id",
     "hr_manager_approved_date",
+    "md_approved_user_id",
+    "md_approved_date",
     "rejected_stage",
     "rejected_from_state",
     "rejected_by_user_id",
@@ -45,6 +50,14 @@ APPROVAL_STAGE_CHAIN = (
     ("employee_manager_approval", "employee_manager", "Dept. Manager"),
     ("hr_supervisor_approval", "hr_supervisor", "HR Supervisor"),
     ("hr_manager_approval", "hr_manager", "HR Manager"),
+    ("md_approval", "md", "MD"),
+)
+# Approver audit fields of each stage, in chain order.
+STAGE_APPROVAL_FIELDS = (
+    ("employee_manager_approval", "manager_approved_user_id", "manager_approved_date"),
+    ("hr_supervisor_approval", "hr_supervisor_approved_user_id", "hr_supervisor_approved_date"),
+    ("hr_manager_approval", "hr_manager_approved_user_id", "hr_manager_approved_date"),
+    ("md_approval", "md_approved_user_id", "md_approved_date"),
 )
 
 
@@ -117,16 +130,20 @@ class HrLeaveRequest(models.Model):
     hr_manager_approved_user_id = fields.Many2one('res.users', string='HR Manager Approved By', readonly=True,
                                                   copy=False)
     hr_manager_approved_date = fields.Datetime(string='HR Manager Approved On', readonly=True, copy=False)
+    md_approved_user_id = fields.Many2one('res.users', string='MD Approved By', readonly=True, copy=False)
+    md_approved_date = fields.Datetime(string='MD Approved On', readonly=True, copy=False)
     reject_reason = fields.Text(string="Rejection Reason", readonly=True, tracking=True)
     rejected_stage = fields.Selection([
         ('manager', 'Dept. Manager'),
         ('hr_supervisor', 'HR Supervisor'),
         ('hr_manager', 'HR Manager'),
+        ('md', 'MD'),
     ], string='Rejected At', readonly=True, copy=False, tracking=True)
     rejected_from_state = fields.Selection([
         ('employee_manager_approval', 'Dept. Manager'),
         ('hr_supervisor_approval', 'HR Supervisor'),
         ('hr_manager_approval', 'HR Manager'),
+        ('md_approval', 'MD'),
     ], string='Rejected From State', readonly=True, copy=False)
     rejected_by_user_id = fields.Many2one(
         'res.users', string='Rejected By', readonly=True, copy=False, tracking=True
@@ -139,6 +156,7 @@ class HrLeaveRequest(models.Model):
         ('employee_manager_approval', 'Dept. Manager'),
         ('hr_supervisor_approval', 'HR Supervisor'),
         ('hr_manager_approval', 'HR Manager'),
+        ('md_approval', 'MD'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('cancel_request', 'Cancellation Requested'),
@@ -150,6 +168,7 @@ class HrLeaveRequest(models.Model):
         ('employee_manager_approval', 'Pending Dept. Manager'),
         ('hr_supervisor_approval', 'Pending HR Supervisor'),
         ('hr_manager_approval', 'Pending HR Manager'),
+        ('md_approval', 'Pending MD'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
         ('cancel_request', 'Pending Cancellation Approval'),
@@ -165,7 +184,9 @@ class HrLeaveRequest(models.Model):
     can_manager_approve = fields.Boolean(compute="_compute_approval_button_visibility")
     can_hr_supervisor_approve = fields.Boolean(compute="_compute_approval_button_visibility")
     can_hr_manager_approve = fields.Boolean(compute="_compute_approval_button_visibility")
+    can_md_approve = fields.Boolean(compute="_compute_approval_button_visibility")
     dashboard_approve_role = fields.Selection([
+        ('md', 'MD'),
         ('hr_manager', 'HR Manager'),
         ('hr_supervisor', 'HR Supervisor'),
         ('employee_manager', 'Dept. Manager'),
@@ -208,6 +229,7 @@ class HrLeaveRequest(models.Model):
         self.env.cr.execute("""
             UPDATE pr_hr_leave_request
                SET rejected_from_state = CASE rejected_stage
+                   WHEN 'md' THEN 'md_approval'
                    WHEN 'hr_manager' THEN 'hr_manager_approval'
                    WHEN 'hr_supervisor' THEN 'hr_supervisor_approval'
                    ELSE 'employee_manager_approval'
@@ -227,6 +249,11 @@ class HrLeaveRequest(models.Model):
     def _user_is_hr_manager(self, user=None):
         user = user or self.env.user
         return bool(user and user.has_group(HR_MANAGER_GROUP))
+
+    @api.model
+    def _user_is_md(self, user=None):
+        user = user or self.env.user
+        return bool(user and user.has_group(MD_GROUP))
 
     def _user_is_dept_manager(self, user=None):
         self.ensure_one()
@@ -250,7 +277,25 @@ class HrLeaveRequest(models.Model):
             roles.add("hr_supervisor")
         if self._user_is_hr_manager(user):
             roles.add("hr_manager")
+        if self._user_is_md(user):
+            roles.add("md")
         return roles
+
+    def _get_highest_consecutive_role(self, user, from_state):
+        """Walk APPROVAL_STAGE_CHAIN from `from_state` and return the role of the
+        last stage the user can cover without a gap (False if the user does
+        not hold the role of `from_state` itself)."""
+        self.ensure_one()
+        state_keys = [stage[0] for stage in APPROVAL_STAGE_CHAIN]
+        if from_state not in state_keys:
+            return False
+        roles = self._get_user_leave_request_roles(user)
+        highest = False
+        for _state, role, _label in APPROVAL_STAGE_CHAIN[state_keys.index(from_state):]:
+            if role not in roles:
+                break
+            highest = role
+        return highest
 
     def _user_can_submit(self, user=None):
         self.ensure_one()
@@ -280,6 +325,7 @@ class HrLeaveRequest(models.Model):
             or (self.submitted_by_id and self.submitted_by_id == user)
             or self._user_is_hr_supervisor(user)
             or self._user_is_hr_manager(user)
+            or self._user_is_md(user)
         )
 
     @api.model
@@ -293,25 +339,33 @@ class HrLeaveRequest(models.Model):
         self.ensure_one()
         if not self.env.context.get("from_approval_dashboard"):
             return
+        missing_label = self._get_missing_intermediate_role_label(target_role, self.env.user)
+        if missing_label:
+            raise UserError(
+                _("You cannot approve this request until %s approval is completed.")
+                % _(missing_label)
+            )
 
+    def _get_missing_intermediate_role_label(self, target_role, user):
+        """Label of the first stage between the current state and target_role
+        whose role the user does not hold, or False when they hold them all."""
+        self.ensure_one()
         state_keys = [stage[0] for stage in APPROVAL_STAGE_CHAIN]
         role_keys = [stage[1] for stage in APPROVAL_STAGE_CHAIN]
         if self.state not in state_keys or target_role not in role_keys:
-            return
+            return False
 
         current_idx = state_keys.index(self.state)
         target_idx = role_keys.index(target_role)
         if target_idx <= current_idx:
-            return
+            return False
 
-        user_roles = self._get_user_leave_request_roles(self.env.user)
+        user_roles = self._get_user_leave_request_roles(user)
         for idx in range(current_idx, target_idx):
             _st, intermediate_role, role_label = APPROVAL_STAGE_CHAIN[idx]
             if intermediate_role not in user_roles:
-                raise UserError(
-                    _("You cannot approve this request until %s approval is completed.")
-                    % _(role_label)
-                )
+                return role_label
+        return False
 
     @api.model
     def _get_group_users_for_company(self, group_xmlid, company=None):
@@ -353,6 +407,8 @@ class HrLeaveRequest(models.Model):
             role_domains.append([("state", "=", "hr_supervisor_approval")])
         if self._user_is_hr_manager(user):
             role_domains.append([("state", "in", ["hr_manager_approval", "cancel_request"])])
+        if self._user_is_md(user):
+            role_domains.append([("state", "=", "md_approval")])
         return expression.OR(role_domains) if len(role_domains) > 1 else role_domains[0]
 
     # endregion [Role Helpers]
@@ -417,6 +473,7 @@ class HrLeaveRequest(models.Model):
         user = self.env.user
         is_hr_sup = self._user_is_hr_supervisor(user)
         is_hr_mgr = self._user_is_hr_manager(user)
+        is_md = self._user_is_md(user)
         from_dashboard = bool(self.env.context.get("from_approval_dashboard"))
         for rec in self:
             has_id = bool(rec.id)
@@ -426,23 +483,15 @@ class HrLeaveRequest(models.Model):
             selected_role = False
             if has_id and rec.state in APPROVAL_STATES:
                 if from_dashboard:
-                    if rec.state == "hr_manager_approval":
-                        if is_hr_mgr:
-                            selected_role = "hr_manager"
-                    elif rec.state == "hr_supervisor_approval":
-                        if is_hr_sup and is_hr_mgr:
-                            selected_role = "hr_manager"
-                        elif is_hr_sup:
-                            selected_role = "hr_supervisor"
-                    elif rec.state == "employee_manager_approval":
-                        if is_dept_mgr and is_hr_sup and is_hr_mgr:
-                            selected_role = "hr_manager"
-                        elif is_dept_mgr and is_hr_sup:
-                            selected_role = "hr_supervisor"
-                        elif is_dept_mgr:
-                            selected_role = "employee_manager"
+                    # Dashboard: the user's own stage, extended to every
+                    # following stage they also hold without a gap.
+                    selected_role = rec._get_highest_consecutive_role(user, rec.state)
                 else:
-                    if is_hr_mgr:
+                    # Backend: highest role wins, with skip-level from any
+                    # earlier pending stage.
+                    if is_md:
+                        selected_role = "md"
+                    elif is_hr_mgr and rec.state != "md_approval":
                         selected_role = "hr_manager"
                     elif is_hr_sup and rec.state in ("employee_manager_approval", "hr_supervisor_approval"):
                         selected_role = "hr_supervisor"
@@ -455,6 +504,7 @@ class HrLeaveRequest(models.Model):
             rec.can_manager_approve = selected_role == "employee_manager"
             rec.can_hr_supervisor_approve = selected_role == "hr_supervisor"
             rec.can_hr_manager_approve = selected_role == "hr_manager"
+            rec.can_md_approve = selected_role == "md"
             rec.can_reject = bool(selected_role)
             rec.can_approve_cancellation = (
                 has_id
@@ -498,6 +548,8 @@ class HrLeaveRequest(models.Model):
             return self._user_is_hr_supervisor(user)
         if self.rejected_stage == 'hr_manager':
             return self._user_is_hr_manager(user)
+        if self.rejected_stage == 'md':
+            return self._user_is_md(user)
         return False
 
     def _user_can_reject_stage(self, stage, user):
@@ -515,13 +567,19 @@ class HrLeaveRequest(models.Model):
                 return self._user_is_dept_manager(user)
             return True
         if stage == 'hr_manager':
-            if not (self.state in APPROVAL_STATES and self._user_is_hr_manager(user)):
+            if not (
+                self.state in ('employee_manager_approval', 'hr_supervisor_approval', 'hr_manager_approval')
+                and self._user_is_hr_manager(user)
+            ):
                 return False
             if from_dashboard:
-                if self.state == 'hr_supervisor_approval':
-                    return self._user_is_hr_supervisor(user)
-                if self.state == 'employee_manager_approval':
-                    return self._user_is_dept_manager(user) and self._user_is_hr_supervisor(user)
+                return not self._get_missing_intermediate_role_label('hr_manager', user)
+            return True
+        if stage == 'md':
+            if not (self.state in APPROVAL_STATES and self._user_is_md(user)):
+                return False
+            if from_dashboard:
+                return not self._get_missing_intermediate_role_label('md', user)
             return True
         return False
 
@@ -543,7 +601,11 @@ class HrLeaveRequest(models.Model):
                 'state': 'rejected',
                 'approval_state': 'rejected',
             })
-            if stage == 'hr_manager' and previous_state in ('employee_manager_approval', 'hr_supervisor_approval'):
+            if stage == 'md' and previous_state != 'md_approval':
+                rec.sudo().message_post(
+                    body=_('Rejected by MD via skip-level decision.')
+                )
+            elif stage == 'hr_manager' and previous_state in ('employee_manager_approval', 'hr_supervisor_approval'):
                 rec.sudo().message_post(
                     body=_('Rejected by HR Manager via skip-level decision.')
                 )
@@ -557,7 +619,9 @@ class HrLeaveRequest(models.Model):
             'manager': 'employee_manager_approval',
             'hr_supervisor': 'hr_supervisor_approval',
             'hr_manager': 'hr_manager_approval',
+            'md': 'md_approval',
         }
+        stage_states = [stage[0] for stage in STAGE_APPROVAL_FIELDS]
         actor = self.env.user
         for rec in self:
             if rec.state != 'rejected' or not rec._user_can_decide_rejected_stage(actor):
@@ -575,27 +639,10 @@ class HrLeaveRequest(models.Model):
                 'allocation_override_applied': False,
                 'allocation_override_note': False,
             }
-            if target_state == 'employee_manager_approval':
-                reset_vals.update({
-                    'manager_approved_user_id': False,
-                    'manager_approved_date': False,
-                    'hr_supervisor_approved_user_id': False,
-                    'hr_supervisor_approved_date': False,
-                    'hr_manager_approved_user_id': False,
-                    'hr_manager_approved_date': False,
-                })
-            elif target_state == 'hr_supervisor_approval':
-                reset_vals.update({
-                    'hr_supervisor_approved_user_id': False,
-                    'hr_supervisor_approved_date': False,
-                    'hr_manager_approved_user_id': False,
-                    'hr_manager_approved_date': False,
-                })
-            elif target_state == 'hr_manager_approval':
-                reset_vals.update({
-                    'hr_manager_approved_user_id': False,
-                    'hr_manager_approved_date': False,
-                })
+            # Clear the approvals of the reopened stage and every later one.
+            if target_state in stage_states:
+                for _state, user_field, date_field in STAGE_APPROVAL_FIELDS[stage_states.index(target_state):]:
+                    reset_vals.update({user_field: False, date_field: False})
 
             rec.sudo().write(reset_vals)
             rec.sudo().message_post(
@@ -623,6 +670,8 @@ class HrLeaveRequest(models.Model):
                 'hr_supervisor_approved_date': False,
                 'hr_manager_approved_user_id': False,
                 'hr_manager_approved_date': False,
+                'md_approved_user_id': False,
+                'md_approved_date': False,
                 'reject_reason': False,
                 'rejected_stage': False,
                 'rejected_from_state': False,
@@ -928,12 +977,20 @@ class HrLeaveRequest(models.Model):
                             mail_id.sudo().send()
 
     def _send_hr_manager_email(self):
+        self._send_approver_group_email(HR_MANAGER_GROUP)
+
+    def _send_md_email(self):
+        self._send_approver_group_email(MD_GROUP)
+
+    def _send_approver_group_email(self, group_xmlid):
+        """Notify every active user of `group_xmlid` in the request's company
+        that the request awaits their decision."""
         for rec in self:
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
             record_url = base_url + "/web#id=" + str(
                 rec.id) + "&view_type=form&model=pr.hr.leave.request&view_type=form"
 
-            user_ids = rec._get_group_users_for_company(HR_MANAGER_GROUP, rec.company_id)
+            user_ids = rec._get_group_users_for_company(group_xmlid, rec.company_id)
             if user_ids:
                 for user in user_ids:
                     employee_id = self.env["hr.employee"].sudo().search([("user_id", "=", user.id)], limit=1)
@@ -1014,7 +1071,7 @@ class HrLeaveRequest(models.Model):
         # Do not count "draft" or "employee_manager_approval" requests here to avoid
         # showing misleading "0 available" on initial submission before Dept. Manager
         # confirmation.
-        pending_states = ["hr_supervisor_approval", "hr_manager_approval"]
+        pending_states = ["hr_supervisor_approval", "hr_manager_approval", "md_approval"]
         domain = [
             ("employee_id", "=", employee.id),
             ("leave_type_id", "=", leave_type.id),
@@ -1061,62 +1118,117 @@ class HrLeaveRequest(models.Model):
             return ("emp", employee.id)
         return ("user", user.id)
 
-    def _finalize_hr_manager_approval(self, actor, approval_date, chatter_body=None):
+    def _apply_approver_allocation_check(self, actor):
+        """Check the allocation balance on behalf of `actor`, whose approval is
+        about to move the request on. An actor in the allocation override
+        group may approve beyond the balance: the request is then flagged. A
+        flag set by an earlier approver is kept, so a later approver without
+        the override group is not blocked by the same shortfall."""
         self.ensure_one()
-        actor = actor or self.env.user
-        actor_has_allocation_override = bool(
-            actor and actor.has_group("pr_hr_holidays.group_leave_allocation_limit_override")
-        )
         rec = self.sudo()
         available_days = rec._get_available_days_for_request()
-        bypassed_allocation_limit = (
-            actor_has_allocation_override
-            and available_days != float("inf")
+        exceeds = (
+            available_days != float("inf")
             and rec._get_requested_days_count() > (available_days + 1e-6)
         )
+        actor_has_override = bool(actor and actor.has_group(ALLOCATION_OVERRIDE_GROUP))
+        override = exceeds and (actor_has_override or rec.allocation_override_applied)
         rec.write({
-            "allocation_override_applied": bypassed_allocation_limit,
+            "allocation_override_applied": override,
             "allocation_override_note": _(
                 "Advance allocation: this leave was approved without available allocation."
-            ) if bypassed_allocation_limit else False,
+            ) if override else False,
         })
         rec.with_user(actor)._check_requested_days_with_allocation()
+
+    def _finalize_approval(self, actor, approval_date, chatter_body=None):
+        """Final (MD) approval: record the MD approver, approve the request and
+        create its validated hr.leave."""
+        self.ensure_one()
+        actor = actor or self.env.user
+        rec = self.sudo()
+        rec._apply_approver_allocation_check(actor)
         rec.write({
             "state": "approved",
             "approval_state": "approved",
-            "hr_manager_approved_user_id": actor.id if actor else False,
-            "hr_manager_approved_date": approval_date,
+            "md_approved_user_id": actor.id,
+            "md_approved_date": approval_date,
         })
-        rec._create_employee_leave(allocation_override=actor_has_allocation_override)
+        rec._create_employee_leave(
+            allocation_override=bool(
+                actor.has_group(ALLOCATION_OVERRIDE_GROUP) or rec.allocation_override_applied
+            )
+        )
         if chatter_body:
             rec.message_post(body=chatter_body)
         rec._send_result_to_employee(result="Approved")
         return True
 
+    def _complete_hr_manager_stage(self, actor, approval_date, chatter_body=None):
+        """Record `actor`'s HR Manager approval. An actor who is also MD covers
+        the final MD stage in the same click; otherwise the request moves on to
+        MD approval."""
+        self.ensure_one()
+        actor = actor or self.env.user
+        self.sudo().write({
+            "hr_manager_approved_user_id": actor.id,
+            "hr_manager_approved_date": approval_date,
+        })
+        if self._user_is_md(actor):
+            if chatter_body:
+                self.sudo().message_post(body=chatter_body)
+            return self._finalize_approval(
+                actor=actor,
+                approval_date=approval_date,
+                chatter_body=_("MD approval given by %s, who also holds the MD role.") % actor.name,
+            )
+        self._apply_approver_allocation_check(actor)
+        self.sudo().write({
+            "state": "md_approval",
+            "approval_state": "md_approval",
+        })
+        if chatter_body:
+            self.sudo().message_post(body=chatter_body)
+        self.sudo()._send_md_email()
+        return True
+
     def _finalize_if_submitter_holds_hr_roles(self, actor, now):
         """A request submitted by a user holding both HR Supervisor and HR Manager
         only waits for the employee's direct manager. Once that approval is in
-        (at whichever stage the manager approved), finalize on the submitter's
-        behalf. Returns True when the request was finalized."""
+        (at whichever stage the manager approved), the submitter covers the
+        HR Supervisor and HR Manager stages, and the MD stage too when they are
+        MD; otherwise the request waits at MD approval. Returns True when the
+        request was moved on."""
         self.ensure_one()
         submitter = self.submitted_by_id or self.create_uid
         if not submitter or submitter == actor:
             return False
         if not (self._user_is_hr_supervisor(submitter) and self._user_is_hr_manager(submitter)):
             return False
-        vals = {}
+        submitter_is_md = self._user_is_md(submitter)
+        approved_body = _(
+            "Auto-approved after Dept. Manager approval, as submitted by HR Supervisor, HR Manager and MD."
+        )
+        if self.state == "md_approval":
+            if not submitter_is_md:
+                return False
+            self._finalize_approval(actor=submitter, approval_date=now, chatter_body=approved_body)
+            return True
         if not self.hr_supervisor_approved_user_id:
-            vals.update({
+            self.sudo().write({
                 "hr_supervisor_approved_user_id": submitter.id,
                 "hr_supervisor_approved_date": now,
             })
-        if vals:
-            self.sudo().write(vals)
-        self._finalize_hr_manager_approval(
+        self._complete_hr_manager_stage(
             actor=submitter,
             approval_date=now,
-            chatter_body=_("Auto-approved after Dept. Manager approval, as submitted by HR Supervisor and HR Manager."),
+            chatter_body=None if submitter_is_md else _(
+                "Auto-advanced to MD Approval after Dept. Manager approval, "
+                "as submitted by HR Supervisor and HR Manager."
+            ),
         )
+        if self.state == "approved":
+            self.sudo().message_post(body=approved_body)
         return True
 
     def _route_at_hr_supervisor_stage(self, actor=None, include_submitter=True):
@@ -1132,11 +1244,13 @@ class HrLeaveRequest(models.Model):
                 "hr_supervisor_approved_user_id": actor.id,
                 "hr_supervisor_approved_date": now,
             })
-            self._finalize_hr_manager_approval(
+            self._complete_hr_manager_stage(
                 actor=actor,
                 approval_date=now,
                 chatter_body=_("Approved by HR Supervisor and HR Manager."),
             )
+            if include_submitter and self.state == "md_approval":
+                self._finalize_if_submitter_holds_hr_roles(actor, now)
             return
 
         if include_submitter and self._finalize_if_submitter_holds_hr_roles(actor, now):
@@ -1205,7 +1319,8 @@ class HrLeaveRequest(models.Model):
 
         # Case 1: Dual HR Supervisor + HR Manager submitter who is also the employee's
         # direct manager (or the employee has no other active direct manager)
-        # auto-approves immediately.
+        # covers every stage up to HR Manager on submit. The request is approved
+        # immediately when the submitter is also MD, else it waits at MD approval.
         if submitter_is_hr_sup and submitter_is_hr_mgr and not has_distinct_manager:
             vals = {
                 "hr_supervisor_approved_user_id": submitter.id,
@@ -1217,19 +1332,22 @@ class HrLeaveRequest(models.Model):
                     "manager_approved_date": now,
                 })
             self.sudo().write(vals)
-            self._finalize_hr_manager_approval(
-                actor=submitter,
-                approval_date=now,
-                chatter_body=_("Auto-approved on submission by HR Supervisor and HR Manager."),
-            )
+            if self._user_is_md(submitter):
+                body = _("Auto-approved on submission by HR Supervisor, HR Manager and MD.")
+            else:
+                body = _(
+                    "Submitted and auto-advanced to MD Approval based on submitter access rights "
+                    "(HR Supervisor and HR Manager)."
+                )
+            self._complete_hr_manager_stage(actor=submitter, approval_date=now, chatter_body=body)
             return
 
         # Case 2: Employee has a distinct active Dept. Manager -> route to manager's
-        # highest consecutive role along Dept. Manager -> HR Supervisor -> HR Manager.
-        # This also applies to a dual HR Supervisor + HR Manager submitter who is not
-        # the direct manager: the request waits for the direct manager at that stage
-        # and is finalized once the manager approves (the submitter already holds
-        # the remaining HR roles, see _finalize_if_submitter_holds_hr_roles).
+        # highest consecutive role along Dept. Manager -> HR Supervisor -> HR Manager
+        # -> MD. This also applies to a dual HR Supervisor + HR Manager submitter
+        # who is not the direct manager: the request waits for the direct manager
+        # at that stage and the submitter covers the remaining HR roles once the
+        # manager approves (see _finalize_if_submitter_holds_hr_roles).
         if has_distinct_manager:
             manager_roles = self._get_user_leave_request_roles(manager_user)
             target_state = "employee_manager_approval"
@@ -1244,16 +1362,9 @@ class HrLeaveRequest(models.Model):
             }
             # Stages skipped because the Dept. Manager holds the following
             # role(s) are recorded as approved by that manager.
-            if target_state in ("hr_supervisor_approval", "hr_manager_approval"):
-                route_vals.update({
-                    "manager_approved_user_id": manager_user.id,
-                    "manager_approved_date": now,
-                })
-            if target_state == "hr_manager_approval":
-                route_vals.update({
-                    "hr_supervisor_approved_user_id": manager_user.id,
-                    "hr_supervisor_approved_date": now,
-                })
+            stage_states = [stage[0] for stage in STAGE_APPROVAL_FIELDS]
+            for _state, user_field, date_field in STAGE_APPROVAL_FIELDS[:stage_states.index(target_state)]:
+                route_vals.update({user_field: manager_user.id, date_field: now})
             self.sudo().write(route_vals)
             if target_state == "employee_manager_approval":
                 self.sudo()._send_manager_email()
@@ -1267,6 +1378,11 @@ class HrLeaveRequest(models.Model):
                 self.sudo()._send_hr_manager_email()
                 self.sudo().message_post(
                     body=_("Request submitted directly for HR Manager approval based on manager access rights.")
+                )
+            elif target_state == "md_approval":
+                self.sudo()._send_md_email()
+                self.sudo().message_post(
+                    body=_("Request submitted directly for MD approval based on manager access rights.")
                 )
             return
 
@@ -1388,6 +1504,8 @@ class HrLeaveRequest(models.Model):
         for rec in self:
             if rec.state not in APPROVAL_STATES:
                 raise UserError(_("This leave request cannot be rejected in its current state."))
+            if rec._user_can_reject_stage("md", actor):
+                return rec._open_reject_wizard("md")
             if rec._user_can_reject_stage("hr_manager", actor):
                 return rec._open_reject_wizard("hr_manager")
             if rec._user_can_reject_stage("hr_supervisor", actor):
@@ -1430,11 +1548,13 @@ class HrLeaveRequest(models.Model):
                     body = _("Approved by HR Supervisor and HR Manager via skip-level approval.")
                 else:
                     body = _("Approved by HR Supervisor and HR Manager.")
-                rec._finalize_hr_manager_approval(
+                rec._complete_hr_manager_stage(
                     actor=actor,
                     approval_date=now,
                     chatter_body=body,
                 )
+                if rec.state == "md_approval":
+                    rec._finalize_if_submitter_holds_hr_roles(actor, now)
                 continue
 
             # Submitted by an HR Supervisor + HR Manager: the HR Manager stage is
@@ -1470,8 +1590,8 @@ class HrLeaveRequest(models.Model):
             raise AccessError(_("Only an HR Manager can approve this stage."))
         for rec in self:
             rec._validate_dashboard_intermediate_approvals("hr_manager")
-            if rec.state not in APPROVAL_STATES:
-                raise UserError(_("This leave request cannot be approved in its current state."))
+            if rec.state not in ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval"):
+                raise UserError(_("This leave request is not awaiting HR Manager approval."))
             previous_state = rec.state
             now = fields.Datetime.now()
             is_dept_mgr = rec._user_is_dept_manager(actor)
@@ -1500,11 +1620,13 @@ class HrLeaveRequest(models.Model):
 
             if extra_vals:
                 rec.sudo().write(extra_vals)
-            rec._finalize_hr_manager_approval(
+            rec._complete_hr_manager_stage(
                 actor=actor,
                 approval_date=now,
                 chatter_body=chatter_body,
             )
+            if rec.state == "md_approval":
+                rec._finalize_if_submitter_holds_hr_roles(actor, now)
         return True
 
     def action_hr_manager_reject(self):
@@ -1513,6 +1635,47 @@ class HrLeaveRequest(models.Model):
             if not rec._user_can_reject_stage("hr_manager", actor):
                 raise AccessError(_("You are not allowed to reject this leave request at the current stage."))
             return rec._open_reject_wizard("hr_manager")
+
+    def action_md_approve(self):
+        """Final approval. From an earlier stage (backend skip-level, or the
+        dashboard when the MD holds every intermediate role) the stages whose
+        role the MD holds are recorded under the MD."""
+        actor = self.env.user
+        if not self._user_is_md(actor):
+            raise AccessError(_("Only the MD can approve this stage."))
+        stage_states = [stage[0] for stage in STAGE_APPROVAL_FIELDS]
+        role_by_state = {stage[0]: stage[1] for stage in APPROVAL_STAGE_CHAIN}
+        for rec in self:
+            rec._validate_dashboard_intermediate_approvals("md")
+            if rec.state not in APPROVAL_STATES:
+                raise UserError(_("This leave request cannot be approved in its current state."))
+            previous_state = rec.state
+            now = fields.Datetime.now()
+            roles = rec._get_user_leave_request_roles(actor)
+            extra_vals = {}
+            skipped = False
+            for state, user_field, date_field in STAGE_APPROVAL_FIELDS[stage_states.index(previous_state):-1]:
+                if role_by_state[state] in roles:
+                    extra_vals.update({user_field: actor.id, date_field: now})
+                else:
+                    skipped = True
+            if extra_vals:
+                rec.sudo().write(extra_vals)
+            if skipped:
+                chatter_body = _("Approved by MD via skip-level approval.")
+            elif previous_state != "md_approval":
+                chatter_body = _("Approved by MD, who also holds every pending earlier approval role.")
+            else:
+                chatter_body = None
+            rec._finalize_approval(actor=actor, approval_date=now, chatter_body=chatter_body)
+        return True
+
+    def action_md_reject(self):
+        actor = self.env.user
+        for rec in self:
+            if not rec._user_can_reject_stage("md", actor):
+                raise AccessError(_("You are not allowed to reject this leave request at the current stage."))
+            return rec._open_reject_wizard("md")
 
     def _get_employee_leave_env(self, allocation_override=False):
         leave_context = {
@@ -1549,7 +1712,7 @@ class HrLeaveRequest(models.Model):
             overlapping = self.sudo().with_context(approvals_of_leave_request=False, params=None).search([
                 ("id", "!=", rec.id),
                 ("employee_id", "=", rec.employee_id.id),
-                ("state", "in", ("employee_manager_approval", "hr_supervisor_approval", "hr_manager_approval")),
+                ("state", "in", APPROVAL_STATES),
                 ("date_from", "<=", rec.date_to),
                 ("date_to", ">=", rec.date_from),
             ])
@@ -1634,6 +1797,7 @@ class HrLeaveRequest(models.Model):
             or user._is_admin()
             or self._user_is_hr_supervisor(user)
             or self._user_is_hr_manager(user)
+            or self._user_is_md(user)
         )
 
     @api.model

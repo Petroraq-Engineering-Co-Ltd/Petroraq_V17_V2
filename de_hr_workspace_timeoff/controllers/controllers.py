@@ -134,6 +134,7 @@ class LeaveRequestTemplate(http.Controller):
                     "employee_manager_approval",
                     "hr_supervisor_approval",
                     "hr_manager_approval",
+                    "md_approval",
                 ]),
             ], limit=5)]
             # } for l in request.env["hr.leave"].sudo().search([('state', 'in', ['draft', 'confirm', 'validate1'])], limit=5)]
