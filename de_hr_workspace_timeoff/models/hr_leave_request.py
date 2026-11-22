@@ -1,5 +1,5 @@
-from odoo import models, fields, api, SUPERUSER_ID
-from datetime import date
+from odoo import models, api
+from odoo.osv import expression
 
 
 class HrLeaveRequest(models.Model):
@@ -10,54 +10,19 @@ class HrLeaveRequest(models.Model):
     @api.model
     def search_fetch(self, domain, field_names, offset=0, limit=None, order=None):
         user = self.env.user
-        view_action_id = self.env.ref("de_hr_workspace_timeoff.action_my_leave_request_approvals")
+        view_action_id = self.env.ref(
+            "de_hr_workspace_timeoff.action_my_leave_request_approvals",
+            raise_if_not_found=False,
+        )
         approvals_of_leave_request = self.env.context.get("approvals_of_leave_request")
         params = self.env.context.get("params")
-        if params:
-            action_id = params.get("action")
-        else:
-            action_id = False
-        domain = domain or []
-        if approvals_of_leave_request or (action_id and action_id == view_action_id.id):
-            domain = []
-            role_domains = []
-            # Employee Manager
-            role_domains.append([
-                ('employee_manager_id.user_id', '=', user.id),
-                ('state', '=', 'draft')
-            ])
-
-            # HR Manager
-            if user.has_group("hr_holidays.group_hr_holidays_manager"):
-                role_domains.append([
-                    ('state', '=', 'hr_supervisor'),
-                    ('hr_manager_ids', 'in', user.id),
-                ])
-                role_domains.append([
-                    ('state', '=', 'cancel_request'),
-                    ('hr_manager_ids', 'in', user.id),
-                ])
-            # HR Supervisor
-            # elif user.has_group("hr_holidays.group_hr_holidays_user"):
-            if user.has_group("pr_hr_holidays.custom_group_hr_holidays_supervisor"):
-                role_domains.append([
-                    ('state', '=', 'manager_approve'),
-                    ('hr_supervisor_ids', 'in', user.id),
-                ])
-
-            # Combine roles with OR
-            if len(role_domains) == 1:
-                domain += role_domains[0]
-            else:
-                combined = ['|'] * (len(role_domains) - 1)
-                for rd in role_domains:
-                    if len(rd) > 1:
-                        combined += ['&'] * (len(rd) - 1) + rd
-                    else:
-                        combined += rd
-                domain += combined
-            return super().search_fetch(domain, field_names, offset, limit, order)
-        else:
-            return super().search_fetch(domain, field_names, offset, limit, order)
+        action_id = params.get("action") if params else False
+        domain = list(domain or [])
+        if approvals_of_leave_request or (
+            view_action_id and action_id and action_id == view_action_id.id
+        ):
+            role_domain = self._get_pending_approval_domain(user)
+            domain = expression.AND([domain, role_domain]) if domain else role_domain
+        return super().search_fetch(domain, field_names, offset, limit, order)
 
     # endregion [System Methods]

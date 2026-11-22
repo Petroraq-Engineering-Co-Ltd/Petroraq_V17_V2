@@ -24,6 +24,7 @@ class HrContract(models.Model):
                 "name": "Emergency Leave",
                 "days": 5.0,
                 "allocation_type": "regular",
+                "leave_type_code": "emergency_leave",
             },
             {
                 "name": "Hajj Leave",

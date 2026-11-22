@@ -1,8 +1,10 @@
 from datetime import date, datetime
 
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
+@tagged("post_install", "-at_install")
 class TestAnnualLeaveCalendarDays(TransactionCase):
 
     @classmethod

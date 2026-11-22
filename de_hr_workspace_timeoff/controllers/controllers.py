@@ -43,12 +43,6 @@ class LeaveRequestTemplate(http.Controller):
         date_to = datetime.strptime(str_date_to, "%Y-%m-%d").date()
         employee_obj = request.env['hr.employee'].sudo().browse(employee_id)
         leave_type_obj = request.env['hr.leave.type'].sudo().browse(leave_type_id)
-        employee_manager_id = employee_obj.parent_id
-        # hr_supervisor_group_ids = [request.env.ref('hr_holidays.group_hr_holidays_user').id]
-        hr_supervisor_group_ids = [request.env.ref('pr_hr_holidays.custom_group_hr_holidays_supervisor').id]
-        hr_manager_group_ids = [request.env.ref('hr_holidays.group_hr_holidays_manager').id]
-        hr_supervisor_ids = request.env['res.users'].sudo().search([('groups_id', 'in', hr_supervisor_group_ids)])
-        hr_manager_ids = request.env['res.users'].sudo().search([('groups_id', 'in', hr_manager_group_ids)])
         notes = kw.get('message') if kw.get('message') else False
         try:
             with request.env.cr.savepoint():
@@ -59,10 +53,26 @@ class LeaveRequestTemplate(http.Controller):
                     'date_to': date_to,
                     'note': notes if notes else False,
                     'company_id': employee_obj.company_id.id if employee_obj.company_id else request.env.company.id,
-                    'employee_manager_id': employee_manager_id.id if employee_manager_id else False,
-                    'hr_supervisor_ids': hr_supervisor_ids.ids if hr_supervisor_ids else False,
-                    'hr_manager_ids': hr_manager_ids.ids if hr_manager_ids else False,
+                    # employee_manager_id / hr_supervisor_ids / hr_manager_ids are
+                    # set by create() and action_submit() (active users, request company).
                 })
+                # Attach the uploaded files before submitting: sick leave
+                # requires a supporting document at submit time.
+                attachments = request.env['ir.attachment'].sudo()
+                for att in request.httprequest.files.getlist('attachment_ids'):
+                    if not att.filename:
+                        continue
+                    attachments |= attachments.create({
+                        'name': att.filename,
+                        'res_name': att.filename,
+                        'res_model': 'pr.hr.leave.request',
+                        'res_id': leave_request_id.id,
+                        'datas': base64.encodebytes(att.read()),
+                        'type': 'binary',
+                    })
+                if attachments:
+                    leave_request_id.write({'attachment_ids': [(6, 0, attachments.ids)]})
+                leave_request_id.with_user(request.env.user).action_submit()
         except (ValidationError, UserError) as ex:
             current_user = request.env.user
             current_employee_id = request.env["hr.employee"].sudo().search([("user_id", "=", current_user.id)], limit=1)
@@ -74,25 +84,6 @@ class LeaveRequestTemplate(http.Controller):
                 "error_message": str(ex),
             })
         if leave_request_id:
-            # Create Attachments And Add Them To Leave Request
-            attachment_ids = []
-            attachment_list = request.httprequest.files.getlist('attachment_ids')
-            for att in attachment_list:
-                if kw.get('attachment_ids'):
-                    attachments = {
-                        'res_name': att.filename,
-                        'res_model': 'pr.hr.leave.request',
-                        'res_id': leave_request_id.sudo().id,
-                        'datas': base64.encodebytes(att.read()),
-                        'type': 'binary',
-                        'name': att.filename,
-                    }
-                    attachment_obj = http.request.env['ir.attachment']
-                    att_record = attachment_obj.sudo().create(attachments)
-                    attachment_ids.append(att_record.id)
-            # if attachment_ids:
-            #     leave_request_id.update({'attachment_ids': [(6, 0, attachment_ids)]})
-            leave_request_id.sudo()._send_manager_email()
             return http.request.render('de_hr_workspace_timeoff.thanks_template')
         else:
             print(kw, 'False')
@@ -109,46 +100,10 @@ class LeaveRequestTemplate(http.Controller):
             LeaveDashboard = request.env["hr.leave"].sudo()
             leave_type_ids = request.env["hr.leave.type"].sudo().search(
                 ["|", ("company_id", "=", request.env.company.id), ("company_id", "=", False)])
-            if leave_type_ids:
-                for leave_type in leave_type_ids:
-                    # region [Allocations]
-                    if leave_type.requires_allocation == "yes":
-                        allocation_ids = request.env["hr.leave.allocation"].sudo().search(
-                            [("employee_id", "=", current_employee_id.id),
-                             ("holiday_status_id", "=", leave_type.id), ("state", "=", "validate")])
-                        if allocation_ids:
-                            allocation_days = round(sum(allocation_ids.mapped("number_of_days")), 2)
-                        else:
-                            allocation_days = 0
-                    else:
-                        if leave_type.leave_type == "sick_leave":
-                            allocation_days = 30
-                        else:
-                            allocation_days = 0
-                    # endregion [Allocations]
-
-                    # region [Leaves]
-                    leave_ids = request.env["hr.leave"].sudo().search([("employee_id", "=", current_employee_id.id),
-                                                                       ("holiday_status_id", "=", leave_type.id),
-                                                                       ("state", "=", "validate")])
-                    if leave_ids:
-                        leave_days = round(sum(leave_ids.mapped("number_of_days")), 2)
-                    else:
-                        leave_days = 0
-                    # endregion [Leaves]
-                    # if allocation_days > 0 or leave_days > 0:
-                    if allocation_days > 0:
-                        available_days = round(max(allocation_days - leave_days, 0), 2)
-                        summary.append({
-                            "sort_key": LeaveDashboard._de_leave_dashboard_sort_key(leave_type),
-                            "leave_name": leave_type.name,
-                            "allocation_days": allocation_days,
-                            "leave_days": leave_days,
-                            "available_days": available_days,
-                            "remaining_days": leave_days,
-                            "requires_allocation": leave_type.requires_allocation if leave_type.leave_type != "sick_leave" else "yes",
-                        })
-                summary.sort(key=lambda item: item.get("sort_key", (99, 999, "", 0)))
+            summary = [
+                row for row in LeaveDashboard._de_get_leave_balance_summary(current_employee_id, leave_type_ids)
+                if row["allocation_days"] > 0
+            ]
 
             leaves_history = request.env["hr.leave"].sudo().search([
                 ('employee_id', '=', current_employee_id.id)
@@ -162,15 +117,24 @@ class LeaveRequestTemplate(http.Controller):
                 'days': l.number_of_days_display,
             } for l in leaves_history]
 
+            leave_req_model = request.env["pr.hr.leave.request"].sudo()
+            state_labels = dict(leave_req_model._fields["state"].selection)
             pending = [{
                 'employee': current_employee_id.name,
                 'leave_type': l.leave_type_id.name,
                 'from': format_date(request.env, l.date_from),
                 'to': format_date(request.env, l.date_to),
                 'days': (l.date_to - l.date_from).days + 1,
-                'status': l.state,
-            } for l in request.env["pr.hr.leave.request"].sudo().search([("employee_id", "=", current_employee_id.id), (
-                'state', 'in', ['draft', 'manager_approve', 'hr_supervisor'])], limit=5)]
+                'status': state_labels.get(l.state, l.state),
+            } for l in leave_req_model.search([
+                ("employee_id", "=", current_employee_id.id),
+                ("state", "in", [
+                    "employee_manager_approval",
+                    "hr_supervisor_approval",
+                    "hr_manager_approval",
+                    "md_approval",
+                ]),
+            ], limit=5)]
             # } for l in request.env["hr.leave"].sudo().search([('state', 'in', ['draft', 'confirm', 'validate1'])], limit=5)]
 
             chart_data = {

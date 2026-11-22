@@ -130,37 +130,42 @@
                                                     </p>
                                                 </div>
                                             </div>
+                                            <div t-if="error_message" class="alert alert-danger" role="alert">
+                                                <span t-esc="error_message"/>
+                                            </div>
                                             <div class="d-flex pt-1">
-                                                <table t-if="leave_request_id.state == 'draft'" style="width: 100%;">
-                                                    <tr>
-                                                        <td style="width: 50%;text-align: right;">
-                                                            <button class="btn-info" icon="fa-check-circle"
-                                                                    style="width: 50%;border-radius: 8px;">
-                                                                <a t-attf-href="/my/leave_requests_approved/#{leave_request_id.id}">
-                                                                    Approve
-                                                                </a>
+                                                <div t-if="leave_request_id.state == 'employee_manager_approval'" class="row w-100">
+                                                    <div class="col-md-4">
+                                                        <form t-attf-action="/my/leave_requests_approved/#{leave_request_id.id}" method="post">
+                                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                            <button type="submit" class="btn btn-info w-100">
+                                                                <i class="fa fa-check-circle"/> Approve
                                                             </button>
-                                                        </td>
-                                                        <td style="width: 50%;text-align: left;">
-                                                            <button class="btn-outline-danger" icon="fa-times"
-                                                                    style="width: 50%;border-radius: 8px;">
-                                                                <a t-attf-href="/my/leave_requests_rejected/#{leave_request_id.id}">
-                                                                    Reject
-                                                                </a>
+                                                        </form>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <form t-attf-action="/my/leave_requests_rejected/#{leave_request_id.id}" method="post">
+                                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                            <textarea name="reject_reason" class="form-control mb-2" rows="2" required="required"
+                                                                      placeholder="Reason for rejection"/>
+                                                            <button type="submit" class="btn btn-outline-danger w-100">
+                                                                <i class="fa fa-times"/> Reject
                                                             </button>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                                <div t-if="leave_request_id.state == 'reject' and leave_request_id.can_reset_rejection"
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <div t-if="leave_request_id.state == 'rejected' and leave_request_id.can_reset_rejection"
                                                      class="w-100 text-center">
                                                     <p class="text-danger mb-3">
                                                         <strong>Rejected:</strong>
                                                         <span t-esc="leave_request_id.reject_reason"/>
                                                     </p>
-                                                    <a t-attf-href="/my/leave_requests_reset_rejection/#{leave_request_id.id}"
-                                                       class="btn btn-warning">
-                                                        Reset Rejection and Decide Again
-                                                    </a>
+                                                    <form t-attf-action="/my/leave_requests_reset_rejection/#{leave_request_id.id}" method="post">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                        <button type="submit" class="btn btn-warning">
+                                                            Reset Rejection and Decide Again
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
