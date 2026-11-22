@@ -15,6 +15,7 @@ class HolidaysType(models.Model):
         ("annual_leave", "Annual Leave"),
         ("sick_leave", "Sick Leave"),
         ("business_leave", "Business Trip"),
+        ("emergency_leave", "Emergency Leave"),
     ], string="Type")
 
     # endregion [Fields]

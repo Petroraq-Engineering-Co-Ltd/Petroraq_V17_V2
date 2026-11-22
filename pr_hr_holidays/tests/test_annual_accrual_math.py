@@ -4,6 +4,14 @@ from datetime import date, timedelta
 from pathlib import Path
 import unittest
 
+try:  # Odoo test runner: collected through tests/__init__.py with tags.
+    from odoo.tests import BaseCase as _TestCase, tagged
+except ImportError:  # Standalone: python -I <this file>
+    _TestCase = unittest.TestCase
+
+    def tagged(*_tags):
+        return lambda cls: cls
+
 spec = importlib.util.spec_from_file_location(
     "annual_accrual", Path(__file__).parents[1] / "models" / "annual_accrual.py",
 )
@@ -11,7 +19,8 @@ math = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(math)
 
 
-class TestCalendarEntitlement(unittest.TestCase):
+@tagged("post_install", "-at_install")
+class TestCalendarEntitlement(_TestCase):
     def test_ongoing_daily_credits_over_many_years(self):
         for entitlement in (21, 26):
             for gain in ("start", "end"):
@@ -66,6 +75,26 @@ class TestCalendarEntitlement(unittest.TestCase):
                 start, end = date(year, 7, 1), date(year + 1, 6, 30)
                 self.assertEqual(math.earned_entitlement(start, end, start, entitlement, 330, "end"), 0)
                 self.assertEqual(math.earned_entitlement(start, end, end, entitlement, 330, "end"), entitlement)
+
+    def test_service_year_bounds_follow_contract_anniversary(self):
+        anchor = date(2023, 6, 15)
+        self.assertEqual(math.service_year_bounds(anchor, date(2026, 2, 1)), (date(2025, 6, 15), date(2026, 6, 15)))
+        self.assertEqual(math.service_year_bounds(anchor, date(2026, 6, 15)), (date(2026, 6, 15), date(2027, 6, 15)))
+        self.assertEqual(math.service_year_bounds(anchor, date(2026, 6, 14)), (date(2025, 6, 15), date(2026, 6, 15)))
+        self.assertEqual(math.service_year_bounds(anchor, anchor), (anchor, date(2024, 6, 15)))
+
+    def test_service_year_bounds_february_29_anchor(self):
+        anchor = date(2024, 2, 29)
+        self.assertEqual(math.service_year_bounds(anchor, date(2027, 2, 27)), (date(2026, 2, 28), date(2027, 2, 28)))
+        self.assertEqual(math.service_year_bounds(anchor, date(2027, 2, 28)), (date(2027, 2, 28), date(2028, 2, 29)))
+        self.assertEqual(math.service_year_bounds(anchor, date(2028, 2, 29)), (date(2028, 2, 29), date(2029, 2, 28)))
+
+    def test_overlap_days_is_inclusive(self):
+        window = (date(2025, 9, 1), date(2026, 1, 27))
+        self.assertEqual(math.overlap_days(date(2025, 10, 1), date(2025, 10, 25), *window), 25)
+        self.assertEqual(math.overlap_days(date(2025, 8, 25), date(2025, 9, 3), *window), 3)
+        self.assertEqual(math.overlap_days(date(2025, 1, 1), date(2025, 1, 31), *window), 0)
+        self.assertEqual(math.overlap_days(date(2026, 1, 27), date(2026, 2, 5), *window), 1)
 
 
 if __name__ == "__main__":

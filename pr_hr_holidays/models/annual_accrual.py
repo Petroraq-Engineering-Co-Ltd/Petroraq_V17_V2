@@ -31,3 +31,23 @@ def lifetime_entitlement(start, end, target, entitlement, earning_days, gain_tim
         anniversary = start + relativedelta(years=years)
     elapsed = (credit_until - anniversary).days
     return entitlement * years + entitlement * min(elapsed, earning_days) / earning_days
+
+
+def service_year_bounds(anchor, target):
+    """Return ``(start, next_start)`` of the anchor-based service year holding target.
+
+    Anniversaries are always derived from the original anchor so a February 29
+    anchor falls back to February 28 in common years and returns to
+    February 29 in leap years (same rule as ``lifetime_entitlement``).
+    """
+    years = target.year - anchor.year
+    start = anchor + relativedelta(years=years)
+    if start > target:
+        years -= 1
+        start = anchor + relativedelta(years=years)
+    return start, anchor + relativedelta(years=years + 1)
+
+
+def overlap_days(start, end, window_start, window_end):
+    """Inclusive calendar-day overlap of [start, end] with [window_start, window_end]."""
+    return max((min(end, window_end) - max(start, window_start)).days + 1, 0)

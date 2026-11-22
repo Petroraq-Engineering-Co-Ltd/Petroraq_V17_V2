@@ -11,7 +11,7 @@ class PrRejectRecordWizard(models.TransientModel):
         record = self.record_id
         rejection_stage = self.env.context.get('pr_leave_rejection_stage')
         if record and record._name == 'pr.hr.leave.request' and rejection_stage:
-            if rejection_stage not in ('manager', 'hr_supervisor', 'hr_manager'):
+            if rejection_stage not in ('manager', 'hr_supervisor', 'hr_manager', 'md'):
                 raise UserError(_('Invalid leave-request rejection stage.'))
             record._apply_stage_rejection(rejection_stage, self.reject_reason)
             return {
