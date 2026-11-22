@@ -2640,6 +2640,36 @@ class PurchaseRequisitionLine(models.Model):
             if rec.unit_price < 0:
                 raise ValidationError("Unit Price cannot be negative.")
 
+    @staticmethod
+    def _normalize_wo_text(value):
+        return " ".join((value or "").split())
+
+    def _match_wo_boq_lines(self, boq_lines):
+        """Return the Work Order BOQ line(s) this PR line corresponds to.
+
+        ``boq_lines`` are the BOQ lines of the same section and product. When the
+        product appears more than once (e.g. different specifications or unit
+        costs), the PR line is matched on its description, which is copied from
+        the BOQ line when the PR is created from the Work Order. Without a
+        description match, every candidate line is kept.
+        """
+        self.ensure_one()
+        if len(boq_lines) <= 1:
+            return boq_lines
+        pr_description = self._normalize_wo_text(self.line_description)
+        if not pr_description:
+            return boq_lines
+
+        def _boq_description(boq_line):
+            if hasattr(boq_line, "_get_purchase_requisition_description"):
+                return boq_line._get_purchase_requisition_description()
+            return boq_line.name
+
+        matched = boq_lines.filtered(
+            lambda l: self._normalize_wo_text(_boq_description(l)) == pr_description
+        )
+        return matched or boq_lines
+
     def _get_wo_product_caps(self):
         self.ensure_one()
 
@@ -2670,14 +2700,24 @@ class PurchaseRequisitionLine(models.Model):
                 "allowed_qty": 0.0,
                 "allowed_unit_price": 0.0,
                 "allowed_amount": 0.0,
+                "boq_lines": boq_lines,
+                "matched_boq_lines": boq_lines,
+                "line_allowed_qty": 0.0,
+                "line_allowed_unit_price": 0.0,
                 "work_order": wo_cc.work_order_id,
                 "section_name": wo_cc.section_name,
             }
 
+        matched_boq_lines = self._match_wo_boq_lines(boq_lines)
         return {
             "allowed_qty": sum(boq_lines.mapped("qty")),
             "allowed_unit_price": max(boq_lines.mapped("unit_cost") or [0.0]),
             "allowed_amount": sum(boq_lines.mapped("total")),
+            # Caps of the specific Work Order product line(s) this PR line maps to.
+            "boq_lines": boq_lines,
+            "matched_boq_lines": matched_boq_lines,
+            "line_allowed_qty": sum(matched_boq_lines.mapped("qty")),
+            "line_allowed_unit_price": max(matched_boq_lines.mapped("unit_cost") or [0.0]),
             "work_order": wo_cc.work_order_id,
             "section_name": wo_cc.section_name,
         }
@@ -2731,6 +2771,9 @@ class PurchaseRequisitionLine(models.Model):
 
     @api.constrains("cost_center_id", "description", "quantity", "unit_price", "requisition_id")
     def _check_work_order_product_limits(self):
+        precision = self.env["decimal.precision"]
+        qty_digits = precision.precision_get("Product Unit of Measure")
+        price_digits = precision.precision_get("Product Price")
         for rec in self:
             if rec.requisition_id.pr_type == "budgetary":
                 continue
@@ -2764,6 +2807,47 @@ class PurchaseRequisitionLine(models.Model):
                 ("requisition_id.approval", "in", ("pending", "approved")),
             ])
             total_requested_amount = current_req_amount + sum(other_pr_lines.mapped("total_price"))
+
+            # Line-by-line validation against the matching Work Order product line.
+            matched_boq_lines = caps["matched_boq_lines"]
+            wo_line_label = ", ".join(
+                filter(None, {rec._normalize_wo_text(l.name) for l in matched_boq_lines})
+            ) or rec.description.display_name
+
+            if float_compare(rec.unit_price, caps["line_allowed_unit_price"], precision_digits=price_digits) > 0:
+                raise ValidationError(_(
+                    "Unit cost for '%(product)s' (%(wo_line)s) cannot exceed the Work Order '%(wo)s' unit cost "
+                    "for cost center '%(cc)s'.\nAllowed max: %(allowed)s, Entered: %(entered)s."
+                ) % {
+                    "product": rec.description.display_name,
+                    "wo_line": wo_line_label,
+                    "wo": caps["work_order"].display_name,
+                    "cc": rec.cost_center_id.display_name,
+                    "allowed": round(caps["line_allowed_unit_price"], price_digits),
+                    "entered": round(rec.unit_price, price_digits),
+                })
+
+            def _same_wo_line(line):
+                return set(line._match_wo_boq_lines(caps["boq_lines"]).ids) == set(matched_boq_lines.ids)
+
+            this_pr_qty = sum(current_req_lines.filtered(_same_wo_line).mapped("quantity"))
+            other_prs_qty = sum(other_pr_lines.filtered(_same_wo_line).mapped("quantity"))
+            total_requested_qty = this_pr_qty + other_prs_qty
+            if float_compare(total_requested_qty, caps["line_allowed_qty"], precision_digits=qty_digits) > 0:
+                raise ValidationError(_(
+                    "Quantity for '%(product)s' (%(wo_line)s) exceeds the Work Order '%(wo)s' quantity "
+                    "for cost center '%(cc)s'.\nAllowed: %(allowed)s, This PR: %(this_pr)s, "
+                    "Already requested in other PRs: %(other)s, Remaining: %(remaining)s."
+                ) % {
+                    "product": rec.description.display_name,
+                    "wo_line": wo_line_label,
+                    "wo": caps["work_order"].display_name,
+                    "cc": rec.cost_center_id.display_name,
+                    "allowed": round(caps["line_allowed_qty"], qty_digits),
+                    "this_pr": round(this_pr_qty, qty_digits),
+                    "other": round(other_prs_qty, qty_digits),
+                    "remaining": round(max(caps["line_allowed_qty"] - other_prs_qty, 0.0), qty_digits),
+                })
 
             if float_compare(total_requested_amount, caps["allowed_amount"], precision_digits=2) > 0:
                 raise ValidationError(_(
