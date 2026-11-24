@@ -2,7 +2,7 @@
 
 from odoo import fields, http
 from odoo.http import request
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import pytz
@@ -146,43 +146,41 @@ class ShortageRequestTemplate(http.Controller):
         check_in = self._local_to_utc(employee_obj, str_check_in)
         check_out = self._local_to_utc(employee_obj, str_check_out)
         reason = kw.get('message') if kw.get('message') else False
-        employee_manager_id = employee_obj.parent_id
-        # hr_supervisor_group_ids = [request.env.ref('hr_attendance.group_hr_attendance_officer').id]
-        hr_supervisor_group_ids = [request.env.ref('pr_hr_attendance.custom_group_hr_attendance_supervisor').id]
-        hr_manager_group_ids = [request.env.ref('hr_attendance.group_hr_attendance_manager').id]
-        hr_supervisor_ids = request.env['res.users'].sudo().search([('groups_id', 'in', hr_supervisor_group_ids)])
-        hr_manager_ids = request.env['res.users'].sudo().search([('groups_id', 'in', hr_manager_group_ids)])
-        shortage_request_id = request.env['pr.hr.shortage.request'].sudo().create({
-            'date': date,
-            'request_type': request_type,
-            'employee_id': employee_id,
-            'check_in': check_in,
-            'check_out': check_out,
-            'shortage_time': shortage_time,
-            'company_id': employee_obj.company_id.id if employee_obj.company_id else request.env.company.id,
-            'employee_reason': reason,
-            'employee_manager_id': employee_manager_id.id if employee_manager_id else False,
-            'hr_supervisor_ids': hr_supervisor_ids.ids if hr_supervisor_ids else False,
-            'hr_manager_ids': hr_manager_ids.ids if hr_manager_ids else False,
-        })
-        if shortage_request_id:
-            # Create Attachments And Add Them To Leave Request
-            attachment_ids = []
-            attachment_list = request.httprequest.files.getlist('attachment_ids')
-            for att in attachment_list:
-                if kw.get('attachment_ids'):
-                    attachments = {
+        try:
+            with request.env.cr.savepoint():
+                shortage_request_id = request.env['pr.hr.shortage.request'].sudo().create({
+                    'date': date,
+                    'request_type': request_type,
+                    'employee_id': employee_id,
+                    'check_in': check_in,
+                    'check_out': check_out,
+                    'shortage_time': shortage_time,
+                    'company_id': employee_obj.company_id.id if employee_obj.company_id else request.env.company.id,
+                    'employee_reason': reason,
+                })
+                for att in request.httprequest.files.getlist('attachment_ids'):
+                    if not att.filename:
+                        continue
+                    request.env['ir.attachment'].sudo().create({
+                        'name': att.filename,
                         'res_name': att.filename,
                         'res_model': 'pr.hr.shortage.request',
-                        'res_id': shortage_request_id.sudo().id,
+                        'res_id': shortage_request_id.id,
                         'datas': base64.encodebytes(att.read()),
                         'type': 'binary',
-                        'name': att.filename,
-                    }
-                    attachment_obj = http.request.env['ir.attachment']
-                    att_record = attachment_obj.sudo().create(attachments)
-                    attachment_ids.append(att_record.id)
-            return http.request.render('de_hr_workspace_attendance.thanks_template')
-        else:
-            print(kw, 'False')
-            return False
+                    })
+                # sudo keeps the current user: action_submit checks their rights
+                shortage_request_id.action_submit()
+        except (UserError, ValidationError) as ex:
+            return request.render('de_hr_workspace_attendance.shortage_request_template', {
+                "current_employee_id": employee_obj,
+                "employee_email": employee_obj.work_email,
+                "check_in": str_check_in,
+                "check_out": str_check_out,
+                "shortage_text": shortage_time or "",
+                "shortage_date": date,
+                "has_attendance": attendance_vals["has_attendance"],
+                "request_type": request_type,
+                "error_message": str(ex),
+            })
+        return request.render('de_hr_workspace_attendance.thanks_template')
