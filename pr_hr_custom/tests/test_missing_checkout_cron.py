@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from odoo import Command
 from odoo.tests.common import TransactionCase, tagged
@@ -115,3 +115,30 @@ class TestMissingCheckoutCron(TransactionCase):
         self.assertAlmostEqual(att.worked_hours, 9.0, places=2)
         self.assertEqual(att.attendance_day_status, "normal")
         self.assertFalse(att.attendance_status_reason)
+
+    def test_off_day_missing_checkout_is_not_reported_as_absence(self):
+        self.calendar.attendance_ids = [Command.create({
+            "name": "Monday",
+            "dayofweek": "0",
+            "day_period": "morning",
+            "hour_from": 8.0,
+            "hour_to": 17.0,
+        })]
+        # Monday 2026-09-07 is a working day, Saturday 2026-09-12 is off.
+        for day, expected in ((7, "absent"), (12, "normal")):
+            attendance = self.Attendance.sudo().with_context(
+                attendance_policy_source="biometric",
+            ).create({
+                "employee_id": self.biometric_employee.id,
+                "check_in": datetime(2026, 9, day, 5, 30),
+            })
+            self.Attendance._cron_auto_handle_missing_checkouts(
+                now=datetime(2026, 9, day, 21, 5),
+            )
+            self.assertEqual(attendance.check_out, attendance.check_in)
+            self.assertEqual(attendance.attendance_day_status, expected)
+
+        rows = self.env["hr.leave"]._get_employee_absentee_day_rows(
+            self.biometric_employee, date(2026, 9, 7), date(2026, 9, 12),
+        )
+        self.assertEqual([row["date"] for row in rows], ["2026-09-07"])

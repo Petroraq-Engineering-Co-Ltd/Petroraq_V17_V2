@@ -118,7 +118,11 @@ class AttendanceReportWizard(models.TransientModel):
         planned_hours = 0.0
         for line in calendar.attendance_ids.filtered(lambda l: l.dayofweek == weekday):
             planned_hours += max(0.0, line.hour_to - line.hour_from)
-        if saturday_working and not planned_hours:
+        if (
+            saturday_working
+            and not planned_hours
+            and employee._is_etm_attendance_covered(day_date)
+        ):
             weekday_totals = {}
             for line in calendar.attendance_ids.filtered(
                 lambda item: item.dayofweek in ("6", "0", "1", "2", "3")

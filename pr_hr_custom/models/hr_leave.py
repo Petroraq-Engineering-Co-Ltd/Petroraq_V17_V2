@@ -26,7 +26,10 @@ class HrLeave(models.Model):
             att_date = local_check_in.date()
             if att_date < start or att_date > end:
                 continue
-            if employee._etm_saturday_is_off(att_date):
+            if (
+                employee._etm_saturday_is_off(att_date)
+                or employee._is_scheduled_off_day(att_date)
+            ):
                 continue
             att_date_str = fields.Date.to_string(att_date)
             if att_date_str in existing_dates:
