@@ -42,6 +42,11 @@ class HrEmployee(models.Model):
             )
         repaired_attendances = self.env[
             "hr.attendance"
+        ].sudo()._repair_scheduled_off_day_statuses(
+            from_date=from_date, employee_ids=employees.ids,
+        )
+        repaired_attendances += self.env[
+            "hr.attendance"
         ].sudo()._repair_etm_saturday_attendance_statuses(
             from_date=from_date,
             employee_ids=employees.ids,
@@ -58,7 +63,7 @@ class HrEmployee(models.Model):
                 "title": _("Task Management Attendance Repaired"),
                 "message": _(
                     "%(employees)s employee(s) checked; %(days)s daily absence "
-                    "record(s) restored, %(attendances)s Saturday attendance "
+                    "record(s) restored, %(attendances)s off-day attendance "
                     "record(s) rechecked, and %(sheets)s attendance sheet(s) rebuilt. "
                     "From the configured enforcement date, the attendance dashboard "
                     "uses each employee's 40-hour Saturday policy.",

@@ -257,3 +257,231 @@ class TestDailyAttendanceStatus(TransactionCase):
                 self.assertNotEqual(line.status, "ab", f"Expected present on {local_day}")
 
         self.assertNotEqual(lines_by_date[projected_day].status, "ab")
+
+
+@tagged("post_install", "-at_install")
+class TestScheduledOffDay(TransactionCase):
+    """Attendance on the off days of the assigned work schedule."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env["ir.config_parameter"].sudo().set_param(
+            "pr_task_attendance.enforce_from", "2026-09-14",
+        )
+        cls.saturday = date(2026, 9, 19)
+        # 10:30 to 15:00 Asia/Riyadh on Saturday 2026-09-19.
+        cls.late_in = datetime(2026, 9, 19, 7, 30)
+        cls.late_out = datetime(2026, 9, 19, 12, 0)
+        cls.calendar = cls._create_calendar("Sunday-Thursday", (6, 0, 1, 2, 3))
+        cls.employee = cls._create_employee("Non-ETM Off Saturday", cls.calendar)
+
+    @classmethod
+    def _create_calendar(cls, name, weekdays):
+        return cls.env["resource.calendar"].create({
+            "name": name,
+            "tz": "Asia/Riyadh",
+            "company_id": cls.env.company.id,
+            "attendance_ids": [Command.clear()] + [
+                Command.create({
+                    "name": f"Day {weekday}",
+                    "dayofweek": str(weekday),
+                    "day_period": "morning",
+                    "hour_from": 8.0,
+                    "hour_to": 17.0,
+                })
+                for weekday in weekdays
+            ],
+        })
+
+    @classmethod
+    def _create_employee(cls, name, calendar, **values):
+        return cls.env["hr.employee"].create({
+            "name": name,
+            "identification_id": name,
+            "company_id": cls.env.company.id,
+            "resource_calendar_id": calendar.id,
+            "compute_attendance": True,
+            "tz": "Asia/Riyadh",
+            **values,
+        })
+
+    def _punch(self, employee, check_in, check_out=False):
+        return self.env["hr.attendance"].sudo().with_context(
+            attendance_policy_source="biometric",
+        ).create({
+            "employee_id": employee.id,
+            "check_in": check_in,
+            "check_out": check_out,
+        })
+
+    def _create_sheet(self, employee, **line_values):
+        policy = self.env["hr.attendance.policy"].create({
+            "name": "Off Day Policy",
+            **{
+                field: self.env[model].create({"name": f"Off Day {field}"}).id
+                for field, model in (
+                    ("late_rule_id", "hr.late.rule"),
+                    ("early_rule_id", "hr.early.rule"),
+                    ("absence_rule_id", "hr.absence.rule"),
+                    ("diff_rule_id", "hr.diff.rule"),
+                )
+            },
+        })
+        return self.env["attendance.sheet"].create({
+            "employee_id": employee.id,
+            "date_from": self.saturday,
+            "date_to": self.saturday,
+            "att_policy_id": policy.id,
+            "line_ids": [Command.create({
+                "date": self.saturday,
+                "day": "5",
+                "ac_sign_in": 10.5,
+                "ac_sign_out": 15.0,
+                "worked_hours": 4.5,
+                **line_values,
+            })],
+        })
+
+    def test_late_punch_on_off_day_is_not_absent(self):
+        attendance = self._punch(self.employee, self.late_in, self.late_out)
+        self.assertEqual(attendance.attendance_day_status, "normal")
+        self.assertFalse(attendance.attendance_status_reason)
+
+    def test_open_punch_on_off_day_is_not_absent_after_midnight(self):
+        attendance = self._punch(self.employee, self.late_in)
+        attendance._refresh_daily_attendance_status(now=datetime(2026, 9, 20, 9, 0))
+        self.assertEqual(attendance.attendance_day_status, "normal")
+
+    def test_cutoff_still_applies_on_scheduled_working_days(self):
+        sunday = self._punch(
+            self.employee, datetime(2026, 9, 20, 7, 30), datetime(2026, 9, 20, 15, 0),
+        )
+        self.assertEqual(sunday.attendance_day_status, "absent")
+        worker = self._create_employee(
+            "Non-ETM Working Saturday",
+            self._create_calendar("Saturday-Thursday", (5, 6, 0, 1, 2, 3)),
+        )
+        saturday = self._punch(worker, self.late_in, self.late_out)
+        self.assertEqual(saturday.attendance_day_status, "absent")
+
+    def test_etm_employee_keeps_the_etm_saturday_rule(self):
+        participant = self._create_employee(
+            "ETM Participant", self.calendar, etm_attendance_policy_enabled=True,
+        )
+        # Fewer than 40 approved hours: Saturday is a working day.
+        attendance = self._punch(participant, self.late_in, self.late_out)
+        self.assertEqual(attendance.attendance_day_status, "absent")
+
+    def test_friday_off_applies_to_etm_and_non_etm_employees(self):
+        participant = self._create_employee(
+            "ETM Friday", self.calendar, etm_attendance_policy_enabled=True,
+        )
+        # 10:30 to 15:00 Asia/Riyadh on Friday 2026-09-18.
+        friday_in = datetime(2026, 9, 18, 7, 30)
+        for employee in (participant, self.employee):
+            attendance = self._punch(employee, friday_in, datetime(2026, 9, 18, 12, 0))
+            self.assertEqual(attendance.attendance_day_status, "normal")
+            attendance.write({
+                "attendance_day_status": "absent",
+                "attendance_status_reason": "Check-in was after 09:00:00.",
+            })
+            self.assertEqual(
+                self.env["hr.attendance"]._repair_scheduled_off_day_statuses(
+                    employee_ids=employee.ids,
+                ), 1,
+            )
+            self.assertEqual(attendance.attendance_day_status, "normal")
+
+    def test_etm_open_friday_punch_is_not_absent_after_midnight(self):
+        participant = self._create_employee(
+            "ETM Open Friday", self.calendar, etm_attendance_policy_enabled=True,
+        )
+        attendance = self._punch(participant, datetime(2026, 9, 18, 7, 30))
+        attendance._refresh_daily_attendance_status(now=datetime(2026, 9, 19, 9, 0))
+        self.assertEqual(attendance.attendance_day_status, "normal")
+
+    def test_etm_scheduled_friday_keeps_the_cutoff(self):
+        participant = self._create_employee(
+            "ETM Working Friday",
+            self._create_calendar("Monday-Friday", (0, 1, 2, 3, 4)),
+            etm_attendance_policy_enabled=True,
+        )
+        attendance = self._punch(
+            participant, datetime(2026, 9, 18, 7, 30), datetime(2026, 9, 18, 12, 0),
+        )
+        self.assertEqual(attendance.attendance_day_status, "absent")
+
+    def test_etm_sheet_keeps_friday_as_weekend(self):
+        participant = self._create_employee(
+            "ETM Friday Sheet", self.calendar, etm_attendance_policy_enabled=True,
+        )
+        sheet = self._create_sheet(
+            participant, date=date(2026, 9, 18), day="4", status="ab",
+        )
+        sheet._mark_late_checkins_as_absent()
+        self.assertEqual(sheet.line_ids.status, "weekend")
+
+    def test_off_day_follows_local_date(self):
+        # 2026-09-19 22:30 UTC is already Sunday 01:30 in Riyadh, a working day.
+        attendance = self._punch(self.employee, datetime(2026, 9, 19, 22, 30))
+        attendance._refresh_daily_attendance_status(now=datetime(2026, 9, 21, 9, 0))
+        self.assertEqual(attendance.attendance_day_status, "absent")
+
+    def test_two_weeks_calendar_and_line_validity(self):
+        self.assertTrue(self.employee._is_scheduled_off_day(self.saturday))
+        line = self.env["resource.calendar.attendance"].create({
+            "name": "Temporary Saturday",
+            "calendar_id": self.calendar.id,
+            "dayofweek": "5",
+            "day_period": "morning",
+            "hour_from": 8.0,
+            "hour_to": 17.0,
+            "date_to": date(2026, 9, 12),
+        })
+        self.assertFalse(self.employee._is_scheduled_off_day(date(2026, 9, 12)))
+        self.assertTrue(self.employee._is_scheduled_off_day(self.saturday))
+
+        line.date_to = False
+        self.calendar.two_weeks_calendar = True
+        this_week = line.get_week_type(self.saturday)
+        self.calendar.attendance_ids.write({"week_type": str(this_week)})
+        self.assertFalse(self.employee._is_scheduled_off_day(self.saturday))
+        self.assertTrue(
+            self.employee._is_scheduled_off_day(self.saturday + timedelta(days=7))
+        )
+
+    def test_repair_only_clears_off_day_penalties(self):
+        off_day = self._punch(self.employee, self.late_in, self.late_out)
+        task_absence = self._punch(
+            self.employee, datetime(2026, 9, 26, 7, 30), datetime(2026, 9, 26, 12, 0),
+        )
+        working_day = self._punch(
+            self.employee, datetime(2026, 9, 20, 7, 30), datetime(2026, 9, 20, 15, 0),
+        )
+        off_day.write({
+            "attendance_day_status": "absent",
+            "attendance_status_reason": "Check-in was after 09:00:00.",
+        })
+        task_absence.write({
+            "attendance_day_status": "absent",
+            "attendance_status_reason": "No task list was submitted.",
+        })
+        count = self.env["hr.attendance"]._repair_scheduled_off_day_statuses(
+            employee_ids=self.employee.ids,
+        )
+        self.assertEqual(count, 1)
+        self.assertEqual(off_day.attendance_day_status, "normal")
+        self.assertEqual(task_absence.attendance_day_status, "absent")
+        self.assertEqual(working_day.attendance_day_status, "absent")
+
+    def test_sheet_keeps_off_day_as_weekend(self):
+        self._punch(self.employee, self.late_in, self.late_out)
+        for stale_status in (False, "ab", "weekend"):
+            sheet = self._create_sheet(
+                self.employee, status=stale_status, overtime=4.5, act_overtime=4.5,
+            )
+            sheet._mark_late_checkins_as_absent()
+            self.assertEqual(sheet.line_ids.status, "weekend")
+            self.assertEqual(sheet.line_ids.overtime, 4.5)
+            sheet.unlink()

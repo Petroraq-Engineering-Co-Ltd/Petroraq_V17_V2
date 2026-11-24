@@ -17,10 +17,10 @@ export class LeaveManagementDashboardAction extends Component {
                 ...(this.props.action?.context || {}),
                 show_all_leave_dashboard: true,
             };
-            this.currentEmployee.data = await this.orm.call("hr.leave", "get_current_employee", [], { context });
-            this.currentAbsentees.data = await this.orm.call("hr.leave", "get_absentees", [], { context });
-            this.currentShift.data = await this.orm.call("hr.leave", "get_current_shift", [], { context });
-            this.upcomingHolidays.data = await this.orm.call("hr.leave", "get_upcoming_holidays", [], { context });
+            this.currentEmployee.data = (await this.orm.call("hr.leave", "get_current_employee", [], { context })) || {};
+            this.currentAbsentees.data = (await this.orm.call("hr.leave", "get_absentees", [], { context })) || [];
+            this.currentShift.data = (await this.orm.call("hr.leave", "get_current_shift", [], { context })) || false;
+            this.upcomingHolidays.data = (await this.orm.call("hr.leave", "get_upcoming_holidays", [], { context })) || [];
         });
     }
 }

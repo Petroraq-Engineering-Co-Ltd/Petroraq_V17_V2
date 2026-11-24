@@ -190,6 +190,46 @@ class HrEmployee(models.Model):
         day = fields.Date.to_date(day) if day else False
         return bool(enforce_from and day and day >= enforce_from)
 
+    def _is_etm_attendance_covered(self, day):
+        """Whether the ETM attendance policy governs this employee on ``day``."""
+        self.ensure_one()
+        return self._is_etm_participant() and self._etm_attendance_policy_applies(day)
+
+    def _is_scheduled_off_day(self, day):
+        """Whether ``day`` is off in the employee's assigned work schedule.
+
+        Attendance on such a day is optional: neither the 09:00 cutoff nor the
+        missing-punch rule may turn it into an absence. Saturdays of employees
+        covered by the ETM policy are excluded because they must be earned, see
+        ``_etm_saturday_is_off``; their other off days, such as Friday, follow
+        the schedule. A schedule without any working line defines no off days.
+        """
+        self.ensure_one()
+        day = fields.Date.to_date(day) if day else False
+        if not day or (day.weekday() == 5 and self._is_etm_attendance_covered(day)):
+            return False
+        employee = self.sudo()
+        calendar = (
+            employee.resource_calendar_id
+            or employee.contract_id.resource_calendar_id
+            or employee.company_id.resource_calendar_id
+        )
+        working_lines = calendar.attendance_ids.filtered(
+            lambda line: not line.display_type
+            and line.day_period != "lunch"
+            and (not line.resource_id or line.resource_id == employee.resource_id)
+        )
+        if not working_lines:
+            return False
+        weekday = str(day.weekday())
+        week_type = str(working_lines.get_week_type(day))
+        return not working_lines.filtered(
+            lambda line: line.dayofweek == weekday
+            and (not calendar.two_weeks_calendar or line.week_type == week_type)
+            and (not line.date_from or line.date_from <= day)
+            and (not line.date_to or line.date_to >= day)
+        )
+
     @api.model
     def _etm_week_bounds_for_saturday(self, saturday):
         """Return the Sunday-Thursday earning window for a Saturday."""
