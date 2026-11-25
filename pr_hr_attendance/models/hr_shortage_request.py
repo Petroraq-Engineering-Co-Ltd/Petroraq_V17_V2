@@ -39,7 +39,7 @@ WORKFLOW_PROTECTED_FIELDS = frozenset({
 # Only editable while the request is in draft.
 CORRECTION_FIELDS = frozenset({
     "request_type", "date", "check_in", "check_out",
-    "employee_id", "company_id", "employee_reason",
+    "employee_id", "company_id", "employee_reason", "apply_scheduled_shift",
 })
 APPROVAL_STAGE_CHAIN = (
     ("employee_manager_approval", "employee_manager", "Dept. Manager"),
@@ -127,6 +127,15 @@ class HrShortageRequest(models.Model):
     can_reset_rejection = fields.Boolean(compute='_compute_can_reset_rejection')
     can_reset_to_draft = fields.Boolean(compute='_compute_can_reset_to_draft')
     shortage_time = fields.Text(string="Shortage Time", readonly=True)
+    apply_scheduled_shift = fields.Boolean(
+        string="Apply Full Scheduled Shift", readonly=True, copy=False,
+        help="Final approval sets the attendance of the day to the employee's scheduled "
+             "shift instead of the Actual Check In and Check Out.",
+    )
+    scheduled_check_in = fields.Datetime(
+        string="Check In to Apply", compute="_compute_scheduled_shift")
+    scheduled_check_out = fields.Datetime(
+        string="Check Out to Apply", compute="_compute_scheduled_shift")
     state = fields.Selection([
         ('draft', 'Draft'),
         ('employee_manager_approval', 'Dept. Manager'),
@@ -585,6 +594,19 @@ class HrShortageRequest(models.Model):
                 and rec.state == 'rejected'
                 and rec._user_can_reset_to_draft(user)
             )
+
+    @api.depends("apply_scheduled_shift", "request_type", "employee_id", "date")
+    def _compute_scheduled_shift(self):
+        Attendance = self.env["hr.attendance"].sudo()
+        for rec in self:
+            check_in = check_out = False
+            if rec._applies_scheduled_shift() and rec.employee_id and rec.date:
+                # sudo: approvers may not read the employee's contract and calendar
+                check_in, check_out = Attendance._get_auto_attendance_datetimes(
+                    rec.sudo().employee_id._origin, rec.date
+                )
+            rec.scheduled_check_in = check_in
+            rec.scheduled_check_out = check_out
 
     @api.depends("employee_id", "date", "state")
     def _compute_payroll_finalized(self):
@@ -1422,6 +1444,10 @@ class HrShortageRequest(models.Model):
             )
         return True
 
+    def _applies_scheduled_shift(self):
+        self.ensure_one()
+        return self.request_type == "shortage" and self.apply_scheduled_shift
+
     def _apply_shortage_in_attendance(self):
         for rec in self:
             Attendance = self.env["hr.attendance"].sudo()
@@ -1441,8 +1467,11 @@ class HrShortageRequest(models.Model):
                 scheduled_check_in, scheduled_check_out = Attendance._get_auto_attendance_datetimes(
                     rec.employee_id, rec.date
                 )
-                check_in_dt = rec.check_in or scheduled_check_in
-                check_out_dt = rec.check_out or scheduled_check_out
+                if rec._applies_scheduled_shift():
+                    check_in_dt, check_out_dt = scheduled_check_in, scheduled_check_out
+                else:
+                    check_in_dt = rec.check_in or scheduled_check_in
+                    check_out_dt = rec.check_out or scheduled_check_out
 
             if attendance_id:
                 attendance_id.sudo().with_context(

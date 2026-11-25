@@ -509,6 +509,65 @@ class TestShortageRequestApproval(TransactionCase):
             request.action_submit()
             self.assertEqual(request.state, "employee_manager_approval")
 
+    def _biometric_punch(self, check_in, check_out):
+        return self.Attendance.sudo().with_context(
+            attendance_policy_source="biometric", allow_late_attendance=True, sync_from_device=True,
+        ).create({
+            "employee_id": self.employee.id, "check_in": check_in, "check_out": check_out,
+        })
+
+    def test_scheduled_shift_is_applied_at_md_approval(self):
+        calendar = self.env["resource.calendar"].create({
+            "name": "08:00 - 17:00",
+            "tz": "Asia/Riyadh",
+            "company_id": self.company.id,
+            "attendance_ids": [Command.clear()] + [Command.create({
+                "name": str(day), "dayofweek": str(day), "day_period": "morning",
+                "hour_from": 8, "hour_to": 17,
+            }) for day in range(7)],
+        })
+        self.employee.write({
+            "resource_calendar_id": calendar.id, "tz": "Asia/Riyadh", "compute_attendance": True,
+        })
+        # (flag, recorded check in and check out, attendance after approval), in UTC
+        cases = (
+            ("early leave", True, (5, 0), (12, 0), (5, 0), (14, 0)),
+            ("late arrival", True, (7, 0), (14, 0), (5, 0), (14, 0)),
+            ("missing check-out closed at midnight", True, (5, 10), (5, 10), (5, 0), (14, 0)),
+            ("without the flag", False, (5, 0), (12, 0), (5, 0), (12, 0)),
+        )
+        for index, (label, flag, punch_in, punch_out, final_in, final_out) in enumerate(cases):
+            with self.subTest(label):
+                day = datetime(2026, 5, 10 + index)
+
+                def moment(hour_minute):
+                    return day + timedelta(hours=hour_minute[0], minutes=hour_minute[1])
+
+                punch = self._biometric_punch(moment(punch_in), moment(punch_out))
+                request = self._submitted(
+                    date=day.date(), check_in=punch.check_in, check_out=punch.check_out,
+                    apply_scheduled_shift=flag,
+                )
+                self.assertEqual(request.scheduled_check_in, moment((5, 0)) if flag else False)
+                self.assertEqual(request.scheduled_check_out, moment((14, 0)) if flag else False)
+                request.with_user(self.dept_manager).action_manager_approve()
+                request.with_user(self.hr_supervisor).action_hr_supervisor_approve()
+                request.with_user(self.hr_manager).action_hr_manager_approve()
+                self.assertEqual(punch.check_out, moment(punch_out))
+                request.with_user(self.md_user).action_md_approve()
+                self.assertEqual(punch.check_in, moment(final_in))
+                self.assertEqual(punch.check_out, moment(final_out))
+                self.assertEqual(punch.attendance_day_status, "normal")
+                # the request keeps the recorded punches
+                self.assertEqual(request.check_in, moment(punch_in))
+                self.assertEqual(request.check_out, moment(punch_out))
+
+    def test_scheduled_shift_flag_is_locked_after_submit(self):
+        request = self._submitted(apply_scheduled_shift=True)
+        for user in (self.basic_user, self.hr_supervisor):
+            with self.assertRaises(ValidationError):
+                request.with_user(user).apply_scheduled_shift = False
+
     def test_payroll_warning(self):
         request = self._submitted()
         self.assertFalse(request.payroll_finalized)

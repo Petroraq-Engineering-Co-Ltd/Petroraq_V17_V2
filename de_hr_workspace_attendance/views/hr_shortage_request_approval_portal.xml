@@ -130,6 +130,14 @@
                                         <span t-esc="shortage_request.employee_reason or '-'"/>
                                     </div>
                                 </div>
+                                <div t-if="shortage_request.scheduled_check_in" class="alert alert-info" role="alert">
+                                    Final approval sets this attendance to the scheduled shift:
+                                    <span t-field="shortage_request.scheduled_check_in"
+                                          t-options="{'widget': 'datetime', 'tz_name': tz_name}"/>
+                                    -
+                                    <span t-field="shortage_request.scheduled_check_out"
+                                          t-options="{'widget': 'datetime', 'tz_name': tz_name}"/>
+                                </div>
                                 <div t-if="shortage_request.payroll_finalized" class="alert alert-warning" role="alert">
                                     The attendance sheet of this day is already final. Approving this request updates
                                     the attendance, but does not recalculate that sheet or its payslip.
