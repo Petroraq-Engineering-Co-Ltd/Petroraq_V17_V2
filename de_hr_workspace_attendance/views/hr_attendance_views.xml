@@ -16,8 +16,9 @@
                             <field name="worked_hours" widget="float_time"/>
                             <field name="shortage_time"/>
                             <field name="show_shortage_button" invisible="1"/>
+                            <field name="can_request_shortage" invisible="1"/>
                             <field name="minute_rate"/>
-                            <div style="width: 300px !important;">
+                            <div style="width: 300px !important;" invisible="not can_request_shortage">
                                 <button name="action_open_shortage_request" string="SHORTAGE REQUEST" type="object"
                                         class="btn-info" style="width: 100% !important;"/>
                             </div>

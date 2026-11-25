@@ -120,6 +120,9 @@
                             <field name="hr_supervisor_ids" options="{'no_create': True, 'no_edit': True}" widget="many2many_tags" invisible="1"/>
                             <field name="hr_manager_ids" options="{'no_create': True, 'no_edit': True}" widget="many2many_tags" invisible="1"/>
                             <field name="shortage_time"/>
+                            <field name="apply_scheduled_shift" invisible="not apply_scheduled_shift or request_type != 'shortage'"/>
+                            <field name="scheduled_check_in" invisible="not scheduled_check_in"/>
+                            <field name="scheduled_check_out" invisible="not scheduled_check_out"/>
                             <field name="employee_reason" readonly="state != 'draft'" required="1"/>
                             <field name="manager_approved_user_id" invisible="not manager_approved_user_id"/>
                             <field name="manager_approved_date" invisible="not manager_approved_date"/>

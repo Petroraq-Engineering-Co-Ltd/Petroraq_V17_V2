@@ -2,7 +2,8 @@ from datetime import datetime, time
 
 import pytz
 
-from odoo import api, fields, models, SUPERUSER_ID
+from odoo import _, api, fields, models, SUPERUSER_ID
+from odoo.exceptions import UserError
 from odoo.tools import date_utils
 from dateutil.relativedelta import relativedelta
 
@@ -15,6 +16,7 @@ class HrAttendance(models.Model):
     shortage_time = fields.Text(string="Shortage Time", compute="_compute_shortage_time_text")
     minute_rate = fields.Char(string="Minute Rate", compute="_compute_minute_rate_text")
     show_shortage_button = fields.Boolean(compute="_compute_shortage_time_text")
+    can_request_shortage = fields.Boolean(compute="_compute_can_request_shortage")
 
     @api.model
     def action_open_workspace_attendances(self):
@@ -51,18 +53,32 @@ class HrAttendance(models.Model):
         return action
 
     def action_open_shortage_request(self):
-        for rec in self:
-            base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-            url = f"{base_url}/shortage_request?check_in={rec.check_in}&check_out={rec.check_out}"
-            if rec.shortage_time:
-                url+= f"&shortage_text={rec.shortage_time}"
-            action = {
-                'type': 'ir.actions.act_url',
-                'url': url,
-                'target': 'new',
-            }
-            return action
+        """Open the shortage request popup of this attendance."""
+        self.ensure_one()
+        self._check_can_request_shortage()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Shortage Request"),
+            "res_model": "pr.hr.shortage.request.wizard",
+            "view_mode": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "context": {
+                "default_attendance_id": self.id,
+                # My Attendance is opened with create/edit disabled, and the
+                # web client passes its context on to the popup.
+                "create": True,
+                "edit": True,
+            },
+        }
 
+    def _check_can_request_shortage(self):
+        self.ensure_one()
+        if not self.can_request_shortage:
+            raise UserError(_(
+                "A shortage request is only possible on your own attendance, "
+                "once it has a check-out and a shortage."
+            ))
 
     def _sync_overtime_for_approval(self):
         """Keep optional overtime field in sync for approval grids that show hr.attendance.overtime."""
@@ -198,6 +214,16 @@ class HrAttendance(models.Model):
                 rec.shortage_time = rec._format_shortage_time(shortage_hours)
                 today_date = fields.Date.context_today(rec.with_context(tz=rec._get_shortage_timezone_name()))
                 rec.show_shortage_button = shortage_date == today_date or today_date == (shortage_date + relativedelta(days=1))
+
+    @api.depends("employee_id", "check_out", "shortage_time")
+    @api.depends_context("uid")
+    def _compute_can_request_shortage(self):
+        for rec in self:
+            rec.can_request_shortage = bool(
+                rec.check_out
+                and rec.shortage_time
+                and rec.sudo().employee_id.user_id == self.env.user
+            )
 
     @api.depends("employee_id", "check_in", "employee_id.contract_id", "employee_id.resource_calendar_id", "employee_id.resource_calendar_id.hours_per_day")
     def _compute_minute_rate_text(self):
