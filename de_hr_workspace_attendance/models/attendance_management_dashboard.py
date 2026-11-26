@@ -72,6 +72,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
 
         attendance_map = self._attendance_map(employees, week_start_utc, week_end_utc)
         leave_map = self._leave_map(employees, week_start_utc, week_end_utc)
+        joining_date_map = self._joining_date_map(employees)
 
         rows = self._get_day_rows(
             employees,
@@ -81,6 +82,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             timezone,
             attendance_map,
             leave_map,
+            joining_date_map=joining_date_map,
         )
         summary = self._get_summary(rows)
         departments_breakdown = self._get_department_breakdown(rows)
@@ -90,6 +92,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
                 employees,
                 attendance_map,
                 leave_map,
+                joining_date_map=joining_date_map,
             )
             for day in week_dates
         ]
@@ -352,12 +355,43 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
         return segments
 
     @api.model
-    def _get_day_rows(self, employees, day, day_start_utc, day_end_utc, timezone, attendance_map, leave_map):
+    def _joining_date_map(self, employees):
+        joining_dates = {}
+        missing_employees = []
+        for employee in employees:
+            if "joining_date" in employee._fields and employee.joining_date:
+                joining_dates[employee.id] = fields.Date.to_date(employee.joining_date)
+            else:
+                missing_employees.append(employee.id)
+
+        if missing_employees and "hr.contract" in self.env:
+            contracts = self.env["hr.contract"].sudo().search(
+                [
+                    ("employee_id", "in", missing_employees),
+                    ("state", "!=", "cancel"),
+                ],
+                order="date_start asc, id asc",
+            )
+            for contract in contracts:
+                emp_id = contract.employee_id.id
+                if emp_id in joining_dates:
+                    continue
+                contract_start = (
+                    contract.joining_date
+                    if "joining_date" in contract._fields and contract.joining_date
+                    else contract.date_start
+                )
+                if contract_start:
+                    joining_dates[emp_id] = fields.Date.to_date(contract_start)
+
+        return joining_dates
+
+    @api.model
+    def _get_day_rows(self, employees, day, day_start_utc, day_end_utc, timezone, attendance_map, leave_map, joining_date_map=None):
+        if joining_date_map is None:
+            joining_date_map = self._joining_date_map(employees)
         rows = []
         for employee in employees:
-            schedule = self._get_schedule(employee, day, timezone)
-            calendar = self._get_calendar(employee)
-            is_calendar_blocked = self._is_calendar_blocked(employee, calendar, day_start_utc, day_end_utc)
             attendances = self._records_overlapping_day(
                 attendance_map[employee.id],
                 day_start_utc,
@@ -365,6 +399,12 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
                 "check_in",
                 "check_out",
             )
+            joining_date = joining_date_map.get(employee.id)
+            if joining_date and day < joining_date and not attendances:
+                continue
+            schedule = self._get_schedule(employee, day, timezone)
+            calendar = self._get_calendar(employee)
+            is_calendar_blocked = self._is_calendar_blocked(employee, calendar, day_start_utc, day_end_utc)
             leaves = self._records_overlapping_day(
                 leave_map[employee.id],
                 day_start_utc,
@@ -543,7 +583,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
         return departments
 
     @api.model
-    def _get_trend_day(self, day, employees, attendance_map, leave_map):
+    def _get_trend_day(self, day, employees, attendance_map, leave_map, joining_date_map=None):
         day_start_utc, day_end_utc, timezone = self._get_day_bounds(day)
         rows = self._get_day_rows(
             employees,
@@ -553,6 +593,7 @@ class HrAttendanceManagementDashboard(models.AbstractModel):
             timezone,
             attendance_map,
             leave_map,
+            joining_date_map=joining_date_map,
         )
         summary = self._get_summary(rows)
         return {
