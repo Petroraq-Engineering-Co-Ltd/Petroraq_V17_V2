@@ -552,21 +552,52 @@ class HrLeaveDashboardOverride(models.Model):
     @api.model
     def get_current_employee(self):
         current_employee = self.env.user.employee_id
-        if not current_employee and self.env.context.get('employee_id'):
-            current_employee = self.env['hr.employee'].browse(self.env.context['employee_id'])
         if not current_employee:
-            return {}
+            current_employee = self.env['hr.employee'].sudo().search(
+                [('user_id', '=', self.env.uid)], limit=1
+            )
+        if not current_employee and self.env.context.get('employee_id'):
+            current_employee = self.env['hr.employee'].sudo().browse(
+                self.env.context['employee_id']
+            ).exists()
         if self.env.context.get('show_all_leave_dashboard'):
             children = self.env['hr.employee'].sudo().search([('active', '=', True)])
-        else:
+        elif current_employee:
             children = current_employee.child_ids
+        else:
+            children = self.env['hr.employee']
+        if not current_employee:
+            return {
+                'id': False,
+                'code': '',
+                'name': self.env.user.name or '',
+                'employee_code': '',
+                'joining_date': False,
+                'joining_date_display': False,
+                'job_id': False,
+                'image_1920': False,
+                'work_email': self.env.user.email or False,
+                'work_phone': False,
+                'resource_calendar_id': False,
+                'link': False,
+                'department_id': False,
+                'company': self.env.company.name or False,
+                'job_position': False,
+                'parent_id': [],
+                'child_ids': children.ids,
+                'child_all_count': len(children),
+                'manager': {},
+                'manager_all_count': 0,
+                'children': [self._prepare_employee_data(child) for child in children],
+            }
+        joining_date = self._get_employee_joining_date(current_employee)
         return {
             'id': current_employee.id,
             'code': current_employee.code,
             'name': current_employee.name,
             'employee_code': current_employee.code or current_employee.barcode or '',
-            'joining_date': self._get_employee_joining_date(current_employee),
-            'joining_date_display': self._format_dashboard_date(self._get_employee_joining_date(current_employee)),
+            'joining_date': joining_date,
+            'joining_date_display': self._format_dashboard_date(joining_date),
             'job_id': current_employee.job_id.id,
             'image_1920': current_employee.image_1920,
             'work_email': current_employee.work_email,

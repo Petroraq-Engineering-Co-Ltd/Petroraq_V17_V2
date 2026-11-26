@@ -65,12 +65,12 @@
                             </td>
                             <t t-if="attendance.show_shortage_button">
                                 <td>
-                                    <span t-field="attendance.shortage_time"/>
+                                    <span t-esc="attendance.shortage_time or '-'"/>
                                 </td>
                             </t>
                             <t t-else="">
                                 <td colspan="2">
-                                    <span t-field="attendance.shortage_time"/>
+                                    <span t-esc="attendance.shortage_time or '-'"/>
                                 </td>
                             </t>
 

@@ -140,21 +140,7 @@ class HrApprovalDashboardService(models.AbstractModel):
 
     @api.model
     def _shortage_pending_domain(self):
-        user = self.env.user
-        if user.has_group("hr_attendance.group_hr_attendance_manager"):
-            return [
-                ("state", "=", "hr_supervisor"),
-                ("hr_manager_ids", "in", self.env.uid),
-            ]
-        if user.has_group("pr_hr_attendance.custom_group_hr_attendance_supervisor"):
-            return [
-                ("state", "=", "manager_approve"),
-                ("hr_supervisor_ids", "in", self.env.uid),
-            ]
-        return [
-            ("employee_manager_id.user_id", "=", self.env.uid),
-            ("state", "=", "draft"),
-        ]
+        return self.env["pr.hr.shortage.request"]._get_pending_approval_domain(self.env.user)
 
     @api.model
     def _leave_pending_domain(self):

@@ -9,7 +9,7 @@
     """,
     'author': 'Dynexcel',
     'website': 'https://www.dynexcel.com',
-    'version': '17.0.0.11.3',
+    'version': '17.0.0.12.0',
     'category': 'Human Resources',
 
     'depends': ['de_hr_workspace','pr_hr_attendance'],
@@ -18,6 +18,7 @@
     'data': [
         'security/ir.model.access.csv',
         'security/record_rules.xml',
+        'wizards/hr_shortage_request_wizard_views.xml',
         'views/hr_attendance_views.xml',
         'views/hr_shortage_request.xml',
         'views/hr_approval_dashboard.xml',

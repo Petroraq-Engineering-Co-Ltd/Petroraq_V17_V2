@@ -3,8 +3,21 @@ import { useService } from "@web/core/utils/hooks";
 import { Component, onWillStart, useState } from "@odoo/owl";
 export class TimeOffEmpCard extends Component {}
 TimeOffEmpCard.template = 'de_hr_workspace_leave_management.TimeOffEmpCard';
-TimeOffEmpCard.props = ['name', 'id', 'department_id', 'job_position',
-'children', 'image_1920', 'work_email', 'work_phone', 'company', 'resource_calendar_id', 'employee_code', 'joining_date', 'joining_date_display'];
+TimeOffEmpCard.props = {
+    name: { optional: true },
+    id: { optional: true },
+    department_id: { optional: true },
+    job_position: { optional: true },
+    children: { optional: true },
+    image_1920: { optional: true },
+    work_email: { optional: true },
+    work_phone: { optional: true },
+    company: { optional: true },
+    resource_calendar_id: { optional: true },
+    employee_code: { optional: true },
+    joining_date: { optional: true },
+    joining_date_display: { optional: true },
+};
 //Exports a class TimeOffEmpOrgChart that extends the Component class.
 //It is a custom component used for managing an employee organization
 //chart in the context of time off and holidays.
@@ -23,8 +36,16 @@ TimeOffEmpOrgChart.template = 'de_hr_workspace_leave_management.hr_org_chart';
 TimeOffEmpOrgChart.props = ['name', 'id', 'department_id', 'job_position', 'children'];
 export class EmpDepartmentCard extends Component {}
 EmpDepartmentCard.template = 'de_hr_workspace_leave_management.EmpDepartmentCard';
-EmpDepartmentCard.props = ['name', 'id', 'department_id', 'child_all_count',
-'children', 'absentees', 'current_shift', 'upcoming_holidays'];
+EmpDepartmentCard.props = {
+    name: { optional: true },
+    id: { optional: true },
+    department_id: { optional: true },
+    child_all_count: { optional: true },
+    children: { optional: true },
+    absentees: { optional: true },
+    current_shift: { optional: true },
+    upcoming_holidays: { optional: true },
+};
 //Exports a class ApprovalStatusCard that extends the Component class.
 //It is a custom component used for managing the approval status of
 //a card, possibly related to HR leave requests.
@@ -737,4 +758,7 @@ export class SimpleLeaveSummaryCard extends Component {
 
 }
 SimpleLeaveSummaryCard.template = 'de_hr_workspace_leave_management.SimpleLeaveSummaryCard';
-SimpleLeaveSummaryCard.props = ['id', 'employees'];
+SimpleLeaveSummaryCard.props = {
+    id: { optional: true },
+    employees: { optional: true },
+};

@@ -420,6 +420,21 @@ class HrAttendanceSheet(models.Model):
                     )
                 else:
                     is_late_absent = False
+                if (
+                    (is_late_absent or line.status == "ab")
+                    and line.date
+                    and sheet.employee_id._is_scheduled_off_day(line.date)
+                ):
+                    # Optional attendance on a scheduled off day: keep the
+                    # worked hours for overtime, without any penalty.
+                    line.status = "weekend"
+                    line.late_in = 0
+                    line.late_in_minutes = 0
+                    line.early_check_out = 0
+                    line.early_check_out_minutes = 0
+                    line.diff_time = 0
+                    line.act_diff_time = 0
+                    continue
                 if is_late_absent:
                     line.status = "ab"
                     line.late_in = 0

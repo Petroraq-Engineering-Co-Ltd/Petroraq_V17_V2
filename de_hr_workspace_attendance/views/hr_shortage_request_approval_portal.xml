@@ -86,100 +86,109 @@
         </t>
     </template>
 
-    <template id="employee_shortage_request_approval_info_portal" inherit_id="portal.portal_sidebar">
-        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
-            <section t-if="request.httprequest.path.startswith('/my/shortage_requests_approval/')"
-                     class="w-100 px-4 py-5" style="background-color: #9de2ff; border-radius: .5rem .5rem 0 0;">
+    <template id="portal_shortage_request_approval_page" name="Employee Shortage Request Approval">
+        <t t-call="portal.portal_layout">
+            <section class="w-100 px-4 py-5" style="background-color: #9de2ff; border-radius: .5rem .5rem 0 0;">
                 <div class="row d-flex justify-content-center">
                     <div class="col col-md-9 col-lg-9 col-xl-9">
                         <div class="card" style="border-radius: 15px;">
                             <div class="card-body p-4">
-                                <div class="d-flex">
-                                    <t class="flex-shrink-0" t-if="shortage_request_id.employee_id.image_1920">
-                                        <img t-att-src="image_data_uri(shortage_request_id.employee_id.image_1920)"
-                                             alt="Employee Image" class="img-fluid"
-                                             style="width: 180px; border-radius: 10px;"/>
-                                    </t>
-                                    <div class="flex-grow-1 ms-3">
-                                        <h5 class="mb-1">
-                                            <span t-esc="shortage_request_id.employee_id.name"/>
-                                        </h5>
-                                        <p class="mb-2 pb-1">
-                                            <span t-esc="shortage_request_id.employee_id.job_id.name"/>
-                                        </p>
-                                        <div class="d-flex justify-content-start rounded-3 p-2 mb-2 bg-body-tertiary">
-                                            <div class="pe-3">
-                                                <p class="small text-muted mb-1">Request Type</p>
-                                                <p class="mb-0">
-                                                    <span t-field="shortage_request_id.request_type"/>
-                                                </p>
-                                            </div>
-                                            <div style="width: 10% !important;">
-                                                <p class="small text-muted mb-1">Date</p>
-                                                <p class="mb-0">
-                                                    <span t-field="shortage_request_id.date" t-options="{'widget': 'date'}"/>
-                                                </p>
-                                            </div>
-                                            <div class="px-3" style="width: 25% !important;">
-                                                <p class="small text-muted mb-1">Check-In</p>
-                                                <p class="mb-0">
-                                                    <span t-esc="shortage_request_id.check_in + relativedelta(hours=3)"/>
-                                                </p>
-                                            </div>
-                                            <div style="width: 20% !important;">
-                                                <p class="small text-muted mb-1">Check-Out</p>
-                                                <p class="mb-0">
-                                                    <span t-esc="shortage_request_id.check_out + relativedelta(hours=3)"/>
-                                                </p>
-                                            </div>
-                                            <div style="width: 20% !important;">
-                                                <p class="small text-muted mb-1">Shortage Time</p>
-                                                <p class="mb-0">
-                                                    <span t-esc="shortage_request_id.shortage_time"/>
-                                                </p>
-                                            </div>
-                                            <div style="width: 25% !important;">
-                                                <p class="small text-muted mb-1">Employee Reason</p>
-                                                <p class="mb-0">
-                                                    <span t-esc="shortage_request_id.employee_reason"/>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex pt-1">
-                                            <table style="width: 100%;">
-                                                <tr>
-                                                    <td style="width: 50%;text-align: right;">
-                                                        <button class="btn-info" icon="fa-check-circle" style="width: 50%;border-radius: 8px;">
-                                                            <a t-attf-href="/my/shortage_requests_approved/#{shortage_request_id.id}">
-                                                                Approve
-                                                            </a>
-                                                        </button>
-                                                    </td>
-                                                    <td style="width: 50%;text-align: left;">
-                                                        <button class="btn-outline-danger" icon="fa-times" style="width: 50%;border-radius: 8px;">
-                                                            <a t-attf-href="/my/shortage_requests_rejected/#{shortage_request_id.id}">
-                                                                Reject
-                                                            </a>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </table>
-
-
-                                        </div>
+                                <h5 class="mb-1">
+                                    <span t-esc="shortage_request.employee_id.name"/>
+                                    <span class="badge text-bg-secondary ms-2" t-field="shortage_request.approval_state"/>
+                                </h5>
+                                <p class="mb-3 text-muted">
+                                    <span t-esc="shortage_request.employee_id.job_id.name"/>
+                                </p>
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <p class="small text-muted mb-1">Request Type</p>
+                                        <span t-field="shortage_request.request_type"/>
                                     </div>
+                                    <div class="col-md-3">
+                                        <p class="small text-muted mb-1">Date</p>
+                                        <span t-field="shortage_request.date"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="small text-muted mb-1">Check-In</p>
+                                        <span t-if="shortage_request.check_in" t-field="shortage_request.check_in"
+                                              t-options="{'widget': 'datetime', 'tz_name': tz_name}"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="small text-muted mb-1">Check-Out</p>
+                                        <span t-if="shortage_request.check_out" t-field="shortage_request.check_out"
+                                              t-options="{'widget': 'datetime', 'tz_name': tz_name}"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p class="small text-muted mb-1">Shortage Time</p>
+                                        <span t-esc="shortage_request.shortage_time or '-'"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="small text-muted mb-1">Employee Reason</p>
+                                        <span t-esc="shortage_request.employee_reason or '-'"/>
+                                    </div>
+                                </div>
+                                <div t-if="shortage_request.scheduled_check_in" class="alert alert-info" role="alert">
+                                    Final approval sets this attendance to the scheduled shift:
+                                    <span t-field="shortage_request.scheduled_check_in"
+                                          t-options="{'widget': 'datetime', 'tz_name': tz_name}"/>
+                                    -
+                                    <span t-field="shortage_request.scheduled_check_out"
+                                          t-options="{'widget': 'datetime', 'tz_name': tz_name}"/>
+                                </div>
+                                <div t-if="shortage_request.payroll_finalized" class="alert alert-warning" role="alert">
+                                    The attendance sheet of this day is already final. Approving this request updates
+                                    the attendance, but does not recalculate that sheet or its payslip.
+                                </div>
+                                <div t-if="error_message" class="alert alert-danger" role="alert">
+                                    <span t-esc="error_message"/>
+                                </div>
+                                <div t-if="shortage_request.state == 'employee_manager_approval'" class="row">
+                                    <div class="col-md-4">
+                                        <form t-attf-action="/my/shortage_requests_approved/#{shortage_request.id}" method="post">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <button type="submit" class="btn btn-info w-100">
+                                                <i class="fa fa-check-circle"/> Approve
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <form t-attf-action="/my/shortage_requests_rejected/#{shortage_request.id}" method="post">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <textarea name="reject_reason" class="form-control mb-2" rows="2" required="required"
+                                                      placeholder="Reason for rejection"/>
+                                            <button type="submit" class="btn btn-outline-danger w-100">
+                                                <i class="fa fa-times"/> Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div t-if="shortage_request.state == 'rejected' and shortage_request.can_reset_rejection"
+                                     class="text-center">
+                                    <p class="text-danger mb-3">
+                                        <strong>Rejected:</strong>
+                                        <span t-esc="shortage_request.reject_reason"/>
+                                    </p>
+                                    <form t-attf-action="/my/shortage_requests_reset_rejection/#{shortage_request.id}" method="post">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <button type="submit" class="btn btn-warning">
+                                            Reset Rejection and Decide Again
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-            <div t-if="request.httprequest.path.startswith('/my/shortage_requests_approval/')" class="container py-5">
+            <div class="container py-5">
                 <h1>Chatter feature</h1>
                 <t t-call="portal.message_thread">
-                    <t t-set="object" t-value="shortage_request_id"/>
+                    <t t-set="object" t-value="shortage_request"/>
                 </t>
             </div>
-        </xpath>
+        </t>
     </template>
 </odoo>

@@ -227,9 +227,10 @@ class HrAttendance(models.Model):
         """Keep a durable status on the core attendance record.
 
         A check-in strictly after 09:00:00 (09:00:01 or later) is absent on a
-        working day. A punch on a Saturday earned off under the ETM policy is
-        optional attendance and must never create a late, missing-punch, or
-        absence penalty. A single punch or post-midnight sentinel
+        working day. A punch on a Saturday earned off under the ETM policy, or
+        on a scheduled off day, is optional attendance and must never create a
+        late, missing-punch, or absence penalty. A single punch or post-midnight
+        sentinel
         (check_out <= check_in) on any other day remains a visible missing-punch
         issue during its local day and becomes absent as soon as that day has
         ended.
@@ -238,27 +239,31 @@ class HrAttendance(models.Model):
         for attendance in self.filtered("check_in"):
             local_check_in = attendance._attendance_local_datetime(attendance.check_in)
             local_now = attendance._attendance_local_datetime(utc_now)
-            saturday_is_off = attendance.employee_id._etm_saturday_is_off(
-                local_check_in.date()
-            )
+            local_day = local_check_in.date()
+            employee = attendance.employee_id
+            is_late = self._is_late_absent_local_datetime(local_check_in)
             has_valid_checkout = bool(
                 attendance.check_out and attendance.check_out > attendance.check_in
             )
-            if attendance.attendance_entry_source == "approved_shortage" or saturday_is_off:
+            # The off-day checks come last so that the cron only evaluates them
+            # for attendances that would otherwise be penalized.
+            if (
+                attendance.attendance_entry_source == "approved_shortage"
+                or (has_valid_checkout and not is_late)
+                or employee._etm_saturday_is_off(local_day)
+                or employee._is_scheduled_off_day(local_day)
+            ):
                 status = "normal"
                 reason = False
-            elif self._is_late_absent_local_datetime(local_check_in):
+            elif is_late:
                 status = "absent"
                 reason = _("Check-in was after 09:00:00.")
-            elif not has_valid_checkout and local_now.date() > local_check_in.date():
+            elif local_now.date() > local_day:
                 status = "absent"
                 reason = _("The missing daily punch was not resolved before midnight.")
-            elif not has_valid_checkout:
+            else:
                 status = "missing_punch"
                 reason = _("Only the first biometric punch was received; Check-Out is missing.")
-            else:
-                status = "normal"
-                reason = False
             if (
                 attendance.attendance_day_status != status
                 or attendance.attendance_status_reason != reason
@@ -316,6 +321,45 @@ class HrAttendance(models.Model):
                 attendance._attendance_local_datetime(attendance.check_in).date()
             )
         )
+        affected._refresh_daily_attendance_status()
+        return len(affected)
+
+    @api.model
+    def _repair_scheduled_off_day_statuses(self, from_date=None, employee_ids=None):
+        """Clear late and missing-punch absences on scheduled off days.
+
+        Absences recorded for any other reason (e.g. a missing task
+        submission) are deliberately left to their own approval workflow.
+        """
+        from_date = fields.Date.to_date(
+            from_date or self.env["hr.employee"]._etm_attendance_enforce_from()
+        )
+        if not from_date:
+            return 0
+        reasons = list({
+            "Check-in was at or after 09:00:00.",
+            "Check-in was after 09:00:00.",
+            _("Check-in was after 09:00:00."),
+            "The missing daily punch was not resolved before midnight.",
+            _("The missing daily punch was not resolved before midnight."),
+        })
+        # Include the preceding UTC day for positive-offset time zones.
+        domain = [
+            ("check_in", ">=", datetime.combine(from_date - timedelta(days=1), time.min)),
+            ("attendance_day_status", "=", "absent"),
+            ("attendance_status_reason", "in", reasons),
+        ]
+        if employee_ids:
+            domain.append(("employee_id", "in", employee_ids))
+
+        def is_affected(attendance):
+            day = attendance._attendance_local_datetime(attendance.check_in).date()
+            return (
+                day >= from_date
+                and attendance.employee_id._is_scheduled_off_day(day)
+            )
+
+        affected = self.sudo().search(domain).filtered(is_affected)
         affected._refresh_daily_attendance_status()
         return len(affected)
 
