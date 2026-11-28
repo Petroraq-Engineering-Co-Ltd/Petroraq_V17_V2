@@ -272,7 +272,7 @@ msgstr "الحضور"
 #. odoo-python
 #: code:addons/gs_hr_attendance_sheet/models/att_sheet_batch.py:0
 #, python-format
-msgid "Attendance Batch of %s  Company for %s"
+msgid "Attendance Batch of %s for %s"
 msgstr "دفعة الحضور لشركة %s عن %s"
 
 #. module: gs_hr_attendance_sheet
