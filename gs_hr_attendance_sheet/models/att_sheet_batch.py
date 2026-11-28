@@ -118,7 +118,7 @@ class AttendanceSheetBatch(models.Model):
             # ttyme = datetime.combine(fields.Date.from_string(date_from), time.min)
             ttyme = datetime.combine(fields.Date.from_string(self.date_to), time.min)
             locale = self.env.context.get('lang', 'en_US')
-            self.name = _('Attendance Batch of %s  Company for %s') % (
+            self.name = _('Attendance Batch of %s for %s') % (
                 company.name,
                 tools.ustr(
                     babel.dates.format_date(date=ttyme,
