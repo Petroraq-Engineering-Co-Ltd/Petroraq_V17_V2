@@ -233,16 +233,9 @@ class HrPayslip(models.Model):
     def _pr_get_attendance_deduction_salary_base(self):
         self.ensure_one()
         contract = self.contract_id
-        gross_amount = contract.gross_amount if contract else 0.0
-        employee = self.employee_id
-        exclude_transport = (
-            employee
-            and "exclude_transportation_from_attendance_gross" in employee._fields
-            and employee.exclude_transportation_from_attendance_gross
-        )
-        if not exclude_transport:
-            return gross_amount
-        return max(gross_amount - self._pr_get_transportation_allowance_amount(), 0.0)
+        if not contract:
+            return 0.0
+        return contract._pr_get_deduction_salary_base(self.employee_id)
 
     def _pr_get_last_working_day_day_amount(self):
         self.ensure_one()

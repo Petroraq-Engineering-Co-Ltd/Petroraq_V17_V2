@@ -205,7 +205,43 @@ class HrAttendanceSheet(models.Model):
                             filtered_line.status = "leave"
             att_sheet._sync_line_overtime_approval_from_attendance()
             att_sheet._mark_late_checkins_as_absent()
+            att_sheet._apply_pre_joining_deduction()
         return res
+
+    def _get_joining_date(self):
+        """Joining date of the sheet's contract when it falls inside the sheet."""
+        self.ensure_one()
+        contract = self.contract_id or self.employee_id.contract_id
+        joining_date = contract.joining_date if contract else False
+        if not joining_date or not self.date_from or not self.date_to:
+            return False
+        if self.date_from < joining_date <= self.date_to:
+            return joining_date
+        return False
+
+    def _apply_pre_joining_deduction(self):
+        """Deduct every calendar day before the joining date, weekends included.
+
+        The sheet keeps the full payroll period so the payslip dates (and GOSI
+        proration) are unchanged; days before joining are simply not payable.
+        """
+        for sheet in self:
+            joining_date = sheet._get_joining_date()
+            if not joining_date:
+                continue
+            pre_joining_lines = sheet.line_ids.filtered(
+                lambda line: line.date and line.date < joining_date
+            )
+            pre_joining_lines.write({
+                "status": "ab",
+                "note": _("Before joining date (%s): not payable.") % joining_date,
+                "late_in": 0.0,
+                "late_in_minutes": 0.0,
+                "early_check_out": 0.0,
+                "early_check_out_minutes": 0.0,
+                "overtime": 0.0,
+                "act_overtime": 0.0,
+            })
 
     def _apply_etm_saturday_policy(self):
         """Make Saturday conditional on the prior Sun-Thu ETM approvals."""
@@ -399,7 +435,11 @@ class HrAttendanceSheet(models.Model):
                 and math.isclose(line.ac_sign_in, cutoff, abs_tol=1e-6)
             }
             earliest_by_date = sheet._get_earliest_local_checkins_by_date(boundary_dates)
+            joining_date = sheet._get_joining_date()
             for line in sheet.line_ids:
+                if joining_date and line.date and line.date < joining_date:
+                    # Pre-joining days stay deductible; see _apply_pre_joining_deduction.
+                    continue
                 if line.date and sheet.employee_id._etm_saturday_is_off(line.date):
                     # This explicit guard also protects payroll's direct call
                     # to this method if a stale line was previously marked ab.
@@ -605,19 +645,9 @@ class AttendanceSheetLine(models.Model):
         return sum(transport_rules.mapped("amount")) if transport_rules else 0.0
 
     def _get_deduction_salary_base(self, contract):
-        gross_amount = contract.gross_amount if contract else 0.0
-        if not self.employee_id:
-            return gross_amount
-
-        exclude_transport_from_deduction = (
-                "exclude_transportation_from_attendance_gross" in self.employee_id._fields
-                and self.employee_id.exclude_transportation_from_attendance_gross
-        )
-        if not exclude_transport_from_deduction:
-            return gross_amount
-
-        transport_amount = self._get_transportation_allowance_amount(contract)
-        return max(gross_amount - transport_amount, 0.0)
+        if not contract:
+            return 0.0
+        return contract._pr_get_deduction_salary_base(self.employee_id)
 
     @api.depends("employee_id",
                  "date",
