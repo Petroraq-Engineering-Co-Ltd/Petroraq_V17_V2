@@ -12,6 +12,10 @@ from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
 
+# Contract salary rules that are paid on the payslip but are not salary, so
+# they must not raise the daily rate used for absence/late/joining deductions.
+DEDUCTION_BASE_EXCLUDED_RULE_CODES = frozenset({"REIMBURSEMENT199"})
+
 
 class HrContract(models.Model):
     """
@@ -192,6 +196,29 @@ class HrContract(models.Model):
             rec.gross_amount = rec.wage + gross_amount
             rec.net_amount = rec.wage + gross_amount + rec.gosi_amount
             # endregion [Compute Other Amounts]
+
+    def _pr_get_deduction_salary_base(self, employee=None):
+        """Monthly salary used to value attendance and joining deductions.
+
+        Same as ``gross_amount`` but without reimbursement rules, which are
+        one-off repayments rather than salary. Transportation is also left out
+        when the employee is flagged to exclude it from attendance deductions.
+        """
+        self.ensure_one()
+        employee = employee or self.employee_id
+        exclude_transport = bool(
+            employee
+            and "exclude_transportation_from_attendance_gross" in employee._fields
+            and employee.exclude_transportation_from_attendance_gross
+        )
+        excluded_codes = set(DEDUCTION_BASE_EXCLUDED_RULE_CODES)
+        if exclude_transport:
+            excluded_codes.add("TRANSPORTATION")
+        rules = self.contract_salary_rule_ids.filtered(
+            lambda line: line.pay_in_payslip
+            and (line.salary_rule_id.code or "").upper() not in excluded_codes
+        )
+        return max((self.wage or 0.0) + sum(rules.mapped("amount")), 0.0)
 
     @api.onchange(
         'is_automatic_gosi', 'contract_salary_rule_ids', 'wage', 'employee_id',
